@@ -28,7 +28,7 @@ input double   InpLotSize           = 0.01; // lot size for trade types
 //--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
 //    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
 input double   T_buy2ndBounce_LotSize           = 0.05;
-input double   T_buy2ndBounce_PriceOffsetPips  = 0.5;   // desired open price = level + this many pips
+input double   T_buy2ndBounce_PriceOffsetPips  = 7.0;   // desired open price = level + this many pips
 input double   T_buy2ndBounce_TPPips           = 80.0;  // TP = order price + this many pips (e.g. 80 for 8 pts on US500 point=0.1)
 input double   T_buy2ndBounce_SLPips           = 80.0;   // SL = order price - this many pips (e.g. 80 for 8 pts on US500 point=0.1)
 input int      T_buy2ndBounce_ExpirationMinutes = 45;    // for manual cancel logic (not used as order expiry yet)
@@ -198,11 +198,13 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
 
    if(fh != INVALID_HANDLE)
    {
-      string line = TimeToString(eventTime, TIME_DATE | TIME_SECONDS) + " " + eventType;
+      string line = TimeToString(eventTime, TIME_DATE | TIME_SECONDS);
       if(StringLen(orderKind) > 0) line += " " + orderKind;
-      if(orderPrice > 0 || slPrice > 0 || tpPrice > 0)
-         line += " orderPrice=" + DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits) +
-                 " tp=" + DoubleToString(NormalizeDouble(tpPrice, _Digits), _Digits) +
+      if(orderPrice > 0)
+         line += " orderPrice=" + DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits);
+      line += " " + eventType;
+      if(tpPrice > 0 && slPrice > 0)
+         line += " tp=" + DoubleToString(NormalizeDouble(tpPrice, _Digits), _Digits) +
                  " sl=" + DoubleToString(NormalizeDouble(slPrice, _Digits), _Digits);
       FileWrite(fh, line);
       FileClose(fh);
@@ -259,6 +261,40 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
       if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != EA_MAGIC) return;
       if(HistoryDealGetString(trans.deal, DEAL_SYMBOL) != _Symbol) return;
 
+      ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
+
+      // Entry deal = order filled (position opened) — log "filled" (tester often sends this instead of ORDER_UPDATE)
+      if(entry == DEAL_ENTRY_IN)
+      {
+         ulong orderTicket = HistoryDealGetInteger(trans.deal, DEAL_ORDER);
+         string comment = "";
+         int levelIndex = -1;
+         string tradeType = "";
+         string kindStr = "unknown";
+         if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
+         {
+            comment = HistoryOrderGetString(orderTicket, ORDER_COMMENT);
+            kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(orderTicket, ORDER_TYPE));
+         }
+         else
+         {
+            comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
+            kindStr = ((ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE) == DEAL_TYPE_BUY) ? "market_buy" : "market_sell";
+         }
+         if(ParseLevelComment(comment, levelIndex, tradeType))
+         {
+            datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
+            if(fillTime == 0) fillTime = TimeCurrent();
+            double fillPrice = 0;
+            if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
+               fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
+            if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
+            WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0);
+         }
+         return;
+      }
+
+      // Exit deal = position closed (TP or SL)
       ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
       if(reason != DEAL_REASON_TP && reason != DEAL_REASON_SL) return;
 
