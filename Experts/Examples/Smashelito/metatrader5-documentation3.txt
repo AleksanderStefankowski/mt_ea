@@ -1,0 +1,254 @@
+Perfect — I’ll tailor this specifically to your EA architecture:
+
+Your EA characteristics:
+
+ Multi-level structure
+ Each level has its own magic
+ Time-based validity (validFrom / validTo)
+ Per-level trade limits
+ H1 candle confirmation logic
+ Daily summary file writer
+ Uses `OnTradeTransaction()`
+ Uses history-based tracking
+
+So this cheat sheet is optimized exactly for that design.
+
+---
+
+# 🧠 ARCHITECTURE CHEAT SHEET (Your EA Style)
+
+---
+
+# 1️⃣ LEVEL ENGINE (Core Structure)
+
+### Purpose:
+
+Drive everything from a structured level array.
+
+### Must-Use Functions:
+
+ `TimeCurrent()` — check validity window
+ `TimeToStruct()` — extract day/hour
+ `PositionsTotal()` — open trades
+ `OrdersTotal()` — pending trades
+
+### Golden Rule:
+
+All trading decisions must be filtered by:
+
+```
+validFrom <= now <= validTo
+```
+
+---
+
+# 2️⃣ PER-LEVEL MAGIC CONTROL
+
+### Core Principle:
+
+Magic must uniquely represent level.
+
+### Must-Use:
+
+ `SetExpertMagicNumber(levelMagic)`
+ `PositionGetInteger(POSITION_MAGIC)`
+ `OrderGetInteger(ORDER_MAGIC)`
+ `HistoryDealGetInteger(DEAL_MAGIC)`
+
+### Golden Rule:
+
+Never filter by comment alone.
+Magic is primary identity.
+
+---
+
+# 3️⃣ PER-LEVEL TRADE LIMIT LOGIC
+
+### Used For:
+
+Max_AnyOrder_perLevel enforcement.
+
+### Must-Use:
+
+ `PositionsTotal()`
+ `PositionSelectByTicket()`
+ `OrdersTotal()`
+ `OrderSelect()`
+
+### Pattern:
+
+Loop → filter by:
+
+ Symbol
+ Magic
+ Type
+
+Count.
+
+---
+
+# 4️⃣ ENTRY LOGIC (H1 Close Based)
+
+Your architecture uses:
+
+Closed candle confirmation.
+
+### Must-Use:
+
+ `CopyRates()`
+ `iClose()`
+ `iLow()`
+ `iHigh()`
+ `iTime()`
+
+### Golden Rule:
+
+Always use shift = 1
+Never use current forming candle.
+
+---
+
+# 5️⃣ TRADE EXECUTION FLOW (SAFE ORDERING)
+
+Correct order:
+
+1. Set magic
+2. Place order
+3. Reset magic
+
+Functions:
+
+ `SetExpertMagicNumber()`
+ `BuyLimit()`
+ `SellLimit()`
+ `PositionClose()`
+
+---
+
+# 6️⃣ TRADE EVENT TRACKING
+
+Your EA uses `OnTradeTransaction()`.
+
+### Must-Use:
+
+ `trans.type`
+ `trans.position`
+ `HistorySelectByPosition()`
+ `HistoryDealGetDouble()`
+
+### Golden Rule:
+
+If using history inside this function:
+Always control history scope.
+
+---
+
+# 7️⃣ HISTORY SAFETY RULE (Critical for You)
+
+Before reading any history totals:
+
+```
+HistorySelect(0, TimeCurrent());
+```
+
+Then:
+
+ `HistoryDealsTotal()`
+ `HistoryOrdersTotal()`
+
+Without this → incomplete data.
+
+---
+
+# 8️⃣ DAILY SUMMARY ENGINE
+
+Your design:
+Snapshot once per day.
+
+### Must-Use:
+
+ `FileOpen()`
+ `FileWrite()`
+ `FileClose()`
+ `AccountInfoDouble()`
+ `PositionsTotal()`
+ `OrdersTotal()`
+
+### Golden Rule:
+
+Daily snapshot ≠ full history
+Always reselect history range.
+
+---
+
+# 9️⃣ TIME FILTERING
+
+You rely on:
+
+ Trade_Start_Hour
+ Trade_End_Hour
+
+Use:
+
+ `TimeCurrent()`
+ `TimeToStruct()`
+
+Never use local time.
+
+---
+
+# 🔟 SAFETY & ROBUSTNESS
+
+Always check:
+
+ `SymbolInfoDouble(SYMBOL_ASK)`
+ `SymbolInfoDouble(SYMBOL_BID)`
+ `SYMBOL_VOLUME_MIN`
+ `SYMBOL_VOLUME_STEP`
+
+And normalize:
+
+ `NormalizeDouble(price, _Digits)`
+
+---
+
+# 🧱 YOUR EA FLOW MAP
+
+Your architecture effectively follows:
+
+```
+OnTick()
+   ↓
+New H1 Candle?
+   ↓
+Loop Levels
+   ↓
+Is Level Active?
+   ↓
+Is Time Allowed?
+   ↓
+Count Trades (per magic)
+   ↓
+Entry Condition?
+   ↓
+Set Level Magic
+   ↓
+Place Order
+   ↓
+Reset Magic
+```
+
+Trade Lifecycle:
+
+```
+Order → Deal → Position → Deal → History
+         ↑
+OnTradeTransaction
+```
+
+---
+
+# 🚨 6 Critical Rules For Your Specific EA
+
+1. Always reselect history before reading it.
+2. Never mix level magics.

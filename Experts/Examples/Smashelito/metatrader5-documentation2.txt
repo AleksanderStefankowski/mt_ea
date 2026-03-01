@@ -1,0 +1,100 @@
+Perfect.
+Here are the Top 40 most important MT5 functions/classes for professional EA development, grouped logically, each with a very short, practical description.
+
+---
+
+# 🧠 CORE EA STRUCTURE (Event System)
+
+1. OnInit() — runs once when EA starts.
+2. OnDeinit() — runs when EA stops.
+3. OnTick() — runs on every tick.
+4. OnTradeTransaction() — detailed trade lifecycle events.
+5. OnTrade() — simplified trade event.
+6. OnTimer() — scheduled execution.
+7. EventSetTimer() — enable timer events.
+8. EventKillTimer() — disable timer.
+
+---
+
+# 📈 MARKET DATA (Price Access)
+
+9. CopyRates() — get OHLC data.
+10. CopyClose() — get close prices.
+11. CopyHigh() — get highs.
+12. CopyLow() — get lows.
+13. iTime() — candle time.
+14. CopyTicks() — raw tick data.
+15. SymbolInfoDouble() — bid/ask/point/etc.
+16. SymbolInfoInteger() — trading properties.
+
+---
+
+# 💰 TRADE EXECUTION (Professional Control)
+
+17. CTrade class — high-level trading wrapper.
+18. SetExpertMagicNumber() — set magic.
+19. Buy() — market buy.
+20. Sell() — market sell.
+21. BuyLimit() — place buy limit.
+22. SellLimit() — place sell limit.
+23. PositionClose() — close open position.
+24. PositionModify() — modify SL/TP.
+25. OrderDelete() — delete pending order.
+
+---
+
+# 🏗 LOW-LEVEL TRADE CONTROL (Advanced)
+
+26. MqlTradeRequest — manual trade structure.
+27. MqlTradeResult — trade result structure.
+28. OrderSend() — send custom trade request.
+29. OrderCheck() — validate trade before sending.
+30. OrderCalcMargin() — calculate required margin.
+31. OrderCalcProfit() — calculate expected profit.
+
+---
+
+# 📊 POSITIONS & ORDERS MANAGEMENT
+
+32. PositionsTotal() — number of open positions.
+33. PositionSelectByTicket() — select position.
+34. PositionGetDouble() — get SL/TP/price/etc.
+35. OrdersTotal() — number of pending orders.
+36. OrderSelect() — select order.
+37. OrderGetInteger() — get order property.
+
+---
+
+# 📜 HISTORY (CRITICAL FOR ROBUST EAs)
+
+38. HistorySelect() — select history range.
+39. HistoryDealsTotal() — number of deals.
+40. HistoryDealGetDouble() — get deal info.
+
+---
+
+# 🧮 BONUS: 5 Functions That Almost Every Serious EA Uses
+
+(Not counted in the 40 but extremely important)
+
+ AccountInfoDouble() — balance/equity/margin.
+ NormalizeDouble() — precision handling.
+ TimeCurrent() — server time.
+ PrintFormat() — structured logging.
+ GlobalVariableSet() — cross-session storage.
+
+---
+
+# 🎯 Why These 40 Matter
+
+Together they cover:
+
+ EA lifecycle control
+ Market data retrieval
+ Trade execution
+ Risk calculation
+ Position management
+ History analysis
+ Event-driven logic
+
+This is basically the professional EA foundation toolkit.

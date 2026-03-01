@@ -285,19 +285,24 @@ void WriteDailySummary()
       FileWrite(fh, line);
    }
 
-   // levels snapshot
+   // levels snapshot - only active levels for this day
    FileWrite(fh, "== Levels ==");
    for(int i=0; i<ArraySize(levels); i++)
    {
-      string lvlLine = "LEVEL ";
-      lvlLine += "index=" + IntegerToString(i);
-      lvlLine += " name=" + levels[i].baseName;
-      lvlLine += " price=" + DoubleToString(levels[i].price, _Digits);
-      lvlLine += " count=" + IntegerToString(levels[i].count);
-      lvlLine += " approxContacts=" + IntegerToString(levels[i].approxContactCount);
-      lvlLine += " dailyBias=" + DoubleToString(levels[i].dailyBias, 0);
-      lvlLine += " bounceCount=" + IntegerToString(levels[i].bounceCount);
-      FileWrite(fh, lvlLine);
+      // Check if level is active for today's date
+      datetime today = now - (now % 86400);
+      if(levels[i].validFrom <= today && levels[i].validTo >= today)
+      {
+         string lvlLine = "LEVEL ";
+         lvlLine += "index=" + IntegerToString(i);
+         lvlLine += " name=" + levels[i].baseName;
+         lvlLine += " price=" + DoubleToString(levels[i].price, _Digits);
+         lvlLine += " count=" + IntegerToString(levels[i].count);
+         lvlLine += " approxContacts=" + IntegerToString(levels[i].approxContactCount);
+         lvlLine += " dailyBias=" + DoubleToString(levels[i].dailyBias, 0);
+         lvlLine += " bounceCount=" + IntegerToString(levels[i].bounceCount);
+         FileWrite(fh, lvlLine);
+      }
    }
 
    // pending orders
@@ -317,7 +322,10 @@ void WriteDailySummary()
       FileWrite(fh, line);
    }
 
-   // history orders
+   // Ensure we have full history selected before reading
+   HistorySelect(0, TimeCurrent());
+   
+   // history orders - show ALL history, not just current day
    FileWrite(fh, "== History Orders ==");
    int totalHist = HistoryOrdersTotal();
    for(int i=0; i<totalHist; i++)
@@ -336,7 +344,7 @@ void WriteDailySummary()
       FileWrite(fh, line);
    }
 
-   // history deals
+   // history deals - show ALL history, not just current day
    FileWrite(fh, "== History Deals ==");
    int totalDeals = HistoryDealsTotal();
    for(int i=0; i<totalDeals; i++)

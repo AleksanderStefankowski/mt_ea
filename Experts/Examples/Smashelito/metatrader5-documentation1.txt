@@ -1,0 +1,253 @@
+Perfect 👍 — here is a structured, long but compact MT5 reference list, grouped logically, with very short descriptions for each.
+
+---
+
+# 🔹 1️⃣ Trade & History Functions
+
+### History
+
+ HistorySelect(from,to) — selects history range.
+ HistorySelectByPosition(ticket) — selects history for one position.
+ HistoryOrdersTotal() — number of history orders.
+ HistoryDealsTotal() — number of history deals.
+ HistoryOrderGetTicket(index) — get order ticket by index.
+ HistoryDealGetTicket(index) — get deal ticket by index.
+ HistoryOrderGetInteger() — order integer property.
+ HistoryOrderGetDouble() — order double property.
+ HistoryOrderGetString() — order string property.
+ HistoryDealGetInteger() — deal integer property.
+ HistoryDealGetDouble() — deal double property.
+ HistoryDealGetString() — deal string property.
+
+---
+
+### Current Orders (Pending)
+
+ OrdersTotal() — total pending orders.
+ OrderGetTicket(index) — ticket by index.
+ OrderSelect(ticket) — select order.
+ OrderGetInteger() — order integer property.
+ OrderGetDouble() — order double property.
+ OrderGetString() — order string property.
+
+---
+
+### Open Positions
+
+ PositionsTotal() — number of open positions.
+ PositionGetTicket(index) — ticket by index.
+ PositionSelect(symbol) — select by symbol.
+ PositionSelectByTicket(ticket) — select by ticket.
+ PositionGetInteger() — position integer property.
+ PositionGetDouble() — position double property.
+ PositionGetString() — position string property.
+
+---
+
+# 🔹 2️⃣ Trade Execution (MqlTradeRequest)
+
+### Manual trade structure
+
+ MqlTradeRequest — trade request structure.
+ MqlTradeResult — result structure.
+ OrderSend() — send trade request.
+ OrderSendAsync() — async trade send.
+ OrderCheck() — pre-check trade request.
+
+---
+
+# 🔹 3️⃣ CTrade Class (High Level Trading)
+
+ SetExpertMagicNumber() — set magic number.
+ Buy() — open market buy.
+ Sell() — open market sell.
+ BuyLimit() — place buy limit.
+ SellLimit() — place sell limit.
+ BuyStop() — place buy stop.
+ SellStop() — place sell stop.
+ PositionClose() — close position.
+ PositionModify() — modify SL/TP.
+ OrderDelete() — delete pending order.
+
+---
+
+# 🔹 4️⃣ Account Information
+
+ AccountInfoInteger() — integer account data.
+ AccountInfoDouble() — double account data.
+ AccountInfoString() — string account data.
+
+Common properties:
+
+ ACCOUNT_BALANCE
+ ACCOUNT_EQUITY
+ ACCOUNT_MARGIN
+ ACCOUNT_MARGIN_FREE
+ ACCOUNT_PROFIT
+ ACCOUNT_LEVERAGE
+
+---
+
+# 🔹 5️⃣ Symbol & Market Info
+
+ SymbolInfoInteger() — symbol integer property.
+ SymbolInfoDouble() — symbol double property.
+ SymbolInfoString() — symbol string property.
+ SymbolSelect() — add/remove symbol.
+ SymbolsTotal() — number of symbols.
+ SymbolName() — get symbol name.
+
+Common properties:
+
+ SYMBOL_BID
+ SYMBOL_ASK
+ SYMBOL_POINT
+ SYMBOL_DIGITS
+ SYMBOL_TRADE_CONTRACT_SIZE
+ SYMBOL_VOLUME_MIN
+ SYMBOL_VOLUME_MAX
+ SYMBOL_VOLUME_STEP
+
+---
+
+# 🔹 6️⃣ Price & Market Data
+
+ iOpen() — open price.
+
+ iHigh() — high price.
+
+ iLow() — low price.
+
+ iClose() — close price.
+
+ iTime() — candle time.
+
+ iVolume() — tick volume.
+
+ CopyRates() — copy OHLC data.
+
+ CopyClose() — copy close prices.
+
+ CopyOpen() — copy open prices.
+
+ CopyHigh() — copy highs.
+
+ CopyLow() — copy lows.
+
+ CopyTime() — copy times.
+
+ CopyTickVolume() — copy tick volumes.
+
+ CopyTicks() — copy tick data.
+
+ CopyTicksRange() — copy ticks in range.
+
+---
+
+# 🔹 7️⃣ Time & Date
+
+ TimeCurrent() — server time.
+ TimeLocal() — local time.
+ TimeTradeServer() — trade server time.
+ TimeToStruct() — datetime → struct.
+ StructToTime() — struct → datetime.
+ Day() / Month() / Year() — date parts.
+ Hour() / Minute() / Seconds() — time parts.
+
+---
+
+# 🔹 8️⃣ Events (EA Structure)
+
+ OnInit() — EA start.
+ OnDeinit() — EA stop.
+ OnTick() — new tick.
+ OnTimer() — timer event.
+ OnTrade() — trade event.
+ OnTradeTransaction() — detailed trade event.
+ OnChartEvent() — chart interaction.
+ OnBookEvent() — order book update.
+ OnTester() — strategy tester result.
+
+---
+
+# 🔹 9️⃣ Indicators
+
+ iMA() — moving average.
+ iRSI() — RSI.
+ iMACD() — MACD.
+ iATR() — ATR.
+ iADX() — ADX.
+ iBands() — Bollinger Bands.
+ iStochastic() — Stochastic.
+ iCCI() — CCI.
+ IndicatorCreate() — custom indicator.
+ CopyBuffer() — copy indicator buffer.
+
+---
+
+# 🔹 🔟 File Handling
+
+ FileOpen() — open file.
+ FileWrite() — write to file.
+ FileReadString() — read string.
+ FileReadNumber() — read number.
+ FileClose() — close file.
+ FileDelete() — delete file.
+ FileIsEnding() — check EOF.
+ FileSeek() — move pointer.
+
+---
+
+# 🔹 11️⃣ Chart Control
+
+ ChartRedraw() — refresh chart.
+ ChartSetInteger() — set chart property.
+ ChartGetInteger() — get chart property.
+ ObjectCreate() — create object.
+ ObjectSetInteger() — set object property.
+ ObjectSetDouble() — set object property.
+ ObjectDelete() — delete object.
+ ObjectsDeleteAll() — delete all objects.
+
+---
+
+# 🔹 12️⃣ Global Variables (Terminal)
+
+ GlobalVariableSet() — create/set global.
+ GlobalVariableGet() — read global.
+ GlobalVariableDel() — delete global.
+ GlobalVariablesTotal() — count globals.
+
+---
+
+# 🔹 13️⃣ Math & Utility
+
+ NormalizeDouble() — round number.
+ MathAbs() — absolute value.
+ MathMax() / MathMin() — max/min.
+ MathPow() — power.
+ MathSqrt() — square root.
+ DoubleToString() — double → string.
+ IntegerToString() — int → string.
+ StringFind() — find substring.
+ StringSubstr() — substring.
+ Print() — log output.
+ PrintFormat() — formatted print.
+ Comment() — chart comment.
+
+---
+
+# 🔹 14️⃣ Risk & Margin
+
+ OrderCalcMargin() — calculate margin.
+ OrderCalcProfit() — calculate profit.
+ OrderCheck() — validate trade.
+
+---
+
+# 🔹 15️⃣ Strategy Tester
+
+ TesterStatistics() — tester stats.
+ TesterStop() — stop testing.
+ FrameAdd() — custom tester frame.
+

@@ -1,0 +1,184 @@
+Absolutely — let’s make a comprehensive documentation for a Global Daily Loss Stop system and how to track account data per day in MT5, fully compatible with your EA architecture. I’ll keep it structured, precise, and ready to integrate.
+
+---
+
+# 📚 Global Daily Loss Stop & Daily Account Tracking (MT5)
+
+---
+
+## 1️⃣ Purpose
+
+The Global Daily Loss Stop (GDLS) protects your account by:
+
+ Limiting the total net loss in one trading day.
+ Automatically preventing new trades when daily loss exceeds the threshold.
+ Tracking daily metrics (profit, loss, balance, equity, number of trades, etc.) for analysis.
+
+It relies on history data and real-time account data.
+
+---
+
+## 2️⃣ Key Account Functions
+
+MT5 provides two types of account information:
+
+### Real-Time Account Info
+
+ `AccountInfoDouble(ACCOUNT_BALANCE)` — current balance
+ `AccountInfoDouble(ACCOUNT_EQUITY)` — current equity
+ `AccountInfoDouble(ACCOUNT_MARGIN)` — current margin
+ `AccountInfoDouble(ACCOUNT_MARGIN_FREE)` — free margin
+ `AccountInfoDouble(ACCOUNT_MARGIN_LEVEL)` — margin level
+ `AccountInfoInteger(ACCOUNT_LEVERAGE)` — leverage
+ `AccountInfoInteger(ACCOUNT_FROZEN_FUNDS)` — funds frozen by pending orders
+
+### History-Based Account Info
+
+ `HistoryDealsTotal()` — total deals in history
+ `HistoryOrderGetInteger(order_ticket, ORDER_MAGIC)` — magic filter
+ `HistoryDealGetDouble(deal_ticket, DEAL_PROFIT)` — profit/loss per deal
+ `HistorySelect(datetime_from, datetime_to)` — select range of deals/orders
+ `HistoryOrderGetInteger(order_ticket, ORDER_TIME_SETUP)` — order time
+ `HistoryDealGetInteger(deal_ticket, DEAL_TIME)` — deal time
+
+Rule: Always use `HistorySelect` for a specific day before reading deals.
+
+---
+
+## 3️⃣ Daily Tracking Data Structure
+
+A robust EA stores daily data in a struct per day:
+
+```mql5
+struct DailyAccountData
+{
+    double startingBalance;   // Balance at 00:00
+    double dailyProfit;       // Cumulative profit today
+    double dailyLoss;         // Cumulative loss today
+    int totalTrades;          // Number of trades today
+    int wins;                 // Winning trades
+    int losses;               // Losing trades
+    double maxDrawdown;       // Max intraday drawdown
+    double equityPeak;        // Highest equity today
+    double equityTrough;      // Lowest equity today
+};
+```
+
+Workflow:
+
+1. At first tick of the day:
+
+    Capture `startingBalance = AccountInfoDouble(ACCOUNT_BALANCE)`
+    Initialize `dailyProfit = dailyLoss = 0`
+    Set `equityPeak = startingBalance`
+    Set `equityTrough = startingBalance`
+
+2. On each deal (`OnTradeTransaction()`):
+
+    Filter by today's date and magic number (per level)
+    Update `dailyProfit` / `dailyLoss`
+    Update `equityPeak` / `equityTrough`
+    Update `totalTrades`, `wins`, `losses`
+
+---
+
+## 4️⃣ Daily Loss Calculation
+
+```mql5
+double GetDailyNetProfit(DailyAccountData &data)
+{
+    return data.dailyProfit - data.dailyLoss;
+}
+
+bool CheckDailyLossStop(DailyAccountData &data, double lossLimit)
+{
+    return (data.dailyLoss >= lossLimit);
+}
+```
+
+Notes:
+
+ Use real losses, not balance difference, because pending orders may reduce free margin but not realized loss.
+ Only count closed deals.
+ Filter deals using `HistorySelect` if EA restarts mid-day.
+
+---
+
+## 5️⃣ How To Get Daily Data From History (Resets / EA Restart)
+
+```mql5
+datetime todayStart = iTime(_Symbol, PERIOD_D1, 0); // midnight today
+datetime nowTime = TimeCurrent();
+if(HistorySelect(todayStart, nowTime))
+{
+    int deals = HistoryDealsTotal();
+    for(int i=0; i<deals; i++)
+    {
+        ulong deal_ticket = HistoryDealGetTicket(i);
+        double profit = HistoryDealGetDouble(deal_ticket, DEAL_PROFIT);
+        int type = HistoryDealGetInteger(deal_ticket, DEAL_TYPE);
+        if(profit >= 0) dailyData.dailyProfit += profit;
+        else dailyData.dailyLoss += -profit;
+    }
+}
+```
+
+ This ensures correct daily totals even after EA restart.
+ Always filter by level magic if your EA uses multiple levels.
+
+---
+
+## 6️⃣ Global Daily Loss Stop Logic (EA Integration)
+
+1. At each tick, check if trading is allowed:
+
+```mql5
+if(CheckDailyLossStop(dailyData, GlobalDailyLossLimit))
+{
+    Print("Daily loss limit reached, trading stopped for today.");
+    return; // Skip any new orders
+}
+```
+
+2. Only new orders are prevented. Existing positions are not closed automatically unless you implement a hard stop.
+
+---
+
+## 7️⃣ Optional Enhancements
+
+ Equity-Based Stop: Stop trading if intraday equity falls below threshold.
+ Dynamic Loss Limit: Based on account risk (e.g., 1–2% of balance per day).
+ Logging: Save `DailyAccountData` to file each day for auditing.
+ Multi-Level Integration: Track loss per level in addition to global.
+
+---
+
+## 8️⃣ Storage / Persistence
+
+ Use GlobalVariables to survive EA restart:
+
+```mql5
+GlobalVariableSet("DailyProfit", dailyData.dailyProfit);
+GlobalVariableSet("DailyLoss", dailyData.dailyLoss);
+GlobalVariableSet("DailyStartBalance", dailyData.startingBalance);
+```
+
+ Alternatively, daily CSV log:
+
+```
+Date,StartBalance,Profit,Loss,TotalTrades,Wins,Losses,EquityPeak,EquityTrough
+2026-03-01,10000,150,50,5,3,2,10100,9950
+```
+
+---
+
+## ✅ Summary Best Practices
+
+1. Always filter deals by date.
+2. Always filter by level magic.
+3. Always separate realized vs unrealized P/L.
+4. Use GlobalVariables or files for persistence.
+5. Integrate daily loss stop before any order placement.
+6. Log daily metrics for performance tracking and debugging.
+
+---
