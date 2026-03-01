@@ -353,16 +353,86 @@ int OnInit()
    Print("Level Logger EA initialized.");
    ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 
-   AddLevel("weeklyOneUp", 7031, "2026.02.23 00:00", "2026.02.28 23:59", "weekly");
-   AddLevel("weeklySmash", 6960, "2026.02.23 00:00", "2026.02.28 23:59", "weekly,smash");
-   AddLevel("weeklyOneDown", 6890, "2026.02.23 00:00", "2026.02.28 23:59", "weekly");
-   AddLevel("weeklyTwoDown", 6805, "2026.02.23 00:00", "2026.02.28 23:59", "weekly");
-   AddLevel("mondaySmash", 6910, "2026.02.23 00:00", "2026.02.23 23:59", "daily,monday,smash");
-   AddLevel("thursdayThreeDown", 6912, "2026.02.26 00:00", "2026.02.26 23:59", "daily,thursday");
-   AddLevel("fridayOneUp", 6976, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
-   AddLevel("fridayOneDown", 6904, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
-   AddLevel("fridayTwoDown", 6880, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
-   AddLevel("fridayThreeDown", 6849, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
+   // Hardcoded levels imported from levelsinfo.txt in chronological order
+   AddLevel("2026.02.16_SmashWeekly", 6890, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,smash");
+   AddLevel("2026.02.16_weeklyUp1", 6960, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp1");
+   AddLevel("2026.02.16_weeklyUp2", 7010, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp2");
+   AddLevel("2026.02.16_weeklyUp3", 7045, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp3");
+   AddLevel("2026.02.16_weeklyUp4", 7092, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp4");
+   AddLevel("2026.02.16_weeklyUp5", 7145, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp5");
+   AddLevel("2026.02.16_weeklyDown1", 6805, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown1");
+   AddLevel("2026.02.16_weeklyDown2", 6705, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown2");
+   AddLevel("2026.02.16_weeklyDown3", 6670, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown3");
+   AddLevel("2026.02.16_weeklyDown4", 6592, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown4");
+
+   AddLevel("2026.02.18_SmashDaily", 6867, "2026.02.18 00:00", "2026.02.18 23:59", "daily,smash");
+   AddLevel("2026.02.18_dailyUp1", 6890, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.18_dailyUp2", 6927, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.18_dailyDown1", 6842, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.18_dailyDown2", 6805, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyDown2");
+   AddLevel("2026.02.18_dailyDown3", 6780, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyDown3");
+
+   AddLevel("2026.02.19_SmashDaily", 6906, "2026.02.19 00:00", "2026.02.19 23:59", "daily,smash");
+   AddLevel("2026.02.19_dailyUp1", 6927, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.19_dailyUp2", 6960, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.19_dailyDown1", 6875, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.19_dailyDown2", 6842, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyDown2");
+
+   AddLevel("2026.02.20_SmashDaily", 6860, "2026.02.20 00:00", "2026.02.20 23:59", "daily,smash");
+   AddLevel("2026.02.20_dailyUp1", 6890, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.20_dailyUp2", 6906, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.20_dailyUp3", 6927, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyUp3");
+   AddLevel("2026.02.20_dailyDown1", 6842, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.20_dailyDown2", 6805, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyDown2");
+
+   AddLevel("2026.02.23_SmashWeekly", 6960, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,smash");
+   AddLevel("2026.02.23_weeklyUp1", 7031, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp1");
+   AddLevel("2026.02.23_weeklyUp2", 7043, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp2");
+   AddLevel("2026.02.23_weeklyUp3", 7080, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp3");
+   AddLevel("2026.02.23_weeklyUp4", 7110, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp4");
+   AddLevel("2026.02.23_weeklyUp5", 7145, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp5");
+   AddLevel("2026.02.23_weeklyUp6", 7200, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp6");
+   AddLevel("2026.02.23_weeklyDown1", 6890, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown1");
+   AddLevel("2026.02.23_weeklyDown2", 6805, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown2");
+   AddLevel("2026.02.23_weeklyDown3", 6775, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown3");
+   AddLevel("2026.02.23_weeklyDown4", 6705, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown4");
+   AddLevel("2026.02.23_weeklyDown5", 6670, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown5");
+
+   AddLevel("2026.02.23_SmashDaily", 6910, "2026.02.23 00:00", "2026.02.23 23:59", "daily,smash");
+   AddLevel("2026.02.23_dailyUp1", 6927, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.23_dailyUp2", 6960, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.23_dailyUp3", 6998, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyUp3");
+   AddLevel("2026.02.23_dailyDown1", 6890, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.23_dailyDown2", 6860, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyDown2");
+
+   AddLevel("2026.02.24_SmashDaily", 6869, "2026.02.24 00:00", "2026.02.24 23:59", "daily,smash");
+   AddLevel("2026.02.24_dailyUp1", 6893, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.24_dailyUp2", 6927, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.24_dailyDown1", 6836, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.24_dailyDown2", 6805, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyDown2");
+   AddLevel("2026.02.24_dailyDown3", 6775, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyDown3");
+
+   AddLevel("2026.02.25_SmashDaily", 6894, "2026.02.25 00:00", "2026.02.25 23:59", "daily,smash");
+   AddLevel("2026.02.25_dailyUp1", 6911, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.25_dailyUp2", 6927, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.25_dailyUp3", 6960, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyUp3");
+   AddLevel("2026.02.25_dailyDown1", 6869, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.25_dailyDown2", 6833, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyDown2");
+
+   AddLevel("2026.02.26_SmashDaily", 6960, "2026.02.26 00:00", "2026.02.26 23:59", "daily,smash");
+   AddLevel("2026.02.26_dailyUp1", 6976, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.26_dailyUp2", 6993, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.26_dailyUp3", 7017, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyUp3");
+   AddLevel("2026.02.26_dailyDown1", 6948, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.26_dailyDown2", 6927, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyDown2");
+   AddLevel("2026.02.26_dailyDown3", 6912, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyDown3");
+
+   AddLevel("2026.02.27_SmashDaily", 6927, "2026.02.27 00:00", "2026.02.27 23:59", "daily,smash");
+   AddLevel("2026.02.27_dailyUp1", 6960, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyUp1");
+   AddLevel("2026.02.27_dailyUp2", 6976, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.27_dailyDown1", 6904, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown1");
+   AddLevel("2026.02.27_dailyDown2", 6880, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown2");
+   AddLevel("2026.02.27_dailyDown3", 6849, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown3");
 
    return(INIT_SUCCEEDED);
 }
