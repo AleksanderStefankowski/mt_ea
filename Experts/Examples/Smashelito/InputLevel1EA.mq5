@@ -25,6 +25,15 @@ input int      BounceCandlesRequired = 1; // for bounce count logic
 input int      Max_AnyOrder_perLevel = 1; // any order is open position or pending order
 input double   InpLotSize           = 0.01; // lot size for trade types
 
+//--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
+//    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
+input double   T_buy2ndBounce_LotSize           = 0.05;
+input double   T_buy2ndBounce_PriceOffsetPips  = 0.5;   // desired open price = level + this many pips
+input double   T_buy2ndBounce_TPPips           = 80.0;  // TP = order price + this many pips (e.g. 80 for 8 pts on US500 point=0.1)
+input double   T_buy2ndBounce_SLPips           = 80.0;   // SL = order price - this many pips (e.g. 80 for 8 pts on US500 point=0.1)
+input int      T_buy2ndBounce_ExpirationMinutes = 45;    // for manual cancel logic (not used as order expiry yet)
+// Entry rule to open: level.bounceCount == 1 && bias_long (dailyBias > 0) && no_contact (!in_contact)
+
 //--- Level struct
 struct Level
 {
@@ -154,9 +163,29 @@ string BuildTradeLogFileName(int levelIndex, const string tradeType, datetime fo
 }
 
 //+------------------------------------------------------------------+
-//| Write one event line to per-level B_TradeLog (trade type)        |
+//| Convert ORDER_TYPE to log string (buy_limit, sell_limit, market_buy, etc.) |
 //+------------------------------------------------------------------+
-void WriteTradeLog(int levelIndex, const string tradeType, const string eventType, datetime eventTime)
+string OrderTypeToKindString(ENUM_ORDER_TYPE orderType)
+{
+   switch(orderType)
+   {
+      case ORDER_TYPE_BUY:       return "market_buy";
+      case ORDER_TYPE_SELL:      return "market_sell";
+      case ORDER_TYPE_BUY_LIMIT: return "buy_limit";
+      case ORDER_TYPE_SELL_LIMIT: return "sell_limit";
+      case ORDER_TYPE_BUY_STOP:  return "buy_stop";
+      case ORDER_TYPE_SELL_STOP: return "sell_stop";
+      default: return "unknown";
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Write one event line to per-level B_TradeLog (trade type)        |
+//| orderKind: e.g. "buy_limit", "sell_limit", "market_buy" (optional) |
+//| orderPrice/slPrice/tpPrice: if > 0, appended as prices (for pending_created) |
+//+------------------------------------------------------------------+
+void WriteTradeLog(int levelIndex, const string tradeType, const string eventType, datetime eventTime,
+                  const string orderKind = "", double orderPrice = 0, double slPrice = 0, double tpPrice = 0)
 {
    string fname = BuildTradeLogFileName(levelIndex, tradeType, eventTime);
    if(StringLen(fname) == 0) return;
@@ -169,7 +198,13 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
 
    if(fh != INVALID_HANDLE)
    {
-      FileWrite(fh, TimeToString(eventTime, TIME_DATE | TIME_SECONDS), " ", eventType);
+      string line = TimeToString(eventTime, TIME_DATE | TIME_SECONDS) + " " + eventType;
+      if(StringLen(orderKind) > 0) line += " " + orderKind;
+      if(orderPrice > 0 || slPrice > 0 || tpPrice > 0)
+         line += " orderPrice=" + DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits) +
+                 " tp=" + DoubleToString(NormalizeDouble(tpPrice, _Digits), _Digits) +
+                 " sl=" + DoubleToString(NormalizeDouble(slPrice, _Digits), _Digits);
+      FileWrite(fh, line);
       FileClose(fh);
    }
 }
@@ -178,7 +213,7 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
 int OnInit()
 {
    Print("Level Logger EA initialized.");
-   ExtTrade.SetMagicNumber(EA_MAGIC);
+   ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 
    AddLevel("weeklyOneUp", 7031, "2026.02.23 00:00", "2026.02.28 23:59", "weekly");
    AddLevel("weeklySmash", 6960, "2026.02.23 00:00", "2026.02.28 23:59", "weekly,smash");
@@ -192,6 +227,74 @@ int OnInit()
    AddLevel("fridayThreeDown", 6849, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
 
    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Log filled / TP / SL to B_TradeLog (per level per day)            |
+//+------------------------------------------------------------------+
+void OnTradeTransaction(const MqlTradeTransaction& trans,
+                        const MqlTradeRequest& request,
+                        const MqlTradeResult& result)
+{
+   if(trans.type == TRADE_TRANSACTION_ORDER_UPDATE && trans.order > 0)
+   {
+      if(!HistoryOrderSelect(trans.order)) return;
+      if(HistoryOrderGetInteger(trans.order, ORDER_MAGIC) != EA_MAGIC) return;
+      if(HistoryOrderGetString(trans.order, ORDER_SYMBOL) != _Symbol) return;
+      if((ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE) != ORDER_STATE_FILLED) return;
+
+      string comment = HistoryOrderGetString(trans.order, ORDER_COMMENT);
+      int levelIndex = -1;
+      string tradeType = "";
+      if(!ParseLevelComment(comment, levelIndex, tradeType)) return;
+
+      datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
+      string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
+      WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr);
+   }
+
+   if(trans.type == TRADE_TRANSACTION_DEAL_ADD && trans.deal > 0)
+   {
+      if(!HistoryDealSelect(trans.deal)) return;
+      if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != EA_MAGIC) return;
+      if(HistoryDealGetString(trans.deal, DEAL_SYMBOL) != _Symbol) return;
+
+      ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
+      if(reason != DEAL_REASON_TP && reason != DEAL_REASON_SL) return;
+
+      ulong posId = HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
+      if(posId == 0) return;
+
+      // Read closing deal time before changing history selection (selection can invalidate deal lookup)
+      datetime closeTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
+      if(closeTime == 0) closeTime = TimeCurrent();
+
+      if(!HistorySelectByPosition((long)posId)) return;
+
+      string comment = "";
+      ulong entryOrderTicket = 0;
+      int total = HistoryDealsTotal();
+      for(int j = total - 1; j >= 0; j--)
+      {
+         ulong dealTicket = HistoryDealGetTicket(j);
+         if(dealTicket == 0) continue;
+         if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(dealTicket, DEAL_ENTRY) != DEAL_ENTRY_IN) continue;
+         comment = HistoryDealGetString(dealTicket, DEAL_COMMENT);
+         entryOrderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
+         break;
+      }
+
+      int levelIndex = -1;
+      string tradeType = "";
+      if(!ParseLevelComment(comment, levelIndex, tradeType)) return;
+
+      string kindStr = "";
+      if(entryOrderTicket > 0 && HistoryOrderSelect(entryOrderTicket))
+         kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(entryOrderTicket, ORDER_TYPE));
+
+      string eventType = (reason == DEAL_REASON_TP) ? "tp" : "sl";
+      WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -386,26 +489,25 @@ void FinalizeCurrentCandle()
          }
 
          // --- Trade type: buy_2nd_bounce
-         // Allowed if current_all_trades < Max_AnyOrder_perLevel, bounceCount==1, bias_long
-         // Buy limit at level + 0.75 pips, TP 8 pips, SL 3 pips
+         // Entry rule: bounceCount==1, bias_long, no_contact. Params from T_buy2ndBounce_* inputs.
          {
             const string tradeTypeBuy2ndBounce = "buy_2nd_bounce";
             int current_all_trades = CountOrdersAndPositionsForLevel(i);
             bool bias_long = (levels[i].dailyBias > 0);
-            bool allowed = (current_all_trades < Max_AnyOrder_perLevel)
-                           && (levels[i].bounceCount == 1)
-                           && bias_long;
+            bool no_contact = !in_contact;
+            bool entryRule = (levels[i].bounceCount == 1) && bias_long && no_contact;
+            bool allowed = (current_all_trades < Max_AnyOrder_perLevel) && entryRule;
 
             if(allowed)
             {
                double pip = PipSize();
-               double orderPrice = NormalizeDouble(lvl + 0.75 * pip, _Digits);
-               double sl = NormalizeDouble(orderPrice - 3.0 * pip, _Digits);
-               double tp = NormalizeDouble(orderPrice + 8.0 * pip, _Digits);
+               double orderPrice = NormalizeDouble(lvl + T_buy2ndBounce_PriceOffsetPips * pip, _Digits);
+               double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
+               double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
                string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy2ndBounce;
 
-               if(ExtTrade.BuyLimit(InpLotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_GTC, 0, orderComment))
-                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending", current_candle_time);
+               if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_GTC, 0, orderComment))
+                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp);
             }
          }
       }
