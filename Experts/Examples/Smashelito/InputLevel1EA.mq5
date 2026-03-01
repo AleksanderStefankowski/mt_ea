@@ -88,6 +88,37 @@ datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when su
 datetime dateWhenAlgoTradeStarted = StringToTime("2026.01.23 00:00");
 
 //+------------------------------------------------------------------+
+//| Check if trading is allowed based on time restrictions            |
+//+------------------------------------------------------------------+
+bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCount)
+{
+   MqlDateTime mt;
+   TimeToStruct(candleTime, mt);
+   int hour = mt.hour;
+   int minute = mt.min;
+   
+   // Convert to minutes since midnight for easier comparison
+   int currentMinutes = hour * 60 + minute;
+   
+   // Check if current time falls within any banned range
+   for(int i = 0; i < rangeCount; i++)
+   {
+      int startHour = bannedRanges[i][0];
+      int startMinute = bannedRanges[i][1];
+      int endHour = bannedRanges[i][2];
+      int endMinute = bannedRanges[i][3];
+      
+      int startMinutes = startHour * 60 + startMinute;
+      int endMinutes = endHour * 60 + endMinute;
+      
+      if(currentMinutes >= startMinutes && currentMinutes <= endMinutes)
+         return false; // Trading not allowed
+   }
+   
+   return true; // Trading allowed
+}
+
+//+------------------------------------------------------------------+
 //| Generate magic number for a level based on date, price, and day of week |
 //+------------------------------------------------------------------+
 long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV)
@@ -827,22 +858,13 @@ void FinalizeCurrentCandle()
             const string tradeTypeBuy2ndBounce = "buy_2nd_bounce";
             int current_all_trades = CountOrdersAndPositionsForLevel(i);
             
-            // Time restrictions: no trades between 00:00-00:59, 15:15-16:35, and 21:28-23:59
-            MqlDateTime mt;
-            TimeToStruct(current_candle_time, mt);
-            int hour = mt.hour;
-            int minute = mt.min;
-            bool timeAllowed = true;
-            
-            // Check restricted time windows
-            if ((hour == 0) || 
-                (hour == 15 && minute >= 15) || 
-                (hour == 16 && minute <= 35) ||
-                (hour == 21 && minute >= 28) ||
-                (hour >= 22))
-            {
-               timeAllowed = false;
-            }
+            // Define banned time ranges for buy_2nd_bounce: {startHour, startMinute, endHour, endMinute}
+            int bannedRanges2nd[][4] = {
+               {0, 0, 0, 59},      // 00:00-00:59
+               {15, 15, 16, 35},   // 15:15-16:35
+               {21, 28, 23, 59}    // 21:28-23:59
+            };
+            bool timeAllowed = IsTradingAllowed(current_candle_time, bannedRanges2nd, 3);
             
             bool bias_long = (levels[i].dailyBias > 0);
             bool no_contact = !in_contact;
@@ -876,22 +898,11 @@ void FinalizeCurrentCandle()
             const string tradeTypeBuy4thBounce = "buy_4th_bounce";
             int current_all_trades = CountOrdersAndPositionsForLevel(i);
             
-            // Time restrictions: no trades between 00:00-00:59, 15:15-16:35, and 21:28-23:59
-            MqlDateTime mt;
-            TimeToStruct(current_candle_time, mt);
-            int hour = mt.hour;
-            int minute = mt.min;
-            bool timeAllowed = true;
-            
-            // Check restricted time windows
-            if ((hour == 0) || 
-                (hour == 15 && minute >= 15) || 
-                (hour == 16 && minute <= 35) ||
-                (hour == 21 && minute >= 28) ||
-                (hour >= 22))
-            {
-               timeAllowed = false;
-            }
+            // Define banned time ranges for buy_4th_bounce: {startHour, startMinute, endHour, endMinute}
+            int bannedRanges4th[][4] = {
+               {15, 15, 16, 35}    // 15:15-16:35 only
+            };
+            bool timeAllowed = IsTradingAllowed(current_candle_time, bannedRanges4th, 1);
             
             bool bias_long = (levels[i].dailyBias > 0);
             bool no_contact = !in_contact;
