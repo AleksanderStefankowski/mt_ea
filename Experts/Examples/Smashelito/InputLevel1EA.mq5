@@ -55,6 +55,7 @@ struct Level
    int bounceCount;
    int consecutiveRecoverCandles;
    bool lastCandleInContact;
+   int candlesPassedSinceLastBounce;
 };
 Level levels[];
 
@@ -104,6 +105,7 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].bounceCount = 0;
    levels[newIndex].consecutiveRecoverCandles = 0;
    levels[newIndex].lastCandleInContact = false;
+   levels[newIndex].candlesPassedSinceLastBounce = 0;
 }
 
 //+------------------------------------------------------------------+
@@ -700,7 +702,14 @@ void FinalizeCurrentCandle()
 
          // --- Track bounce
          if(levels[i].lastCandleInContact && !in_contact)
+         {
             levels[i].bounceCount++;
+            levels[i].candlesPassedSinceLastBounce = 0; // reset when bounce occurs
+         }
+         else if(levels[i].bounceCount > 0)
+         {
+            levels[i].candlesPassedSinceLastBounce++; // increment when bounceCount > 0 but no new bounce
+         }
          levels[i].lastCandleInContact = in_contact;
 
          // --- Write Arawevents
@@ -717,6 +726,7 @@ void FinalizeCurrentCandle()
                " Contact: ", (in_contact ? "in_contact" : "no_contact"),
                " ContactCount: ", levels[i].approxContactCount,
                ", BounceCount: ", levels[i].bounceCount,
+               ", CandlesPassedSinceLastBounce: ", levels[i].candlesPassedSinceLastBounce,
                ", CandlesBreakLevelCount: ", levels[i].candlesBreakLevelCount,
                ", RecoverCount: ", levels[i].recoverCount);
          }
@@ -764,7 +774,8 @@ void FinalizeCurrentCandle()
                double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
                string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy2ndBounce;
 
-               if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_GTC, 0, orderComment))
+               datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
+               if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                   WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp);
             }
          }
