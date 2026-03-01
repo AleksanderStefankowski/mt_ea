@@ -1,61 +1,316 @@
 //+------------------------------------------------------------------+
-//|                                                LevelLogger.mq5   |
+//|                                                InputLevel1EA.mq5 |
 //+------------------------------------------------------------------+
-#property script_show_inputs
+//|                   MetaTrader 5 Only (MT5-specific code)          |
+//|        Copyright 2026, Aleksander Stefankowski                   |
+// NOTE: This EA is MetaTrader 5 (MT5) ONLY. Do NOT attempt to add MT4 code.
+// All file operations and tick/candle handling are MT5-specific.
+// '&' reference cannot ever be used!
+
+
+#property copyright "Copyright 2026, Aleksander Stefankowski"
+
 
 //--- Inputs
-input double InpLevel      = 6890.0;  // Price level to check
-input int    InpCandleCount = 100;    // Number of candles to check
-input string InpFileName    = "LevelLog.txt"; // Output file name
+input string   InpSummaryFile       = "LevelLog.txt";
+input string   InpAllCandleFile     = "AllCandlesTickLog";
+input double   ProximityThreshold   = 1.0;
+input double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to count as broken
+input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for RecoverCount
+input int      BounceCandlesRequired = 1; // for bounce count logic
 
-//+------------------------------------------------------------------+
-//| Script start function                                            |
-//+------------------------------------------------------------------+
-void OnStart()
+//--- Level struct
+struct Level
 {
-   //--- Get starting capital (balance)
-   double starting_balance = AccountInfoDouble(ACCOUNT_BALANCE);
+   string baseName;
+   double price;
+   datetime validFrom;
+   datetime validTo;
+   string tagsCSV;
+   int count;
+   int approxContactCount;
+   double dailyBias;
+   bool biasSetToday;
+   datetime lastBiasDate;
+   int araFileHandle;
+   int candlesBreakLevelCount;
+   int recoverCount;
+   int bounceCount;
+   int consecutiveRecoverCandles;
+   bool lastCandleInContact;
+};
+Level levels[];
 
-   //--- Make sure we have enough bars
-   if(Bars(_Symbol, _Period) < InpCandleCount)
-   {
-      Print("Not enough candles available.");
-      return;
-   }
+//--- Tick-based candle tracking
+datetime current_candle_time = 0;
+double candle_open=0, candle_high=0, candle_low=0, candle_close=0;
 
-   int count = 0;
+//--- First/last candle summary
+datetime first_candle_time = 0;
+double first_open, first_high, first_low, first_close;
+datetime last_candle_time = 0;
+double last_open, last_high, last_low, last_close;
 
-   //--- Loop through candles (skip current forming candle, start from index 1)
-   for(int i = 1; i <= InpCandleCount; i++)
-   {
-      double high = iHigh(_Symbol, _Period, i);
-      double low  = iLow(_Symbol, _Period, i);
+//--- Per-day AllCandles log
+int allCandlesFileHandle = INVALID_HANDLE;
+datetime allCandlesFileDate = 0;
 
-      //--- Check if candle touched level
-      if(low <= InpLevel && high >= InpLevel)
-         count++;
-   }
-
-   //--- Open file for writing
-   int file_handle = FileOpen(InpFileName, FILE_WRITE | FILE_TXT);
-
-   if(file_handle == INVALID_HANDLE)
-   {
-      Print("Failed to open file. Error: ", GetLastError());
-      return;
-   }
-
-   //--- Write data
-   FileWrite(file_handle, "Symbol: ", _Symbol);
-   FileWrite(file_handle, "Timeframe: ", EnumToString(_Period));
-   FileWrite(file_handle, "Starting Balance: ", DoubleToString(starting_balance,2));
-   FileWrite(file_handle, "Checked Candles: ", InpCandleCount);
-   FileWrite(file_handle, "Level: ", DoubleToString(InpLevel,_Digits));
-   FileWrite(file_handle, "Candles touching level: ", count);
-   FileWrite(file_handle, "Time: ", TimeToString(TimeCurrent()));
-
-   FileClose(file_handle);
-
-   Print("Done. File saved to MQL5\\Files\\", InpFileName);
-}
 //+------------------------------------------------------------------+
+void AddLevel(string baseName, double price, string from, string to, string tagsCSV)
+{
+   int newIndex = ArraySize(levels);
+   ArrayResize(levels, newIndex + 1);
+
+   levels[newIndex].baseName  = baseName;
+   levels[newIndex].price     = price;
+   levels[newIndex].validFrom = StringToTime(from);
+   levels[newIndex].validTo   = StringToTime(to);
+   levels[newIndex].tagsCSV   = tagsCSV;
+   levels[newIndex].count     = 0;
+   levels[newIndex].approxContactCount = 0;
+   levels[newIndex].dailyBias = 0;
+   levels[newIndex].biasSetToday = false;
+   levels[newIndex].lastBiasDate = 0;
+   levels[newIndex].araFileHandle = INVALID_HANDLE;
+   levels[newIndex].candlesBreakLevelCount = 0;
+   levels[newIndex].recoverCount = 0;
+   levels[newIndex].bounceCount = 0;
+   levels[newIndex].consecutiveRecoverCandles = 0;
+   levels[newIndex].lastCandleInContact = false;
+}
+
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   Print("Level Logger EA initialized.");
+
+   AddLevel("weeklyOneUp", 7031, "2026.02.23 00:00", "2026.02.28 23:59", "weekly");
+   AddLevel("weeklySmash", 6960, "2026.02.23 00:00", "2026.02.28 23:59", "weekly,smash");
+   AddLevel("weeklyOneDown", 6890, "2026.02.23 00:00", "2026.02.28 23:59", "weekly");
+   AddLevel("weeklyTwoDown", 6805, "2026.02.23 00:00", "2026.02.28 23:59", "weekly");
+   AddLevel("mondaySmash", 6910, "2026.02.23 00:00", "2026.02.23 23:59", "daily,monday,smash");
+   AddLevel("thursdayThreeDown", 6912, "2026.02.26 00:00", "2026.02.26 23:59", "daily,thursday");
+   AddLevel("fridayOneUp", 6976, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
+   AddLevel("fridayOneDown", 6904, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
+   AddLevel("fridayTwoDown", 6880, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
+   AddLevel("fridayThreeDown", 6849, "2026.02.27 00:00", "2026.02.27 23:59", "daily,friday");
+
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   if(current_candle_time != 0)
+      FinalizeCurrentCandle();
+
+   for(int i=0;i<ArraySize(levels);i++)
+      if(levels[i].araFileHandle != INVALID_HANDLE)
+         FileClose(levels[i].araFileHandle);
+
+   if(allCandlesFileHandle != INVALID_HANDLE)
+      FileClose(allCandlesFileHandle);
+
+   int fh = FileOpen(InpSummaryFile, FILE_WRITE|FILE_TXT);
+   if(fh != INVALID_HANDLE)
+   {
+      FileWrite(fh,"----------------------------------------");
+      FileWrite(fh,"Symbol: ",_Symbol);
+      FileWrite(fh,"Timeframe: ",EnumToString(_Period));
+
+      FileWrite(fh,"First Candle:");
+      FileWrite(fh,"  Time: ",TimeToString(first_candle_time,TIME_DATE|TIME_SECONDS));
+      FileWrite(fh,"  O: ",first_open," H: ",first_high," L: ",first_low," C: ",first_close);
+
+      FileWrite(fh,"Last Candle:");
+      FileWrite(fh,"  Time: ",TimeToString(last_candle_time,TIME_DATE|TIME_SECONDS));
+      FileWrite(fh,"  O: ",last_open," H: ",last_high," L: ",last_low," C: ",last_close);
+
+      FileWrite(fh,"----------------------------------------");
+      FileClose(fh);
+   }
+}
+
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   double tick_price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
+   datetime candle_start = iTime(_Symbol,_Period,0);
+
+   if(candle_start != current_candle_time)
+   {
+      if(current_candle_time != 0)
+         FinalizeCurrentCandle();
+
+      current_candle_time = candle_start;
+      candle_open  = tick_price;
+      candle_high  = tick_price;
+      candle_low   = tick_price;
+      candle_close = tick_price;
+   }
+   else
+   {
+      if(tick_price > candle_high) candle_high = tick_price;
+      if(tick_price < candle_low)  candle_low  = tick_price;
+      candle_close = tick_price;
+   }
+}
+
+//+------------------------------------------------------------------+
+void FinalizeCurrentCandle()
+{
+   datetime candleDay = current_candle_time - (current_candle_time % 86400);
+   string dateStr = TimeToString(current_candle_time,TIME_DATE);
+
+   if(allCandlesFileDate != candleDay)
+   {
+      if(allCandlesFileHandle != INVALID_HANDLE)
+         FileClose(allCandlesFileHandle);
+
+      string allFileName = dateStr + "-AllCandlesTickLog.txt";
+      allCandlesFileHandle = FileOpen(allFileName, FILE_WRITE|FILE_TXT|FILE_READ);
+      if(allCandlesFileHandle==INVALID_HANDLE)
+         allCandlesFileHandle = FileOpen(allFileName, FILE_WRITE|FILE_TXT);
+
+      allCandlesFileDate = candleDay;
+   }
+
+   for(int i=0;i<ArraySize(levels);i++)
+   {
+      if(current_candle_time >= levels[i].validFrom && current_candle_time <= levels[i].validTo)
+      {
+         double lvl = levels[i].price;
+
+         // daily bias
+         if(levels[i].lastBiasDate != candleDay)
+         {
+            levels[i].dailyBias = (candle_close > lvl ? 1 : -1);
+            levels[i].lastBiasDate = candleDay;
+
+            if(levels[i].araFileHandle != INVALID_HANDLE)
+               FileClose(levels[i].araFileHandle);
+
+            string araFile = dateStr + "-" + levels[i].baseName +
+                             "_week" + dateStr +
+                             "_-" + DoubleToString(lvl,_Digits) +
+                             "_Arawevents.txt";
+
+            levels[i].araFileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT|FILE_READ);
+            if(levels[i].araFileHandle==INVALID_HANDLE)
+               levels[i].araFileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT);
+         }
+
+         // distances
+         double diffCloseToLevel = candle_close - lvl;
+         double diffHL_MFE_toLevel;
+         double hiOrLo;
+         if(levels[i].dailyBias > 0) // long bias
+         {
+            diffHL_MFE_toLevel = candle_low - lvl;
+            hiOrLo = candle_low;
+         }
+         else // short bias
+         {
+            diffHL_MFE_toLevel = candle_high - lvl;
+            hiOrLo = candle_high;
+         }
+
+         bool physicallyTouched = (candle_low <= lvl && candle_high >= lvl);
+         bool proximityTouched  = (MathAbs(diffHL_MFE_toLevel) <= ProximityThreshold);
+         bool in_contact        = physicallyTouched || proximityTouched;
+
+         if(physicallyTouched) levels[i].count++;
+         if(in_contact) levels[i].approxContactCount++;
+
+         // --- Track broken level
+         bool breached = false;
+         if(levels[i].dailyBias > 0 && candle_low - lvl <= LevelCountsAsBroken_Threshold) breached = true;
+         if(levels[i].dailyBias < 0 && candle_high - lvl >= -LevelCountsAsBroken_Threshold) breached = true;
+         if(breached) levels[i].candlesBreakLevelCount++;
+
+         // --- Track recovery
+         bool fullCandleAbove = (levels[i].dailyBias > 0 ? candle_low > lvl : candle_high < lvl);
+         if(fullCandleAbove)
+            levels[i].consecutiveRecoverCandles++;
+         else
+            levels[i].consecutiveRecoverCandles = 0;
+
+         if(levels[i].consecutiveRecoverCandles >= HowManyCandlesAboveLevel_CountAsPriceRecovered)
+         {
+            levels[i].recoverCount++;
+            levels[i].consecutiveRecoverCandles = 0;
+         }
+
+         // --- Track bounce
+         if(levels[i].lastCandleInContact && !in_contact)
+            levels[i].bounceCount++;
+         levels[i].lastCandleInContact = in_contact;
+
+         // --- Write Arawevents
+         if(levels[i].araFileHandle != INVALID_HANDLE)
+         {
+            FileWrite(levels[i].araFileHandle,
+               "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
+               " L: ", lvl,
+               " C: ", NormalizeDouble(candle_close,_Digits),
+               " Diff_CloseToLevel: ", NormalizeDouble(diffCloseToLevel,_Digits),
+               " HiOrLo: ", NormalizeDouble(hiOrLo,_Digits),
+               " Diff_HL_MFE_toLevel: ", NormalizeDouble(diffHL_MFE_toLevel,_Digits),
+               " DayBias: ", (levels[i].dailyBias>0 ? "bias_long" : "bias_short"),
+               " Contact: ", (in_contact ? "in_contact" : "no_contact"),
+               " ContactCount: ", levels[i].approxContactCount,
+               ", BounceCount: ", levels[i].bounceCount,
+               ", CandlesBreakLevelCount: ", levels[i].candlesBreakLevelCount,
+               ", RecoverCount: ", levels[i].recoverCount);
+         }
+
+         // --- Write per-level file if physically touched
+         if(physicallyTouched)
+         {
+            string lvlFile = dateStr + "-" + levels[i].baseName +
+                             "_week" + dateStr +
+                             "_-" + DoubleToString(lvl,_Digits) + ".txt";
+
+            int fh = FileOpen(lvlFile, FILE_WRITE|FILE_TXT|FILE_READ);
+            if(fh==INVALID_HANDLE)
+               fh = FileOpen(lvlFile, FILE_WRITE|FILE_TXT);
+            else
+               FileSeek(fh,0,SEEK_END);
+
+            if(fh != INVALID_HANDLE)
+            {
+               FileWrite(fh,
+                  "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
+                  " O: ", candle_open,
+                  " H: ", candle_high,
+                  " L: ", candle_low,
+                  " C: ", candle_close);
+               FileClose(fh);
+            }
+         }
+      }
+   }
+
+   if(allCandlesFileHandle != INVALID_HANDLE)
+   {
+      FileWrite(allCandlesFileHandle,
+         "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
+         " O: ", candle_open,
+         " H: ", candle_high,
+         " L: ", candle_low,
+         " C: ", candle_close);
+   }
+
+   if(first_candle_time==0)
+   {
+      first_candle_time=current_candle_time;
+      first_open=candle_open; first_high=candle_high;
+      first_low=candle_low;   first_close=candle_close;
+   }
+
+   last_candle_time=current_candle_time;
+   last_open=candle_open; last_high=candle_high;
+   last_low=candle_low;   last_close=candle_close;
+
+   current_candle_time=0;
+}
