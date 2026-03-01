@@ -56,6 +56,7 @@ struct Level
    int consecutiveRecoverCandles;
    bool lastCandleInContact;
    int candlesPassedSinceLastBounce;
+   long magicNumberForLevel;
 };
 Level levels[];
 
@@ -84,6 +85,40 @@ datetime allCandlesFileDate = 0;
 datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when summary was last written
 
 //+------------------------------------------------------------------+
+//| Generate magic number for a level based on date, price, and day of week |
+//+------------------------------------------------------------------+
+long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV)
+{
+   // Extract date components
+   MqlDateTime dt;
+   TimeToStruct(validFrom, dt);
+   
+   // Format date as YYYYMMDD (8 digits)
+   string dateStr = IntegerToString(dt.year) + 
+                    StringFormat("%02d", dt.mon) + 
+                    StringFormat("%02d", dt.day);
+   
+   // Convert price to integer (remove decimal point)
+   string priceStr = DoubleToString(price, 0);
+   StringReplace(priceStr, ".", "");
+   
+   // Determine day of week number (1=Monday, 5=Friday, 0=Weekly)
+   int dayOfWeek = 0; // default for weekly
+   if(StringFind(tagsCSV, "daily") != -1)
+   {
+      // MT5 day of week: 1=Sunday, 2=Monday, ..., 7=Saturday
+      // We want: 1=Monday, 5=Friday
+      int mt5Day = dt.day_of_week;
+      if(mt5Day == 0) mt5Day = 7; // Sunday is 0 in MT5, convert to 7
+      dayOfWeek = mt5Day - 1; // Convert to Monday=1, Tuesday=2, etc.
+   }
+   
+   // Build magic number: date + price + dayOfWeek
+   string magicStr = dateStr + priceStr + IntegerToString(dayOfWeek);
+   return (long)StringToInteger(magicStr);
+}
+
+//+------------------------------------------------------------------+
 void AddLevel(string baseName, double price, string from, string to, string tagsCSV)
 {
    int newIndex = ArraySize(levels);
@@ -106,6 +141,7 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].consecutiveRecoverCandles = 0;
    levels[newIndex].lastCandleInContact = false;
    levels[newIndex].candlesPassedSinceLastBounce = 0;
+   levels[newIndex].magicNumberForLevel = GenerateLevelMagicNumber(levels[newIndex].validFrom, price, tagsCSV);
 }
 
 //+------------------------------------------------------------------+
@@ -126,17 +162,21 @@ int CountOrdersAndPositionsForLevel(int levelIndex)
    string prefix = "L" + IntegerToString(levelIndex) + "_";
    int count = 0;
 
+   // Check positions with level-specific magic number
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
       if(!ExtPositionInfo.SelectByIndex(i)) continue;
-      if(ExtPositionInfo.Symbol() != _Symbol || ExtPositionInfo.Magic() != EA_MAGIC) continue;
+      if(ExtPositionInfo.Symbol() != _Symbol) continue;
+      if(ExtPositionInfo.Magic() != levels[levelIndex].magicNumberForLevel) continue;
       if(StringFind(ExtPositionInfo.Comment(), prefix) == 0) count++;
    }
 
+   // Check pending orders with level-specific magic number
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
       if(!ExtOrderInfo.SelectByIndex(i)) continue;
-      if(ExtOrderInfo.Symbol() != _Symbol || ExtOrderInfo.Magic() != EA_MAGIC) continue;
+      if(ExtOrderInfo.Symbol() != _Symbol) continue;
+      if(ExtOrderInfo.Magic() != levels[levelIndex].magicNumberForLevel) continue;
       if(StringFind(ExtOrderInfo.Comment(), prefix) == 0) count++;
    }
 
@@ -291,6 +331,7 @@ void WriteDailySummary()
       line += " volume=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2);
       line += " price_open=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits);
       line += " price_current=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits);
+      line += " magic=" + IntegerToString(HistoryOrderGetInteger(ticket, ORDER_MAGIC));
       // profit property not available for history orders; skip or compute separately
       FileWrite(fh, line);
    }
@@ -310,6 +351,7 @@ void WriteDailySummary()
       line += " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2);
       line += " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits);
       line += " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2);
+      line += " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC));
       FileWrite(fh, line);
    }
 
@@ -370,25 +412,25 @@ int OnInit()
    AddLevel("2026.02.16_weeklyDown3", 6670, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown3");
    AddLevel("2026.02.16_weeklyDown4", 6592, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown4");
 
-   AddLevel("2026.02.18_SmashDaily", 6867, "2026.02.18 00:00", "2026.02.18 23:59", "daily,smash");
-   AddLevel("2026.02.18_dailyUp1", 6890, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.18_dailyUp2", 6927, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.18_dailyDown1", 6842, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.18_dailyDown2", 6805, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyDown2");
-   AddLevel("2026.02.18_dailyDown3", 6780, "2026.02.18 00:00", "2026.02.18 23:59", "daily,dailyDown3");
+   AddLevel("2026.02.18_SmashDaily", 6867, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,smash");
+   AddLevel("2026.02.18_dailyUp1", 6890, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyUp1");
+   AddLevel("2026.02.18_dailyUp2", 6927, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyUp2");
+   AddLevel("2026.02.18_dailyDown1", 6842, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyDown1");
+   AddLevel("2026.02.18_dailyDown2", 6805, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyDown2");
+   AddLevel("2026.02.18_dailyDown3", 6780, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyDown3");
 
-   AddLevel("2026.02.19_SmashDaily", 6906, "2026.02.19 00:00", "2026.02.19 23:59", "daily,smash");
-   AddLevel("2026.02.19_dailyUp1", 6927, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.19_dailyUp2", 6960, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.19_dailyDown1", 6875, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.19_dailyDown2", 6842, "2026.02.19 00:00", "2026.02.19 23:59", "daily,dailyDown2");
+   AddLevel("2026.02.19_SmashDaily", 6906, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,smash");
+   AddLevel("2026.02.19_dailyUp1", 6927, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyUp1");
+   AddLevel("2026.02.19_dailyUp2", 6960, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyUp2");
+   AddLevel("2026.02.19_dailyDown1", 6875, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyDown1");
+   AddLevel("2026.02.19_dailyDown2", 6842, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyDown2");
 
-   AddLevel("2026.02.20_SmashDaily", 6860, "2026.02.20 00:00", "2026.02.20 23:59", "daily,smash");
-   AddLevel("2026.02.20_dailyUp1", 6890, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.20_dailyUp2", 6906, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.20_dailyUp3", 6927, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyUp3");
-   AddLevel("2026.02.20_dailyDown1", 6842, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.20_dailyDown2", 6805, "2026.02.20 00:00", "2026.02.20 23:59", "daily,dailyDown2");
+   AddLevel("2026.02.20_SmashDaily", 6860, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,smash");
+   AddLevel("2026.02.20_dailyUp1", 6890, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyUp1");
+   AddLevel("2026.02.20_dailyUp2", 6906, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyUp2");
+   AddLevel("2026.02.20_dailyUp3", 6927, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyUp3");
+   AddLevel("2026.02.20_dailyDown1", 6842, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyDown1");
+   AddLevel("2026.02.20_dailyDown2", 6805, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyDown2");
 
    AddLevel("2026.02.23_SmashWeekly", 6960, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,smash");
    AddLevel("2026.02.23_weeklyUp1", 7031, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp1");
@@ -452,7 +494,6 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
    if(trans.type == TRADE_TRANSACTION_ORDER_UPDATE && trans.order > 0)
    {
       if(!HistoryOrderSelect(trans.order)) return;
-      if(HistoryOrderGetInteger(trans.order, ORDER_MAGIC) != EA_MAGIC) return;
       if(HistoryOrderGetString(trans.order, ORDER_SYMBOL) != _Symbol) return;
       if((ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE) != ORDER_STATE_FILLED) return;
 
@@ -469,7 +510,6 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
    if(trans.type == TRADE_TRANSACTION_DEAL_ADD && trans.deal > 0)
    {
       if(!HistoryDealSelect(trans.deal)) return;
-      if(HistoryDealGetInteger(trans.deal, DEAL_MAGIC) != EA_MAGIC) return;
       if(HistoryDealGetString(trans.deal, DEAL_SYMBOL) != _Symbol) return;
 
       ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
@@ -721,6 +761,7 @@ void FinalizeCurrentCandle()
             FileWrite(levels[i].araFileHandle,
                "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
                " L: ", lvl,
+               " mN: ", levels[i].magicNumberForLevel,
                " C: ", NormalizeDouble(candle_close,_Digits),
                " Diff_CloseToLevel: ", NormalizeDouble(diffCloseToLevel,_Digits),
                " HiOrLo: ", NormalizeDouble(hiOrLo,_Digits),
@@ -796,8 +837,15 @@ void FinalizeCurrentCandle()
                string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy2ndBounce;
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
+               
+               // Set the magic number for this specific trade
+               ExtTrade.SetExpertMagicNumber(levels[i].magicNumberForLevel);
+               
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                   WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30);
+               
+               // Reset to EA's default magic number for other operations
+               ExtTrade.SetExpertMagicNumber(EA_MAGIC);
             }
          }
       }
