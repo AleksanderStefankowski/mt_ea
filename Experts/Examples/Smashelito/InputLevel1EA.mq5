@@ -801,7 +801,7 @@ void FinalizeCurrentCandle()
          {
             string lvlFile = dateStr + "-" + levels[i].baseName +
                              "_week" + dateStr +
-                             "_-" + DoubleToString(lvl,_Digits) + ".txt";
+                             "_-" + DoubleToString(lvl,_Digits) + "_ARawAContact.txt";
 
             int fh = FileOpen(lvlFile, FILE_WRITE|FILE_TXT|FILE_READ);
             if(fh==INVALID_HANDLE)
@@ -864,6 +864,55 @@ void FinalizeCurrentCandle()
                
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                   WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30);
+               
+               // Reset to EA's default magic number for other operations
+               ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+            }
+         }
+
+         // --- Trade type: buy_4th_bounce
+         // Entry rule: bounceCount==3, bias_long, no_contact, CandlesPassedSinceLastBounce < 65, timeAllowed. Params from T_buy2ndBounce_* inputs.
+         {
+            const string tradeTypeBuy4thBounce = "buy_4th_bounce";
+            int current_all_trades = CountOrdersAndPositionsForLevel(i);
+            
+            // Time restrictions: no trades between 00:00-00:59, 15:15-16:35, and 21:28-23:59
+            MqlDateTime mt;
+            TimeToStruct(current_candle_time, mt);
+            int hour = mt.hour;
+            int minute = mt.min;
+            bool timeAllowed = true;
+            
+            // Check restricted time windows
+            if ((hour == 0) || 
+                (hour == 15 && minute >= 15) || 
+                (hour == 16 && minute <= 35) ||
+                (hour == 21 && minute >= 28) ||
+                (hour >= 22))
+            {
+               timeAllowed = false;
+            }
+            
+            bool bias_long = (levels[i].dailyBias > 0);
+            bool no_contact = !in_contact;
+            bool entryRule = (levels[i].bounceCount == 3) && bias_long && no_contact && (levels[i].candlesPassedSinceLastBounce < 65);
+            bool allowed = (current_all_trades < Max_AnyOrder_perLevel) && entryRule && timeAllowed;
+
+            if(allowed)
+            {
+               double pip = PipSize();
+               double orderPrice = NormalizeDouble(lvl + T_buy2ndBounce_PriceOffsetPips * pip, _Digits);
+               double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
+               double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
+               string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy4thBounce;
+
+               datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
+               
+               // Set the magic number for this specific trade
+               ExtTrade.SetExpertMagicNumber(levels[i].magicNumberForLevel);
+               
+               if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
+                  WriteTradeLog(i, tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30);
                
                // Reset to EA's default magic number for other operations
                ExtTrade.SetExpertMagicNumber(EA_MAGIC);
