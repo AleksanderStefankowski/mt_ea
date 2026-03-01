@@ -415,9 +415,11 @@ void WriteDailySummary()
 //| orderKind: e.g. "buy_limit", "sell_limit", "market_buy" (optional)|
 //| orderPrice/slPrice/tpPrice: if > 0, appended as prices (for pending_created) |
 //| expirationMinutes: if > 0, appended as exp=minutes (for pending_created) |
+//| orderTicket/dealTicket: ticket numbers (optional) |
 //+------------------------------------------------------------------+
 void WriteTradeLog(int levelIndex, const string tradeType, const string eventType, datetime eventTime,
-                  const string orderKind = "", double orderPrice = 0, double slPrice = 0, double tpPrice = 0, int expirationMinutes = 0)
+                  const string orderKind = "", double orderPrice = 0, double slPrice = 0, double tpPrice = 0, int expirationMinutes = 0,
+                  ulong orderTicket = 0, ulong dealTicket = 0, ulong positionTicket = 0)
 {
    string fname = BuildTradeLogFileName(levelIndex, tradeType, eventTime);
    if(StringLen(fname) == 0) return;
@@ -441,6 +443,12 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
                  " sl=" + DoubleToString(NormalizeDouble(slPrice, _Digits), _Digits);
       if(expirationMinutes > 0)
          line += " exp=" + IntegerToString(expirationMinutes);
+      if(orderTicket > 0)
+         line += " orderTicket=" + IntegerToString(orderTicket);
+      if(dealTicket > 0)
+         line += " dealTicket=" + IntegerToString(dealTicket);
+      if(positionTicket > 0)
+         line += " positionTicket=" + IntegerToString(positionTicket);
       FileWrite(fh, line);
       FileClose(fh);
    }
@@ -528,7 +536,7 @@ int OnInit()
 
    AddLevel("2026.02.27_SmashDaily", 6927, "2026.02.27 00:00", "2026.02.27 23:59", "daily,smash");
    AddLevel("2026.02.27_dailyUp1", 6960, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.27_dailyUp2", 6976, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyUp2");
+   AddLevel("2026.02.27_dailyUp2", 6890, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyUp2");
    AddLevel("2026.02.27_dailyDown1", 6904, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown1");
    AddLevel("2026.02.27_dailyDown2", 6880, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown2");
    AddLevel("2026.02.27_dailyDown3", 6849, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown3");
@@ -556,7 +564,7 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
 
       datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
       string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
-      WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr);
+      WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, 0, 0, 0, 0, trans.order, 0, 0);
    }
 
    if(trans.type == TRADE_TRANSACTION_DEAL_ADD && trans.deal > 0)
@@ -592,7 +600,7 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
             if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
                fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
             if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
-            WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0);
+            WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0);
          }
          return;
       }
@@ -632,7 +640,7 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
          kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(entryOrderTicket, ORDER_TYPE));
 
       string eventType = (reason == DEAL_REASON_TP) ? "tp" : "sl";
-      WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr);
+      WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId);
    }
 }
 
@@ -754,23 +762,17 @@ void FinalizeCurrentCandle()
                levels[i].araFileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT);
          }
 
-         // distances
+         // OHLC values
          double diffCloseToLevel = candle_close - lvl;
-         double diffHL_MFE_toLevel;
-         double hiOrLo;
-         if(levels[i].dailyBias > 0) // long bias
-         {
-            diffHL_MFE_toLevel = candle_low - lvl;
-            hiOrLo = candle_low;
-         }
-         else // short bias
-         {
-            diffHL_MFE_toLevel = candle_high - lvl;
-            hiOrLo = candle_high;
-         }
+         double diffOpenToLevel = candle_open - lvl;
+         double diffHighToLevel = candle_high - lvl;
+         double diffLowToLevel = candle_low - lvl;
 
          bool physicallyTouched = (candle_low <= lvl && candle_high >= lvl);
-         bool proximityTouched  = (MathAbs(diffHL_MFE_toLevel) <= ProximityThreshold);
+         bool proximityTouched  = (MathAbs(diffOpenToLevel) <= ProximityThreshold || 
+                                   MathAbs(diffHighToLevel) <= ProximityThreshold || 
+                                   MathAbs(diffLowToLevel) <= ProximityThreshold || 
+                                   MathAbs(diffCloseToLevel) <= ProximityThreshold);
          bool in_contact        = physicallyTouched || proximityTouched;
 
          if(physicallyTouched) levels[i].count++;
@@ -814,10 +816,11 @@ void FinalizeCurrentCandle()
                "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
                " L: ", lvl,
                " mN: ", levels[i].magicNumberForLevel,
+               " O: ", NormalizeDouble(candle_open,_Digits),
+               " H: ", NormalizeDouble(candle_high,_Digits),
+               " L: ", NormalizeDouble(candle_low,_Digits),
                " C: ", NormalizeDouble(candle_close,_Digits),
                " Diff_CloseToLevel: ", NormalizeDouble(diffCloseToLevel,_Digits),
-               " HiOrLo: ", NormalizeDouble(hiOrLo,_Digits),
-               " Diff_HL_MFE_toLevel: ", NormalizeDouble(diffHL_MFE_toLevel,_Digits),
                " DayBias: ", (levels[i].dailyBias>0 ? "bias_long" : "bias_short"),
                " Contact: ", (in_contact ? "in_contact" : "no_contact"),
                " ContactCount: ", levels[i].approxContactCount,
@@ -885,7 +888,11 @@ void FinalizeCurrentCandle()
                ExtTrade.SetExpertMagicNumber(levels[i].magicNumberForLevel);
                
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
-                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30);
+               {
+                  // Get the order ticket from the trade result
+                  ulong orderTicket = ExtTrade.ResultOrder();
+                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0);
+               }
                
                // Reset to EA's default magic number for other operations
                ExtTrade.SetExpertMagicNumber(EA_MAGIC);
@@ -923,7 +930,11 @@ void FinalizeCurrentCandle()
                ExtTrade.SetExpertMagicNumber(levels[i].magicNumberForLevel);
                
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
-                  WriteTradeLog(i, tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30);
+               {
+                  // Get the order ticket from the trade result
+                  ulong orderTicket = ExtTrade.ResultOrder();
+                  WriteTradeLog(i, tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0);
+               }
                
                // Reset to EA's default magic number for other operations
                ExtTrade.SetExpertMagicNumber(EA_MAGIC);
