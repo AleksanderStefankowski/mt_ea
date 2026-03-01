@@ -1,0 +1,7 @@
+# Compiled MQL5 experts, indicators, scripts
+*.ex5
+
+# Optional: other build/cache artifacts (uncomment if needed)
+# *.log
+# Tester/*.htm
+# Tester/*.csv
