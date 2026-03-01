@@ -180,8 +180,25 @@ string OrderTypeToKindString(ENUM_ORDER_TYPE orderType)
 }
 
 //+------------------------------------------------------------------+
+//| Return a summary string containing account statistics such as    |
+//| open positions, pending orders, history orders, and balance.     |
+//+------------------------------------------------------------------+
+string AccountSummary()
+{
+   int posCount   = PositionsTotal();
+   int ordCount   = OrdersTotal();
+   int histOrders = HistoryOrdersTotal();
+   int histDeals  = HistoryDealsTotal();
+   double bal     = AccountInfoDouble(ACCOUNT_BALANCE);
+   double eq      = AccountInfoDouble(ACCOUNT_EQUITY);
+   // additional metrics (free margin, margin level, etc.) can be added if needed
+   return StringFormat("(pos=%d pending=%d histOrd=%d histDeals=%d bal=%.2f eq=%.2f)",
+                       posCount, ordCount, histOrders, histDeals, bal, eq);
+}
+
+//+------------------------------------------------------------------+
 //| Write one event line to per-level B_TradeLog (trade type)        |
-//| orderKind: e.g. "buy_limit", "sell_limit", "market_buy" (optional) |
+//| orderKind: e.g. "buy_limit", "sell_limit", "market_buy" (optional)|
 //| orderPrice/slPrice/tpPrice: if > 0, appended as prices (for pending_created) |
 //+------------------------------------------------------------------+
 void WriteTradeLog(int levelIndex, const string tradeType, const string eventType, datetime eventTime,
@@ -198,7 +215,8 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
 
    if(fh != INVALID_HANDLE)
    {
-      string line = TimeToString(eventTime, TIME_DATE | TIME_SECONDS);
+      string acct = AccountSummary();
+      string line = TimeToString(eventTime, TIME_DATE | TIME_SECONDS) + " " + acct;
       if(StringLen(orderKind) > 0) line += " " + orderKind;
       if(orderPrice > 0)
          line += " orderPrice=" + DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits);
