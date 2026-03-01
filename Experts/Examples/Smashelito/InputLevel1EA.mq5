@@ -757,13 +757,13 @@ void FinalizeCurrentCandle()
          }
 
          // --- Trade type: buy_2nd_bounce
-         // Entry rule: bounceCount==1, bias_long, no_contact. Params from T_buy2ndBounce_* inputs.
+         // Entry rule: bounceCount==1, bias_long, no_contact, CandlesPassedSinceLastBounce < 65. Params from T_buy2ndBounce_* inputs.
          {
             const string tradeTypeBuy2ndBounce = "buy_2nd_bounce";
             int current_all_trades = CountOrdersAndPositionsForLevel(i);
             bool bias_long = (levels[i].dailyBias > 0);
             bool no_contact = !in_contact;
-            bool entryRule = (levels[i].bounceCount == 1) && bias_long && no_contact;
+            bool entryRule = (levels[i].bounceCount == 1) && bias_long && no_contact && (levels[i].candlesPassedSinceLastBounce < 65);
             bool allowed = (current_all_trades < Max_AnyOrder_perLevel) && entryRule;
 
             if(allowed)
