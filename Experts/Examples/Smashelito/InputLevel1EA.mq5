@@ -24,6 +24,8 @@ input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for Recove
 input int      BounceCandlesRequired = 1; // for bounce count logic
 input int      Max_AnyOrder_perLevel = 1; // any order is open position or pending order
 input double   InpLotSize           = 0.01; // lot size for trade types
+input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (tick timestamp)
+input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
 
 //--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
 //    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
@@ -76,6 +78,9 @@ double last_open, last_high, last_low, last_close;
 //--- Per-day AllCandles log
 int allCandlesFileHandle = INVALID_HANDLE;
 datetime allCandlesFileDate = 0;
+
+//--- Daily summary tracking
+datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when summary was last written
 
 //+------------------------------------------------------------------+
 void AddLevel(string baseName, double price, string from, string to, string tagsCSV)
@@ -194,6 +199,119 @@ string AccountSummary()
    // additional metrics (free margin, margin level, etc.) can be added if needed
    return StringFormat("(pos=%d pending=%d histOrd=%d histDeals=%d bal=%.2f eq=%.2f)",
                        posCount, ordCount, histOrders, histDeals, bal, eq);
+}
+
+//+------------------------------------------------------------------+
+//| Write a daily summary file at configured hour, listing full      |
+//| details of every open position, pending order, history order and |
+//| history deal, plus account info.                                |
+//+------------------------------------------------------------------+
+void WriteDailySummary()
+{
+   datetime now = TimeCurrent();
+   string dateStr = TimeToString(now, TIME_DATE);
+   string fname = dateStr + "-allTradesHistoryForAllLevels_andAllAccountData.txt";
+   int fh = FileOpen(fname, FILE_WRITE | FILE_TXT | FILE_READ);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_TXT);
+   else
+      FileSeek(fh, 0, SEEK_END);
+   if(fh == INVALID_HANDLE)
+      return;
+
+   // header/account
+   FileWrite(fh, "Daily summary for ", dateStr);
+   FileWrite(fh, "Balance=", AccountInfoDouble(ACCOUNT_BALANCE),
+                 " Equity=", AccountInfoDouble(ACCOUNT_EQUITY),
+                 " FreeMargin=", AccountInfoDouble(ACCOUNT_MARGIN_FREE),
+                 " MarginLevel=", AccountInfoDouble(ACCOUNT_MARGIN_LEVEL));
+
+   // open positions
+   FileWrite(fh, "== Open Positions ==");
+   for(int i=0; i<PositionsTotal(); i++)
+   {
+      if(!ExtPositionInfo.SelectByIndex(i)) continue;
+      string line = "POSITION ";
+      line += "ticket=" + IntegerToString(ExtPositionInfo.Ticket());
+      line += " symbol=" + ExtPositionInfo.Symbol();
+      line += " type=" + EnumToString((ENUM_POSITION_TYPE)ExtPositionInfo.Type());
+      line += " volume=" + DoubleToString(ExtPositionInfo.Volume(), 2);
+      line += " price_open=" + DoubleToString(ExtPositionInfo.PriceOpen(), _Digits);
+      line += " sl=" + DoubleToString(ExtPositionInfo.StopLoss(), _Digits);
+      line += " tp=" + DoubleToString(ExtPositionInfo.TakeProfit(), _Digits);
+      line += " profit=" + DoubleToString(ExtPositionInfo.Profit(), 2);
+      FileWrite(fh, line);
+   }
+
+   // levels snapshot
+   FileWrite(fh, "== Levels ==");
+   for(int i=0; i<ArraySize(levels); i++)
+   {
+      string lvlLine = "LEVEL ";
+      lvlLine += "index=" + IntegerToString(i);
+      lvlLine += " name=" + levels[i].baseName;
+      lvlLine += " price=" + DoubleToString(levels[i].price, _Digits);
+      lvlLine += " count=" + IntegerToString(levels[i].count);
+      lvlLine += " approxContacts=" + IntegerToString(levels[i].approxContactCount);
+      lvlLine += " dailyBias=" + DoubleToString(levels[i].dailyBias, 0);
+      lvlLine += " bounceCount=" + IntegerToString(levels[i].bounceCount);
+      FileWrite(fh, lvlLine);
+   }
+
+   // pending orders
+   FileWrite(fh, "== Pending Orders ==");
+   for(int i=0; i<OrdersTotal(); i++)
+   {
+      if(!ExtOrderInfo.SelectByIndex(i)) continue;
+      string line = "ORDER ";
+      line += "ticket=" + IntegerToString(ExtOrderInfo.Ticket());
+      line += " symbol=" + ExtOrderInfo.Symbol();
+      line += " type=" + EnumToString((ENUM_ORDER_TYPE)ExtOrderInfo.Type());
+      line += " volume=" + DoubleToString(ExtOrderInfo.VolumeInitial(), 2);
+      line += " price=" + DoubleToString(ExtOrderInfo.PriceOpen(), _Digits);
+      line += " sl=" + DoubleToString(ExtOrderInfo.PriceStopLimit(), _Digits);
+      line += " tp=" + DoubleToString(ExtOrderInfo.TakeProfit(), _Digits);
+      line += " state=" + EnumToString(ExtOrderInfo.State());
+      FileWrite(fh, line);
+   }
+
+   // history orders
+   FileWrite(fh, "== History Orders ==");
+   int totalHist = HistoryOrdersTotal();
+   for(int i=0; i<totalHist; i++)
+   {
+      ulong ticket = HistoryOrderGetTicket(i);
+      if(ticket == 0) continue;
+      string line = "HIST_ORDER ";
+      line += "ticket=" + IntegerToString(ticket);
+      line += " symbol=" + HistoryOrderGetString(ticket, ORDER_SYMBOL);
+      line += " type=" + EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE));
+      line += " volume=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2);
+      line += " price_open=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits);
+      line += " price_current=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits);
+      // profit property not available for history orders; skip or compute separately
+      FileWrite(fh, line);
+   }
+
+   // history deals
+   FileWrite(fh, "== History Deals ==");
+   int totalDeals = HistoryDealsTotal();
+   for(int i=0; i<totalDeals; i++)
+   {
+      ulong ticket = HistoryDealGetTicket(i);
+      if(ticket == 0) continue;
+      string line = "HIST_DEAL ";
+      line += "ticket=" + IntegerToString(ticket);
+      line += " symbol=" + HistoryDealGetString(ticket, DEAL_SYMBOL);
+      line += " type=" + EnumToString((ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE));
+      line += " entry=" + EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY));
+      line += " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2);
+      line += " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits);
+      line += " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2);
+      FileWrite(fh, line);
+   }
+
+   FileClose(fh);
 }
 
 //+------------------------------------------------------------------+
@@ -389,6 +507,22 @@ void OnTick()
 {
    double tick_price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
    datetime candle_start = iTime(_Symbol,_Period,0);
+
+   // daily summary check: execute once per day at specified tick time (hour+minute)
+   MqlTick tick;
+   if(SymbolInfoTick(_Symbol,tick))
+   {
+      MqlDateTime mt;
+      TimeToStruct(tick.time, mt);
+      int hour   = mt.hour;
+      int minute = mt.min;
+      datetime today = tick.time - (tick.time % 86400);
+      if(hour == HourForDailySummary && minute == MinuteForDailySummary && today != lastDailySummaryDay)
+      {
+         WriteDailySummary();
+         lastDailySummaryDay = today;
+      }
+   }
 
    if(candle_start != current_candle_time)
    {
