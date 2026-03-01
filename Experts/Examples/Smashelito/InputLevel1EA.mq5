@@ -757,14 +757,32 @@ void FinalizeCurrentCandle()
          }
 
          // --- Trade type: buy_2nd_bounce
-         // Entry rule: bounceCount==1, bias_long, no_contact, CandlesPassedSinceLastBounce < 65. Params from T_buy2ndBounce_* inputs.
+         // Entry rule: bounceCount==1, bias_long, no_contact, CandlesPassedSinceLastBounce < 65, timeAllowed. Params from T_buy2ndBounce_* inputs.
          {
             const string tradeTypeBuy2ndBounce = "buy_2nd_bounce";
             int current_all_trades = CountOrdersAndPositionsForLevel(i);
+            
+            // Time restrictions: no trades between 00:00-00:59, 15:15-16:35, and 21:28-23:59
+            MqlDateTime mt;
+            TimeToStruct(current_candle_time, mt);
+            int hour = mt.hour;
+            int minute = mt.min;
+            bool timeAllowed = true;
+            
+            // Check restricted time windows
+            if ((hour == 0) || 
+                (hour == 15 && minute >= 15) || 
+                (hour == 16 && minute <= 35) ||
+                (hour == 21 && minute >= 28) ||
+                (hour >= 22))
+            {
+               timeAllowed = false;
+            }
+            
             bool bias_long = (levels[i].dailyBias > 0);
             bool no_contact = !in_contact;
             bool entryRule = (levels[i].bounceCount == 1) && bias_long && no_contact && (levels[i].candlesPassedSinceLastBounce < 65);
-            bool allowed = (current_all_trades < Max_AnyOrder_perLevel) && entryRule;
+            bool allowed = (current_all_trades < Max_AnyOrder_perLevel) && entryRule && timeAllowed;
 
             if(allowed)
             {
