@@ -320,9 +320,10 @@ void WriteDailySummary()
 //| Write one event line to per-level B_TradeLog (trade type)        |
 //| orderKind: e.g. "buy_limit", "sell_limit", "market_buy" (optional)|
 //| orderPrice/slPrice/tpPrice: if > 0, appended as prices (for pending_created) |
+//| expirationMinutes: if > 0, appended as exp=minutes (for pending_created) |
 //+------------------------------------------------------------------+
 void WriteTradeLog(int levelIndex, const string tradeType, const string eventType, datetime eventTime,
-                  const string orderKind = "", double orderPrice = 0, double slPrice = 0, double tpPrice = 0)
+                  const string orderKind = "", double orderPrice = 0, double slPrice = 0, double tpPrice = 0, int expirationMinutes = 0)
 {
    string fname = BuildTradeLogFileName(levelIndex, tradeType, eventTime);
    if(StringLen(fname) == 0) return;
@@ -344,6 +345,8 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
       if(tpPrice > 0 && slPrice > 0)
          line += " tp=" + DoubleToString(NormalizeDouble(tpPrice, _Digits), _Digits) +
                  " sl=" + DoubleToString(NormalizeDouble(slPrice, _Digits), _Digits);
+      if(expirationMinutes > 0)
+         line += " exp=" + IntegerToString(expirationMinutes);
       FileWrite(fh, line);
       FileClose(fh);
    }
@@ -794,7 +797,7 @@ void FinalizeCurrentCandle()
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
-                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp);
+                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30);
             }
          }
       }
