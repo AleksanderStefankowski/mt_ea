@@ -33,8 +33,15 @@ input double   T_buy2ndBounce_LotSize           = 0.05;
 input double   T_buy2ndBounce_PriceOffsetPips  = 7.0;   // desired open price = level + this many pips
 input double   T_buy2ndBounce_TPPips           = 80.0;  // TP = order price + this many pips (e.g. 80 for 8 pts on US500 point=0.1)
 input double   T_buy2ndBounce_SLPips           = 80.0;   // SL = order price - this many pips (e.g. 80 for 8 pts on US500 point=0.1)
-input int      T_buy2ndBounce_ExpirationMinutes = 45;    // for manual cancel logic (not used as order expiry yet)
 // Entry rule to open: level.bounceCount == 1 && bias_long (dailyBias > 0) && no_contact (!in_contact)
+
+//--- Trade definition: buy_4th_bounce (parameters only; entry rule below, no execution yet)
+//    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
+input double   T_buy4thBounce_LotSize           = 0.1;
+input double   T_buy4thBounce_PriceOffsetPips  = 5.0;   // desired open price = level + this many pips
+input double   T_buy4thBounce_TPPips           = 60.0;  // TP = order price + this many pips (e.g. 60 for 6 pts on US500 point=0.1)
+input double   T_buy4thBounce_SLPips           = 20.0;   // SL = order price - this many pips (e.g. 20 for 2 pts on US500 point=0.1)
+// Entry rule to open: level.bounceCount == 3 && bias_long (dailyBias > 0) && no_contact (!in_contact)
 
 //--- Level struct
 struct Level
@@ -919,9 +926,9 @@ void FinalizeCurrentCandle()
             if(allowed)
             {
                double pip = PipSize();
-               double orderPrice = NormalizeDouble(lvl + T_buy2ndBounce_PriceOffsetPips * pip, _Digits);
-               double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
-               double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
+               double orderPrice = NormalizeDouble(lvl + T_buy4thBounce_PriceOffsetPips * pip, _Digits);
+               double sl = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
+               double tp = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
                string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy4thBounce;
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
@@ -929,7 +936,7 @@ void FinalizeCurrentCandle()
                // Set the magic number for this specific trade
                ExtTrade.SetExpertMagicNumber(levels[i].magicNumberForLevel);
                
-               if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
+               if(ExtTrade.BuyLimit(T_buy4thBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                {
                   // Get the order ticket from the trade result
                   ulong orderTicket = ExtTrade.ResultOrder();
