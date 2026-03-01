@@ -84,6 +84,9 @@ datetime allCandlesFileDate = 0;
 //--- Daily summary tracking
 datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when summary was last written
 
+//--- Algorithm start date - only show trade history from this date in log allTradesHistoryForAllLevels_andAllAccountData
+datetime dateWhenAlgoTradeStarted = StringToTime("2026.01.23 00:00");
+
 //+------------------------------------------------------------------+
 //| Generate magic number for a level based on date, price, and day of week |
 //+------------------------------------------------------------------+
@@ -325,13 +328,18 @@ void WriteDailySummary()
    // Ensure we have full history selected before reading
    HistorySelect(0, TimeCurrent());
    
-   // history orders - show ALL history, not just current day
+   // history orders - show ALL history from algorithm start date, not just current day
    FileWrite(fh, "== History Orders ==");
    int totalHist = HistoryOrdersTotal();
    for(int i=0; i<totalHist; i++)
    {
       ulong ticket = HistoryOrderGetTicket(i);
       if(ticket == 0) continue;
+      
+      // Filter by algorithm start date
+      datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
+      if(orderTime < dateWhenAlgoTradeStarted) continue;
+      
       string line = "HIST_ORDER ";
       line += "ticket=" + IntegerToString(ticket);
       line += " symbol=" + HistoryOrderGetString(ticket, ORDER_SYMBOL);
@@ -344,13 +352,18 @@ void WriteDailySummary()
       FileWrite(fh, line);
    }
 
-   // history deals - show ALL history, not just current day
+   // history deals - show ALL history from algorithm start date, not just current day
    FileWrite(fh, "== History Deals ==");
    int totalDeals = HistoryDealsTotal();
    for(int i=0; i<totalDeals; i++)
    {
       ulong ticket = HistoryDealGetTicket(i);
       if(ticket == 0) continue;
+      
+      // Filter by algorithm start date
+      datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+      if(dealTime < dateWhenAlgoTradeStarted) continue;
+      
       string line = "HIST_DEAL ";
       line += "ticket=" + IntegerToString(ticket);
       line += " symbol=" + HistoryDealGetString(ticket, DEAL_SYMBOL);
