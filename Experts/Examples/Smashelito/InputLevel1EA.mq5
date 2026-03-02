@@ -393,15 +393,15 @@ void WriteDailySummary()
          
          FileWrite(fh4, "ticket=" + IntegerToString(ticket) + 
                    " symbol=" + HistoryDealGetString(ticket, DEAL_SYMBOL) + 
+                   " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)) +
+                   " time=" + TimeToString((datetime)HistoryDealGetInteger(ticket, DEAL_TIME), TIME_DATE|TIME_SECONDS) +
+                   " entry=" + EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)) +
                    " type=" + EnumToString((ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE)) + 
-                   " entry=" + EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)) + 
+                   " reason=" + EnumToString((ENUM_DEAL_REASON)HistoryDealGetInteger(ticket, DEAL_REASON)) +
                    " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2) + 
                    " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits) + 
                    " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2) + 
-                   " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)) +
-                   " time=" + TimeToString((datetime)HistoryDealGetInteger(ticket, DEAL_TIME), TIME_DATE|TIME_SECONDS) +
                    " ticketOrder=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_ORDER)) +
-                   " reason=" + EnumToString((ENUM_DEAL_REASON)HistoryDealGetInteger(ticket, DEAL_REASON)) +
                    " comment=" + HistoryDealGetString(ticket, DEAL_COMMENT));
       }
       FileClose(fh4);
