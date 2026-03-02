@@ -303,147 +303,99 @@ string AccountSummary()
 }
 
 //+------------------------------------------------------------------+
-//| Write a daily summary file at configured hour, listing full      |
-//| details of every open position, pending order, history order and |
-//| history deal, plus account info.                                |
+//| Write daily summary files in plain text format                        |
+//| Creates separate files for different data types                      |
 //+------------------------------------------------------------------+
 void WriteDailySummary()
 {
    datetime now = TimeCurrent();
    string dateStr = TimeToString(now, TIME_DATE);
-   string fname = dateStr + "-allTradesHistoryForAllLevels_andAllAccountData.txt";
-   int fh = FileOpen(fname, FILE_WRITE | FILE_TXT | FILE_READ);
-   if(fh == INVALID_HANDLE)
-      fh = FileOpen(fname, FILE_WRITE | FILE_TXT);
-   else
-      FileSeek(fh, 0, SEEK_END);
-   if(fh == INVALID_HANDLE)
-      return;
-
-   // header/account
-   FileWrite(fh, "Daily summary for ", dateStr);
-   FileWrite(fh, "Balance=", AccountInfoDouble(ACCOUNT_BALANCE),
-                 " Equity=", AccountInfoDouble(ACCOUNT_EQUITY),
-                 " FreeMargin=", AccountInfoDouble(ACCOUNT_MARGIN_FREE),
-                 " MarginLevel=", AccountInfoDouble(ACCOUNT_MARGIN_LEVEL));
-
-   // open positions
-   FileWrite(fh, "== Open Positions ==");
-   for(int i=0; i<PositionsTotal(); i++)
-   {
-      if(!ExtPositionInfo.SelectByIndex(i)) continue;
-      string line = "POSITION ";
-      line += "ticket=" + IntegerToString(ExtPositionInfo.Ticket());
-      line += " symbol=" + ExtPositionInfo.Symbol();
-      line += " type=" + EnumToString((ENUM_POSITION_TYPE)ExtPositionInfo.Type());
-      line += " volume=" + DoubleToString(ExtPositionInfo.Volume(), 2);
-      line += " price_open=" + DoubleToString(ExtPositionInfo.PriceOpen(), _Digits);
-      line += " sl=" + DoubleToString(ExtPositionInfo.StopLoss(), _Digits);
-      line += " tp=" + DoubleToString(ExtPositionInfo.TakeProfit(), _Digits);
-      line += " profit=" + DoubleToString(ExtPositionInfo.Profit(), 2);
-      FileWrite(fh, line);
-   }
-
-   // levels snapshot - only active levels for this day
-   FileWrite(fh, "== Levels ==");
-   for(int i=0; i<ArraySize(levels); i++)
-   {
-      // Check if level is active for today's date
-      datetime today = now - (now % 86400);
-      if(levels[i].validFrom <= today && levels[i].validTo >= today)
-      {
-         string lvlLine = "LEVEL ";
-         lvlLine += "index=" + IntegerToString(i);
-         lvlLine += " name=" + levels[i].baseName;
-         lvlLine += " price=" + DoubleToString(levels[i].price, _Digits);
-         lvlLine += " count=" + IntegerToString(levels[i].count);
-         lvlLine += " approxContacts=" + IntegerToString(levels[i].approxContactCount);
-         lvlLine += " dailyBias=" + DoubleToString(levels[i].dailyBias, 0);
-         lvlLine += " bounceCount=" + IntegerToString(levels[i].bounceCount);
-         FileWrite(fh, lvlLine);
-      }
-   }
-
-   // pending orders
-   FileWrite(fh, "== Pending Orders ==");
-   for(int i=0; i<OrdersTotal(); i++)
-   {
-      if(!ExtOrderInfo.SelectByIndex(i)) continue;
-      string line = "ORDER ";
-      line += "ticket=" + IntegerToString(ExtOrderInfo.Ticket());
-      line += " symbol=" + ExtOrderInfo.Symbol();
-      line += " type=" + EnumToString((ENUM_ORDER_TYPE)ExtOrderInfo.Type());
-      line += " volume=" + DoubleToString(ExtOrderInfo.VolumeInitial(), 2);
-      line += " price=" + DoubleToString(ExtOrderInfo.PriceOpen(), _Digits);
-      line += " sl=" + DoubleToString(ExtOrderInfo.PriceStopLimit(), _Digits);
-      line += " tp=" + DoubleToString(ExtOrderInfo.TakeProfit(), _Digits);
-      line += " state=" + EnumToString(ExtOrderInfo.State());
-      FileWrite(fh, line);
-   }
-
-   // Ensure we have full history selected before reading
-   HistorySelect(0, TimeCurrent());
    
-   // history orders - show ALL history from algorithm start date, not just current day
-   FileWrite(fh, "== History Orders ==");
-   int totalHist = HistoryOrdersTotal();
-   for(int i=0; i<totalHist; i++)
+   string activeLevelsFile = dateStr + "_Day_activeLevels.txt";
+   int fh1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_TXT);
+   if(fh1 != INVALID_HANDLE)
    {
-      ulong ticket = HistoryOrderGetTicket(i);
-      if(ticket == 0) continue;
-      
-      // Filter by algorithm start date
-      datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
-      if(orderTime < dateWhenAlgoTradeStarted) continue;
-      
-      string line = "HIST_ORDER ";
-      line += "ticket=" + IntegerToString(ticket);
-      line += " symbol=" + HistoryOrderGetString(ticket, ORDER_SYMBOL);
-      line += " type=" + EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE));
-      line += " volume=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2);
-      line += " price_open=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits);
-      line += " price_current=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits);
-      line += " magic=" + IntegerToString(HistoryOrderGetInteger(ticket, ORDER_MAGIC));
-      string comment = HistoryOrderGetString(ticket, ORDER_COMMENT);
-      if(StringLen(comment) > 0)
-         line += " comment=" + comment;
-      // profit property not available for history orders; skip or compute separately
-      FileWrite(fh, line);
+      datetime today = now - (now % 86400);
+      for(int i=0; i<ArraySize(levels); i++)
+      {
+         if(levels[i].validFrom <= today && levels[i].validTo >= today)
+         {
+            FileWrite(fh1, "levelNo=" + IntegerToString(i) + " name=" + levels[i].baseName + 
+                      " price=" + DoubleToString(levels[i].price, _Digits) + 
+                      " count=" + IntegerToString(levels[i].count) + 
+                      " contacts=" + IntegerToString(levels[i].approxContactCount) + 
+                      " bias=" + DoubleToString(levels[i].dailyBias, 0) + 
+                      " bounces=" + IntegerToString(levels[i].bounceCount));
+         }
+      }
+      FileClose(fh1);
    }
-
-   // history deals - show ALL history from algorithm start date, not just current day
-   FileWrite(fh, "== History Deals ==");
-   int totalDeals = HistoryDealsTotal();
-   for(int i=0; i<totalDeals; i++)
+   
+   string accountFile = dateStr + "_Day_EOD_accountSummary.txt";
+   int fh2 = FileOpen(accountFile, FILE_WRITE | FILE_TXT);
+   if(fh2 != INVALID_HANDLE)
    {
-      ulong ticket = HistoryDealGetTicket(i);
-      if(ticket == 0) continue;
-      
-      // Filter by algorithm start date
-      datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
-      if(dealTime < dateWhenAlgoTradeStarted) continue;
-      
-      string line = "HIST_DEAL ";
-      line += "ticket=" + IntegerToString(ticket);
-      line += " symbol=" + HistoryDealGetString(ticket, DEAL_SYMBOL);
-      line += " type=" + EnumToString((ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE));
-      line += " entry=" + EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY));
-      line += " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2);
-      line += " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits);
-      line += " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2);
-      line += " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC));
-      FileWrite(fh, line);
+      FileWrite(fh2, "balance=" + DoubleToString(AccountInfoDouble(ACCOUNT_BALANCE), 2));
+      FileWrite(fh2, "equity=" + DoubleToString(AccountInfoDouble(ACCOUNT_EQUITY), 2));
+      FileWrite(fh2, "freeMargin=" + DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_FREE), 2));
+      FileWrite(fh2, "marginLevel=" + DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL), 1));
+      FileWrite(fh2, "openPositions=" + IntegerToString(PositionsTotal()));
+      FileWrite(fh2, "pendingOrders=" + IntegerToString(OrdersTotal()));
+      FileClose(fh2);
    }
-
-   FileClose(fh);
+   
+   string ordersFile = dateStr + "_AllHistoryOrders.txt";
+   int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_TXT);
+   if(fh3 != INVALID_HANDLE)
+   {
+      HistorySelect(0, TimeCurrent());
+      int totalHist = HistoryOrdersTotal();
+      for(int i=0; i<totalHist; i++)
+      {
+         ulong ticket = HistoryOrderGetTicket(i);
+         if(ticket == 0) continue;
+         
+         datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
+         if(orderTime < dateWhenAlgoTradeStarted) continue;
+         
+         FileWrite(fh3, "ticket=" + IntegerToString(ticket) + 
+                   " symbol=" + HistoryOrderGetString(ticket, ORDER_SYMBOL) + 
+                   " type=" + EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)) + 
+                   " volume=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2) + 
+                   " priceOpen=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits) + 
+                   " priceCurrent=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits) + 
+                   " magic=" + IntegerToString(HistoryOrderGetInteger(ticket, ORDER_MAGIC)) + 
+                   " comment=" + HistoryOrderGetString(ticket, ORDER_COMMENT));
+      }
+      FileClose(fh3);
+   }
+   
+   string dealsFile = dateStr + "_AllHistoryDeals.txt";
+   int fh4 = FileOpen(dealsFile, FILE_WRITE | FILE_TXT);
+   if(fh4 != INVALID_HANDLE)
+   {
+      int totalDeals = HistoryDealsTotal();
+      for(int i=0; i<totalDeals; i++)
+      {
+         ulong ticket = HistoryDealGetTicket(i);
+         if(ticket == 0) continue;
+         
+         datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+         if(dealTime < dateWhenAlgoTradeStarted) continue;
+         
+         FileWrite(fh4, "ticket=" + IntegerToString(ticket) + 
+                   " symbol=" + HistoryDealGetString(ticket, DEAL_SYMBOL) + 
+                   " type=" + EnumToString((ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE)) + 
+                   " entry=" + EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)) + 
+                   " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2) + 
+                   " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits) + 
+                   " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2) + 
+                   " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)));
+      }
+      FileClose(fh4);
+   }
 }
 
-//+------------------------------------------------------------------+
-//| Write one event line to per-level B_TradeLog (trade type)        |
-//| orderKind: e.g. "buy_limit", "sell_limit", "market_buy" (optional)|
-//| orderPrice/slPrice/tpPrice: if > 0, appended as prices (for pending_created) |
-//| expirationMinutes: if > 0, appended as exp=minutes (for pending_created) |
-//| orderTicket/dealTicket: ticket numbers (optional) |
 //| dealReason: DEAL_REASON enum value (optional) |
 //| comment: custom comment string (optional) |
 //+------------------------------------------------------------------+
@@ -1039,10 +991,12 @@ void FinalizeCurrentCandle()
 
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
-      string jsonLine = StringFormat("{\"t\":\"%s\",\"o\":%.1f,\"h\":%.1f,\"l\":%.1f,\"c\":%.1f}",
-         TimeToString(current_candle_time, TIME_DATE|TIME_MINUTES),
-         candle_open, candle_high, candle_low, candle_close);
-      FileWrite(allCandlesFileHandle, jsonLine);
+      FileWrite(allCandlesFileHandle,
+         "T=" + TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
+         " O=" + DoubleToString(candle_open,_Digits),
+         " H=" + DoubleToString(candle_high,_Digits),
+         " L=" + DoubleToString(candle_low,_Digits),
+         " C=" + DoubleToString(candle_close,_Digits));
    }
 
    if(first_candle_time==0)
