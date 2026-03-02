@@ -361,11 +361,18 @@ void WriteDailySummary()
          
          FileWrite(fh3, "ticket=" + IntegerToString(ticket) + 
                    " symbol=" + HistoryOrderGetString(ticket, ORDER_SYMBOL) + 
-                   " type=" + EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)) + 
+                   " magic=" + IntegerToString(HistoryOrderGetInteger(ticket, ORDER_MAGIC)) +
+                   " timeSetup=" + TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP), TIME_DATE|TIME_SECONDS) +
+                   " state=" + EnumToString((ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE)) +
+                    " type=" + EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)) + 
+                   " reason=" + EnumToString((ENUM_ORDER_REASON)HistoryOrderGetInteger(ticket, ORDER_REASON)) + 
                    " volume=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2) + 
                    " priceOpen=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits) + 
                    " priceCurrent=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits) + 
-                   " magic=" + IntegerToString(HistoryOrderGetInteger(ticket, ORDER_MAGIC)) + 
+                   " priceStopLoss=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_SL), _Digits) +
+                   " priceTakeProfit=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_TP), _Digits) +
+                   " timeExpiration=" + TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_EXPIRATION), TIME_DATE|TIME_SECONDS) +
+                   " activationPrice=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_STOPLIMIT), _Digits) +
                    " comment=" + HistoryOrderGetString(ticket, ORDER_COMMENT));
       }
       FileClose(fh3);
