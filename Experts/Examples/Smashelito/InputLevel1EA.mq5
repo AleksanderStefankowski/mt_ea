@@ -311,7 +311,7 @@ void WriteDailySummary()
    datetime now = TimeCurrent();
    string dateStr = TimeToString(now, TIME_DATE);
    
-   string activeLevelsFile = dateStr + "_Day_activeLevels.txt";
+   string activeLevelsFile = dateStr + "-Day_activeLevels.txt";
    int fh1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_TXT);
    if(fh1 != INVALID_HANDLE)
    {
@@ -331,7 +331,7 @@ void WriteDailySummary()
       FileClose(fh1);
    }
    
-   string accountFile = dateStr + "_Day_EOD_accountSummary.txt";
+   string accountFile = dateStr + "-Day_EOD_accountSummary.txt";
    int fh2 = FileOpen(accountFile, FILE_WRITE | FILE_TXT);
    if(fh2 != INVALID_HANDLE)
    {
@@ -344,7 +344,7 @@ void WriteDailySummary()
       FileClose(fh2);
    }
    
-   string ordersFile = dateStr + "_AllHistoryOrders.txt";
+   string ordersFile = dateStr + "-AllHistoryOrders.txt";
    int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_TXT);
    if(fh3 != INVALID_HANDLE)
    {
@@ -370,7 +370,7 @@ void WriteDailySummary()
       FileClose(fh3);
    }
    
-   string dealsFile = dateStr + "_AllHistoryDeals.txt";
+   string dealsFile = dateStr + "-AllHistoryDeals.txt";
    int fh4 = FileOpen(dealsFile, FILE_WRITE | FILE_TXT);
    if(fh4 != INVALID_HANDLE)
    {
