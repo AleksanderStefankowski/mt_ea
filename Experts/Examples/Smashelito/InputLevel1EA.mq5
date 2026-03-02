@@ -570,111 +570,138 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
                         const MqlTradeRequest& request,
                         const MqlTradeResult& result)
 {
+   // Handle order updates
    if(trans.type == TRADE_TRANSACTION_ORDER_UPDATE && trans.order > 0)
    {
-      if(!HistoryOrderSelect(trans.order)) return;
-      if(HistoryOrderGetString(trans.order, ORDER_SYMBOL) != _Symbol) return;
-      if((ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE) != ORDER_STATE_FILLED) return;
-
-      int tradeTypeId = GetTradeTypeIdFromMagic(HistoryOrderGetInteger(trans.order, ORDER_MAGIC));
-      string tradeType = GetTradeTypeStringFromId(tradeTypeId);
-      if(tradeType == "unknown") return;
-
-      long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
-      int levelIndex = FindLevelIndexByMagic(orderMagic);
-      if(levelIndex == -1) return;
-
-      datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
-      string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
-      WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, 0, 0, 0, 0, trans.order, 0, 0);
+      HandleOrderUpdate(trans);
+      return;
    }
-
+   
+   // Handle deal additions  
    if(trans.type == TRADE_TRANSACTION_DEAL_ADD && trans.deal > 0)
    {
-      if(!HistoryDealSelect(trans.deal)) return;
-      if(HistoryDealGetString(trans.deal, DEAL_SYMBOL) != _Symbol) return;
-
-      ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
-
-      // Entry deal = order filled (position opened) — log "filled" (tester often sends this instead of ORDER_UPDATE)
-      if(entry == DEAL_ENTRY_IN)
-      {
-         ulong orderTicket = HistoryDealGetInteger(trans.deal, DEAL_ORDER);
-         string comment = "";
-         string kindStr = "unknown";
-         if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
-         {
-            comment = HistoryOrderGetString(orderTicket, ORDER_COMMENT);
-            kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(orderTicket, ORDER_TYPE));
-         }
-         else
-         {
-            comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
-            kindStr = ((ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE) == DEAL_TYPE_BUY) ? "market_buy" : "market_sell";
-         }
-         
-         int tradeTypeId = GetTradeTypeIdFromMagic(HistoryDealGetInteger(trans.deal, DEAL_MAGIC));
-         string tradeType = GetTradeTypeStringFromId(tradeTypeId);
-         if(tradeType == "unknown") return;
-         
-         long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
-         int levelIndex = FindLevelIndexByMagic(dealMagic);
-         if(levelIndex == -1) return;
-
-         datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
-         if(fillTime == 0) fillTime = TimeCurrent();
-         double fillPrice = 0;
-         if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
-            fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
-         if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
-         WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0);
-         return;
-      }
-
-         // Exit deal = position closed (TP or SL)
-      ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
-      if(reason != DEAL_REASON_TP && reason != DEAL_REASON_SL) return;
-
-      ulong posId = HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
-      if(posId == 0) return;
-
-      // Read closing deal time before changing history selection (selection can invalidate deal lookup)
-      datetime closeTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
-      if(closeTime == 0) closeTime = TimeCurrent();
-
-      if(!HistorySelectByPosition((long)posId)) return;
-
-      string comment = "";
-      ulong entryOrderTicket = 0;
-      long entryMagic = 0;
-      int total = HistoryDealsTotal();
-      for(int j = total - 1; j >= 0; j--)
-      {
-         ulong dealTicket = HistoryDealGetTicket(j);
-         if(dealTicket == 0) continue;
-         if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(dealTicket, DEAL_ENTRY) != DEAL_ENTRY_IN) continue;
-         comment = HistoryDealGetString(dealTicket, DEAL_COMMENT);
-         entryOrderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
-         entryMagic = HistoryDealGetInteger(dealTicket, DEAL_MAGIC);
-         break;
-      }
-      
-      // Extract trade type from magic number
-      int tradeTypeId = GetTradeTypeIdFromMagic(entryMagic);
-      string tradeType = GetTradeTypeStringFromId(tradeTypeId);
-      if(tradeType == "unknown") return;
-      
-      // Find level index by matching magic number with levels
-      int levelIndex = FindLevelIndexByMagic(entryMagic);
-      if(levelIndex == -1) return;
-
-      string kindStr = "";
-      if(entryOrderTicket > 0 && HistoryOrderSelect(entryOrderTicket))
-         kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(entryOrderTicket, ORDER_TYPE));
-
-      string eventType = (reason == DEAL_REASON_TP) ? "tp" : "sl";
-      WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment);
+      HandleDealAdd(trans);
+      return;
    }
+}
+
+//+------------------------------------------------------------------+
+void HandleOrderUpdate(const MqlTradeTransaction& trans)
+{
+   if(!HistoryOrderSelect(trans.order)) return;
+   if(HistoryOrderGetString(trans.order, ORDER_SYMBOL) != _Symbol) return;
+   if((ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE) != ORDER_STATE_FILLED) return;
+
+   int tradeTypeId = GetTradeTypeIdFromMagic(HistoryOrderGetInteger(trans.order, ORDER_MAGIC));
+   string tradeType = GetTradeTypeStringFromId(tradeTypeId);
+   if(tradeType == "unknown") return;
+
+   long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
+   int levelIndex = FindLevelIndexByMagic(orderMagic);
+   if(levelIndex == -1) return;
+
+   datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
+   string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
+   WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, 0, 0, 0, 0, trans.order, 0, 0);
+}
+
+//+------------------------------------------------------------------+
+void HandleDealAdd(const MqlTradeTransaction& trans)
+{
+   if(!HistoryDealSelect(trans.deal)) return;
+   if(HistoryDealGetString(trans.deal, DEAL_SYMBOL) != _Symbol) return;
+
+   ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
+
+   // Handle entry deals (position opens)
+   if(entry == DEAL_ENTRY_IN)
+   {
+      HandleEntryDeal(trans);
+      return;
+   }
+
+   // Handle exit deals (TP/SL)
+   HandleExitDeal(trans);
+}
+
+//+------------------------------------------------------------------+
+void HandleEntryDeal(const MqlTradeTransaction& trans)
+{
+   ulong orderTicket = HistoryDealGetInteger(trans.deal, DEAL_ORDER);
+   string comment = "";
+   string kindStr = "unknown";
+   
+   if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
+   {
+      comment = HistoryOrderGetString(orderTicket, ORDER_COMMENT);
+      kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(orderTicket, ORDER_TYPE));
+   }
+   else
+   {
+      comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
+      kindStr = ((ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE) == DEAL_TYPE_BUY) ? "market_buy" : "market_sell";
+   }
+   
+   int tradeTypeId = GetTradeTypeIdFromMagic(HistoryDealGetInteger(trans.deal, DEAL_MAGIC));
+   string tradeType = GetTradeTypeStringFromId(tradeTypeId);
+   if(tradeType == "unknown") return;
+   
+   long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
+   int levelIndex = FindLevelIndexByMagic(dealMagic);
+   if(levelIndex == -1) return;
+
+   datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
+   if(fillTime == 0) fillTime = TimeCurrent();
+   double fillPrice = 0;
+   if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
+      fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
+   if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
+   
+   WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0);
+}
+
+//+------------------------------------------------------------------+
+void HandleExitDeal(const MqlTradeTransaction& trans)
+{
+   ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
+   if(reason != DEAL_REASON_TP && reason != DEAL_REASON_SL) return;
+
+   ulong posId = HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
+   if(posId == 0) return;
+
+   datetime closeTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
+   if(closeTime == 0) closeTime = TimeCurrent();
+
+   if(!HistorySelectByPosition((long)posId)) return;
+
+   string comment = "";
+   ulong entryOrderTicket = 0;
+   long entryMagic = 0;
+   int total = HistoryDealsTotal();
+   for(int j = total - 1; j >= 0; j--)
+   {
+      ulong dealTicket = HistoryDealGetTicket(j);
+      if(dealTicket == 0) continue;
+      if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(dealTicket, DEAL_ENTRY) != DEAL_ENTRY_IN) continue;
+      comment = HistoryDealGetString(dealTicket, DEAL_COMMENT);
+      entryOrderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
+      entryMagic = HistoryDealGetInteger(dealTicket, DEAL_MAGIC);
+      break;
+   }
+   
+   int tradeTypeId = GetTradeTypeIdFromMagic(entryMagic);
+   string tradeType = GetTradeTypeStringFromId(tradeTypeId);
+   if(tradeType == "unknown") return;
+   
+   int levelIndex = FindLevelIndexByMagic(entryMagic);
+   if(levelIndex == -1) return;
+
+   string kindStr = "";
+   if(entryOrderTicket > 0 && HistoryOrderSelect(entryOrderTicket))
+      kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(entryOrderTicket, ORDER_TYPE));
+
+   string eventType = (reason == DEAL_REASON_TP) ? "tp" : "sl";
+   WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment);
 }
 
 //+------------------------------------------------------------------+
