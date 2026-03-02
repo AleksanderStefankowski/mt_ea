@@ -54,7 +54,20 @@ Daily Plan | February 27, 2026
 
 Break and hold above 6931 would target 6960 / 6976
 
-Holding below 6927 would target 6904 / 6880 / 6849'''	
+Holding below 6927 would target 6904 / 6880 / 6849
+
+ES Weekly Plan | March 2-6, 2026
+
+Holding above 6880 would target 7960 / 7030 / 7060* / 7120 / 7160
+
+Break and hold below 6880 would target 6805 / 6730 / 6700* / 6670 / 6592
+
+Daily Plan | March 2, 2026
+
+Holding above 6880 would target 6904 / 6927 / 6960
+
+Break and hold below 6880 would target 6852 / 6829
+'''	
 
 
 
