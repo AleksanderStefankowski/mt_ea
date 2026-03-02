@@ -391,7 +391,11 @@ void WriteDailySummary()
                    " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2) + 
                    " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits) + 
                    " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2) + 
-                   " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)));
+                   " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)) +
+                   " time=" + TimeToString((datetime)HistoryDealGetInteger(ticket, DEAL_TIME), TIME_DATE|TIME_SECONDS) +
+                   " ticketOrder=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_ORDER)) +
+                   " reason=" + EnumToString((ENUM_DEAL_REASON)HistoryDealGetInteger(ticket, DEAL_REASON)) +
+                   " comment=" + HistoryDealGetString(ticket, DEAL_COMMENT));
       }
       FileClose(fh4);
    }
@@ -901,7 +905,13 @@ void FinalizeCurrentCandle()
                double orderPrice = NormalizeDouble(lvl + T_buy2ndBounce_PriceOffsetPips * pip, _Digits);
                double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
-               string orderComment = "L" + IntegerToString(i) + ":" + tradeTypeBuy2ndBounce + ":" + levels[i].baseName + ":" + TimeToString(current_candle_time, TIME_DATE);
+               
+               // Build comment with whitespace-separated values
+               string orderComment = StringFormat("%d %d %.0f %.0f",
+                  TRADE_TYPE_BUY_2ND_BOUNCE, 
+                  (int)lvl,
+                  T_buy2ndBounce_TPPips,
+                  T_buy2ndBounce_SLPips);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
@@ -943,7 +953,13 @@ void FinalizeCurrentCandle()
                double orderPrice = NormalizeDouble(lvl + T_buy4thBounce_PriceOffsetPips * pip, _Digits);
                double sl = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
-               string orderComment = "L" + IntegerToString(i) + ":" + tradeTypeBuy4thBounce + ":" + levels[i].baseName + ":" + TimeToString(current_candle_time, TIME_DATE);
+               
+               // Build comment with whitespace-separated values
+               string orderComment = StringFormat("%d %d %.0f %.0f",
+                  TRADE_TYPE_BUY_4TH_BOUNCE, 
+                  (int)lvl,
+                  T_buy4thBounce_TPPips,
+                  T_buy4thBounce_SLPips);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
