@@ -386,6 +386,9 @@ void WriteDailySummary()
       line += " price_open=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits);
       line += " price_current=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits);
       line += " magic=" + IntegerToString(HistoryOrderGetInteger(ticket, ORDER_MAGIC));
+      string comment = HistoryOrderGetString(ticket, ORDER_COMMENT);
+      if(StringLen(comment) > 0)
+         line += " comment=" + comment;
       // profit property not available for history orders; skip or compute separately
       FileWrite(fh, line);
    }
@@ -423,10 +426,13 @@ void WriteDailySummary()
 //| orderPrice/slPrice/tpPrice: if > 0, appended as prices (for pending_created) |
 //| expirationMinutes: if > 0, appended as exp=minutes (for pending_created) |
 //| orderTicket/dealTicket: ticket numbers (optional) |
+//| dealReason: DEAL_REASON enum value (optional) |
+//| comment: custom comment string (optional) |
 //+------------------------------------------------------------------+
 void WriteTradeLog(int levelIndex, const string tradeType, const string eventType, datetime eventTime,
                   const string orderKind = "", double orderPrice = 0, double slPrice = 0, double tpPrice = 0, int expirationMinutes = 0,
-                  ulong orderTicket = 0, ulong dealTicket = 0, ulong positionTicket = 0)
+                  ulong orderTicket = 0, ulong dealTicket = 0, ulong positionTicket = 0,
+                  ENUM_DEAL_REASON dealReason = (ENUM_DEAL_REASON)0, const string comment = "")
 {
    string fname = BuildTradeLogFileName(levelIndex, tradeType, eventTime);
    if(StringLen(fname) == 0) return;
@@ -456,6 +462,10 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
          line += " dealTicket=" + IntegerToString(dealTicket);
       if(positionTicket > 0)
          line += " positionTicket=" + IntegerToString(positionTicket);
+      if(dealReason != (ENUM_DEAL_REASON)0)
+         line += " dealReason=" + IntegerToString((int)dealReason);
+      if(StringLen(comment) > 0)
+         line += " comment=" + comment;
       FileWrite(fh, line);
       FileClose(fh);
    }
@@ -612,7 +622,7 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
          return;
       }
 
-      // Exit deal = position closed (TP or SL)
+         // Exit deal = position closed (TP or SL)
       ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
       if(reason != DEAL_REASON_TP && reason != DEAL_REASON_SL) return;
 
@@ -647,7 +657,7 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
          kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(entryOrderTicket, ORDER_TYPE));
 
       string eventType = (reason == DEAL_REASON_TP) ? "tp" : "sl";
-      WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId);
+      WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment);
    }
 }
 
@@ -887,7 +897,7 @@ void FinalizeCurrentCandle()
                double orderPrice = NormalizeDouble(lvl + T_buy2ndBounce_PriceOffsetPips * pip, _Digits);
                double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
-               string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy2ndBounce;
+               string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy2ndBounce + "_" + levels[i].baseName + "_" + TimeToString(current_candle_time, TIME_DATE);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
@@ -898,7 +908,7 @@ void FinalizeCurrentCandle()
                {
                   // Get the order ticket from the trade result
                   ulong orderTicket = ExtTrade.ResultOrder();
-                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0);
+                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment);
                }
                
                // Reset to EA's default magic number for other operations
@@ -929,7 +939,7 @@ void FinalizeCurrentCandle()
                double orderPrice = NormalizeDouble(lvl + T_buy4thBounce_PriceOffsetPips * pip, _Digits);
                double sl = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
-               string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy4thBounce;
+               string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy4thBounce + "_" + levels[i].baseName + "_" + TimeToString(current_candle_time, TIME_DATE);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
@@ -940,7 +950,7 @@ void FinalizeCurrentCandle()
                {
                   // Get the order ticket from the trade result
                   ulong orderTicket = ExtTrade.ResultOrder();
-                  WriteTradeLog(i, tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0);
+                  WriteTradeLog(i, tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment);
                }
                
                // Reset to EA's default magic number for other operations
