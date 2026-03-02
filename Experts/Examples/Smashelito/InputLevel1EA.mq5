@@ -1039,12 +1039,10 @@ void FinalizeCurrentCandle()
 
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
-      FileWrite(allCandlesFileHandle,
-         "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
-         " O: ", candle_open,
-         " H: ", candle_high,
-         " L: ", candle_low,
-         " C: ", candle_close);
+      string jsonLine = StringFormat("{\"t\":\"%s\",\"o\":%.1f,\"h\":%.1f,\"l\":%.1f,\"c\":%.1f}",
+         TimeToString(current_candle_time, TIME_DATE|TIME_MINUTES),
+         candle_open, candle_high, candle_low, candle_close);
+      FileWrite(allCandlesFileHandle, jsonLine);
    }
 
    if(first_candle_time==0)
