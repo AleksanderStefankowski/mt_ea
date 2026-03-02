@@ -69,6 +69,14 @@ Level levels[];
 
 //--- Trade type support
 const long EA_MAGIC = 47001; // unique magic for this EA's orders
+
+// Trade type IDs
+enum TRADE_TYPE_ID
+{
+   TRADE_TYPE_BUY_2ND_BOUNCE = 1,
+   TRADE_TYPE_BUY_4TH_BOUNCE = 2
+};
+
 CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
 CPositionInfo ExtPositionInfo;
@@ -128,7 +136,7 @@ bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCoun
 //+------------------------------------------------------------------+
 //| Generate magic number for a level based on date, price, and day of week |
 //+------------------------------------------------------------------+
-long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV)
+long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV, TRADE_TYPE_ID tradeTypeId)
 {
    // Extract date components
    MqlDateTime dt;
@@ -154,8 +162,8 @@ long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV)
       dayOfWeek = mt5Day - 1; // Convert to Monday=1, Tuesday=2, etc.
    }
    
-   // Build magic number: date + price + dayOfWeek
-   string magicStr = dateStr + priceStr + IntegerToString(dayOfWeek);
+   // Build magic number: tradeID + date + price + dayOfWeek
+   string magicStr = IntegerToString(tradeTypeId) + dateStr + priceStr + IntegerToString(dayOfWeek);
    return (long)StringToInteger(magicStr);
 }
 
@@ -182,7 +190,7 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].consecutiveRecoverCandles = 0;
    levels[newIndex].lastCandleInContact = false;
    levels[newIndex].candlesPassedSinceLastBounce = 0;
-   levels[newIndex].magicNumberForLevel = GenerateLevelMagicNumber(levels[newIndex].validFrom, price, tagsCSV);
+   levels[newIndex].magicNumberForLevel = GenerateLevelMagicNumber(levels[newIndex].validFrom, price, tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
 }
 
 //+------------------------------------------------------------------+
@@ -200,7 +208,7 @@ double PipSize()
 //+------------------------------------------------------------------+
 int CountOrdersAndPositionsForLevel(int levelIndex)
 {
-   string prefix = "L" + IntegerToString(levelIndex) + "_";
+   string prefix = "L" + IntegerToString(levelIndex) + ":";
    int count = 0;
 
    // Check positions with level-specific magic number
@@ -225,17 +233,27 @@ int CountOrdersAndPositionsForLevel(int levelIndex)
 }
 
 //+------------------------------------------------------------------+
-//| Parse "L3_buy_2nd_bounce" -> levelIndex=3, tradeType="buy_2nd_bounce" |
+//| Extract trade type ID from magic number (first digit)          |
 //+------------------------------------------------------------------+
-bool ParseLevelComment(const string comment, int &levelIndex, string &tradeType)
+int GetTradeTypeIdFromMagic(long magicNumber)
 {
-   if(StringFind(comment, "L") != 0) return false;
-   int u = (int)StringFind(comment, "_");
-   if(u <= 1) return false;
-   string idxStr = StringSubstr(comment, 1, u - 1);
-   levelIndex = (int)StringToInteger(idxStr);
-   tradeType = StringSubstr(comment, u + 1);
-   return (levelIndex >= 0 && levelIndex < ArraySize(levels) && StringLen(tradeType) > 0);
+   string magicStr = IntegerToString((int)magicNumber);
+   if(StringLen(magicStr) > 0)
+      return (int)StringToInteger(StringSubstr(magicStr, 0, 1));
+   return 0;
+}
+
+//+------------------------------------------------------------------+
+//| Get trade type string from trade type ID                  |
+//+------------------------------------------------------------------+
+string GetTradeTypeStringFromId(int tradeTypeId)
+{
+   switch(tradeTypeId)
+   {
+      case TRADE_TYPE_BUY_2ND_BOUNCE: return "buy_2nd_bounce";
+      case TRADE_TYPE_BUY_4TH_BOUNCE: return "buy_4th_bounce";
+      default: return "unknown";
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -593,10 +611,22 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
       if(HistoryOrderGetString(trans.order, ORDER_SYMBOL) != _Symbol) return;
       if((ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE) != ORDER_STATE_FILLED) return;
 
-      string comment = HistoryOrderGetString(trans.order, ORDER_COMMENT);
+      int tradeTypeId = GetTradeTypeIdFromMagic(HistoryOrderGetInteger(trans.order, ORDER_MAGIC));
+      string tradeType = GetTradeTypeStringFromId(tradeTypeId);
+      if(tradeType == "unknown") return;
+
       int levelIndex = -1;
-      string tradeType = "";
-      if(!ParseLevelComment(comment, levelIndex, tradeType)) return;
+      // Find level index by matching magic number with levels
+      long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
+      for(int i = 0; i < ArraySize(levels); i++)
+      {
+         if(levels[i].magicNumberForLevel == orderMagic)
+         {
+            levelIndex = i;
+            break;
+         }
+      }
+      if(levelIndex == -1) return;
 
       datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
       string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
@@ -615,8 +645,6 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
       {
          ulong orderTicket = HistoryDealGetInteger(trans.deal, DEAL_ORDER);
          string comment = "";
-         int levelIndex = -1;
-         string tradeType = "";
          string kindStr = "unknown";
          if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
          {
@@ -628,16 +656,31 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
             comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
             kindStr = ((ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE) == DEAL_TYPE_BUY) ? "market_buy" : "market_sell";
          }
-         if(ParseLevelComment(comment, levelIndex, tradeType))
+         
+         int tradeTypeId = GetTradeTypeIdFromMagic(HistoryDealGetInteger(trans.deal, DEAL_MAGIC));
+         string tradeType = GetTradeTypeStringFromId(tradeTypeId);
+         if(tradeType == "unknown") return;
+         
+         int levelIndex = -1;
+         // Find level index by matching magic number with levels
+         long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
+         for(int i = 0; i < ArraySize(levels); i++)
          {
-            datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
-            if(fillTime == 0) fillTime = TimeCurrent();
-            double fillPrice = 0;
-            if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
-               fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
-            if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
-            WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0);
+            if(levels[i].magicNumberForLevel == dealMagic)
+            {
+               levelIndex = i;
+               break;
+            }
          }
+         if(levelIndex == -1) return;
+
+         datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
+         if(fillTime == 0) fillTime = TimeCurrent();
+         double fillPrice = 0;
+         if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
+            fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
+         if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
+         WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0);
          return;
       }
 
@@ -656,6 +699,7 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
 
       string comment = "";
       ulong entryOrderTicket = 0;
+      long entryMagic = 0;
       int total = HistoryDealsTotal();
       for(int j = total - 1; j >= 0; j--)
       {
@@ -664,12 +708,26 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
          if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(dealTicket, DEAL_ENTRY) != DEAL_ENTRY_IN) continue;
          comment = HistoryDealGetString(dealTicket, DEAL_COMMENT);
          entryOrderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
+         entryMagic = HistoryDealGetInteger(dealTicket, DEAL_MAGIC);
          break;
       }
-
+      
+      // Extract trade type from magic number
+      int tradeTypeId = GetTradeTypeIdFromMagic(entryMagic);
+      string tradeType = GetTradeTypeStringFromId(tradeTypeId);
+      if(tradeType == "unknown") return;
+      
+      // Find level index by matching magic number with levels
       int levelIndex = -1;
-      string tradeType = "";
-      if(!ParseLevelComment(comment, levelIndex, tradeType)) return;
+      for(int i = 0; i < ArraySize(levels); i++)
+      {
+         if(levels[i].magicNumberForLevel == entryMagic)
+         {
+            levelIndex = i;
+            break;
+         }
+      }
+      if(levelIndex == -1) return;
 
       string kindStr = "";
       if(entryOrderTicket > 0 && HistoryOrderSelect(entryOrderTicket))
@@ -916,7 +974,7 @@ void FinalizeCurrentCandle()
                double orderPrice = NormalizeDouble(lvl + T_buy2ndBounce_PriceOffsetPips * pip, _Digits);
                double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
-               string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy2ndBounce + "_" + levels[i].baseName + "_" + TimeToString(current_candle_time, TIME_DATE);
+               string orderComment = "L" + IntegerToString(i) + ":" + tradeTypeBuy2ndBounce + ":" + levels[i].baseName + ":" + TimeToString(current_candle_time, TIME_DATE);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
@@ -958,7 +1016,7 @@ void FinalizeCurrentCandle()
                double orderPrice = NormalizeDouble(lvl + T_buy4thBounce_PriceOffsetPips * pip, _Digits);
                double sl = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
-               string orderComment = "L" + IntegerToString(i) + "_" + tradeTypeBuy4thBounce + "_" + levels[i].baseName + "_" + TimeToString(current_candle_time, TIME_DATE);
+               string orderComment = "L" + IntegerToString(i) + ":" + tradeTypeBuy4thBounce + ":" + levels[i].baseName + ":" + TimeToString(current_candle_time, TIME_DATE);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
