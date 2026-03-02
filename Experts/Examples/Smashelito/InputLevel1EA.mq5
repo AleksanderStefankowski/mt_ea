@@ -133,9 +133,7 @@ bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCoun
    return true; // Trading allowed
 }
 
-//+------------------------------------------------------------------+
-//| Generate magic number for a level based on date, price, and day of week |
-//+------------------------------------------------------------------+
+//Generate based on date, price, and day of week
 long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV, TRADE_TYPE_ID tradeTypeId)
 {
    // Extract date components
@@ -167,7 +165,6 @@ long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV, 
    return (long)StringToInteger(magicStr);
 }
 
-//+------------------------------------------------------------------+
 void AddLevel(string baseName, double price, string from, string to, string tagsCSV)
 {
    int newIndex = ArraySize(levels);
@@ -193,9 +190,6 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].magicNumberForLevel = GenerateLevelMagicNumber(levels[newIndex].validFrom, price, tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
 }
 
-//+------------------------------------------------------------------+
-//| Pip size for current symbol (1 pip in price terms)               |
-//+------------------------------------------------------------------+
 double PipSize()
 {
    int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
@@ -254,6 +248,16 @@ string GetTradeTypeStringFromId(int tradeTypeId)
       case TRADE_TYPE_BUY_4TH_BOUNCE: return "buy_4th_bounce";
       default: return "unknown";
    }
+}
+
+int FindLevelIndexByMagic(long magicNumber)
+{
+   for(int i = 0; i < ArraySize(levels); i++) {
+      if(levels[i].magicNumberForLevel == magicNumber) {
+         return i;
+      }
+   }
+   return -1;
 }
 
 //+------------------------------------------------------------------+
@@ -567,17 +571,8 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
       string tradeType = GetTradeTypeStringFromId(tradeTypeId);
       if(tradeType == "unknown") return;
 
-      int levelIndex = -1;
-      // Find level index by matching magic number with levels
       long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
-      for(int i = 0; i < ArraySize(levels); i++)
-      {
-         if(levels[i].magicNumberForLevel == orderMagic)
-         {
-            levelIndex = i;
-            break;
-         }
-      }
+      int levelIndex = FindLevelIndexByMagic(orderMagic);
       if(levelIndex == -1) return;
 
       datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
@@ -613,17 +608,8 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
          string tradeType = GetTradeTypeStringFromId(tradeTypeId);
          if(tradeType == "unknown") return;
          
-         int levelIndex = -1;
-         // Find level index by matching magic number with levels
          long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
-         for(int i = 0; i < ArraySize(levels); i++)
-         {
-            if(levels[i].magicNumberForLevel == dealMagic)
-            {
-               levelIndex = i;
-               break;
-            }
-         }
+         int levelIndex = FindLevelIndexByMagic(dealMagic);
          if(levelIndex == -1) return;
 
          datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
@@ -670,15 +656,7 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
       if(tradeType == "unknown") return;
       
       // Find level index by matching magic number with levels
-      int levelIndex = -1;
-      for(int i = 0; i < ArraySize(levels); i++)
-      {
-         if(levels[i].magicNumberForLevel == entryMagic)
-         {
-            levelIndex = i;
-            break;
-         }
-      }
+      int levelIndex = FindLevelIndexByMagic(entryMagic);
       if(levelIndex == -1) return;
 
       string kindStr = "";
