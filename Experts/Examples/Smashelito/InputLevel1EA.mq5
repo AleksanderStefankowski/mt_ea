@@ -145,9 +145,9 @@ long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV, 
                     StringFormat("%02d", dt.mon) + 
                     StringFormat("%02d", dt.day);
    
-   // Convert price to integer (remove decimal point)
-   string priceStr = DoubleToString(price, 0);
-   StringReplace(priceStr, ".", "");
+   // Convert level price to integer (remove decimal point)
+   string levelPriceStr = DoubleToString(price, 0);
+   StringReplace(levelPriceStr, ".", "");
    
    // Determine day of week number (1=Monday, 5=Friday, 0=Weekly)
    int dayOfWeek = 0; // default for weekly
@@ -161,7 +161,7 @@ long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV, 
    }
    
    // Build magic number: tradeID + date + price + dayOfWeek
-   string magicStr = IntegerToString(tradeTypeId) + dateStr + priceStr + IntegerToString(dayOfWeek);
+   string magicStr = IntegerToString(tradeTypeId) + dateStr + levelPriceStr + IntegerToString(dayOfWeek);
    return (long)StringToInteger(magicStr);
 }
 
@@ -202,7 +202,6 @@ double PipSize()
 //+------------------------------------------------------------------+
 int CountOrdersAndPositionsForLevel(int levelIndex)
 {
-   string prefix = "L" + IntegerToString(levelIndex) + ":";
    int count = 0;
 
    // Check positions with level-specific magic number
@@ -210,8 +209,7 @@ int CountOrdersAndPositionsForLevel(int levelIndex)
    {
       if(!ExtPositionInfo.SelectByIndex(i)) continue;
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
-      if(ExtPositionInfo.Magic() != levels[levelIndex].magicNumberForLevel) continue;
-      if(StringFind(ExtPositionInfo.Comment(), prefix) == 0) count++;
+      if(ExtPositionInfo.Magic() == levels[levelIndex].magicNumberForLevel) count++;
    }
 
    // Check pending orders with level-specific magic number
@@ -219,8 +217,7 @@ int CountOrdersAndPositionsForLevel(int levelIndex)
    {
       if(!ExtOrderInfo.SelectByIndex(i)) continue;
       if(ExtOrderInfo.Symbol() != _Symbol) continue;
-      if(ExtOrderInfo.Magic() != levels[levelIndex].magicNumberForLevel) continue;
-      if(StringFind(ExtOrderInfo.Comment(), prefix) == 0) count++;
+      if(ExtOrderInfo.Magic() == levels[levelIndex].magicNumberForLevel) count++;
    }
 
    return count;
