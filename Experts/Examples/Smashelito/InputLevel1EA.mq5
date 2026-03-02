@@ -558,6 +558,25 @@ int OnInit()
    AddLevel("2026.02.27_dailyDown2", 6880, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown2");
    AddLevel("2026.02.27_dailyDown3", 6849, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown3");
 
+   AddLevel("2026.03.02_SmashWeekly", 6880, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,smash");
+   AddLevel("2026.03.02_weeklyUp1", 7030, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp1");
+   AddLevel("2026.03.02_weeklyUp2", 7060, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp2");
+   AddLevel("2026.03.02_weeklyUp3", 7120, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp3");
+   AddLevel("2026.03.02_weeklyUp4", 7160, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp4");
+   AddLevel("2026.03.02_weeklyUp5", 7960, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp5");
+   AddLevel("2026.03.02_weeklyDown1", 6805, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown1");
+   AddLevel("2026.03.02_weeklyDown2", 6730, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown2");
+   AddLevel("2026.03.02_weeklyDown3", 6700, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown3");
+   AddLevel("2026.03.02_weeklyDown4", 6670, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown4");
+   AddLevel("2026.03.02_weeklyDown5", 6592, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown5");
+
+   AddLevel("2026.03.02_SmashDaily", 6880, "2026.03.02 00:00", "2026.03.02 23:59", "daily,smash");
+   AddLevel("2026.03.02_dailyUp1", 6904, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyUp1");
+   AddLevel("2026.03.02_dailyUp2", 6927, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyUp2");
+   AddLevel("2026.03.02_dailyUp3", 6960, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyUp3");
+   AddLevel("2026.03.02_dailyDown1", 6852, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyDown1");
+   AddLevel("2026.03.02_dailyDown2", 6829, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyDown2");
+
    return(INIT_SUCCEEDED);
 }
 
