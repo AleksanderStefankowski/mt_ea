@@ -161,7 +161,7 @@ long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV, 
    }
    
    // Build magic number: tradeID + date + price + dayOfWeek
-   string magicStr = IntegerToString(tradeTypeId) + dateStr + levelPriceStr + IntegerToString(dayOfWeek);
+   string magicStr = StringFormat("%d%s%s%d", tradeTypeId, dateStr, levelPriceStr, dayOfWeek);
    return (long)StringToInteger(magicStr);
 }
 
@@ -265,8 +265,9 @@ string BuildTradeLogFileName(int levelIndex, const string tradeType, datetime fo
    if(levelIndex < 0 || levelIndex >= ArraySize(levels)) return "";
    string dateStr = TimeToString(forTime, TIME_DATE);
    double lvl = levels[levelIndex].price;
-   return dateStr + "-" + levels[levelIndex].baseName + "_week" + dateStr +
-          "_-" + DoubleToString(lvl, _Digits) + "_B_TradeLog_" + tradeType + ".txt";
+   return StringFormat("%s-%s_week%s_-%s_B_TradeLog_%s.txt", 
+                      dateStr, levels[levelIndex].baseName, dateStr, 
+                      DoubleToString(lvl, _Digits), tradeType);
 }
 
 //+------------------------------------------------------------------+
@@ -784,10 +785,8 @@ void FinalizeCurrentCandle()
             if(levels[i].araFileHandle != INVALID_HANDLE)
                FileClose(levels[i].araFileHandle);
 
-            string araFile = dateStr + "-" + levels[i].baseName +
-                             "_week" + dateStr +
-                             "_-" + DoubleToString(lvl,_Digits) +
-                             "_Arawevents.txt";
+            string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.txt", 
+                                         dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
             levels[i].araFileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT|FILE_READ);
             if(levels[i].araFileHandle==INVALID_HANDLE)
@@ -865,9 +864,8 @@ void FinalizeCurrentCandle()
          // --- Write per-level file if physically touched
          if(physicallyTouched)
          {
-            string lvlFile = dateStr + "-" + levels[i].baseName +
-                             "_week" + dateStr +
-                             "_-" + DoubleToString(lvl,_Digits) + "_ARawAContact.txt";
+            string lvlFile = StringFormat("%s-%s_week%s_-%.0f_ARawAContact.txt", 
+                                         dateStr, levels[i].baseName, dateStr, lvl);
 
             int fh = FileOpen(lvlFile, FILE_WRITE|FILE_TXT|FILE_READ);
             if(fh==INVALID_HANDLE)
