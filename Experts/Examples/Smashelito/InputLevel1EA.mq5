@@ -101,6 +101,9 @@ datetime allCandlesFileDate = 0;
 //--- Daily summary tracking
 datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when summary was last written
 
+//--- Last tick time (server); set in OnTick, use instead of TimeCurrent()
+datetime g_lastTickTime = 0;
+
 //--- Algorithm start date - only show trade history from this date in log allTradesHistoryForAllLevels_andAllAccountData
 datetime dateWhenAlgoTradeStarted = StringToTime("2026.01.23 00:00");
 
@@ -195,6 +198,19 @@ double PipSize()
 }
 
 //+------------------------------------------------------------------+
+//| Open file for append (try existing first, else create). Returns handle or INVALID_HANDLE. |
+//+------------------------------------------------------------------+
+int OpenOrCreateForAppend(string path)
+{
+   int h = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_READ);
+   if(h != INVALID_HANDLE)
+      FileSeek(h, 0, SEEK_END);
+   else
+      h = FileOpen(path, FILE_WRITE | FILE_TXT);
+   return h;
+}
+
+//+------------------------------------------------------------------+
 //| Count open positions + pending orders with this exact magic (trading: limit per magic, not per level) |
 //+------------------------------------------------------------------+
 int CountOrdersAndPositionsForMagic(long magic)
@@ -238,6 +254,15 @@ string GetTradeTypeStringFromId(int tradeTypeId)
       case TRADE_TYPE_BUY_4TH_BOUNCE: return "buy_4th_bounce";
       default: return "unknown";
    }
+}
+
+//+------------------------------------------------------------------+
+//| Trade type string from magic; returns "" if unknown (use StringLen==0 to check). |
+//+------------------------------------------------------------------+
+string GetTradeTypeFromMagic(long magic)
+{
+   string s = GetTradeTypeStringFromId(GetTradeTypeIdFromMagic(magic));
+   return (s == "unknown") ? "" : s;
 }
 
 //+------------------------------------------------------------------+
@@ -290,7 +315,7 @@ string AccountSummary()
 //+------------------------------------------------------------------+
 void WriteDailySummary()
 {
-   datetime now = TimeCurrent();
+   datetime now = g_lastTickTime;
    string dateStr = TimeToString(now, TIME_DATE);
    
    string activeLevelsFile = dateStr + "-Day_activeLevels.txt";
@@ -330,7 +355,7 @@ void WriteDailySummary()
    int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_TXT);
    if(fh3 != INVALID_HANDLE)
    {
-      HistorySelect(0, TimeCurrent());
+      HistorySelect(0, g_lastTickTime);
       int totalHist = HistoryOrdersTotal();
       for(int i=0; i<totalHist; i++)
       {
@@ -400,16 +425,11 @@ void WriteTradeLog(const string tradeType, const string eventType, datetime even
    string fname = BuildTradeLogFileName(tradeType, eventTime);
    if(StringLen(fname) == 0) return;
 
-   int fh = FileOpen(fname, FILE_WRITE | FILE_TXT | FILE_READ);
-   if(fh == INVALID_HANDLE)
-      fh = FileOpen(fname, FILE_WRITE | FILE_TXT);
-   else
-      FileSeek(fh, 0, SEEK_END);
-
+   int fh = OpenOrCreateForAppend(fname);
    if(fh != INVALID_HANDLE)
    {
-      string acct = AccountSummary();
-      string line = TimeToString(eventTime, TIME_DATE | TIME_SECONDS) + " " + acct;
+      string acct = StringFormat("bal=%.2f eq=%.2f", AccountInfoDouble(ACCOUNT_BALANCE), AccountInfoDouble(ACCOUNT_EQUITY));
+      string line = "time=" + TimeToString(eventTime, TIME_DATE | TIME_SECONDS) + " " + acct;
       if(StringLen(orderKind) > 0) line += " " + orderKind;
       if(orderPrice > 0)
          line += " orderPrice=" + DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits);
@@ -572,9 +592,8 @@ void HandleOrderUpdate(const MqlTradeTransaction& trans)
    if(HistoryOrderGetString(trans.order, ORDER_SYMBOL) != _Symbol) return;
    if((ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE) != ORDER_STATE_FILLED) return;
 
-   int tradeTypeId = GetTradeTypeIdFromMagic(HistoryOrderGetInteger(trans.order, ORDER_MAGIC));
-   string tradeType = GetTradeTypeStringFromId(tradeTypeId);
-   if(tradeType == "unknown") return;
+   string tradeType = GetTradeTypeFromMagic(HistoryOrderGetInteger(trans.order, ORDER_MAGIC));
+   if(StringLen(tradeType) == 0) return;
 
    datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
    string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
@@ -617,12 +636,11 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
       kindStr = ((ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE) == DEAL_TYPE_BUY) ? "market_buy" : "market_sell";
    }
 
-   int tradeTypeId = GetTradeTypeIdFromMagic(HistoryDealGetInteger(trans.deal, DEAL_MAGIC));
-   string tradeType = GetTradeTypeStringFromId(tradeTypeId);
-   if(tradeType == "unknown") return;
+   string tradeType = GetTradeTypeFromMagic(HistoryDealGetInteger(trans.deal, DEAL_MAGIC));
+   if(StringLen(tradeType) == 0) return;
 
    datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
-   if(fillTime == 0) fillTime = TimeCurrent();
+   if(fillTime == 0) fillTime = g_lastTickTime;
    double fillPrice = 0;
    if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
       fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
@@ -642,7 +660,7 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
    if(posId == 0) return;
 
    datetime closeTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
-   if(closeTime == 0) closeTime = TimeCurrent();
+   if(closeTime == 0) closeTime = g_lastTickTime;
 
    if(!HistorySelectByPosition((long)posId)) return;
 
@@ -661,9 +679,8 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
       break;
    }
 
-   int tradeTypeId = GetTradeTypeIdFromMagic(entryMagic);
-   string tradeType = GetTradeTypeStringFromId(tradeTypeId);
-   if(tradeType == "unknown") return;
+   string tradeType = GetTradeTypeFromMagic(entryMagic);
+   if(StringLen(tradeType) == 0) return;
 
    string kindStr = "";
    if(entryOrderTicket > 0 && HistoryOrderSelect(entryOrderTicket))
@@ -709,11 +726,14 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
+   MqlTick tick;
+   if(SymbolInfoTick(_Symbol, tick))
+      g_lastTickTime = tick.time;
+
    double tick_price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
    datetime candle_start = iTime(_Symbol,_Period,0);
 
    // daily summary check: execute once per day at specified tick time (hour+minute)
-   MqlTick tick;
    if(SymbolInfoTick(_Symbol,tick))
    {
       MqlDateTime mt;
@@ -759,9 +779,7 @@ void FinalizeCurrentCandle()
          FileClose(allCandlesFileHandle);
 
       string allFileName = dateStr + "-AllCandlesTickLog.txt";
-      allCandlesFileHandle = FileOpen(allFileName, FILE_WRITE|FILE_TXT|FILE_READ);
-      if(allCandlesFileHandle==INVALID_HANDLE)
-         allCandlesFileHandle = FileOpen(allFileName, FILE_WRITE|FILE_TXT);
+      allCandlesFileHandle = OpenOrCreateForAppend(allFileName);
 
       allCandlesFileDate = candleDay;
    }
@@ -784,9 +802,7 @@ void FinalizeCurrentCandle()
             string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.txt", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
-            levels[i].logRawEv_fileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT|FILE_READ);
-            if(levels[i].logRawEv_fileHandle==INVALID_HANDLE)
-               levels[i].logRawEv_fileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT);
+            levels[i].logRawEv_fileHandle = OpenOrCreateForAppend(araFile);
          }
 
          // OHLC values
@@ -862,12 +878,7 @@ void FinalizeCurrentCandle()
             string lvlFile = StringFormat("%s-%s_week%s_-%.0f_ARawAContact.txt", 
                                          dateStr, levels[i].baseName, dateStr, lvl);
 
-            int fh = FileOpen(lvlFile, FILE_WRITE|FILE_TXT|FILE_READ);
-            if(fh==INVALID_HANDLE)
-               fh = FileOpen(lvlFile, FILE_WRITE|FILE_TXT);
-            else
-               FileSeek(fh,0,SEEK_END);
-
+            int fh = OpenOrCreateForAppend(lvlFile);
             if(fh != INVALID_HANDLE)
             {
                FileWrite(fh,
@@ -915,16 +926,17 @@ void FinalizeCurrentCandle()
                   T_buy2ndBounce_TPPips,
                   T_buy2ndBounce_SLPips);
 
-               datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
+               datetime expirationTime = g_lastTickTime + 30 * 60; // 30 minutes from last tick
                
                // Use same magic we counted above
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                {
-                  // Get the order ticket from the trade result
                   ulong orderTicket = ExtTrade.ResultOrder();
-                  WriteTradeLog(tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
+                  OrderSelect(orderTicket);
+                  datetime eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+                  WriteTradeLog(tradeTypeBuy2ndBounce, "pending_created", eventTime, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
                }
                
                // Reset to EA's default magic number for other operations
@@ -964,16 +976,17 @@ void FinalizeCurrentCandle()
                   T_buy4thBounce_TPPips,
                   T_buy4thBounce_SLPips);
 
-               datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
+               datetime expirationTime = g_lastTickTime + 30 * 60; // 30 minutes from last tick
                
                // Use same magic we counted above
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
                if(ExtTrade.BuyLimit(T_buy4thBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                {
-                  // Get the order ticket from the trade result
                   ulong orderTicket = ExtTrade.ResultOrder();
-                  WriteTradeLog(tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
+                  OrderSelect(orderTicket);
+                  datetime eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+                  WriteTradeLog(tradeTypeBuy4thBounce, "pending_created", eventTime, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
                }
                
                // Reset to EA's default magic number for other operations
