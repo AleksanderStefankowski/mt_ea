@@ -47,7 +47,7 @@ input double   T_buy4thBounce_SLPips           = 20.0;   // SL = order price - t
 // Entry rule to open: level.bounceCount == 3 && bias_long (dailyBias > 0) && no_contact (!in_contact)
 
 //--- Trade type 3: market_30_45 (no level; magic has no level component)
-//    At xx:30: if no order with this magic exists → market buy. At xx:45: close that position (no new sell).
+//    Flow B: trigger by candle END time. Bar ending at xx:30 → place buy; bar ending at xx:45 → close (works on any timeframe).
 //    Banned: 00:00-03:00, 20:00-23:59. TP/SL in points (900).
 input double   T_tradeType3_LotSize   = 0.01;
 input int      T_tradeType3_TPPoints = 9000;  // TP/SL distance in points (not pips)
@@ -675,7 +675,10 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
 void HandleExitDeal(const MqlTradeTransaction& trans)
 {
    ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(trans.deal, DEAL_REASON);
-   if(reason != DEAL_REASON_TP && reason != DEAL_REASON_SL) return;
+   // Log TP, SL, and EA-initiated close (DEAL_REASON_EXPERT)
+   bool isTpSl = (reason == DEAL_REASON_TP || reason == DEAL_REASON_SL);
+   bool isExpertClose = (reason == DEAL_REASON_EXPERT);
+   if(!isTpSl && !isExpertClose) return;
 
    ulong posId = HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
    if(posId == 0) return;
@@ -707,7 +710,9 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
    if(entryOrderTicket > 0 && HistoryOrderSelect(entryOrderTicket))
       kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(entryOrderTicket, ORDER_TYPE));
 
-   string eventType = (reason == DEAL_REASON_TP) ? "tp" : "sl";
+   string eventType = "sl";
+   if(reason == DEAL_REASON_TP) eventType = "tp";
+   else if(reason == DEAL_REASON_EXPERT) eventType = "closed_by_ea";
    WriteTradeLog(tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment, entryMagic);
 }
 
@@ -786,63 +791,67 @@ void OnTick()
       if(tick_price < candle_low)  candle_low  = tick_price;
       candle_close = tick_price;
    }
+}
 
-   // --- Trade type 3: market_30_45 (no level; not in level loop)
-   // At xx:30: if no order with magic exists → market buy. At xx:45: close the position opened at xx:30.
-   // Banned: 00:00-03:00, 20:00-23:59. Uses g_lastTickTime only.
+//+------------------------------------------------------------------+
+//| Flow B: single trigger = candle close. For each trade type: if time OK and price/levels OK, do this type. |
+//| Type 3: time only. Trigger by candle END time: minute 30 = place buy, minute 45 = close (works on any timeframe). |
+//+------------------------------------------------------------------+
+void EvaluateTradeType3(datetime candleTime)
+{
+   // Use candle END time so we trigger at same real time on any timeframe (e.g. M1 16:29 bar ends 16:30; M5 16:25 bar ends 16:30)
+   datetime barEndTime = candleTime + PeriodSeconds(_Period);
+   MqlDateTime endMt;
+   TimeToStruct(barEndTime, endMt);
+   int minute = endMt.min;
+   if(minute != 30 && minute != 45) return;
+
+   int bannedRanges3[][4] = {
+      { 0, 0,  2, 59 },   // 00:00 to 02:59
+      { 20, 0, 23, 59 }   // 20:00 to 23:59
+   };
+   if(!IsTradingAllowed(barEndTime, bannedRanges3, 2)) return;
+
+   long magic = BuildMagicForTradeType3(candleTime);
+
+   if(minute == 30)
    {
-      MqlDateTime mt;
-      TimeToStruct(g_lastTickTime, mt);
-      int minute = mt.min;
-      if(minute == 30 || minute == 45)
+      if(CountOrdersAndPositionsForMagic(magic) >= Max_OrdersPerMagic) return;
+
+      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+      double slPoints = (double)T_tradeType3_SLPoints;
+      double tpPoints = (double)T_tradeType3_TPPoints;
+      string orderComment = StringFormat("%d", (int)TRADE_TYPE_MARKET_30_45);
+      ExtTrade.SetExpertMagicNumber(magic);
+
+      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+      double sl = NormalizeDouble(ask - slPoints * point, _Digits);
+      double tp = NormalizeDouble(ask + tpPoints * point, _Digits);
+      if(ExtTrade.Buy(T_tradeType3_LotSize, _Symbol, ask, sl, tp, orderComment))
       {
-         int bannedRanges3[][4] = {
-            { 0, 0,  2, 59 },   // 00:00 to 02:59
-            { 20, 0, 23, 59 }   // 20:00 to 23:59
-         };
-         if(IsTradingAllowed(g_lastTickTime, bannedRanges3, 2))
-         {
-            if(minute == 30)
-            {
-               long magic = BuildMagicForTradeType3(g_lastTickTime);
-               if(CountOrdersAndPositionsForMagic(magic) < Max_OrdersPerMagic)
-               {
-                  double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-                  double slPoints = (double)T_tradeType3_SLPoints;
-                  double tpPoints = (double)T_tradeType3_TPPoints;
-                  string orderComment = StringFormat("%d", (int)TRADE_TYPE_MARKET_30_45);
-                  ExtTrade.SetExpertMagicNumber(magic);
-
-                  double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-                  double sl = NormalizeDouble(ask - slPoints * point, _Digits);
-                  double tp = NormalizeDouble(ask + tpPoints * point, _Digits);
-                  if(ExtTrade.Buy(T_tradeType3_LotSize, _Symbol, ask, sl, tp, orderComment))
-                  {
-                     ulong orderTicket = ExtTrade.ResultOrder();
-                     datetime eventTime = g_lastTickTime;
-                     if(orderTicket > 0 && OrderSelect(orderTicket))
-                        eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-                     WriteTradeLog("trade_type_3", "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
-                  }
-
-                  ExtTrade.SetExpertMagicNumber(EA_MAGIC);
-               }
-            }
-            else // minute == 45: close any position(s) with trade type 3 magic (id 3 + date)
-            {
-               long magicToClose = BuildMagicForTradeType3(g_lastTickTime);
-               ExtTrade.SetExpertMagicNumber(magicToClose);
-               for(int i = PositionsTotal() - 1; i >= 0; i--)
-               {
-                  if(!ExtPositionInfo.SelectByIndex(i)) continue;
-                  if(ExtPositionInfo.Symbol() != _Symbol) continue;
-                  if(ExtPositionInfo.Magic() != magicToClose) continue;
-                  ExtTrade.PositionClose(ExtPositionInfo.Ticket());
-               }
-               ExtTrade.SetExpertMagicNumber(EA_MAGIC);
-            }
-         }
+         ulong orderTicket = ExtTrade.ResultOrder();
+         datetime eventTime = candleTime;
+         if(orderTicket > 0 && OrderSelect(orderTicket))
+            eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+         WriteTradeLog("trade_type_3", "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
       }
+
+      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+   }
+   else // minute == 45: close any position(s) with trade type 3 magic (id 3 + date)
+   {
+      ExtTrade.SetExpertMagicNumber(magic);
+      for(int i = PositionsTotal() - 1; i >= 0; i--)
+      {
+         if(!ExtPositionInfo.SelectByIndex(i)) continue;
+         if(ExtPositionInfo.Symbol() != _Symbol) continue;
+         if(ExtPositionInfo.Magic() != magic) continue;
+         ulong ticket = ExtPositionInfo.Ticket();
+         double closePrice = ExtPositionInfo.PriceCurrent();
+         ExtTrade.PositionClose(ticket);
+         WriteTradeLog("trade_type_3", "closed_by_ea", barEndTime, "market_buy", closePrice, 0, 0, 0, 0, 0, ticket, (ENUM_DEAL_REASON)0, "", magic);
+      }
+      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
    }
 }
 
@@ -970,6 +979,7 @@ void FinalizeCurrentCandle()
             }
          }
 
+         // --- Flow B: for each trade type, if time OK and price/levels OK, do this type (types 1,2 per level here; type 3 once after loop)
          // --- Trading: price analysis vs levels → if trade triggers, try to place → if place succeeds without error, log it
          // --- Trade type: buy_2nd_bounce
          // Entry rule: bounceCount==1, bias_long, no_contact, CandlesPassedSinceLastBounce < 65, timeAllowed. Params from T_buy2ndBounce_* inputs.
@@ -1074,6 +1084,9 @@ void FinalizeCurrentCandle()
          }
       }
    }
+
+   // Flow B: evaluate trade type 3 (time only; trigger xx:29/xx:44 at candle close)
+   EvaluateTradeType3(current_candle_time);
 
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
