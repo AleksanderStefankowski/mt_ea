@@ -831,6 +831,7 @@ void OnTick()
             else // minute == 45: close any position(s) with trade type 3 magic (id 3 + date)
             {
                long magicToClose = BuildMagicForTradeType3(g_lastTickTime);
+               ExtTrade.SetExpertMagicNumber(magicToClose);
                for(int i = PositionsTotal() - 1; i >= 0; i--)
                {
                   if(!ExtPositionInfo.SelectByIndex(i)) continue;
@@ -838,6 +839,7 @@ void OnTick()
                   if(ExtPositionInfo.Magic() != magicToClose) continue;
                   ExtTrade.PositionClose(ExtPositionInfo.Ticket());
                }
+               ExtTrade.SetExpertMagicNumber(EA_MAGIC);
             }
          }
       }
