@@ -324,12 +324,12 @@ int GetTradeTypeIdFromMagic(long magicNumber)
 }
 
 //+------------------------------------------------------------------+
-//| B_TradeLog filename = trade_type_(id). Name only as comment near trade definition. |
+//| B_TradeLog filename = B_TradeLog_(id). e.g. 2026.03.03_B_TradeLog_3.txt |
 //+------------------------------------------------------------------+
 string GetTradeTypeStringFromId(int tradeTypeId)
 {
    if(tradeTypeId <= 0) return "";
-   return "trade_type_" + IntegerToString(tradeTypeId);
+   return IntegerToString(tradeTypeId);
 }
 
 //+------------------------------------------------------------------+
