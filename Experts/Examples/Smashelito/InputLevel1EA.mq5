@@ -25,7 +25,7 @@ input double   ProximityThreshold   = 1.0;
 input double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to count as broken
 input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for RecoverCount
 input int      BounceCandlesRequired = 1; // for bounce count logic
-input int      Max_AnyOrder_perLevel = 1; // any order is open position or pending order
+input int      Max_OrdersPerMagic = 1; // max open positions + pending orders with this magic (same full magic number)
 input double   InpLotSize           = 0.01; // lot size for trade types
 input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (tick timestamp)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
@@ -59,7 +59,7 @@ struct Level
    double dailyBias;
    bool biasSetToday;
    datetime lastBiasDate;
-   int araFileHandle;
+   int logRawEv_fileHandle;
    int candlesBreakLevelCount;
    int recoverCount;
    int bounceCount;
@@ -178,7 +178,7 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].dailyBias = 0;
    levels[newIndex].biasSetToday = false;
    levels[newIndex].lastBiasDate = 0;
-   levels[newIndex].araFileHandle = INVALID_HANDLE;
+   levels[newIndex].logRawEv_fileHandle = INVALID_HANDLE;
    levels[newIndex].candlesBreakLevelCount = 0;
    levels[newIndex].recoverCount = 0;
    levels[newIndex].bounceCount = 0;
@@ -195,34 +195,23 @@ double PipSize()
 }
 
 //+------------------------------------------------------------------+
-//| Count open positions + pending orders for this level (trading: match by magic built from level date/price/tags + trade type) |
+//| Count open positions + pending orders with this exact magic (trading: limit per magic, not per level) |
 //+------------------------------------------------------------------+
-int CountOrdersAndPositionsForLevel(int levelIndex)
+int CountOrdersAndPositionsForMagic(long magic)
 {
-   if(levelIndex < 0 || levelIndex >= ArraySize(levels)) return 0;
    int count = 0;
-   datetime validFrom = levels[levelIndex].validFrom;
-   double price = levels[levelIndex].price;
-   string tagsCSV = levels[levelIndex].tagsCSV;
-   long magic1 = BuildTradeMagic(validFrom, price, tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
-   long magic2 = BuildTradeMagic(validFrom, price, tagsCSV, TRADE_TYPE_BUY_4TH_BOUNCE);
-
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
       if(!ExtPositionInfo.SelectByIndex(i)) continue;
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
-      long m = ExtPositionInfo.Magic();
-      if(m == magic1 || m == magic2) count++;
+      if(ExtPositionInfo.Magic() == magic) count++;
    }
-
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
       if(!ExtOrderInfo.SelectByIndex(i)) continue;
       if(ExtOrderInfo.Symbol() != _Symbol) continue;
-      long m = ExtOrderInfo.Magic();
-      if(m == magic1 || m == magic2) count++;
+      if(ExtOrderInfo.Magic() == magic) count++;
    }
-
    return count;
 }
 
@@ -691,8 +680,8 @@ void OnDeinit(const int reason)
       FinalizeCurrentCandle();
 
    for(int i=0;i<ArraySize(levels);i++)
-      if(levels[i].araFileHandle != INVALID_HANDLE)
-         FileClose(levels[i].araFileHandle);
+      if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
+         FileClose(levels[i].logRawEv_fileHandle);
 
    if(allCandlesFileHandle != INVALID_HANDLE)
       FileClose(allCandlesFileHandle);
@@ -789,15 +778,15 @@ void FinalizeCurrentCandle()
             levels[i].dailyBias = (candle_close > lvl ? 1 : -1);
             levels[i].lastBiasDate = candleDay;
 
-            if(levels[i].araFileHandle != INVALID_HANDLE)
-               FileClose(levels[i].araFileHandle);
+            if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
+               FileClose(levels[i].logRawEv_fileHandle);
 
             string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.txt", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
-            levels[i].araFileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT|FILE_READ);
-            if(levels[i].araFileHandle==INVALID_HANDLE)
-               levels[i].araFileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT);
+            levels[i].logRawEv_fileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT|FILE_READ);
+            if(levels[i].logRawEv_fileHandle==INVALID_HANDLE)
+               levels[i].logRawEv_fileHandle = FileOpen(araFile, FILE_WRITE|FILE_TXT);
          }
 
          // OHLC values
@@ -848,9 +837,9 @@ void FinalizeCurrentCandle()
          levels[i].lastCandleInContact = in_contact;
 
          // --- Write Arawevents
-         if(levels[i].araFileHandle != INVALID_HANDLE)
+         if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
          {
-            FileWrite(levels[i].araFileHandle,
+            FileWrite(levels[i].logRawEv_fileHandle,
                "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
                " L: ", lvl,
                " O: ", NormalizeDouble(candle_open,_Digits),
@@ -896,7 +885,8 @@ void FinalizeCurrentCandle()
          // Entry rule: bounceCount==1, bias_long, no_contact, CandlesPassedSinceLastBounce < 65, timeAllowed. Params from T_buy2ndBounce_* inputs.
          {
             const string tradeTypeBuy2ndBounce = "buy_2nd_bounce";
-            int current_all_trades = CountOrdersAndPositionsForLevel(i);
+            long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
+            int current_all_trades = CountOrdersAndPositionsForMagic(tradeMagic);
             
             // Define banned time ranges for buy_2nd_bounce: {startHour, startMinute, endHour, endMinute}
             int bannedRanges2nd[][4] = {
@@ -909,7 +899,7 @@ void FinalizeCurrentCandle()
             bool bias_long = (levels[i].dailyBias > 0);
             bool no_contact = !in_contact;
             bool entryRule = (levels[i].bounceCount == 1) && bias_long && no_contact && (levels[i].candlesPassedSinceLastBounce < 65);
-            bool allowed = (current_all_trades < Max_AnyOrder_perLevel) && entryRule && timeAllowed;
+            bool allowed = (current_all_trades < Max_OrdersPerMagic) && entryRule && timeAllowed;
 
             if(allowed)
             {
@@ -927,8 +917,7 @@ void FinalizeCurrentCandle()
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
-               // Trade builds magic from date, price, tags + trade type (tradeID 1 = buy_2nd_bounce)
-               long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
+               // Use same magic we counted above
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
@@ -947,7 +936,8 @@ void FinalizeCurrentCandle()
          // Entry rule: bounceCount==3, bias_long, no_contact, CandlesPassedSinceLastBounce < 65, timeAllowed. Params from T_buy2ndBounce_* inputs.
          {
             const string tradeTypeBuy4thBounce = "buy_4th_bounce";
-            int current_all_trades = CountOrdersAndPositionsForLevel(i);
+            long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_4TH_BOUNCE);
+            int current_all_trades = CountOrdersAndPositionsForMagic(tradeMagic);
             
             // Define banned time ranges for buy_4th_bounce: {startHour, startMinute, endHour, endMinute}
             int bannedRanges4th[][4] = {
@@ -958,7 +948,7 @@ void FinalizeCurrentCandle()
             bool bias_long = (levels[i].dailyBias > 0);
             bool no_contact = !in_contact;
             bool entryRule = (levels[i].bounceCount == 3) && bias_long && no_contact && (levels[i].candlesPassedSinceLastBounce < 65);
-            bool allowed = (current_all_trades < Max_AnyOrder_perLevel) && entryRule && timeAllowed;
+            bool allowed = (current_all_trades < Max_OrdersPerMagic) && entryRule && timeAllowed;
 
             if(allowed)
             {
@@ -976,8 +966,7 @@ void FinalizeCurrentCandle()
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
-               // Trade builds magic from date, price, tags + trade type (tradeID 2 = buy_4th_bounce)
-               long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_4TH_BOUNCE);
+               // Use same magic we counted above
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
                if(ExtTrade.BuyLimit(T_buy4thBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
