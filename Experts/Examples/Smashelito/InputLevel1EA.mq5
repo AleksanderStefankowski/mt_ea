@@ -46,7 +46,12 @@ input double   T_buy4thBounce_TPPips           = 60.0;  // TP = order price + th
 input double   T_buy4thBounce_SLPips           = 20.0;   // SL = order price - this many pips (e.g. 20 for 2 pts on US500 point=0.1)
 // Entry rule to open: level.bounceCount == 3 && bias_long (dailyBias > 0) && no_contact (!in_contact)
 
-//--- Level struct
+//--- Trade type 3: market_30_45 (no level; magic has no level component)
+//    At xx:30: if no order with this magic exists → market buy. At xx:45: close that position (no new sell).
+//    Banned: 00:00-03:00, 20:00-23:59. TP/SL in points (900).
+input double   T_tradeType3_LotSize   = 0.01;
+input int      T_tradeType3_TPPoints = 9000;  // TP/SL distance in points (not pips)
+input int      T_tradeType3_SLPoints = 9000;
 struct Level
 {
    string baseName;
@@ -76,7 +81,8 @@ const long EA_MAGIC = 47001; // unique magic for this EA's orders
 enum TRADE_TYPE_ID
 {
    TRADE_TYPE_BUY_2ND_BOUNCE = 1,
-   TRADE_TYPE_BUY_4TH_BOUNCE = 2
+   TRADE_TYPE_BUY_4TH_BOUNCE = 2,
+   TRADE_TYPE_MARKET_30_45   = 3   // market buy at xx:30, market sell at xx:45; no level in magic
 };
 
 CTrade ExtTrade;
@@ -166,6 +172,20 @@ long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYP
    return (long)StringToInteger(magicStr);
 }
 
+//+------------------------------------------------------------------+
+//| Build magic for trade type 3 (market_30_45). No level; date only (id 3 + YYYYMMDD). |
+//+------------------------------------------------------------------+
+long BuildMagicForTradeType3(datetime tickTime)
+{
+   MqlDateTime dt;
+   TimeToStruct(tickTime, dt);
+   string dateStr = IntegerToString(dt.year) +
+                    StringFormat("%02d", dt.mon) +
+                    StringFormat("%02d", dt.day);
+   string magicStr = StringFormat("%d%s", (int)TRADE_TYPE_MARKET_30_45, dateStr);
+   return (long)StringToInteger(magicStr);
+}
+
 void AddLevel(string baseName, double price, string from, string to, string tagsCSV)
 {
    int newIndex = ArraySize(levels);
@@ -252,6 +272,7 @@ string GetTradeTypeStringFromId(int tradeTypeId)
    {
       case TRADE_TYPE_BUY_2ND_BOUNCE: return "buy_2nd_bounce";
       case TRADE_TYPE_BUY_4TH_BOUNCE: return "buy_4th_bounce";
+      case TRADE_TYPE_MARKET_30_45:   return "trade_type_3";
       default: return "unknown";
    }
 }
@@ -764,6 +785,62 @@ void OnTick()
       if(tick_price > candle_high) candle_high = tick_price;
       if(tick_price < candle_low)  candle_low  = tick_price;
       candle_close = tick_price;
+   }
+
+   // --- Trade type 3: market_30_45 (no level; not in level loop)
+   // At xx:30: if no order with magic exists → market buy. At xx:45: close the position opened at xx:30.
+   // Banned: 00:00-03:00, 20:00-23:59. Uses g_lastTickTime only.
+   {
+      MqlDateTime mt;
+      TimeToStruct(g_lastTickTime, mt);
+      int minute = mt.min;
+      if(minute == 30 || minute == 45)
+      {
+         int bannedRanges3[][4] = {
+            { 0, 0,  2, 59 },   // 00:00 to 02:59
+            { 20, 0, 23, 59 }   // 20:00 to 23:59
+         };
+         if(IsTradingAllowed(g_lastTickTime, bannedRanges3, 2))
+         {
+            if(minute == 30)
+            {
+               long magic = BuildMagicForTradeType3(g_lastTickTime);
+               if(CountOrdersAndPositionsForMagic(magic) < Max_OrdersPerMagic)
+               {
+                  double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+                  double slPoints = (double)T_tradeType3_SLPoints;
+                  double tpPoints = (double)T_tradeType3_TPPoints;
+                  string orderComment = StringFormat("%d", (int)TRADE_TYPE_MARKET_30_45);
+                  ExtTrade.SetExpertMagicNumber(magic);
+
+                  double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+                  double sl = NormalizeDouble(ask - slPoints * point, _Digits);
+                  double tp = NormalizeDouble(ask + tpPoints * point, _Digits);
+                  if(ExtTrade.Buy(T_tradeType3_LotSize, _Symbol, ask, sl, tp, orderComment))
+                  {
+                     ulong orderTicket = ExtTrade.ResultOrder();
+                     datetime eventTime = g_lastTickTime;
+                     if(orderTicket > 0 && OrderSelect(orderTicket))
+                        eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+                     WriteTradeLog("trade_type_3", "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
+                  }
+
+                  ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+               }
+            }
+            else // minute == 45: close any position(s) with trade type 3 magic (id 3 + date)
+            {
+               long magicToClose = BuildMagicForTradeType3(g_lastTickTime);
+               for(int i = PositionsTotal() - 1; i >= 0; i--)
+               {
+                  if(!ExtPositionInfo.SelectByIndex(i)) continue;
+                  if(ExtPositionInfo.Symbol() != _Symbol) continue;
+                  if(ExtPositionInfo.Magic() != magicToClose) continue;
+                  ExtTrade.PositionClose(ExtPositionInfo.Ticket());
+               }
+            }
+         }
+      }
    }
 }
 
