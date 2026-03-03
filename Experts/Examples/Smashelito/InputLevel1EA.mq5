@@ -52,6 +52,11 @@ input double   T_buy4thBounce_SLPips           = 20.0;   // SL = order price - t
 input double   T_tradeType3_LotSize   = 0.01;
 input int      T_tradeType3_TPPoints = 9000;  // TP/SL distance in points (not pips)
 input int      T_tradeType3_SLPoints = 9000;
+//--- Trade type 4: 15:30 smash (level + time). At bar ending 15:30, if (price - daily smash level) < MaxDistancePoints, market buy. TP/SL in pips.
+input double   T_tradeType4_LotSize   = 0.01;
+input double   T_tradeType4_TPPips   = 90.0;
+input double   T_tradeType4_SLPips   = 90.0;
+input double   T_tradeType4_MaxDistancePoints = 50.0;  // entry only if |price - level| < this (in points)
 struct Level
 {
    string baseName;
@@ -82,7 +87,8 @@ enum TRADE_TYPE_ID
 {
    TRADE_TYPE_BUY_2ND_BOUNCE = 1,
    TRADE_TYPE_BUY_4TH_BOUNCE = 2,
-   TRADE_TYPE_MARKET_30_45   = 3   // market buy at xx:30, market sell at xx:45; no level in magic
+   TRADE_TYPE_MARKET_30_45   = 3,   // market buy at xx:30, close at xx:45; no level in magic
+   TRADE_TYPE_15_30_SMASH    = 4    // at 15:30 bar close, if price near daily smash level → market buy
 };
 
 CTrade ExtTrade;
@@ -186,6 +192,20 @@ long BuildMagicForTradeType3(datetime tickTime)
    return (long)StringToInteger(magicStr);
 }
 
+//+------------------------------------------------------------------+
+//| Build magic for trade type 4 (15:30 smash). No level; date only (id 4 + YYYYMMDD). |
+//+------------------------------------------------------------------+
+long BuildMagicForTradeType4(datetime tickTime)
+{
+   MqlDateTime dt;
+   TimeToStruct(tickTime, dt);
+   string dateStr = IntegerToString(dt.year) +
+                    StringFormat("%02d", dt.mon) +
+                    StringFormat("%02d", dt.day);
+   string magicStr = StringFormat("%d%s", (int)TRADE_TYPE_15_30_SMASH, dateStr);
+   return (long)StringToInteger(magicStr);
+}
+
 void AddLevel(string baseName, double price, string from, string to, string tagsCSV)
 {
    int newIndex = ArraySize(levels);
@@ -273,6 +293,7 @@ string GetTradeTypeStringFromId(int tradeTypeId)
       case TRADE_TYPE_BUY_2ND_BOUNCE: return "buy_2nd_bounce";
       case TRADE_TYPE_BUY_4TH_BOUNCE: return "buy_4th_bounce";
       case TRADE_TYPE_MARKET_30_45:   return "trade_type_3";
+      case TRADE_TYPE_15_30_SMASH:    return "trade_type_4";
       default: return "unknown";
    }
 }
@@ -856,6 +877,53 @@ void EvaluateTradeType3(datetime candleTime)
 }
 
 //+------------------------------------------------------------------+
+//| Trade type 4: at bar ending 15:30, if (price - daily smash level) < MaxDistancePoints, market buy. TP/SL in pips. |
+//| Daily smash = first level eligible for this day (valid range) that has tag "smash". |
+//+------------------------------------------------------------------+
+void EvaluateTradeType4(datetime candleTime)
+{
+   datetime barEndTime = candleTime + PeriodSeconds(_Period);
+   MqlDateTime endMt;
+   TimeToStruct(barEndTime, endMt);
+   if(endMt.hour != 15 || endMt.min != 30) return;
+
+   int idx = -1;
+   for(int i = 0; i < ArraySize(levels); i++)
+   {
+      if(candleTime < levels[i].validFrom || candleTime > levels[i].validTo) continue;
+      if(StringFind(levels[i].tagsCSV, "smash") < 0) continue;
+      idx = i;
+      break;
+   }
+   if(idx < 0) return;
+
+   double smashLevel = levels[idx].price;
+   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   double maxDistPrice = T_tradeType4_MaxDistancePoints * point;
+   if(MathAbs(candle_close - smashLevel) >= maxDistPrice) return;
+
+   long magic = BuildMagicForTradeType4(candleTime);
+   if(CountOrdersAndPositionsForMagic(magic) >= Max_OrdersPerMagic) return;
+
+   double pip = PipSize();
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double sl = NormalizeDouble(ask - T_tradeType4_SLPips * pip, _Digits);
+   double tp = NormalizeDouble(ask + T_tradeType4_TPPips * pip, _Digits);
+   string orderComment = StringFormat("%d %.0f %.0f %.0f", (int)TRADE_TYPE_15_30_SMASH, smashLevel, T_tradeType4_TPPips, T_tradeType4_SLPips);
+
+   ExtTrade.SetExpertMagicNumber(magic);
+   if(ExtTrade.Buy(T_tradeType4_LotSize, _Symbol, ask, sl, tp, orderComment))
+   {
+      ulong orderTicket = ExtTrade.ResultOrder();
+      datetime eventTime = candleTime;
+      if(orderTicket > 0 && OrderSelect(orderTicket))
+         eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+      WriteTradeLog("trade_type_4", "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
+   }
+   ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+}
+
+//+------------------------------------------------------------------+
 void FinalizeCurrentCandle()
 {
    datetime candleDay = current_candle_time - (current_candle_time % 86400);
@@ -1087,6 +1155,8 @@ void FinalizeCurrentCandle()
 
    // Flow B: evaluate trade type 3 (time only; trigger xx:29/xx:44 at candle close)
    EvaluateTradeType3(current_candle_time);
+   // Flow B: evaluate trade type 4 (15:30 bar close, price near daily smash level)
+   EvaluateTradeType4(current_candle_time);
 
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
