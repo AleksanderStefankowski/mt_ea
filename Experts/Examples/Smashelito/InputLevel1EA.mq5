@@ -6,6 +6,9 @@
 // NOTE: This EA is MetaTrader 5 (MT5) ONLY. Do NOT attempt to add MT4 code.
 // All file operations and tick/candle handling are MT5-specific.
 // '&' reference cannot ever be used!
+//
+// OVERFLOW: Magic numbers and MT5 IDs (order/deal/position) can exceed INT_MAX.
+// Never cast them to (int). Use long/ulong and IntegerToString((long)value) for logging.
 
 
 #property copyright "Copyright 2026, Aleksander Stefankowski"
@@ -63,7 +66,6 @@ struct Level
    int consecutiveRecoverCandles;
    bool lastCandleInContact;
    int candlesPassedSinceLastBounce;
-   long magicNumberForLevel;
 };
 Level levels[];
 
@@ -133,34 +135,30 @@ bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCoun
    return true; // Trading allowed
 }
 
-//Generate based on date, price, and day of week
-long GenerateLevelMagicNumber(datetime validFrom, double price, string tagsCSV, TRADE_TYPE_ID tradeTypeId)
+//+------------------------------------------------------------------+
+//| Build magic number for a trade. Trade uses date, price, tags, and trade type. |
+//| Level and magic are unrelated; level is not used here.            |
+//+------------------------------------------------------------------+
+long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYPE_ID tradeTypeId)
 {
-   // Extract date components
    MqlDateTime dt;
    TimeToStruct(validFrom, dt);
    
-   // Format date as YYYYMMDD (8 digits)
    string dateStr = IntegerToString(dt.year) + 
                     StringFormat("%02d", dt.mon) + 
                     StringFormat("%02d", dt.day);
    
-   // Convert level price to integer (remove decimal point)
    string levelPriceStr = DoubleToString(price, 0);
    StringReplace(levelPriceStr, ".", "");
    
-   // Determine day of week number (1=Monday, 5=Friday, 0=Weekly)
-   int dayOfWeek = 0; // default for weekly
+   int dayOfWeek = 0;
    if(StringFind(tagsCSV, "daily") != -1)
    {
-      // MT5 day of week: 1=Sunday, 2=Monday, ..., 7=Saturday
-      // We want: 1=Monday, 5=Friday
       int mt5Day = dt.day_of_week;
-      if(mt5Day == 0) mt5Day = 7; // Sunday is 0 in MT5, convert to 7
-      dayOfWeek = mt5Day - 1; // Convert to Monday=1, Tuesday=2, etc.
+      if(mt5Day == 0) mt5Day = 7;
+      dayOfWeek = mt5Day - 1;
    }
    
-   // Build magic number: tradeID + date + price + dayOfWeek
    string magicStr = StringFormat("%d%s%s%d", tradeTypeId, dateStr, levelPriceStr, dayOfWeek);
    return (long)StringToInteger(magicStr);
 }
@@ -187,7 +185,6 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].consecutiveRecoverCandles = 0;
    levels[newIndex].lastCandleInContact = false;
    levels[newIndex].candlesPassedSinceLastBounce = 0;
-   levels[newIndex].magicNumberForLevel = GenerateLevelMagicNumber(levels[newIndex].validFrom, price, tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
 }
 
 double PipSize()
@@ -198,37 +195,44 @@ double PipSize()
 }
 
 //+------------------------------------------------------------------+
-//| Count open positions + pending orders for a level (by comment)   |
+//| Count open positions + pending orders for this level (trading: match by magic built from level date/price/tags + trade type) |
 //+------------------------------------------------------------------+
 int CountOrdersAndPositionsForLevel(int levelIndex)
 {
+   if(levelIndex < 0 || levelIndex >= ArraySize(levels)) return 0;
    int count = 0;
+   datetime validFrom = levels[levelIndex].validFrom;
+   double price = levels[levelIndex].price;
+   string tagsCSV = levels[levelIndex].tagsCSV;
+   long magic1 = BuildTradeMagic(validFrom, price, tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
+   long magic2 = BuildTradeMagic(validFrom, price, tagsCSV, TRADE_TYPE_BUY_4TH_BOUNCE);
 
-   // Check positions with level-specific magic number
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
       if(!ExtPositionInfo.SelectByIndex(i)) continue;
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
-      if(ExtPositionInfo.Magic() == levels[levelIndex].magicNumberForLevel) count++;
+      long m = ExtPositionInfo.Magic();
+      if(m == magic1 || m == magic2) count++;
    }
 
-   // Check pending orders with level-specific magic number
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
       if(!ExtOrderInfo.SelectByIndex(i)) continue;
       if(ExtOrderInfo.Symbol() != _Symbol) continue;
-      if(ExtOrderInfo.Magic() == levels[levelIndex].magicNumberForLevel) count++;
+      long m = ExtOrderInfo.Magic();
+      if(m == magic1 || m == magic2) count++;
    }
 
    return count;
 }
 
 //+------------------------------------------------------------------+
-//| Extract trade type ID from magic number (first digit)          |
+//| Extract trade type ID from magic number (first digit).           |
+//| Magic is long; never cast to int (overflow). Use long for string. |
 //+------------------------------------------------------------------+
 int GetTradeTypeIdFromMagic(long magicNumber)
 {
-   string magicStr = IntegerToString((int)magicNumber);
+   string magicStr = IntegerToString((long)magicNumber);
    if(StringLen(magicStr) > 0)
       return (int)StringToInteger(StringSubstr(magicStr, 0, 1));
    return 0;
@@ -247,27 +251,14 @@ string GetTradeTypeStringFromId(int tradeTypeId)
    }
 }
 
-int FindLevelIndexByMagic(long magicNumber)
-{
-   for(int i = 0; i < ArraySize(levels); i++) {
-      if(levels[i].magicNumberForLevel == magicNumber) {
-         return i;
-      }
-   }
-   return -1;
-}
-
 //+------------------------------------------------------------------+
-//| Build B_TradeLog filename for a level and trade type              |
+//| Build B_TradeLog filename by trade type only                     |
 //+------------------------------------------------------------------+
-string BuildTradeLogFileName(int levelIndex, const string tradeType, datetime forTime)
+string BuildTradeLogFileName(const string tradeType, datetime forTime)
 {
-   if(levelIndex < 0 || levelIndex >= ArraySize(levels)) return "";
+   if(StringLen(tradeType) == 0) return "";
    string dateStr = TimeToString(forTime, TIME_DATE);
-   double lvl = levels[levelIndex].price;
-   return StringFormat("%s-%s_week%s_-%s_B_TradeLog_%s.txt", 
-                      dateStr, levels[levelIndex].baseName, dateStr, 
-                      DoubleToString(lvl, _Digits), tradeType);
+   return StringFormat("%s_B_TradeLog_%s.txt", dateStr, tradeType);
 }
 
 //+------------------------------------------------------------------+
@@ -360,9 +351,9 @@ void WriteDailySummary()
          datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
          if(orderTime < dateWhenAlgoTradeStarted) continue;
          
-         FileWrite(fh3, "ticket=" + IntegerToString(ticket) + 
+         FileWrite(fh3, "ticket=" + IntegerToString((long)ticket) + 
                    " symbol=" + HistoryOrderGetString(ticket, ORDER_SYMBOL) + 
-                   " magic=" + IntegerToString(HistoryOrderGetInteger(ticket, ORDER_MAGIC)) +
+                   " magic=" + IntegerToString((long)HistoryOrderGetInteger(ticket, ORDER_MAGIC)) +
                    " timeSetup=" + TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP), TIME_DATE|TIME_SECONDS) +
                    " state=" + EnumToString((ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE)) +
                     " type=" + EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)) + 
@@ -392,9 +383,9 @@ void WriteDailySummary()
          datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
          if(dealTime < dateWhenAlgoTradeStarted) continue;
          
-         FileWrite(fh4, "ticket=" + IntegerToString(ticket) + 
+         FileWrite(fh4, "ticket=" + IntegerToString((long)ticket) + 
                    " symbol=" + HistoryDealGetString(ticket, DEAL_SYMBOL) + 
-                   " magic=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_MAGIC)) +
+                   " magic=" + IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_MAGIC)) +
                    " time=" + TimeToString((datetime)HistoryDealGetInteger(ticket, DEAL_TIME), TIME_DATE|TIME_SECONDS) +
                    " entry=" + EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)) +
                    " type=" + EnumToString((ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE)) + 
@@ -402,22 +393,22 @@ void WriteDailySummary()
                    " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2) + 
                    " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits) + 
                    " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2) + 
-                   " ticketOrder=" + IntegerToString(HistoryDealGetInteger(ticket, DEAL_ORDER)) +
+                   " ticketOrder=" + IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_ORDER)) +
                    " comment=" + HistoryDealGetString(ticket, DEAL_COMMENT));
       }
       FileClose(fh4);
    }
 }
 
-//| dealReason: DEAL_REASON enum value (optional) |
 //| comment: custom comment string (optional) |
+//| magic: trade magic number when available (optional, 0 = omit from log) |
 //+------------------------------------------------------------------+
-void WriteTradeLog(int levelIndex, const string tradeType, const string eventType, datetime eventTime,
+void WriteTradeLog(const string tradeType, const string eventType, datetime eventTime,
                   const string orderKind = "", double orderPrice = 0, double slPrice = 0, double tpPrice = 0, int expirationMinutes = 0,
                   ulong orderTicket = 0, ulong dealTicket = 0, ulong positionTicket = 0,
-                  ENUM_DEAL_REASON dealReason = (ENUM_DEAL_REASON)0, const string comment = "")
+                  ENUM_DEAL_REASON dealReason = (ENUM_DEAL_REASON)0, const string comment = "", long magic = 0)
 {
-   string fname = BuildTradeLogFileName(levelIndex, tradeType, eventTime);
+   string fname = BuildTradeLogFileName(tradeType, eventTime);
    if(StringLen(fname) == 0) return;
 
    int fh = FileOpen(fname, FILE_WRITE | FILE_TXT | FILE_READ);
@@ -449,6 +440,7 @@ void WriteTradeLog(int levelIndex, const string tradeType, const string eventTyp
          line += " dealReason=" + IntegerToString((int)dealReason);
       if(StringLen(comment) > 0)
          line += " comment=" + comment;
+      line += " magic=" + IntegerToString((long)magic);
       FileWrite(fh, line);
       FileClose(fh);
    }
@@ -564,20 +556,19 @@ int OnInit()
 }
 
 //+------------------------------------------------------------------+
-//| Log filled / TP / SL to B_TradeLog (per level per day)            |
+//| Logic: price analysis vs levels → if trade triggers, try to place → if place succeeds, log it. |
+//| Also log filled/TP/SL when broker notifies (OnTradeTransaction).   |
 //+------------------------------------------------------------------+
 void OnTradeTransaction(const MqlTradeTransaction& trans,
                         const MqlTradeRequest& request,
                         const MqlTradeResult& result)
 {
-   // Handle order updates
    if(trans.type == TRADE_TRANSACTION_ORDER_UPDATE && trans.order > 0)
    {
       HandleOrderUpdate(trans);
       return;
    }
-   
-   // Handle deal additions  
+
    if(trans.type == TRADE_TRANSACTION_DEAL_ADD && trans.deal > 0)
    {
       HandleDealAdd(trans);
@@ -596,13 +587,10 @@ void HandleOrderUpdate(const MqlTradeTransaction& trans)
    string tradeType = GetTradeTypeStringFromId(tradeTypeId);
    if(tradeType == "unknown") return;
 
-   long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
-   int levelIndex = FindLevelIndexByMagic(orderMagic);
-   if(levelIndex == -1) return;
-
    datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
    string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
-   WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, 0, 0, 0, 0, trans.order, 0, 0);
+   long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
+   WriteTradeLog(tradeType, "filled", fillTime, kindStr, 0, 0, 0, 0, trans.order, 0, 0, (ENUM_DEAL_REASON)0, "", orderMagic);
 }
 
 //+------------------------------------------------------------------+
@@ -613,14 +601,12 @@ void HandleDealAdd(const MqlTradeTransaction& trans)
 
    ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(trans.deal, DEAL_ENTRY);
 
-   // Handle entry deals (position opens)
    if(entry == DEAL_ENTRY_IN)
    {
       HandleEntryDeal(trans);
       return;
    }
 
-   // Handle exit deals (TP/SL)
    HandleExitDeal(trans);
 }
 
@@ -630,7 +616,7 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
    ulong orderTicket = HistoryDealGetInteger(trans.deal, DEAL_ORDER);
    string comment = "";
    string kindStr = "unknown";
-   
+
    if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
    {
       comment = HistoryOrderGetString(orderTicket, ORDER_COMMENT);
@@ -641,14 +627,10 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
       comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
       kindStr = ((ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE) == DEAL_TYPE_BUY) ? "market_buy" : "market_sell";
    }
-   
+
    int tradeTypeId = GetTradeTypeIdFromMagic(HistoryDealGetInteger(trans.deal, DEAL_MAGIC));
    string tradeType = GetTradeTypeStringFromId(tradeTypeId);
    if(tradeType == "unknown") return;
-   
-   long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
-   int levelIndex = FindLevelIndexByMagic(dealMagic);
-   if(levelIndex == -1) return;
 
    datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
    if(fillTime == 0) fillTime = TimeCurrent();
@@ -656,8 +638,9 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
    if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
       fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
    if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
-   
-   WriteTradeLog(levelIndex, tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0);
+
+   long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
+   WriteTradeLog(tradeType, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0, (ENUM_DEAL_REASON)0, comment, dealMagic);
 }
 
 //+------------------------------------------------------------------+
@@ -688,20 +671,17 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
       entryMagic = HistoryDealGetInteger(dealTicket, DEAL_MAGIC);
       break;
    }
-   
+
    int tradeTypeId = GetTradeTypeIdFromMagic(entryMagic);
    string tradeType = GetTradeTypeStringFromId(tradeTypeId);
    if(tradeType == "unknown") return;
-   
-   int levelIndex = FindLevelIndexByMagic(entryMagic);
-   if(levelIndex == -1) return;
 
    string kindStr = "";
    if(entryOrderTicket > 0 && HistoryOrderSelect(entryOrderTicket))
       kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(entryOrderTicket, ORDER_TYPE));
 
    string eventType = (reason == DEAL_REASON_TP) ? "tp" : "sl";
-   WriteTradeLog(levelIndex, tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment);
+   WriteTradeLog(tradeType, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment, entryMagic);
 }
 
 //+------------------------------------------------------------------+
@@ -873,7 +853,6 @@ void FinalizeCurrentCandle()
             FileWrite(levels[i].araFileHandle,
                "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
                " L: ", lvl,
-               " mN: ", levels[i].magicNumberForLevel,
                " O: ", NormalizeDouble(candle_open,_Digits),
                " H: ", NormalizeDouble(candle_high,_Digits),
                " L: ", NormalizeDouble(candle_low,_Digits),
@@ -912,6 +891,7 @@ void FinalizeCurrentCandle()
             }
          }
 
+         // --- Trading: price analysis vs levels → if trade triggers, try to place → if place succeeds without error, log it
          // --- Trade type: buy_2nd_bounce
          // Entry rule: bounceCount==1, bias_long, no_contact, CandlesPassedSinceLastBounce < 65, timeAllowed. Params from T_buy2ndBounce_* inputs.
          {
@@ -938,23 +918,24 @@ void FinalizeCurrentCandle()
                double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
                
-               // Build comment with whitespace-separated values
+               // Build comment: first number = trade type ID (from TRADE_TYPE_* enum), then level, TP pips, SL pips
                string orderComment = StringFormat("%d %d %.0f %.0f",
-                  TRADE_TYPE_BUY_2ND_BOUNCE, 
+                  (int)TRADE_TYPE_BUY_2ND_BOUNCE,
                   (int)lvl,
                   T_buy2ndBounce_TPPips,
                   T_buy2ndBounce_SLPips);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
-               // Set the magic number for this specific trade
-               ExtTrade.SetExpertMagicNumber(levels[i].magicNumberForLevel);
+               // Trade builds magic from date, price, tags + trade type (tradeID 1 = buy_2nd_bounce)
+               long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
+               ExtTrade.SetExpertMagicNumber(tradeMagic);
                
                if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                {
                   // Get the order ticket from the trade result
                   ulong orderTicket = ExtTrade.ResultOrder();
-                  WriteTradeLog(i, tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment);
+                  WriteTradeLog(tradeTypeBuy2ndBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
                }
                
                // Reset to EA's default magic number for other operations
@@ -986,23 +967,24 @@ void FinalizeCurrentCandle()
                double sl = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
                
-               // Build comment with whitespace-separated values
+               // Build comment: first number = trade type ID (from TRADE_TYPE_* enum), then level, TP pips, SL pips
                string orderComment = StringFormat("%d %d %.0f %.0f",
-                  TRADE_TYPE_BUY_4TH_BOUNCE, 
+                  (int)TRADE_TYPE_BUY_4TH_BOUNCE,
                   (int)lvl,
                   T_buy4thBounce_TPPips,
                   T_buy4thBounce_SLPips);
 
                datetime expirationTime = TimeCurrent() + 30 * 60; // 30 minutes from now
                
-               // Set the magic number for this specific trade
-               ExtTrade.SetExpertMagicNumber(levels[i].magicNumberForLevel);
+               // Trade builds magic from date, price, tags + trade type (tradeID 2 = buy_4th_bounce)
+               long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_4TH_BOUNCE);
+               ExtTrade.SetExpertMagicNumber(tradeMagic);
                
                if(ExtTrade.BuyLimit(T_buy4thBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                {
                   // Get the order ticket from the trade result
                   ulong orderTicket = ExtTrade.ResultOrder();
-                  WriteTradeLog(i, tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment);
+                  WriteTradeLog(tradeTypeBuy4thBounce, "pending_created", current_candle_time, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
                }
                
                // Reset to EA's default magic number for other operations
