@@ -29,6 +29,7 @@ input int      Max_OrdersPerMagic = 1; // max open positions + pending orders wi
 input double   InpLotSize           = 0.01; // lot size for trade types
 input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (tick timestamp)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
+input bool     InpTestingPullM1History = true;  // if true: between 22:15-23:30 write (date)_testing_pullinghistory.txt with 1M bars for the day
 
 //--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
 //    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
@@ -46,8 +47,8 @@ input double   T_buy4thBounce_TPPips           = 60.0;  // TP = order price + th
 input double   T_buy4thBounce_SLPips           = 20.0;   // SL = order price - this many pips (e.g. 20 for 2 pts on US500 point=0.1)
 // Entry rule to open: level.bounceCount == 3 && bias_long (dailyBias > 0) && no_contact (!in_contact)
 input string   T_tradeType2_BannedRanges = "15,15,16,35";  // startH,startM,endH,endM;...
-//--- Trade type 3: market_30_45 (no level; magic has no level component)
-//    Flow B: trigger as soon as bar closed. Bar open xx:29 → place buy; bar open xx:44 → close. No bar-end time.
+//--- Trade type 3: market_test (no level; magic has no level component)
+//    Flow B: trigger as soon as bar closed. Place buy at trigger minute; close at close minute. No bar-end time.
 //    useLevel=false, usePrice=false, useTimeFilter=true + banned ranges input.
 input double   T_tradeType3_LotSize   = 0.01;
 input int      T_tradeType3_TPPoints = 9000;  // TP/SL distance in points (not pips)
@@ -103,7 +104,7 @@ enum TRADE_TYPE_ID
 {
    TRADE_TYPE_BUY_2ND_BOUNCE = 1,
    TRADE_TYPE_BUY_4TH_BOUNCE = 2,
-   TRADE_TYPE_MARKET_30_45   = 3,   // place when xx:29 bar closed, close when xx:44 bar closed; no level in magic
+   TRADE_TYPE_MARKET_TEST   = 3,   // trigger at bar close: place buy then close later; no level in magic
    TRADE_TYPE_15_30_SMASH    = 4    // when 15:29 bar closed, if price near daily smash level → market buy
 };
 
@@ -222,7 +223,7 @@ long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYP
 }
 
 //+------------------------------------------------------------------+
-//| Build magic for trade type 3 (market_30_45). No level; date only (id 3 + YYYYMMDD). |
+//| Build magic for trade type 3 (market_test). No level; date only (id 3 + YYYYMMDD). |
 //+------------------------------------------------------------------+
 long BuildMagicForTradeType3(datetime tickTime)
 {
@@ -231,7 +232,7 @@ long BuildMagicForTradeType3(datetime tickTime)
    string dateStr = IntegerToString(dt.year) +
                     StringFormat("%02d", dt.mon) +
                     StringFormat("%02d", dt.day);
-   string magicStr = StringFormat("%d%s", (int)TRADE_TYPE_MARKET_30_45, dateStr);
+   string magicStr = StringFormat("%d%s", (int)TRADE_TYPE_MARKET_TEST, dateStr);
    return (long)StringToInteger(magicStr);
 }
 
@@ -551,10 +552,10 @@ int OnInit()
    g_tradeConfig[TRADE_TYPE_BUY_4TH_BOUNCE].useTimeFilter = true;
    g_tradeConfig[TRADE_TYPE_BUY_4TH_BOUNCE].bannedRangesStr = T_tradeType2_BannedRanges;
 
-   g_tradeConfig[TRADE_TYPE_MARKET_30_45].useLevel = false;
-   g_tradeConfig[TRADE_TYPE_MARKET_30_45].usePrice = false;
-   g_tradeConfig[TRADE_TYPE_MARKET_30_45].useTimeFilter = true;
-   g_tradeConfig[TRADE_TYPE_MARKET_30_45].bannedRangesStr = T_tradeType3_BannedRanges;
+   g_tradeConfig[TRADE_TYPE_MARKET_TEST].useLevel = false;
+   g_tradeConfig[TRADE_TYPE_MARKET_TEST].usePrice = false;
+   g_tradeConfig[TRADE_TYPE_MARKET_TEST].useTimeFilter = true;
+   g_tradeConfig[TRADE_TYPE_MARKET_TEST].bannedRangesStr = T_tradeType3_BannedRanges;
 
    g_tradeConfig[TRADE_TYPE_15_30_SMASH].useLevel = true;
    g_tradeConfig[TRADE_TYPE_15_30_SMASH].usePrice = true;
@@ -862,6 +863,42 @@ void OnTimer()
    candle_close = iClose(_Symbol, _Period, 1);
 
    FinalizeCurrentCandle();
+
+   // --- Test: pull all 1M history for current day and save to per-day log (parallel to trade logic)
+   // Only between 22:15 and 23:30 server time
+   if(InpTestingPullM1History)
+   {
+      MqlDateTime mtTest;
+      TimeToStruct(g_lastTickTime, mtTest);
+      int minOfDay = mtTest.hour * 60 + mtTest.min;
+      if(minOfDay >= 22*60+15 && minOfDay <= 23*60+30)
+      {
+         datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
+         string dateStr = TimeToString(dayStart, TIME_DATE);
+         string logName = dateStr + "_testing_pullinghistory.txt";
+         MqlRates m1Rates[];
+         int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
+         if(barsFromDayStart >= 0)
+         {
+            int countToCopy = barsFromDayStart + 1;
+            int copied = CopyRates(_Symbol, PERIOD_M1, 0, countToCopy, m1Rates);
+            int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
+            if(fh != INVALID_HANDLE)
+            {
+               for(int b = 0; b < copied; b++)
+               {
+                  if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
+                  FileWrite(fh, TimeToString(m1Rates[b].time, TIME_DATE|TIME_MINUTES),
+                     " O=", DoubleToString(m1Rates[b].open, _Digits),
+                     " H=", DoubleToString(m1Rates[b].high, _Digits),
+                     " L=", DoubleToString(m1Rates[b].low, _Digits),
+                     " C=", DoubleToString(m1Rates[b].close, _Digits));
+               }
+               FileClose(fh);
+            }
+         }
+      }
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -875,7 +912,7 @@ void OnTick()
 }
 
 //+------------------------------------------------------------------+
-//| Type 3: trigger as soon as bar closed. Bar open xx:29 → place buy; bar open xx:44 → close. No bar-end time logic. |
+//| Type 3: trigger as soon as bar closed. Place buy at trigger minute; close at close minute. No bar-end time logic. |
 //+------------------------------------------------------------------+
 void EvaluateTradeType3(datetime candleTime)
 {
@@ -884,9 +921,9 @@ void EvaluateTradeType3(datetime candleTime)
    int minute = mt.min;
    if(minute != 29 && minute != 44) return;
 
-   if(g_tradeConfig[TRADE_TYPE_MARKET_30_45].useTimeFilter && StringLen(g_tradeConfig[TRADE_TYPE_MARKET_30_45].bannedRangesStr) > 0)
+   if(g_tradeConfig[TRADE_TYPE_MARKET_TEST].useTimeFilter && StringLen(g_tradeConfig[TRADE_TYPE_MARKET_TEST].bannedRangesStr) > 0)
    {
-      ParseBannedRanges(g_tradeConfig[TRADE_TYPE_MARKET_30_45].bannedRangesStr);
+      ParseBannedRanges(g_tradeConfig[TRADE_TYPE_MARKET_TEST].bannedRangesStr);
       if(!IsTradingAllowed(candleTime, g_bannedRangesBuffer, g_bannedRangesCount)) return;
    }
 
@@ -899,7 +936,7 @@ void EvaluateTradeType3(datetime candleTime)
       double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
       double slPoints = (double)T_tradeType3_SLPoints;
       double tpPoints = (double)T_tradeType3_TPPoints;
-      string orderComment = StringFormat("%d", (int)TRADE_TYPE_MARKET_30_45);
+      string orderComment = StringFormat("%d", (int)TRADE_TYPE_MARKET_TEST);
       ExtTrade.SetExpertMagicNumber(magic);
 
       double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
@@ -911,12 +948,12 @@ void EvaluateTradeType3(datetime candleTime)
          datetime eventTime = candleTime;
          if(orderTicket > 0 && OrderSelect(orderTicket))
             eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-         WriteTradeLog(GetTradeTypeStringFromId(TRADE_TYPE_MARKET_30_45), "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
+         WriteTradeLog(GetTradeTypeStringFromId(TRADE_TYPE_MARKET_TEST), "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
       }
 
       ExtTrade.SetExpertMagicNumber(EA_MAGIC);
    }
-   else // minute == 44: close any position(s) with trade type 3 magic (id 3 + date)
+   else // close minute: close any position(s) with trade type 3 magic (id 3 + date)
    {
       ExtTrade.SetExpertMagicNumber(magic);
       for(int i = PositionsTotal() - 1; i >= 0; i--)
@@ -927,7 +964,7 @@ void EvaluateTradeType3(datetime candleTime)
          ulong ticket = ExtPositionInfo.Ticket();
          double closePrice = ExtPositionInfo.PriceCurrent();
          ExtTrade.PositionClose(ticket);
-         WriteTradeLog(GetTradeTypeStringFromId(TRADE_TYPE_MARKET_30_45), "closed_by_ea", candleTime, "market_buy", closePrice, 0, 0, 0, 0, 0, ticket, (ENUM_DEAL_REASON)0, "", magic);
+         WriteTradeLog(GetTradeTypeStringFromId(TRADE_TYPE_MARKET_TEST), "closed_by_ea", candleTime, "market_buy", closePrice, 0, 0, 0, 0, 0, ticket, (ENUM_DEAL_REASON)0, "", magic);
       }
       ExtTrade.SetExpertMagicNumber(EA_MAGIC);
    }
@@ -1202,7 +1239,7 @@ void FinalizeCurrentCandle()
       }
    }
 
-   // Flow B: evaluate trade type 3 (time only; trigger xx:29/xx:44 at candle close)
+   // Flow B: evaluate trade type 3 (time filter only; trigger at candle close)
    EvaluateTradeType3(current_candle_time);
    // Flow B: evaluate trade type 4 (15:30 bar close, price near daily smash level)
    EvaluateTradeType4(current_candle_time);
