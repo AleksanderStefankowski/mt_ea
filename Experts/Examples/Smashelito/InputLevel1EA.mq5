@@ -129,8 +129,11 @@ datetime allCandlesFileDate = 0;
 //--- Daily summary tracking
 datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when summary was last written
 
-//--- Last tick time (server); set in OnTick, use instead of TimeCurrent()
+//--- Last tick time (server); set in OnTick or OnTimer, use instead of TimeCurrent()
 datetime g_lastTickTime = 0;
+
+//--- For OnTimer: last bar time we processed (current bar start time)
+datetime g_lastBarTime = 0;
 
 //--- Algorithm start date - only show trade history from this date in log allTradesHistoryForAllLevels_andAllAccountData
 datetime dateWhenAlgoTradeStarted = StringToTime("2026.01.23 00:00");
@@ -558,6 +561,8 @@ int OnInit()
    g_tradeConfig[TRADE_TYPE_15_30_SMASH].useTimeFilter = false;
    g_tradeConfig[TRADE_TYPE_15_30_SMASH].bannedRangesStr = "";
 
+   EventSetTimer(1);   // 1 second timer for candle-close detection
+
    // Hardcoded levels imported from levelsinfo.txt in chronological order
    AddLevel("2026.02.16_SmashWeekly", 6890, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,smash");
    AddLevel("2026.02.16_weeklyUp1", 6960, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp1");
@@ -795,6 +800,8 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
+   EventKillTimer();
+
    if(current_candle_time != 0)
       FinalizeCurrentCandle();
 
@@ -826,47 +833,45 @@ void OnDeinit(const int reason)
 }
 
 //+------------------------------------------------------------------+
+//| OnTimer(1s): detect new bar, load closed bar from history, run FinalizeCurrentCandle. OnTick only updates g_lastTickTime. |
+//+------------------------------------------------------------------+
+void OnTimer()
+{
+   g_lastTickTime = TimeCurrent();
+
+   // Daily summary: once per day at specified hour+minute
+   MqlDateTime mt;
+   TimeToStruct(g_lastTickTime, mt);
+   datetime today = g_lastTickTime - (g_lastTickTime % 86400);
+   if(mt.hour == HourForDailySummary && mt.min == MinuteForDailySummary && today != lastDailySummaryDay)
+   {
+      WriteDailySummary();
+      lastDailySummaryDay = today;
+   }
+
+   // Candle-close detection: use chart period; bar that just closed = index 1 in history
+   datetime barNow = iTime(_Symbol, _Period, 0);
+   if(barNow == g_lastBarTime) return;
+
+   g_lastBarTime = barNow;
+   // Bar that just closed (shift 1)
+   current_candle_time = iTime(_Symbol, _Period, 1);
+   candle_open  = iOpen(_Symbol, _Period, 1);
+   candle_high  = iHigh(_Symbol, _Period, 1);
+   candle_low   = iLow(_Symbol, _Period, 1);
+   candle_close = iClose(_Symbol, _Period, 1);
+
+   FinalizeCurrentCandle();
+}
+
+//+------------------------------------------------------------------+
+//| OnTick: only update g_lastTickTime when a tick arrives (for accurate time in trade/expiration). |
+//+------------------------------------------------------------------+
 void OnTick()
 {
    MqlTick tick;
    if(SymbolInfoTick(_Symbol, tick))
       g_lastTickTime = tick.time;
-
-   double tick_price = SymbolInfoDouble(_Symbol,SYMBOL_BID);
-   datetime candle_start = iTime(_Symbol,_Period,0);
-
-   // daily summary check: execute once per day at specified tick time (hour+minute)
-   if(SymbolInfoTick(_Symbol,tick))
-   {
-      MqlDateTime mt;
-      TimeToStruct(tick.time, mt);
-      int hour   = mt.hour;
-      int minute = mt.min;
-      datetime today = tick.time - (tick.time % 86400);
-      if(hour == HourForDailySummary && minute == MinuteForDailySummary && today != lastDailySummaryDay)
-      {
-         WriteDailySummary();
-         lastDailySummaryDay = today;
-      }
-   }
-
-   if(candle_start != current_candle_time)
-   {
-      if(current_candle_time != 0)
-         FinalizeCurrentCandle();
-
-      current_candle_time = candle_start;
-      candle_open  = tick_price;
-      candle_high  = tick_price;
-      candle_low   = tick_price;
-      candle_close = tick_price;
-   }
-   else
-   {
-      if(tick_price > candle_high) candle_high = tick_price;
-      if(tick_price < candle_low)  candle_low  = tick_price;
-      candle_close = tick_price;
-   }
 }
 
 //+------------------------------------------------------------------+
