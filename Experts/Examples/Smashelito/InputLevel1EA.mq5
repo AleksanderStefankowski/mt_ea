@@ -30,6 +30,7 @@ input double   InpLotSize           = 0.01; // lot size for trade types
 input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (tick timestamp)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
 input bool     InpTestingPullM1History = true;  // if true: between 22:15-23:30 write (date)_testing_pullinghistory.txt with 1M bars for the day
+input string   InpCalendarFile        = "calendar_2026.csv";  // CSV in Terminal/Common/Files (shared live+tester): date,dayofmonth,dayofweek,opex,qopex
 
 //--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
 //    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
@@ -139,6 +140,19 @@ datetime g_lastBarTime = 0;
 //--- Algorithm start date - only show trade history from this date in log allTradesHistoryForAllLevels_andAllAccountData
 datetime dateWhenAlgoTradeStarted = StringToTime("2026.01.23 00:00");
 
+//--- Calendar (loaded from CSV in OnInit)
+struct CalendarRow
+{
+   string dateStr;    // "YYYY-MM-DD"
+   int    dayofmonth;
+   string dayofweek;
+   bool   opex;
+   bool   qopex;
+};
+#define MAX_CALENDAR_ROWS 367
+CalendarRow g_calendar[MAX_CALENDAR_ROWS];
+int g_calendarCount = 0;
+
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
 //+------------------------------------------------------------------+
@@ -168,6 +182,45 @@ bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCoun
    }
    
    return true; // Trading allowed
+}
+
+//+------------------------------------------------------------------+
+//| Load calendar CSV from MQL5/Files. Format: date,dayofmonth,dayofweek,opex,qopex (header on first line). |
+//+------------------------------------------------------------------+
+bool LoadCalendar()
+{
+   g_calendarCount = 0;
+   int fh = FileOpen(InpCalendarFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
+   if(fh == INVALID_HANDLE) return false;
+   string line = FileReadString(fh);  // skip header
+   while(!FileIsEnding(fh) && g_calendarCount < MAX_CALENDAR_ROWS)
+   {
+      line = FileReadString(fh);
+      if(StringLen(line) == 0) continue;
+      string parts[];
+      if(StringSplit(line, ',', parts) < 5) continue;
+      g_calendar[g_calendarCount].dateStr    = parts[0];
+      g_calendar[g_calendarCount].dayofmonth = (int)StringToInteger(parts[1]);
+      g_calendar[g_calendarCount].dayofweek  = parts[2];
+      g_calendar[g_calendarCount].opex       = (StringFind(parts[3], "True") == 0);
+      g_calendar[g_calendarCount].qopex      = (StringFind(parts[4], "True") == 0);
+      g_calendarCount++;
+   }
+   FileClose(fh);
+   return (g_calendarCount > 0);
+}
+
+//+------------------------------------------------------------------+
+//| Return dayofweek string for the given date from loaded calendar, or "" if not found. |
+//+------------------------------------------------------------------+
+string GetCalendarDayOfWeek(datetime dt)
+{
+   MqlDateTime mt;
+   TimeToStruct(dt, mt);
+   string key = StringFormat("%04d-%02d-%02d", mt.year, mt.mon, mt.day);
+   for(int i = 0; i < g_calendarCount; i++)
+      if(g_calendar[i].dateStr == key) return g_calendar[i].dayofweek;
+   return "";
 }
 
 //+------------------------------------------------------------------+
@@ -564,6 +617,11 @@ int OnInit()
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
+   if(!LoadCalendar())
+      Print("Calendar file not loaded: ", InpCalendarFile, " (place CSV in Terminal/Common/Files)");
+   else
+      Print("Calendar loaded: ", g_calendarCount, " rows from ", InpCalendarFile);
+
    // Hardcoded levels imported from levelsinfo.txt in chronological order
    AddLevel("2026.02.16_SmashWeekly", 6890, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,smash");
    AddLevel("2026.02.16_weeklyUp1", 6960, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp1");
@@ -888,11 +946,13 @@ void OnTimer()
                for(int b = 0; b < copied; b++)
                {
                   if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
+                  string dow = GetCalendarDayOfWeek(m1Rates[b].time);
                   FileWrite(fh, TimeToString(m1Rates[b].time, TIME_DATE|TIME_MINUTES),
                      " O=", DoubleToString(m1Rates[b].open, _Digits),
                      " H=", DoubleToString(m1Rates[b].high, _Digits),
                      " L=", DoubleToString(m1Rates[b].low, _Digits),
-                     " C=", DoubleToString(m1Rates[b].close, _Digits));
+                     " C=", DoubleToString(m1Rates[b].close, _Digits),
+                     (StringLen(dow) > 0) ? " calDayofweek=" + dow : "");
                }
                FileClose(fh);
             }
