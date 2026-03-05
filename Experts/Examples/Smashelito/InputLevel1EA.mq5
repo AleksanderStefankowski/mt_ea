@@ -188,7 +188,7 @@ datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
 // Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 22:15-22:21 window)
 double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high; 0 if none
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
-string g_session[MAX_BARS_IN_DAY];      // "ON"|"gapcheck"|"RTH"|"sleep"
+string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 
 //--- Trade results for the day (deals IN/OUT paired by magic; updated every new bar in loop2; logged in 22:15-22:21)
 #define MAX_TRADE_RESULTS 500
@@ -207,7 +207,7 @@ struct TradeResult
    long reason;           // DEAL_REASON_* from entry out; undefined when not found
    double volume;
    string bothComments;
-   string session;        // ON|gapcheck|RTH|sleep from startTime (same logic as candle session)
+   string session;        // ON|RTH|sleep from startTime (same logic as candle session)
    bool foundOut;
 };
 TradeResult g_tradeResults[MAX_TRADE_RESULTS];
@@ -236,6 +236,15 @@ struct DayProgressBar
    int dayTradesCount;  // count of trades with endTime < candle close
    double dayPointsSum;
    double dayProfitSum;
+   // Session-specific: trades whose endTime falls in ON vs RTH (ON stops at last ON candle, RTH starts at first RTH candle)
+   double ONwinRate;
+   int ONtradeCount;
+   double ONpointsSum;
+   double ONprofitSum;
+   double RTHwinRate;
+   int RTHtradeCount;
+   double RTHpointsSum;
+   double RTHprofitSum;
 };
 DayProgressBar g_dayProgress[MAX_BARS_IN_DAY];
 
@@ -310,16 +319,15 @@ string GetCalendarDayOfWeek(datetime dt)
 }
 
 //+------------------------------------------------------------------+
-//| Session for candle time: 00:00-15:15 ON, 15:16-15:28 gapcheck, 15:29-22:00 RTH, else sleep. |
+//| Session for candle time: before 15:30 ON, 15:30-22:00 RTH, else sleep. |
 //+------------------------------------------------------------------+
 string GetSessionForCandleTime(datetime t)
 {
    MqlDateTime mt;
    TimeToStruct(t, mt);
    int minOfDay = mt.hour * 60 + mt.min;
-   if(minOfDay >= 0 && minOfDay <= 15*60+15) return "ON";
-   if(minOfDay >= 15*60+16 && minOfDay <= 15*60+28) return "gapcheck";
-   if(minOfDay >= 15*60+29 && minOfDay <= 22*60+0) return "RTH";
+   if(minOfDay < 15*60+30) return "ON";   // before 15:30
+   if(minOfDay <= 22*60+0) return "RTH"; // 15:30 to 22:00
    return "sleep";
 }
 
@@ -574,6 +582,10 @@ void UpdateDayProgress()
       datetime candleCloseTime = (k + 1 < g_barsInDay) ? g_m1Rates[k + 1].time : (g_m1Rates[k].time + 60);
       int wins = 0, total = 0;
       double dayPointsSum = 0, dayProfitSum = 0;
+      int ONwins = 0, ONtotal = 0;
+      double ONpointsSum = 0, ONprofitSum = 0;
+      int RTHwins = 0, RTHtotal = 0;
+      double RTHpointsSum = 0, RTHprofitSum = 0;
       for(int tr = 0; tr < g_tradeResultsCount; tr++)
       {
          TradeResult r = g_tradeResults[tr];
@@ -583,11 +595,34 @@ void UpdateDayProgress()
          if(r.profit > 0) wins++;
          dayPointsSum += r.priceDiff;
          dayProfitSum += r.profit;
+         string endSession = GetSessionForCandleTime(r.endTime);
+         if(endSession == "ON")
+         {
+            ONtotal++;
+            if(r.profit > 0) ONwins++;
+            ONpointsSum += r.priceDiff;
+            ONprofitSum += r.profit;
+         }
+         else if(endSession == "RTH")
+         {
+            RTHtotal++;
+            if(r.profit > 0) RTHwins++;
+            RTHpointsSum += r.priceDiff;
+            RTHprofitSum += r.profit;
+         }
       }
       g_dayProgress[k].dayWinRate   = (total > 0) ? (double)wins / (double)total : 0.0;
       g_dayProgress[k].dayTradesCount = total;
       g_dayProgress[k].dayPointsSum = dayPointsSum;
       g_dayProgress[k].dayProfitSum = dayProfitSum;
+      g_dayProgress[k].ONwinRate   = (ONtotal > 0) ? (double)ONwins / (double)ONtotal : 0.0;
+      g_dayProgress[k].ONtradeCount = ONtotal;
+      g_dayProgress[k].ONpointsSum = ONpointsSum;
+      g_dayProgress[k].ONprofitSum = ONprofitSum;
+      g_dayProgress[k].RTHwinRate   = (RTHtotal > 0) ? (double)RTHwins / (double)RTHtotal : 0.0;
+      g_dayProgress[k].RTHtradeCount = RTHtotal;
+      g_dayProgress[k].RTHpointsSum = RTHpointsSum;
+      g_dayProgress[k].RTHprofitSum = RTHprofitSum;
    }
 }
 
@@ -1337,7 +1372,15 @@ void OnTimer()
                      " dayWinRate=", DoubleToString(g_dayProgress[k].dayWinRate, 2),
                      " dayTradesCount=", IntegerToString(g_dayProgress[k].dayTradesCount),
                      " dayPointsSum=", DoubleToString(g_dayProgress[k].dayPointsSum, _Digits),
-                     " dayProfitSum=", DoubleToString(g_dayProgress[k].dayProfitSum, 2));
+                     " dayProfitSum=", DoubleToString(g_dayProgress[k].dayProfitSum, 2),
+                     " ONwinRate=", DoubleToString(g_dayProgress[k].ONwinRate, 2),
+                     " ONtradeCount=", IntegerToString(g_dayProgress[k].ONtradeCount),
+                     " ONpointsSum=", DoubleToString(g_dayProgress[k].ONpointsSum, _Digits),
+                     " ONprofitSum=", DoubleToString(g_dayProgress[k].ONprofitSum, 2),
+                     " RTHwinRate=", DoubleToString(g_dayProgress[k].RTHwinRate, 2),
+                     " RTHtradeCount=", IntegerToString(g_dayProgress[k].RTHtradeCount),
+                     " RTHpointsSum=", DoubleToString(g_dayProgress[k].RTHpointsSum, _Digits),
+                     " RTHprofitSum=", DoubleToString(g_dayProgress[k].RTHprofitSum, 2));
                }
                FileClose(fh);
             }
