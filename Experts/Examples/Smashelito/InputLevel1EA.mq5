@@ -229,6 +229,15 @@ int g_dealOrder[MAX_DEALS_DAY];  // sorted indices
 int g_inIdx[MAX_IN_OUT_PER_MAGIC];
 int g_outIdx[MAX_IN_OUT_PER_MAGIC];
 
+//--- Per-candle day progress (trades closed by candle close time; filled in UpdateDayProgress after UpdateTradeResultsForDay)
+struct DayProgressBar
+{
+   double dayWinRate;   // wins/total for trades with endTime < candle close; 0 if no trades
+   double dayPointsSum;
+   double dayProfitSum;
+};
+DayProgressBar g_dayProgress[MAX_BARS_IN_DAY];
+
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
 //+------------------------------------------------------------------+
@@ -551,6 +560,32 @@ void UpdateTradeResultsForDay()
          }
          g_tradeResults[g_tradeResultsCount++] = r;
       }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| For each bar k, set g_dayProgress[k] from trades with endTime < candle k close time (so close at 16:45:00 counts for 16:45 bar, not 16:44). |
+//+------------------------------------------------------------------+
+void UpdateDayProgress()
+{
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      datetime candleCloseTime = (k + 1 < g_barsInDay) ? g_m1Rates[k + 1].time : (g_m1Rates[k].time + 60);
+      int wins = 0, total = 0;
+      double dayPointsSum = 0, dayProfitSum = 0;
+      for(int tr = 0; tr < g_tradeResultsCount; tr++)
+      {
+         TradeResult r = g_tradeResults[tr];
+         if(!r.foundOut) continue;
+         if(r.endTime >= candleCloseTime) continue;
+         total++;
+         if(r.profit > 0) wins++;
+         dayPointsSum += r.priceDiff;
+         dayProfitSum += r.profit;
+      }
+      g_dayProgress[k].dayWinRate   = (total > 0) ? (double)wins / (double)total : 0.0;
+      g_dayProgress[k].dayPointsSum = dayPointsSum;
+      g_dayProgress[k].dayProfitSum = dayProfitSum;
    }
 }
 
@@ -1266,6 +1301,9 @@ void OnTimer()
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    UpdateTradeResultsForDay();
 
+   // --- Per-candle day progress (trades closed by each candle close time)
+   UpdateDayProgress();
+
    // --- Logging only in time window (performance)
    if(InpTestingPullM1History)
    {
@@ -1293,7 +1331,10 @@ void OnTimer()
                      " C=", DoubleToString(g_m1Rates[k].close, _Digits),
                      " levelAboveH=", DoubleToString(g_levelAboveH[k], 0),
                      " levelBelowL=", DoubleToString(g_levelBelowL[k], 0),
-                     " session=", g_session[k]);
+                     " session=", g_session[k],
+                     " dayWinRate=", DoubleToString(g_dayProgress[k].dayWinRate, 2),
+                     " dayPointsSum=", DoubleToString(g_dayProgress[k].dayPointsSum, _Digits),
+                     " dayProfitSum=", DoubleToString(g_dayProgress[k].dayProfitSum, 2));
                }
                FileClose(fh);
             }
