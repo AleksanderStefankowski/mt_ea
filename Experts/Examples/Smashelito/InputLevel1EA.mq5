@@ -190,6 +190,44 @@ double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high;
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
 string g_session[MAX_BARS_IN_DAY];      // "ON"|"gapcheck"|"RTH"|"sleep"
 
+//--- Trade results for the day (deals IN/OUT paired by magic; updated every new bar in loop2; logged in 22:15-22:21)
+#define MAX_TRADE_RESULTS 500
+#define MAX_DEALS_DAY 2000
+struct TradeResult
+{
+   string symbol;
+   datetime startTime;
+   datetime endTime;      // 0 when entry out not found
+   long magic;
+   double priceStart;
+   double priceEnd;       // 0 when entry out not found
+   double priceDiff;
+   double profit;         // from entry out; 0 when not found
+   long type;             // DEAL_TYPE_BUY/SELL from entry in
+   long reason;           // DEAL_REASON_* from entry out; undefined when not found
+   double volume;
+   string bothComments;
+   bool foundOut;
+};
+TradeResult g_tradeResults[MAX_TRADE_RESULTS];
+int g_tradeResultsCount = 0;
+// Temp deal buffers for UpdateTradeResultsForDay (sort by magic then time)
+datetime g_dealTime[MAX_DEALS_DAY];
+long g_dealMagic[MAX_DEALS_DAY];
+int g_dealEntry[MAX_DEALS_DAY];
+double g_dealPrice[MAX_DEALS_DAY];
+double g_dealProfit[MAX_DEALS_DAY];
+long g_dealType[MAX_DEALS_DAY];
+long g_dealReason[MAX_DEALS_DAY];
+double g_dealVolume[MAX_DEALS_DAY];
+string g_dealSymbol[MAX_DEALS_DAY];
+string g_dealComment[MAX_DEALS_DAY];
+int g_dealCount = 0;
+int g_dealOrder[MAX_DEALS_DAY];  // sorted indices
+#define MAX_IN_OUT_PER_MAGIC 200
+int g_inIdx[MAX_IN_OUT_PER_MAGIC];
+int g_outIdx[MAX_IN_OUT_PER_MAGIC];
+
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
 //+------------------------------------------------------------------+
@@ -419,6 +457,98 @@ void UpdateDayM1AndLevelsExpanded()
       g_levelAboveH[k] = aboveH;
       g_levelBelowL[k] = belowL;
       g_session[k] = GetSessionForCandleTime(g_m1Rates[k].time);
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Load deals for current day, reject DEAL_TYPE_BALANCE, group by magic, pair IN/OUT into g_tradeResults. Call from loop2. |
+//+------------------------------------------------------------------+
+void UpdateTradeResultsForDay()
+{
+   g_tradeResultsCount = 0;
+   g_dealCount = 0;
+   datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
+   datetime dayEnd = dayStart + 86400;
+   if(!HistorySelect(dayStart, dayEnd)) return;
+   int total = HistoryDealsTotal();
+   for(int i = 0; i < total && g_dealCount < MAX_DEALS_DAY; i++)
+   {
+      ulong ticket = HistoryDealGetTicket(i);
+      if(ticket == 0) continue;
+      long dtype = HistoryDealGetInteger(ticket, DEAL_TYPE);
+      if(dtype == (long)DEAL_TYPE_BALANCE) continue;
+      string sym = HistoryDealGetString(ticket, DEAL_SYMBOL);
+      if(sym != _Symbol) continue;
+      datetime t = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+      if(t < dayStart || t >= dayEnd) continue;
+      int idx = g_dealCount++;
+      g_dealTime[idx]    = t;
+      g_dealMagic[idx]   = HistoryDealGetInteger(ticket, DEAL_MAGIC);
+      g_dealEntry[idx]   = (int)HistoryDealGetInteger(ticket, DEAL_ENTRY);
+      g_dealPrice[idx]   = HistoryDealGetDouble(ticket, DEAL_PRICE);
+      g_dealProfit[idx]  = HistoryDealGetDouble(ticket, DEAL_PROFIT);
+      g_dealType[idx]    = HistoryDealGetInteger(ticket, DEAL_TYPE);
+      g_dealReason[idx]  = HistoryDealGetInteger(ticket, DEAL_REASON);
+      g_dealVolume[idx]  = HistoryDealGetDouble(ticket, DEAL_VOLUME);
+      g_dealSymbol[idx]  = sym;
+      g_dealComment[idx] = HistoryDealGetString(ticket, DEAL_COMMENT);
+   }
+   // Sort indices by magic then time
+   for(int i = 0; i < g_dealCount; i++) g_dealOrder[i] = i;
+   for(int i = 0; i < g_dealCount - 1; i++)
+      for(int j = i + 1; j < g_dealCount; j++)
+      {
+         int a = g_dealOrder[i], b = g_dealOrder[j];
+         if(g_dealMagic[a] > g_dealMagic[b] || (g_dealMagic[a] == g_dealMagic[b] && g_dealTime[a] > g_dealTime[b]))
+         { int tmp = g_dealOrder[i]; g_dealOrder[i] = g_dealOrder[j]; g_dealOrder[j] = tmp; }
+      }
+   // Group by magic, pair IN with next OUT
+   int i = 0;
+   while(i < g_dealCount && g_tradeResultsCount < MAX_TRADE_RESULTS)
+   {
+      long mag = g_dealMagic[g_dealOrder[i]];
+      int inCount = 0, outCount = 0;
+      while(i < g_dealCount && g_dealMagic[g_dealOrder[i]] == mag)
+      {
+         int idx = g_dealOrder[i];
+         if(g_dealEntry[idx] == (int)DEAL_ENTRY_IN)  { if(inCount < MAX_IN_OUT_PER_MAGIC) g_inIdx[inCount++] = idx; }
+         else if(g_dealEntry[idx] == (int)DEAL_ENTRY_OUT) { if(outCount < MAX_IN_OUT_PER_MAGIC) g_outIdx[outCount++] = idx; }
+         i++;
+      }
+      for(int p = 0; p < inCount && g_tradeResultsCount < MAX_TRADE_RESULTS; p++)
+      {
+         TradeResult r;
+         r.symbol      = g_dealSymbol[g_inIdx[p]];
+         r.startTime   = g_dealTime[g_inIdx[p]];
+         r.magic       = g_dealMagic[g_inIdx[p]];
+         r.priceStart  = g_dealPrice[g_inIdx[p]];
+         r.type       = g_dealType[g_inIdx[p]];
+         r.volume     = g_dealVolume[g_inIdx[p]];
+         r.foundOut   = (p < outCount);
+         if(r.foundOut)
+         {
+            int o = g_outIdx[p];
+            r.endTime   = g_dealTime[o];
+            r.priceEnd  = g_dealPrice[o];
+            if(r.type == (long)DEAL_TYPE_BUY)
+               r.priceDiff = r.priceEnd - r.priceStart;
+            else
+               r.priceDiff = r.priceStart - r.priceEnd;   // DEAL_TYPE_SELL
+            r.profit    = g_dealProfit[o];
+            r.reason    = g_dealReason[o];
+            r.bothComments = g_dealComment[g_inIdx[p]] + "| " + g_dealComment[o];
+         }
+         else
+         {
+            r.endTime   = 0;
+            r.priceEnd  = 0;
+            r.priceDiff = 0;
+            r.profit    = 0;
+            r.reason    = 0;
+            r.bothComments = g_dealComment[g_inIdx[p]] + "| NOT_FOUND";
+         }
+         g_tradeResults[g_tradeResultsCount++] = r;
+      }
    }
 }
 
@@ -1131,6 +1261,9 @@ void OnTimer()
    // --- Price, levels, levelsExpanded: always update in memory every new bar (for trade logic)
    UpdateDayM1AndLevelsExpanded();
 
+   // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
+   UpdateTradeResultsForDay();
+
    // --- Logging only in time window (performance)
    if(InpTestingPullM1History)
    {
@@ -1159,6 +1292,28 @@ void OnTimer()
                   " session=", g_session[k]);
             }
             FileClose(fh);
+         }
+
+         // Trade results CSV: (date)_summaryZ_tradeResults_ALL_Day.csv
+         string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day.csv";
+         int fhTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
+         if(fhTr != INVALID_HANDLE)
+         {
+            FileWrite(fhTr, "symbol", "startTime", "endTime", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments");
+            for(int tr = 0; tr < g_tradeResultsCount; tr++)
+            {
+               TradeResult r = g_tradeResults[tr];
+               string endTimeStr = r.foundOut ? TimeToString(r.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
+               string priceEndStr = r.foundOut ? DoubleToString(r.priceEnd, _Digits) : "NOT_FOUND";
+               string profitStr = r.foundOut ? DoubleToString(r.profit, 2) : "NOT_FOUND";
+               string reasonStr = r.foundOut ? EnumToString((ENUM_DEAL_REASON)r.reason) : "NOT_FOUND";
+               string typeStr = EnumToString((ENUM_DEAL_TYPE)r.type);
+               FileWrite(fhTr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
+                  IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
+                  DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
+                  DoubleToString(r.volume, 2), r.bothComments);
+            }
+            FileClose(fhTr);
          }
 
          // Per-level files from g_levelsExpanded and g_m1Rates
