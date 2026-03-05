@@ -31,6 +31,7 @@ input int      HourForDailySummary   = 21;   // hour (server time) when daily su
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
 input bool     InpTestingPullM1History = true;  // if true: between 22:15-23:30 write (date)_testing_pullinghistory.txt with 1M bars for the day
 input string   InpCalendarFile        = "calendar_2026.csv";  // CSV in Terminal/Common/Files (shared live+tester): date,dayofmonth,dayofweek,opex,qopex
+input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 
 //--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
 //    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
@@ -153,6 +154,32 @@ struct CalendarRow
 CalendarRow g_calendar[MAX_CALENDAR_ROWS];
 int g_calendarCount = 0;
 
+//--- Levels (loaded from levelsinfo_zeFinal CSV in OnInit)
+struct LevelInfoRow
+{
+   string startStr;   // "YYYY-MM-DD"
+   string endStr;    // "YYYY-MM-DD"
+   double levelPrice;
+   string categories; // e.g. "daily_monday_smash_stacked"
+   string tag;       // e.g. "dailySmash", "weeklyUp1" (loaded but not used yet)
+};
+#define MAX_LEVEL_ROWS 2000
+LevelInfoRow g_levels[MAX_LEVEL_ROWS];
+int g_levelsCount = 0;
+
+//--- Levels expanded (built in testing loop: each level of the day vs whole price chart; newway_Diff_CloseToLevel per bar)
+struct LevelExpandedRow
+{
+   double levelPrice;
+   string tag;
+   int    count;      // number of bars
+   double diffs[];    // newway_Diff_CloseToLevel = close - levelPrice per bar
+   datetime times[];  // bar time per bar
+};
+#define MAX_LEVELS_EXPANDED 500
+LevelExpandedRow g_levelsExpanded[MAX_LEVELS_EXPANDED];
+int g_levelsExpandedCount = 0;
+
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
 //+------------------------------------------------------------------+
@@ -221,6 +248,66 @@ string GetCalendarDayOfWeek(datetime dt)
    for(int i = 0; i < g_calendarCount; i++)
       if(g_calendar[i].dateStr == key) return g_calendar[i].dayofweek;
    return "";
+}
+
+//+------------------------------------------------------------------+
+//| Load levels CSV from Terminal/Common/Files. Format: start,end,levelPrice,categories,tag (header on first line). |
+//+------------------------------------------------------------------+
+bool LoadLevels()
+{
+   g_levelsCount = 0;
+   int fh = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
+   if(fh == INVALID_HANDLE) return false;
+   string line = FileReadString(fh);  // skip header
+   while(!FileIsEnding(fh) && g_levelsCount < MAX_LEVEL_ROWS)
+   {
+      line = FileReadString(fh);
+      if(StringLen(line) == 0) continue;
+      string parts[];
+      if(StringSplit(line, ',', parts) < 5) continue;
+      g_levels[g_levelsCount].startStr   = parts[0];
+      g_levels[g_levelsCount].endStr     = parts[1];
+      g_levels[g_levelsCount].levelPrice = StringToDouble(parts[2]);
+      g_levels[g_levelsCount].categories = parts[3];
+      g_levels[g_levelsCount].tag        = parts[4];
+      g_levelsCount++;
+   }
+   FileClose(fh);
+   return (g_levelsCount > 0);
+}
+
+//+------------------------------------------------------------------+
+//| Return any one daily level price valid for the given date (categories contains "daily"). 0 if none. |
+//+------------------------------------------------------------------+
+double GetAnyFirstKnownLevelForDay(datetime dt)
+{
+   MqlDateTime mt;
+   TimeToStruct(dt, mt);
+   string key = StringFormat("%04d-%02d-%02d", mt.year, mt.mon, mt.day);
+   for(int i = 0; i < g_levelsCount; i++)
+   {
+      if(g_levels[i].startStr > key || key > g_levels[i].endStr) continue;
+      if(StringFind(g_levels[i].categories, "daily") < 0) continue;
+      return g_levels[i].levelPrice;
+   }
+   return 0;
+}
+
+//+------------------------------------------------------------------+
+//| Get newway_Diff_CloseToLevel from g_levelsExpanded at barTime. Key = levelPrice OR tag (use one, pass 0 or "" for the other). |
+//+------------------------------------------------------------------+
+double GetLevelExpandedDiff(double levelPrice, string tag, datetime barTime)
+{
+   for(int e = 0; e < g_levelsExpandedCount; e++)
+   {
+      if(levelPrice > 0 && g_levelsExpanded[e].levelPrice != levelPrice) continue;
+      if(StringLen(tag) > 0 && g_levelsExpanded[e].tag != tag) continue;
+      for(int k = 0; k < g_levelsExpanded[e].count; k++)
+         if(g_levelsExpanded[e].times[k] == barTime)
+            return g_levelsExpanded[e].diffs[k];
+      return 0;
+   }
+   return 0;
 }
 
 //+------------------------------------------------------------------+
@@ -622,6 +709,13 @@ int OnInit()
    else
       Print("Calendar loaded: ", g_calendarCount, " rows from ", InpCalendarFile);
 
+   if(!LoadLevels())
+   {
+      Print("Levels file not loaded: ", InpLevelsFile, " (place CSV in Terminal/Common/Files)");
+      return(INIT_FAILED);
+   }
+   Print("Levels loaded: ", g_levelsCount, " rows from ", InpLevelsFile);
+
    // Hardcoded levels imported from levelsinfo.txt in chronological order
    AddLevel("2026.02.16_SmashWeekly", 6890, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,smash");
    AddLevel("2026.02.16_weeklyUp1", 6960, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp1");
@@ -940,21 +1034,71 @@ void OnTimer()
          {
             int countToCopy = barsFromDayStart + 1;
             int copied = CopyRates(_Symbol, PERIOD_M1, 0, countToCopy, m1Rates);
-            int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
-            if(fh != INVALID_HANDLE)
+            if(copied > 0)
             {
+               MqlDateTime mtDay;
+               TimeToStruct(dayStart, mtDay);
+               string dayKey = StringFormat("%04d-%02d-%02d", mtDay.year, mtDay.mon, mtDay.day);
+
+               // Count bars that belong to this day
+               int barsInDay = 0;
                for(int b = 0; b < copied; b++)
+                  if(TimeToString(m1Rates[b].time, TIME_DATE) == dateStr) barsInDay++;
+
+               // Build levelsExpanded: levels of the day vs whole price chart (newway_Diff_CloseToLevel = close - levelPrice)
+               g_levelsExpandedCount = 0;
+               for(int i = 0; i < g_levelsCount && g_levelsExpandedCount < MAX_LEVELS_EXPANDED; i++)
                {
-                  if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
-                  string dow = GetCalendarDayOfWeek(m1Rates[b].time);
-                  FileWrite(fh, TimeToString(m1Rates[b].time, TIME_DATE|TIME_MINUTES),
-                     " O=", DoubleToString(m1Rates[b].open, _Digits),
-                     " H=", DoubleToString(m1Rates[b].high, _Digits),
-                     " L=", DoubleToString(m1Rates[b].low, _Digits),
-                     " C=", DoubleToString(m1Rates[b].close, _Digits),
-                     (StringLen(dow) > 0) ? " calDayofweek=" + dow : "");
+                  if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
+                  g_levelsExpanded[g_levelsExpandedCount].levelPrice = g_levels[i].levelPrice;
+                  g_levelsExpanded[g_levelsExpandedCount].tag        = g_levels[i].tag;
+                  g_levelsExpanded[g_levelsExpandedCount].count     = barsInDay;
+                  ArrayResize(g_levelsExpanded[g_levelsExpandedCount].diffs, barsInDay);
+                  ArrayResize(g_levelsExpanded[g_levelsExpandedCount].times, barsInDay);
+                  int idx = 0;
+                  for(int b = 0; b < copied && idx < barsInDay; b++)
+                  {
+                     if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
+                     g_levelsExpanded[g_levelsExpandedCount].times[idx] = m1Rates[b].time;
+                     g_levelsExpanded[g_levelsExpandedCount].diffs[idx] = m1Rates[b].close - g_levelsExpanded[g_levelsExpandedCount].levelPrice;
+                     idx++;
+                  }
+                  g_levelsExpandedCount++;
                }
-               FileClose(fh);
+
+               // Log pullinghistory (existing)
+               int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
+               if(fh != INVALID_HANDLE)
+               {
+                  for(int b = 0; b < copied; b++)
+                  {
+                     if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
+                     string dow = GetCalendarDayOfWeek(m1Rates[b].time);
+                     double anyLevel = GetAnyFirstKnownLevelForDay(m1Rates[b].time);
+                     FileWrite(fh, TimeToString(m1Rates[b].time, TIME_DATE|TIME_MINUTES),
+                        " O=", DoubleToString(m1Rates[b].open, _Digits),
+                        " H=", DoubleToString(m1Rates[b].high, _Digits),
+                        " L=", DoubleToString(m1Rates[b].low, _Digits),
+                        " C=", DoubleToString(m1Rates[b].close, _Digits),
+                        (StringLen(dow) > 0) ? " calDayofweek=" + dow : "",
+                        (anyLevel > 0) ? " anyFirstKnownLevelForThisDay=" + DoubleToString(anyLevel, 0) : "");
+                  }
+                  FileClose(fh);
+               }
+
+               // Per-level files: (date)_testinglevelsplus_(level)_(tag).txt with newway_Diff_CloseToLevel across bars
+               for(int e = 0; e < g_levelsExpandedCount; e++)
+               {
+                  string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, 0) + "_" + g_levelsExpanded[e].tag + ".txt";
+                  int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
+                  if(fhL != INVALID_HANDLE)
+                  {
+                     for(int k = 0; k < g_levelsExpanded[e].count; k++)
+                        FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
+                           " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits));
+                     FileClose(fhL);
+                  }
+               }
             }
          }
       }

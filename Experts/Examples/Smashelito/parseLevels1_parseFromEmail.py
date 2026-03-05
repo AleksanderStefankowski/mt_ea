@@ -58,7 +58,7 @@ Holding below 6927 would target 6904 / 6880 / 6849
 
 ES Weekly Plan | March 2-6, 2026
 
-Holding above 6880 would target 7960 / 7030 / 7060* / 7120 / 7160
+Holding above 6880 would target 6960 / 7030 / 7060* / 7120 / 7160
 
 Break and hold below 6880 would target 6805 / 6730 / 6700* / 6670 / 6592
 
@@ -67,12 +67,23 @@ Daily Plan | March 2, 2026
 Holding above 6880 would target 6904 / 6927 / 6960
 
 Break and hold below 6880 would target 6852 / 6829
+
+Daily Plan | March 3, 2026
+Holding above 6880 would target 6904 / 6927 / 6960
+
+Break and hold below 6880 would target 6844 / 6825
+
+Daily Plan | March 4, 2026
+Holding above 6808 would target 6843 / 6880 / 6904
+
+Break and hold below 6808 would target 6784 / 6748
 '''	
 
 
 
 import re
 from calendar import month_name
+from datetime import datetime
 
 
 def month_to_number(month_str):
@@ -169,37 +180,60 @@ def parse_plan(text):
                     downs.extend(numbers)
 
         if smash is not None:
-            results.append({
-                "category": category,
-                "start": start_date,
-                "end": end_date,
-                "type": "smash",
-                "level": smash
-            })
+            if category == "weekly":
+                results.append({
+                    "start": start_date,
+                    "end": end_date,
+                    "levelPrice": smash,
+                    "categories": ["weekly", "smash"],
+                    "tag": "weeklySmash"
+                })
+            else:
+                # daily: include day of week in categories
+                dt = datetime.strptime(start_date, "%Y-%m-%d")
+                weekday = dt.strftime("%A").lower()  # monday, tuesday, ...
+                results.append({
+                    "start": start_date,
+                    "end": end_date,
+                    "levelPrice": smash,
+                    "categories": ["daily", weekday, "smash"],
+                    "tag": "dailySmash"
+                })
 
         for i, level in enumerate(sorted(ups), start=1):
+            tag = f"{category}Up{i}"
             results.append({
-                "category": category,
                 "start": start_date,
                 "end": end_date,
-                "type": f"{category}Up{i}",
-                "level": level
+                "levelPrice": level,
+                "categories": [category],
+                "tag": tag
             })
 
         for i, level in enumerate(sorted(downs, reverse=True), start=1):
+            tag = f"{category}Down{i}"
             results.append({
-                "category": category,
                 "start": start_date,
                 "end": end_date,
-                "type": f"{category}Down{i}",
-                "level": level
+                "levelPrice": level,
+                "categories": [category],
+                "tag": tag
             })
 
     return results
 
 
 # ---- Usage ----
+import os
+import json
+
 data = parse_plan(text)
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+out_path = os.path.join(script_dir, "levelsinfo_raw.txt")
+
+with open(out_path, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2)
 
 for row in data:
     print(row)
