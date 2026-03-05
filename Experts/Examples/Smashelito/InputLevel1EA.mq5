@@ -207,6 +207,7 @@ struct TradeResult
    long reason;           // DEAL_REASON_* from entry out; undefined when not found
    double volume;
    string bothComments;
+   string session;        // ON|gapcheck|RTH|sleep from startTime (same logic as candle session)
    bool foundOut;
 };
 TradeResult g_tradeResults[MAX_TRADE_RESULTS];
@@ -525,6 +526,7 @@ void UpdateTradeResultsForDay()
          r.type       = g_dealType[g_inIdx[p]];
          r.volume     = g_dealVolume[g_inIdx[p]];
          r.foundOut   = (p < outCount);
+         r.session    = GetSessionForCandleTime(r.startTime);
          if(r.foundOut)
          {
             int o = g_outIdx[p];
@@ -1276,67 +1278,76 @@ void OnTimer()
          string dateStr = TimeToString(dayStart, TIME_DATE);
          string logName = dateStr + "_testing_pullinghistory.txt";
 
-         // Log pullinghistory from g_m1Rates
-         int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
-         if(fh != INVALID_HANDLE)
+         // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again)
+         if(!FileIsExist(logName))
          {
-            for(int k = 0; k < g_barsInDay; k++)
+            int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
+            if(fh != INVALID_HANDLE)
             {
-               FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
-                  " O=", DoubleToString(g_m1Rates[k].open, _Digits),
-                  " H=", DoubleToString(g_m1Rates[k].high, _Digits),
-                  " L=", DoubleToString(g_m1Rates[k].low, _Digits),
-                  " C=", DoubleToString(g_m1Rates[k].close, _Digits),
-                  " levelAboveH=", DoubleToString(g_levelAboveH[k], 0),
-                  " levelBelowL=", DoubleToString(g_levelBelowL[k], 0),
-                  " session=", g_session[k]);
+               for(int k = 0; k < g_barsInDay; k++)
+               {
+                  FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
+                     " O=", DoubleToString(g_m1Rates[k].open, _Digits),
+                     " H=", DoubleToString(g_m1Rates[k].high, _Digits),
+                     " L=", DoubleToString(g_m1Rates[k].low, _Digits),
+                     " C=", DoubleToString(g_m1Rates[k].close, _Digits),
+                     " levelAboveH=", DoubleToString(g_levelAboveH[k], 0),
+                     " levelBelowL=", DoubleToString(g_levelBelowL[k], 0),
+                     " session=", g_session[k]);
+               }
+               FileClose(fh);
             }
-            FileClose(fh);
          }
 
-         // Trade results CSV: (date)_summaryZ_tradeResults_ALL_Day.csv
+         // Trade results CSV: (date)_summaryZ_tradeResults_ALL_Day.csv (only once; if missing, write again)
          string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day.csv";
-         int fhTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
-         if(fhTr != INVALID_HANDLE)
+         if(!FileIsExist(csvName))
          {
-            FileWrite(fhTr, "symbol", "startTime", "endTime", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments");
-            for(int tr = 0; tr < g_tradeResultsCount; tr++)
+            int fhTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
+            if(fhTr != INVALID_HANDLE)
             {
-               TradeResult r = g_tradeResults[tr];
-               string endTimeStr = r.foundOut ? TimeToString(r.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
-               string priceEndStr = r.foundOut ? DoubleToString(r.priceEnd, _Digits) : "NOT_FOUND";
-               string profitStr = r.foundOut ? DoubleToString(r.profit, 2) : "NOT_FOUND";
-               string reasonStr = r.foundOut ? EnumToString((ENUM_DEAL_REASON)r.reason) : "NOT_FOUND";
-               string typeStr = EnumToString((ENUM_DEAL_TYPE)r.type);
-               FileWrite(fhTr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
-                  IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
-                  DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                  DoubleToString(r.volume, 2), r.bothComments);
+               FileWrite(fhTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments");
+               for(int tr = 0; tr < g_tradeResultsCount; tr++)
+               {
+                  TradeResult r = g_tradeResults[tr];
+                  string endTimeStr = r.foundOut ? TimeToString(r.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
+                  string priceEndStr = r.foundOut ? DoubleToString(r.priceEnd, _Digits) : "NOT_FOUND";
+                  string profitStr = r.foundOut ? DoubleToString(r.profit, 2) : "NOT_FOUND";
+                  string reasonStr = r.foundOut ? EnumToString((ENUM_DEAL_REASON)r.reason) : "NOT_FOUND";
+                  string typeStr = EnumToString((ENUM_DEAL_TYPE)r.type);
+                  FileWrite(fhTr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
+                     r.session, IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
+                     DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
+                     DoubleToString(r.volume, 2), r.bothComments);
+               }
+               FileClose(fhTr);
             }
-            FileClose(fhTr);
          }
 
-         // Per-level files from g_levelsExpanded and g_m1Rates
+         // Per-level files (only once per file per day; if missing, write again)
          int recentPriceArgument = 5;
          for(int e = 0; e < g_levelsExpandedCount; e++)
          {
             string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, 0) + "_" + g_levelsExpanded[e].tag + ".txt";
-            int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
-            if(fhL != INVALID_HANDLE)
+            if(!FileIsExist(levelFile))
             {
-               double lvl = g_levelsExpanded[e].levelPrice;
-               for(int k = 0; k < g_levelsExpanded[e].count; k++)
+               int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
+               if(fhL != INVALID_HANDLE)
                {
-                  string highestUp   = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, true);
-                  string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
-                  FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
-                     " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
-                     " HighestDiffUp=", highestUp,
-                     " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
-                     " HighestDiffDown=", highestDown,
-                     " HighestDiffDownRange=", IntegerToString(recentPriceArgument));
+                  double lvl = g_levelsExpanded[e].levelPrice;
+                  for(int k = 0; k < g_levelsExpanded[e].count; k++)
+                  {
+                     string highestUp   = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, true);
+                     string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
+                     FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
+                        " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
+                        " HighestDiffUp=", highestUp,
+                        " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
+                        " HighestDiffDown=", highestDown,
+                        " HighestDiffDownRange=", IntegerToString(recentPriceArgument));
+                  }
+                  FileClose(fhL);
                }
-               FileClose(fhL);
             }
          }
       }
