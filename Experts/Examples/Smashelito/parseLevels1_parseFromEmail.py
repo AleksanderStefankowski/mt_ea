@@ -77,6 +77,12 @@ Daily Plan | March 4, 2026
 Holding above 6808 would target 6843 / 6880 / 6904
 
 Break and hold below 6808 would target 6784 / 6748
+
+Daily Plan | March 5, 2026
+
+Break and hold above 6886 would target 6904 / 6927 / 6960
+
+Holding below 6886 would target 6858 / 6839 / 6808
 '''	
 
 
