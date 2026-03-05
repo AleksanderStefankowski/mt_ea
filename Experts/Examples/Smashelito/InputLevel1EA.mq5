@@ -233,6 +233,7 @@ int g_outIdx[MAX_IN_OUT_PER_MAGIC];
 struct DayProgressBar
 {
    double dayWinRate;   // wins/total for trades with endTime < candle close; 0 if no trades
+   int dayTradesCount;  // count of trades with endTime < candle close
    double dayPointsSum;
    double dayProfitSum;
 };
@@ -584,6 +585,7 @@ void UpdateDayProgress()
          dayProfitSum += r.profit;
       }
       g_dayProgress[k].dayWinRate   = (total > 0) ? (double)wins / (double)total : 0.0;
+      g_dayProgress[k].dayTradesCount = total;
       g_dayProgress[k].dayPointsSum = dayPointsSum;
       g_dayProgress[k].dayProfitSum = dayProfitSum;
    }
@@ -1333,6 +1335,7 @@ void OnTimer()
                      " levelBelowL=", DoubleToString(g_levelBelowL[k], 0),
                      " session=", g_session[k],
                      " dayWinRate=", DoubleToString(g_dayProgress[k].dayWinRate, 2),
+                     " dayTradesCount=", IntegerToString(g_dayProgress[k].dayTradesCount),
                      " dayPointsSum=", DoubleToString(g_dayProgress[k].dayPointsSum, _Digits),
                      " dayProfitSum=", DoubleToString(g_dayProgress[k].dayProfitSum, 2));
                }
