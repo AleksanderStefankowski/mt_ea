@@ -185,6 +185,10 @@ int g_levelsExpandedCount = 0;
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
 int g_barsInDay = 0;
 datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
+// Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 22:15-22:21 window)
+double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high; 0 if none
+double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
+string g_session[MAX_BARS_IN_DAY];      // "ON"|"gapcheck"|"RTH"|"sleep"
 
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
@@ -257,6 +261,20 @@ string GetCalendarDayOfWeek(datetime dt)
 }
 
 //+------------------------------------------------------------------+
+//| Session for candle time: 00:00-15:15 ON, 15:16-15:28 gapcheck, 15:29-22:00 RTH, else sleep. |
+//+------------------------------------------------------------------+
+string GetSessionForCandleTime(datetime t)
+{
+   MqlDateTime mt;
+   TimeToStruct(t, mt);
+   int minOfDay = mt.hour * 60 + mt.min;
+   if(minOfDay >= 0 && minOfDay <= 15*60+15) return "ON";
+   if(minOfDay >= 15*60+16 && minOfDay <= 15*60+28) return "gapcheck";
+   if(minOfDay >= 15*60+29 && minOfDay <= 22*60+0) return "RTH";
+   return "sleep";
+}
+
+//+------------------------------------------------------------------+
 //| Load levels CSV from Terminal/Common/Files. Format: start,end,levelPrice,categories,tag (header on first line). |
 //+------------------------------------------------------------------+
 bool LoadLevels()
@@ -280,23 +298,6 @@ bool LoadLevels()
    }
    FileClose(fh);
    return (g_levelsCount > 0);
-}
-
-//+------------------------------------------------------------------+
-//| Return any one daily level price valid for the given date (categories contains "daily"). 0 if none. |
-//+------------------------------------------------------------------+
-double GetAnyFirstKnownLevelForDay(datetime dt)
-{
-   MqlDateTime mt;
-   TimeToStruct(dt, mt);
-   string key = StringFormat("%04d-%02d-%02d", mt.year, mt.mon, mt.day);
-   for(int i = 0; i < g_levelsCount; i++)
-   {
-      if(g_levels[i].startStr > key || key > g_levels[i].endStr) continue;
-      if(StringFind(g_levels[i].categories, "daily") < 0) continue;
-      return g_levels[i].levelPrice;
-   }
-   return 0;
 }
 
 //+------------------------------------------------------------------+
@@ -402,6 +403,22 @@ void UpdateDayM1AndLevelsExpanded()
          g_levelsExpanded[g_levelsExpandedCount].diffs[k] = g_m1Rates[k].close - g_levelsExpanded[g_levelsExpandedCount].levelPrice;
       }
       g_levelsExpandedCount++;
+   }
+
+   // Per-bar: level above candle high, level below candle low, session (available globally; logged in 22:15-22:21)
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      double aboveH = 0;
+      double belowL = 0;
+      for(int e = 0; e < g_levelsExpandedCount; e++)
+      {
+         double lp = g_levelsExpanded[e].levelPrice;
+         if(lp > g_m1Rates[k].high && (aboveH == 0 || lp < aboveH)) aboveH = lp;
+         if(lp < g_m1Rates[k].low  && (belowL == 0 || lp > belowL)) belowL = lp;
+      }
+      g_levelAboveH[k] = aboveH;
+      g_levelBelowL[k] = belowL;
+      g_session[k] = GetSessionForCandleTime(g_m1Rates[k].time);
    }
 }
 
@@ -1132,15 +1149,14 @@ void OnTimer()
          {
             for(int k = 0; k < g_barsInDay; k++)
             {
-               string dow = GetCalendarDayOfWeek(g_m1Rates[k].time);
-               double anyLevel = GetAnyFirstKnownLevelForDay(g_m1Rates[k].time);
                FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
                   " O=", DoubleToString(g_m1Rates[k].open, _Digits),
                   " H=", DoubleToString(g_m1Rates[k].high, _Digits),
                   " L=", DoubleToString(g_m1Rates[k].low, _Digits),
                   " C=", DoubleToString(g_m1Rates[k].close, _Digits),
-                  (StringLen(dow) > 0) ? " calDayofweek=" + dow : "",
-                  (anyLevel > 0) ? " anyFirstKnownLevelForThisDay=" + DoubleToString(anyLevel, 0) : "");
+                  " levelAboveH=", DoubleToString(g_levelAboveH[k], 0),
+                  " levelBelowL=", DoubleToString(g_levelBelowL[k], 0),
+                  " session=", g_session[k]);
             }
             FileClose(fh);
          }
