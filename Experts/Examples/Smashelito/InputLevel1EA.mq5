@@ -29,7 +29,7 @@ input int      Max_OrdersPerMagic = 1; // max open positions + pending orders wi
 input double   InpLotSize           = 0.01; // lot size for trade types
 input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (tick timestamp)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
-input bool     InpTestingPullM1History = true;  // if true: between 22:15-23:30 write (date)_testing_pullinghistory.txt with 1M bars for the day
+input bool     InpTestingPullM1History = true;  // if true: between 22:15-22:21 write (date)_testing_pullinghistory.txt and testinglevelsplus files
 input string   InpCalendarFile        = "calendar_2026.csv";  // CSV in Terminal/Common/Files (shared live+tester): date,dayofmonth,dayofweek,opex,qopex
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 
@@ -180,6 +180,12 @@ struct LevelExpandedRow
 LevelExpandedRow g_levelsExpanded[MAX_LEVELS_EXPANDED];
 int g_levelsExpandedCount = 0;
 
+//--- Day M1 price data (updated every new bar; used by trade logic and by testing log)
+#define MAX_BARS_IN_DAY 1500
+MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
+int g_barsInDay = 0;
+datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
+
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
 //+------------------------------------------------------------------+
@@ -308,6 +314,95 @@ double GetLevelExpandedDiff(double levelPrice, string tag, datetime barTime)
       return 0;
    }
    return 0;
+}
+
+//+------------------------------------------------------------------+
+//| In last windowBars ending at bar k: Up = max(high-level) when high>level; Down = max(level-low) when low<level. |
+//| Returns "never" if no bar had price above level (Up) or below level (Down); else returns value as string. |
+//+------------------------------------------------------------------+
+string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars, bool wantUp)
+{
+   int startBar = MathMax(0, barK - windowBars + 1);
+   if(wantUp)
+   {
+      double maxUp = -1e300;
+      for(int j = startBar; j <= barK; j++)
+      {
+         if(g_m1Rates[j].high > levelPrice)
+         {
+            double d = g_m1Rates[j].high - levelPrice;
+            if(d > maxUp) maxUp = d;
+         }
+      }
+      return (maxUp > -1e300) ? DoubleToString(maxUp, _Digits) : "never";
+   }
+   else
+   {
+      double maxDown = -1e300;
+      for(int j = startBar; j <= barK; j++)
+      {
+         if(g_m1Rates[j].low < levelPrice)
+         {
+            double d = levelPrice - g_m1Rates[j].low;
+            if(d > maxDown) maxDown = d;
+         }
+      }
+      return (maxDown > -1e300) ? DoubleToString(maxDown, _Digits) : "never";
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Pull 1M for current day into g_m1Rates and build g_levelsExpanded. Call every new bar so data is always in memory. |
+//+------------------------------------------------------------------+
+void UpdateDayM1AndLevelsExpanded()
+{
+   datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
+   string dateStr = TimeToString(dayStart, TIME_DATE);
+   MqlDateTime mtDay;
+   TimeToStruct(dayStart, mtDay);
+   string dayKey = StringFormat("%04d-%02d-%02d", mtDay.year, mtDay.mon, mtDay.day);
+
+   MqlRates m1Rates[];
+   int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
+   if(barsFromDayStart < 0) { g_barsInDay = 0; g_m1DayStart = 0; return; }
+
+   int countToCopy = barsFromDayStart + 1;
+   int copied = CopyRates(_Symbol, PERIOD_M1, 0, countToCopy, m1Rates);
+   if(copied <= 0) { g_barsInDay = 0; g_m1DayStart = 0; return; }
+
+   int barsInDay = 0;
+   for(int b = 0; b < copied; b++)
+      if(TimeToString(m1Rates[b].time, TIME_DATE) == dateStr) barsInDay++;
+
+   if(barsInDay <= 0 || barsInDay > MAX_BARS_IN_DAY) { g_barsInDay = 0; g_m1DayStart = 0; return; }
+
+   int idxDay = 0;
+   for(int b = 0; b < copied && idxDay < barsInDay; b++)
+   {
+      if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
+      g_m1Rates[idxDay] = m1Rates[b];
+      idxDay++;
+   }
+   g_barsInDay = barsInDay;
+   g_m1DayStart = dayStart;
+
+   // Build levelsExpanded from g_m1Rates
+   g_levelsExpandedCount = 0;
+   for(int i = 0; i < g_levelsCount && g_levelsExpandedCount < MAX_LEVELS_EXPANDED; i++)
+   {
+      if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
+      g_levelsExpanded[g_levelsExpandedCount].levelPrice = g_levels[i].levelPrice;
+      g_levelsExpanded[g_levelsExpandedCount].tag        = g_levels[i].tag;
+      g_levelsExpanded[g_levelsExpandedCount].count      = g_barsInDay;
+      ArrayResize(g_levelsExpanded[g_levelsExpandedCount].diffs, g_barsInDay);
+      ArrayResize(g_levelsExpanded[g_levelsExpandedCount].times, g_barsInDay);
+      for(int k = 0; k < g_barsInDay; k++)
+      {
+         g_levelsExpanded[g_levelsExpandedCount].times[k] = g_m1Rates[k].time;
+         g_levelsExpanded[g_levelsExpandedCount].diffs[k] = g_m1Rates[k].close - g_levelsExpanded[g_levelsExpandedCount].levelPrice;
+      }
+      g_levelsExpandedCount++;
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -1016,89 +1111,61 @@ void OnTimer()
 
    FinalizeCurrentCandle();
 
-   // --- Test: pull all 1M history for current day and save to per-day log (parallel to trade logic)
-   // Only between 22:15 and 23:30 server time
+   // --- Price, levels, levelsExpanded: always update in memory every new bar (for trade logic)
+   UpdateDayM1AndLevelsExpanded();
+
+   // --- Logging only in time window (performance)
    if(InpTestingPullM1History)
    {
       MqlDateTime mtTest;
       TimeToStruct(g_lastTickTime, mtTest);
       int minOfDay = mtTest.hour * 60 + mtTest.min;
-      if(minOfDay >= 22*60+15 && minOfDay <= 23*60+30)
+      if(minOfDay >= 22*60+15 && minOfDay <= 22*60+21 && g_barsInDay > 0)
       {
          datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
          string dateStr = TimeToString(dayStart, TIME_DATE);
          string logName = dateStr + "_testing_pullinghistory.txt";
-         MqlRates m1Rates[];
-         int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
-         if(barsFromDayStart >= 0)
+
+         // Log pullinghistory from g_m1Rates
+         int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
+         if(fh != INVALID_HANDLE)
          {
-            int countToCopy = barsFromDayStart + 1;
-            int copied = CopyRates(_Symbol, PERIOD_M1, 0, countToCopy, m1Rates);
-            if(copied > 0)
+            for(int k = 0; k < g_barsInDay; k++)
             {
-               MqlDateTime mtDay;
-               TimeToStruct(dayStart, mtDay);
-               string dayKey = StringFormat("%04d-%02d-%02d", mtDay.year, mtDay.mon, mtDay.day);
+               string dow = GetCalendarDayOfWeek(g_m1Rates[k].time);
+               double anyLevel = GetAnyFirstKnownLevelForDay(g_m1Rates[k].time);
+               FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
+                  " O=", DoubleToString(g_m1Rates[k].open, _Digits),
+                  " H=", DoubleToString(g_m1Rates[k].high, _Digits),
+                  " L=", DoubleToString(g_m1Rates[k].low, _Digits),
+                  " C=", DoubleToString(g_m1Rates[k].close, _Digits),
+                  (StringLen(dow) > 0) ? " calDayofweek=" + dow : "",
+                  (anyLevel > 0) ? " anyFirstKnownLevelForThisDay=" + DoubleToString(anyLevel, 0) : "");
+            }
+            FileClose(fh);
+         }
 
-               // Count bars that belong to this day
-               int barsInDay = 0;
-               for(int b = 0; b < copied; b++)
-                  if(TimeToString(m1Rates[b].time, TIME_DATE) == dateStr) barsInDay++;
-
-               // Build levelsExpanded: levels of the day vs whole price chart (newway_Diff_CloseToLevel = close - levelPrice)
-               g_levelsExpandedCount = 0;
-               for(int i = 0; i < g_levelsCount && g_levelsExpandedCount < MAX_LEVELS_EXPANDED; i++)
+         // Per-level files from g_levelsExpanded and g_m1Rates
+         int recentPriceArgument = 5;
+         for(int e = 0; e < g_levelsExpandedCount; e++)
+         {
+            string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, 0) + "_" + g_levelsExpanded[e].tag + ".txt";
+            int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
+            if(fhL != INVALID_HANDLE)
+            {
+               double lvl = g_levelsExpanded[e].levelPrice;
+               for(int k = 0; k < g_levelsExpanded[e].count; k++)
                {
-                  if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
-                  g_levelsExpanded[g_levelsExpandedCount].levelPrice = g_levels[i].levelPrice;
-                  g_levelsExpanded[g_levelsExpandedCount].tag        = g_levels[i].tag;
-                  g_levelsExpanded[g_levelsExpandedCount].count     = barsInDay;
-                  ArrayResize(g_levelsExpanded[g_levelsExpandedCount].diffs, barsInDay);
-                  ArrayResize(g_levelsExpanded[g_levelsExpandedCount].times, barsInDay);
-                  int idx = 0;
-                  for(int b = 0; b < copied && idx < barsInDay; b++)
-                  {
-                     if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
-                     g_levelsExpanded[g_levelsExpandedCount].times[idx] = m1Rates[b].time;
-                     g_levelsExpanded[g_levelsExpandedCount].diffs[idx] = m1Rates[b].close - g_levelsExpanded[g_levelsExpandedCount].levelPrice;
-                     idx++;
-                  }
-                  g_levelsExpandedCount++;
+                  string highestUp   = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, true);
+                  string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
+                  FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
+                     " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
+                     " HighestDiffUp=", highestUp,
+                     " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
+                     " HighestDiffDown=", highestDown,
+                     " HighestDiffDownRange=", IntegerToString(recentPriceArgument));
                }
-
-               // Log pullinghistory (existing)
-               int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
-               if(fh != INVALID_HANDLE)
-               {
-                  for(int b = 0; b < copied; b++)
-                  {
-                     if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
-                     string dow = GetCalendarDayOfWeek(m1Rates[b].time);
-                     double anyLevel = GetAnyFirstKnownLevelForDay(m1Rates[b].time);
-                     FileWrite(fh, TimeToString(m1Rates[b].time, TIME_DATE|TIME_MINUTES),
-                        " O=", DoubleToString(m1Rates[b].open, _Digits),
-                        " H=", DoubleToString(m1Rates[b].high, _Digits),
-                        " L=", DoubleToString(m1Rates[b].low, _Digits),
-                        " C=", DoubleToString(m1Rates[b].close, _Digits),
-                        (StringLen(dow) > 0) ? " calDayofweek=" + dow : "",
-                        (anyLevel > 0) ? " anyFirstKnownLevelForThisDay=" + DoubleToString(anyLevel, 0) : "");
-                  }
-                  FileClose(fh);
-               }
-
-               // Per-level files: (date)_testinglevelsplus_(level)_(tag).txt with newway_Diff_CloseToLevel across bars
-               for(int e = 0; e < g_levelsExpandedCount; e++)
-               {
-                  string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, 0) + "_" + g_levelsExpanded[e].tag + ".txt";
-                  int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
-                  if(fhL != INVALID_HANDLE)
-                  {
-                     for(int k = 0; k < g_levelsExpanded[e].count; k++)
-                        FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
-                           " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits));
-                     FileClose(fhL);
-                  }
-               }
+               FileClose(fhL);
             }
          }
       }
