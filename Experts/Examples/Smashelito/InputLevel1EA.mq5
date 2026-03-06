@@ -135,8 +135,15 @@ int allCandlesFileHandle = INVALID_HANDLE;
 datetime allCandlesFileDate = 0;
 
 //--- Daily summary tracking
+//--- EOD account snapshot (filled when WriteDailySummary runs; log reads from here)
+double EODpulled_balance = 0.0;
+double EODpulled_equity = 0.0;
+double EODpulled_freeMargin = 0.0;
+double EODpulled_marginLevel = 0.0;
+int EODpulled_openPositions = 0;
+int EODpulled_pendingOrders = 0;
 
-//--- Last tick time (server); set in OnTick or OnTimer, use instead of TimeCurrent()
+//--- Last tick time (server); set in OnTick or OnTimer, use instead of TimeCurrent(); set in OnTick or OnTimer, use instead of TimeCurrent()
 datetime g_lastTickTime = 0;
 
 //--- Live price (updated every OnTimer ~1s); use for proximity/display without reading terminal each time
@@ -201,13 +208,12 @@ string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 //--- Optional double (hasValue false = no value; used for RTH/ON high-low so far and for "never" in diff window).
 struct OptionalDouble { bool hasValue; double value; };
 
-//--- RTH session high/low so far today (updated every new bar in loop2; only bars with session=RTH). Not a number until first RTH bar.
-OptionalDouble g_rthHighSoFar;  // hasValue false until first RTH bar; then value = max H of RTH bars so far
-OptionalDouble g_rthLowSoFar;   // hasValue false until first RTH bar; then value = min L of RTH bars so far
-
-//--- ON session high/low so far today (updated every new bar in loop2; only bars with session=ON). No value until at least one closed ON bar (e.g. 00:00).
-OptionalDouble g_ONhighSoFar;  // hasValue false until first ON bar; then value = max H of ON bars so far
-OptionalDouble g_ONlowSoFar;  // hasValue false until first ON bar; then value = min L of ON bars so far
+//--- ON session high/low so far at each bar k (bars 0..k with session=ON). Filled every OnTimer; log reads from here.
+OptionalDouble g_ONhighSoFarAtBar[MAX_BARS_IN_DAY];
+OptionalDouble g_ONlowSoFarAtBar[MAX_BARS_IN_DAY];
+//--- RTH session high/low so far at each bar k (bars 0..k with session=RTH). Filled every OnTimer; log reads from here.
+OptionalDouble g_rthHighSoFarAtBar[MAX_BARS_IN_DAY];
+OptionalDouble g_rthLowSoFarAtBar[MAX_BARS_IN_DAY];
 
 //--- Trade results for the day
 #define MAX_TRADE_RESULTS 500
@@ -1041,16 +1047,22 @@ void WriteDailySummary()
    if(fh2 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + accountFile);
    {
-      FileWrite(fh2, "balance=" + DoubleToString(AccountInfoDouble(ACCOUNT_BALANCE), 2));
-      FileWrite(fh2, "equity=" + DoubleToString(AccountInfoDouble(ACCOUNT_EQUITY), 2));
-      FileWrite(fh2, "freeMargin=" + DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_FREE), 2));
-      FileWrite(fh2, "marginLevel=" + DoubleToString(AccountInfoDouble(ACCOUNT_MARGIN_LEVEL), 1));
-      FileWrite(fh2, "openPositions=" + IntegerToString(PositionsTotal()));
-      FileWrite(fh2, "pendingOrders=" + IntegerToString(OrdersTotal()));
+      EODpulled_balance       = AccountInfoDouble(ACCOUNT_BALANCE);
+      EODpulled_equity       = AccountInfoDouble(ACCOUNT_EQUITY);
+      EODpulled_freeMargin  = AccountInfoDouble(ACCOUNT_MARGIN_FREE);
+      EODpulled_marginLevel = AccountInfoDouble(ACCOUNT_MARGIN_LEVEL);
+      EODpulled_openPositions = PositionsTotal();
+      EODpulled_pendingOrders = OrdersTotal();
+      FileWrite(fh2, "balance=" + DoubleToString(EODpulled_balance, 2));
+      FileWrite(fh2, "equity=" + DoubleToString(EODpulled_equity, 2));
+      FileWrite(fh2, "freeMargin=" + DoubleToString(EODpulled_freeMargin, 2));
+      FileWrite(fh2, "marginLevel=" + DoubleToString(EODpulled_marginLevel, 1));
+      FileWrite(fh2, "openPositions=" + IntegerToString(EODpulled_openPositions));
+      FileWrite(fh2, "pendingOrders=" + IntegerToString(EODpulled_pendingOrders));
       FileClose(fh2);
    }
    
-   string ordersFile = dateStr + "-AllHistoryOrders.txt";
+   string ordersFile = dateStr + "-not_from_globals_AllHistoryOrders.txt";
    int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_TXT);
    if(fh3 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + ordersFile);
@@ -1084,7 +1096,7 @@ void WriteDailySummary()
       FileClose(fh3);
    }
    
-   string dealsFile = dateStr + "-AllHistoryDeals.txt";
+   string dealsFile = dateStr + "-not_from_globals_AllHistoryDeals.txt";
    int fh4 = FileOpen(dealsFile, FILE_WRITE | FILE_TXT);
    if(fh4 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + dealsFile);
@@ -1430,47 +1442,42 @@ void OnTimer()
    // --- Price, levels, levelsExpanded: always update in memory every new bar (for trade logic)
    UpdateDayM1AndLevelsExpanded();
 
-   // --- ON session high/low so far today (full scan over ON bars only; same data as above, no reset logic)
-   g_ONhighSoFar.hasValue = false;
-   g_ONlowSoFar.hasValue  = false;
-   bool firstON = true;
+   // --- ON and RTH session high/low so far at each bar k (bars 0..k). Fresh each candle; log reads from g_*AtBar[k].
+   bool firstON = true, firstRTH = true;
+   double runONhigh = 0, runONlow = 0, runRTHhigh = 0, runRTHlow = 0;
    for(int k = 0; k < g_barsInDay; k++)
    {
-      if(g_session[k] != "ON") continue;
-      if(firstON)
+      if(g_session[k] == "ON")
       {
-         g_ONhighSoFar.hasValue = true;
-         g_ONhighSoFar.value    = g_m1Rates[k].high;
-         g_ONlowSoFar.hasValue  = true;
-         g_ONlowSoFar.value     = g_m1Rates[k].low;
-         firstON = false;
+         if(firstON) { runONhigh = g_m1Rates[k].high; runONlow = g_m1Rates[k].low; firstON = false; }
+         else        { runONhigh = MathMax(runONhigh, g_m1Rates[k].high); runONlow = MathMin(runONlow, g_m1Rates[k].low); }
+         g_ONhighSoFarAtBar[k].hasValue = true;
+         g_ONhighSoFarAtBar[k].value    = runONhigh;
+         g_ONlowSoFarAtBar[k].hasValue = true;
+         g_ONlowSoFarAtBar[k].value    = runONlow;
       }
       else
       {
-         g_ONhighSoFar.value = MathMax(g_ONhighSoFar.value, g_m1Rates[k].high);
-         g_ONlowSoFar.value  = MathMin(g_ONlowSoFar.value,  g_m1Rates[k].low);
+         g_ONhighSoFarAtBar[k].hasValue = !firstON;
+         g_ONhighSoFarAtBar[k].value    = runONhigh;
+         g_ONlowSoFarAtBar[k].hasValue  = !firstON;
+         g_ONlowSoFarAtBar[k].value     = runONlow;
       }
-   }
-
-   // --- RTH session high/low so far today (full scan over RTH bars only; same data as above, no reset logic)
-   g_rthHighSoFar.hasValue = false;
-   g_rthLowSoFar.hasValue  = false;
-   bool firstRTH = true;
-   for(int k = 0; k < g_barsInDay; k++)
-   {
-      if(g_session[k] != "RTH") continue;
-      if(firstRTH)
+      if(g_session[k] == "RTH")
       {
-         g_rthHighSoFar.hasValue = true;
-         g_rthHighSoFar.value    = g_m1Rates[k].high;
-         g_rthLowSoFar.hasValue  = true;
-         g_rthLowSoFar.value     = g_m1Rates[k].low;
-         firstRTH = false;
+         if(firstRTH) { runRTHhigh = g_m1Rates[k].high; runRTHlow = g_m1Rates[k].low; firstRTH = false; }
+         else         { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[k].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[k].low); }
+         g_rthHighSoFarAtBar[k].hasValue = true;
+         g_rthHighSoFarAtBar[k].value    = runRTHhigh;
+         g_rthLowSoFarAtBar[k].hasValue  = true;
+         g_rthLowSoFarAtBar[k].value     = runRTHlow;
       }
       else
       {
-         g_rthHighSoFar.value = MathMax(g_rthHighSoFar.value, g_m1Rates[k].high);
-         g_rthLowSoFar.value  = MathMin(g_rthLowSoFar.value,  g_m1Rates[k].low);
+         g_rthHighSoFarAtBar[k].hasValue = !firstRTH;
+         g_rthHighSoFarAtBar[k].value    = runRTHhigh;
+         g_rthLowSoFarAtBar[k].hasValue  = !firstRTH;
+         g_rthLowSoFarAtBar[k].value     = runRTHlow;
       }
    }
 
@@ -1512,29 +1519,9 @@ void OnTimer()
             if(fh == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + logName);
             {
-               double runONhigh = 0.0, runONlow = 0.0;
-               bool runONFirst = true;
-               double runRTHhigh = 0.0, runRTHlow = 0.0;
-               bool runRTHFirst = true;
                for(int k = 0; k < g_barsInDay; k++)
                {
-                  // Per-row ON high/low so far: only bars 0..k with session=ON (our closed candles)
-                  if(g_session[k] == "ON")
-                  {
-                     if(runONFirst)
-                        { runONhigh = g_m1Rates[k].high; runONlow = g_m1Rates[k].low; runONFirst = false; }
-                     else
-                        { runONhigh = MathMax(runONhigh, g_m1Rates[k].high); runONlow = MathMin(runONlow, g_m1Rates[k].low); }
-                  }
-                  // Per-row RTH high/low so far: only bars 0..k with session=RTH
-                  if(g_session[k] == "RTH")
-                  {
-                     if(runRTHFirst)
-                        { runRTHhigh = g_m1Rates[k].high; runRTHlow = g_m1Rates[k].low; runRTHFirst = false; }
-                     else
-                        { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[k].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[k].low); }
-                  }
-                  if(runONFirst)
+                  if(!g_ONhighSoFarAtBar[k].hasValue || !g_ONlowSoFarAtBar[k].hasValue)
                      FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(k) + " time=" + TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES));
                   FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
                      " O=", DoubleToString(g_m1Rates[k].open, _Digits),
@@ -1556,10 +1543,10 @@ void OnTimer()
                      " RTHtradeCount=", IntegerToString(g_dayProgress[k].RTHtradeCount),
                      " RTHpointsSum=", DoubleToString(g_dayProgress[k].RTHpointsSum, _Digits),
                      " RTHprofitSum=", DoubleToString(g_dayProgress[k].RTHprofitSum, 2),
-                     " ONhighSoFar=", DoubleToString(runONhigh, _Digits),
-                     " ONlowSoFar=", DoubleToString(runONlow, _Digits),
-                     " rthHighSoFar=", (runRTHFirst ? "false" : DoubleToString(runRTHhigh, _Digits)),
-                     " rthLowSoFar=", (runRTHFirst ? "false" : DoubleToString(runRTHlow, _Digits)),
+                     " ONhighSoFar=", DoubleToString(g_ONhighSoFarAtBar[k].value, _Digits),
+                     " ONlowSoFar=", DoubleToString(g_ONlowSoFarAtBar[k].value, _Digits),
+                     " rthHighSoFar=", (g_rthHighSoFarAtBar[k].hasValue ? DoubleToString(g_rthHighSoFarAtBar[k].value, _Digits) : "false"),
+                     " rthLowSoFar=", (g_rthLowSoFarAtBar[k].hasValue ? DoubleToString(g_rthLowSoFarAtBar[k].value, _Digits) : "false"),
                      " PDOpreviousDayRTHOpen=", DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits),
                      " PDHpreviousDayHigh=", DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits),
                      " PDLpreviousDayLow=", DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits),
@@ -1614,9 +1601,9 @@ void OnTimer()
                      string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
                      FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
                         " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
-                        " HighestDiffUp=", highestUp,
+                        " HighestDiffUp_rangeArg=", highestUp,
                         " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
-                        " HighestDiffDown=", highestDown,
+                        " HighestDiffDown_rangeArg=", highestDown,
                         " HighestDiffDownRange=", IntegerToString(recentPriceArgument));
                   }
                   FileClose(fhL);
