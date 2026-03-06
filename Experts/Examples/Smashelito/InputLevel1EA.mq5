@@ -372,6 +372,21 @@ string GetSessionForCandleTime(datetime t)
 }
 
 //+------------------------------------------------------------------+
+//| Find the 15:30 candle of current day in g_m1Rates. FatalError if not found. Returns its open price. |
+//+------------------------------------------------------------------+
+double GetRTHopenCurrentDay()
+{
+   if(g_barsInDay <= 0 || g_m1DayStart == 0)
+      FatalError("GetRTHopenCurrentDay: no day data (g_barsInDay=" + IntegerToString(g_barsInDay) + " g_m1DayStart=0)");
+   datetime targetTime = g_m1DayStart + 15*3600 + 30*60;  // 15:30 bar open time
+   for(int k = 0; k < g_barsInDay; k++)
+      if(g_m1Rates[k].time == targetTime)
+         return g_m1Rates[k].open;
+   FatalError("GetRTHopenCurrentDay: 15:30 candle not found for " + TimeToString(g_m1DayStart, TIME_DATE));
+   return 0.0;  // unreachable
+}
+
+//+------------------------------------------------------------------+
 //| Return previous trading day date string (YYYY.MM.DD) from calendar: go back 1 day, skip Saturday/Sunday. "" if not found. |
 //+------------------------------------------------------------------+
 string GetPreviousTradingDayDateString(datetime dayStart)
