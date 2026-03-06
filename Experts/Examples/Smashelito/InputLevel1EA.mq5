@@ -161,8 +161,8 @@ int g_calendarCount = 0;
 //--- Levels (loaded from levelsinfo_zeFinal CSV in OnInit)
 struct LevelInfoRow
 {
-   string startStr;   // "YYYY-MM-DD"
-   string endStr;    // "YYYY-MM-DD"
+   string startStr;   // "YYYY.MM.DD"
+   string endStr;     // "YYYY.MM.DD"
    double levelPrice;
    string categories; // e.g. "daily_monday_smash_stacked"
    string tag;       // e.g. "dailySmash", "weeklyUp1" (loaded but not used yet)
@@ -263,7 +263,7 @@ struct StaticMarketContext
    double PDHpreviousDayHigh;   // highest High of previous trading day
    double PDLpreviousDayLow;    // lowest Low of previous trading day
    double PDCpreviousDayRTHClose;  // close of previous day's 22:00 candle
-   string PDdate;               // previous trading day date YYYY-MM-DD (for debugging)
+   string PDdate;               // previous trading day date YYYY.MM.DD (for debugging)
 };
 StaticMarketContext g_staticMarketContext;
 
@@ -418,7 +418,7 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
 }
 
 //+------------------------------------------------------------------+
-//| Load levels CSV from Terminal/Common/Files. Format: start,end,levelPrice,categories,tag (header on first line). |
+//| Load levels CSV from Terminal/Common/Files. Format: start,end,levelPrice,categories,tag (header on first line). start/end YYYY.MM.DD. |
 //+------------------------------------------------------------------+
 bool LoadLevels()
 {
@@ -502,7 +502,7 @@ void UpdateDayM1AndLevelsExpanded()
 {
    datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
    string dateStr = TimeToString(dayStart, TIME_DATE);  // YYYY.MM.DD (MT5 default)
-   string dayKey = dateStr;  // same format for level date range comparison (levels CSV should use YYYY.MM.DD for start/end)
+   string dayKey = dateStr;  // levels stored as YYYY.MM.DD
    MqlDateTime mtDay;
    TimeToStruct(dayStart, mtDay);
 

@@ -28,7 +28,7 @@ def build_weekly_prices_by_week(levels):
 
 
 def date_in_range(date_str, start_str, end_str):
-    """True if date_str is >= start_str and <= end_str (ISO dates)."""
+    """True if date_str is >= start_str and <= end_str (dates YYYY.MM.DD)."""
     return start_str <= date_str <= end_str
 
 

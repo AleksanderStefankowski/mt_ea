@@ -83,6 +83,12 @@ Daily Plan | March 5, 2026
 Break and hold above 6886 would target 6904 / 6927 / 6960
 
 Holding below 6886 would target 6858 / 6839 / 6808
+
+Daily Plan | March 6, 2026
+
+Holding above 6815 would target 6850 / 6882 / 6904
+
+Break and hold below 6815 would target 6791 / 6748
 '''	
 
 
@@ -122,7 +128,7 @@ def expand_range(token):
 
 def parse_dates(title):
     """
-    Returns (start_iso, end_iso)
+    Returns (start_date, end_date) in YYYY.MM.DD format.
     """
     date_part = title.split("|")[1].strip()
 
@@ -134,13 +140,13 @@ def parse_dates(title):
         start_day, end_day = days_part.split("-")
         year = int(year.strip())
 
-        start_iso = f"{year:04d}-{month:02d}-{int(start_day):02d}"
-        end_iso = f"{year:04d}-{month:02d}-{int(end_day):02d}"
+        start_iso = f"{year:04d}.{month:02d}.{int(start_day):02d}"
+        end_iso = f"{year:04d}.{month:02d}.{int(end_day):02d}"
     else:
         day, year = rest.split(",")
         year = int(year.strip())
 
-        start_iso = f"{year:04d}-{month:02d}-{int(day):02d}"
+        start_iso = f"{year:04d}.{month:02d}.{int(day):02d}"
         end_iso = start_iso
 
     return start_iso, end_iso
@@ -196,7 +202,7 @@ def parse_plan(text):
                 })
             else:
                 # daily: include day of week in categories
-                dt = datetime.strptime(start_date, "%Y-%m-%d")
+                dt = datetime.strptime(start_date, "%Y.%m.%d")
                 weekday = dt.strftime("%A").lower()  # monday, tuesday, ...
                 results.append({
                     "start": start_date,
