@@ -200,6 +200,7 @@ int g_levelsExpandedCount = 0;
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
 int g_barsInDay = 0;
 datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
+double g_ONopen = 0.0;      // Open of first (oldest) candle of the day; set when we have at least 1 bar for the day
 // Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 21:59-22:00 window)
 double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high; 0 if none
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
@@ -273,7 +274,7 @@ struct DayProgressBar
 };
 DayProgressBar g_dayProgress[MAX_BARS_IN_DAY];
 
-//--- Static market context: previous trading day's PDO/PDH/PDL/PDC (pulled on init and in 00:00-00:03 each day; same for all bars of the day)
+//--- Static market context: previous trading day's PDO/PDH/PDL/PDC (pulled when we have at least one closed candle for current day; same for all bars of the day)
 struct StaticMarketContext
 {
    double PDOpreviousDayRTHOpen;   // 15:30 open of previous trading day
@@ -283,6 +284,7 @@ struct StaticMarketContext
    string PDdate;               // previous trading day date YYYY.MM.DD (for debugging)
 };
 StaticMarketContext g_staticMarketContext;
+datetime g_staticMarketContextPulledForDate = 0;  // day-start we last pulled for; 0 = never pulled
 
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
@@ -1214,9 +1216,6 @@ int OnInit()
    Print("Levels loaded: ", g_levelsCount, " rows from ", InpLevelsFile);
    BuildLevelsFromCSV();
 
-   datetime today = TimeCurrent() - (TimeCurrent() % 86400);
-   UpdateStaticMarketContext(today);
-
    return(INIT_SUCCEEDED);
 }
 
@@ -1487,13 +1486,16 @@ void OnTimer()
    // --- Per-candle day progress (trades closed by each candle close time)
    UpdateDayProgress();
 
-   // --- Static market context: pull on new day between 00:00 and 00:03 (closed candle time)
-   MqlDateTime mtBar;
-   TimeToStruct(current_candle_time, mtBar);
-   int minOfDayBar = mtBar.hour * 60 + mtBar.min;
-   if(minOfDayBar >= 0 && minOfDayBar <= 3 && g_barsInDay > 0)
-      UpdateStaticMarketContext(g_m1DayStart);
-
+   // --- Static market context: pull when we have at least one closed candle for current day and haven't pulled for that day yet. Set ONopen from first candle whenever we have bars.
+   if(g_barsInDay > 0)
+   {
+      g_ONopen = g_m1Rates[0].open;
+      if(g_m1DayStart != 0 && g_staticMarketContextPulledForDate != g_m1DayStart)
+      {
+         UpdateStaticMarketContext(g_m1DayStart);
+         g_staticMarketContextPulledForDate = g_m1DayStart;
+      }
+   }
    // --- Logging only in time window (performance)
    if(InpTestingPullM1History)
    {
