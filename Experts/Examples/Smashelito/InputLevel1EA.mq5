@@ -25,7 +25,7 @@ void FatalError(string msg)
    ExpertRemove();
 }
 input string   InpSummaryFile       = "LevelLog.txt";
-input string   InpAllCandleFile     = "AllCandlesTickLog";
+input string   InpAllCandleFile     = "AllCandlesLog_Timer1";
 input double   ProximityThreshold   = 1.0;
 input double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to count as broken
 input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for RecoverCount
@@ -144,7 +144,7 @@ int EODpulled_openPositions = 0;
 int EODpulled_pendingOrders = 0;
 
 //--- Current time (server); set in OnTimer(1s), use instead of TimeCurrent()
-datetime g_lastTickTime = 0;
+datetime g_lastTimer1Time = 0;
 
 //--- Live price (updated every OnTimer ~1s); use for proximity/display without reading terminal each time
 double g_liveBid = 0.0;
@@ -570,7 +570,7 @@ string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars,
 //+------------------------------------------------------------------+
 void UpdateDayM1AndLevelsExpanded()
 {
-   datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
+   datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    string dateStr = TimeToString(dayStart, TIME_DATE);  // YYYY.MM.DD (MT5 default)
    string dayKey = dateStr;  // levels stored as YYYY.MM.DD
    MqlDateTime mtDay;
@@ -642,7 +642,7 @@ void UpdateTradeResultsForDay()
 {
    g_tradeResultsCount = 0;
    g_dealCount = 0;
-   datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
+   datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    datetime dayEnd = dayStart + 86400;
    if(!HistorySelect(dayStart, dayEnd)) return;
    int total = HistoryDealsTotal();
@@ -837,10 +837,10 @@ long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYP
 //+------------------------------------------------------------------+
 //| Build magic for trade type 3 (market_test). No level; date only (id 3 + YYYYMMDD). |
 //+------------------------------------------------------------------+
-long BuildMagicForTradeType3(datetime tickTime)
+long BuildMagicForTradeType3(datetime timer1Time)
 {
    MqlDateTime dt;
-   TimeToStruct(tickTime, dt);
+   TimeToStruct(timer1Time, dt);
    string dateStr = IntegerToString(dt.year) +
                     StringFormat("%02d", dt.mon) +
                     StringFormat("%02d", dt.day);
@@ -851,10 +851,10 @@ long BuildMagicForTradeType3(datetime tickTime)
 //+------------------------------------------------------------------+
 //| Build magic for trade type 4 (15:30 smash). No level; date only (id 4 + YYYYMMDD). |
 //+------------------------------------------------------------------+
-long BuildMagicForTradeType4(datetime tickTime)
+long BuildMagicForTradeType4(datetime timer1Time)
 {
    MqlDateTime dt;
-   TimeToStruct(tickTime, dt);
+   TimeToStruct(timer1Time, dt);
    string dateStr = IntegerToString(dt.year) +
                     StringFormat("%02d", dt.mon) +
                     StringFormat("%02d", dt.day);
@@ -1035,7 +1035,7 @@ string AccountSummary()
 //+------------------------------------------------------------------+
 void WriteDailySummary()
 {
-   datetime now = g_lastTickTime;
+   datetime now = g_lastTimer1Time;
    string dateStr = TimeToString(now, TIME_DATE);
    
    string activeLevelsFile = dateStr + "-Day_activeLevels.txt";
@@ -1084,7 +1084,7 @@ void WriteDailySummary()
    if(fh3 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + ordersFile);
    {
-      HistorySelect(0, g_lastTickTime);
+      HistorySelect(0, g_lastTimer1Time);
       int totalHist = HistoryOrdersTotal();
       for(int i=0; i<totalHist; i++)
       {
@@ -1310,7 +1310,7 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
    if(StringLen(tradeType) == 0) return;
 
    datetime fillTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
-   if(fillTime == 0) fillTime = g_lastTickTime;
+   if(fillTime == 0) fillTime = g_lastTimer1Time;
    double fillPrice = 0;
    if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
       fillPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
@@ -1333,7 +1333,7 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
    if(posId == 0) return;
 
    datetime closeTime = (datetime)HistoryDealGetInteger(trans.deal, DEAL_TIME);
-   if(closeTime == 0) closeTime = g_lastTickTime;
+   if(closeTime == 0) closeTime = g_lastTimer1Time;
 
    if(!HistorySelectByPosition((long)posId)) return;
 
@@ -1401,17 +1401,17 @@ void OnDeinit(const int reason)
 }
 
 //+------------------------------------------------------------------+
-//| OnTimer(1s): detect new bar, load closed bar from history, run FinalizeCurrentCandle. Sets g_lastTickTime = TimeCurrent(). |
+//| OnTimer(1s): detect new bar, load closed bar from history, run FinalizeCurrentCandle. Sets g_lastTimer1Time = TimeCurrent(). |
 //+------------------------------------------------------------------+
 void OnTimer()
 {
-   g_lastTickTime = TimeCurrent();
+   g_lastTimer1Time = TimeCurrent();
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
    MqlDateTime mt;
-   TimeToStruct(g_lastTickTime, mt);
-   datetime today = g_lastTickTime - (g_lastTickTime % 86400);
+   TimeToStruct(g_lastTimer1Time, mt);
+   datetime today = g_lastTimer1Time - (g_lastTimer1Time % 86400);
 
    // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37 (8 cols: time, liveBid, liveAsk, closed_candle_date, closed_O, closed_H, closed_L, closed_C)
    // Closed candle from our M1 list (g_m1Rates) only; no log when g_barsInDay == 0.
@@ -1424,7 +1424,7 @@ void OnTimer()
       if(fh != INVALID_HANDLE)
       {
          FileSeek(fh, 0, SEEK_END);
-         FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+         FileWrite(fh, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
                    TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
          FileClose(fh);
       }
@@ -1433,7 +1433,7 @@ void OnTimer()
          fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
          if(fh == INVALID_HANDLE)
             FatalError("OnTimer: could not open liveprice CSV " + fname);
-         FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+         FileWrite(fh, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
                    TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
          FileClose(fh);
       }
@@ -1515,9 +1515,9 @@ void OnTimer()
    if(InpTestingPullM1History)
    {
       MqlDateTime mtTest;
-      TimeToStruct(g_lastTickTime, mtTest);
+      TimeToStruct(g_lastTimer1Time, mtTest);
       int minOfDay = mtTest.hour * 60 + mtTest.min;
-      datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
+      datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
       string dateStr = TimeToString(dayStart, TIME_DATE);
       bool inLogWindow = (minOfDay >= 21*60+58 && minOfDay <= 22*60+0);  // 21:58, 21:59, 22:00 (last bar may be 21:58 on Friday)
       bool catchUpWindow = (minOfDay > 22*60+0 && minOfDay <= 23*60+59);  // past 22:00, same day: write if file missing
@@ -1747,7 +1747,7 @@ void FinalizeCurrentCandle()
       if(allCandlesFileHandle != INVALID_HANDLE)
          FileClose(allCandlesFileHandle);
 
-      string allFileName = dateStr + "-AllCandlesTickLog.txt";
+      string allFileName = dateStr + "-AllCandlesLog_Timer1.txt";
       allCandlesFileHandle = OpenOrCreateForAppend(allFileName);
       if(allCandlesFileHandle == INVALID_HANDLE)
          FatalError("FinalizeCurrentCandle: could not open " + allFileName);
@@ -1896,7 +1896,7 @@ void FinalizeCurrentCandle()
                   T_buy2ndBounce_TPPips,
                   T_buy2ndBounce_SLPips);
 
-               datetime expirationTime = g_lastTickTime + 30 * 60;
+               datetime expirationTime = g_lastTimer1Time + 30 * 60;
                
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
@@ -1944,7 +1944,7 @@ void FinalizeCurrentCandle()
                   T_buy4thBounce_TPPips,
                   T_buy4thBounce_SLPips);
 
-               datetime expirationTime = g_lastTickTime + 30 * 60;
+               datetime expirationTime = g_lastTimer1Time + 30 * 60;
                
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
