@@ -1408,15 +1408,19 @@ void OnTimer()
       lastDailySummaryDay = today;
    }
 
-   // Temporary: log live price every second 21:35 (filename: date_testing_liveprice_headers_are_time_liveBid_liveAsk.csv, 3 cols, no header row)
-   if(mt.hour == 21 && mt.min == 35)
+   // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37 (8 cols: time, liveBid, liveAsk, closed_candle_date, closed_O, closed_H, closed_L, closed_C)
+   // Closed candle from our M1 list (g_m1Rates) only; no log when g_barsInDay == 0.
+   if(mt.hour == 21 && mt.min >= 35 && mt.min <= 37 && g_barsInDay > 0)
    {
+      datetime closedTime = g_m1Rates[g_barsInDay - 1].time;
+      double closedO = g_m1Rates[g_barsInDay - 1].open, closedH = g_m1Rates[g_barsInDay - 1].high, closedL = g_m1Rates[g_barsInDay - 1].low, closedC = g_m1Rates[g_barsInDay - 1].close;
       string fname = TimeToString(today, TIME_DATE) + "_testing_liveprice_headers_are_time_liveBid_liveAsk.csv";
       int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
       if(fh != INVALID_HANDLE)
       {
          FileSeek(fh, 0, SEEK_END);
-         FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits));
+         FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+                   TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
          FileClose(fh);
       }
       else
@@ -1424,7 +1428,8 @@ void OnTimer()
          fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
          if(fh != INVALID_HANDLE)
          {
-            FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits));
+            FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+                      TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
             FileClose(fh);
          }
       }
