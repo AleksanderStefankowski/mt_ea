@@ -18,7 +18,12 @@
 #include <Trade\PositionInfo.mqh>
 #include <Trade\DealInfo.mqh>
 
-//--- Inputs
+//--- Stops EA and further execution when required data/handle is missing (no silent fallbacks).
+void FatalError(string msg)
+{
+   Print("FATAL: ", msg);
+   ExpertRemove();
+}
 input string   InpSummaryFile       = "LevelLog.txt";
 input string   InpAllCandleFile     = "AllCandlesTickLog";
 input double   ProximityThreshold   = 1.0;
@@ -193,16 +198,18 @@ double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high;
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
 string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 
-//--- ON session high/low so far today (updated every new bar in loop2; only bars with session=ON)
-double g_ONhighSoFar = 0.0;  // max H of ON bars so far; 0 if none
-double g_ONlowSoFar  = 0.0;  // min L of ON bars so far; 0 if none
+//--- Optional double (hasValue false = no value; used for RTH/ON high-low so far and for "never" in diff window).
+struct OptionalDouble { bool hasValue; double value; };
 
 //--- RTH session high/low so far today (updated every new bar in loop2; only bars with session=RTH). Not a number until first RTH bar.
-struct OptionalDouble { bool hasValue; double value; };
 OptionalDouble g_rthHighSoFar;  // hasValue false until first RTH bar; then value = max H of RTH bars so far
 OptionalDouble g_rthLowSoFar;   // hasValue false until first RTH bar; then value = min L of RTH bars so far
 
-//--- Trade results for the day (deals IN/OUT paired by magic; updated every new bar in loop2; logged in 21:59-22:00)
+//--- ON session high/low so far today (updated every new bar in loop2; only bars with session=ON). No value until at least one closed ON bar (e.g. 00:00).
+OptionalDouble g_ONhighSoFar;  // hasValue false until first ON bar; then value = max H of ON bars so far
+OptionalDouble g_ONlowSoFar;  // hasValue false until first ON bar; then value = min L of ON bars so far
+
+//--- Trade results for the day
 #define MAX_TRADE_RESULTS 500
 #define MAX_DEALS_DAY 2000
 struct TradeResult
@@ -309,7 +316,11 @@ bool LoadCalendar()
 {
    g_calendarCount = 0;
    int fh = FileOpen(InpCalendarFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
-   if(fh == INVALID_HANDLE) return false;
+   if(fh == INVALID_HANDLE)
+   {
+      FatalError("Calendar file could not be opened: " + InpCalendarFile + " (place CSV in Terminal/Common/Files)");
+      return false;
+   }
    string line = FileReadString(fh);  // skip header
    while(!FileIsEnding(fh) && g_calendarCount < MAX_CALENDAR_ROWS)
    {
@@ -381,10 +392,18 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
    g_staticMarketContext.PDCpreviousDayRTHClose = 0;
    g_staticMarketContext.PDdate              = "";
    string prevDayStr = GetPreviousTradingDayDateString(referenceDayStart);
-   if(StringLen(prevDayStr) == 0) return;
+   if(StringLen(prevDayStr) == 0)
+   {
+      FatalError("UpdateStaticMarketContext: no previous trading day for " + TimeToString(referenceDayStart, TIME_DATE));
+      return;
+   }
    g_staticMarketContext.PDdate = prevDayStr;
    string parts[];
-   if(StringSplit(prevDayStr, '.', parts) != 3) return;  // YYYY.MM.DD
+   if(StringSplit(prevDayStr, '.', parts) != 3)
+   {
+      FatalError("UpdateStaticMarketContext: invalid prev day format " + prevDayStr);
+      return;
+   }
    int y = (int)StringToInteger(parts[0]);
    int mo = (int)StringToInteger(parts[1]);
    int d = (int)StringToInteger(parts[2]);
@@ -406,19 +425,31 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
    // PDH/PDL = max High / min Low over the day — use same bar indexing as chart (iterate shifts for the day)
    int shiftDayStart = iBarShift(_Symbol, PERIOD_M30, prevDayStart, false);
    int shiftDayEnd   = iBarShift(_Symbol, PERIOD_M30, prevDayEnd - 1, false);  // last bar with time < prevDayEnd
-   if(shiftDayStart >= 0 && shiftDayEnd >= 0)
+   if(shiftDayStart < 0 || shiftDayEnd < 0)
    {
-      double pdh = -1e300, pdl = 1e300;
-      for(int s = shiftDayEnd; s <= shiftDayStart; s++)
-      {
-         double h = iHigh(_Symbol, PERIOD_M30, s);
-         double l = iLow(_Symbol, PERIOD_M30, s);
-         if(h > pdh) pdh = h;
-         if(l < pdl) pdl = l;
-      }
-      if(pdh > -1e300) g_staticMarketContext.PDHpreviousDayHigh = pdh;
-      if(pdl < 1e300) g_staticMarketContext.PDLpreviousDayLow = pdl;
+      FatalError("UpdateStaticMarketContext: no M30 bars for previous day " + prevDayStr + " (shiftDayStart=" + IntegerToString(shiftDayStart) + " shiftDayEnd=" + IntegerToString(shiftDayEnd) + ")");
+      return;
    }
+   double pdh = -1e300, pdl = 1e300;
+   for(int s = shiftDayEnd; s <= shiftDayStart; s++)
+   {
+      double h = iHigh(_Symbol, PERIOD_M30, s);
+      double l = iLow(_Symbol, PERIOD_M30, s);
+      if(h > pdh) pdh = h;
+      if(l < pdl) pdl = l;
+   }
+   if(pdh <= -1e300 || pdl >= 1e300)
+   {
+      FatalError("UpdateStaticMarketContext: no valid PDH/PDL for previous day " + prevDayStr + " (no bars in range)");
+      return;
+   }
+   if(pdh == 0.0 || pdl == 0.0)
+   {
+      FatalError("UpdateStaticMarketContext: PDH or PDL is zero for previous day " + prevDayStr);
+      return;
+   }
+   g_staticMarketContext.PDHpreviousDayHigh = pdh;
+   g_staticMarketContext.PDLpreviousDayLow = pdl;
 }
 
 //+------------------------------------------------------------------+
@@ -428,7 +459,11 @@ bool LoadLevels()
 {
    g_levelsCount = 0;
    int fh = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
-   if(fh == INVALID_HANDLE) return false;
+   if(fh == INVALID_HANDLE)
+   {
+      FatalError("Levels file could not be opened: " + InpLevelsFile + " (place CSV in Terminal/Common/Files)");
+      return false;
+   }
    string line = FileReadString(fh);  // skip header
    while(!FileIsEnding(fh) && g_levelsCount < MAX_LEVEL_ROWS)
    {
@@ -467,36 +502,44 @@ double GetLevelExpandedDiff(double levelPrice, string tag, datetime barTime)
 //+------------------------------------------------------------------+
 //| In last windowBars ending at bar k: Up = max(high-level) when high>level; Down = max(level-low) when low<level. |
 //| Returns "never" if no bar had price above level (Up) or below level (Down); else returns value as string. |
+//| Uses OptionalDouble in memory (no -1e300 sentinel). |
 //+------------------------------------------------------------------+
 string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars, bool wantUp)
 {
    int startBar = MathMax(0, barK - windowBars + 1);
+   OptionalDouble result;
+   result.hasValue = false;
    if(wantUp)
    {
-      double maxUp = -1e300;
       for(int j = startBar; j <= barK; j++)
       {
          if(g_m1Rates[j].high > levelPrice)
          {
             double d = g_m1Rates[j].high - levelPrice;
-            if(d > maxUp) maxUp = d;
+            if(!result.hasValue || d > result.value)
+            {
+               result.hasValue = true;
+               result.value = d;
+            }
          }
       }
-      return (maxUp > -1e300) ? DoubleToString(maxUp, _Digits) : "never";
    }
    else
    {
-      double maxDown = -1e300;
       for(int j = startBar; j <= barK; j++)
       {
          if(g_m1Rates[j].low < levelPrice)
          {
             double d = levelPrice - g_m1Rates[j].low;
-            if(d > maxDown) maxDown = d;
+            if(!result.hasValue || d > result.value)
+            {
+               result.hasValue = true;
+               result.value = d;
+            }
          }
       }
-      return (maxDown > -1e300) ? DoubleToString(maxDown, _Digits) : "never";
    }
+   return result.hasValue ? DoubleToString(result.value, _Digits) : "never";
 }
 
 //+------------------------------------------------------------------+
@@ -974,7 +1017,8 @@ void WriteDailySummary()
    
    string activeLevelsFile = dateStr + "-Day_activeLevels.txt";
    int fh1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_TXT);
-   if(fh1 != INVALID_HANDLE)
+   if(fh1 == INVALID_HANDLE)
+      FatalError("WriteDailySummary: could not open " + activeLevelsFile);
    {
       datetime today = now - (now % 86400);
       for(int i=0; i<ArraySize(levels); i++)
@@ -994,7 +1038,8 @@ void WriteDailySummary()
    
    string accountFile = dateStr + "-Day_EOD_accountSummary.txt";
    int fh2 = FileOpen(accountFile, FILE_WRITE | FILE_TXT);
-   if(fh2 != INVALID_HANDLE)
+   if(fh2 == INVALID_HANDLE)
+      FatalError("WriteDailySummary: could not open " + accountFile);
    {
       FileWrite(fh2, "balance=" + DoubleToString(AccountInfoDouble(ACCOUNT_BALANCE), 2));
       FileWrite(fh2, "equity=" + DoubleToString(AccountInfoDouble(ACCOUNT_EQUITY), 2));
@@ -1007,7 +1052,8 @@ void WriteDailySummary()
    
    string ordersFile = dateStr + "-AllHistoryOrders.txt";
    int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_TXT);
-   if(fh3 != INVALID_HANDLE)
+   if(fh3 == INVALID_HANDLE)
+      FatalError("WriteDailySummary: could not open " + ordersFile);
    {
       HistorySelect(0, g_lastTickTime);
       int totalHist = HistoryOrdersTotal();
@@ -1040,7 +1086,8 @@ void WriteDailySummary()
    
    string dealsFile = dateStr + "-AllHistoryDeals.txt";
    int fh4 = FileOpen(dealsFile, FILE_WRITE | FILE_TXT);
-   if(fh4 != INVALID_HANDLE)
+   if(fh4 == INVALID_HANDLE)
+      FatalError("WriteDailySummary: could not open " + dealsFile);
    {
       int totalDeals = HistoryDealsTotal();
       for(int i=0; i<totalDeals; i++)
@@ -1080,7 +1127,8 @@ void WriteTradeLog(const string tradeType, const string eventType, datetime even
    if(StringLen(fname) == 0) return;
 
    int fh = OpenOrCreateForAppend(fname);
-   if(fh != INVALID_HANDLE)
+   if(fh == INVALID_HANDLE)
+      FatalError("WriteTradeLog: could not open " + fname);
    {
       string acct = StringFormat("bal=%.2f eq=%.2f", AccountInfoDouble(ACCOUNT_BALANCE), AccountInfoDouble(ACCOUNT_EQUITY));
       string line = "time=" + TimeToString(eventTime, TIME_DATE | TIME_SECONDS) + " " + acct;
@@ -1357,12 +1405,11 @@ void OnTimer()
       else
       {
          fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
-         if(fh != INVALID_HANDLE)
-         {
-            FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
-                      TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
-            FileClose(fh);
-         }
+         if(fh == INVALID_HANDLE)
+            FatalError("OnTimer: could not open liveprice CSV " + fname);
+         FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+                   TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
+         FileClose(fh);
       }
    }
 
@@ -1384,22 +1431,24 @@ void OnTimer()
    UpdateDayM1AndLevelsExpanded();
 
    // --- ON session high/low so far today (full scan over ON bars only; same data as above, no reset logic)
-   g_ONhighSoFar = 0.0;
-   g_ONlowSoFar  = 0.0;
+   g_ONhighSoFar.hasValue = false;
+   g_ONlowSoFar.hasValue  = false;
    bool firstON = true;
    for(int k = 0; k < g_barsInDay; k++)
    {
       if(g_session[k] != "ON") continue;
       if(firstON)
       {
-         g_ONhighSoFar = g_m1Rates[k].high;
-         g_ONlowSoFar  = g_m1Rates[k].low;
+         g_ONhighSoFar.hasValue = true;
+         g_ONhighSoFar.value    = g_m1Rates[k].high;
+         g_ONlowSoFar.hasValue  = true;
+         g_ONlowSoFar.value     = g_m1Rates[k].low;
          firstON = false;
       }
       else
       {
-         g_ONhighSoFar = MathMax(g_ONhighSoFar, g_m1Rates[k].high);
-         g_ONlowSoFar  = MathMin(g_ONlowSoFar,  g_m1Rates[k].low);
+         g_ONhighSoFar.value = MathMax(g_ONhighSoFar.value, g_m1Rates[k].high);
+         g_ONlowSoFar.value  = MathMin(g_ONlowSoFar.value,  g_m1Rates[k].low);
       }
    }
 
@@ -1460,7 +1509,8 @@ void OnTimer()
          if(!FileIsExist(logName))
          {
             int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
-            if(fh != INVALID_HANDLE)
+            if(fh == INVALID_HANDLE)
+               FatalError("OnTimer: could not open " + logName);
             {
                double runONhigh = 0.0, runONlow = 0.0;
                bool runONFirst = true;
@@ -1484,6 +1534,8 @@ void OnTimer()
                      else
                         { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[k].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[k].low); }
                   }
+                  if(runONFirst)
+                     FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(k) + " time=" + TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES));
                   FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
                      " O=", DoubleToString(g_m1Rates[k].open, _Digits),
                      " H=", DoubleToString(g_m1Rates[k].high, _Digits),
@@ -1523,7 +1575,8 @@ void OnTimer()
          if(!FileIsExist(csvName))
          {
             int fhTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
-            if(fhTr != INVALID_HANDLE)
+            if(fhTr == INVALID_HANDLE)
+               FatalError("OnTimer: could not open " + csvName);
             {
                FileWrite(fhTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments");
                for(int tr = 0; tr < g_tradeResultsCount; tr++)
@@ -1551,7 +1604,8 @@ void OnTimer()
             if(!FileIsExist(levelFile))
             {
                int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
-               if(fhL != INVALID_HANDLE)
+               if(fhL == INVALID_HANDLE)
+                  FatalError("OnTimer: could not open " + levelFile);
                {
                   double lvl = g_levelsExpanded[e].levelPrice;
                   for(int k = 0; k < g_levelsExpanded[e].count; k++)
@@ -1701,7 +1755,8 @@ void FinalizeCurrentCandle()
 
       string allFileName = dateStr + "-AllCandlesTickLog.txt";
       allCandlesFileHandle = OpenOrCreateForAppend(allFileName);
-
+      if(allCandlesFileHandle == INVALID_HANDLE)
+         FatalError("FinalizeCurrentCandle: could not open " + allFileName);
       allCandlesFileDate = candleDay;
    }
 
@@ -1724,6 +1779,8 @@ void FinalizeCurrentCandle()
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
             levels[i].logRawEv_fileHandle = OpenOrCreateForAppend(araFile);
+            if(levels[i].logRawEv_fileHandle == INVALID_HANDLE)
+               FatalError("FinalizeCurrentCandle: could not open " + araFile);
          }
 
          // OHLC values
@@ -1800,7 +1857,8 @@ void FinalizeCurrentCandle()
                                          dateStr, levels[i].baseName, dateStr, lvl);
 
             int fh = OpenOrCreateForAppend(lvlFile);
-            if(fh != INVALID_HANDLE)
+            if(fh == INVALID_HANDLE)
+               FatalError("FinalizeCurrentCandle: could not open " + lvlFile);
             {
                FileWrite(fh,
                   "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
