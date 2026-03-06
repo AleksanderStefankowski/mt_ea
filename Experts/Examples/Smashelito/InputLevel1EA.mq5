@@ -4,7 +4,7 @@
 //|                   MetaTrader 5 Only (MT5-specific code)          |
 //|        Copyright 2026, Aleksander Stefankowski                   |
 // NOTE: This EA is MetaTrader 5 (MT5) ONLY. Do NOT attempt to add MT4 code.
-// All file operations and tick/candle handling are MT5-specific.
+// All file operations and timer/candle handling are MT5-specific.
 // '&' reference cannot ever be used!
 //
 // OVERFLOW: Magic numbers and MT5 IDs (order/deal/position) can exceed INT_MAX.
@@ -32,7 +32,7 @@ input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for Recove
 input int      BounceCandlesRequired = 1; // for bounce count logic
 input int      Max_OrdersPerMagic = 1; // max open positions + pending orders with this magic (same full magic number)
 input double   InpLotSize           = 0.01; // lot size for trade types
-input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (tick timestamp)
+input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (timer/server time)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
 input bool     InpTestingPullM1History = true;  // if true: at 21:58-22:00 write (date)_testing_pullinghistory.txt and testinglevelsplus files
 input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
@@ -120,7 +120,7 @@ COrderInfo ExtOrderInfo;
 CPositionInfo ExtPositionInfo;
 CDealInfo ExtDealInfo;
 
-//--- Tick-based candle tracking
+//--- Timer-based candle tracking
 datetime current_candle_time = 0;
 double candle_open=0, candle_high=0, candle_low=0, candle_close=0;
 
@@ -143,7 +143,7 @@ double EODpulled_marginLevel = 0.0;
 int EODpulled_openPositions = 0;
 int EODpulled_pendingOrders = 0;
 
-//--- Last tick time (server); set in OnTick or OnTimer, use instead of TimeCurrent(); set in OnTick or OnTimer, use instead of TimeCurrent()
+//--- Current time (server); set in OnTimer(1s), use instead of TimeCurrent()
 datetime g_lastTickTime = 0;
 
 //--- Live price (updated every OnTimer ~1s); use for proximity/display without reading terminal each time
@@ -1401,7 +1401,7 @@ void OnDeinit(const int reason)
 }
 
 //+------------------------------------------------------------------+
-//| OnTimer(1s): detect new bar, load closed bar from history, run FinalizeCurrentCandle. OnTick only updates g_lastTickTime. |
+//| OnTimer(1s): detect new bar, load closed bar from history, run FinalizeCurrentCandle. Sets g_lastTickTime = TimeCurrent(). |
 //+------------------------------------------------------------------+
 void OnTimer()
 {
@@ -1629,16 +1629,6 @@ void OnTimer()
          }
       }
    }
-}
-
-//+------------------------------------------------------------------+
-//| OnTick: only update g_lastTickTime when a tick arrives (for accurate time in trade/expiration). |
-//+------------------------------------------------------------------+
-void OnTick()
-{
-   MqlTick tick;
-   if(SymbolInfoTick(_Symbol, tick))
-      g_lastTickTime = tick.time;
 }
 
 //+------------------------------------------------------------------+
