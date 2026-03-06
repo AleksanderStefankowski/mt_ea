@@ -198,6 +198,11 @@ string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 double g_ONhighSoFar = 0.0;  // max H of ON bars so far; 0 if none
 double g_ONlowSoFar  = 0.0;  // min L of ON bars so far; 0 if none
 
+//--- RTH session high/low so far today (updated every new bar in loop2; only bars with session=RTH). Not a number until first RTH bar.
+struct OptionalDouble { bool hasValue; double value; };
+OptionalDouble g_rthHighSoFar;  // hasValue false until first RTH bar; then value = max H of RTH bars so far
+OptionalDouble g_rthLowSoFar;   // hasValue false until first RTH bar; then value = min L of RTH bars so far
+
 //--- Trade results for the day (deals IN/OUT paired by magic; updated every new bar in loop2; logged in 21:59-22:00)
 #define MAX_TRADE_RESULTS 500
 #define MAX_DEALS_DAY 2000
@@ -1476,6 +1481,28 @@ void OnTimer()
       }
    }
 
+   // --- RTH session high/low so far today (full scan over RTH bars only; same data as above, no reset logic)
+   g_rthHighSoFar.hasValue = false;
+   g_rthLowSoFar.hasValue  = false;
+   bool firstRTH = true;
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      if(g_session[k] != "RTH") continue;
+      if(firstRTH)
+      {
+         g_rthHighSoFar.hasValue = true;
+         g_rthHighSoFar.value    = g_m1Rates[k].high;
+         g_rthLowSoFar.hasValue  = true;
+         g_rthLowSoFar.value     = g_m1Rates[k].low;
+         firstRTH = false;
+      }
+      else
+      {
+         g_rthHighSoFar.value = MathMax(g_rthHighSoFar.value, g_m1Rates[k].high);
+         g_rthLowSoFar.value  = MathMin(g_rthLowSoFar.value,  g_m1Rates[k].low);
+      }
+   }
+
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    UpdateTradeResultsForDay();
 
@@ -1511,6 +1538,8 @@ void OnTimer()
             {
                double runONhigh = 0.0, runONlow = 0.0;
                bool runONFirst = true;
+               double runRTHhigh = 0.0, runRTHlow = 0.0;
+               bool runRTHFirst = true;
                for(int k = 0; k < g_barsInDay; k++)
                {
                   // Per-row ON high/low so far: only bars 0..k with session=ON (our closed candles)
@@ -1520,6 +1549,14 @@ void OnTimer()
                         { runONhigh = g_m1Rates[k].high; runONlow = g_m1Rates[k].low; runONFirst = false; }
                      else
                         { runONhigh = MathMax(runONhigh, g_m1Rates[k].high); runONlow = MathMin(runONlow, g_m1Rates[k].low); }
+                  }
+                  // Per-row RTH high/low so far: only bars 0..k with session=RTH
+                  if(g_session[k] == "RTH")
+                  {
+                     if(runRTHFirst)
+                        { runRTHhigh = g_m1Rates[k].high; runRTHlow = g_m1Rates[k].low; runRTHFirst = false; }
+                     else
+                        { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[k].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[k].low); }
                   }
                   FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
                      " O=", DoubleToString(g_m1Rates[k].open, _Digits),
@@ -1543,6 +1580,8 @@ void OnTimer()
                      " RTHprofitSum=", DoubleToString(g_dayProgress[k].RTHprofitSum, 2),
                      " ONhighSoFar=", DoubleToString(runONhigh, _Digits),
                      " ONlowSoFar=", DoubleToString(runONlow, _Digits),
+                     " rthHighSoFar=", (runRTHFirst ? "false" : DoubleToString(runRTHhigh, _Digits)),
+                     " rthLowSoFar=", (runRTHFirst ? "false" : DoubleToString(runRTHlow, _Digits)),
                      " PDOpreviousDayRTHOpen=", DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits),
                      " PDHpreviousDayHigh=", DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits),
                      " PDLpreviousDayLow=", DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits),
