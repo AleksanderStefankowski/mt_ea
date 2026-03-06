@@ -194,6 +194,10 @@ double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high;
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
 string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 
+//--- ON session high/low so far today (updated every new bar in loop2; only bars with session=ON)
+double g_ONhighSoFar = 0.0;  // max H of ON bars so far; 0 if none
+double g_ONlowSoFar  = 0.0;  // min L of ON bars so far; 0 if none
+
 //--- Trade results for the day (deals IN/OUT paired by magic; updated every new bar in loop2; logged in 21:59-22:00)
 #define MAX_TRADE_RESULTS 500
 #define MAX_DEALS_DAY 2000
@@ -255,10 +259,10 @@ DayProgressBar g_dayProgress[MAX_BARS_IN_DAY];
 //--- Static market context: previous trading day's PDO/PDH/PDL/PDC (pulled on init and in 00:00-00:03 each day; same for all bars of the day)
 struct StaticMarketContext
 {
-   double PDOpreviousDayOpen;   // 15:30 open of previous trading day
+   double PDOpreviousDayRTHOpen;   // 15:30 open of previous trading day
    double PDHpreviousDayHigh;   // highest High of previous trading day
    double PDLpreviousDayLow;    // lowest Low of previous trading day
-   double PDCpreviousDayClose;  // close of previous day's 22:00 candle
+   double PDCpreviousDayRTHClose;  // close of previous day's 22:00 candle
    string PDdate;               // previous trading day date YYYY-MM-DD (for debugging)
 };
 StaticMarketContext g_staticMarketContext;
@@ -367,10 +371,10 @@ string GetPreviousTradingDayDateString(datetime dayStart)
 //+------------------------------------------------------------------+
 void UpdateStaticMarketContext(datetime referenceDayStart)
 {
-   g_staticMarketContext.PDOpreviousDayOpen  = 0;
+   g_staticMarketContext.PDOpreviousDayRTHOpen  = 0;
    g_staticMarketContext.PDHpreviousDayHigh  = 0;
    g_staticMarketContext.PDLpreviousDayLow   = 0;
-   g_staticMarketContext.PDCpreviousDayClose = 0;
+   g_staticMarketContext.PDCpreviousDayRTHClose = 0;
    g_staticMarketContext.PDdate              = "";
    string prevDayStr = GetPreviousTradingDayDateString(referenceDayStart);
    if(StringLen(prevDayStr) == 0) return;
@@ -391,9 +395,9 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
    int shift1530 = iBarShift(_Symbol, PERIOD_M30, bar1530, false);
    int shift2200 = iBarShift(_Symbol, PERIOD_M30, bar2200, false);
    if(shift1530 >= 0)
-      g_staticMarketContext.PDOpreviousDayOpen = iOpen(_Symbol, PERIOD_M30, shift1530);
+      g_staticMarketContext.PDOpreviousDayRTHOpen = iOpen(_Symbol, PERIOD_M30, shift1530);
    if(shift2200 >= 0)
-      g_staticMarketContext.PDCpreviousDayClose = iClose(_Symbol, PERIOD_M30, shift2200);
+      g_staticMarketContext.PDCpreviousDayRTHClose = iClose(_Symbol, PERIOD_M30, shift2200);
 
    // PDH/PDL = max High / min Low over the day — use same bar indexing as chart (iterate shifts for the day)
    int shiftDayStart = iBarShift(_Symbol, PERIOD_M30, prevDayStart, false);
@@ -1452,6 +1456,26 @@ void OnTimer()
    // --- Price, levels, levelsExpanded: always update in memory every new bar (for trade logic)
    UpdateDayM1AndLevelsExpanded();
 
+   // --- ON session high/low so far today (full scan over ON bars only; same data as above, no reset logic)
+   g_ONhighSoFar = 0.0;
+   g_ONlowSoFar  = 0.0;
+   bool firstON = true;
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      if(g_session[k] != "ON") continue;
+      if(firstON)
+      {
+         g_ONhighSoFar = g_m1Rates[k].high;
+         g_ONlowSoFar  = g_m1Rates[k].low;
+         firstON = false;
+      }
+      else
+      {
+         g_ONhighSoFar = MathMax(g_ONhighSoFar, g_m1Rates[k].high);
+         g_ONlowSoFar  = MathMin(g_ONlowSoFar,  g_m1Rates[k].low);
+      }
+   }
+
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    UpdateTradeResultsForDay();
 
@@ -1485,8 +1509,18 @@ void OnTimer()
             int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
             if(fh != INVALID_HANDLE)
             {
+               double runONhigh = 0.0, runONlow = 0.0;
+               bool runONFirst = true;
                for(int k = 0; k < g_barsInDay; k++)
                {
+                  // Per-row ON high/low so far: only bars 0..k with session=ON (our closed candles)
+                  if(g_session[k] == "ON")
+                  {
+                     if(runONFirst)
+                        { runONhigh = g_m1Rates[k].high; runONlow = g_m1Rates[k].low; runONFirst = false; }
+                     else
+                        { runONhigh = MathMax(runONhigh, g_m1Rates[k].high); runONlow = MathMin(runONlow, g_m1Rates[k].low); }
+                  }
                   FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
                      " O=", DoubleToString(g_m1Rates[k].open, _Digits),
                      " H=", DoubleToString(g_m1Rates[k].high, _Digits),
@@ -1507,10 +1541,12 @@ void OnTimer()
                      " RTHtradeCount=", IntegerToString(g_dayProgress[k].RTHtradeCount),
                      " RTHpointsSum=", DoubleToString(g_dayProgress[k].RTHpointsSum, _Digits),
                      " RTHprofitSum=", DoubleToString(g_dayProgress[k].RTHprofitSum, 2),
-                     " PDOpreviousDayOpen=", DoubleToString(g_staticMarketContext.PDOpreviousDayOpen, _Digits),
+                     " ONhighSoFar=", DoubleToString(runONhigh, _Digits),
+                     " ONlowSoFar=", DoubleToString(runONlow, _Digits),
+                     " PDOpreviousDayRTHOpen=", DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits),
                      " PDHpreviousDayHigh=", DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits),
                      " PDLpreviousDayLow=", DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits),
-                     " PDCpreviousDayClose=", DoubleToString(g_staticMarketContext.PDCpreviousDayClose, _Digits),
+                     " PDCpreviousDayRTHClose=", DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits),
                      " PDdate=", g_staticMarketContext.PDdate);
                }
                FileClose(fh);
