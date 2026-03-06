@@ -29,8 +29,8 @@ input int      Max_OrdersPerMagic = 1; // max open positions + pending orders wi
 input double   InpLotSize           = 0.01; // lot size for trade types
 input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (tick timestamp)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
-input bool     InpTestingPullM1History = true;  // if true: between 22:15-22:21 write (date)_testing_pullinghistory.txt and testinglevelsplus files
-input string   InpCalendarFile        = "calendar_2026.csv";  // CSV in Terminal/Common/Files (shared live+tester): date,dayofmonth,dayofweek,opex,qopex
+input bool     InpTestingPullM1History = true;  // if true: at 21:58-22:00 write (date)_testing_pullinghistory.txt and testinglevelsplus files
+input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 
 //--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
@@ -144,7 +144,7 @@ datetime dateWhenAlgoTradeStarted = StringToTime("2026.01.23 00:00");
 //--- Calendar (loaded from CSV in OnInit)
 struct CalendarRow
 {
-   string dateStr;    // "YYYY-MM-DD"
+   string dateStr;    // "YYYY.MM.DD" (MT5 default, matches TimeToString(..., TIME_DATE))
    int    dayofmonth;
    string dayofweek;
    bool   opex;
@@ -185,12 +185,12 @@ int g_levelsExpandedCount = 0;
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
 int g_barsInDay = 0;
 datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
-// Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 22:15-22:21 window)
+// Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 21:59-22:00 window)
 double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high; 0 if none
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
 string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 
-//--- Trade results for the day (deals IN/OUT paired by magic; updated every new bar in loop2; logged in 22:15-22:21)
+//--- Trade results for the day (deals IN/OUT paired by magic; updated every new bar in loop2; logged in 21:59-22:00)
 #define MAX_TRADE_RESULTS 500
 #define MAX_DEALS_DAY 2000
 struct TradeResult
@@ -247,6 +247,17 @@ struct DayProgressBar
    double RTHprofitSum;
 };
 DayProgressBar g_dayProgress[MAX_BARS_IN_DAY];
+
+//--- Static market context: previous trading day's PDO/PDH/PDL/PDC (pulled on init and in 00:00-00:03 each day; same for all bars of the day)
+struct StaticMarketContext
+{
+   double PDOpreviousDayOpen;   // 15:30 open of previous trading day
+   double PDHpreviousDayHigh;   // highest High of previous trading day
+   double PDLpreviousDayLow;    // lowest Low of previous trading day
+   double PDCpreviousDayClose;  // close of previous day's 22:00 candle
+   string PDdate;               // previous trading day date YYYY-MM-DD (for debugging)
+};
+StaticMarketContext g_staticMarketContext;
 
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
@@ -310,9 +321,7 @@ bool LoadCalendar()
 //+------------------------------------------------------------------+
 string GetCalendarDayOfWeek(datetime dt)
 {
-   MqlDateTime mt;
-   TimeToStruct(dt, mt);
-   string key = StringFormat("%04d-%02d-%02d", mt.year, mt.mon, mt.day);
+   string key = TimeToString(dt, TIME_DATE);  // YYYY.MM.DD to match calendar
    for(int i = 0; i < g_calendarCount; i++)
       if(g_calendar[i].dateStr == key) return g_calendar[i].dayofweek;
    return "";
@@ -329,6 +338,75 @@ string GetSessionForCandleTime(datetime t)
    if(minOfDay < 15*60+30) return "ON";   // before 15:30
    if(minOfDay <= 22*60+0) return "RTH"; // 15:30 to 22:00
    return "sleep";
+}
+
+//+------------------------------------------------------------------+
+//| Return previous trading day date string (YYYY.MM.DD) from calendar: go back 1 day, skip Saturday/Sunday. "" if not found. |
+//+------------------------------------------------------------------+
+string GetPreviousTradingDayDateString(datetime dayStart)
+{
+   string key = TimeToString(dayStart, TIME_DATE);  // YYYY.MM.DD to match calendar
+   int i = -1;
+   for(int j = 0; j < g_calendarCount; j++)
+      if(g_calendar[j].dateStr == key) { i = j; break; }
+   if(i <= 0) return "";
+   int j = i - 1;
+   while(j >= 0 && (g_calendar[j].dayofweek == "Saturday" || g_calendar[j].dayofweek == "Sunday"))
+      j--;
+   if(j < 0) return "";
+   return g_calendar[j].dateStr;
+}
+
+//+------------------------------------------------------------------+
+//| Pull previous trading day's PDO/PDH/PDL/PDC from M30, overwrite g_staticMarketContext. referenceDayStart = today 00:00. |
+//| PDO/PDC use iBarShift+iOpen/iClose so we match chart bars; PDH/PDL from CopyRates over the day. |
+//+------------------------------------------------------------------+
+void UpdateStaticMarketContext(datetime referenceDayStart)
+{
+   g_staticMarketContext.PDOpreviousDayOpen  = 0;
+   g_staticMarketContext.PDHpreviousDayHigh  = 0;
+   g_staticMarketContext.PDLpreviousDayLow   = 0;
+   g_staticMarketContext.PDCpreviousDayClose = 0;
+   g_staticMarketContext.PDdate              = "";
+   string prevDayStr = GetPreviousTradingDayDateString(referenceDayStart);
+   if(StringLen(prevDayStr) == 0) return;
+   g_staticMarketContext.PDdate = prevDayStr;
+   string parts[];
+   if(StringSplit(prevDayStr, '.', parts) != 3) return;  // YYYY.MM.DD
+   int y = (int)StringToInteger(parts[0]);
+   int mo = (int)StringToInteger(parts[1]);
+   int d = (int)StringToInteger(parts[2]);
+   MqlDateTime mtPrev = {0};
+   mtPrev.year = y; mtPrev.mon = mo; mtPrev.day = d;
+   datetime prevDayStart = StructToTime(mtPrev);
+   datetime prevDayEnd   = prevDayStart + 86400;
+
+   // PDO = 15:30 bar open, PDC = 22:00 bar close — use same bar indexing as chart (iBarShift + iOpen/iClose)
+   datetime bar1530 = prevDayStart + 15*3600 + 30*60;
+   datetime bar2200 = prevDayStart + 22*3600;
+   int shift1530 = iBarShift(_Symbol, PERIOD_M30, bar1530, false);
+   int shift2200 = iBarShift(_Symbol, PERIOD_M30, bar2200, false);
+   if(shift1530 >= 0)
+      g_staticMarketContext.PDOpreviousDayOpen = iOpen(_Symbol, PERIOD_M30, shift1530);
+   if(shift2200 >= 0)
+      g_staticMarketContext.PDCpreviousDayClose = iClose(_Symbol, PERIOD_M30, shift2200);
+
+   // PDH/PDL = max High / min Low over the day — use same bar indexing as chart (iterate shifts for the day)
+   int shiftDayStart = iBarShift(_Symbol, PERIOD_M30, prevDayStart, false);
+   int shiftDayEnd   = iBarShift(_Symbol, PERIOD_M30, prevDayEnd - 1, false);  // last bar with time < prevDayEnd
+   if(shiftDayStart >= 0 && shiftDayEnd >= 0)
+   {
+      double pdh = -1e300, pdl = 1e300;
+      for(int s = shiftDayEnd; s <= shiftDayStart; s++)
+      {
+         double h = iHigh(_Symbol, PERIOD_M30, s);
+         double l = iLow(_Symbol, PERIOD_M30, s);
+         if(h > pdh) pdh = h;
+         if(l < pdl) pdl = l;
+      }
+      if(pdh > -1e300) g_staticMarketContext.PDHpreviousDayHigh = pdh;
+      if(pdl < 1e300) g_staticMarketContext.PDLpreviousDayLow = pdl;
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -415,10 +493,10 @@ string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars,
 void UpdateDayM1AndLevelsExpanded()
 {
    datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
-   string dateStr = TimeToString(dayStart, TIME_DATE);
+   string dateStr = TimeToString(dayStart, TIME_DATE);  // YYYY.MM.DD (MT5 default)
+   string dayKey = dateStr;  // same format for level date range comparison (levels CSV should use YYYY.MM.DD for start/end)
    MqlDateTime mtDay;
    TimeToStruct(dayStart, mtDay);
-   string dayKey = StringFormat("%04d-%02d-%02d", mtDay.year, mtDay.mon, mtDay.day);
 
    MqlRates m1Rates[];
    int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
@@ -462,7 +540,7 @@ void UpdateDayM1AndLevelsExpanded()
       g_levelsExpandedCount++;
    }
 
-   // Per-bar: level above candle high, level below candle low, session (available globally; logged in 22:15-22:21)
+   // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:59-22:00)
    for(int k = 0; k < g_barsInDay; k++)
    {
       double aboveH = 0;
@@ -1032,6 +1110,9 @@ int OnInit()
    }
    Print("Levels loaded: ", g_levelsCount, " rows from ", InpLevelsFile);
 
+   datetime today = TimeCurrent() - (TimeCurrent() % 86400);
+   UpdateStaticMarketContext(today);
+
    // Hardcoded levels imported from levelsinfo.txt in chronological order
    AddLevel("2026.02.16_SmashWeekly", 6890, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,smash");
    AddLevel("2026.02.16_weeklyUp1", 6960, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp1");
@@ -1341,16 +1422,25 @@ void OnTimer()
    // --- Per-candle day progress (trades closed by each candle close time)
    UpdateDayProgress();
 
+   // --- Static market context: pull on new day between 00:00 and 00:03 (closed candle time)
+   MqlDateTime mtBar;
+   TimeToStruct(current_candle_time, mtBar);
+   int minOfDayBar = mtBar.hour * 60 + mtBar.min;
+   if(minOfDayBar >= 0 && minOfDayBar <= 3 && g_barsInDay > 0)
+      UpdateStaticMarketContext(g_m1DayStart);
+
    // --- Logging only in time window (performance)
    if(InpTestingPullM1History)
    {
       MqlDateTime mtTest;
       TimeToStruct(g_lastTickTime, mtTest);
       int minOfDay = mtTest.hour * 60 + mtTest.min;
-      if(minOfDay >= 22*60+15 && minOfDay <= 22*60+21 && g_barsInDay > 0)
+      datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
+      string dateStr = TimeToString(dayStart, TIME_DATE);
+      bool inLogWindow = (minOfDay >= 21*60+58 && minOfDay <= 22*60+0);  // 21:58, 21:59, 22:00 (last bar may be 21:58 on Friday)
+      bool catchUpWindow = (minOfDay > 22*60+0 && minOfDay <= 23*60+59);  // past 22:00, same day: write if file missing
+      if((inLogWindow || catchUpWindow) && g_barsInDay > 0)
       {
-         datetime dayStart = g_lastTickTime - (g_lastTickTime % 86400);
-         string dateStr = TimeToString(dayStart, TIME_DATE);
          string logName = dateStr + "_testing_pullinghistory.txt";
 
          // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again)
@@ -1380,7 +1470,12 @@ void OnTimer()
                      " RTHwinRate=", DoubleToString(g_dayProgress[k].RTHwinRate, 2),
                      " RTHtradeCount=", IntegerToString(g_dayProgress[k].RTHtradeCount),
                      " RTHpointsSum=", DoubleToString(g_dayProgress[k].RTHpointsSum, _Digits),
-                     " RTHprofitSum=", DoubleToString(g_dayProgress[k].RTHprofitSum, 2));
+                     " RTHprofitSum=", DoubleToString(g_dayProgress[k].RTHprofitSum, 2),
+                     " PDOpreviousDayOpen=", DoubleToString(g_staticMarketContext.PDOpreviousDayOpen, _Digits),
+                     " PDHpreviousDayHigh=", DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits),
+                     " PDLpreviousDayLow=", DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits),
+                     " PDCpreviousDayClose=", DoubleToString(g_staticMarketContext.PDCpreviousDayClose, _Digits),
+                     " PDdate=", g_staticMarketContext.PDdate);
                }
                FileClose(fh);
             }
