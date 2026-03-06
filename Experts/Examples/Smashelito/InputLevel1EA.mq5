@@ -135,6 +135,10 @@ datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when su
 //--- Last tick time (server); set in OnTick or OnTimer, use instead of TimeCurrent()
 datetime g_lastTickTime = 0;
 
+//--- Live price (updated every OnTimer ~1s); use for proximity/display without reading terminal each time
+double g_liveBid = 0.0;
+double g_liveAsk = 0.0;
+
 //--- For OnTimer: last bar time we processed (current bar start time)
 datetime g_lastBarTime = 0;
 
@@ -1098,6 +1102,9 @@ int OnInit()
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
+   g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+
    if(!LoadCalendar())
       Print("Calendar file not loaded: ", InpCalendarFile, " (place CSV in Terminal/Common/Files)");
    else
@@ -1388,6 +1395,8 @@ void OnDeinit(const int reason)
 void OnTimer()
 {
    g_lastTickTime = TimeCurrent();
+   g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
    // Daily summary: once per day at specified hour+minute
    MqlDateTime mt;
@@ -1397,6 +1406,28 @@ void OnTimer()
    {
       WriteDailySummary();
       lastDailySummaryDay = today;
+   }
+
+   // Temporary: log live price every second 21:35 (filename: date_testing_liveprice_headers_are_time_liveBid_liveAsk.csv, 3 cols, no header row)
+   if(mt.hour == 21 && mt.min == 35)
+   {
+      string fname = TimeToString(today, TIME_DATE) + "_testing_liveprice_headers_are_time_liveBid_liveAsk.csv";
+      int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+      if(fh != INVALID_HANDLE)
+      {
+         FileSeek(fh, 0, SEEK_END);
+         FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits));
+         FileClose(fh);
+      }
+      else
+      {
+         fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
+         if(fh != INVALID_HANDLE)
+         {
+            FileWrite(fh, TimeToString(g_lastTickTime, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits));
+            FileClose(fh);
+         }
+      }
    }
 
    // Candle-close detection: use chart period; bar that just closed = index 1 in history
