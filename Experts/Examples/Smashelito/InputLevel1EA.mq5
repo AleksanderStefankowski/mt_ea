@@ -130,7 +130,6 @@ int allCandlesFileHandle = INVALID_HANDLE;
 datetime allCandlesFileDate = 0;
 
 //--- Daily summary tracking
-datetime lastDailySummaryDay = 0; // stores the day (midnight timestamp) when summary was last written
 
 //--- Last tick time (server); set in OnTick or OnTimer, use instead of TimeCurrent()
 datetime g_lastTickTime = 0;
@@ -797,6 +796,34 @@ long BuildMagicForTradeType4(datetime tickTime)
    return (long)StringToInteger(magicStr);
 }
 
+//+------------------------------------------------------------------+
+//| Build levels[] from g_levels[] (CSV). One Level per row; baseName = start_tag, validFrom/To from start/end. |
+//+------------------------------------------------------------------+
+void BuildLevelsFromCSV()
+{
+   ArrayResize(levels, g_levelsCount);
+   for(int i = 0; i < g_levelsCount; i++)
+   {
+      levels[i].baseName  = g_levels[i].startStr + "_" + g_levels[i].tag;
+      levels[i].price     = g_levels[i].levelPrice;
+      levels[i].validFrom = StringToTime(g_levels[i].startStr + " 00:00");
+      levels[i].validTo   = StringToTime(g_levels[i].endStr + " 23:59");
+      levels[i].tagsCSV   = g_levels[i].categories;
+      levels[i].count     = 0;
+      levels[i].approxContactCount = 0;
+      levels[i].dailyBias = 0;
+      levels[i].biasSetToday = false;
+      levels[i].lastBiasDate = 0;
+      levels[i].logRawEv_fileHandle = INVALID_HANDLE;
+      levels[i].candlesBreakLevelCount = 0;
+      levels[i].recoverCount = 0;
+      levels[i].bounceCount = 0;
+      levels[i].consecutiveRecoverCandles = 0;
+      levels[i].lastCandleInContact = false;
+      levels[i].candlesPassedSinceLastBounce = 0;
+   }
+}
+
 void AddLevel(string baseName, double price, string from, string to, string tagsCSV)
 {
    int newIndex = ArraySize(levels);
@@ -1125,109 +1152,10 @@ int OnInit()
       return(INIT_FAILED);
    }
    Print("Levels loaded: ", g_levelsCount, " rows from ", InpLevelsFile);
+   BuildLevelsFromCSV();
 
    datetime today = TimeCurrent() - (TimeCurrent() % 86400);
    UpdateStaticMarketContext(today);
-
-   // Hardcoded levels imported from levelsinfo.txt in chronological order
-   AddLevel("2026.02.16_SmashWeekly", 6890, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,smash");
-   AddLevel("2026.02.16_weeklyUp1", 6960, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp1");
-   AddLevel("2026.02.16_weeklyUp2", 7010, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp2");
-   AddLevel("2026.02.16_weeklyUp3", 7045, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp3");
-   AddLevel("2026.02.16_weeklyUp4", 7092, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp4");
-   AddLevel("2026.02.16_weeklyUp5", 7145, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyUp5");
-   AddLevel("2026.02.16_weeklyDown1", 6805, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown1");
-   AddLevel("2026.02.16_weeklyDown2", 6705, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown2");
-   AddLevel("2026.02.16_weeklyDown3", 6670, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown3");
-   AddLevel("2026.02.16_weeklyDown4", 6592, "2026.02.16 00:00", "2026.02.20 23:59", "weekly,weeklyDown4");
-
-   AddLevel("2026.02.18_SmashDaily", 6867, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,smash");
-   AddLevel("2026.02.18_dailyUp1", 6890, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyUp1");
-   AddLevel("2026.02.18_dailyUp2", 6927, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyUp2");
-   AddLevel("2026.02.18_dailyDown1", 6842, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyDown1");
-   AddLevel("2026.02.18_dailyDown2", 6805, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyDown2");
-   AddLevel("2026.02.18_dailyDown3", 6780, "2026.02.18 00:00", "2026.02.18 23:59", "daily,wednesday,dailyDown3");
-
-   AddLevel("2026.02.19_SmashDaily", 6906, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,smash");
-   AddLevel("2026.02.19_dailyUp1", 6927, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyUp1");
-   AddLevel("2026.02.19_dailyUp2", 6960, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyUp2");
-   AddLevel("2026.02.19_dailyDown1", 6875, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyDown1");
-   AddLevel("2026.02.19_dailyDown2", 6842, "2026.02.19 00:00", "2026.02.19 23:59", "daily,thursday,dailyDown2");
-
-   AddLevel("2026.02.20_SmashDaily", 6860, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,smash");
-   AddLevel("2026.02.20_dailyUp1", 6890, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyUp1");
-   AddLevel("2026.02.20_dailyUp2", 6906, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyUp2");
-   AddLevel("2026.02.20_dailyUp3", 6927, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyUp3");
-   AddLevel("2026.02.20_dailyDown1", 6842, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyDown1");
-   AddLevel("2026.02.20_dailyDown2", 6805, "2026.02.20 00:00", "2026.02.20 23:59", "daily,friday,dailyDown2");
-
-   AddLevel("2026.02.23_SmashWeekly", 6960, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,smash");
-   AddLevel("2026.02.23_weeklyUp1", 7031, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp1");
-   AddLevel("2026.02.23_weeklyUp2", 7043, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp2");
-   AddLevel("2026.02.23_weeklyUp3", 7080, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp3");
-   AddLevel("2026.02.23_weeklyUp4", 7110, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp4");
-   AddLevel("2026.02.23_weeklyUp5", 7145, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp5");
-   AddLevel("2026.02.23_weeklyUp6", 7200, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyUp6");
-   AddLevel("2026.02.23_weeklyDown1", 6890, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown1");
-   AddLevel("2026.02.23_weeklyDown2", 6805, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown2");
-   AddLevel("2026.02.23_weeklyDown3", 6775, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown3");
-   AddLevel("2026.02.23_weeklyDown4", 6705, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown4");
-   AddLevel("2026.02.23_weeklyDown5", 6670, "2026.02.23 00:00", "2026.02.27 23:59", "weekly,weeklyDown5");
-
-   AddLevel("2026.02.23_SmashDaily", 6910, "2026.02.23 00:00", "2026.02.23 23:59", "daily,smash");
-   AddLevel("2026.02.23_dailyUp1", 6927, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.23_dailyUp2", 6960, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.23_dailyUp3", 6998, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyUp3");
-   AddLevel("2026.02.23_dailyDown1", 6890, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.23_dailyDown2", 6860, "2026.02.23 00:00", "2026.02.23 23:59", "daily,dailyDown2");
-
-   AddLevel("2026.02.24_SmashDaily", 6869, "2026.02.24 00:00", "2026.02.24 23:59", "daily,smash");
-   AddLevel("2026.02.24_dailyUp1", 6893, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.24_dailyUp2", 6927, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.24_dailyDown1", 6836, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.24_dailyDown2", 6805, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyDown2");
-   AddLevel("2026.02.24_dailyDown3", 6775, "2026.02.24 00:00", "2026.02.24 23:59", "daily,dailyDown3");
-
-   AddLevel("2026.02.25_SmashDaily", 6894, "2026.02.25 00:00", "2026.02.25 23:59", "daily,smash");
-   AddLevel("2026.02.25_dailyUp1", 6911, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.25_dailyUp2", 6927, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.25_dailyUp3", 6960, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyUp3");
-   AddLevel("2026.02.25_dailyDown1", 6869, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.25_dailyDown2", 6833, "2026.02.25 00:00", "2026.02.25 23:59", "daily,dailyDown2");
-
-   AddLevel("2026.02.26_SmashDaily", 6960, "2026.02.26 00:00", "2026.02.26 23:59", "daily,smash");
-   AddLevel("2026.02.26_dailyUp1", 6976, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.26_dailyUp2", 6993, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.26_dailyUp3", 7017, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyUp3");
-   AddLevel("2026.02.26_dailyDown1", 6948, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.26_dailyDown2", 6927, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyDown2");
-   AddLevel("2026.02.26_dailyDown3", 6912, "2026.02.26 00:00", "2026.02.26 23:59", "daily,dailyDown3");
-
-   AddLevel("2026.02.27_SmashDaily", 6927, "2026.02.27 00:00", "2026.02.27 23:59", "daily,smash");
-   AddLevel("2026.02.27_dailyUp1", 6960, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyUp1");
-   AddLevel("2026.02.27_dailyUp2", 6890, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyUp2");
-   AddLevel("2026.02.27_dailyDown1", 6904, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown1");
-   AddLevel("2026.02.27_dailyDown2", 6880, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown2");
-   AddLevel("2026.02.27_dailyDown3", 6849, "2026.02.27 00:00", "2026.02.27 23:59", "daily,dailyDown3");
-
-   AddLevel("2026.03.02_SmashWeekly", 6880, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,smash");
-   AddLevel("2026.03.02_weeklyUp1", 7030, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp1");
-   AddLevel("2026.03.02_weeklyUp2", 7060, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp2");
-   AddLevel("2026.03.02_weeklyUp3", 7120, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp3");
-   AddLevel("2026.03.02_weeklyUp4", 7160, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp4");
-   AddLevel("2026.03.02_weeklyUp5", 7960, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyUp5");
-   AddLevel("2026.03.02_weeklyDown1", 6805, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown1");
-   AddLevel("2026.03.02_weeklyDown2", 6730, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown2");
-   AddLevel("2026.03.02_weeklyDown3", 6700, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown3");
-   AddLevel("2026.03.02_weeklyDown4", 6670, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown4");
-   AddLevel("2026.03.02_weeklyDown5", 6592, "2026.03.02 00:00", "2026.03.06 23:59", "weekly,weeklyDown5");
-
-   AddLevel("2026.03.02_SmashDaily", 6880, "2026.03.02 00:00", "2026.03.02 23:59", "daily,smash");
-   AddLevel("2026.03.02_dailyUp1", 6904, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyUp1");
-   AddLevel("2026.03.02_dailyUp2", 6927, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyUp2");
-   AddLevel("2026.03.02_dailyUp3", 6960, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyUp3");
-   AddLevel("2026.03.02_dailyDown1", 6852, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyDown1");
-   AddLevel("2026.03.02_dailyDown2", 6829, "2026.03.02 00:00", "2026.03.02 23:59", "daily,dailyDown2");
 
    return(INIT_SUCCEEDED);
 }
@@ -1407,15 +1335,9 @@ void OnTimer()
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
-   // Daily summary: once per day at specified hour+minute
    MqlDateTime mt;
    TimeToStruct(g_lastTickTime, mt);
    datetime today = g_lastTickTime - (g_lastTickTime % 86400);
-   if(mt.hour == HourForDailySummary && mt.min == MinuteForDailySummary && today != lastDailySummaryDay)
-   {
-      WriteDailySummary();
-      lastDailySummaryDay = today;
-   }
 
    // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37 (8 cols: time, liveBid, liveAsk, closed_candle_date, closed_O, closed_H, closed_L, closed_C)
    // Closed candle from our M1 list (g_m1Rates) only; no log when g_barsInDay == 0.
@@ -1528,6 +1450,10 @@ void OnTimer()
       bool catchUpWindow = (minOfDay > 22*60+0 && minOfDay <= 23*60+59);  // past 22:00, same day: write if file missing
       if((inLogWindow || catchUpWindow) && g_barsInDay > 0)
       {
+         // Daily summary (Day_activeLevels, EOD account, AllHistoryOrders, AllHistoryDeals) — once per day when file missing
+         if(!FileIsExist(dateStr + "-Day_activeLevels.txt"))
+            WriteDailySummary();
+
          string logName = dateStr + "_testing_pullinghistory.txt";
 
          // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again)
