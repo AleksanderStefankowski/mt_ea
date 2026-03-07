@@ -24,7 +24,7 @@ void FatalError(string msg)
    Print("FATAL: ", msg);
    ExpertRemove();
 }
-input string   InpSummaryFile       = "LevelLog.txt";
+input string   InpSummaryFile       = "SessionSummary.txt";  // written in OnDeinit: symbol, timeframe, first/last candle OHLC
 input string   InpAllCandleFile     = "AllCandlesLog_Timer1";
 input double   ProximityThreshold   = 1.0;
 input double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to count as broken
