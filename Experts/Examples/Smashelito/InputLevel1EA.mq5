@@ -222,6 +222,11 @@ double   dayStat_openGapDown_percentageFill = 0.0;  // % of gap range (PD RTH cl
 double   dayStat_gapDiff = 0.0;   // debug: range size (top - bottom)
 double   dayStat_rthHigh = 0.0;   // debug: RTH session highest high
 double   dayStat_rthLow  = 0.0;   // debug: RTH session lowest low
+double   dayStat_onHigh  = 0.0;   // ON session high (same day, bars with session=ON)
+double   dayStat_onLow   = 0.0;   // ON session low (same day)
+bool     dayStat_ONH_t_RTH = false;  // true if rthHigh >= ONH (RTH took out overnight high)
+bool     dayStat_ONL_t_RTH = false;  // true if rthLow <= ONL (RTH took out overnight low)
+bool     dayStat_ONboth_t_RTH = false; // true if both ONH_t_RTH and ONL_t_RTH
 int      dayStat_totalDays = 0;
 int      dayStat_daysWithGapDown = 0;
 int      dayStat_daysWithoutGapDown = 0;
@@ -253,6 +258,11 @@ int      dayStat_daysWithGapUp_60fill = 0;
 int      dayStat_daysWithGapUp_75fill = 0;
 int      dayStat_daysWithGapUp_90fill = 0;
 int      dayStat_daysWithGapUp_100fill = 0;
+
+//--- ON tested by RTH: counts for summary freq %
+int      dayStat_daysONH_tested = 0;   // days when rthHigh >= ONH
+int      dayStat_daysONL_tested = 0;   // days when rthLow <= ONL
+int      dayStat_daysONboth_tested = 0; // days when both ONH and ONL tested same day
 
 //--- Optional double (hasValue false = no value; used for RTH/ON high-low so far and for "never" in diff window).
 struct OptionalDouble { bool hasValue; double value; };
@@ -1465,13 +1475,29 @@ bool TryLogDayStatForCurrentDay()
    dayStat_rthHigh = hasRTH ? highestHigh : 0.0;
    dayStat_rthLow  = hasRTH ? lowestLow  : 0.0;
 
+   // ON session high/low for same day (bars with session=ON)
+   double onHigh = -1e300, onLow = 1e300;
+   bool hasON = false;
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      if(g_session[k] != "ON") continue;
+      hasON = true;
+      if(g_m1Rates[k].high > onHigh) onHigh = g_m1Rates[k].high;
+      if(g_m1Rates[k].low  < onLow)  onLow  = g_m1Rates[k].low;
+   }
+   dayStat_onHigh = hasON ? onHigh : 0.0;
+   dayStat_onLow  = hasON ? onLow  : 0.0;
+   dayStat_ONH_t_RTH = (hasRTH && hasON && dayStat_rthHigh >= dayStat_onHigh);
+   dayStat_ONL_t_RTH = (hasRTH && hasON && dayStat_rthLow <= dayStat_onLow);
+   dayStat_ONboth_t_RTH = (dayStat_ONH_t_RTH && dayStat_ONL_t_RTH);
+
    string dateStrStat = TimeToString(g_m1DayStart, TIME_DATE);
    string dayStatLogName = dateStrStat + "_dayStat_log.csv";
    int fhDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fhDay != INVALID_HANDLE)
    {
-      FileWrite(fhDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow");
-      FileWrite(fhDay, dateStrStat, (dayStat_day_had_OpenGapDown_bool ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits));
+      FileWrite(fhDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH");
+      FileWrite(fhDay, dateStrStat, (dayStat_day_had_OpenGapDown_bool ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"));
       FileClose(fhDay);
    }
 
@@ -1510,6 +1536,9 @@ bool TryLogDayStatForCurrentDay()
    }
    else
       dayStat_daysWithoutGapUp++;
+   if(dayStat_ONH_t_RTH) dayStat_daysONH_tested++;
+   if(dayStat_ONL_t_RTH) dayStat_daysONL_tested++;
+   if(dayStat_ONboth_t_RTH) dayStat_daysONboth_tested++;
    dayStat_lastLoggedDayStart = g_m1DayStart;
    return true;
 }
@@ -1544,10 +1573,15 @@ void WriteDayStatSummaryCsv()
       double pct75U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_75fill / (double)dayStat_daysWithGapUp) : 0.0;
       double pct90U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_90fill / (double)dayStat_daysWithGapUp) : 0.0;
       double pct100U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_100fill / (double)dayStat_daysWithGapUp) : 0.0;
+      double daysONH_t_freq = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONH_tested / (double)dayStat_totalDays) : 0.0;
+      double daysONL_t_freq = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONL_tested / (double)dayStat_totalDays) : 0.0;
+      double daysONHL_t = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONboth_tested / (double)dayStat_totalDays) : 0.0;
       FileWrite(fhSum, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
-                "daysGapUp", "daysNoGU", "gapU_avg_fill", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f");
+                "daysGapUp", "daysNoGU", "gapU_avg_fill", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f",
+                "daysONH_t_freq", "daysONL_t_freq", "daysONHL_t");
       FileWrite(fhSum, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2), DoubleToString(pct20D, 2), DoubleToString(pct25D, 2), DoubleToString(pct30D, 2), DoubleToString(pct33D, 2), DoubleToString(pct40D, 2), DoubleToString(pct50D, 2), DoubleToString(pct60D, 2), DoubleToString(pct75D, 2), DoubleToString(pct90D, 2), DoubleToString(pct100D, 2),
-                IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2), DoubleToString(pct20U, 2), DoubleToString(pct25U, 2), DoubleToString(pct30U, 2), DoubleToString(pct33U, 2), DoubleToString(pct40U, 2), DoubleToString(pct50U, 2), DoubleToString(pct60U, 2), DoubleToString(pct75U, 2), DoubleToString(pct90U, 2), DoubleToString(pct100U, 2));
+                IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2), DoubleToString(pct20U, 2), DoubleToString(pct25U, 2), DoubleToString(pct30U, 2), DoubleToString(pct33U, 2), DoubleToString(pct40U, 2), DoubleToString(pct50U, 2), DoubleToString(pct60U, 2), DoubleToString(pct75U, 2), DoubleToString(pct90U, 2), DoubleToString(pct100U, 2),
+                DoubleToString(daysONH_t_freq, 2), DoubleToString(daysONL_t_freq, 2), DoubleToString(daysONHL_t, 2));
       FileClose(fhSum);
    }
 }
