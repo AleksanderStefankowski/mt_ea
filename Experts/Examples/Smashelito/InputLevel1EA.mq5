@@ -443,6 +443,23 @@ double GetRTHopenCurrentDay()
 }
 
 //+------------------------------------------------------------------+
+//| Session high/low over g_barsInDay for bars where g_session[k] == sessionName. Sets outHigh/outLow (undefined if !hasAny). |
+//+------------------------------------------------------------------+
+void GetSessionHighLow(const string sessionName, double &outHigh, double &outLow, bool &hasAny)
+{
+   outHigh = -1e300;
+   outLow  = 1e300;
+   hasAny  = false;
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      if(g_session[k] != sessionName) continue;
+      hasAny = true;
+      if(g_m1Rates[k].high > outHigh) outHigh = g_m1Rates[k].high;
+      if(g_m1Rates[k].low  < outLow)  outLow  = g_m1Rates[k].low;
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Return previous trading day date string (YYYY.MM.DD) from calendar: go back 1 day, skip Saturday/Sunday. "" if not found. |
 //+------------------------------------------------------------------+
 string GetPreviousTradingDayDateString(datetime dayStart)
@@ -1443,6 +1460,57 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
 //+------------------------------------------------------------------+
 //| If current day not yet logged and we have RTH open + PDC: compute dayStat, write per-day CSV, update totals. Return true if wrote. |
 //+------------------------------------------------------------------+
+void AccumulateGapDownThresholds(double pctFill)
+{
+   dayStat_daysWithGapDown++;
+   dayStat_gapDown_fillPercentSum += pctFill;
+   if(pctFill >= 20.0) dayStat_daysWithGapDown_20fill++;
+   if(pctFill >= 25.0) dayStat_daysWithGapDown_25fill++;
+   if(pctFill >= 30.0) dayStat_daysWithGapDown_30fill++;
+   if(pctFill >= 33.0) dayStat_daysWithGapDown_33fill++;
+   if(pctFill >= 40.0) dayStat_daysWithGapDown_40fill++;
+   if(pctFill >= 50.0) dayStat_daysWithGapDown_50fill++;
+   if(pctFill >= 60.0) dayStat_daysWithGapDown_60fill++;
+   if(pctFill >= 75.0) dayStat_daysWithGapDown_75fill++;
+   if(pctFill >= 90.0) dayStat_daysWithGapDown_90fill++;
+   if(pctFill >= 100.0) dayStat_daysWithGapDown_100fill++;
+}
+
+void AccumulateGapUpThresholds(double pctFill)
+{
+   dayStat_daysWithGapUp++;
+   dayStat_gapUp_fillPercentSum += pctFill;
+   if(pctFill >= 20.0) dayStat_daysWithGapUp_20fill++;
+   if(pctFill >= 25.0) dayStat_daysWithGapUp_25fill++;
+   if(pctFill >= 30.0) dayStat_daysWithGapUp_30fill++;
+   if(pctFill >= 33.0) dayStat_daysWithGapUp_33fill++;
+   if(pctFill >= 40.0) dayStat_daysWithGapUp_40fill++;
+   if(pctFill >= 50.0) dayStat_daysWithGapUp_50fill++;
+   if(pctFill >= 60.0) dayStat_daysWithGapUp_60fill++;
+   if(pctFill >= 75.0) dayStat_daysWithGapUp_75fill++;
+   if(pctFill >= 90.0) dayStat_daysWithGapUp_90fill++;
+   if(pctFill >= 100.0) dayStat_daysWithGapUp_100fill++;
+}
+
+//+------------------------------------------------------------------+
+//| Compute 10 gap-fill frequency percentages: pcts[i] = 100 * counts[i] / daysWith (or 0 if daysWith==0). counts[] and pcts[] must have size >= 10. |
+//+------------------------------------------------------------------+
+void ComputeGapFillFreqs(int daysWith, int &counts[], double &pcts[])
+{
+   ArrayResize(pcts, 10);
+   if(daysWith <= 0)
+   {
+      for(int i = 0; i < 10; i++) pcts[i] = 0.0;
+      return;
+   }
+   double denom = (double)daysWith;
+   for(int i = 0; i < 10; i++)
+      pcts[i] = 100.0 * (double)counts[i] / denom;
+}
+
+//+------------------------------------------------------------------+
+//| If current day not yet logged and we have RTH open + PDC: compute dayStat, write per-day CSV, update totals. Return true if wrote. |
+//+------------------------------------------------------------------+
 bool TryLogDayStatForCurrentDay()
 {
    if(g_barsInDay <= 0 || g_m1DayStart == 0 || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0 || dayStat_lastLoggedDayStart == g_m1DayStart)
@@ -1459,13 +1527,7 @@ bool TryLogDayStatForCurrentDay()
 
    double highestHigh = -1e300, lowestLow = 1e300;
    bool hasRTH = false;
-   for(int k = 0; k < g_barsInDay; k++)
-   {
-      if(g_session[k] != "RTH") continue;
-      hasRTH = true;
-      if(g_m1Rates[k].high > highestHigh) highestHigh = g_m1Rates[k].high;
-      if(g_m1Rates[k].low  < lowestLow)  lowestLow  = g_m1Rates[k].low;
-   }
+   GetSessionHighLow("RTH", highestHigh, lowestLow, hasRTH);
    if(!hasRTH || range_size <= 0.0)
       dayStat_openGapDown_percentageFill = (range_size <= 0.0 ? 100.0 : 0.0);
    else
@@ -1480,16 +1542,9 @@ bool TryLogDayStatForCurrentDay()
    dayStat_rthHigh = hasRTH ? highestHigh : 0.0;
    dayStat_rthLow  = hasRTH ? lowestLow  : 0.0;
 
-   // ON session high/low for same day (bars with session=ON)
    double onHigh = -1e300, onLow = 1e300;
    bool hasON = false;
-   for(int k = 0; k < g_barsInDay; k++)
-   {
-      if(g_session[k] != "ON") continue;
-      hasON = true;
-      if(g_m1Rates[k].high > onHigh) onHigh = g_m1Rates[k].high;
-      if(g_m1Rates[k].low  < onLow)  onLow  = g_m1Rates[k].low;
-   }
+   GetSessionHighLow("ON", onHigh, onLow, hasON);
    dayStat_onHigh = hasON ? onHigh : 0.0;
    dayStat_onLow  = hasON ? onLow  : 0.0;
    dayStat_ONH_t_RTH = (hasRTH && hasON && dayStat_rthHigh >= dayStat_onHigh);
@@ -1508,37 +1563,11 @@ bool TryLogDayStatForCurrentDay()
 
    dayStat_totalDays++;
    if(dayStat_day_had_OpenGapDown_bool)
-   {
-      dayStat_daysWithGapDown++;
-      dayStat_gapDown_fillPercentSum += dayStat_openGapDown_percentageFill;
-      if(dayStat_openGapDown_percentageFill >= 20.0) dayStat_daysWithGapDown_20fill++;
-      if(dayStat_openGapDown_percentageFill >= 25.0) dayStat_daysWithGapDown_25fill++;
-      if(dayStat_openGapDown_percentageFill >= 30.0) dayStat_daysWithGapDown_30fill++;
-      if(dayStat_openGapDown_percentageFill >= 33.0) dayStat_daysWithGapDown_33fill++;
-      if(dayStat_openGapDown_percentageFill >= 40.0) dayStat_daysWithGapDown_40fill++;
-      if(dayStat_openGapDown_percentageFill >= 50.0) dayStat_daysWithGapDown_50fill++;
-      if(dayStat_openGapDown_percentageFill >= 60.0) dayStat_daysWithGapDown_60fill++;
-      if(dayStat_openGapDown_percentageFill >= 75.0) dayStat_daysWithGapDown_75fill++;
-      if(dayStat_openGapDown_percentageFill >= 90.0) dayStat_daysWithGapDown_90fill++;
-      if(dayStat_openGapDown_percentageFill >= 100.0) dayStat_daysWithGapDown_100fill++;
-   }
+      AccumulateGapDownThresholds(dayStat_openGapDown_percentageFill);
    else
       dayStat_daysWithoutGapDown++;
    if(dayStat_hasGapUp)
-   {
-      dayStat_daysWithGapUp++;
-      dayStat_gapUp_fillPercentSum += dayStat_openGapUp_percentageFill;
-      if(dayStat_openGapUp_percentageFill >= 20.0) dayStat_daysWithGapUp_20fill++;
-      if(dayStat_openGapUp_percentageFill >= 25.0) dayStat_daysWithGapUp_25fill++;
-      if(dayStat_openGapUp_percentageFill >= 30.0) dayStat_daysWithGapUp_30fill++;
-      if(dayStat_openGapUp_percentageFill >= 33.0) dayStat_daysWithGapUp_33fill++;
-      if(dayStat_openGapUp_percentageFill >= 40.0) dayStat_daysWithGapUp_40fill++;
-      if(dayStat_openGapUp_percentageFill >= 50.0) dayStat_daysWithGapUp_50fill++;
-      if(dayStat_openGapUp_percentageFill >= 60.0) dayStat_daysWithGapUp_60fill++;
-      if(dayStat_openGapUp_percentageFill >= 75.0) dayStat_daysWithGapUp_75fill++;
-      if(dayStat_openGapUp_percentageFill >= 90.0) dayStat_daysWithGapUp_90fill++;
-      if(dayStat_openGapUp_percentageFill >= 100.0) dayStat_daysWithGapUp_100fill++;
-   }
+      AccumulateGapUpThresholds(dayStat_openGapUp_percentageFill);
    else
       dayStat_daysWithoutGapUp++;
    if(dayStat_ONH_t_RTH) dayStat_daysONH_tested++;
@@ -1557,35 +1586,33 @@ void WriteDayStatSummaryCsv()
    if(fhSum != INVALID_HANDLE)
    {
       double avgFillD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
-      double pct20D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_20fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct25D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_25fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct30D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_30fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct33D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_33fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct40D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_40fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct50D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_50fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct60D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_60fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct75D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_75fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct90D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_90fill / (double)dayStat_daysWithGapDown) : 0.0;
-      double pct100D = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_100fill / (double)dayStat_daysWithGapDown) : 0.0;
+      int countsD[10];
+      countsD[0] = dayStat_daysWithGapDown_20fill;  countsD[1] = dayStat_daysWithGapDown_25fill;  countsD[2] = dayStat_daysWithGapDown_30fill;
+      countsD[3] = dayStat_daysWithGapDown_33fill;  countsD[4] = dayStat_daysWithGapDown_40fill;  countsD[5] = dayStat_daysWithGapDown_50fill;
+      countsD[6] = dayStat_daysWithGapDown_60fill;  countsD[7] = dayStat_daysWithGapDown_75fill;  countsD[8] = dayStat_daysWithGapDown_90fill;
+      countsD[9] = dayStat_daysWithGapDown_100fill;
+      double pctsD[];
+      ComputeGapFillFreqs(dayStat_daysWithGapDown, countsD, pctsD);
+
       double avgFillU = (dayStat_daysWithGapUp > 0) ? dayStat_gapUp_fillPercentSum / (double)dayStat_daysWithGapUp : 0.0;
-      double pct20U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_20fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct25U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_25fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct30U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_30fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct33U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_33fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct40U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_40fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct50U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_50fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct60U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_60fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct75U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_75fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct90U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_90fill / (double)dayStat_daysWithGapUp) : 0.0;
-      double pct100U = (dayStat_daysWithGapUp > 0) ? (100.0 * (double)dayStat_daysWithGapUp_100fill / (double)dayStat_daysWithGapUp) : 0.0;
+      int countsU[10];
+      countsU[0] = dayStat_daysWithGapUp_20fill;  countsU[1] = dayStat_daysWithGapUp_25fill;  countsU[2] = dayStat_daysWithGapUp_30fill;
+      countsU[3] = dayStat_daysWithGapUp_33fill;  countsU[4] = dayStat_daysWithGapUp_40fill;  countsU[5] = dayStat_daysWithGapUp_50fill;
+      countsU[6] = dayStat_daysWithGapUp_60fill;  countsU[7] = dayStat_daysWithGapUp_75fill;  countsU[8] = dayStat_daysWithGapUp_90fill;
+      countsU[9] = dayStat_daysWithGapUp_100fill;
+      double pctsU[];
+      ComputeGapFillFreqs(dayStat_daysWithGapUp, countsU, pctsU);
+
       double daysONH_t_freq = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONH_tested / (double)dayStat_totalDays) : 0.0;
       double daysONL_t_freq = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONL_tested / (double)dayStat_totalDays) : 0.0;
       double daysONHL_t = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONboth_tested / (double)dayStat_totalDays) : 0.0;
       FileWrite(fhSum, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
                 "daysGapUp", "daysNoGU", "gapU_avg_fill", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f",
                 "daysONH_t_freq", "daysONL_t_freq", "daysONHL_t");
-      FileWrite(fhSum, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2), DoubleToString(pct20D, 2), DoubleToString(pct25D, 2), DoubleToString(pct30D, 2), DoubleToString(pct33D, 2), DoubleToString(pct40D, 2), DoubleToString(pct50D, 2), DoubleToString(pct60D, 2), DoubleToString(pct75D, 2), DoubleToString(pct90D, 2), DoubleToString(pct100D, 2),
-                IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2), DoubleToString(pct20U, 2), DoubleToString(pct25U, 2), DoubleToString(pct30U, 2), DoubleToString(pct33U, 2), DoubleToString(pct40U, 2), DoubleToString(pct50U, 2), DoubleToString(pct60U, 2), DoubleToString(pct75U, 2), DoubleToString(pct90U, 2), DoubleToString(pct100U, 2),
+      FileWrite(fhSum, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2),
+                DoubleToString(pctsD[0], 2), DoubleToString(pctsD[1], 2), DoubleToString(pctsD[2], 2), DoubleToString(pctsD[3], 2), DoubleToString(pctsD[4], 2), DoubleToString(pctsD[5], 2), DoubleToString(pctsD[6], 2), DoubleToString(pctsD[7], 2), DoubleToString(pctsD[8], 2), DoubleToString(pctsD[9], 2),
+                IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2),
+                DoubleToString(pctsU[0], 2), DoubleToString(pctsU[1], 2), DoubleToString(pctsU[2], 2), DoubleToString(pctsU[3], 2), DoubleToString(pctsU[4], 2), DoubleToString(pctsU[5], 2), DoubleToString(pctsU[6], 2), DoubleToString(pctsU[7], 2), DoubleToString(pctsU[8], 2), DoubleToString(pctsU[9], 2),
                 DoubleToString(daysONH_t_freq, 2), DoubleToString(daysONL_t_freq, 2), DoubleToString(daysONHL_t, 2));
       FileClose(fhSum);
    }
