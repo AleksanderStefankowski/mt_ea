@@ -209,6 +209,12 @@ double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high;
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
 string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 
+//--- Today RTH open level: separate from g_levelsExpanded (bars from 15:30 only). Filled in OnTimer after UpdateDayM1AndLevelsExpanded when level exists.
+double   g_todayRTHopenPrice = 0.0;
+double   g_todayRTHopenDiffs[];
+datetime g_todayRTHopenTimes[];
+int      g_todayRTHopenCount = 0;
+
 //--- Optional double (hasValue false = no value; used for RTH/ON high-low so far and for "never" in diff window).
 struct OptionalDouble { bool hasValue; double value; };
 
@@ -288,6 +294,8 @@ struct StaticMarketContext
 };
 StaticMarketContext g_staticMarketContext;
 datetime g_staticMarketContextPulledForDate = 0;  // day-start we last pulled for; 0 = never pulled
+// Proximity (price distance): do not add PDrthClose or todayRTHopen if a level valid for that day is within this distance
+const double tertiaryLevel_tooTight_toAdd_proximity = 2.0;
 
 //+------------------------------------------------------------------+
 //| Check if trading is allowed based on time restrictions            |
@@ -603,11 +611,12 @@ void UpdateDayM1AndLevelsExpanded()
    g_barsInDay = barsInDay;
    g_m1DayStart = dayStart;
 
-   // Build levelsExpanded from g_m1Rates
+   // Build levelsExpanded from g_m1Rates (full-day levels only; todayRTHopen has separate storage)
    g_levelsExpandedCount = 0;
    for(int i = 0; i < g_levelsCount && g_levelsExpandedCount < MAX_LEVELS_EXPANDED; i++)
    {
       if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
+      if(g_levels[i].tag == "todayRTHopen") continue;  // handled separately in g_todayRTHopen*
       g_levelsExpanded[g_levelsExpandedCount].levelPrice = g_levels[i].levelPrice;
       g_levelsExpanded[g_levelsExpandedCount].tag        = g_levels[i].tag;
       g_levelsExpanded[g_levelsExpandedCount].count      = g_barsInDay;
@@ -1507,6 +1516,36 @@ void OnTimer()
       }
    }
 
+   // --- Today RTH open: fill separate storage from levels[] and g_m1Rates (bars from 15:30 only)
+   g_todayRTHopenCount = 0;
+   g_todayRTHopenPrice = 0.0;
+   if(g_barsInDay > 0 && g_m1DayStart != 0)
+   {
+      datetime dayStart = g_m1DayStart;
+      datetime bar1530Time = dayStart + 15*3600 + 30*60;
+      for(int i = 0; i < ArraySize(levels); i++)
+      {
+         if(levels[i].validFrom > dayStart || dayStart > levels[i].validTo) continue;
+         if(StringFind(levels[i].baseName, "todayRTHopen") < 0) continue;
+         g_todayRTHopenPrice = levels[i].price;
+         int n = 0;
+         for(int k = 0; k < g_barsInDay; k++)
+            if(g_m1Rates[k].time >= bar1530Time) n++;
+         ArrayResize(g_todayRTHopenDiffs, n);
+         ArrayResize(g_todayRTHopenTimes, n);
+         int idx = 0;
+         for(int k = 0; k < g_barsInDay && idx < n; k++)
+            if(g_m1Rates[k].time >= bar1530Time)
+            {
+               g_todayRTHopenTimes[idx] = g_m1Rates[k].time;
+               g_todayRTHopenDiffs[idx]  = g_m1Rates[k].close - g_todayRTHopenPrice;
+               idx++;
+            }
+         g_todayRTHopenCount = n;
+         break;
+      }
+   }
+
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    UpdateTradeResultsForDay();
 
@@ -1530,13 +1569,12 @@ void OnTimer()
             for(int i = 0; i < g_levelsCount; i++)
             {
                if(g_levels[i].startStr > todayStr || todayStr > g_levels[i].endStr) continue;
-               if(MathAbs(g_levels[i].levelPrice - pdc) < 2.0) { PDrthLevel_tooClose_to_regularLevel = true; break; }
+               if(MathAbs(g_levels[i].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity) { PDrthLevel_tooClose_to_regularLevel = true; break; }
             }
             if(!PDrthLevel_tooClose_to_regularLevel)
             {
-               string dayOfWeek = GetCalendarDayOfWeek(g_m1DayStart);
-               string categories = "daily," + (StringLen(dayOfWeek) > 0 ? dayOfWeek + "," : "") + "PDrthClose";
-               string baseName = todayStr + "_PDrthCloseLevel";
+               string categories = "daily_tertiary_PDrthClose";
+               string baseName = todayStr + "_PDrthClose";
                AddLevel(baseName, pdc, todayStr + " 00:00", todayStr + " 23:59", categories);
                if(g_levelsCount < MAX_LEVEL_ROWS)
                {
@@ -1544,7 +1582,7 @@ void OnTimer()
                   g_levels[g_levelsCount].endStr    = todayStr;
                   g_levels[g_levelsCount].levelPrice = pdc;
                   g_levels[g_levelsCount].categories = categories;
-                  g_levels[g_levelsCount].tag       = "PDrthCloseLevel";
+                  g_levels[g_levelsCount].tag       = "PDrthClose";
                   g_levelsCount++;
                   UpdateDayM1AndLevelsExpanded();
                }
@@ -1665,6 +1703,45 @@ void OnTimer()
                         " C=", DoubleToString(g_m1Rates[k].close, _Digits),
                         " breaksLevelDown=", (g_breaksLevelDown[e][k] ? "true" : "false"),
                         " breaksLevelUpward=", (g_breaksLevelUpward[e][k] ? "true" : "false"),
+                        " HighestDiffUp_rangeArg=", highestUp,
+                        " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
+                        " HighestDiffDown_rangeArg=", highestDown,
+                        " HighestDiffDownRange=", IntegerToString(recentPriceArgument));
+                  }
+                  FileClose(fhL);
+               }
+            }
+         }
+         // Today RTH open: separate file from g_todayRTHopen* (bars from 15:30 only)
+         if(g_todayRTHopenCount > 0)
+         {
+            string levelFileRTH = dateStr + "_testinglevelsplus_" + DoubleToString(g_todayRTHopenPrice, _Digits) + "_todayRTHopen.txt";
+            if(!FileIsExist(levelFileRTH))
+            {
+               int fhL = FileOpen(levelFileRTH, FILE_WRITE | FILE_TXT);
+               if(fhL == INVALID_HANDLE)
+                  FatalError("OnTimer: could not open " + levelFileRTH);
+               {
+                  double lvl = g_todayRTHopenPrice;
+                  for(int k = 0; k < g_todayRTHopenCount; k++)
+                  {
+                     datetime bt = g_todayRTHopenTimes[k];
+                     int kb = -1;
+                     for(int j = 0; j < g_barsInDay; j++)
+                        if(g_m1Rates[j].time == bt) { kb = j; break; }
+                     if(kb < 0) continue;
+                     bool breakDown   = (g_m1Rates[kb].open > lvl && g_m1Rates[kb].close < lvl);
+                     bool breakUpward = (g_m1Rates[kb].open < lvl && g_m1Rates[kb].close > lvl);
+                     string highestUp   = GetHighestDiffInWindowString(lvl, kb, recentPriceArgument, true);
+                     string highestDown = GetHighestDiffInWindowString(lvl, kb, recentPriceArgument, false);
+                     FileWrite(fhL, TimeToString(g_todayRTHopenTimes[k], TIME_DATE|TIME_MINUTES),
+                        " newway_Diff_CloseToLevel=", DoubleToString(g_todayRTHopenDiffs[k], _Digits),
+                        " O=", DoubleToString(g_m1Rates[kb].open, _Digits),
+                        " H=", DoubleToString(g_m1Rates[kb].high, _Digits),
+                        " L=", DoubleToString(g_m1Rates[kb].low, _Digits),
+                        " C=", DoubleToString(g_m1Rates[kb].close, _Digits),
+                        " breaksLevelDown=", (breakDown ? "true" : "false"),
+                        " breaksLevelUpward=", (breakUpward ? "true" : "false"),
                         " HighestDiffUp_rangeArg=", highestUp,
                         " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
                         " HighestDiffDown_rangeArg=", highestDown,
@@ -1799,6 +1876,32 @@ void FinalizeCurrentCandle()
       if(allCandlesFileHandle == INVALID_HANDLE)
          FatalError("FinalizeCurrentCandle: could not open " + allFileName);
       allCandlesFileDate = candleDay;
+   }
+
+   // When the candle that just closed is the 15:30 bar, add its open as a level for today only (todayRTHopen)
+   {
+      MqlDateTime mt;
+      TimeToStruct(current_candle_time, mt);
+      if(mt.hour == 15 && mt.min == 30)
+      {
+         bool alreadyAdded = false;
+         for(int i = 0; i < ArraySize(levels); i++)
+            if(levels[i].validFrom == candleDay && StringFind(levels[i].baseName, "todayRTHopen") >= 0)
+            { alreadyAdded = true; break; }
+         bool tooCloseToExisting = false;
+         if(!alreadyAdded)
+            for(int i = 0; i < ArraySize(levels); i++)
+               if(levels[i].validFrom <= candleDay && candleDay <= levels[i].validTo &&
+                  MathAbs(levels[i].price - candle_open) < tertiaryLevel_tooTight_toAdd_proximity)
+               { tooCloseToExisting = true; break; }
+         if(!alreadyAdded && !tooCloseToExisting)
+         {
+            string todayStr = TimeToString(candleDay, TIME_DATE);
+            string baseName = todayStr + "_todayRTHopen";
+            AddLevel(baseName, candle_open, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
+            // todayRTHopen is not added to g_levels; it uses separate g_todayRTHopen* storage filled in OnTimer
+         }
+      }
    }
 
    for(int i=0;i<ArraySize(levels);i++)
