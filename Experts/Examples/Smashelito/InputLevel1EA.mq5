@@ -1038,7 +1038,7 @@ int GetTradeTypeIdFromMagic(long magicNumber)
 }
 
 //+------------------------------------------------------------------+
-//| B_TradeLog filename = B_TradeLog_(id). e.g. 2026.03.03_B_TradeLog_3.txt |
+//| B_TradeLog filename = B_TradeLog_(id). e.g. 2026.03.03_B_TradeLog_3.csv |
 //+------------------------------------------------------------------+
 string GetTradeTypeStringFromId(int tradeTypeId)
 {
@@ -1062,7 +1062,7 @@ string BuildTradeLogFileName(const string tradeType, datetime forTime)
 {
    if(StringLen(tradeType) == 0) return "";
    string dateStr = TimeToString(forTime, TIME_DATE);
-   return StringFormat("%s_B_TradeLog_%s.txt", dateStr, tradeType);
+   return StringFormat("%s_B_TradeLog_%s.csv", dateStr, tradeType);
 }
 
 //+------------------------------------------------------------------+
@@ -1108,22 +1108,20 @@ void WriteDailySummary()
    datetime now = g_lastTimer1Time;
    string dateStr = TimeToString(now, TIME_DATE);
    
-   string activeLevelsFile = dateStr + "-Day_activeLevels.txt";
-   int fh1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_TXT);
+   string activeLevelsFile = dateStr + "-Day_activeLevels.csv";
+   int fh1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fh1 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + activeLevelsFile);
    {
+      FileWrite(fh1, "levelNo", "name", "price", "count", "contacts", "bias", "bounces");
       datetime today = now - (now % 86400);
       for(int i=0; i<ArraySize(levels); i++)
       {
          if(levels[i].validFrom <= today && levels[i].validTo >= today)
          {
-            FileWrite(fh1, "levelNo=" + IntegerToString(i) + " name=" + levels[i].baseName + 
-                      " price=" + DoubleToString(levels[i].price, _Digits) + 
-                      " count=" + IntegerToString(levels[i].count) + 
-                      " contacts=" + IntegerToString(levels[i].approxContactCount) + 
-                      " bias=" + DoubleToString(levels[i].dailyBias, 0) + 
-                      " bounces=" + IntegerToString(levels[i].bounceCount));
+            FileWrite(fh1, IntegerToString(i), levels[i].baseName, DoubleToString(levels[i].price, _Digits),
+                      IntegerToString(levels[i].count), IntegerToString(levels[i].approxContactCount),
+                      DoubleToString(levels[i].dailyBias, 0), IntegerToString(levels[i].bounceCount));
          }
       }
       FileClose(fh1);
@@ -1149,11 +1147,12 @@ void WriteDailySummary()
       FileClose(fh2);
    }
    
-   string ordersFile = dateStr + "-not_from_globals_AllHistoryOrders.txt";
-   int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_TXT);
+   string ordersFile = dateStr + "-not_from_globals_AllHistoryOrders.csv";
+   int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fh3 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + ordersFile);
    {
+      FileWrite(fh3, "ticket", "symbol", "magic", "timeSetup", "state", "type", "reason", "volume", "priceOpen", "priceCurrent", "priceStopLoss", "priceTakeProfit", "timeExpiration", "activationPrice", "comment");
       HistorySelect(0, g_lastTimer1Time);
       int totalHist = HistoryOrdersTotal();
       for(int i=0; i<totalHist; i++)
@@ -1164,30 +1163,30 @@ void WriteDailySummary()
          datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
          if(orderTime < dateWhenAlgoTradeStarted) continue;
          
-         FileWrite(fh3, "ticket=" + IntegerToString((long)ticket) + 
-                   " symbol=" + HistoryOrderGetString(ticket, ORDER_SYMBOL) + 
-                   " magic=" + IntegerToString((long)HistoryOrderGetInteger(ticket, ORDER_MAGIC)) +
-                   " timeSetup=" + TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP), TIME_DATE|TIME_SECONDS) +
-                   " state=" + EnumToString((ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE)) +
-                    " type=" + EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)) + 
-                   " reason=" + EnumToString((ENUM_ORDER_REASON)HistoryOrderGetInteger(ticket, ORDER_REASON)) + 
-                   " volume=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2) + 
-                   " priceOpen=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits) + 
-                   " priceCurrent=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits) + 
-                   " priceStopLoss=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_SL), _Digits) +
-                   " priceTakeProfit=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_TP), _Digits) +
-                   " timeExpiration=" + TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_EXPIRATION), TIME_DATE|TIME_SECONDS) +
-                   " activationPrice=" + DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_STOPLIMIT), _Digits) +
-                   " comment=" + HistoryOrderGetString(ticket, ORDER_COMMENT));
+         FileWrite(fh3, IntegerToString((long)ticket), HistoryOrderGetString(ticket, ORDER_SYMBOL),
+                   IntegerToString((long)HistoryOrderGetInteger(ticket, ORDER_MAGIC)),
+                   TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP), TIME_DATE|TIME_SECONDS),
+                   EnumToString((ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE)),
+                   EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)),
+                   EnumToString((ENUM_ORDER_REASON)HistoryOrderGetInteger(ticket, ORDER_REASON)),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_SL), _Digits),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_TP), _Digits),
+                   TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_EXPIRATION), TIME_DATE|TIME_SECONDS),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_STOPLIMIT), _Digits),
+                   HistoryOrderGetString(ticket, ORDER_COMMENT));
       }
       FileClose(fh3);
    }
    
-   string dealsFile = dateStr + "-not_from_globals_AllHistoryDeals.txt";
-   int fh4 = FileOpen(dealsFile, FILE_WRITE | FILE_TXT);
+   string dealsFile = dateStr + "-not_from_globals_AllHistoryDeals.csv";
+   int fh4 = FileOpen(dealsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fh4 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + dealsFile);
    {
+      FileWrite(fh4, "ticket", "symbol", "magic", "time", "entry", "type", "reason", "volume", "price", "profit", "ticketOrder", "comment");
       int totalDeals = HistoryDealsTotal();
       for(int i=0; i<totalDeals; i++)
       {
@@ -1197,18 +1196,17 @@ void WriteDailySummary()
          datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
          if(dealTime < dateWhenAlgoTradeStarted) continue;
          
-         FileWrite(fh4, "ticket=" + IntegerToString((long)ticket) + 
-                   " symbol=" + HistoryDealGetString(ticket, DEAL_SYMBOL) + 
-                   " magic=" + IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_MAGIC)) +
-                   " time=" + TimeToString((datetime)HistoryDealGetInteger(ticket, DEAL_TIME), TIME_DATE|TIME_SECONDS) +
-                   " entry=" + EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)) +
-                   " type=" + EnumToString((ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE)) + 
-                   " reason=" + EnumToString((ENUM_DEAL_REASON)HistoryDealGetInteger(ticket, DEAL_REASON)) +
-                   " volume=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2) + 
-                   " price=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits) + 
-                   " profit=" + DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2) + 
-                   " ticketOrder=" + IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_ORDER)) +
-                   " comment=" + HistoryDealGetString(ticket, DEAL_COMMENT));
+         FileWrite(fh4, IntegerToString((long)ticket), HistoryDealGetString(ticket, DEAL_SYMBOL),
+                   IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_MAGIC)),
+                   TimeToString((datetime)HistoryDealGetInteger(ticket, DEAL_TIME), TIME_DATE|TIME_SECONDS),
+                   EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)),
+                   EnumToString((ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE)),
+                   EnumToString((ENUM_DEAL_REASON)HistoryDealGetInteger(ticket, DEAL_REASON)),
+                   DoubleToString(HistoryDealGetDouble(ticket, DEAL_VOLUME), 2),
+                   DoubleToString(HistoryDealGetDouble(ticket, DEAL_PRICE), _Digits),
+                   DoubleToString(HistoryDealGetDouble(ticket, DEAL_PROFIT), 2),
+                   IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_ORDER)),
+                   HistoryDealGetString(ticket, DEAL_COMMENT));
       }
       FileClose(fh4);
    }
@@ -1225,35 +1223,23 @@ void WriteTradeLog(const string tradeType, const string eventType, datetime even
    string fname = BuildTradeLogFileName(tradeType, eventTime);
    if(StringLen(fname) == 0) return;
 
-   int fh = OpenOrCreateForAppend(fname);
+   double bal = AccountInfoDouble(ACCOUNT_BALANCE);
+   double eq  = AccountInfoDouble(ACCOUNT_EQUITY);
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fh == INVALID_HANDLE)
       FatalError("WriteTradeLog: could not open " + fname);
-   {
-      string acct = StringFormat("bal=%.2f eq=%.2f", AccountInfoDouble(ACCOUNT_BALANCE), AccountInfoDouble(ACCOUNT_EQUITY));
-      string line = "time=" + TimeToString(eventTime, TIME_DATE | TIME_SECONDS) + " " + acct;
-      if(StringLen(orderKind) > 0) line += " " + orderKind;
-      if(orderPrice > 0)
-         line += " orderPrice=" + DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits);
-      line += " " + eventType;
-      if(tpPrice > 0 && slPrice > 0)
-         line += " tp=" + DoubleToString(NormalizeDouble(tpPrice, _Digits), _Digits) +
-                 " sl=" + DoubleToString(NormalizeDouble(slPrice, _Digits), _Digits);
-      if(expirationMinutes > 0)
-         line += " exp=" + IntegerToString(expirationMinutes);
-      if(orderTicket > 0)
-         line += " orderTicket=" + IntegerToString(orderTicket);
-      if(dealTicket > 0)
-         line += " dealTicket=" + IntegerToString(dealTicket);
-      if(positionTicket > 0)
-         line += " positionTicket=" + IntegerToString(positionTicket);
-      if(dealReason != (ENUM_DEAL_REASON)0)
-         line += " dealReason=" + IntegerToString((int)dealReason);
-      if(StringLen(comment) > 0)
-         line += " comment=" + comment;
-      line += " magic=" + IntegerToString((long)magic);
-      FileWrite(fh, line);
-      FileClose(fh);
-   }
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) == 0)
+      FileWrite(fh, "time", "balance", "equity", "orderKind", "orderPrice", "eventType", "tp", "sl", "exp", "orderTicket", "dealTicket", "positionTicket", "dealReason", "comment", "magic");
+   FileWrite(fh, TimeToString(eventTime, TIME_DATE|TIME_SECONDS), DoubleToString(bal, 2), DoubleToString(eq, 2),
+             orderKind, (orderPrice > 0 ? DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits) : ""), eventType,
+             (tpPrice > 0 ? DoubleToString(NormalizeDouble(tpPrice, _Digits), _Digits) : ""), (slPrice > 0 ? DoubleToString(NormalizeDouble(slPrice, _Digits), _Digits) : ""),
+             (expirationMinutes > 0 ? IntegerToString(expirationMinutes) : ""),
+             (orderTicket > 0 ? IntegerToString((long)orderTicket) : ""), (dealTicket > 0 ? IntegerToString((long)dealTicket) : ""), (positionTicket > 0 ? IntegerToString((long)positionTicket) : ""),
+             (dealReason != (ENUM_DEAL_REASON)0 ? IntegerToString((int)dealReason) : ""), comment, IntegerToString((long)magic));
+   FileClose(fh);
 }
 
 //+------------------------------------------------------------------+
@@ -1812,7 +1798,7 @@ void OnTimer()
       if((inLogWindow || catchUpWindow) && g_barsInDay > 0)
       {
          // Daily summary (Day_activeLevels, EOD account, AllHistoryOrders, AllHistoryDeals) — once per day when file missing
-         if(!FileIsExist(dateStr + "-Day_activeLevels.txt"))
+         if(!FileIsExist(dateStr + "-Day_activeLevels.csv"))
             WriteDailySummary();
 
          string logName = dateStr + "_testing_pullinghistory.csv";
@@ -1873,76 +1859,60 @@ void OnTimer()
             }
          }
 
-         // Per-level files (only once per file per day; if missing, write again)
+         // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
          int recentPriceArgument = 5;
          for(int e = 0; e < g_levelsExpandedCount; e++)
          {
-            string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, _Digits) + "_" + g_levelsExpanded[e].tag + ".txt";
+            string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, _Digits) + "_" + g_levelsExpanded[e].tag + ".csv";
             if(!FileIsExist(levelFile))
             {
-               int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
+               int fhL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
                if(fhL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFile);
+               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange");
+               double lvl = g_levelsExpanded[e].levelPrice;
+               for(int k = 0; k < g_levelsExpanded[e].count; k++)
                {
-                  double lvl = g_levelsExpanded[e].levelPrice;
-                  for(int k = 0; k < g_levelsExpanded[e].count; k++)
-                  {
-                     string highestUp   = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, true);
-                     string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
-                     FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
-                        " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
-                        " O=", DoubleToString(g_m1Rates[k].open, _Digits),
-                        " H=", DoubleToString(g_m1Rates[k].high, _Digits),
-                        " L=", DoubleToString(g_m1Rates[k].low, _Digits),
-                        " C=", DoubleToString(g_m1Rates[k].close, _Digits),
-                        " breaksLevelDown=", (g_breaksLevelDown[e][k] ? "true" : "false"),
-                        " breaksLevelUpward=", (g_breaksLevelUpward[e][k] ? "true" : "false"),
-                        " HighestDiffUp_rangeArg=", highestUp,
-                        " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
-                        " HighestDiffDown_rangeArg=", highestDown,
-                        " HighestDiffDownRange=", IntegerToString(recentPriceArgument));
-                  }
-                  FileClose(fhL);
+                  string highestUp   = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, true);
+                  string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
+                  FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
+                     DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
+                     DoubleToString(g_m1Rates[k].open, _Digits), DoubleToString(g_m1Rates[k].high, _Digits), DoubleToString(g_m1Rates[k].low, _Digits), DoubleToString(g_m1Rates[k].close, _Digits),
+                     (g_breaksLevelDown[e][k] ? "true" : "false"), (g_breaksLevelUpward[e][k] ? "true" : "false"),
+                     highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument));
                }
+               FileClose(fhL);
             }
          }
-         // Today RTH open: separate file from g_todayRTHopen* (bars from 15:30 only)
+         // Today RTH open: separate file from g_todayRTHopen* (bars from 15:30 only). MT5 CSV with headers.
          if(g_todayRTHopenCount > 0)
          {
-            string levelFileRTH = dateStr + "_testinglevelsplus_" + DoubleToString(g_todayRTHopenPrice, _Digits) + "_todayRTHopen.txt";
+            string levelFileRTH = dateStr + "_testinglevelsplus_" + DoubleToString(g_todayRTHopenPrice, _Digits) + "_todayRTHopen.csv";
             if(!FileIsExist(levelFileRTH))
             {
-               int fhL = FileOpen(levelFileRTH, FILE_WRITE | FILE_TXT);
+               int fhL = FileOpen(levelFileRTH, FILE_WRITE | FILE_CSV | FILE_ANSI);
                if(fhL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFileRTH);
+               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange");
+               double lvl = g_todayRTHopenPrice;
+               for(int k = 0; k < g_todayRTHopenCount; k++)
                {
-                  double lvl = g_todayRTHopenPrice;
-                  for(int k = 0; k < g_todayRTHopenCount; k++)
-                  {
-                     datetime bt = g_todayRTHopenTimes[k];
-                     int kb = -1;
-                     for(int j = 0; j < g_barsInDay; j++)
-                        if(g_m1Rates[j].time == bt) { kb = j; break; }
-                     if(kb < 0) continue;
-                     bool breakDown   = (g_m1Rates[kb].open > lvl && g_m1Rates[kb].close < lvl);
-                     bool breakUpward = (g_m1Rates[kb].open < lvl && g_m1Rates[kb].close > lvl);
-                     string highestUp   = GetHighestDiffInWindowString(lvl, kb, recentPriceArgument, true);
-                     string highestDown = GetHighestDiffInWindowString(lvl, kb, recentPriceArgument, false);
-                     FileWrite(fhL, TimeToString(g_todayRTHopenTimes[k], TIME_DATE|TIME_MINUTES),
-                        " newway_Diff_CloseToLevel=", DoubleToString(g_todayRTHopenDiffs[k], _Digits),
-                        " O=", DoubleToString(g_m1Rates[kb].open, _Digits),
-                        " H=", DoubleToString(g_m1Rates[kb].high, _Digits),
-                        " L=", DoubleToString(g_m1Rates[kb].low, _Digits),
-                        " C=", DoubleToString(g_m1Rates[kb].close, _Digits),
-                        " breaksLevelDown=", (breakDown ? "true" : "false"),
-                        " breaksLevelUpward=", (breakUpward ? "true" : "false"),
-                        " HighestDiffUp_rangeArg=", highestUp,
-                        " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
-                        " HighestDiffDown_rangeArg=", highestDown,
-                        " HighestDiffDownRange=", IntegerToString(recentPriceArgument));
-                  }
-                  FileClose(fhL);
+                  datetime bt = g_todayRTHopenTimes[k];
+                  int kb = -1;
+                  for(int j = 0; j < g_barsInDay; j++)
+                     if(g_m1Rates[j].time == bt) { kb = j; break; }
+                  if(kb < 0) continue;
+                  bool breakDown   = (g_m1Rates[kb].open > lvl && g_m1Rates[kb].close < lvl);
+                  bool breakUpward = (g_m1Rates[kb].open < lvl && g_m1Rates[kb].close > lvl);
+                  string highestUp   = GetHighestDiffInWindowString(lvl, kb, recentPriceArgument, true);
+                  string highestDown = GetHighestDiffInWindowString(lvl, kb, recentPriceArgument, false);
+                  FileWrite(fhL, TimeToString(g_todayRTHopenTimes[k], TIME_DATE|TIME_MINUTES),
+                     DoubleToString(g_todayRTHopenDiffs[k], _Digits),
+                     DoubleToString(g_m1Rates[kb].open, _Digits), DoubleToString(g_m1Rates[kb].high, _Digits), DoubleToString(g_m1Rates[kb].low, _Digits), DoubleToString(g_m1Rates[kb].close, _Digits),
+                     (breakDown ? "true" : "false"), (breakUpward ? "true" : "false"),
+                     highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument));
                }
+               FileClose(fhL);
             }
          }
       }
@@ -2065,10 +2035,16 @@ void FinalizeCurrentCandle()
       if(allCandlesFileHandle != INVALID_HANDLE)
          FileClose(allCandlesFileHandle);
 
-      string allFileName = dateStr + "-AllCandlesLog_Timer1.txt";
-      allCandlesFileHandle = OpenOrCreateForAppend(allFileName);
-      if(allCandlesFileHandle == INVALID_HANDLE)
+      string allFileName = dateStr + "-AllCandlesLog_Timer1.csv";
+      int fhAll = FileOpen(allFileName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+      if(fhAll == INVALID_HANDLE)
+         fhAll = FileOpen(allFileName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+      if(fhAll == INVALID_HANDLE)
          FatalError("FinalizeCurrentCandle: could not open " + allFileName);
+      FileSeek(fhAll, 0, SEEK_END);
+      if(FileTell(fhAll) == 0)
+         FileWrite(fhAll, "time", "O", "H", "L", "C");
+      allCandlesFileHandle = fhAll;
       allCandlesFileDate = candleDay;
    }
 
@@ -2124,12 +2100,18 @@ void FinalizeCurrentCandle()
             if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
                FileClose(levels[i].logRawEv_fileHandle);
 
-            string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.txt", 
+            string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.csv", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
-            levels[i].logRawEv_fileHandle = OpenOrCreateForAppend(araFile);
-            if(levels[i].logRawEv_fileHandle == INVALID_HANDLE)
+            int fhAra = FileOpen(araFile, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fhAra == INVALID_HANDLE)
+               fhAra = FileOpen(araFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fhAra == INVALID_HANDLE)
                FatalError("FinalizeCurrentCandle: could not open " + araFile);
+            FileSeek(fhAra, 0, SEEK_END);
+            if(FileTell(fhAra) == 0)
+               FileWrite(fhAra, "time", "level", "O", "H", "low", "C", "diff_CloseToLevel", "DayBias", "Contact", "ContactCount", "BounceCount", "CandlesPassedSinceLastBounce", "CandlesBreakLevelCount", "RecoverCount");
+            levels[i].logRawEv_fileHandle = fhAra;
          }
 
          // OHLC values
@@ -2179,44 +2161,39 @@ void FinalizeCurrentCandle()
          }
          levels[i].lastCandleInContact = in_contact;
 
-         // --- Write Arawevents
+         // --- Write Arawevents (CSV row)
          if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
          {
             FileWrite(levels[i].logRawEv_fileHandle,
-               "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
-               " L: ", lvl,
-               " O: ", NormalizeDouble(candle_open,_Digits),
-               " H: ", NormalizeDouble(candle_high,_Digits),
-               " L: ", NormalizeDouble(candle_low,_Digits),
-               " C: ", NormalizeDouble(candle_close,_Digits),
-               " Diff_CloseToLevel: ", NormalizeDouble(diffCloseToLevel,_Digits),
-               " DayBias: ", (levels[i].dailyBias>0 ? "bias_long" : "bias_short"),
-               " Contact: ", (in_contact ? "in_contact" : "no_contact"),
-               " ContactCount: ", levels[i].approxContactCount,
-               ", BounceCount: ", levels[i].bounceCount,
-               ", CandlesPassedSinceLastBounce: ", levels[i].candlesPassedSinceLastBounce,
-               ", CandlesBreakLevelCount: ", levels[i].candlesBreakLevelCount,
-               ", RecoverCount: ", levels[i].recoverCount);
+               TimeToString(current_candle_time, TIME_DATE|TIME_MINUTES),
+               DoubleToString(lvl, _Digits),
+               DoubleToString(candle_open, _Digits), DoubleToString(candle_high, _Digits), DoubleToString(candle_low, _Digits), DoubleToString(candle_close, _Digits),
+               DoubleToString(diffCloseToLevel, _Digits),
+               (levels[i].dailyBias > 0 ? "bias_long" : "bias_short"),
+               (in_contact ? "in_contact" : "no_contact"),
+               IntegerToString(levels[i].approxContactCount),
+               IntegerToString(levels[i].bounceCount),
+               IntegerToString(levels[i].candlesPassedSinceLastBounce),
+               IntegerToString(levels[i].candlesBreakLevelCount),
+               IntegerToString(levels[i].recoverCount));
          }
 
          // --- Write per-level file if physically touched
          if(physicallyTouched)
          {
-            string lvlFile = StringFormat("%s-%s_week%s_%s_ARawAContact.txt", 
+            string lvlFile = StringFormat("%s-%s_week%s_%s_ARawAContact.csv", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl, _Digits));
 
-            int fh = OpenOrCreateForAppend(lvlFile);
+            int fh = FileOpen(lvlFile, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fh == INVALID_HANDLE)
+               fh = FileOpen(lvlFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fh == INVALID_HANDLE)
                FatalError("FinalizeCurrentCandle: could not open " + lvlFile);
-            {
-               FileWrite(fh,
-                  "T: ", TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
-                  " O: ", candle_open,
-                  " H: ", candle_high,
-                  " L: ", candle_low,
-                  " C: ", candle_close);
-               FileClose(fh);
-            }
+            FileSeek(fh, 0, SEEK_END);
+            if(FileTell(fh) == 0)
+               FileWrite(fh, "time", "O", "H", "L", "C");
+            FileWrite(fh, TimeToString(current_candle_time, TIME_DATE|TIME_MINUTES), DoubleToString(candle_open, _Digits), DoubleToString(candle_high, _Digits), DoubleToString(candle_low, _Digits), DoubleToString(candle_close, _Digits));
+            FileClose(fh);
          }
 
          // --- Flow B: for each trade type, if time OK and price/levels OK, do this type (types 1,2 per level here; types 3,4 once after loop)
@@ -2326,11 +2303,8 @@ void FinalizeCurrentCandle()
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
       FileWrite(allCandlesFileHandle,
-         "T=" + TimeToString(current_candle_time,TIME_DATE|TIME_MINUTES),
-         " O=" + DoubleToString(candle_open,_Digits),
-         " H=" + DoubleToString(candle_high,_Digits),
-         " L=" + DoubleToString(candle_low,_Digits),
-         " C=" + DoubleToString(candle_close,_Digits));
+         TimeToString(current_candle_time, TIME_DATE|TIME_MINUTES),
+         DoubleToString(candle_open, _Digits), DoubleToString(candle_high, _Digits), DoubleToString(candle_low, _Digits), DoubleToString(candle_close, _Digits));
    }
 
    if(first_candle_time==0)
