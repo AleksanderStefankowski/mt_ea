@@ -280,10 +280,10 @@ DayProgressBar g_dayProgress[MAX_BARS_IN_DAY];
 //--- Static market context: previous trading day's PDO/PDH/PDL/PDC (pulled when we have at least one closed candle for current day; same for all bars of the day)
 struct StaticMarketContext
 {
-   double PDOpreviousDayRTHOpen;   // 15:30 open of previous trading day
+   double PDOpreviousDayRTHOpen;   // open of previous day's 1m candle 15:30 (M1)
    double PDHpreviousDayHigh;   // highest High of previous trading day
    double PDLpreviousDayLow;    // lowest Low of previous trading day
-   double PDCpreviousDayRTHClose;  // close of previous day's 22:00 candle
+   double PDCpreviousDayRTHClose;  // close of previous day's 1m candle 22:00 (M1)
    string PDdate;               // previous trading day date YYYY.MM.DD (for debugging)
 };
 StaticMarketContext g_staticMarketContext;
@@ -438,15 +438,15 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
    datetime prevDayStart = StructToTime(mtPrev);
    datetime prevDayEnd   = prevDayStart + 86400;
 
-   // PDO = 15:30 bar open, PDC = 22:00 bar close — use same bar indexing as chart (iBarShift + iOpen/iClose)
+   // PDO = open of 1m candle 15:30 (M1), PDC = close of 1m candle 22:00 (M1)
    datetime bar1530 = prevDayStart + 15*3600 + 30*60;
    datetime bar2200 = prevDayStart + 22*3600;
-   int shift1530 = iBarShift(_Symbol, PERIOD_M30, bar1530, false);
-   int shift2200 = iBarShift(_Symbol, PERIOD_M30, bar2200, false);
-   if(shift1530 >= 0)
-      g_staticMarketContext.PDOpreviousDayRTHOpen = iOpen(_Symbol, PERIOD_M30, shift1530);
-   if(shift2200 >= 0)
-      g_staticMarketContext.PDCpreviousDayRTHClose = iClose(_Symbol, PERIOD_M30, shift2200);
+   int shift1530M1 = iBarShift(_Symbol, PERIOD_M1, bar1530, false);
+   int shift2200M1 = iBarShift(_Symbol, PERIOD_M1, bar2200, false);
+   if(shift1530M1 >= 0)
+      g_staticMarketContext.PDOpreviousDayRTHOpen = iOpen(_Symbol, PERIOD_M1, shift1530M1);
+   if(shift2200M1 >= 0)
+      g_staticMarketContext.PDCpreviousDayRTHClose = iClose(_Symbol, PERIOD_M1, shift2200M1);
 
    // PDH/PDL = max High / min Low over the day — use same bar indexing as chart (iterate shifts for the day)
    int shiftDayStart = iBarShift(_Symbol, PERIOD_M30, prevDayStart, false);
@@ -1521,6 +1521,35 @@ void OnTimer()
       {
          UpdateStaticMarketContext(g_m1DayStart);
          g_staticMarketContextPulledForDate = g_m1DayStart;
+         // Add PD RTH Close as a level for today only if no level eligible for that day is within 2 of PD RTH Close
+         if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0)
+         {
+            string todayStr = TimeToString(g_m1DayStart, TIME_DATE);
+            double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+            bool PDrthLevel_tooClose_to_regularLevel = false;
+            for(int i = 0; i < g_levelsCount; i++)
+            {
+               if(g_levels[i].startStr > todayStr || todayStr > g_levels[i].endStr) continue;
+               if(MathAbs(g_levels[i].levelPrice - pdc) < 2.0) { PDrthLevel_tooClose_to_regularLevel = true; break; }
+            }
+            if(!PDrthLevel_tooClose_to_regularLevel)
+            {
+               string dayOfWeek = GetCalendarDayOfWeek(g_m1DayStart);
+               string categories = "daily," + (StringLen(dayOfWeek) > 0 ? dayOfWeek + "," : "") + "PDrthClose";
+               string baseName = todayStr + "_PDrthCloseLevel";
+               AddLevel(baseName, pdc, todayStr + " 00:00", todayStr + " 23:59", categories);
+               if(g_levelsCount < MAX_LEVEL_ROWS)
+               {
+                  g_levels[g_levelsCount].startStr   = todayStr;
+                  g_levels[g_levelsCount].endStr    = todayStr;
+                  g_levels[g_levelsCount].levelPrice = pdc;
+                  g_levels[g_levelsCount].categories = categories;
+                  g_levels[g_levelsCount].tag       = "PDrthCloseLevel";
+                  g_levelsCount++;
+                  UpdateDayM1AndLevelsExpanded();
+               }
+            }
+         }
       }
    }
    // --- Logging only in time window (performance)
@@ -1616,7 +1645,7 @@ void OnTimer()
          int recentPriceArgument = 5;
          for(int e = 0; e < g_levelsExpandedCount; e++)
          {
-            string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, 0) + "_" + g_levelsExpanded[e].tag + ".txt";
+            string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, _Digits) + "_" + g_levelsExpanded[e].tag + ".txt";
             if(!FileIsExist(levelFile))
             {
                int fhL = FileOpen(levelFile, FILE_WRITE | FILE_TXT);
@@ -1865,8 +1894,8 @@ void FinalizeCurrentCandle()
          // --- Write per-level file if physically touched
          if(physicallyTouched)
          {
-            string lvlFile = StringFormat("%s-%s_week%s_-%.0f_ARawAContact.txt", 
-                                         dateStr, levels[i].baseName, dateStr, lvl);
+            string lvlFile = StringFormat("%s-%s_week%s_%s_ARawAContact.txt", 
+                                         dateStr, levels[i].baseName, dateStr, DoubleToString(lvl, _Digits));
 
             int fh = OpenOrCreateForAppend(lvlFile);
             if(fh == INVALID_HANDLE)
