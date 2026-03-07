@@ -198,8 +198,9 @@ int g_levelsExpandedCount = 0;
 // Per (level e, bar k): candle breaks level down/up (from g_m1Rates OHLC); filled in UpdateDayM1AndLevelsExpanded; logged in testinglevelsplus
 bool g_breaksLevelDown[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];    // true if open > level AND close < level
 bool g_breaksLevelUpward[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];  // true if open < level AND close > level
-// Per (level e, bar k): number of consecutive bars (from k-1 backward) with all OHLC above level
+// Per (level e, bar k): number of consecutive bars (from k-1 backward) with all OHLC above/below level
 int  g_cleanStreakAbove[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+int  g_cleanStreakBelow[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 
 //--- Day M1 price data (updated every new bar; used by trade logic and by testing log)
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
@@ -639,14 +640,18 @@ string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars,
 }
 
 //+------------------------------------------------------------------+
-//| For a given level and bar index: count consecutive bars (barIndex-1, barIndex-2, ...) with all OHLC above level. |
+//| For a given level and bar index: count consecutive bars (barIndex-1, barIndex-2, ...) with all OHLC above or below level. |
+//| above=true: all OHLC > level. above=false: all OHLC < level. If current candle cuts the level, streak is 0. |
 //+------------------------------------------------------------------+
-int GetCleanStreakAboveForLevel(double level, int barIndex)
+int GetCleanStreakForLevel(double level, int barIndex, bool above)
 {
    int streak = 0;
    for(int j = barIndex - 1; j >= 0; j--)
    {
-      if(g_m1Rates[j].open > level && g_m1Rates[j].high > level && g_m1Rates[j].low > level && g_m1Rates[j].close > level)
+      bool clean = above
+         ? (g_m1Rates[j].open > level && g_m1Rates[j].high > level && g_m1Rates[j].low > level && g_m1Rates[j].close > level)
+         : (g_m1Rates[j].open < level && g_m1Rates[j].high < level && g_m1Rates[j].low < level && g_m1Rates[j].close < level);
+      if(clean)
          streak++;
       else
          break;
@@ -716,12 +721,15 @@ void UpdateDayM1AndLevelsExpanded()
          g_breaksLevelUpward[e][k] = (g_m1Rates[k].open < lp && g_m1Rates[k].close > lp);
       }
 
-   // Per (level e, bar k): cleanStreakAbove = count of consecutive bars (k-1, k-2, ...) with all OHLC above level
+   // Per (level e, bar k): cleanStreakAbove / cleanStreakBelow = count of consecutive bars (k-1, k-2, ...) with all OHLC above / below level
    for(int e = 0; e < g_levelsExpandedCount; e++)
    {
       double lp = g_levelsExpanded[e].levelPrice;
       for(int k = 0; k < g_levelsExpanded[e].count; k++)
-         g_cleanStreakAbove[e][k] = GetCleanStreakAboveForLevel(lp, k);
+      {
+         g_cleanStreakAbove[e][k] = GetCleanStreakForLevel(lp, k, true);
+         g_cleanStreakBelow[e][k] = GetCleanStreakForLevel(lp, k, false);
+      }
    }
 
    // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:59-22:00)
@@ -1885,7 +1893,7 @@ void OnTimer()
                int fhL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
                if(fhL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFile);
-               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange");
+               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange");
                double lvl = g_levelsExpanded[e].levelPrice;
                for(int k = 0; k < g_levelsExpanded[e].count; k++)
                {
@@ -1895,7 +1903,7 @@ void OnTimer()
                      DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
                      DoubleToString(g_m1Rates[k].open, _Digits), DoubleToString(g_m1Rates[k].high, _Digits), DoubleToString(g_m1Rates[k].low, _Digits), DoubleToString(g_m1Rates[k].close, _Digits),
                      (g_breaksLevelDown[e][k] ? "true" : "false"), (g_breaksLevelUpward[e][k] ? "true" : "false"),
-                     IntegerToString(GetCleanStreakAboveForLevel(lvl, k)),
+                     IntegerToString(GetCleanStreakForLevel(lvl, k, true)), IntegerToString(GetCleanStreakForLevel(lvl, k, false)),
                      highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument));
                }
                FileClose(fhL);
