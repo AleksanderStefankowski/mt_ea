@@ -215,6 +215,28 @@ double   g_todayRTHopenDiffs[];
 datetime g_todayRTHopenTimes[];
 int      g_todayRTHopenCount = 0;
 
+//--- Day stat: open gap down (RTH open < PD RTH close). Set once after 21:30 candle; logged per day and in summary.
+bool     dayStat_day_had_OpenGapDown_bool = false;
+double   dayStat_openGapDown_percentageFill = 0.0;  // % of gap range (PD RTH close ↔ today RTH open) filled by day's H/L; 0..100
+double   dayStat_gapDiff = 0.0;   // debug: range size (top - bottom)
+double   dayStat_rthHigh = 0.0;   // debug: RTH session highest high
+double   dayStat_rthLow  = 0.0;   // debug: RTH session lowest low
+int      dayStat_totalDays = 0;
+int      dayStat_daysWithGapDown = 0;
+int      dayStat_daysWithoutGapDown = 0;
+double   dayStat_gapDown_fillPercentSum = 0.0;  // sum of percentage_gap_filled for gap-down days (for avg)
+int      dayStat_daysWithGapDown_20fill = 0;   // gap-down days with percentage_gap_filled >= 20
+int      dayStat_daysWithGapDown_25fill = 0;   // gap-down days with percentage_gap_filled >= 25
+int      dayStat_daysWithGapDown_30fill = 0;   // gap-down days with percentage_gap_filled >= 30
+int      dayStat_daysWithGapDown_33fill = 0;   // gap-down days with percentage_gap_filled >= 33
+int      dayStat_daysWithGapDown_40fill = 0;   // gap-down days with percentage_gap_filled >= 40
+int      dayStat_daysWithGapDown_50fill = 0;   // gap-down days with percentage_gap_filled >= 50
+int      dayStat_daysWithGapDown_60fill = 0;   // gap-down days with percentage_gap_filled >= 60
+int      dayStat_daysWithGapDown_75fill = 0;   // gap-down days with percentage_gap_filled >= 75
+int      dayStat_daysWithGapDown_90fill = 0;   // gap-down days with percentage_gap_filled >= 90
+int      dayStat_daysWithGapDown_100fill = 0;  // gap-down days with percentage_gap_filled >= 100
+datetime dayStat_lastLoggedDayStart = 0;  // avoid logging same day twice
+
 //--- Optional double (hasValue false = no value; used for RTH/ON high-low so far and for "never" in diff window).
 struct OptionalDouble { bool hasValue; double value; };
 
@@ -1387,6 +1409,101 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
 }
 
 //+------------------------------------------------------------------+
+//| If current day not yet logged and we have RTH open + PDC: compute dayStat, write per-day CSV, update totals. Return true if wrote. |
+//+------------------------------------------------------------------+
+bool TryLogDayStatForCurrentDay()
+{
+   if(g_barsInDay <= 0 || g_m1DayStart == 0 || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0 || dayStat_lastLoggedDayStart == g_m1DayStart)
+      return false;
+   double rthOpen = GetRTHopenCurrentDay();
+   double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+   dayStat_day_had_OpenGapDown_bool = (rthOpen < pdc);
+
+   // Range from the two numbers (higher = top, lower = bottom); % gap filled = share of range touched by RTH session H/L only
+   double range_top    = MathMax(pdc, rthOpen);
+   double range_bottom = MathMin(pdc, rthOpen);
+   double range_size   = range_top - range_bottom;
+
+   double highestHigh = -1e300, lowestLow = 1e300;
+   bool hasRTH = false;
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      if(g_session[k] != "RTH") continue;
+      hasRTH = true;
+      if(g_m1Rates[k].high > highestHigh) highestHigh = g_m1Rates[k].high;
+      if(g_m1Rates[k].low  < lowestLow)  lowestLow  = g_m1Rates[k].low;
+   }
+   if(!hasRTH || range_size <= 0.0)
+      dayStat_openGapDown_percentageFill = (range_size <= 0.0 ? 100.0 : 0.0);
+   else
+   {
+      double overlap_bottom = MathMax(range_bottom, lowestLow);
+      double overlap_top    = MathMin(range_top, highestHigh);
+      double filled_points  = MathMax(0.0, overlap_top - overlap_bottom);
+      dayStat_openGapDown_percentageFill = MathMin(100.0, (filled_points / range_size) * 100.0);
+   }
+   dayStat_gapDiff = range_size;
+   dayStat_rthHigh = hasRTH ? highestHigh : 0.0;
+   dayStat_rthLow  = hasRTH ? lowestLow  : 0.0;
+
+   string dateStrStat = TimeToString(g_m1DayStart, TIME_DATE);
+   string dayStatLogName = dateStrStat + "_dayStat_log.csv";
+   int fhDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fhDay != INVALID_HANDLE)
+   {
+      FileWrite(fhDay, "date", "dayStat_day_had_OpenGapDown_bool", "RTHopen", "PD_RTH_Close", "percentage_gap_filled", "gapDiff", "rthHigh", "rthLow");
+      FileWrite(fhDay, dateStrStat, (dayStat_day_had_OpenGapDown_bool ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits));
+      FileClose(fhDay);
+   }
+
+   dayStat_totalDays++;
+   if(dayStat_day_had_OpenGapDown_bool)
+   {
+      dayStat_daysWithGapDown++;
+      dayStat_gapDown_fillPercentSum += dayStat_openGapDown_percentageFill;
+      if(dayStat_openGapDown_percentageFill >= 20.0) dayStat_daysWithGapDown_20fill++;
+      if(dayStat_openGapDown_percentageFill >= 25.0) dayStat_daysWithGapDown_25fill++;
+      if(dayStat_openGapDown_percentageFill >= 30.0) dayStat_daysWithGapDown_30fill++;
+      if(dayStat_openGapDown_percentageFill >= 33.0) dayStat_daysWithGapDown_33fill++;
+      if(dayStat_openGapDown_percentageFill >= 40.0) dayStat_daysWithGapDown_40fill++;
+      if(dayStat_openGapDown_percentageFill >= 50.0) dayStat_daysWithGapDown_50fill++;
+      if(dayStat_openGapDown_percentageFill >= 60.0) dayStat_daysWithGapDown_60fill++;
+      if(dayStat_openGapDown_percentageFill >= 75.0) dayStat_daysWithGapDown_75fill++;
+      if(dayStat_openGapDown_percentageFill >= 90.0) dayStat_daysWithGapDown_90fill++;
+      if(dayStat_openGapDown_percentageFill >= 100.0) dayStat_daysWithGapDown_100fill++;
+   }
+   else
+      dayStat_daysWithoutGapDown++;
+   dayStat_lastLoggedDayStart = g_m1DayStart;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Write dayStat summary CSV (totalDays, daysWithGapDown, daysWithoutGapDown). Recalculate at 21:35 so current day is included. |
+//+------------------------------------------------------------------+
+void WriteDayStatSummaryCsv()
+{
+   int fhSum = FileOpen("dayStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fhSum != INVALID_HANDLE)
+   {
+      double avgFill = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
+      double pct20 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_20fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct25 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_25fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct30 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_30fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct33 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_33fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct40 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_40fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct50 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_50fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct60 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_60fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct75 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_75fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct90 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_90fill / (double)dayStat_daysWithGapDown) : 0.0;
+      double pct100 = (dayStat_daysWithGapDown > 0) ? (100.0 * (double)dayStat_daysWithGapDown_100fill / (double)dayStat_daysWithGapDown) : 0.0;
+      FileWrite(fhSum, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f");
+      FileWrite(fhSum, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFill, 2), DoubleToString(pct20, 4), DoubleToString(pct25, 4), DoubleToString(pct30, 4), DoubleToString(pct33, 4), DoubleToString(pct40, 4), DoubleToString(pct50, 4), DoubleToString(pct60, 4), DoubleToString(pct75, 4), DoubleToString(pct90, 4), DoubleToString(pct100, 4));
+      FileClose(fhSum);
+   }
+}
+
+//+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
    EventKillTimer();
@@ -1458,6 +1575,13 @@ void OnTimer()
                    TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
          FileClose(fh);
       }
+   }
+
+   // At 21:35: ensure current day is in dayStat (if missed at 21:30), then recalculate summary CSV so it always includes current day
+   if(mt.hour == 21 && mt.min == 35 && g_barsInDay > 0)
+   {
+      TryLogDayStatForCurrentDay();
+      WriteDayStatSummaryCsv();
    }
 
    // Candle-close detection: use chart period; bar that just closed = index 1 in history
@@ -1901,6 +2025,17 @@ void FinalizeCurrentCandle()
             AddLevel(baseName, candle_open, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
             // todayRTHopen is not added to g_levels; it uses separate g_todayRTHopen* storage filled in OnTimer
          }
+      }
+   }
+
+   // Day stat: once after 21:30 candle, set dayStat_day_had_OpenGapDown_bool (RTH open < PD RTH close) and write dayStat_log + dayStat_summaryLog
+   {
+      MqlDateTime mt;
+      TimeToStruct(current_candle_time, mt);
+      if(mt.hour == 21 && mt.min == 30)
+      {
+         if(TryLogDayStatForCurrentDay())
+            WriteDayStatSummaryCsv();
       }
    }
 
