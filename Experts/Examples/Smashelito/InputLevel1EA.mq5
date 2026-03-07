@@ -34,7 +34,7 @@ input int      Max_OrdersPerMagic = 1; // max open positions + pending orders wi
 input double   InpLotSize           = 0.01; // lot size for trade types
 input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (timer/server time)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
-input bool     InpTestingPullM1History = true;  // if true: at 21:58-22:00 write (date)_testing_pullinghistory.txt and testinglevelsplus files
+input bool     InpTestingPullM1History = true;  // if true: at 21:58-22:00 write (date)_testing_pullinghistory.csv and testinglevelsplus files
 input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 
@@ -1634,17 +1634,18 @@ void OnTimer()
    TimeToStruct(g_lastTimer1Time, mt);
    datetime today = g_lastTimer1Time - (g_lastTimer1Time % 86400);
 
-   // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37 (8 cols: time, liveBid, liveAsk, closed_candle_date, closed_O, closed_H, closed_L, closed_C)
-   // Closed candle from our M1 list (g_m1Rates) only; no log when g_barsInDay == 0.
+   // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37. CSV with headers: time, liveBid, liveAsk, closed_candle_time, closed_O, closed_H, closed_L, closed_C
    if(mt.hour == 21 && mt.min >= 35 && mt.min <= 37 && g_barsInDay > 0)
    {
       datetime closedTime = g_m1Rates[g_barsInDay - 1].time;
       double closedO = g_m1Rates[g_barsInDay - 1].open, closedH = g_m1Rates[g_barsInDay - 1].high, closedL = g_m1Rates[g_barsInDay - 1].low, closedC = g_m1Rates[g_barsInDay - 1].close;
-      string fname = TimeToString(today, TIME_DATE) + "_testing_liveprice_headers_are_time_liveBid_liveAsk.csv";
+      string fname = TimeToString(today, TIME_DATE) + "_testing_liveprice.csv";
       int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
       if(fh != INVALID_HANDLE)
       {
          FileSeek(fh, 0, SEEK_END);
+         if(FileTell(fh) == 0)
+            FileWrite(fh, "time", "liveBid", "liveAsk", "closed_candle_time", "closed_O", "closed_H", "closed_L", "closed_C");
          FileWrite(fh, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
                    TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
          FileClose(fh);
@@ -1654,6 +1655,7 @@ void OnTimer()
          fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
          if(fh == INVALID_HANDLE)
             FatalError("OnTimer: could not open liveprice CSV " + fname);
+         FileWrite(fh, "time", "liveBid", "liveAsk", "closed_candle_time", "closed_O", "closed_H", "closed_L", "closed_C");
          FileWrite(fh, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
                    TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
          FileClose(fh);
@@ -1813,51 +1815,36 @@ void OnTimer()
          if(!FileIsExist(dateStr + "-Day_activeLevels.txt"))
             WriteDailySummary();
 
-         string logName = dateStr + "_testing_pullinghistory.txt";
+         string logName = dateStr + "_testing_pullinghistory.csv";
 
-         // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again)
+         // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again). MT5 CSV with headers.
          if(!FileIsExist(logName))
          {
-            int fh = FileOpen(logName, FILE_WRITE | FILE_TXT);
+            int fh = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fh == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + logName);
+            FileWrite(fh, "time", "O", "H", "L", "C", "levelAboveH", "levelBelowL", "session",
+                     "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum",
+                     "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum",
+                     "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum",
+                     "ONhighSoFar", "ONlowSoFar", "rthHighSoFar", "rthLowSoFar",
+                     "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
+            for(int k = 0; k < g_barsInDay; k++)
             {
-               for(int k = 0; k < g_barsInDay; k++)
-               {
-                  if(!g_ONhighSoFarAtBar[k].hasValue || !g_ONlowSoFarAtBar[k].hasValue)
-                     FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(k) + " time=" + TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES));
-                  FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
-                     " O=", DoubleToString(g_m1Rates[k].open, _Digits),
-                     " H=", DoubleToString(g_m1Rates[k].high, _Digits),
-                     " L=", DoubleToString(g_m1Rates[k].low, _Digits),
-                     " C=", DoubleToString(g_m1Rates[k].close, _Digits),
-                     " levelAboveH=", DoubleToString(g_levelAboveH[k], 0),
-                     " levelBelowL=", DoubleToString(g_levelBelowL[k], 0),
-                     " session=", g_session[k],
-                     " dayWinRate=", DoubleToString(g_dayProgress[k].dayWinRate, 2),
-                     " dayTradesCount=", IntegerToString(g_dayProgress[k].dayTradesCount),
-                     " dayPointsSum=", DoubleToString(g_dayProgress[k].dayPointsSum, _Digits),
-                     " dayProfitSum=", DoubleToString(g_dayProgress[k].dayProfitSum, 2),
-                     " ONwinRate=", DoubleToString(g_dayProgress[k].ONwinRate, 2),
-                     " ONtradeCount=", IntegerToString(g_dayProgress[k].ONtradeCount),
-                     " ONpointsSum=", DoubleToString(g_dayProgress[k].ONpointsSum, _Digits),
-                     " ONprofitSum=", DoubleToString(g_dayProgress[k].ONprofitSum, 2),
-                     " RTHwinRate=", DoubleToString(g_dayProgress[k].RTHwinRate, 2),
-                     " RTHtradeCount=", IntegerToString(g_dayProgress[k].RTHtradeCount),
-                     " RTHpointsSum=", DoubleToString(g_dayProgress[k].RTHpointsSum, _Digits),
-                     " RTHprofitSum=", DoubleToString(g_dayProgress[k].RTHprofitSum, 2),
-                     " ONhighSoFar=", DoubleToString(g_ONhighSoFarAtBar[k].value, _Digits),
-                     " ONlowSoFar=", DoubleToString(g_ONlowSoFarAtBar[k].value, _Digits),
-                     " rthHighSoFar=", (g_rthHighSoFarAtBar[k].hasValue ? DoubleToString(g_rthHighSoFarAtBar[k].value, _Digits) : "false"),
-                     " rthLowSoFar=", (g_rthLowSoFarAtBar[k].hasValue ? DoubleToString(g_rthLowSoFarAtBar[k].value, _Digits) : "false"),
-                     " PDOpreviousDayRTHOpen=", DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits),
-                     " PDHpreviousDayHigh=", DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits),
-                     " PDLpreviousDayLow=", DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits),
-                     " PDCpreviousDayRTHClose=", DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits),
-                     " PDdate=", g_staticMarketContext.PDdate);
-               }
-               FileClose(fh);
+               if(!g_ONhighSoFarAtBar[k].hasValue || !g_ONlowSoFarAtBar[k].hasValue)
+                  FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(k) + " time=" + TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES));
+               string rthH = g_rthHighSoFarAtBar[k].hasValue ? DoubleToString(g_rthHighSoFarAtBar[k].value, _Digits) : "";
+               string rthL = g_rthLowSoFarAtBar[k].hasValue ? DoubleToString(g_rthLowSoFarAtBar[k].value, _Digits) : "";
+               FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
+                     DoubleToString(g_m1Rates[k].open, _Digits), DoubleToString(g_m1Rates[k].high, _Digits), DoubleToString(g_m1Rates[k].low, _Digits), DoubleToString(g_m1Rates[k].close, _Digits),
+                     DoubleToString(g_levelAboveH[k], 0), DoubleToString(g_levelBelowL[k], 0), g_session[k],
+                     DoubleToString(g_dayProgress[k].dayWinRate * 100.0, 0), IntegerToString(g_dayProgress[k].dayTradesCount), DoubleToString(g_dayProgress[k].dayPointsSum, _Digits), DoubleToString(g_dayProgress[k].dayProfitSum, 2),
+                     DoubleToString(g_dayProgress[k].ONwinRate * 100.0, 0), IntegerToString(g_dayProgress[k].ONtradeCount), DoubleToString(g_dayProgress[k].ONpointsSum, _Digits), DoubleToString(g_dayProgress[k].ONprofitSum, 2),
+                     DoubleToString(g_dayProgress[k].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[k].RTHtradeCount), DoubleToString(g_dayProgress[k].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[k].RTHprofitSum, 2),
+                     DoubleToString(g_ONhighSoFarAtBar[k].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[k].value, _Digits), rthH, rthL,
+                     DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
+            FileClose(fh);
          }
 
          // Trade results CSV: (date)_summaryZ_tradeResults_ALL_Day.csv (only once; if missing, write again)
