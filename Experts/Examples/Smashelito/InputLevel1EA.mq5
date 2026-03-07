@@ -192,11 +192,14 @@ struct LevelExpandedRow
    datetime times[];  // bar time per bar
 };
 #define MAX_LEVELS_EXPANDED 500
+#define MAX_BARS_IN_DAY 1500
 LevelExpandedRow g_levelsExpanded[MAX_LEVELS_EXPANDED];
 int g_levelsExpandedCount = 0;
+// Per (level e, bar k): candle breaks level down/up (from g_m1Rates OHLC); filled in UpdateDayM1AndLevelsExpanded; logged in testinglevelsplus
+bool g_breaksLevelDown[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];    // true if open > level AND close < level
+bool g_breaksLevelUpward[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];  // true if open < level AND close > level
 
 //--- Day M1 price data (updated every new bar; used by trade logic and by testing log)
-#define MAX_BARS_IN_DAY 1500
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
 int g_barsInDay = 0;
 datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
@@ -617,6 +620,15 @@ void UpdateDayM1AndLevelsExpanded()
       }
       g_levelsExpandedCount++;
    }
+
+   // Per (level e, bar k): breaksLevelDown / breaksLevelUpward from candle open/close vs level
+   for(int e = 0; e < g_levelsExpandedCount; e++)
+      for(int k = 0; k < g_levelsExpanded[e].count; k++)
+      {
+         double lp = g_levelsExpanded[e].levelPrice;
+         g_breaksLevelDown[e][k]   = (g_m1Rates[k].open > lp && g_m1Rates[k].close < lp);
+         g_breaksLevelUpward[e][k] = (g_m1Rates[k].open < lp && g_m1Rates[k].close > lp);
+      }
 
    // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:59-22:00)
    for(int k = 0; k < g_barsInDay; k++)
@@ -1618,6 +1630,12 @@ void OnTimer()
                      string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
                      FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
                         " newway_Diff_CloseToLevel=", DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
+                        " O=", DoubleToString(g_m1Rates[k].open, _Digits),
+                        " H=", DoubleToString(g_m1Rates[k].high, _Digits),
+                        " L=", DoubleToString(g_m1Rates[k].low, _Digits),
+                        " C=", DoubleToString(g_m1Rates[k].close, _Digits),
+                        " breaksLevelDown=", (g_breaksLevelDown[e][k] ? "true" : "false"),
+                        " breaksLevelUpward=", (g_breaksLevelUpward[e][k] ? "true" : "false"),
                         " HighestDiffUp_rangeArg=", highestUp,
                         " HighestDiffUpRange=", IntegerToString(recentPriceArgument),
                         " HighestDiffDown_rangeArg=", highestDown,
