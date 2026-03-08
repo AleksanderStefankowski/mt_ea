@@ -205,6 +205,15 @@ double g_belowPerc[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 int    g_overlapStreak[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 int    g_overlapC[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 double g_overlapPc[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+// Per (level e, bar k): trade history for this level as of bar k close (trades with endTime < bar k close); minute-by-minute tracking
+int    g_ONtradeCount_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+int    g_ONwins_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+double g_ONpointsSum_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+double g_ONprofitSum_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+int    g_RTHtradeCount_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+int    g_RTHwins_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+double g_RTHpointsSum_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+double g_RTHprofitSum_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 
 //--- Day M1 price data (updated every new bar; used by trade logic and by testing log)
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
@@ -1193,6 +1202,62 @@ void UpdateDayProgress()
 }
 
 //+------------------------------------------------------------------+
+//| Per (level e, bar k): aggregate trades whose level matches levelPrice and endTime < bar k close. Same frequency as trade results. |
+//+------------------------------------------------------------------+
+void UpdateLevelTradeStats()
+{
+   double tol = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   for(int e = 0; e < g_levelsTodayCount; e++)
+   {
+      int cnt = g_levelsExpanded[e].count;
+      for(int k = 0; k < cnt; k++)
+      {
+         g_ONtradeCount_L[e][k] = 0;
+         g_ONwins_L[e][k] = 0;
+         g_ONpointsSum_L[e][k] = 0.0;
+         g_ONprofitSum_L[e][k] = 0.0;
+         g_RTHtradeCount_L[e][k] = 0;
+         g_RTHwins_L[e][k] = 0;
+         g_RTHpointsSum_L[e][k] = 0.0;
+         g_RTHprofitSum_L[e][k] = 0.0;
+      }
+   }
+   for(int tr = 0; tr < g_tradeResultsCount; tr++)
+   {
+      TradeResult r = g_tradeResults[tr];
+      if(StringLen(r.level) == 0 || !r.foundOut) continue;
+      double lv = StringToDouble(r.level);
+      int e = -1;
+      for(int i = 0; i < g_levelsTodayCount; i++)
+      {
+         if(MathAbs(g_levelsExpanded[i].levelPrice - lv) < tol) { e = i; break; }
+      }
+      if(e < 0) continue;
+      string endSession = GetSessionForCandleTime(r.endTime);
+      int cnt = g_levelsExpanded[e].count;
+      for(int k = 0; k < cnt; k++)
+      {
+         datetime candleCloseTime = (k + 1 < cnt) ? g_levelsExpanded[e].times[k + 1] : (g_levelsExpanded[e].times[k] + 60);
+         if(r.endTime >= candleCloseTime) continue;
+         if(endSession == "ON")
+         {
+            g_ONtradeCount_L[e][k]++;
+            if(r.profit > 0) g_ONwins_L[e][k]++;
+            g_ONpointsSum_L[e][k] += r.priceDiff;
+            g_ONprofitSum_L[e][k] += r.profit;
+         }
+         else if(endSession == "RTH")
+         {
+            g_RTHtradeCount_L[e][k]++;
+            if(r.profit > 0) g_RTHwins_L[e][k]++;
+            g_RTHpointsSum_L[e][k] += r.priceDiff;
+            g_RTHprofitSum_L[e][k] += r.profit;
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Parse banned ranges string "startH,startM,endH,endM;..." into g_bannedRangesBuffer, set g_bannedRangesCount. |
 //+------------------------------------------------------------------+
 void ParseBannedRanges(const string s)
@@ -2063,6 +2128,9 @@ void OnTimer()
    // --- Per-candle day progress (trades closed by each candle close time)
    UpdateDayProgress();
 
+   // --- Per-level trade stats (trade results whose level matches levelPrice; ON/RTH by endTime)
+   UpdateLevelTradeStats();
+
    // --- Static market context: pull when we have at least one closed candle for current day and haven't pulled for that day yet. Set ONopen from first candle whenever we have bars.
    if(g_barsInDay > 0)
    {
@@ -2209,7 +2277,7 @@ void OnTimer()
                int fhL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
                if(fhL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFile);
-               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange", "ON_O_wasAboveL", "RTH_O_wasAboveL");
+               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange", "ON_O_wasAboveL", "RTH_O_wasAboveL", "ONtradeCount_L", "ONwinRate_L", "ONpointsSum_L", "ONprofitSum_L", "RTHtradeCount_L", "RTHwinRate_L", "RTHpointsSum_L", "RTHprofitSum_L");
                double lvl = g_levelsExpanded[e].levelPrice;
                double onOpen = g_m1Rates[0].open;
                double rthOpen = GetRTHopenCurrentDay();
@@ -2229,7 +2297,9 @@ void OnTimer()
                      IntegerToString(g_aboveCnt[e][k]), DoubleToString(g_abovePerc[e][k], 2), IntegerToString(g_belowCnt[e][k]), DoubleToString(g_belowPerc[e][k], 2),
                      IntegerToString(g_overlapStreak[e][k]), IntegerToString(g_overlapC[e][k]), DoubleToString(g_overlapPc[e][k], 2),
                      highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument),
-                     onAboveStr, rthAboveStr);
+                     onAboveStr, rthAboveStr,
+                     IntegerToString(g_ONtradeCount_L[e][k]), DoubleToString((g_ONtradeCount_L[e][k] > 0) ? (double)g_ONwins_L[e][k] / (double)g_ONtradeCount_L[e][k] * 100.0 : 0.0, 0), DoubleToString(g_ONpointsSum_L[e][k], _Digits), DoubleToString(g_ONprofitSum_L[e][k], 2),
+                     IntegerToString(g_RTHtradeCount_L[e][k]), DoubleToString((g_RTHtradeCount_L[e][k] > 0) ? (double)g_RTHwins_L[e][k] / (double)g_RTHtradeCount_L[e][k] * 100.0 : 0.0, 0), DoubleToString(g_RTHpointsSum_L[e][k], _Digits), DoubleToString(g_RTHprofitSum_L[e][k], 2));
                }
                FileClose(fhL);
             }
