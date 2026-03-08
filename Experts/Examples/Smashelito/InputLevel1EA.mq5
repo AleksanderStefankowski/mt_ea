@@ -1974,8 +1974,7 @@ void OnTimer()
       datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
       string dateStr = TimeToString(dayStart, TIME_DATE);
       bool inLogWindow = (minOfDay >= 21*60+58 && minOfDay <= 22*60+0);  // 21:58, 21:59, 22:00 (last bar may be 21:58 on Friday)
-      bool catchUpWindow = (minOfDay > 22*60+0 && minOfDay <= 23*60+59);  // past 22:00, same day: write if file missing
-      if((inLogWindow || catchUpWindow) && g_barsInDay > 0)
+      if(inLogWindow && g_barsInDay > 0)
       {
          // Daily summary (Day_activeLevels, EOD account, AllHistoryOrders, AllHistoryDeals) — once per day when file missing
          if(!FileIsExist(dateStr + "-Day_activeLevels.csv"))
