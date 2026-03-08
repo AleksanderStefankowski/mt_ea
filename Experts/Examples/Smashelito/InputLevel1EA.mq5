@@ -308,6 +308,9 @@ struct TradeResult
    long reason;           // DEAL_REASON_* from entry out; undefined when not found
    double volume;
    string bothComments;
+   string level;          // for now test: same as bothComments; later parsed from entry comment
+   string tp;            // for now test: same as bothComments; later parsed from entry comment
+   string sl;            // for now test: same as bothComments; later parsed from entry comment
    string session;        // ON|RTH|sleep from startTime (same logic as candle session)
    bool foundOut;
 };
@@ -1000,6 +1003,27 @@ void UpdateDayM1AndLevelsExpanded()
 }
 
 //+------------------------------------------------------------------+
+//| Build combined entry|exit comment string; no duplication.         |
+//+------------------------------------------------------------------+
+string BuildBothComments(const string &entryComment, const string &outComment, bool foundOut)
+{
+   if(foundOut)
+      return entryComment + "| " + outComment;
+   return entryComment + "| NOT_FOUND";
+}
+
+//+------------------------------------------------------------------+
+//| If bothComments contains "$", remove "$", split by " "; fill result[], return count. Else return 0. |
+//+------------------------------------------------------------------+
+int ChangeBothCommentsToArrayOfStrings(const string &bothComments, string &result[])
+{
+   if(StringFind(bothComments, "$") < 0) return 0;
+   string s = bothComments;
+   StringReplace(s, "$", "");
+   return StringSplit(s, ' ', result);
+}
+
+//+------------------------------------------------------------------+
 //| Load deals for current day, reject DEAL_TYPE_BALANCE, group by magic, pair IN/OUT into g_tradeResults. Call from loop2. |
 //+------------------------------------------------------------------+
 void UpdateTradeResultsForDay()
@@ -1076,7 +1100,18 @@ void UpdateTradeResultsForDay()
                r.priceDiff = r.priceStart - r.priceEnd;   // DEAL_TYPE_SELL
             r.profit    = g_dealProfit[o];
             r.reason    = g_dealReason[o];
-            r.bothComments = g_dealComment[g_inIdx[p]] + "| " + g_dealComment[o];
+            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[p]], g_dealComment[o], true);
+            r.bothComments = commentsStr;
+            if(StringFind(commentsStr, "$") < 0)
+               r.level = r.tp = r.sl = "";
+            else
+            {
+               string arr[];
+               ChangeBothCommentsToArrayOfStrings(commentsStr, arr);
+               r.level = (ArraySize(arr) > 0) ? arr[0] : "";
+               r.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
+               r.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
+            }
          }
          else
          {
@@ -1085,7 +1120,18 @@ void UpdateTradeResultsForDay()
             r.priceDiff = 0;
             r.profit    = 0;
             r.reason    = 0;
-            r.bothComments = g_dealComment[g_inIdx[p]] + "| NOT_FOUND";
+            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[p]], "", false);
+            r.bothComments = commentsStr;
+            if(StringFind(commentsStr, "$") < 0)
+               r.level = r.tp = r.sl = "";
+            else
+            {
+               string arr[];
+               ChangeBothCommentsToArrayOfStrings(commentsStr, arr);
+               r.level = (ArraySize(arr) > 0) ? arr[0] : "";
+               r.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
+               r.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
+            }
          }
          g_tradeResults[g_tradeResultsCount++] = r;
       }
@@ -2111,7 +2157,7 @@ void OnTimer()
             if(fhTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fhTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments");
+               FileWrite(fhTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
                for(int tr = 0; tr < g_tradeResultsCount; tr++)
                {
                   TradeResult r = g_tradeResults[tr];
@@ -2123,7 +2169,7 @@ void OnTimer()
                   FileWrite(fhTr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
                      r.session, IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
                      DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(r.volume, 2), r.bothComments);
+                     DoubleToString(r.volume, 2), r.bothComments, r.level, r.tp, r.sl);
                }
                FileClose(fhTr);
             }
@@ -2135,7 +2181,7 @@ void OnTimer()
             {
                FileSeek(fhSumTr, 0, SEEK_END);
                if(FileTell(fhSumTr) == 0)
-                  FileWrite(fhSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments");
+                  FileWrite(fhSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
                for(int tr = 0; tr < g_tradeResultsCount; tr++)
                {
                   TradeResult r = g_tradeResults[tr];
@@ -2147,7 +2193,7 @@ void OnTimer()
                   FileWrite(fhSumTr, dateStr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
                      r.session, IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
                      DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(r.volume, 2), r.bothComments);
+                     DoubleToString(r.volume, 2), r.bothComments, r.level, r.tp, r.sl);
                }
                FileClose(fhSumTr);
             }
@@ -2464,11 +2510,11 @@ void FinalizeCurrentCandle()
                double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
                
-               string orderComment = StringFormat("%d %d %.0f %.0f",
-                  (int)TRADE_TYPE_BUY_2ND_BOUNCE,
+               string orderComment = StringFormat("$%d %.0f %.0f %d",
                   (int)lvl,
                   T_buy2ndBounce_TPPips,
-                  T_buy2ndBounce_SLPips);
+                  T_buy2ndBounce_SLPips,
+                  (int)TRADE_TYPE_BUY_2ND_BOUNCE);
 
                datetime expirationTime = g_lastTimer1Time + 30 * 60;
                
@@ -2512,11 +2558,11 @@ void FinalizeCurrentCandle()
                double sl = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
                double tp = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
                
-               string orderComment = StringFormat("%d %d %.0f %.0f",
-                  (int)TRADE_TYPE_BUY_4TH_BOUNCE,
+               string orderComment = StringFormat("$%d %.0f %.0f %d",
                   (int)lvl,
                   T_buy4thBounce_TPPips,
-                  T_buy4thBounce_SLPips);
+                  T_buy4thBounce_SLPips,
+                  (int)TRADE_TYPE_BUY_4TH_BOUNCE);
 
                datetime expirationTime = g_lastTimer1Time + 30 * 60;
                
