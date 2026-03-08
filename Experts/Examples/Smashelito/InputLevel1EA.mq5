@@ -37,6 +37,7 @@ input int      MinuteForDailySummary = 30;   // minute of the hour for summary t
 input bool     InpTestingPullM1History = true;  // if true: at 21:58-22:00 write (date)_testing_pullinghistory.csv and testinglevelsplus files
 input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
+input double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 
 //--- Trade definition: buy_2nd_bounce (parameters only; entry rule below, no execution yet)
 //    Type: buy_limit. Open price = level + PriceOffsetPips. TP/SL in pips. Expiration used for manual cancel logic.
@@ -187,6 +188,7 @@ struct LevelExpandedRow
 {
    double levelPrice;
    string tag;
+   string categories;  // from CSV; used to exclude tertiary from break-check summary
    int    count;      // number of bars
    double diffs[];    // newway_Diff_CloseToLevel = close - levelPrice per bar
    datetime times[];  // bar time per bar
@@ -269,6 +271,22 @@ int      dayStat_daysWithGapUp_100fill = 0;
 int      dayStat_daysONH_tested = 0;   // days when rthHigh >= ONH
 int      dayStat_daysONL_tested = 0;   // days when rthLow <= ONL
 int      dayStat_daysONboth_tested = 0; // days when both ONH and ONL tested same day
+
+//--- Levels break check aggregate (all days, tertiary excluded): running sums for ON, RTHIB, RTHcnt; written at 22:00 to levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv
+double   g_agg_ONbreakDown_sumCandles = 0, g_agg_ONbreakDown_sumAvg = 0, g_agg_ONbreakDown_sumMed = 0;
+int      g_agg_ONbreakDown_n = 0;
+double   g_agg_ONbreakUp_sumCandles   = 0, g_agg_ONbreakUp_sumAvg   = 0, g_agg_ONbreakUp_sumMed   = 0;
+int      g_agg_ONbreakUp_n   = 0;
+double   g_agg_RTHbreakDown_sumCandles = 0, g_agg_RTHbreakDown_sumAvg = 0, g_agg_RTHbreakDown_sumMed = 0;
+int      g_agg_RTHbreakDown_n = 0;
+double   g_agg_RTHIBbreakDown_sumCandles = 0, g_agg_RTHIBbreakDown_sumAvg = 0, g_agg_RTHIBbreakDown_sumMed = 0;
+int      g_agg_RTHIBbreakDown_n = 0;
+double   g_agg_RTHcntbreakDown_sumCandles = 0, g_agg_RTHcntbreakDown_sumAvg = 0, g_agg_RTHcntbreakDown_sumMed = 0;
+int      g_agg_RTHcntbreakDown_n = 0;
+double   g_agg_RTHbreakUp_sumCandles   = 0, g_agg_RTHbreakUp_sumAvg   = 0, g_agg_RTHbreakUp_sumMed   = 0;
+int      g_agg_RTHbreakUp_n   = 0;
+datetime g_breakCheck_lastAggregatedDay = 0;  // only aggregate once per day
+int      g_breakCheck_daysCount = 0;          // number of days with at least one non-tertiary level (for summary daysCount column)
 
 //--- Optional double (hasValue false = no value; used for RTH/ON high-low so far and for "never" in diff window).
 struct OptionalDouble { bool hasValue; double value; };
@@ -459,6 +477,104 @@ double GetRTHopenCurrentDay()
          return g_m1Rates[k].open;
    FatalError("GetRTHopenCurrentDay: 15:30 candle not found for " + TimeToString(g_m1DayStart, TIME_DATE));
    return 0.0;  // unreachable
+}
+
+//+------------------------------------------------------------------+
+//| True if bar time (open time) is in RTHIB window: 15:30 to 16:30 inclusive. |
+//+------------------------------------------------------------------+
+bool IsBarRTHIB(datetime barTime)
+{
+   MqlDateTime mt;
+   TimeToStruct(barTime, mt);
+   int minOfDay = mt.hour * 60 + mt.min;
+   return (minOfDay >= 15*60+30 && minOfDay <= 16*60+30);
+}
+
+//+------------------------------------------------------------------+
+//| True if bar time (open time) is in RTHcnt window: 16:31 onward. |
+//+------------------------------------------------------------------+
+bool IsBarRTHcnt(datetime barTime)
+{
+   MqlDateTime mt;
+   TimeToStruct(barTime, mt);
+   int minOfDay = mt.hour * 60 + mt.min;
+   return (minOfDay >= 16*60+31);
+}
+
+//+------------------------------------------------------------------+
+//| Median of first n elements of arr[]. Resizes arr to n and sorts in place. Returns 0 if n<=0. |
+//+------------------------------------------------------------------+
+double GetMedianDoubleArray(double &arr[], int n)
+{
+   if(n <= 0) return 0.0;
+   ArrayResize(arr, n);
+   ArraySort(arr);
+   if(n % 2 == 1) return arr[n/2];
+   return (arr[n/2 - 1] + arr[n/2]) / 2.0;
+}
+
+//+------------------------------------------------------------------+
+//| Session type for break-down stats (first close above level, then distances). |
+//+------------------------------------------------------------------+
+enum BREAKCHECK_SESSION { BREAKCHECK_ON, BREAKCHECK_RTHIB, BREAKCHECK_RTHCNT };
+
+struct BreakCheckSessionResult
+{
+   int    firstCloseAbove;
+   int    n;
+   double avg;
+   double median;
+   string rangeStartStr;
+};
+
+//+------------------------------------------------------------------+
+//| True if bar index k is in the given break-check session. |
+//+------------------------------------------------------------------+
+bool BarInSession(int k, BREAKCHECK_SESSION sessionType)
+{
+   switch(sessionType)
+   {
+      case BREAKCHECK_ON:     return (g_session[k] == "ON");
+      case BREAKCHECK_RTHIB:  return IsBarRTHIB(g_m1Rates[k].time);
+      case BREAKCHECK_RTHCNT: return IsBarRTHcnt(g_m1Rates[k].time);
+      default: return false;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| First close above level in session, then collect break-down distances (low < level, d <= maxDist); return n, avg, median, rangeStartStr. |
+//+------------------------------------------------------------------+
+BreakCheckSessionResult BreakCheckSessionStats(double lvl, double maxDist, BREAKCHECK_SESSION sessionType)
+{
+   BreakCheckSessionResult r;
+   r.firstCloseAbove = g_barsInDay;
+   r.n = 0;
+   r.avg = 0.0;
+   r.median = 0.0;
+   r.rangeStartStr = "";
+
+   for(int k = 0; k < g_barsInDay; k++)
+   {
+      if(!BarInSession(k, sessionType)) continue;
+      if(g_m1Rates[k].close > lvl) { r.firstCloseAbove = k; break; }
+   }
+
+   double values[];
+   ArrayResize(values, g_barsInDay);
+   double sum = 0.0;
+   for(int k = r.firstCloseAbove; k < g_barsInDay; k++)
+   {
+      if(!BarInSession(k, sessionType)) continue;
+      if(g_m1Rates[k].low >= lvl) continue;
+      double d = lvl - g_m1Rates[k].low;
+      if(d > maxDist) break;
+      if(d <= maxDist) { values[r.n++] = d; sum += d; }
+   }
+   r.avg    = (r.n > 0) ? sum / (double)r.n : 0.0;
+   r.median = GetMedianDoubleArray(values, r.n);
+   r.rangeStartStr = (r.firstCloseAbove < g_barsInDay) ? TimeToString(g_m1Rates[r.firstCloseAbove].time, TIME_DATE|TIME_MINUTES) : "";
+
+   return r;
 }
 
 //+------------------------------------------------------------------+
@@ -816,6 +932,7 @@ void UpdateDayM1AndLevelsExpanded()
       if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
       g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[i].levelPrice;
       g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[i].tag;
+      g_levelsExpanded[g_levelsTodayCount].categories = g_levels[i].categories;
       g_levelsExpanded[g_levelsTodayCount].count      = g_barsInDay;
       ArrayResize(g_levelsExpanded[g_levelsTodayCount].diffs, g_barsInDay);
       ArrayResize(g_levelsExpanded[g_levelsTodayCount].times, g_barsInDay);
@@ -2071,6 +2188,65 @@ void OnTimer()
                      onAboveStr, rthAboveStr);
                }
                FileClose(fhL);
+            }
+         }
+
+         // Levels break check: one row per level (21:58). Separate ON (til 15:30) and RTH (15:30 onward). Rows sorted by levelPrice.
+         string breakCheckFile = dateStr + "_levels_breakCheck_breakingDown.csv";
+         int fhBreak = FileOpen(breakCheckFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+         if(fhBreak != INVALID_HANDLE)
+         {
+            string cutoffStr = IntegerToString((int)MathRound(InpBreakCheckMaxDistPoints));
+            FileWrite(fhBreak, "levelPrice", "ONrangeStartTime", "ONcountCandles_" + cutoffStr, "ONaverage_" + cutoffStr, "ONmedian_" + cutoffStr, "RTHIBrangeStartTime", "RTHIBcountCandles_" + cutoffStr, "RTHIBaverage_" + cutoffStr, "RTHIBmedian_" + cutoffStr, "RTHcntrangeStartTime", "RTHcntcountCandles_" + cutoffStr, "RTHcntaverage_" + cutoffStr, "RTHcntmedian_" + cutoffStr);
+            bool accumulateToday = (g_m1DayStart != 0 && g_m1DayStart != g_breakCheck_lastAggregatedDay);
+            int order[];
+            ArrayResize(order, g_levelsTodayCount);
+            for(int i = 0; i < g_levelsTodayCount; i++) order[i] = i;
+            for(int i = 0; i < g_levelsTodayCount; i++)
+               for(int j = i + 1; j < g_levelsTodayCount; j++)
+                  if(g_levelsExpanded[order[j]].levelPrice < g_levelsExpanded[order[i]].levelPrice)
+                  { int t = order[i]; order[i] = order[j]; order[j] = t; }
+            for(int i = 0; i < g_levelsTodayCount; i++)
+            {
+               int e = order[i];
+               double lvl = g_levelsExpanded[e].levelPrice;
+               double maxDist = InpBreakCheckMaxDistPoints;  // always in price
+
+               BreakCheckSessionResult onRes    = BreakCheckSessionStats(lvl, maxDist, BREAKCHECK_ON);
+               BreakCheckSessionResult rthibRes = BreakCheckSessionStats(lvl, maxDist, BREAKCHECK_RTHIB);
+               BreakCheckSessionResult rthcntRes = BreakCheckSessionStats(lvl, maxDist, BREAKCHECK_RTHCNT);
+
+               FileWrite(fhBreak, DoubleToString(lvl, _Digits),
+                  onRes.rangeStartStr, IntegerToString(onRes.n), DoubleToString(onRes.avg, _Digits), DoubleToString(onRes.median, _Digits),
+                  rthibRes.rangeStartStr, IntegerToString(rthibRes.n), DoubleToString(rthibRes.avg, _Digits), DoubleToString(rthibRes.median, _Digits),
+                  rthcntRes.rangeStartStr, IntegerToString(rthcntRes.n), DoubleToString(rthcntRes.avg, _Digits), DoubleToString(rthcntRes.median, _Digits));
+               if(accumulateToday)
+               {
+                  bool excludeTertiary = (StringFind(g_levelsExpanded[e].categories, "tertiary") >= 0);
+                  if(!excludeTertiary)
+                  {
+                     g_agg_ONbreakDown_sumCandles += onRes.n; g_agg_ONbreakDown_sumAvg += onRes.avg; g_agg_ONbreakDown_sumMed += onRes.median; g_agg_ONbreakDown_n++;
+                     g_agg_RTHIBbreakDown_sumCandles += rthibRes.n; g_agg_RTHIBbreakDown_sumAvg += rthibRes.avg; g_agg_RTHIBbreakDown_sumMed += rthibRes.median; g_agg_RTHIBbreakDown_n++;
+                     g_agg_RTHcntbreakDown_sumCandles += rthcntRes.n; g_agg_RTHcntbreakDown_sumAvg += rthcntRes.avg; g_agg_RTHcntbreakDown_sumMed += rthcntRes.median; g_agg_RTHcntbreakDown_n++;
+                  }
+               }
+            }
+            if(accumulateToday) { g_breakCheck_lastAggregatedDay = g_m1DayStart; g_breakCheck_daysCount++; }
+            FileClose(fhBreak);
+         }
+         // At 22:00 write single aggregate log (no date in name): type, avgcandles, avgavg, avgmedian for all 4 types
+         if(minOfDay == 22*60+0)
+         {
+            int fhSum = FileOpen("levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fhSum != INVALID_HANDLE)
+            {
+               FileWrite(fhSum, "timerangeType", "avgCandleCount", "avgOfAvg", "avgOfMedian", "daysCount", "totalLevelCount");
+               int daysCount = g_breakCheck_daysCount;
+               double n;
+               n = (double)g_agg_ONbreakDown_n;   FileWrite(fhSum, "ON",   (n > 0 ? DoubleToString(g_agg_ONbreakDown_sumCandles/n, 2) : "0"), (n > 0 ? DoubleToString(g_agg_ONbreakDown_sumAvg/n, _Digits) : "0"), (n > 0 ? DoubleToString(g_agg_ONbreakDown_sumMed/n, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_ONbreakDown_n));
+               n = (double)g_agg_RTHIBbreakDown_n; FileWrite(fhSum, "RTHIB", (n > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumCandles/n, 2) : "0"), (n > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumAvg/n, _Digits) : "0"), (n > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumMed/n, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_RTHIBbreakDown_n));
+               n = (double)g_agg_RTHcntbreakDown_n; FileWrite(fhSum, "RTHcnt", (n > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumCandles/n, 2) : "0"), (n > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumAvg/n, _Digits) : "0"), (n > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumMed/n, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_RTHcntbreakDown_n));
+               FileClose(fhSum);
             }
          }
       }
