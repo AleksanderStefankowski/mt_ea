@@ -274,6 +274,21 @@ int      dayStat_daysONH_tested = 0;   // days when rthHigh >= ONH
 int      dayStat_daysONL_tested = 0;   // days when rthLow <= ONL
 int      dayStat_daysONboth_tested = 0; // days when both ONH and ONL tested same day
 
+//--- summary_tradesSummary1line: accumulated across all EOD days (+= each EOD when we add that day)
+int      g_summaryTrades_dayTradesCount = 0;
+int      g_summaryTrades_dayWins = 0;
+double   g_summaryTrades_dayPointsSum = 0.0;
+double   g_summaryTrades_dayProfitSum = 0.0;
+int      g_summaryTrades_ONtradeCount = 0;
+int      g_summaryTrades_ONwins = 0;
+double   g_summaryTrades_ONpointsSum = 0.0;
+double   g_summaryTrades_ONprofitSum = 0.0;
+int      g_summaryTrades_RTHtradeCount = 0;
+int      g_summaryTrades_RTHwins = 0;
+double   g_summaryTrades_RTHpointsSum = 0.0;
+double   g_summaryTrades_RTHprofitSum = 0.0;
+datetime g_summaryTrades_lastAddedDayStart = 0;  // avoid adding same day twice
+
 //--- Levels break check aggregate (all days, tertiary excluded): running sums for ON, RTHIB, RTHcnt; written at 22:00 to levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv
 double   g_agg_ONbreakDown_sumCandles = 0, g_agg_ONbreakDown_sumAvg = 0, g_agg_ONbreakDown_sumMed = 0;
 int      g_agg_ONbreakDown_n = 0;
@@ -2215,6 +2230,62 @@ void OnTimer()
                      DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
             FileClose(fh);
+         }
+
+         // EOD one-line trades summary: same trade stats as latest row of pullinghistory (date)_summary_EOD_tradesSummary1line.csv
+         string eodSummaryName = dateStr + "_summary_EOD_tradesSummary1line.csv";
+         if(!FileIsExist(eodSummaryName))
+         {
+            int fhEod = FileOpen(eodSummaryName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fhEod != INVALID_HANDLE)
+            {
+               FileWrite(fhEod, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
+               int kLast = g_barsInDay - 1;
+               if(kLast >= 0)
+               {
+                  FileWrite(fhEod, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
+                     DoubleToString(g_dayProgress[kLast].dayWinRate * 100.0, 0), IntegerToString(g_dayProgress[kLast].dayTradesCount), DoubleToString(g_dayProgress[kLast].dayPointsSum, _Digits), DoubleToString(g_dayProgress[kLast].dayProfitSum, 2),
+                     DoubleToString(g_dayProgress[kLast].ONwinRate * 100.0, 0), IntegerToString(g_dayProgress[kLast].ONtradeCount), DoubleToString(g_dayProgress[kLast].ONpointsSum, _Digits), DoubleToString(g_dayProgress[kLast].ONprofitSum, 2),
+                     DoubleToString(g_dayProgress[kLast].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[kLast].RTHtradeCount), DoubleToString(g_dayProgress[kLast].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[kLast].RTHprofitSum, 2));
+               }
+               FileClose(fhEod);
+            }
+         }
+
+         // Accumulate this day into all-days summary (once per day), then write summary_tradesSummary1line.csv with totals
+         if(g_barsInDay > 0 && g_m1DayStart != 0 && g_m1DayStart != g_summaryTrades_lastAddedDayStart)
+         {
+            int kLast = g_barsInDay - 1;
+            g_summaryTrades_dayTradesCount += g_dayProgress[kLast].dayTradesCount;
+            g_summaryTrades_dayWins += (int)MathRound(g_dayProgress[kLast].dayWinRate * (double)g_dayProgress[kLast].dayTradesCount);
+            g_summaryTrades_dayPointsSum += g_dayProgress[kLast].dayPointsSum;
+            g_summaryTrades_dayProfitSum += g_dayProgress[kLast].dayProfitSum;
+            g_summaryTrades_ONtradeCount += g_dayProgress[kLast].ONtradeCount;
+            g_summaryTrades_ONwins += (int)MathRound(g_dayProgress[kLast].ONwinRate * (double)g_dayProgress[kLast].ONtradeCount);
+            g_summaryTrades_ONpointsSum += g_dayProgress[kLast].ONpointsSum;
+            g_summaryTrades_ONprofitSum += g_dayProgress[kLast].ONprofitSum;
+            g_summaryTrades_RTHtradeCount += g_dayProgress[kLast].RTHtradeCount;
+            g_summaryTrades_RTHwins += (int)MathRound(g_dayProgress[kLast].RTHwinRate * (double)g_dayProgress[kLast].RTHtradeCount);
+            g_summaryTrades_RTHpointsSum += g_dayProgress[kLast].RTHpointsSum;
+            g_summaryTrades_RTHprofitSum += g_dayProgress[kLast].RTHprofitSum;
+            g_summaryTrades_lastAddedDayStart = g_m1DayStart;
+         }
+         if(g_barsInDay > 0)
+         {
+            int fhEodAll = FileOpen("summary_tradesSummary1line.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fhEodAll != INVALID_HANDLE)
+            {
+               double dayWr = (g_summaryTrades_dayTradesCount > 0) ? 100.0 * (double)g_summaryTrades_dayWins / (double)g_summaryTrades_dayTradesCount : 0.0;
+               double onWr  = (g_summaryTrades_ONtradeCount > 0) ? 100.0 * (double)g_summaryTrades_ONwins / (double)g_summaryTrades_ONtradeCount : 0.0;
+               double rthWr = (g_summaryTrades_RTHtradeCount > 0) ? 100.0 * (double)g_summaryTrades_RTHwins / (double)g_summaryTrades_RTHtradeCount : 0.0;
+               FileWrite(fhEodAll, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
+               int kLast = g_barsInDay - 1;
+               FileWrite(fhEodAll, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
+                  DoubleToString(dayWr, 0), IntegerToString(g_summaryTrades_dayTradesCount), DoubleToString(g_summaryTrades_dayPointsSum, _Digits), DoubleToString(g_summaryTrades_dayProfitSum, 2),
+                  DoubleToString(onWr, 0), IntegerToString(g_summaryTrades_ONtradeCount), DoubleToString(g_summaryTrades_ONpointsSum, _Digits), DoubleToString(g_summaryTrades_ONprofitSum, 2),
+                  DoubleToString(rthWr, 0), IntegerToString(g_summaryTrades_RTHtradeCount), DoubleToString(g_summaryTrades_RTHpointsSum, _Digits), DoubleToString(g_summaryTrades_RTHprofitSum, 2));
+               FileClose(fhEodAll);
+            }
          }
 
          // Trade results CSV: (date)_summaryZ_tradeResults_ALL_Day.csv (only once; if missing, write again)
