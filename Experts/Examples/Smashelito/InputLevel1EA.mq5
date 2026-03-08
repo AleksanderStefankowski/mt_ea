@@ -1902,7 +1902,7 @@ bool TryLogDayStatForCurrentDay()
    dayStat_ONboth_t_RTH = (dayStat_ONH_t_RTH && dayStat_ONL_t_RTH);
 
    string dateStrStat = TimeToString(g_m1DayStart, TIME_DATE);
-   string dayStatLogName = dateStrStat + "_dayStat_log.csv";
+   string dayStatLogName = dateStrStat + "_dayPriceStat_log.csv";
    int fhDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fhDay != INVALID_HANDLE)
    {
@@ -1932,7 +1932,7 @@ bool TryLogDayStatForCurrentDay()
 //+------------------------------------------------------------------+
 void WriteDayStatSummaryCsv()
 {
-   int fhSum = FileOpen("dayStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+   int fhSum = FileOpen("dayPriceStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fhSum != INVALID_HANDLE)
    {
       double avgFillD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
@@ -2450,7 +2450,7 @@ void FinalizeCurrentCandle()
       allCandlesFileDate = candleDay;
    }
 
-   // Day stat: once after 21:30 candle, set dayStat_day_had_OpenGapDown_bool (RTH open < PD RTH close) and write dayStat_log + dayStat_summaryLog
+   // Day stat: once after 21:30 candle, set dayStat_day_had_OpenGapDown_bool (RTH open < PD RTH close) and write dayPriceStat_log + dayPriceStat_summaryLog
    {
       MqlDateTime mt;
       TimeToStruct(current_candle_time, mt);
