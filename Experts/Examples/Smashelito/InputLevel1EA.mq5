@@ -438,6 +438,15 @@ string GetSessionForCandleTime(datetime t)
 }
 
 //+------------------------------------------------------------------+
+//| Returns "yes" if openPrice > level, "no" otherwise; "unknown" if not yet known. |
+//+------------------------------------------------------------------+
+string GetOpenWasAboveLevelString(double openPrice, double level, bool known)
+{
+   if(!known) return "unknown";
+   return (openPrice > level) ? "yes" : "no";
+}
+
+//+------------------------------------------------------------------+
 //| Find the 15:30 candle of current day in g_m1Rates. FatalError if not found. Returns its open price. |
 //+------------------------------------------------------------------+
 double GetRTHopenCurrentDay()
@@ -2040,12 +2049,18 @@ void OnTimer()
                int fhL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
                if(fhL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFile);
-               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange");
+               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange", "ON_O_wasAboveL", "RTH_O_wasAboveL");
                double lvl = g_levelsExpanded[e].levelPrice;
+               double onOpen = g_m1Rates[0].open;
+               double rthOpen = GetRTHopenCurrentDay();
                for(int k = 0; k < g_levelsExpanded[e].count; k++)
                {
                   string highestUp   = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, true);
                   string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
+                  bool onKnown   = (k > 0);
+                  bool rthKnown  = (GetSessionForCandleTime(g_levelsExpanded[e].times[k]) != "ON");
+                  string onAboveStr  = GetOpenWasAboveLevelString(onOpen, lvl, onKnown);
+                  string rthAboveStr = GetOpenWasAboveLevelString(rthOpen, lvl, rthKnown);
                   FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
                      DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
                      DoubleToString(g_m1Rates[k].open, _Digits), DoubleToString(g_m1Rates[k].high, _Digits), DoubleToString(g_m1Rates[k].low, _Digits), DoubleToString(g_m1Rates[k].close, _Digits),
@@ -2053,7 +2068,8 @@ void OnTimer()
                      IntegerToString(g_cleanStreakAbove[e][k]), IntegerToString(g_cleanStreakBelow[e][k]),
                      IntegerToString(g_aboveCnt[e][k]), DoubleToString(g_abovePerc[e][k], 2), IntegerToString(g_belowCnt[e][k]), DoubleToString(g_belowPerc[e][k], 2),
                      IntegerToString(g_overlapStreak[e][k]), IntegerToString(g_overlapC[e][k]), DoubleToString(g_overlapPc[e][k], 2),
-                     highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument));
+                     highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument),
+                     onAboveStr, rthAboveStr);
                }
                FileClose(fhL);
             }
