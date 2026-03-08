@@ -201,6 +201,15 @@ bool g_breaksLevelUpward[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];  // true if open
 // Per (level e, bar k): number of consecutive bars (from k-1 backward) with all OHLC above/below level
 int  g_cleanStreakAbove[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 int  g_cleanStreakBelow[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+// Per (level e, bar k): count and % of bars 0..k (so far today) with all OHLC above/below level
+int    g_aboveCnt[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+double g_abovePerc[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+int    g_belowCnt[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+double g_belowPerc[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+// Per (level e, bar k): overlap = level between H and L; streak = consecutive overlapping bars backward; overlapC/overlapPc = count and % so far today
+int    g_overlapStreak[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+int    g_overlapC[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
+double g_overlapPc[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 
 //--- Day M1 price data (updated every new bar; used by trade logic and by testing log)
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
@@ -660,6 +669,49 @@ int GetCleanStreakForLevel(double level, int barIndex, bool above)
 }
 
 //+------------------------------------------------------------------+
+//| Count bars in [fromBar, toBar] (inclusive) where all OHLC is above (above=true) or below (above=false) level. |
+//+------------------------------------------------------------------+
+int CountCleanBarsInRange(double level, int fromBar, int toBar, bool above)
+{
+   int cnt = 0;
+   for(int j = fromBar; j <= toBar; j++)
+   {
+      bool clean = above
+         ? (g_m1Rates[j].open > level && g_m1Rates[j].high > level && g_m1Rates[j].low > level && g_m1Rates[j].close > level)
+         : (g_m1Rates[j].open < level && g_m1Rates[j].high < level && g_m1Rates[j].low < level && g_m1Rates[j].close < level);
+      if(clean) cnt++;
+   }
+   return cnt;
+}
+
+//+------------------------------------------------------------------+
+//| Count consecutive bars (barIndex-1, barIndex-2, ...) with level between bar H and L (low <= level <= high). |
+//+------------------------------------------------------------------+
+int GetOverlapStreakForLevel(double level, int barIndex)
+{
+   int streak = 0;
+   for(int j = barIndex - 1; j >= 0; j--)
+   {
+      if(g_m1Rates[j].low <= level && level <= g_m1Rates[j].high)
+         streak++;
+      else
+         break;
+   }
+   return streak;
+}
+
+//+------------------------------------------------------------------+
+//| Count bars in [fromBar, toBar] (inclusive) where level is between bar H and L. |
+//+------------------------------------------------------------------+
+int CountOverlapBarsInRange(double level, int fromBar, int toBar)
+{
+   int cnt = 0;
+   for(int j = fromBar; j <= toBar; j++)
+      if(g_m1Rates[j].low <= level && level <= g_m1Rates[j].high) cnt++;
+   return cnt;
+}
+
+//+------------------------------------------------------------------+
 //| Pull 1M for current day into g_m1Rates and build g_levelsExpanded. Call every new bar so data is always in memory. |
 //+------------------------------------------------------------------+
 void UpdateDayM1AndLevelsExpanded()
@@ -721,14 +773,39 @@ void UpdateDayM1AndLevelsExpanded()
          g_breaksLevelUpward[e][k] = (g_m1Rates[k].open < lp && g_m1Rates[k].close > lp);
       }
 
-   // Per (level e, bar k): cleanStreakAbove / cleanStreakBelow = count of consecutive bars (k-1, k-2, ...) with all OHLC above / below level
+   // Per (level e, bar k): all level-bar stats in one forward pass (streaks and counts incremental to avoid O(bars^2))
    for(int e = 0; e < g_levelsExpandedCount; e++)
    {
       double lp = g_levelsExpanded[e].levelPrice;
-      for(int k = 0; k < g_levelsExpanded[e].count; k++)
+      int cnt = g_levelsExpanded[e].count;
+      int prevAbove = 0, prevBelow = 0, prevOverlap = 0;  // bar k-1 state
+      int runAbove = 0, runBelow = 0, runOverlap = 0;     // running streaks
+      int sumAbove = 0, sumBelow = 0, sumOverlap = 0;     // running counts 0..k
+      for(int k = 0; k < cnt; k++)
       {
-         g_cleanStreakAbove[e][k] = GetCleanStreakForLevel(lp, k, true);
-         g_cleanStreakBelow[e][k] = GetCleanStreakForLevel(lp, k, false);
+         double o = g_m1Rates[k].open, h = g_m1Rates[k].high, l_ = g_m1Rates[k].low, c = g_m1Rates[k].close;
+         int curAbove = (o > lp && h > lp && l_ > lp && c > lp) ? 1 : 0;
+         int curBelow = (o < lp && h < lp && l_ < lp && c < lp) ? 1 : 0;
+         int curOverlap = (l_ <= lp && lp <= h) ? 1 : 0;
+
+         g_cleanStreakAbove[e][k] = (k == 0) ? 0 : (prevAbove ? 1 + runAbove : 0);
+         g_cleanStreakBelow[e][k] = (k == 0) ? 0 : (prevBelow ? 1 + runBelow : 0);
+         g_overlapStreak[e][k]    = (k == 0) ? 0 : (prevOverlap ? 1 + runOverlap : 0);
+
+         sumAbove += curAbove; sumBelow += curBelow; sumOverlap += curOverlap;
+         g_aboveCnt[e][k] = sumAbove;
+         g_belowCnt[e][k] = sumBelow;
+         g_overlapC[e][k] = sumOverlap;
+
+         int totalSoFar = k + 1;
+         g_abovePerc[e][k] = (totalSoFar > 0) ? (100.0 * sumAbove / totalSoFar) : 0.0;
+         g_belowPerc[e][k] = (totalSoFar > 0) ? (100.0 * sumBelow / totalSoFar) : 0.0;
+         g_overlapPc[e][k] = (totalSoFar > 0) ? (100.0 * sumOverlap / totalSoFar) : 0.0;
+
+         runAbove   = curAbove  ? 1 + runAbove   : 0;
+         runBelow   = curBelow  ? 1 + runBelow   : 0;
+         runOverlap = curOverlap ? 1 + runOverlap : 0;
+         prevAbove = curAbove; prevBelow = curBelow; prevOverlap = curOverlap;
       }
    }
 
@@ -1893,7 +1970,7 @@ void OnTimer()
                int fhL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
                if(fhL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFile);
-               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange");
+               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange");
                double lvl = g_levelsExpanded[e].levelPrice;
                for(int k = 0; k < g_levelsExpanded[e].count; k++)
                {
@@ -1903,7 +1980,9 @@ void OnTimer()
                      DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
                      DoubleToString(g_m1Rates[k].open, _Digits), DoubleToString(g_m1Rates[k].high, _Digits), DoubleToString(g_m1Rates[k].low, _Digits), DoubleToString(g_m1Rates[k].close, _Digits),
                      (g_breaksLevelDown[e][k] ? "true" : "false"), (g_breaksLevelUpward[e][k] ? "true" : "false"),
-                     IntegerToString(GetCleanStreakForLevel(lvl, k, true)), IntegerToString(GetCleanStreakForLevel(lvl, k, false)),
+                     IntegerToString(g_cleanStreakAbove[e][k]), IntegerToString(g_cleanStreakBelow[e][k]),
+                     IntegerToString(g_aboveCnt[e][k]), DoubleToString(g_abovePerc[e][k], 2), IntegerToString(g_belowCnt[e][k]), DoubleToString(g_belowPerc[e][k], 2),
+                     IntegerToString(g_overlapStreak[e][k]), IntegerToString(g_overlapC[e][k]), DoubleToString(g_overlapPc[e][k], 2),
                      highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument));
                }
                FileClose(fhL);
