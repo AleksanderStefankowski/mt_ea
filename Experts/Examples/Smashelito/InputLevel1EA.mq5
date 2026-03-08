@@ -24,7 +24,7 @@ void FatalError(string msg)
    Print("FATAL: ", msg);
    ExpertRemove();
 }
-input string   InpSummaryFile       = "SessionSummary.txt";  // written in OnDeinit: symbol, timeframe, first/last candle OHLC
+input string   InpSessionFirstLastCandleFile = "SessionFirstLastCandle.txt";  // written in OnDeinit: symbol, timeframe, first/last candle OHLC
 input string   InpAllCandleFile     = "AllCandlesLog_Timer1";
 input double   ProximityThreshold   = 1.0;
 input double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to count as broken
@@ -180,7 +180,7 @@ struct LevelInfoRow
 };
 #define MAX_LEVEL_ROWS 2000
 LevelInfoRow g_levels[MAX_LEVEL_ROWS];
-int g_levelsCount = 0;
+int g_levelsTotalCount = 0;  // total levels (all dates); subset for today → g_levelsTodayCount
 
 //--- Levels expanded (built in testing loop: each level of the day vs whole price chart; newway_Diff_CloseToLevel per bar)
 struct LevelExpandedRow
@@ -194,7 +194,7 @@ struct LevelExpandedRow
 #define MAX_LEVELS_EXPANDED 500
 #define MAX_BARS_IN_DAY 1500
 LevelExpandedRow g_levelsExpanded[MAX_LEVELS_EXPANDED];
-int g_levelsExpandedCount = 0;
+int g_levelsTodayCount = 0;  // levels valid for current day (from g_levels); per-bar data in g_levelsExpanded[e]
 // Per (level e, bar k): candle breaks level down/up (from g_m1Rates OHLC); filled in UpdateDayM1AndLevelsExpanded; logged in testinglevelsplus
 bool g_breaksLevelDown[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];    // true if open > level AND close < level
 bool g_breaksLevelUpward[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];  // true if open < level AND close > level
@@ -344,7 +344,7 @@ struct StaticMarketContext
    double PDOpreviousDayRTHOpen;   // open of previous day's 1m candle 15:30 (M1)
    double PDHpreviousDayHigh;   // highest High of previous trading day
    double PDLpreviousDayLow;    // lowest Low of previous trading day
-   double PDCpreviousDayRTHClose;  // close of previous day's 1m candle 22:00 (M1)
+   double PDCpreviousDayRTHClose;  // close of previous day's 1m candle 21:59 (M1) — that candle ends at 22:00
    string PDdate;               // previous trading day date YYYY.MM.DD (for debugging)
 };
 StaticMarketContext g_staticMarketContext;
@@ -518,15 +518,15 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
    datetime prevDayStart = StructToTime(mtPrev);
    datetime prevDayEnd   = prevDayStart + 86400;
 
-   // PDO = open of 1m candle 15:30 (M1), PDC = close of 1m candle 22:00 (M1)
+   // PDO = open of 1m candle 15:30 (M1), PDC = close of 1m candle 21:59 (M1) — that candle ends at 22:00
    datetime bar1530 = prevDayStart + 15*3600 + 30*60;
-   datetime bar2200 = prevDayStart + 22*3600;
+   datetime bar2159 = prevDayStart + 21*3600 + 59*60;
    int shift1530M1 = iBarShift(_Symbol, PERIOD_M1, bar1530, false);
-   int shift2200M1 = iBarShift(_Symbol, PERIOD_M1, bar2200, false);
+   int shift2159M1 = iBarShift(_Symbol, PERIOD_M1, bar2159, false);
    if(shift1530M1 >= 0)
       g_staticMarketContext.PDOpreviousDayRTHOpen = iOpen(_Symbol, PERIOD_M1, shift1530M1);
-   if(shift2200M1 >= 0)
-      g_staticMarketContext.PDCpreviousDayRTHClose = iClose(_Symbol, PERIOD_M1, shift2200M1);
+   if(shift2159M1 >= 0)
+      g_staticMarketContext.PDCpreviousDayRTHClose = iClose(_Symbol, PERIOD_M1, shift2159M1);
 
    // PDH/PDL = max High / min Low over the day — use same bar indexing as chart (iterate shifts for the day)
    int shiftDayStart = iBarShift(_Symbol, PERIOD_M30, prevDayStart, false);
@@ -563,7 +563,7 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
 //+------------------------------------------------------------------+
 bool LoadLevels()
 {
-   g_levelsCount = 0;
+   g_levelsTotalCount = 0;
    int fh = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
    if(fh == INVALID_HANDLE)
    {
@@ -571,21 +571,21 @@ bool LoadLevels()
       return false;
    }
    string line = FileReadString(fh);  // skip header
-   while(!FileIsEnding(fh) && g_levelsCount < MAX_LEVEL_ROWS)
+   while(!FileIsEnding(fh) && g_levelsTotalCount < MAX_LEVEL_ROWS)
    {
       line = FileReadString(fh);
       if(StringLen(line) == 0) continue;
       string parts[];
       if(StringSplit(line, ',', parts) < 5) continue;
-      g_levels[g_levelsCount].startStr   = parts[0];
-      g_levels[g_levelsCount].endStr     = parts[1];
-      g_levels[g_levelsCount].levelPrice = StringToDouble(parts[2]);
-      g_levels[g_levelsCount].categories = parts[3];
-      g_levels[g_levelsCount].tag        = parts[4];
-      g_levelsCount++;
+      g_levels[g_levelsTotalCount].startStr   = parts[0];
+      g_levels[g_levelsTotalCount].endStr     = parts[1];
+      g_levels[g_levelsTotalCount].levelPrice = StringToDouble(parts[2]);
+      g_levels[g_levelsTotalCount].categories = parts[3];
+      g_levels[g_levelsTotalCount].tag        = parts[4];
+      g_levelsTotalCount++;
    }
    FileClose(fh);
-   return (g_levelsCount > 0);
+   return (g_levelsTotalCount > 0);
 }
 
 //+------------------------------------------------------------------+
@@ -593,7 +593,7 @@ bool LoadLevels()
 //+------------------------------------------------------------------+
 double GetLevelExpandedDiff(double levelPrice, string tag, datetime barTime)
 {
-   for(int e = 0; e < g_levelsExpandedCount; e++)
+   for(int e = 0; e < g_levelsTodayCount; e++)
    {
       if(levelPrice > 0 && g_levelsExpanded[e].levelPrice != levelPrice) continue;
       if(StringLen(tag) > 0 && g_levelsExpanded[e].tag != tag) continue;
@@ -646,6 +646,22 @@ string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars,
       }
    }
    return result.hasValue ? DoubleToString(result.value, _Digits) : "never";
+}
+
+//+------------------------------------------------------------------+
+//| O(1) bar predicates for level-bar stats (hot path).              |
+//+------------------------------------------------------------------+
+bool IsBarCleanAbove(double o, double h, double l, double c, double level)
+{
+   return (o > level && h > level && l > level && c > level);
+}
+bool IsBarCleanBelow(double o, double h, double l, double c, double level)
+{
+   return (o < level && h < level && l < level && c < level);
+}
+bool IsBarOverlap(double low, double high, double level)
+{
+   return (low <= level && level <= high);
 }
 
 //+------------------------------------------------------------------+
@@ -746,26 +762,64 @@ void UpdateDayM1AndLevelsExpanded()
    g_barsInDay = barsInDay;
    g_m1DayStart = dayStart;
 
-   // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
-   g_levelsExpandedCount = 0;
-   for(int i = 0; i < g_levelsCount && g_levelsExpandedCount < MAX_LEVELS_EXPANDED; i++)
+   // Ensure todayRTHopen is in g_levels when we have the 15:30 bar (data-driven; no reliance on new-bar event timing)
    {
-      if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
-      g_levelsExpanded[g_levelsExpandedCount].levelPrice = g_levels[i].levelPrice;
-      g_levelsExpanded[g_levelsExpandedCount].tag        = g_levels[i].tag;
-      g_levelsExpanded[g_levelsExpandedCount].count      = g_barsInDay;
-      ArrayResize(g_levelsExpanded[g_levelsExpandedCount].diffs, g_barsInDay);
-      ArrayResize(g_levelsExpanded[g_levelsExpandedCount].times, g_barsInDay);
+      double open1530 = 0;
       for(int k = 0; k < g_barsInDay; k++)
       {
-         g_levelsExpanded[g_levelsExpandedCount].times[k] = g_m1Rates[k].time;
-         g_levelsExpanded[g_levelsExpandedCount].diffs[k] = g_m1Rates[k].close - g_levelsExpanded[g_levelsExpandedCount].levelPrice;
+         MqlDateTime mt;
+         TimeToStruct(g_m1Rates[k].time, mt);
+         if(mt.hour == 15 && mt.min == 30)
+            { open1530 = g_m1Rates[k].open; break; }
       }
-      g_levelsExpandedCount++;
+      if(open1530 != 0)
+      {
+         string todayStr = dateStr;
+         bool alreadyAdded = false;
+         for(int i = 0; i < g_levelsTotalCount; i++)
+            if(g_levels[i].tag == "todayRTHopen" && g_levels[i].startStr == todayStr && g_levels[i].endStr == todayStr)
+            { alreadyAdded = true; break; }
+         bool tooClose = false;
+         if(!alreadyAdded)
+            for(int i = 0; i < g_levelsTotalCount; i++)
+               if(g_levels[i].startStr <= todayStr && todayStr <= g_levels[i].endStr &&
+                  MathAbs(g_levels[i].levelPrice - open1530) < tertiaryLevel_tooTight_toAdd_proximity)
+               { tooClose = true; break; }
+         if(!alreadyAdded && !tooClose && g_levelsTotalCount < MAX_LEVEL_ROWS)
+         {
+            AddLevel(todayStr + "_todayRTHopen", open1530, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
+            g_levels[g_levelsTotalCount].startStr   = todayStr;
+            g_levels[g_levelsTotalCount].endStr     = todayStr;
+            g_levels[g_levelsTotalCount].levelPrice = open1530;
+            g_levels[g_levelsTotalCount].categories = "daily_tertiary_todayRTHopen";
+            g_levels[g_levelsTotalCount].tag        = "todayRTHopen";
+            g_levelsTotalCount++;
+         }
+         else if(!alreadyAdded && !tooClose && g_levelsTotalCount >= MAX_LEVEL_ROWS)
+            FatalError("todayRTHopen: 15:30 bar found but g_levels full (g_levelsTotalCount=" + IntegerToString(g_levelsTotalCount) + ")");
+      }
+   }
+
+   // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
+   g_levelsTodayCount = 0;
+   for(int i = 0; i < g_levelsTotalCount && g_levelsTodayCount < MAX_LEVELS_EXPANDED; i++)
+   {
+      if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
+      g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[i].levelPrice;
+      g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[i].tag;
+      g_levelsExpanded[g_levelsTodayCount].count      = g_barsInDay;
+      ArrayResize(g_levelsExpanded[g_levelsTodayCount].diffs, g_barsInDay);
+      ArrayResize(g_levelsExpanded[g_levelsTodayCount].times, g_barsInDay);
+      for(int k = 0; k < g_barsInDay; k++)
+      {
+         g_levelsExpanded[g_levelsTodayCount].times[k] = g_m1Rates[k].time;
+         g_levelsExpanded[g_levelsTodayCount].diffs[k] = g_m1Rates[k].close - g_levelsExpanded[g_levelsTodayCount].levelPrice;
+      }
+      g_levelsTodayCount++;
    }
 
    // Per (level e, bar k): breaksLevelDown / breaksLevelUpward from candle open/close vs level
-   for(int e = 0; e < g_levelsExpandedCount; e++)
+   for(int e = 0; e < g_levelsTodayCount; e++)
       for(int k = 0; k < g_levelsExpanded[e].count; k++)
       {
          double lp = g_levelsExpanded[e].levelPrice;
@@ -774,7 +828,7 @@ void UpdateDayM1AndLevelsExpanded()
       }
 
    // Per (level e, bar k): all level-bar stats in one forward pass (streaks and counts incremental to avoid O(bars^2))
-   for(int e = 0; e < g_levelsExpandedCount; e++)
+   for(int e = 0; e < g_levelsTodayCount; e++)
    {
       double lp = g_levelsExpanded[e].levelPrice;
       int cnt = g_levelsExpanded[e].count;
@@ -784,9 +838,9 @@ void UpdateDayM1AndLevelsExpanded()
       for(int k = 0; k < cnt; k++)
       {
          double o = g_m1Rates[k].open, h = g_m1Rates[k].high, l_ = g_m1Rates[k].low, c = g_m1Rates[k].close;
-         int curAbove = (o > lp && h > lp && l_ > lp && c > lp) ? 1 : 0;
-         int curBelow = (o < lp && h < lp && l_ < lp && c < lp) ? 1 : 0;
-         int curOverlap = (l_ <= lp && lp <= h) ? 1 : 0;
+         int curAbove  = IsBarCleanAbove(o, h, l_, c, lp) ? 1 : 0;
+         int curBelow  = IsBarCleanBelow(o, h, l_, c, lp) ? 1 : 0;
+         int curOverlap = IsBarOverlap(l_, h, lp) ? 1 : 0;
 
          g_cleanStreakAbove[e][k] = (k == 0) ? 0 : (prevAbove ? 1 + runAbove : 0);
          g_cleanStreakBelow[e][k] = (k == 0) ? 0 : (prevBelow ? 1 + runBelow : 0);
@@ -814,7 +868,7 @@ void UpdateDayM1AndLevelsExpanded()
    {
       double aboveH = 0;
       double belowL = 0;
-      for(int e = 0; e < g_levelsExpandedCount; e++)
+      for(int e = 0; e < g_levelsTodayCount; e++)
       {
          double lp = g_levelsExpanded[e].levelPrice;
          if(lp > g_m1Rates[k].high && (aboveH == 0 || lp < aboveH)) aboveH = lp;
@@ -1058,8 +1112,8 @@ long BuildMagicForTradeType4(datetime timer1Time)
 //+------------------------------------------------------------------+
 void BuildLevelsFromCSV()
 {
-   ArrayResize(levels, g_levelsCount);
-   for(int i = 0; i < g_levelsCount; i++)
+   ArrayResize(levels, g_levelsTotalCount);
+   for(int i = 0; i < g_levelsTotalCount; i++)
    {
       levels[i].baseName  = g_levels[i].startStr + "_" + g_levels[i].tag;
       levels[i].price     = g_levels[i].levelPrice;
@@ -1405,7 +1459,7 @@ int OnInit()
       Print("Levels file not loaded: ", InpLevelsFile, " (place CSV in Terminal/Common/Files)");
       return(INIT_FAILED);
    }
-   Print("Levels loaded: ", g_levelsCount, " rows from ", InpLevelsFile);
+   Print("Levels loaded: ", g_levelsTotalCount, " rows from ", InpLevelsFile);
    BuildLevelsFromCSV();
 
    return(INIT_SUCCEEDED);
@@ -1718,7 +1772,7 @@ void OnDeinit(const int reason)
    if(allCandlesFileHandle != INVALID_HANDLE)
       FileClose(allCandlesFileHandle);
 
-   int fh = FileOpen(InpSummaryFile, FILE_WRITE|FILE_TXT);
+   int fh = FileOpen(InpSessionFirstLastCandleFile, FILE_WRITE|FILE_TXT);
    if(fh != INVALID_HANDLE)
    {
       FileWrite(fh,"----------------------------------------");
@@ -1754,8 +1808,10 @@ void OnTimer()
    // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37. CSV with headers: time, liveBid, liveAsk, closed_candle_time, closed_O, closed_H, closed_L, closed_C
    if(mt.hour == 21 && mt.min >= 35 && mt.min <= 37 && g_barsInDay > 0)
    {
-      datetime closedTime = g_m1Rates[g_barsInDay - 1].time;
-      double closedO = g_m1Rates[g_barsInDay - 1].open, closedH = g_m1Rates[g_barsInDay - 1].high, closedL = g_m1Rates[g_barsInDay - 1].low, closedC = g_m1Rates[g_barsInDay - 1].close;
+      // g_m1Rates is oldest-first: [0]=first bar of day, [g_barsInDay-1]=last; closed candle = second-to-last when >=2 bars
+      int kClosed = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
+      datetime closedTime = g_m1Rates[kClosed].time;
+      double closedO = g_m1Rates[kClosed].open, closedH = g_m1Rates[kClosed].high, closedL = g_m1Rates[kClosed].low, closedC = g_m1Rates[kClosed].close;
       string fname = TimeToString(today, TIME_DATE) + "_testing_liveprice.csv";
       int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
       if(fh != INVALID_HANDLE)
@@ -1786,22 +1842,35 @@ void OnTimer()
       WriteDayStatSummaryCsv();
    }
 
-   // Candle-close detection: use chart period; bar that just closed = index 1 in history
-   datetime barNow = iTime(_Symbol, _Period, 0);
-   if(barNow == g_lastBarTime) return;
+   // Candle-close detection: use M1 so "new candle" is always one closed M1 bar; bar that just closed = last bar of day M1 (g_m1Rates) after refresh
+   datetime barNowM1 = iTime(_Symbol, PERIOD_M1, 0);
+   if(barNowM1 == g_lastBarTime) return;
 
-   g_lastBarTime = barNow;
-   // Bar that just closed (shift 1)
-   current_candle_time = iTime(_Symbol, _Period, 1);
-   candle_open  = iOpen(_Symbol, _Period, 1);
-   candle_high  = iHigh(_Symbol, _Period, 1);
-   candle_low   = iLow(_Symbol, _Period, 1);
-   candle_close = iClose(_Symbol, _Period, 1);
+   g_lastBarTime = barNowM1;
+
+   // Refresh day M1 and levels first; then "the bar that just closed" = last bar in day M1 (same source as all level-bar stats)
+   UpdateDayM1AndLevelsExpanded();
+
+   if(g_barsInDay > 0)
+   {
+      // g_m1Rates is oldest-first: [0]=first bar of day, [g_barsInDay-1]=last; bar that just closed = second-to-last when >=2 bars
+      int kClosed = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
+      current_candle_time = g_m1Rates[kClosed].time;
+      candle_open  = g_m1Rates[kClosed].open;
+      candle_high  = g_m1Rates[kClosed].high;
+      candle_low   = g_m1Rates[kClosed].low;
+      candle_close = g_m1Rates[kClosed].close;
+   }
+   else
+   {
+      current_candle_time = iTime(_Symbol, PERIOD_M1, 1);
+      candle_open  = iOpen(_Symbol, PERIOD_M1, 1);
+      candle_high  = iHigh(_Symbol, PERIOD_M1, 1);
+      candle_low   = iLow(_Symbol, PERIOD_M1, 1);
+      candle_close = iClose(_Symbol, PERIOD_M1, 1);
+   }
 
    FinalizeCurrentCandle();
-
-   // --- Price, levels, levelsExpanded: always update in memory every new bar (for trade logic)
-   UpdateDayM1AndLevelsExpanded();
 
    // --- ON and RTH session high/low so far at each bar k (bars 0..k). Fresh each candle; log reads from g_*AtBar[k].
    bool firstON = true, firstRTH = true;
@@ -1851,6 +1920,7 @@ void OnTimer()
    // --- Static market context: pull when we have at least one closed candle for current day and haven't pulled for that day yet. Set ONopen from first candle whenever we have bars.
    if(g_barsInDay > 0)
    {
+      // g_m1Rates is oldest-first: [0]=first bar of day
       g_ONopen = g_m1Rates[0].open;
       if(g_m1DayStart != 0 && g_staticMarketContextPulledForDate != g_m1DayStart)
       {
@@ -1862,7 +1932,7 @@ void OnTimer()
             string todayStr = TimeToString(g_m1DayStart, TIME_DATE);
             double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
             bool PDrthLevel_tooClose_to_regularLevel = false;
-            for(int i = 0; i < g_levelsCount; i++)
+            for(int i = 0; i < g_levelsTotalCount; i++)
             {
                if(g_levels[i].startStr > todayStr || todayStr > g_levels[i].endStr) continue;
                if(MathAbs(g_levels[i].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity) { PDrthLevel_tooClose_to_regularLevel = true; break; }
@@ -1872,14 +1942,14 @@ void OnTimer()
                string categories = "daily_tertiary_PDrthClose";
                string baseName = todayStr + "_PDrthClose";
                AddLevel(baseName, pdc, todayStr + " 00:00", todayStr + " 23:59", categories);
-               if(g_levelsCount < MAX_LEVEL_ROWS)
+               if(g_levelsTotalCount < MAX_LEVEL_ROWS)
                {
-                  g_levels[g_levelsCount].startStr   = todayStr;
-                  g_levels[g_levelsCount].endStr    = todayStr;
-                  g_levels[g_levelsCount].levelPrice = pdc;
-                  g_levels[g_levelsCount].categories = categories;
-                  g_levels[g_levelsCount].tag       = "PDrthClose";
-                  g_levelsCount++;
+                  g_levels[g_levelsTotalCount].startStr   = todayStr;
+                  g_levels[g_levelsTotalCount].endStr    = todayStr;
+                  g_levels[g_levelsTotalCount].levelPrice = pdc;
+                  g_levels[g_levelsTotalCount].categories = categories;
+                  g_levels[g_levelsTotalCount].tag       = "PDrthClose";
+                  g_levelsTotalCount++;
                   UpdateDayM1AndLevelsExpanded();
                }
             }
@@ -1962,7 +2032,7 @@ void OnTimer()
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
          int recentPriceArgument = 5;
-         for(int e = 0; e < g_levelsExpandedCount; e++)
+         for(int e = 0; e < g_levelsTodayCount; e++)
          {
             string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, _Digits) + "_" + g_levelsExpanded[e].tag + ".csv";
             if(!FileIsExist(levelFile))
@@ -2121,41 +2191,6 @@ void FinalizeCurrentCandle()
       allCandlesFileDate = candleDay;
    }
 
-   // When the candle that just closed is the 15:30 bar, add its open as a level for today only (todayRTHopen)
-   {
-      MqlDateTime mt;
-      TimeToStruct(current_candle_time, mt);
-      if(mt.hour == 15 && mt.min == 30)
-      {
-         bool alreadyAdded = false;
-         for(int i = 0; i < ArraySize(levels); i++)
-            if(levels[i].validFrom == candleDay && StringFind(levels[i].baseName, "todayRTHopen") >= 0)
-            { alreadyAdded = true; break; }
-         bool tooCloseToExisting = false;
-         if(!alreadyAdded)
-            for(int i = 0; i < ArraySize(levels); i++)
-               if(levels[i].validFrom <= candleDay && candleDay <= levels[i].validTo &&
-                  MathAbs(levels[i].price - candle_open) < tertiaryLevel_tooTight_toAdd_proximity)
-               { tooCloseToExisting = true; break; }
-         if(!alreadyAdded && !tooCloseToExisting)
-         {
-            string todayStr = TimeToString(candleDay, TIME_DATE);
-            string baseName = todayStr + "_todayRTHopen";
-            AddLevel(baseName, candle_open, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
-            if(g_levelsCount < MAX_LEVEL_ROWS)
-            {
-               g_levels[g_levelsCount].startStr   = todayStr;
-               g_levels[g_levelsCount].endStr    = todayStr;
-               g_levels[g_levelsCount].levelPrice = candle_open;
-               g_levels[g_levelsCount].categories = "daily_tertiary_todayRTHopen";
-               g_levels[g_levelsCount].tag       = "todayRTHopen";
-               g_levelsCount++;
-               UpdateDayM1AndLevelsExpanded();
-            }
-         }
-      }
-   }
-
    // Day stat: once after 21:30 candle, set dayStat_day_had_OpenGapDown_bool (RTH open < PD RTH close) and write dayStat_log + dayStat_summaryLog
    {
       MqlDateTime mt;
@@ -2258,24 +2293,6 @@ void FinalizeCurrentCandle()
                IntegerToString(levels[i].candlesPassedSinceLastBounce),
                IntegerToString(levels[i].candlesBreakLevelCount),
                IntegerToString(levels[i].recoverCount));
-         }
-
-         // --- Write per-level file if physically touched
-         if(physicallyTouched)
-         {
-            string lvlFile = StringFormat("%s-%s_week%s_%s_ARawAContact.csv", 
-                                         dateStr, levels[i].baseName, dateStr, DoubleToString(lvl, _Digits));
-
-            int fh = FileOpen(lvlFile, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fh == INVALID_HANDLE)
-               fh = FileOpen(lvlFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fh == INVALID_HANDLE)
-               FatalError("FinalizeCurrentCandle: could not open " + lvlFile);
-            FileSeek(fh, 0, SEEK_END);
-            if(FileTell(fh) == 0)
-               FileWrite(fh, "time", "O", "H", "L", "C");
-            FileWrite(fh, TimeToString(current_candle_time, TIME_DATE|TIME_MINUTES), DoubleToString(candle_open, _Digits), DoubleToString(candle_high, _Digits), DoubleToString(candle_low, _Digits), DoubleToString(candle_close, _Digits));
-            FileClose(fh);
          }
 
          // --- Flow B: for each trade type, if time OK and price/levels OK, do this type (types 1,2 per level here; types 3,4 once after loop)
