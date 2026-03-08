@@ -62,12 +62,6 @@ input double   T_tradeType3_LotSize   = 0.01;
 input int      T_tradeType3_TPPoints = 9000;  // TP/SL distance in points (not pips)
 input int      T_tradeType3_SLPoints = 9000;
 input string   T_tradeType3_BannedRanges = "0,0,2,59;20,0,23,59";  // startH,startM,endH,endM per range; ";" separated
-//--- Trade type 4: 15:29 smash (level + time). As soon as 15:29 bar closed, if |price - daily smash level| < MaxDistancePoints, market buy. TP/SL in pips.
-//    useLevel=true (smash), usePrice=true (distance), useTimeFilter=false (fixed 15:29 only).
-input double   T_tradeType4_LotSize   = 0.01;
-input double   T_tradeType4_TPPips   = 90.0;
-input double   T_tradeType4_SLPips   = 90.0;
-input double   T_tradeType4_MaxDistancePoints = 50.0;  // entry only if |price - level| < this (in points)
 
 //--- Trade type config: useLevel/usePrice/useTimeFilter indicate what trade cares about; bannedRangesStr from input.
 struct TradeTypeConfig
@@ -112,8 +106,7 @@ enum TRADE_TYPE_ID
 {
    TRADE_TYPE_BUY_2ND_BOUNCE = 1,
    TRADE_TYPE_BUY_4TH_BOUNCE = 2,
-   TRADE_TYPE_MARKET_TEST   = 3,   // trigger at bar close: place buy then close later; no level in magic
-   TRADE_TYPE_15_30_SMASH    = 4    // when 15:29 bar closed, if price near daily smash level → market buy
+   TRADE_TYPE_MARKET_TEST   = 3   // trigger at bar close: place buy then close later; no level in magic
 };
 
 CTrade ExtTrade;
@@ -1220,20 +1213,6 @@ long BuildMagicForTradeType3(datetime timer1Time)
 }
 
 //+------------------------------------------------------------------+
-//| Build magic for trade type 4 (15:30 smash). No level; date only (id 4 + YYYYMMDD). |
-//+------------------------------------------------------------------+
-long BuildMagicForTradeType4(datetime timer1Time)
-{
-   MqlDateTime dt;
-   TimeToStruct(timer1Time, dt);
-   string dateStr = IntegerToString(dt.year) +
-                    StringFormat("%02d", dt.mon) +
-                    StringFormat("%02d", dt.day);
-   string magicStr = StringFormat("%d%s", (int)TRADE_TYPE_15_30_SMASH, dateStr);
-   return (long)StringToInteger(magicStr);
-}
-
-//+------------------------------------------------------------------+
 //| Build levels[] from g_levels[] (CSV). One Level per row; baseName = start_tag, validFrom/To from start/end. |
 //+------------------------------------------------------------------+
 void BuildLevelsFromCSV()
@@ -1565,11 +1544,6 @@ int OnInit()
    g_tradeConfig[TRADE_TYPE_MARKET_TEST].useTimeFilter = true;
    g_tradeConfig[TRADE_TYPE_MARKET_TEST].bannedRangesStr = T_tradeType3_BannedRanges;
 
-   g_tradeConfig[TRADE_TYPE_15_30_SMASH].useLevel = true;
-   g_tradeConfig[TRADE_TYPE_15_30_SMASH].usePrice = true;
-   g_tradeConfig[TRADE_TYPE_15_30_SMASH].useTimeFilter = false;
-   g_tradeConfig[TRADE_TYPE_15_30_SMASH].bannedRangesStr = "";
-
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
@@ -1659,7 +1633,7 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
    }
    else
    {
-      comment = HistoryDealGetString(trans.deal, DEAL_COMMENT);
+      // Entry deal always has an order in MT5; if order missing, leave comment empty and infer kind from deal type only
       kindStr = ((ENUM_DEAL_TYPE)HistoryDealGetInteger(trans.deal, DEAL_TYPE) == DEAL_TYPE_BUY) ? "market_buy" : "market_sell";
    }
 
@@ -2153,6 +2127,30 @@ void OnTimer()
                }
                FileClose(fhTr);
             }
+
+            // Append same day's results to all-days summary (single file, no date in name)
+            string summaryAllName = "summary_tradeResults_all_days.csv";
+            int fhSumTr = FileOpen(summaryAllName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fhSumTr != INVALID_HANDLE)
+            {
+               FileSeek(fhSumTr, 0, SEEK_END);
+               if(FileTell(fhSumTr) == 0)
+                  FileWrite(fhSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments");
+               for(int tr = 0; tr < g_tradeResultsCount; tr++)
+               {
+                  TradeResult r = g_tradeResults[tr];
+                  string endTimeStr = r.foundOut ? TimeToString(r.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
+                  string priceEndStr = r.foundOut ? DoubleToString(r.priceEnd, _Digits) : "NOT_FOUND";
+                  string profitStr = r.foundOut ? DoubleToString(r.profit, 2) : "NOT_FOUND";
+                  string reasonStr = r.foundOut ? EnumToString((ENUM_DEAL_REASON)r.reason) : "NOT_FOUND";
+                  string typeStr = EnumToString((ENUM_DEAL_TYPE)r.type);
+                  FileWrite(fhSumTr, dateStr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
+                     r.session, IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
+                     DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
+                     DoubleToString(r.volume, 2), r.bothComments);
+               }
+               FileClose(fhSumTr);
+            }
          }
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
@@ -2310,52 +2308,6 @@ void EvaluateTradeType3(datetime candleTime)
       }
       ExtTrade.SetExpertMagicNumber(EA_MAGIC);
    }
-}
-
-//+------------------------------------------------------------------+
-//| Trade type 4: as soon as 15:29 bar closed; if |price - daily smash level| < MaxDistancePoints, market buy. TP/SL in pips. |
-//| Daily smash = first level eligible for this day (valid range) that has tag "smash". |
-//+------------------------------------------------------------------+
-void EvaluateTradeType4(datetime candleTime)
-{
-   MqlDateTime mt;
-   TimeToStruct(candleTime, mt);
-   if(mt.hour != 15 || mt.min != 29) return;
-
-   int idx = -1;
-   for(int i = 0; i < ArraySize(levels); i++)
-   {
-      if(candleTime < levels[i].validFrom || candleTime > levels[i].validTo) continue;
-      if(StringFind(levels[i].tagsCSV, "smash") < 0) continue;
-      idx = i;
-      break;
-   }
-   if(idx < 0) return;
-
-   double smashLevel = levels[idx].price;
-   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   double maxDistPrice = T_tradeType4_MaxDistancePoints * point;
-   if(MathAbs(candle_close - smashLevel) >= maxDistPrice) return;
-
-   long magic = BuildMagicForTradeType4(candleTime);
-   if(CountOrdersAndPositionsForMagic(magic) >= Max_OrdersPerMagic) return;
-
-   double pip = PipSize();
-   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   double sl = NormalizeDouble(ask - T_tradeType4_SLPips * pip, _Digits);
-   double tp = NormalizeDouble(ask + T_tradeType4_TPPips * pip, _Digits);
-   string orderComment = StringFormat("%d %.0f %.0f %.0f", (int)TRADE_TYPE_15_30_SMASH, smashLevel, T_tradeType4_TPPips, T_tradeType4_SLPips);
-
-   ExtTrade.SetExpertMagicNumber(magic);
-   if(ExtTrade.Buy(T_tradeType4_LotSize, _Symbol, ask, sl, tp, orderComment))
-   {
-      ulong orderTicket = ExtTrade.ResultOrder();
-      datetime eventTime = candleTime;
-      if(orderTicket > 0 && OrderSelect(orderTicket))
-         eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-      WriteTradeLog(GetTradeTypeStringFromId(TRADE_TYPE_15_30_SMASH), "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
-   }
-   ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 }
 
 //+------------------------------------------------------------------+
@@ -2587,8 +2539,6 @@ void FinalizeCurrentCandle()
 
    // Flow B: evaluate trade type 3 (time filter only; trigger at candle close)
    EvaluateTradeType3(current_candle_time);
-   // Flow B: evaluate trade type 4 (15:30 bar close, price near daily smash level)
-   EvaluateTradeType4(current_candle_time);
 
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
