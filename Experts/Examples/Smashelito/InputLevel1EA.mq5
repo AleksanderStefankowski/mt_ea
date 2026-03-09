@@ -55,13 +55,6 @@ input double   T_buy4thBounce_TPPips           = 60.0;  // TP = order price + th
 input double   T_buy4thBounce_SLPips           = 20.0;   // SL = order price - this many pips (e.g. 20 for 2 pts on US500 point=0.1)
 // Entry rule to open: level.bounceCount == 3 && bias_long (dailyBias > 0) && no_contact (!in_contact)
 input string   T_tradeType2_BannedRanges = "15,15,16,35";  // startH,startM,endH,endM;...
-//--- Trade type 3: market_test (no level; magic has no level component)
-//    Flow B: trigger as soon as bar closed. Place buy at trigger minute; close at close minute. No bar-end time.
-//    useLevel=false, usePrice=false, useTimeFilter=true + banned ranges input.
-input double   T_tradeType3_LotSize   = 0.01;
-input int      T_tradeType3_TPPoints = 9000;  // TP/SL distance in points (not pips)
-input int      T_tradeType3_SLPoints = 9000;
-input string   T_tradeType3_BannedRanges = "0,0,2,59;20,0,23,59";  // startH,startM,endH,endM per range; ";" separated
 
 //--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
 input double   InpRuleset5_LotSize = 0.01;  // lot for ruleset 5 buy limit
@@ -69,12 +62,12 @@ input double   InpRuleset5_LotSize = 0.01;  // lot for ruleset 5 buy limit
 //--- Trade type config: useLevel/usePrice/useTimeFilter indicate what trade cares about; bannedRangesStr from input.
 struct TradeTypeConfig
 {
-   bool   useLevel;        // false = trade does not use level (e.g. type 3)
-   bool   usePrice;        // false = no price/level distance check (e.g. type 3)
+   bool   useLevel;        // false = trade does not use level
+   bool   usePrice;        // false = no price/level distance check
    bool   useTimeFilter;   // true = apply banned ranges; false = no time filter or fixed time only
    string bannedRangesStr; // "startH,startM,endH,endM;..." e.g. "0,0,2,59;20,0,23,59"
 };
-TradeTypeConfig g_tradeConfig[5];   // index by TRADE_TYPE_ID 1..4
+TradeTypeConfig g_tradeConfig[5];   // index by TRADE_TYPE_ID 1..2
 const int MAX_BANNED_RANGES = 10;
 int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges
 int g_bannedRangesCount = 0;
@@ -108,8 +101,7 @@ const long EA_MAGIC = 47001; // unique magic for this EA's orders
 enum TRADE_TYPE_ID
 {
    TRADE_TYPE_BUY_2ND_BOUNCE = 1,
-   TRADE_TYPE_BUY_4TH_BOUNCE = 2,
-   TRADE_TYPE_MARKET_TEST   = 3   // trigger at bar close: place buy then close later; no level in magic
+   TRADE_TYPE_BUY_4TH_BOUNCE = 2
 };
 
 CTrade ExtTrade;
@@ -1328,20 +1320,6 @@ long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYP
 }
 
 //+------------------------------------------------------------------+
-//| Build magic for trade type 3 (market_test). No level; date only (id 3 + YYYYMMDD). |
-//+------------------------------------------------------------------+
-long BuildMagicForTradeType3(datetime timer1Time)
-{
-   MqlDateTime dt;
-   TimeToStruct(timer1Time, dt);
-   string dateStr = IntegerToString(dt.year) +
-                    StringFormat("%02d", dt.mon) +
-                    StringFormat("%02d", dt.day);
-   string magicStr = StringFormat("%d%s", (int)TRADE_TYPE_MARKET_TEST, dateStr);
-   return (long)StringToInteger(magicStr);
-}
-
-//+------------------------------------------------------------------+
 //| Build levels[] from g_levels[] (CSV). One Level per row; baseName = start_tag, validFrom/To from start/end. |
 //+------------------------------------------------------------------+
 void BuildLevelsFromCSV()
@@ -1675,11 +1653,6 @@ int OnInit()
    g_tradeConfig[TRADE_TYPE_BUY_4TH_BOUNCE].usePrice = true;
    g_tradeConfig[TRADE_TYPE_BUY_4TH_BOUNCE].useTimeFilter = true;
    g_tradeConfig[TRADE_TYPE_BUY_4TH_BOUNCE].bannedRangesStr = T_tradeType2_BannedRanges;
-
-   g_tradeConfig[TRADE_TYPE_MARKET_TEST].useLevel = false;
-   g_tradeConfig[TRADE_TYPE_MARKET_TEST].usePrice = false;
-   g_tradeConfig[TRADE_TYPE_MARKET_TEST].useTimeFilter = true;
-   g_tradeConfig[TRADE_TYPE_MARKET_TEST].bannedRangesStr = T_tradeType3_BannedRanges;
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
@@ -2076,6 +2049,13 @@ void OnTimer()
          string magicStr = IntegerToString(RULESET_ID_CLEAN_FIRST_BOUNCE_ON) + dateStr + levelStr;
          long magic = (long)StringToInteger(magicStr);
          if(CountOrdersAndPositionsForMagic(magic) != 0) continue;
+
+         // Day-level ON cap: no more ruleset 5 if today's overnight (pullinghistory data) already hit limits
+         int kLast = g_barsInDay - 1;
+         int onCount = g_dayProgress[kLast].ONtradeCount;
+         double onWr = g_dayProgress[kLast].ONwinRate;
+         if(onCount == 2 && onWr >= 1.0) continue;  // 2 ON trades and 100% win rate → stop ruleset 5 today
+         if(onCount >= 3) continue;                  // 3+ ON trades → stop ruleset 5 today
 
          double orderPrice = NormalizeDouble(potentialTradeLevel + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
          double tp = NormalizeDouble(potentialTradeLevel + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
@@ -2506,65 +2486,6 @@ void OnTimer()
 }
 
 //+------------------------------------------------------------------+
-//| Type 3: trigger as soon as bar closed. Place buy at trigger minute; close at close minute. No bar-end time logic. |
-//+------------------------------------------------------------------+
-void EvaluateTradeType3(datetime candleTime)
-{
-   MqlDateTime mt;
-   TimeToStruct(candleTime, mt);
-   int minute = mt.min;
-   if(minute != 29 && minute != 44) return;
-
-   if(g_tradeConfig[TRADE_TYPE_MARKET_TEST].useTimeFilter && StringLen(g_tradeConfig[TRADE_TYPE_MARKET_TEST].bannedRangesStr) > 0)
-   {
-      ParseBannedRanges(g_tradeConfig[TRADE_TYPE_MARKET_TEST].bannedRangesStr);
-      if(!IsTradingAllowed(candleTime, g_bannedRangesBuffer, g_bannedRangesCount)) return;
-   }
-
-   long magic = BuildMagicForTradeType3(candleTime);
-
-   if(minute == 29)
-   {
-      if(CountOrdersAndPositionsForMagic(magic) >= Max_OrdersPerMagic) return;
-
-      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-      double slPoints = (double)T_tradeType3_SLPoints;
-      double tpPoints = (double)T_tradeType3_TPPoints;
-      string orderComment = StringFormat("%d", (int)TRADE_TYPE_MARKET_TEST);
-      ExtTrade.SetExpertMagicNumber(magic);
-
-      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-      double sl = NormalizeDouble(ask - slPoints * point, _Digits);
-      double tp = NormalizeDouble(ask + tpPoints * point, _Digits);
-      if(ExtTrade.Buy(T_tradeType3_LotSize, _Symbol, ask, sl, tp, orderComment))
-      {
-         ulong orderTicket = ExtTrade.ResultOrder();
-         datetime eventTime = candleTime;
-         if(orderTicket > 0 && OrderSelect(orderTicket))
-            eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-         WriteTradeLog(GetTradeTypeStringFromId(TRADE_TYPE_MARKET_TEST), "pending_created", eventTime, "market_buy", ask, sl, tp, 0, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
-      }
-
-      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
-   }
-   else // close minute: close any position(s) with trade type 3 magic (id 3 + date)
-   {
-      ExtTrade.SetExpertMagicNumber(magic);
-      for(int i = PositionsTotal() - 1; i >= 0; i--)
-      {
-         if(!ExtPositionInfo.SelectByIndex(i)) continue;
-         if(ExtPositionInfo.Symbol() != _Symbol) continue;
-         if(ExtPositionInfo.Magic() != magic) continue;
-         ulong ticket = ExtPositionInfo.Ticket();
-         double closePrice = ExtPositionInfo.PriceCurrent();
-         ExtTrade.PositionClose(ticket);
-         WriteTradeLog(GetTradeTypeStringFromId(TRADE_TYPE_MARKET_TEST), "closed_by_ea", candleTime, "market_buy", closePrice, 0, 0, 0, 0, 0, ticket, (ENUM_DEAL_REASON)0, "", magic);
-      }
-      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
-   }
-}
-
-//+------------------------------------------------------------------+
 void FinalizeCurrentCandle()
 {
    datetime candleDay = current_candle_time - (current_candle_time % 86400);
@@ -2790,9 +2711,6 @@ void FinalizeCurrentCandle()
          }
       }
    }
-
-   // Flow B: evaluate trade type 3 (time filter only; trigger at candle close)
-   EvaluateTradeType3(current_candle_time);
 
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
