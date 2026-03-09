@@ -63,6 +63,9 @@ input int      T_tradeType3_TPPoints = 9000;  // TP/SL distance in points (not p
 input int      T_tradeType3_SLPoints = 9000;
 input string   T_tradeType3_BannedRanges = "0,0,2,59;20,0,23,59";  // startH,startM,endH,endM per range; ";" separated
 
+//--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
+input double   InpRuleset5_LotSize = 0.01;  // lot for ruleset 5 buy limit
+
 //--- Trade type config: useLevel/usePrice/useTimeFilter indicate what trade cares about; bannedRangesStr from input.
 struct TradeTypeConfig
 {
@@ -1398,6 +1401,14 @@ double PipSize()
 }
 
 //+------------------------------------------------------------------+
+//| For ruleset 5 and future rulesets: TP, SL and order offset input points are always x10 (e.g. 1 -> 10 pts, 0.7 -> 7 pts). |
+//+------------------------------------------------------------------+
+double NewRulesets_ProcessInput(double inputPoints)
+{
+   return inputPoints * 10.0;
+}
+
+//+------------------------------------------------------------------+
 //| Open file for append (try existing first, else create). Returns handle or INVALID_HANDLE. |
 //+------------------------------------------------------------------+
 int OpenOrCreateForAppend(string path)
@@ -2027,6 +2038,62 @@ void OnTimer()
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
+   // Rulecheck: potentialTradeLevel when |g_liveBid - g_levelBelowL[k]| < 3 points; ruleset 5 cleanFirstBounceON
+   if(g_barsInDay > 0 && g_levelsTodayCount > 0)
+   {
+      const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 5;
+      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+      const double RULE_DIST = 3.0;  // |liveBid - level| < 3 (plain number)
+      const int HIGHEST_DIFF_UP_WINDOW = 15;
+      const double HIGHEST_DIFF_UP_MIN = 9.0;
+      const double ORDER_OFFSET_POINTS = 0.5;  // ruleset-specified; use NewRulesets_ProcessInput for actual points
+      const double TP_SL_POINTS = 5.0;          // ruleset-specified; use NewRulesets_ProcessInput for actual points
+      const int EXPIRATION_MINUTES = 15;
+
+      for(int k = 0; k < g_barsInDay; k++)
+      {
+         if(g_levelBelowL[k] <= 0.0) continue;
+         double potentialTradeLevel = g_levelBelowL[k];
+         if(MathAbs(g_liveBid - potentialTradeLevel) >= RULE_DIST) continue;
+
+         int e = -1;
+         for(int i = 0; i < g_levelsTodayCount; i++)
+         {
+            if(g_levelsExpanded[i].levelPrice == potentialTradeLevel) { e = i; break; }
+         }
+         if(e < 0) continue;
+
+         string highestUp = GetHighestDiffInWindowString(potentialTradeLevel, k, HIGHEST_DIFF_UP_WINDOW, true);
+         if(highestUp == "never") continue;
+         if(StringToDouble(highestUp) <= HIGHEST_DIFF_UP_MIN) continue;
+         if(g_overlapC[e][k] != 0) continue;
+         if(g_session[k] != "ON") continue;
+
+         MqlDateTime d;
+         TimeToStruct(g_m1DayStart, d);
+         string dateStr = StringFormat("%04d%02d%02d", d.year, d.mon, d.day);
+         string levelStr = IntegerToString((int)MathRound(potentialTradeLevel));
+         string magicStr = IntegerToString(RULESET_ID_CLEAN_FIRST_BOUNCE_ON) + dateStr + levelStr;
+         long magic = (long)StringToInteger(magicStr);
+         if(CountOrdersAndPositionsForMagic(magic) != 0) continue;
+
+         double orderPrice = NormalizeDouble(potentialTradeLevel + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
+         double tp = NormalizeDouble(potentialTradeLevel + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+         double sl = NormalizeDouble(potentialTradeLevel - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+         datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
+         string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, potentialTradeLevel, _Digits, tp, _Digits, sl, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
+
+         ExtTrade.SetExpertMagicNumber(magic);
+         if(ExtTrade.BuyLimit(InpRuleset5_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expiration, comment))
+         {
+            ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+            break;
+         }
+         ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+      }
+      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+   }
+
    MqlDateTime mt;
    TimeToStruct(g_lastTimer1Time, mt);
    datetime today = g_lastTimer1Time - (g_lastTimer1Time % 86400);
@@ -2339,7 +2406,7 @@ void OnTimer()
          }
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
-         int recentPriceArgument = 5;
+         const int HighestDiffRange_Log = 15;  // window in bars for both HighestDiffUp and HighestDiffDown in logs
          for(int e = 0; e < g_levelsTodayCount; e++)
          {
             string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, _Digits) + "_" + g_levelsExpanded[e].tag + ".csv";
@@ -2354,8 +2421,8 @@ void OnTimer()
                double rthOpen = GetRTHopenCurrentDay();
                for(int k = 0; k < g_levelsExpanded[e].count; k++)
                {
-                  string highestUp   = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, true);
-                  string highestDown = GetHighestDiffInWindowString(lvl, k, recentPriceArgument, false);
+                  string highestUp   = GetHighestDiffInWindowString(lvl, k, HighestDiffRange_Log, true);
+                  string highestDown = GetHighestDiffInWindowString(lvl, k, HighestDiffRange_Log, false);
                   bool onKnown   = (k > 0);
                   bool rthKnown  = (GetSessionForCandleTime(g_levelsExpanded[e].times[k]) != "ON");
                   string onAboveStr  = GetOpenWasAboveLevelString(onOpen, lvl, onKnown);
@@ -2367,7 +2434,7 @@ void OnTimer()
                      IntegerToString(g_cleanStreakAbove[e][k]), IntegerToString(g_cleanStreakBelow[e][k]),
                      IntegerToString(g_aboveCnt[e][k]), DoubleToString(g_abovePerc[e][k], 2), IntegerToString(g_belowCnt[e][k]), DoubleToString(g_belowPerc[e][k], 2),
                      IntegerToString(g_overlapStreak[e][k]), IntegerToString(g_overlapC[e][k]), DoubleToString(g_overlapPc[e][k], 2),
-                     highestUp, IntegerToString(recentPriceArgument), highestDown, IntegerToString(recentPriceArgument),
+                     highestUp, IntegerToString(HighestDiffRange_Log), highestDown, IntegerToString(HighestDiffRange_Log),
                      onAboveStr, rthAboveStr,
                      IntegerToString(g_ONtradeCount_L[e][k]), DoubleToString((g_ONtradeCount_L[e][k] > 0) ? (double)g_ONwins_L[e][k] / (double)g_ONtradeCount_L[e][k] * 100.0 : 0.0, 0), DoubleToString(g_ONpointsSum_L[e][k], _Digits), DoubleToString(g_ONprofitSum_L[e][k], 2),
                      IntegerToString(g_RTHtradeCount_L[e][k]), DoubleToString((g_RTHtradeCount_L[e][k] > 0) ? (double)g_RTHwins_L[e][k] / (double)g_RTHtradeCount_L[e][k] * 100.0 : 0.0, 0), DoubleToString(g_RTHpointsSum_L[e][k], _Digits), DoubleToString(g_RTHprofitSum_L[e][k], 2));
