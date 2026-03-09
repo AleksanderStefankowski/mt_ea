@@ -325,36 +325,36 @@ int g_perTradeSummariesCount = 0;
 // Returns index in g_perTradeSummaries for key (first digit of magic); adds new entry if not found (or -1 if table full).
 int FindOrAddPerTradeMagic(long keyFirstDigit)
 {
-   for(int i = 0; i < g_perTradeSummariesCount; i++)
-      if(g_perTradeSummaries[i].magic == keyFirstDigit)
-         return i;
+   for(int summaryIdx = 0; summaryIdx < g_perTradeSummariesCount; summaryIdx++)
+      if(g_perTradeSummaries[summaryIdx].magic == keyFirstDigit)
+         return summaryIdx;
    if(g_perTradeSummariesCount >= MAX_PER_TRADE_MAGICS)
       return -1;
-   int i = g_perTradeSummariesCount++;
-   g_perTradeSummaries[i].magic = keyFirstDigit;
-   g_perTradeSummaries[i].datesList = "";
-   g_perTradeSummaries[i].dayTradesCount = 0;
-   g_perTradeSummaries[i].dayWins = 0;
-   g_perTradeSummaries[i].dayPointsSum = 0.0;
-   g_perTradeSummaries[i].dayProfitSum = 0.0;
-   g_perTradeSummaries[i].ONtradeCount = 0;
-   g_perTradeSummaries[i].ONwins = 0;
-   g_perTradeSummaries[i].ONpointsSum = 0.0;
-   g_perTradeSummaries[i].ONprofitSum = 0.0;
-   g_perTradeSummaries[i].RTHtradeCount = 0;
-   g_perTradeSummaries[i].RTHwins = 0;
-   g_perTradeSummaries[i].RTHpointsSum = 0.0;
-   g_perTradeSummaries[i].RTHprofitSum = 0.0;
-   return i;
+   int newIdx = g_perTradeSummariesCount++;
+   g_perTradeSummaries[newIdx].magic = keyFirstDigit;
+   g_perTradeSummaries[newIdx].datesList = "";
+   g_perTradeSummaries[newIdx].dayTradesCount = 0;
+   g_perTradeSummaries[newIdx].dayWins = 0;
+   g_perTradeSummaries[newIdx].dayPointsSum = 0.0;
+   g_perTradeSummaries[newIdx].dayProfitSum = 0.0;
+   g_perTradeSummaries[newIdx].ONtradeCount = 0;
+   g_perTradeSummaries[newIdx].ONwins = 0;
+   g_perTradeSummaries[newIdx].ONpointsSum = 0.0;
+   g_perTradeSummaries[newIdx].ONprofitSum = 0.0;
+   g_perTradeSummaries[newIdx].RTHtradeCount = 0;
+   g_perTradeSummaries[newIdx].RTHwins = 0;
+   g_perTradeSummaries[newIdx].RTHpointsSum = 0.0;
+   g_perTradeSummaries[newIdx].RTHprofitSum = 0.0;
+   return newIdx;
 }
 
 // First digit of magic (e.g. 5432131 -> 5). Used to group per-trade summary by trade type.
 long FirstDigitOfMagic(long magic)
 {
-   long n = magic;
-   if(n < 0) n = -n;
-   while(n >= 10) n /= 10;
-   return n;
+   long num = magic;
+   if(num < 0) num = -num;
+   while(num >= 10) num /= 10;
+   return num;
 }
 
 //--- Levels break check aggregate (all days, tertiary excluded): running sums for ON, RTHIB, RTHcnt; written at 22:00 to levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv
@@ -463,21 +463,21 @@ const double tertiaryLevel_tooTight_toAdd_proximity = 2.0;
 //+------------------------------------------------------------------+
 bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCount)
 {
-   MqlDateTime mt;
-   TimeToStruct(candleTime, mt);
-   int hour = mt.hour;
-   int minute = mt.min;
+   MqlDateTime mqlTime;
+   TimeToStruct(candleTime, mqlTime);
+   int hour = mqlTime.hour;
+   int minute = mqlTime.min;
    
    // Convert to minutes since midnight for easier comparison
    int currentMinutes = hour * 60 + minute;
    
    // Check if current time falls within any banned range
-   for(int i = 0; i < rangeCount; i++)
+   for(int rangeIdx = 0; rangeIdx < rangeCount; rangeIdx++)
    {
-      int startHour = bannedRanges[i][0];
-      int startMinute = bannedRanges[i][1];
-      int endHour = bannedRanges[i][2];
-      int endMinute = bannedRanges[i][3];
+      int startHour = bannedRanges[rangeIdx][0];
+      int startMinute = bannedRanges[rangeIdx][1];
+      int endHour = bannedRanges[rangeIdx][2];
+      int endMinute = bannedRanges[rangeIdx][3];
       
       int startMinutes = startHour * 60 + startMinute;
       int endMinutes = endHour * 60 + endMinute;
@@ -495,16 +495,16 @@ bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCoun
 bool LoadCalendar()
 {
    g_calendarCount = 0;
-   int fh = FileOpen(InpCalendarFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
-   if(fh == INVALID_HANDLE)
+   int fileHandle = FileOpen(InpCalendarFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
+   if(fileHandle == INVALID_HANDLE)
    {
       FatalError("Calendar file could not be opened: " + InpCalendarFile + " (place CSV in Terminal/Common/Files)");
       return false;
    }
-   string line = FileReadString(fh);  // skip header
-   while(!FileIsEnding(fh) && g_calendarCount < MAX_CALENDAR_ROWS)
+   string line = FileReadString(fileHandle);  // skip header
+   while(!FileIsEnding(fileHandle) && g_calendarCount < MAX_CALENDAR_ROWS)
    {
-      line = FileReadString(fh);
+      line = FileReadString(fileHandle);
       if(StringLen(line) == 0) continue;
       string parts[];
       if(StringSplit(line, ',', parts) < 5) continue;
@@ -515,7 +515,7 @@ bool LoadCalendar()
       g_calendar[g_calendarCount].qopex      = (StringFind(parts[4], "True") == 0);
       g_calendarCount++;
    }
-   FileClose(fh);
+   FileClose(fileHandle);
    return (g_calendarCount > 0);
 }
 
@@ -525,8 +525,8 @@ bool LoadCalendar()
 string GetCalendarDayOfWeek(datetime dt)
 {
    string key = TimeToString(dt, TIME_DATE);  // YYYY.MM.DD to match calendar
-   for(int i = 0; i < g_calendarCount; i++)
-      if(g_calendar[i].dateStr == key) return g_calendar[i].dayofweek;
+   for(int calIdx = 0; calIdx < g_calendarCount; calIdx++)
+      if(g_calendar[calIdx].dateStr == key) return g_calendar[calIdx].dayofweek;
    return "";
 }
 
@@ -535,9 +535,9 @@ string GetCalendarDayOfWeek(datetime dt)
 //+------------------------------------------------------------------+
 string GetSessionForCandleTime(datetime t)
 {
-   MqlDateTime mt;
-   TimeToStruct(t, mt);
-   int minOfDay = mt.hour * 60 + mt.min;
+   MqlDateTime mqlTime;
+   TimeToStruct(t, mqlTime);
+   int minOfDay = mqlTime.hour * 60 + mqlTime.min;
    if(minOfDay < 15*60+30) return "ON";   // before 15:30
    if(minOfDay <= 22*60+0) return "RTH"; // 15:30 to 22:00
    return "sleep";
@@ -560,9 +560,9 @@ double GetRTHopenCurrentDay()
    if(g_barsInDay <= 0 || g_m1DayStart == 0)
       FatalError("GetRTHopenCurrentDay: no day data (g_barsInDay=" + IntegerToString(g_barsInDay) + " g_m1DayStart=0)");
    datetime targetTime = g_m1DayStart + 15*3600 + 30*60;  // 15:30 bar open time
-   for(int k = 0; k < g_barsInDay; k++)
-      if(g_m1Rates[k].time == targetTime)
-         return g_m1Rates[k].open;
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+      if(g_m1Rates[barIdx].time == targetTime)
+         return g_m1Rates[barIdx].open;
    FatalError("GetRTHopenCurrentDay: 15:30 candle not found for " + TimeToString(g_m1DayStart, TIME_DATE));
    return 0.0;  // unreachable
 }
@@ -572,9 +572,9 @@ double GetRTHopenCurrentDay()
 //+------------------------------------------------------------------+
 bool IsBarRTHIB(datetime barTime)
 {
-   MqlDateTime mt;
-   TimeToStruct(barTime, mt);
-   int minOfDay = mt.hour * 60 + mt.min;
+   MqlDateTime mqlTime;
+   TimeToStruct(barTime, mqlTime);
+   int minOfDay = mqlTime.hour * 60 + mqlTime.min;
    return (minOfDay >= 15*60+30 && minOfDay <= 16*60+30);
 }
 
@@ -583,22 +583,22 @@ bool IsBarRTHIB(datetime barTime)
 //+------------------------------------------------------------------+
 bool IsBarRTHcnt(datetime barTime)
 {
-   MqlDateTime mt;
-   TimeToStruct(barTime, mt);
-   int minOfDay = mt.hour * 60 + mt.min;
+   MqlDateTime mqlTime;
+   TimeToStruct(barTime, mqlTime);
+   int minOfDay = mqlTime.hour * 60 + mqlTime.min;
    return (minOfDay >= 16*60+31);
 }
 
 //+------------------------------------------------------------------+
-//| Median of first n elements of arr[]. Resizes arr to n and sorts in place. Returns 0 if n<=0. |
+//| Median of first elemCount elements of arr[]. Resizes arr to elemCount and sorts in place. Returns 0 if elemCount<=0. |
 //+------------------------------------------------------------------+
-double GetMedianDoubleArray(double &arr[], int n)
+double GetMedianDoubleArray(double &arr[], int elemCount)
 {
-   if(n <= 0) return 0.0;
-   ArrayResize(arr, n);
+   if(elemCount <= 0) return 0.0;
+   ArrayResize(arr, elemCount);
    ArraySort(arr);
-   if(n % 2 == 1) return arr[n/2];
-   return (arr[n/2 - 1] + arr[n/2]) / 2.0;
+   if(elemCount % 2 == 1) return arr[elemCount/2];
+   return (arr[elemCount/2 - 1] + arr[elemCount/2]) / 2.0;
 }
 
 //+------------------------------------------------------------------+
@@ -609,7 +609,7 @@ enum BREAKCHECK_SESSION { BREAKCHECK_ON, BREAKCHECK_RTHIB, BREAKCHECK_RTHCNT };
 struct BreakCheckSessionResult
 {
    int    firstCloseAbove;
-   int    n;
+   int    count;
    double avg;
    double median;
    string rangeStartStr;
@@ -634,35 +634,35 @@ bool BarInSession(int k, BREAKCHECK_SESSION sessionType)
 //+------------------------------------------------------------------+
 BreakCheckSessionResult BreakCheckSessionStats(double lvl, double maxDist, BREAKCHECK_SESSION sessionType)
 {
-   BreakCheckSessionResult r;
-   r.firstCloseAbove = g_barsInDay;
-   r.n = 0;
-   r.avg = 0.0;
-   r.median = 0.0;
-   r.rangeStartStr = "";
+   BreakCheckSessionResult sessionResult;
+   sessionResult.firstCloseAbove = g_barsInDay;
+   sessionResult.count = 0;
+   sessionResult.avg = 0.0;
+   sessionResult.median = 0.0;
+   sessionResult.rangeStartStr = "";
 
-   for(int k = 0; k < g_barsInDay; k++)
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
-      if(!BarInSession(k, sessionType)) continue;
-      if(g_m1Rates[k].close > lvl) { r.firstCloseAbove = k; break; }
+      if(!BarInSession(barIdx, sessionType)) continue;
+      if(g_m1Rates[barIdx].close > lvl) { sessionResult.firstCloseAbove = barIdx; break; }
    }
 
    double values[];
    ArrayResize(values, g_barsInDay);
    double sum = 0.0;
-   for(int k = r.firstCloseAbove; k < g_barsInDay; k++)
+   for(int barIdx = sessionResult.firstCloseAbove; barIdx < g_barsInDay; barIdx++)
    {
-      if(!BarInSession(k, sessionType)) continue;
-      if(g_m1Rates[k].low >= lvl) continue;
-      double d = lvl - g_m1Rates[k].low;
-      if(d > maxDist) break;
-      if(d <= maxDist) { values[r.n++] = d; sum += d; }
+      if(!BarInSession(barIdx, sessionType)) continue;
+      if(g_m1Rates[barIdx].low >= lvl) continue;
+      double dist = lvl - g_m1Rates[barIdx].low;
+      if(dist > maxDist) break;
+      if(dist <= maxDist) { values[sessionResult.count++] = dist; sum += dist; }
    }
-   r.avg    = (r.n > 0) ? sum / (double)r.n : 0.0;
-   r.median = GetMedianDoubleArray(values, r.n);
-   r.rangeStartStr = (r.firstCloseAbove < g_barsInDay) ? TimeToString(g_m1Rates[r.firstCloseAbove].time, TIME_DATE|TIME_MINUTES) : "";
+   sessionResult.avg    = (sessionResult.count > 0) ? sum / (double)sessionResult.count : 0.0;
+   sessionResult.median = GetMedianDoubleArray(values, sessionResult.count);
+   sessionResult.rangeStartStr = (sessionResult.firstCloseAbove < g_barsInDay) ? TimeToString(g_m1Rates[sessionResult.firstCloseAbove].time, TIME_DATE|TIME_MINUTES) : "";
 
-   return r;
+   return sessionResult;
 }
 
 //+------------------------------------------------------------------+
@@ -673,12 +673,12 @@ void GetSessionHighLow(const string sessionName, double &outHigh, double &outLow
    outHigh = -1e300;
    outLow  = 1e300;
    hasAny  = false;
-   for(int k = 0; k < g_barsInDay; k++)
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
-      if(g_session[k] != sessionName) continue;
+      if(g_session[barIdx] != sessionName) continue;
       hasAny = true;
-      if(g_m1Rates[k].high > outHigh) outHigh = g_m1Rates[k].high;
-      if(g_m1Rates[k].low  < outLow)  outLow  = g_m1Rates[k].low;
+      if(g_m1Rates[barIdx].high > outHigh) outHigh = g_m1Rates[barIdx].high;
+      if(g_m1Rates[barIdx].low  < outLow)  outLow  = g_m1Rates[barIdx].low;
    }
 }
 
@@ -688,15 +688,15 @@ void GetSessionHighLow(const string sessionName, double &outHigh, double &outLow
 string GetPreviousTradingDayDateString(datetime dayStart)
 {
    string key = TimeToString(dayStart, TIME_DATE);  // YYYY.MM.DD to match calendar
-   int i = -1;
-   for(int j = 0; j < g_calendarCount; j++)
-      if(g_calendar[j].dateStr == key) { i = j; break; }
-   if(i <= 0) return "";
-   int j = i - 1;
-   while(j >= 0 && (g_calendar[j].dayofweek == "Saturday" || g_calendar[j].dayofweek == "Sunday"))
-      j--;
-   if(j < 0) return "";
-   return g_calendar[j].dateStr;
+   int foundIdx = -1;
+   for(int calIdx = 0; calIdx < g_calendarCount; calIdx++)
+      if(g_calendar[calIdx].dateStr == key) { foundIdx = calIdx; break; }
+   if(foundIdx <= 0) return "";
+   int prevIdx = foundIdx - 1;
+   while(prevIdx >= 0 && (g_calendar[prevIdx].dayofweek == "Saturday" || g_calendar[prevIdx].dayofweek == "Sunday"))
+      prevIdx--;
+   if(prevIdx < 0) return "";
+   return g_calendar[prevIdx].dateStr;
 }
 
 //+------------------------------------------------------------------+
@@ -723,11 +723,11 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
       FatalError("UpdateStaticMarketContext: invalid prev day format " + prevDayStr);
       return;
    }
-   int y = (int)StringToInteger(parts[0]);
-   int mo = (int)StringToInteger(parts[1]);
-   int d = (int)StringToInteger(parts[2]);
+   int year = (int)StringToInteger(parts[0]);
+   int month = (int)StringToInteger(parts[1]);
+   int day = (int)StringToInteger(parts[2]);
    MqlDateTime mtPrev = {0};
-   mtPrev.year = y; mtPrev.mon = mo; mtPrev.day = d;
+   mtPrev.year = year; mtPrev.mon = month; mtPrev.day = day;
    datetime prevDayStart = StructToTime(mtPrev);
    datetime prevDayEnd   = prevDayStart + 86400;
 
@@ -750,12 +750,12 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
       return;
    }
    double pdh = -1e300, pdl = 1e300;
-   for(int s = shiftDayEnd; s <= shiftDayStart; s++)
+   for(int shiftIdx = shiftDayEnd; shiftIdx <= shiftDayStart; shiftIdx++)
    {
-      double h = iHigh(_Symbol, PERIOD_M30, s);
-      double l = iLow(_Symbol, PERIOD_M30, s);
-      if(h > pdh) pdh = h;
-      if(l < pdl) pdl = l;
+      double high = iHigh(_Symbol, PERIOD_M30, shiftIdx);
+      double low = iLow(_Symbol, PERIOD_M30, shiftIdx);
+      if(high > pdh) pdh = high;
+      if(low < pdl) pdl = low;
    }
    if(pdh <= -1e300 || pdl >= 1e300)
    {
@@ -777,16 +777,16 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
 bool LoadLevels()
 {
    g_levelsTotalCount = 0;
-   int fh = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
-   if(fh == INVALID_HANDLE)
+   int fileHandle = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
+   if(fileHandle == INVALID_HANDLE)
    {
       FatalError("Levels file could not be opened: " + InpLevelsFile + " (place CSV in Terminal/Common/Files)");
       return false;
    }
-   string line = FileReadString(fh);  // skip header
-   while(!FileIsEnding(fh) && g_levelsTotalCount < MAX_LEVEL_ROWS)
+   string line = FileReadString(fileHandle);  // skip header
+   while(!FileIsEnding(fileHandle) && g_levelsTotalCount < MAX_LEVEL_ROWS)
    {
-      line = FileReadString(fh);
+      line = FileReadString(fileHandle);
       if(StringLen(line) == 0) continue;
       string parts[];
       if(StringSplit(line, ',', parts) < 5) continue;
@@ -797,7 +797,7 @@ bool LoadLevels()
       g_levels[g_levelsTotalCount].tag        = parts[4];
       g_levelsTotalCount++;
    }
-   FileClose(fh);
+   FileClose(fileHandle);
    return (g_levelsTotalCount > 0);
 }
 
@@ -806,20 +806,20 @@ bool LoadLevels()
 //+------------------------------------------------------------------+
 double GetLevelExpandedDiff(double levelPrice, string tag, datetime barTime)
 {
-   for(int e = 0; e < g_levelsTodayCount; e++)
+   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
    {
-      if(levelPrice > 0 && g_levelsExpanded[e].levelPrice != levelPrice) continue;
-      if(StringLen(tag) > 0 && g_levelsExpanded[e].tag != tag) continue;
-      for(int k = 0; k < g_levelsExpanded[e].count; k++)
-         if(g_levelsExpanded[e].times[k] == barTime)
-            return g_levelsExpanded[e].diffs[k];
+      if(levelPrice > 0 && g_levelsExpanded[levelIdx].levelPrice != levelPrice) continue;
+      if(StringLen(tag) > 0 && g_levelsExpanded[levelIdx].tag != tag) continue;
+      for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
+         if(g_levelsExpanded[levelIdx].times[barIdx] == barTime)
+            return g_levelsExpanded[levelIdx].diffs[barIdx];
       return 0;
    }
    return 0;
 }
 
 //+------------------------------------------------------------------+
-//| In last windowBars ending at bar k: Up = max(high-level) when high>level; Down = max(level-low) when low<level. |
+//| In last windowBars ending at bar barK: Up = max(high-level) when high>level; Down = max(level-low) when low<level. |
 //| Returns "never" if no bar had price above level (Up) or below level (Down); else returns value as string. |
 //| Uses OptionalDouble in memory (no -1e300 sentinel). |
 //+------------------------------------------------------------------+
@@ -830,30 +830,30 @@ string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars,
    result.hasValue = false;
    if(wantUp)
    {
-      for(int j = startBar; j <= barK; j++)
+      for(int barIdx = startBar; barIdx <= barK; barIdx++)
       {
-         if(g_m1Rates[j].high > levelPrice)
+         if(g_m1Rates[barIdx].high > levelPrice)
          {
-            double d = g_m1Rates[j].high - levelPrice;
-            if(!result.hasValue || d > result.value)
+            double diff = g_m1Rates[barIdx].high - levelPrice;
+            if(!result.hasValue || diff > result.value)
             {
                result.hasValue = true;
-               result.value = d;
+               result.value = diff;
             }
          }
       }
    }
    else
    {
-      for(int j = startBar; j <= barK; j++)
+      for(int barIdx = startBar; barIdx <= barK; barIdx++)
       {
-         if(g_m1Rates[j].low < levelPrice)
+         if(g_m1Rates[barIdx].low < levelPrice)
          {
-            double d = levelPrice - g_m1Rates[j].low;
-            if(!result.hasValue || d > result.value)
+            double diff = levelPrice - g_m1Rates[barIdx].low;
+            if(!result.hasValue || diff > result.value)
             {
                result.hasValue = true;
-               result.value = d;
+               result.value = diff;
             }
          }
       }
@@ -884,11 +884,11 @@ bool IsBarOverlap(double low, double high, double level)
 int GetCleanStreakForLevel(double level, int barIndex, bool above)
 {
    int streak = 0;
-   for(int j = barIndex - 1; j >= 0; j--)
+   for(int barIdx = barIndex - 1; barIdx >= 0; barIdx--)
    {
       bool clean = above
-         ? (g_m1Rates[j].open > level && g_m1Rates[j].high > level && g_m1Rates[j].low > level && g_m1Rates[j].close > level)
-         : (g_m1Rates[j].open < level && g_m1Rates[j].high < level && g_m1Rates[j].low < level && g_m1Rates[j].close < level);
+         ? (g_m1Rates[barIdx].open > level && g_m1Rates[barIdx].high > level && g_m1Rates[barIdx].low > level && g_m1Rates[barIdx].close > level)
+         : (g_m1Rates[barIdx].open < level && g_m1Rates[barIdx].high < level && g_m1Rates[barIdx].low < level && g_m1Rates[barIdx].close < level);
       if(clean)
          streak++;
       else
@@ -902,15 +902,15 @@ int GetCleanStreakForLevel(double level, int barIndex, bool above)
 //+------------------------------------------------------------------+
 int CountCleanBarsInRange(double level, int fromBar, int toBar, bool above)
 {
-   int cnt = 0;
-   for(int j = fromBar; j <= toBar; j++)
+   int count = 0;
+   for(int barIdx = fromBar; barIdx <= toBar; barIdx++)
    {
       bool clean = above
-         ? (g_m1Rates[j].open > level && g_m1Rates[j].high > level && g_m1Rates[j].low > level && g_m1Rates[j].close > level)
-         : (g_m1Rates[j].open < level && g_m1Rates[j].high < level && g_m1Rates[j].low < level && g_m1Rates[j].close < level);
-      if(clean) cnt++;
+         ? (g_m1Rates[barIdx].open > level && g_m1Rates[barIdx].high > level && g_m1Rates[barIdx].low > level && g_m1Rates[barIdx].close > level)
+         : (g_m1Rates[barIdx].open < level && g_m1Rates[barIdx].high < level && g_m1Rates[barIdx].low < level && g_m1Rates[barIdx].close < level);
+      if(clean) count++;
    }
-   return cnt;
+   return count;
 }
 
 //+------------------------------------------------------------------+
@@ -919,9 +919,9 @@ int CountCleanBarsInRange(double level, int fromBar, int toBar, bool above)
 int GetOverlapStreakForLevel(double level, int barIndex)
 {
    int streak = 0;
-   for(int j = barIndex - 1; j >= 0; j--)
+   for(int barIdx = barIndex - 1; barIdx >= 0; barIdx--)
    {
-      if(g_m1Rates[j].low <= level && level <= g_m1Rates[j].high)
+      if(g_m1Rates[barIdx].low <= level && level <= g_m1Rates[barIdx].high)
          streak++;
       else
          break;
@@ -934,10 +934,10 @@ int GetOverlapStreakForLevel(double level, int barIndex)
 //+------------------------------------------------------------------+
 int CountOverlapBarsInRange(double level, int fromBar, int toBar)
 {
-   int cnt = 0;
-   for(int j = fromBar; j <= toBar; j++)
-      if(g_m1Rates[j].low <= level && level <= g_m1Rates[j].high) cnt++;
-   return cnt;
+   int count = 0;
+   for(int barIdx = fromBar; barIdx <= toBar; barIdx++)
+      if(g_m1Rates[barIdx].low <= level && level <= g_m1Rates[barIdx].high) count++;
+   return count;
 }
 
 //+------------------------------------------------------------------+
@@ -960,16 +960,16 @@ void UpdateDayM1AndLevelsExpanded()
    if(copied <= 0) { g_barsInDay = 0; g_m1DayStart = 0; return; }
 
    int barsInDay = 0;
-   for(int b = 0; b < copied; b++)
-      if(TimeToString(m1Rates[b].time, TIME_DATE) == dateStr) barsInDay++;
+   for(int barIdx = 0; barIdx < copied; barIdx++)
+      if(TimeToString(m1Rates[barIdx].time, TIME_DATE) == dateStr) barsInDay++;
 
    if(barsInDay <= 0 || barsInDay > MAX_BARS_IN_DAY) { g_barsInDay = 0; g_m1DayStart = 0; return; }
 
    int idxDay = 0;
-   for(int b = 0; b < copied && idxDay < barsInDay; b++)
+   for(int barIdx = 0; barIdx < copied && idxDay < barsInDay; barIdx++)
    {
-      if(TimeToString(m1Rates[b].time, TIME_DATE) != dateStr) continue;
-      g_m1Rates[idxDay] = m1Rates[b];
+      if(TimeToString(m1Rates[barIdx].time, TIME_DATE) != dateStr) continue;
+      g_m1Rates[idxDay] = m1Rates[barIdx];
       idxDay++;
    }
    g_barsInDay = barsInDay;
@@ -978,25 +978,25 @@ void UpdateDayM1AndLevelsExpanded()
    // Ensure todayRTHopen is in g_levels when we have the 15:30 bar (data-driven; no reliance on new-bar event timing)
    {
       double open1530 = 0;
-      for(int k = 0; k < g_barsInDay; k++)
+      for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
       {
-         MqlDateTime mt;
-         TimeToStruct(g_m1Rates[k].time, mt);
-         if(mt.hour == 15 && mt.min == 30)
-            { open1530 = g_m1Rates[k].open; break; }
+         MqlDateTime mqlTime;
+         TimeToStruct(g_m1Rates[barIdx].time, mqlTime);
+         if(mqlTime.hour == 15 && mqlTime.min == 30)
+            { open1530 = g_m1Rates[barIdx].open; break; }
       }
       if(open1530 != 0)
       {
          string todayStr = dateStr;
          bool alreadyAdded = false;
-         for(int i = 0; i < g_levelsTotalCount; i++)
-            if(g_levels[i].tag == "todayRTHopen" && g_levels[i].startStr == todayStr && g_levels[i].endStr == todayStr)
+         for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+            if(g_levels[levelIdx].tag == "todayRTHopen" && g_levels[levelIdx].startStr == todayStr && g_levels[levelIdx].endStr == todayStr)
             { alreadyAdded = true; break; }
          bool tooClose = false;
          if(!alreadyAdded)
-            for(int i = 0; i < g_levelsTotalCount; i++)
-               if(g_levels[i].startStr <= todayStr && todayStr <= g_levels[i].endStr &&
-                  MathAbs(g_levels[i].levelPrice - open1530) < tertiaryLevel_tooTight_toAdd_proximity)
+            for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+               if(g_levels[levelIdx].startStr <= todayStr && todayStr <= g_levels[levelIdx].endStr &&
+                  MathAbs(g_levels[levelIdx].levelPrice - open1530) < tertiaryLevel_tooTight_toAdd_proximity)
                { tooClose = true; break; }
          if(!alreadyAdded && !tooClose && g_levelsTotalCount < MAX_LEVEL_ROWS)
          {
@@ -1019,10 +1019,10 @@ void UpdateDayM1AndLevelsExpanded()
       string todayStr = dateStr;
       double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
       bool PDrthLevel_tooClose_to_regularLevel = false;
-      for(int i = 0; i < g_levelsTotalCount; i++)
+      for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
       {
-         if(g_levels[i].startStr > todayStr || todayStr > g_levels[i].endStr) continue;
-         if(MathAbs(g_levels[i].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity) { PDrthLevel_tooClose_to_regularLevel = true; break; }
+         if(g_levels[levelIdx].startStr > todayStr || todayStr > g_levels[levelIdx].endStr) continue;
+         if(MathAbs(g_levels[levelIdx].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity) { PDrthLevel_tooClose_to_regularLevel = true; break; }
       }
       if(!PDrthLevel_tooClose_to_regularLevel && g_levelsTotalCount < MAX_LEVEL_ROWS)
       {
@@ -1040,60 +1040,60 @@ void UpdateDayM1AndLevelsExpanded()
 
    // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
    g_levelsTodayCount = 0;
-   for(int i = 0; i < g_levelsTotalCount && g_levelsTodayCount < MAX_LEVELS_EXPANDED; i++)
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount && g_levelsTodayCount < MAX_LEVELS_EXPANDED; levelIdx++)
    {
-      if(g_levels[i].startStr > dayKey || dayKey > g_levels[i].endStr) continue;
-      g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[i].levelPrice;
-      g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[i].tag;
-      g_levelsExpanded[g_levelsTodayCount].categories = g_levels[i].categories;
+      if(g_levels[levelIdx].startStr > dayKey || dayKey > g_levels[levelIdx].endStr) continue;
+      g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[levelIdx].levelPrice;
+      g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[levelIdx].tag;
+      g_levelsExpanded[g_levelsTodayCount].categories = g_levels[levelIdx].categories;
       g_levelsExpanded[g_levelsTodayCount].count      = g_barsInDay;
       ArrayResize(g_levelsExpanded[g_levelsTodayCount].diffs, g_barsInDay);
       ArrayResize(g_levelsExpanded[g_levelsTodayCount].times, g_barsInDay);
-      for(int k = 0; k < g_barsInDay; k++)
+      for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
       {
-         g_levelsExpanded[g_levelsTodayCount].times[k] = g_m1Rates[k].time;
-         g_levelsExpanded[g_levelsTodayCount].diffs[k] = g_m1Rates[k].close - g_levelsExpanded[g_levelsTodayCount].levelPrice;
+         g_levelsExpanded[g_levelsTodayCount].times[barIdx] = g_m1Rates[barIdx].time;
+         g_levelsExpanded[g_levelsTodayCount].diffs[barIdx] = g_m1Rates[barIdx].close - g_levelsExpanded[g_levelsTodayCount].levelPrice;
       }
       g_levelsTodayCount++;
    }
 
-   // Per (level e, bar k): breaksLevelDown / breaksLevelUpward from candle open/close vs level
-   for(int e = 0; e < g_levelsTodayCount; e++)
-      for(int k = 0; k < g_levelsExpanded[e].count; k++)
+   // Per (level levelIdx, bar barIdx): breaksLevelDown / breaksLevelUpward from candle open/close vs level
+   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
+      for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
       {
-         double lp = g_levelsExpanded[e].levelPrice;
-         g_breaksLevelDown[e][k]   = (g_m1Rates[k].open > lp && g_m1Rates[k].close < lp);
-         g_breaksLevelUpward[e][k] = (g_m1Rates[k].open < lp && g_m1Rates[k].close > lp);
+         double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
+         g_breaksLevelDown[levelIdx][barIdx]   = (g_m1Rates[barIdx].open > levelPrice && g_m1Rates[barIdx].close < levelPrice);
+         g_breaksLevelUpward[levelIdx][barIdx] = (g_m1Rates[barIdx].open < levelPrice && g_m1Rates[barIdx].close > levelPrice);
       }
 
-   // Per (level e, bar k): all level-bar stats in one forward pass (streaks and counts incremental to avoid O(bars^2))
-   for(int e = 0; e < g_levelsTodayCount; e++)
+   // Per (level levelIdx, bar barIdx): all level-bar stats in one forward pass (streaks and counts incremental to avoid O(bars^2))
+   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
    {
-      double lp = g_levelsExpanded[e].levelPrice;
-      int cnt = g_levelsExpanded[e].count;
-      int prevAbove = 0, prevBelow = 0, prevOverlap = 0;  // bar k-1 state
+      double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
+      int barCount = g_levelsExpanded[levelIdx].count;
+      int prevAbove = 0, prevBelow = 0, prevOverlap = 0;  // bar barIdx-1 state
       int runAbove = 0, runBelow = 0, runOverlap = 0;     // running streaks
-      int sumAbove = 0, sumBelow = 0, sumOverlap = 0;     // running counts 0..k
-      for(int k = 0; k < cnt; k++)
+      int sumAbove = 0, sumBelow = 0, sumOverlap = 0;     // running counts 0..barIdx
+      for(int barIdx = 0; barIdx < barCount; barIdx++)
       {
-         double o = g_m1Rates[k].open, h = g_m1Rates[k].high, l_ = g_m1Rates[k].low, c = g_m1Rates[k].close;
-         int curAbove  = IsBarCleanAbove(o, h, l_, c, lp) ? 1 : 0;
-         int curBelow  = IsBarCleanBelow(o, h, l_, c, lp) ? 1 : 0;
-         int curOverlap = IsBarOverlap(l_, h, lp) ? 1 : 0;
+         double open_ = g_m1Rates[barIdx].open, high_ = g_m1Rates[barIdx].high, low_ = g_m1Rates[barIdx].low, close_ = g_m1Rates[barIdx].close;
+         int curAbove  = IsBarCleanAbove(open_, high_, low_, close_, levelPrice) ? 1 : 0;
+         int curBelow  = IsBarCleanBelow(open_, high_, low_, close_, levelPrice) ? 1 : 0;
+         int curOverlap = IsBarOverlap(low_, high_, levelPrice) ? 1 : 0;
 
-         g_cleanStreakAbove[e][k] = (k == 0) ? 0 : (prevAbove ? 1 + runAbove : 0);
-         g_cleanStreakBelow[e][k] = (k == 0) ? 0 : (prevBelow ? 1 + runBelow : 0);
-         g_overlapStreak[e][k]    = (k == 0) ? 0 : (prevOverlap ? 1 + runOverlap : 0);
+         g_cleanStreakAbove[levelIdx][barIdx] = (barIdx == 0) ? 0 : (prevAbove ? 1 + runAbove : 0);
+         g_cleanStreakBelow[levelIdx][barIdx] = (barIdx == 0) ? 0 : (prevBelow ? 1 + runBelow : 0);
+         g_overlapStreak[levelIdx][barIdx]    = (barIdx == 0) ? 0 : (prevOverlap ? 1 + runOverlap : 0);
 
          sumAbove += curAbove; sumBelow += curBelow; sumOverlap += curOverlap;
-         g_aboveCnt[e][k] = sumAbove;
-         g_belowCnt[e][k] = sumBelow;
-         g_overlapC[e][k] = sumOverlap;
+         g_aboveCnt[levelIdx][barIdx] = sumAbove;
+         g_belowCnt[levelIdx][barIdx] = sumBelow;
+         g_overlapC[levelIdx][barIdx] = sumOverlap;
 
-         int totalSoFar = k + 1;
-         g_abovePerc[e][k] = (totalSoFar > 0) ? (100.0 * sumAbove / totalSoFar) : 0.0;
-         g_belowPerc[e][k] = (totalSoFar > 0) ? (100.0 * sumBelow / totalSoFar) : 0.0;
-         g_overlapPc[e][k] = (totalSoFar > 0) ? (100.0 * sumOverlap / totalSoFar) : 0.0;
+         int totalSoFar = barIdx + 1;
+         g_abovePerc[levelIdx][barIdx] = (totalSoFar > 0) ? (100.0 * sumAbove / totalSoFar) : 0.0;
+         g_belowPerc[levelIdx][barIdx] = (totalSoFar > 0) ? (100.0 * sumBelow / totalSoFar) : 0.0;
+         g_overlapPc[levelIdx][barIdx] = (totalSoFar > 0) ? (100.0 * sumOverlap / totalSoFar) : 0.0;
 
          runAbove   = curAbove  ? 1 + runAbove   : 0;
          runBelow   = curBelow  ? 1 + runBelow   : 0;
@@ -1103,19 +1103,19 @@ void UpdateDayM1AndLevelsExpanded()
    }
 
    // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:59-22:00)
-   for(int k = 0; k < g_barsInDay; k++)
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
       double aboveH = 0;
       double belowL = 0;
-      for(int e = 0; e < g_levelsTodayCount; e++)
+      for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
       {
-         double lp = g_levelsExpanded[e].levelPrice;
-         if(lp > g_m1Rates[k].high && (aboveH == 0 || lp < aboveH)) aboveH = lp;
-         if(lp < g_m1Rates[k].low  && (belowL == 0 || lp > belowL)) belowL = lp;
+         double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
+         if(levelPrice > g_m1Rates[barIdx].high && (aboveH == 0 || levelPrice < aboveH)) aboveH = levelPrice;
+         if(levelPrice < g_m1Rates[barIdx].low  && (belowL == 0 || levelPrice > belowL)) belowL = levelPrice;
       }
-      g_levelAboveH[k] = aboveH;
-      g_levelBelowL[k] = belowL;
-      g_session[k] = GetSessionForCandleTime(g_m1Rates[k].time);
+      g_levelAboveH[barIdx] = aboveH;
+      g_levelBelowL[barIdx] = belowL;
+      g_session[barIdx] = GetSessionForCandleTime(g_m1Rates[barIdx].time);
    }
 }
 
@@ -1135,9 +1135,9 @@ string BuildBothComments(const string &entryComment, const string &outComment, b
 int ChangeBothCommentsToArrayOfStrings(const string &bothComments, string &result[])
 {
    if(StringFind(bothComments, "$") < 0) return 0;
-   string s = bothComments;
-   StringReplace(s, "$", "");
-   return StringSplit(s, ' ', result);
+   string commentStr = bothComments;
+   StringReplace(commentStr, "$", "");
+   return StringSplit(commentStr, ' ', result);
 }
 
 //+------------------------------------------------------------------+
@@ -1151,9 +1151,9 @@ void UpdateTradeResultsForDay()
    datetime dayEnd = dayStart + 86400;
    if(!HistorySelect(dayStart, dayEnd)) return;
    int total = HistoryDealsTotal();
-   for(int i = 0; i < total && g_dealCount < MAX_DEALS_DAY; i++)
+   for(int dealIdx = 0; dealIdx < total && g_dealCount < MAX_DEALS_DAY; dealIdx++)
    {
-      ulong ticket = HistoryDealGetTicket(i);
+      ulong ticket = HistoryDealGetTicket(dealIdx);
       if(ticket == 0) continue;
       long dtype = HistoryDealGetInteger(ticket, DEAL_TYPE);
       if(dtype == (long)DEAL_TYPE_BALANCE) continue;
@@ -1174,83 +1174,83 @@ void UpdateTradeResultsForDay()
       g_dealComment[idx] = HistoryDealGetString(ticket, DEAL_COMMENT);
    }
    // Sort indices by magic then time
-   for(int i = 0; i < g_dealCount; i++) g_dealOrder[i] = i;
-   for(int i = 0; i < g_dealCount - 1; i++)
-      for(int j = i + 1; j < g_dealCount; j++)
+   for(int dealIdx = 0; dealIdx < g_dealCount; dealIdx++) g_dealOrder[dealIdx] = dealIdx;
+   for(int dealIdx = 0; dealIdx < g_dealCount - 1; dealIdx++)
+      for(int innerIdx = dealIdx + 1; innerIdx < g_dealCount; innerIdx++)
       {
-         int a = g_dealOrder[i], b = g_dealOrder[j];
-         if(g_dealMagic[a] > g_dealMagic[b] || (g_dealMagic[a] == g_dealMagic[b] && g_dealTime[a] > g_dealTime[b]))
-         { int tmp = g_dealOrder[i]; g_dealOrder[i] = g_dealOrder[j]; g_dealOrder[j] = tmp; }
+         int orderA = g_dealOrder[dealIdx], orderB = g_dealOrder[innerIdx];
+         if(g_dealMagic[orderA] > g_dealMagic[orderB] || (g_dealMagic[orderA] == g_dealMagic[orderB] && g_dealTime[orderA] > g_dealTime[orderB]))
+         { int tmp = g_dealOrder[dealIdx]; g_dealOrder[dealIdx] = g_dealOrder[innerIdx]; g_dealOrder[innerIdx] = tmp; }
       }
    // Group by magic, pair IN with next OUT
-   int i = 0;
-   while(i < g_dealCount && g_tradeResultsCount < MAX_TRADE_RESULTS)
+   int dealIdx = 0;
+   while(dealIdx < g_dealCount && g_tradeResultsCount < MAX_TRADE_RESULTS)
    {
-      long mag = g_dealMagic[g_dealOrder[i]];
+      long mag = g_dealMagic[g_dealOrder[dealIdx]];
       int inCount = 0, outCount = 0;
-      while(i < g_dealCount && g_dealMagic[g_dealOrder[i]] == mag)
+      while(dealIdx < g_dealCount && g_dealMagic[g_dealOrder[dealIdx]] == mag)
       {
-         int idx = g_dealOrder[i];
+         int idx = g_dealOrder[dealIdx];
          if(g_dealEntry[idx] == (int)DEAL_ENTRY_IN)  { if(inCount < MAX_IN_OUT_PER_MAGIC) g_inIdx[inCount++] = idx; }
          else if(g_dealEntry[idx] == (int)DEAL_ENTRY_OUT) { if(outCount < MAX_IN_OUT_PER_MAGIC) g_outIdx[outCount++] = idx; }
-         i++;
+         dealIdx++;
       }
-      for(int p = 0; p < inCount && g_tradeResultsCount < MAX_TRADE_RESULTS; p++)
+      for(int pairIdx = 0; pairIdx < inCount && g_tradeResultsCount < MAX_TRADE_RESULTS; pairIdx++)
       {
-         TradeResult r;
-         r.symbol      = g_dealSymbol[g_inIdx[p]];
-         r.startTime   = g_dealTime[g_inIdx[p]];
-         r.magic       = g_dealMagic[g_inIdx[p]];
-         r.priceStart  = g_dealPrice[g_inIdx[p]];
-         r.type       = g_dealType[g_inIdx[p]];
-         r.volume     = g_dealVolume[g_inIdx[p]];
-         r.foundOut   = (p < outCount);
-         r.session    = GetSessionForCandleTime(r.startTime);
-         if(r.foundOut)
+         TradeResult tradeResult;
+         tradeResult.symbol      = g_dealSymbol[g_inIdx[pairIdx]];
+         tradeResult.startTime   = g_dealTime[g_inIdx[pairIdx]];
+         tradeResult.magic       = g_dealMagic[g_inIdx[pairIdx]];
+         tradeResult.priceStart  = g_dealPrice[g_inIdx[pairIdx]];
+         tradeResult.type       = g_dealType[g_inIdx[pairIdx]];
+         tradeResult.volume     = g_dealVolume[g_inIdx[pairIdx]];
+         tradeResult.foundOut   = (pairIdx < outCount);
+         tradeResult.session    = GetSessionForCandleTime(tradeResult.startTime);
+         if(tradeResult.foundOut)
          {
-            int o = g_outIdx[p];
-            r.endTime   = g_dealTime[o];
-            r.priceEnd  = g_dealPrice[o];
-            if(r.type == (long)DEAL_TYPE_BUY)
-               r.priceDiff = r.priceEnd - r.priceStart;
+            int outIdx = g_outIdx[pairIdx];
+            tradeResult.endTime   = g_dealTime[outIdx];
+            tradeResult.priceEnd  = g_dealPrice[outIdx];
+            if(tradeResult.type == (long)DEAL_TYPE_BUY)
+               tradeResult.priceDiff = tradeResult.priceEnd - tradeResult.priceStart;
             else
-               r.priceDiff = r.priceStart - r.priceEnd;   // DEAL_TYPE_SELL
-            r.profit    = g_dealProfit[o];
-            r.reason    = g_dealReason[o];
-            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[p]], g_dealComment[o], true);
-            r.bothComments = commentsStr;
+               tradeResult.priceDiff = tradeResult.priceStart - tradeResult.priceEnd;   // DEAL_TYPE_SELL
+            tradeResult.profit    = g_dealProfit[outIdx];
+            tradeResult.reason    = g_dealReason[outIdx];
+            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[pairIdx]], g_dealComment[outIdx], true);
+            tradeResult.bothComments = commentsStr;
             if(StringFind(commentsStr, "$") < 0)
-               r.level = r.tp = r.sl = "";
+               tradeResult.level = tradeResult.tp = tradeResult.sl = "";
             else
             {
                string arr[];
                ChangeBothCommentsToArrayOfStrings(commentsStr, arr);
-               r.level = (ArraySize(arr) > 0) ? arr[0] : "";
-               r.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
-               r.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
+               tradeResult.level = (ArraySize(arr) > 0) ? arr[0] : "";
+               tradeResult.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
+               tradeResult.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
             }
          }
          else
          {
-            r.endTime   = 0;
-            r.priceEnd  = 0;
-            r.priceDiff = 0;
-            r.profit    = 0;
-            r.reason    = 0;
-            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[p]], "", false);
-            r.bothComments = commentsStr;
+            tradeResult.endTime   = 0;
+            tradeResult.priceEnd  = 0;
+            tradeResult.priceDiff = 0;
+            tradeResult.profit    = 0;
+            tradeResult.reason    = 0;
+            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[pairIdx]], "", false);
+            tradeResult.bothComments = commentsStr;
             if(StringFind(commentsStr, "$") < 0)
-               r.level = r.tp = r.sl = "";
+               tradeResult.level = tradeResult.tp = tradeResult.sl = "";
             else
             {
                string arr[];
                ChangeBothCommentsToArrayOfStrings(commentsStr, arr);
-               r.level = (ArraySize(arr) > 0) ? arr[0] : "";
-               r.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
-               r.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
+               tradeResult.level = (ArraySize(arr) > 0) ? arr[0] : "";
+               tradeResult.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
+               tradeResult.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
             }
          }
-         g_tradeResults[g_tradeResultsCount++] = r;
+         g_tradeResults[g_tradeResultsCount++] = tradeResult;
       }
    }
 }
@@ -1260,52 +1260,52 @@ void UpdateTradeResultsForDay()
 //+------------------------------------------------------------------+
 void UpdateDayProgress()
 {
-   for(int k = 0; k < g_barsInDay; k++)
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
-      datetime candleCloseTime = (k + 1 < g_barsInDay) ? g_m1Rates[k + 1].time : (g_m1Rates[k].time + 60);
+      datetime candleCloseTime = (barIdx + 1 < g_barsInDay) ? g_m1Rates[barIdx + 1].time : (g_m1Rates[barIdx].time + 60);
       int wins = 0, total = 0;
       double dayPointsSum = 0, dayProfitSum = 0;
       int ONwins = 0, ONtotal = 0;
       double ONpointsSum = 0, ONprofitSum = 0;
       int RTHwins = 0, RTHtotal = 0;
       double RTHpointsSum = 0, RTHprofitSum = 0;
-      for(int tr = 0; tr < g_tradeResultsCount; tr++)
+      for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
       {
-         TradeResult r = g_tradeResults[tr];
-         if(!r.foundOut) continue;
-         if(r.endTime >= candleCloseTime) continue;
+         TradeResult tradeResult = g_tradeResults[trIdx];
+         if(!tradeResult.foundOut) continue;
+         if(tradeResult.endTime >= candleCloseTime) continue;
          total++;
-         if(r.profit > 0) wins++;
-         dayPointsSum += r.priceDiff;
-         dayProfitSum += r.profit;
-         string endSession = GetSessionForCandleTime(r.endTime);
+         if(tradeResult.profit > 0) wins++;
+         dayPointsSum += tradeResult.priceDiff;
+         dayProfitSum += tradeResult.profit;
+         string endSession = GetSessionForCandleTime(tradeResult.endTime);
          if(endSession == "ON")
          {
             ONtotal++;
-            if(r.profit > 0) ONwins++;
-            ONpointsSum += r.priceDiff;
-            ONprofitSum += r.profit;
+            if(tradeResult.profit > 0) ONwins++;
+            ONpointsSum += tradeResult.priceDiff;
+            ONprofitSum += tradeResult.profit;
          }
          else if(endSession == "RTH")
          {
             RTHtotal++;
-            if(r.profit > 0) RTHwins++;
-            RTHpointsSum += r.priceDiff;
-            RTHprofitSum += r.profit;
+            if(tradeResult.profit > 0) RTHwins++;
+            RTHpointsSum += tradeResult.priceDiff;
+            RTHprofitSum += tradeResult.profit;
          }
       }
-      g_dayProgress[k].dayWinRate   = (total > 0) ? (double)wins / (double)total : 0.0;
-      g_dayProgress[k].dayTradesCount = total;
-      g_dayProgress[k].dayPointsSum = dayPointsSum;
-      g_dayProgress[k].dayProfitSum = dayProfitSum;
-      g_dayProgress[k].ONwinRate   = (ONtotal > 0) ? (double)ONwins / (double)ONtotal : 0.0;
-      g_dayProgress[k].ONtradeCount = ONtotal;
-      g_dayProgress[k].ONpointsSum = ONpointsSum;
-      g_dayProgress[k].ONprofitSum = ONprofitSum;
-      g_dayProgress[k].RTHwinRate   = (RTHtotal > 0) ? (double)RTHwins / (double)RTHtotal : 0.0;
-      g_dayProgress[k].RTHtradeCount = RTHtotal;
-      g_dayProgress[k].RTHpointsSum = RTHpointsSum;
-      g_dayProgress[k].RTHprofitSum = RTHprofitSum;
+      g_dayProgress[barIdx].dayWinRate   = (total > 0) ? (double)wins / (double)total : 0.0;
+      g_dayProgress[barIdx].dayTradesCount = total;
+      g_dayProgress[barIdx].dayPointsSum = dayPointsSum;
+      g_dayProgress[barIdx].dayProfitSum = dayProfitSum;
+      g_dayProgress[barIdx].ONwinRate   = (ONtotal > 0) ? (double)ONwins / (double)ONtotal : 0.0;
+      g_dayProgress[barIdx].ONtradeCount = ONtotal;
+      g_dayProgress[barIdx].ONpointsSum = ONpointsSum;
+      g_dayProgress[barIdx].ONprofitSum = ONprofitSum;
+      g_dayProgress[barIdx].RTHwinRate   = (RTHtotal > 0) ? (double)RTHwins / (double)RTHtotal : 0.0;
+      g_dayProgress[barIdx].RTHtradeCount = RTHtotal;
+      g_dayProgress[barIdx].RTHpointsSum = RTHpointsSum;
+      g_dayProgress[barIdx].RTHprofitSum = RTHprofitSum;
    }
 }
 
@@ -1314,52 +1314,52 @@ void UpdateDayProgress()
 //+------------------------------------------------------------------+
 void UpdateLevelTradeStats()
 {
-   double tol = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
-   for(int e = 0; e < g_levelsTodayCount; e++)
+   double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
    {
-      int cnt = g_levelsExpanded[e].count;
-      for(int k = 0; k < cnt; k++)
+      int barCount = g_levelsExpanded[levelIdx].count;
+      for(int barIdx = 0; barIdx < barCount; barIdx++)
       {
-         g_ONtradeCount_L[e][k] = 0;
-         g_ONwins_L[e][k] = 0;
-         g_ONpointsSum_L[e][k] = 0.0;
-         g_ONprofitSum_L[e][k] = 0.0;
-         g_RTHtradeCount_L[e][k] = 0;
-         g_RTHwins_L[e][k] = 0;
-         g_RTHpointsSum_L[e][k] = 0.0;
-         g_RTHprofitSum_L[e][k] = 0.0;
+         g_ONtradeCount_L[levelIdx][barIdx] = 0;
+         g_ONwins_L[levelIdx][barIdx] = 0;
+         g_ONpointsSum_L[levelIdx][barIdx] = 0.0;
+         g_ONprofitSum_L[levelIdx][barIdx] = 0.0;
+         g_RTHtradeCount_L[levelIdx][barIdx] = 0;
+         g_RTHwins_L[levelIdx][barIdx] = 0;
+         g_RTHpointsSum_L[levelIdx][barIdx] = 0.0;
+         g_RTHprofitSum_L[levelIdx][barIdx] = 0.0;
       }
    }
-   for(int tr = 0; tr < g_tradeResultsCount; tr++)
+   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
-      TradeResult r = g_tradeResults[tr];
-      if(StringLen(r.level) == 0 || !r.foundOut) continue;
-      double lv = StringToDouble(r.level);
-      int e = -1;
-      for(int i = 0; i < g_levelsTodayCount; i++)
+      TradeResult tradeResult = g_tradeResults[trIdx];
+      if(StringLen(tradeResult.level) == 0 || !tradeResult.foundOut) continue;
+      double levelVal = StringToDouble(tradeResult.level);
+      int levelIdx = -1;
+      for(int idx = 0; idx < g_levelsTodayCount; idx++)
       {
-         if(MathAbs(g_levelsExpanded[i].levelPrice - lv) < tol) { e = i; break; }
+         if(MathAbs(g_levelsExpanded[idx].levelPrice - levelVal) < tolerance) { levelIdx = idx; break; }
       }
-      if(e < 0) continue;
-      string endSession = GetSessionForCandleTime(r.endTime);
-      int cnt = g_levelsExpanded[e].count;
-      for(int k = 0; k < cnt; k++)
+      if(levelIdx < 0) continue;
+      string endSession = GetSessionForCandleTime(tradeResult.endTime);
+      int barCount = g_levelsExpanded[levelIdx].count;
+      for(int barIdx = 0; barIdx < barCount; barIdx++)
       {
-         datetime candleCloseTime = (k + 1 < cnt) ? g_levelsExpanded[e].times[k + 1] : (g_levelsExpanded[e].times[k] + 60);
-         if(r.endTime >= candleCloseTime) continue;
+         datetime candleCloseTime = (barIdx + 1 < barCount) ? g_levelsExpanded[levelIdx].times[barIdx + 1] : (g_levelsExpanded[levelIdx].times[barIdx] + 60);
+         if(tradeResult.endTime >= candleCloseTime) continue;
          if(endSession == "ON")
          {
-            g_ONtradeCount_L[e][k]++;
-            if(r.profit > 0) g_ONwins_L[e][k]++;
-            g_ONpointsSum_L[e][k] += r.priceDiff;
-            g_ONprofitSum_L[e][k] += r.profit;
+            g_ONtradeCount_L[levelIdx][barIdx]++;
+            if(tradeResult.profit > 0) g_ONwins_L[levelIdx][barIdx]++;
+            g_ONpointsSum_L[levelIdx][barIdx] += tradeResult.priceDiff;
+            g_ONprofitSum_L[levelIdx][barIdx] += tradeResult.profit;
          }
          else if(endSession == "RTH")
          {
-            g_RTHtradeCount_L[e][k]++;
-            if(r.profit > 0) g_RTHwins_L[e][k]++;
-            g_RTHpointsSum_L[e][k] += r.priceDiff;
-            g_RTHprofitSum_L[e][k] += r.profit;
+            g_RTHtradeCount_L[levelIdx][barIdx]++;
+            if(tradeResult.profit > 0) g_RTHwins_L[levelIdx][barIdx]++;
+            g_RTHpointsSum_L[levelIdx][barIdx] += tradeResult.priceDiff;
+            g_RTHprofitSum_L[levelIdx][barIdx] += tradeResult.profit;
          }
       }
    }
@@ -1374,12 +1374,12 @@ void ParseBannedRanges(const string s)
    ArrayResize(g_bannedRangesBuffer, 0);
    if(StringLen(s) == 0) return;
    string parts[];
-   int n = StringSplit(s, ';', parts);
-   if(n <= 0) return;
-   for(int i = 0; i < n && g_bannedRangesCount < MAX_BANNED_RANGES; i++)
+   int partCount = StringSplit(s, ';', parts);
+   if(partCount <= 0) return;
+   for(int rangeIdx = 0; rangeIdx < partCount && g_bannedRangesCount < MAX_BANNED_RANGES; rangeIdx++)
    {
       string nums[];
-      if(StringSplit(parts[i], ',', nums) != 4) continue;
+      if(StringSplit(parts[rangeIdx], ',', nums) != 4) continue;
       ArrayResize(g_bannedRangesBuffer, g_bannedRangesCount + 1);
       g_bannedRangesBuffer[g_bannedRangesCount][0] = (int)StringToInteger(nums[0]);
       g_bannedRangesBuffer[g_bannedRangesCount][1] = (int)StringToInteger(nums[1]);
@@ -1395,12 +1395,12 @@ void ParseBannedRanges(const string s)
 //+------------------------------------------------------------------+
 long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYPE_ID tradeTypeId)
 {
-   MqlDateTime dt;
-   TimeToStruct(validFrom, dt);
+   MqlDateTime mqlDt;
+   TimeToStruct(validFrom, mqlDt);
    
-   string dateStr = IntegerToString(dt.year) + 
-                    StringFormat("%02d", dt.mon) + 
-                    StringFormat("%02d", dt.day);
+   string dateStr = IntegerToString(mqlDt.year) + 
+                    StringFormat("%02d", mqlDt.mon) + 
+                    StringFormat("%02d", mqlDt.day);
    
    string levelPriceStr = DoubleToString(price, 0);
    StringReplace(levelPriceStr, ".", "");
@@ -1408,7 +1408,7 @@ long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYP
    int dayOfWeek = 0;
    if(StringFind(tagsCSV, "daily") != -1)
    {
-      int mt5Day = dt.day_of_week;
+      int mt5Day = mqlDt.day_of_week;
       if(mt5Day == 0) mt5Day = 7;
       dayOfWeek = mt5Day - 1;
    }
@@ -1423,25 +1423,25 @@ long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYP
 void BuildLevelsFromCSV()
 {
    ArrayResize(levels, g_levelsTotalCount);
-   for(int i = 0; i < g_levelsTotalCount; i++)
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
    {
-      levels[i].baseName  = g_levels[i].startStr + "_" + g_levels[i].tag;
-      levels[i].price     = g_levels[i].levelPrice;
-      levels[i].validFrom = StringToTime(g_levels[i].startStr + " 00:00");
-      levels[i].validTo   = StringToTime(g_levels[i].endStr + " 23:59");
-      levels[i].tagsCSV   = g_levels[i].categories;
-      levels[i].count     = 0;
-      levels[i].approxContactCount = 0;
-      levels[i].dailyBias = 0;
-      levels[i].biasSetToday = false;
-      levels[i].lastBiasDate = 0;
-      levels[i].logRawEv_fileHandle = INVALID_HANDLE;
-      levels[i].candlesBreakLevelCount = 0;
-      levels[i].recoverCount = 0;
-      levels[i].bounceCount = 0;
-      levels[i].consecutiveRecoverCandles = 0;
-      levels[i].lastCandleInContact = false;
-      levels[i].candlesPassedSinceLastBounce = 0;
+      levels[levelIdx].baseName  = g_levels[levelIdx].startStr + "_" + g_levels[levelIdx].tag;
+      levels[levelIdx].price     = g_levels[levelIdx].levelPrice;
+      levels[levelIdx].validFrom = StringToTime(g_levels[levelIdx].startStr + " 00:00");
+      levels[levelIdx].validTo   = StringToTime(g_levels[levelIdx].endStr + " 23:59");
+      levels[levelIdx].tagsCSV   = g_levels[levelIdx].categories;
+      levels[levelIdx].count     = 0;
+      levels[levelIdx].approxContactCount = 0;
+      levels[levelIdx].dailyBias = 0;
+      levels[levelIdx].biasSetToday = false;
+      levels[levelIdx].lastBiasDate = 0;
+      levels[levelIdx].logRawEv_fileHandle = INVALID_HANDLE;
+      levels[levelIdx].candlesBreakLevelCount = 0;
+      levels[levelIdx].recoverCount = 0;
+      levels[levelIdx].bounceCount = 0;
+      levels[levelIdx].consecutiveRecoverCandles = 0;
+      levels[levelIdx].lastCandleInContact = false;
+      levels[levelIdx].candlesPassedSinceLastBounce = 0;
    }
 }
 
@@ -1471,8 +1471,8 @@ void AddLevel(string baseName, double price, string from, string to, string tags
 
 double PipSize()
 {
-   int d = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
-   if(d == 3 || d == 5) return SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 10.0;
+   int digits = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
+   if(digits == 3 || digits == 5) return SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 10.0;
    return SymbolInfoDouble(_Symbol, SYMBOL_POINT);
 }
 
@@ -1489,12 +1489,12 @@ double NewRulesets_ProcessInput(double inputPoints)
 //+------------------------------------------------------------------+
 int OpenOrCreateForAppend(string path)
 {
-   int h = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_READ);
-   if(h != INVALID_HANDLE)
-      FileSeek(h, 0, SEEK_END);
+   int fileHandle = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_READ);
+   if(fileHandle != INVALID_HANDLE)
+      FileSeek(fileHandle, 0, SEEK_END);
    else
-      h = FileOpen(path, FILE_WRITE | FILE_TXT);
-   return h;
+      fileHandle = FileOpen(path, FILE_WRITE | FILE_TXT);
+   return fileHandle;
 }
 
 //+------------------------------------------------------------------+
@@ -1503,15 +1503,15 @@ int OpenOrCreateForAppend(string path)
 int CountOrdersAndPositionsForMagic(long magic)
 {
    int count = 0;
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   for(int posIdx = PositionsTotal() - 1; posIdx >= 0; posIdx--)
    {
-      if(!ExtPositionInfo.SelectByIndex(i)) continue;
+      if(!ExtPositionInfo.SelectByIndex(posIdx)) continue;
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
       if(ExtPositionInfo.Magic() == magic) count++;
    }
-   for(int i = OrdersTotal() - 1; i >= 0; i--)
+   for(int orderIdx = OrdersTotal() - 1; orderIdx >= 0; orderIdx--)
    {
-      if(!ExtOrderInfo.SelectByIndex(i)) continue;
+      if(!ExtOrderInfo.SelectByIndex(orderIdx)) continue;
       if(ExtOrderInfo.Symbol() != _Symbol) continue;
       if(ExtOrderInfo.Magic() == magic) count++;
    }
@@ -1544,8 +1544,8 @@ string GetTradeTypeStringFromId(int tradeTypeId)
 //+------------------------------------------------------------------+
 string GetTradeTypeFromMagic(long magic)
 {
-   int id = GetTradeTypeIdFromMagic(magic);
-   return (id > 0) ? GetTradeTypeStringFromId(id) : "";
+   int tradeTypeId = GetTradeTypeIdFromMagic(magic);
+   return (tradeTypeId > 0) ? GetTradeTypeStringFromId(tradeTypeId) : "";
 }
 
 //+------------------------------------------------------------------+
@@ -1586,10 +1586,10 @@ string AccountSummary()
    int histOrders = HistoryOrdersTotal();
    int histDeals  = HistoryDealsTotal();
    double bal     = AccountInfoDouble(ACCOUNT_BALANCE);
-   double eq      = AccountInfoDouble(ACCOUNT_EQUITY);
+   double equity = AccountInfoDouble(ACCOUNT_EQUITY);
    // additional metrics (free margin, margin level, etc.) can be added if needed
    return StringFormat("(pos=%d pending=%d histOrd=%d histDeals=%d bal=%.2f eq=%.2f)",
-                       posCount, ordCount, histOrders, histDeals, bal, eq);
+                       posCount, ordCount, histOrders, histDeals, bal, equity);
 }
 
 //+------------------------------------------------------------------+
@@ -1602,27 +1602,27 @@ void WriteDailySummary()
    string dateStr = TimeToString(now, TIME_DATE);
    
    string activeLevelsFile = dateStr + "-Day_activeLevels.csv";
-   int fh1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
-   if(fh1 == INVALID_HANDLE)
+   int fileHandle1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fileHandle1 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + activeLevelsFile);
    {
-      FileWrite(fh1, "levelNo", "name", "price", "count", "contacts", "bias", "bounces");
+      FileWrite(fileHandle1, "levelNo", "name", "price", "count", "contacts", "bias", "bounces");
       datetime today = now - (now % 86400);
       for(int i=0; i<ArraySize(levels); i++)
       {
          if(levels[i].validFrom <= today && levels[i].validTo >= today)
          {
-            FileWrite(fh1, IntegerToString(i), levels[i].baseName, DoubleToString(levels[i].price, _Digits),
+            FileWrite(fileHandle1, IntegerToString(i), levels[i].baseName, DoubleToString(levels[i].price, _Digits),
                       IntegerToString(levels[i].count), IntegerToString(levels[i].approxContactCount),
                       DoubleToString(levels[i].dailyBias, 0), IntegerToString(levels[i].bounceCount));
          }
       }
-      FileClose(fh1);
+      FileClose(fileHandle1);
    }
    
    string accountFile = dateStr + "-Day_EOD_accountSummary.txt";
-   int fh2 = FileOpen(accountFile, FILE_WRITE | FILE_TXT);
-   if(fh2 == INVALID_HANDLE)
+   int fileHandle2 = FileOpen(accountFile, FILE_WRITE | FILE_TXT);
+   if(fileHandle2 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + accountFile);
    {
       EODpulled_balance       = AccountInfoDouble(ACCOUNT_BALANCE);
@@ -1631,21 +1631,21 @@ void WriteDailySummary()
       EODpulled_marginLevel = AccountInfoDouble(ACCOUNT_MARGIN_LEVEL);
       EODpulled_openPositions = PositionsTotal();
       EODpulled_pendingOrders = OrdersTotal();
-      FileWrite(fh2, "balance=" + DoubleToString(EODpulled_balance, 2));
-      FileWrite(fh2, "equity=" + DoubleToString(EODpulled_equity, 2));
-      FileWrite(fh2, "freeMargin=" + DoubleToString(EODpulled_freeMargin, 2));
-      FileWrite(fh2, "marginLevel=" + DoubleToString(EODpulled_marginLevel, 1));
-      FileWrite(fh2, "openPositions=" + IntegerToString(EODpulled_openPositions));
-      FileWrite(fh2, "pendingOrders=" + IntegerToString(EODpulled_pendingOrders));
-      FileClose(fh2);
+      FileWrite(fileHandle2, "balance=" + DoubleToString(EODpulled_balance, 2));
+      FileWrite(fileHandle2, "equity=" + DoubleToString(EODpulled_equity, 2));
+      FileWrite(fileHandle2, "freeMargin=" + DoubleToString(EODpulled_freeMargin, 2));
+      FileWrite(fileHandle2, "marginLevel=" + DoubleToString(EODpulled_marginLevel, 1));
+      FileWrite(fileHandle2, "openPositions=" + IntegerToString(EODpulled_openPositions));
+      FileWrite(fileHandle2, "pendingOrders=" + IntegerToString(EODpulled_pendingOrders));
+      FileClose(fileHandle2);
    }
    
    string ordersFile = dateStr + "-not_from_globals_AllHistoryOrders.csv";
-   int fh3 = FileOpen(ordersFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
-   if(fh3 == INVALID_HANDLE)
+   int fileHandle3 = FileOpen(ordersFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fileHandle3 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + ordersFile);
    {
-      FileWrite(fh3, "ticket", "symbol", "magic", "timeSetup", "state", "type", "reason", "volume", "priceOpen", "priceCurrent", "priceStopLoss", "priceTakeProfit", "timeExpiration", "activationPrice", "comment");
+      FileWrite(fileHandle3, "ticket", "symbol", "magic", "timeSetup", "state", "type", "reason", "volume", "priceOpen", "priceCurrent", "priceStopLoss", "priceTakeProfit", "timeExpiration", "activationPrice", "comment");
       HistorySelect(0, g_lastTimer1Time);
       int totalHist = HistoryOrdersTotal();
       for(int i=0; i<totalHist; i++)
@@ -1656,7 +1656,7 @@ void WriteDailySummary()
          datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
          if(orderTime < dateWhenAlgoTradeStarted) continue;
          
-         FileWrite(fh3, IntegerToString((long)ticket), HistoryOrderGetString(ticket, ORDER_SYMBOL),
+         FileWrite(fileHandle3, IntegerToString((long)ticket), HistoryOrderGetString(ticket, ORDER_SYMBOL),
                    IntegerToString((long)HistoryOrderGetInteger(ticket, ORDER_MAGIC)),
                    TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP), TIME_DATE|TIME_SECONDS),
                    EnumToString((ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE)),
@@ -1671,15 +1671,15 @@ void WriteDailySummary()
                    DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_STOPLIMIT), _Digits),
                    HistoryOrderGetString(ticket, ORDER_COMMENT));
       }
-      FileClose(fh3);
+      FileClose(fileHandle3);
    }
    
    string dealsFile = dateStr + "-not_from_globals_AllHistoryDeals.csv";
-   int fh4 = FileOpen(dealsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
-   if(fh4 == INVALID_HANDLE)
+   int fileHandle4 = FileOpen(dealsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fileHandle4 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + dealsFile);
    {
-      FileWrite(fh4, "ticket", "symbol", "magic", "time", "entry", "type", "reason", "volume", "price", "profit", "ticketOrder", "comment");
+      FileWrite(fileHandle4, "ticket", "symbol", "magic", "time", "entry", "type", "reason", "volume", "price", "profit", "ticketOrder", "comment");
       int totalDeals = HistoryDealsTotal();
       for(int i=0; i<totalDeals; i++)
       {
@@ -1689,7 +1689,7 @@ void WriteDailySummary()
          datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
          if(dealTime < dateWhenAlgoTradeStarted) continue;
          
-         FileWrite(fh4, IntegerToString((long)ticket), HistoryDealGetString(ticket, DEAL_SYMBOL),
+         FileWrite(fileHandle4, IntegerToString((long)ticket), HistoryDealGetString(ticket, DEAL_SYMBOL),
                    IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_MAGIC)),
                    TimeToString((datetime)HistoryDealGetInteger(ticket, DEAL_TIME), TIME_DATE|TIME_SECONDS),
                    EnumToString((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)),
@@ -1701,7 +1701,7 @@ void WriteDailySummary()
                    IntegerToString((long)HistoryDealGetInteger(ticket, DEAL_ORDER)),
                    HistoryDealGetString(ticket, DEAL_COMMENT));
       }
-      FileClose(fh4);
+      FileClose(fileHandle4);
    }
 }
 
@@ -1718,22 +1718,22 @@ void WriteTradeLog(const string tradeType, const string eventType, datetime even
    if(StringLen(fname) == 0) return;
 
    double bal = AccountInfoDouble(ACCOUNT_BALANCE);
-   double eq  = AccountInfoDouble(ACCOUNT_EQUITY);
-   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
-   if(fh == INVALID_HANDLE)
-      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
-   if(fh == INVALID_HANDLE)
+   double equity = AccountInfoDouble(ACCOUNT_EQUITY);
+   int fileHandle = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fileHandle == INVALID_HANDLE)
+      fileHandle = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fileHandle == INVALID_HANDLE)
       FatalError("WriteTradeLog: could not open " + fname);
-   FileSeek(fh, 0, SEEK_END);
-   if(FileTell(fh) == 0)
-      FileWrite(fh, "time", "balance", "equity", "orderKind", "orderPrice", "eventType", "tp", "sl", "exp", "orderTicket", "dealTicket", "positionTicket", "dealReason", "comment", "magic");
-   FileWrite(fh, TimeToString(eventTime, TIME_DATE|TIME_SECONDS), DoubleToString(bal, 2), DoubleToString(eq, 2),
+   FileSeek(fileHandle, 0, SEEK_END);
+   if(FileTell(fileHandle) == 0)
+      FileWrite(fileHandle, "time", "balance", "equity", "orderKind", "orderPrice", "eventType", "tp", "sl", "exp", "orderTicket", "dealTicket", "positionTicket", "dealReason", "comment", "magic");
+   FileWrite(fileHandle, TimeToString(eventTime, TIME_DATE|TIME_SECONDS), DoubleToString(bal, 2), DoubleToString(equity, 2),
              orderKind, (orderPrice > 0 ? DoubleToString(NormalizeDouble(orderPrice, _Digits), _Digits) : ""), eventType,
              (tpPrice > 0 ? DoubleToString(NormalizeDouble(tpPrice, _Digits), _Digits) : ""), (slPrice > 0 ? DoubleToString(NormalizeDouble(slPrice, _Digits), _Digits) : ""),
              (expirationMinutes > 0 ? IntegerToString(expirationMinutes) : ""),
              (orderTicket > 0 ? IntegerToString((long)orderTicket) : ""), (dealTicket > 0 ? IntegerToString((long)dealTicket) : ""), (positionTicket > 0 ? IntegerToString((long)positionTicket) : ""),
              (dealReason != (ENUM_DEAL_REASON)0 ? IntegerToString((int)dealReason) : ""), comment, IntegerToString((long)magic));
-   FileClose(fh);
+   FileClose(fileHandle);
 }
 
 //+------------------------------------------------------------------+
@@ -2003,12 +2003,12 @@ bool TryLogDayStatForCurrentDay()
    string dayStatLogName = dateStrStat + "_dayPriceStat_log.csv";
    if(dailyEODlog_DayStat)
    {
-   int fhDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
-   if(fhDay != INVALID_HANDLE)
+   int fileHandleDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fileHandleDay != INVALID_HANDLE)
    {
-      FileWrite(fhDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH");
-      FileWrite(fhDay, dateStrStat, (dayStat_day_had_OpenGapDown_bool ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"));
-      FileClose(fhDay);
+      FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH");
+      FileWrite(fileHandleDay, dateStrStat, (dayStat_day_had_OpenGapDown_bool ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"));
+      FileClose(fileHandleDay);
    }
    }
 
@@ -2033,8 +2033,8 @@ bool TryLogDayStatForCurrentDay()
 //+------------------------------------------------------------------+
 void WriteDayStatSummaryCsv()
 {
-   int fhSum = FileOpen("dayPriceStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
-   if(fhSum != INVALID_HANDLE)
+   int fileHandleSum = FileOpen("dayPriceStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+   if(fileHandleSum != INVALID_HANDLE)
    {
       double avgFillD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
       int countsD[10];
@@ -2057,15 +2057,15 @@ void WriteDayStatSummaryCsv()
       double daysONH_t_freq = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONH_tested / (double)dayStat_totalDays) : 0.0;
       double daysONL_t_freq = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONL_tested / (double)dayStat_totalDays) : 0.0;
       double daysONHL_t = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONboth_tested / (double)dayStat_totalDays) : 0.0;
-      FileWrite(fhSum, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
+      FileWrite(fileHandleSum, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
                 "daysGapUp", "daysNoGU", "gapU_avg_fill", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f",
                 "daysONH_t_freq", "daysONL_t_freq", "daysONHL_t");
-      FileWrite(fhSum, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2),
+      FileWrite(fileHandleSum, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2),
                 DoubleToString(pctsD[0], 2), DoubleToString(pctsD[1], 2), DoubleToString(pctsD[2], 2), DoubleToString(pctsD[3], 2), DoubleToString(pctsD[4], 2), DoubleToString(pctsD[5], 2), DoubleToString(pctsD[6], 2), DoubleToString(pctsD[7], 2), DoubleToString(pctsD[8], 2), DoubleToString(pctsD[9], 2),
                 IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2),
                 DoubleToString(pctsU[0], 2), DoubleToString(pctsU[1], 2), DoubleToString(pctsU[2], 2), DoubleToString(pctsU[3], 2), DoubleToString(pctsU[4], 2), DoubleToString(pctsU[5], 2), DoubleToString(pctsU[6], 2), DoubleToString(pctsU[7], 2), DoubleToString(pctsU[8], 2), DoubleToString(pctsU[9], 2),
                 DoubleToString(daysONH_t_freq, 2), DoubleToString(daysONL_t_freq, 2), DoubleToString(daysONHL_t, 2));
-      FileClose(fhSum);
+      FileClose(fileHandleSum);
    }
 }
 
@@ -2086,23 +2086,23 @@ void OnDeinit(const int reason)
 
    if(finalLog_FirstLastCandle)
    {
-   int fh = FileOpen(InpSessionFirstLastCandleFile, FILE_WRITE|FILE_TXT);
-   if(fh != INVALID_HANDLE)
+   int fileHandle = FileOpen(InpSessionFirstLastCandleFile, FILE_WRITE|FILE_TXT);
+   if(fileHandle != INVALID_HANDLE)
    {
-      FileWrite(fh,"----------------------------------------");
-      FileWrite(fh,"Symbol: ",_Symbol);
-      FileWrite(fh,"Timeframe: ",EnumToString(_Period));
+      FileWrite(fileHandle,"----------------------------------------");
+      FileWrite(fileHandle,"Symbol: ",_Symbol);
+      FileWrite(fileHandle,"Timeframe: ",EnumToString(_Period));
 
-      FileWrite(fh,"First Candle:");
-      FileWrite(fh,"  Time: ",TimeToString(first_candle_time,TIME_DATE|TIME_SECONDS));
-      FileWrite(fh,"  O: ",first_open," H: ",first_high," L: ",first_low," C: ",first_close);
+      FileWrite(fileHandle,"First Candle:");
+      FileWrite(fileHandle,"  Time: ",TimeToString(first_candle_time,TIME_DATE|TIME_SECONDS));
+      FileWrite(fileHandle,"  O: ",first_open," H: ",first_high," L: ",first_low," C: ",first_close);
 
-      FileWrite(fh,"Last Candle:");
-      FileWrite(fh,"  Time: ",TimeToString(last_candle_time,TIME_DATE|TIME_SECONDS));
-      FileWrite(fh,"  O: ",last_open," H: ",last_high," L: ",last_low," C: ",last_close);
+      FileWrite(fileHandle,"Last Candle:");
+      FileWrite(fileHandle,"  Time: ",TimeToString(last_candle_time,TIME_DATE|TIME_SECONDS));
+      FileWrite(fileHandle,"  O: ",last_open," H: ",last_high," L: ",last_low," C: ",last_close);
 
-      FileWrite(fh,"----------------------------------------");
-      FileClose(fh);
+      FileWrite(fileHandle,"----------------------------------------");
+      FileClose(fileHandle);
    }
    }
 }
@@ -2128,38 +2128,37 @@ void OnTimer()
       const double TP_SL_POINTS = 5.0;
       const int EXPIRATION_MINUTES = 15;
 
-      int k = g_barsInDay - 1;  // latest bar only
-      if(MathAbs(g_liveBid - g_levelBelowL[k]) >= RULE_DIST) { /* not near level */ }
+      int kLast = g_barsInDay - 1;  // latest bar only
+      if(MathAbs(g_liveBid - g_levelBelowL[kLast]) >= RULE_DIST) { /* not near level */ }
       else
       {
-         int e = -1;
-         for(int i = 0; i < g_levelsTodayCount; i++)
-            if(g_levelsExpanded[i].levelPrice == g_levelBelowL[k]) { e = i; break; }
-         if(e >= 0)
+         int levelIdx = -1;
+         for(int idx = 0; idx < g_levelsTodayCount; idx++)
+            if(g_levelsExpanded[idx].levelPrice == g_levelBelowL[kLast]) { levelIdx = idx; break; }
+         if(levelIdx >= 0)
          {
-            string highestUp = GetHighestDiffInWindowString(g_levelBelowL[k], k, HIGHEST_DIFF_UP_WINDOW, true);
-            if(highestUp != "never" && StringToDouble(highestUp) > HIGHEST_DIFF_UP_MIN && g_overlapC[e][k] == 0 && g_session[k] == "ON")
+            string highestUp = GetHighestDiffInWindowString(g_levelBelowL[kLast], kLast, HIGHEST_DIFF_UP_WINDOW, true);
+            if(highestUp != "never" && StringToDouble(highestUp) > HIGHEST_DIFF_UP_MIN && g_overlapC[levelIdx][kLast] == 0 && g_session[kLast] == "ON")
             {
-               MqlDateTime d;
-               TimeToStruct(g_m1DayStart, d);
-               string dateStr = StringFormat("%04d%02d%02d", d.year, d.mon, d.day);
-               string levelStr = IntegerToString((int)MathRound(g_levelBelowL[k]));
+               MqlDateTime mqlDt;
+               TimeToStruct(g_m1DayStart, mqlDt);
+               string dateStr = StringFormat("%04d%02d%02d", mqlDt.year, mqlDt.mon, mqlDt.day);
+               string levelStr = IntegerToString((int)MathRound(g_levelBelowL[kLast]));
                string magicStr = IntegerToString(RULESET_ID_CLEAN_FIRST_BOUNCE_ON) + dateStr + levelStr;
                long magic = (long)StringToInteger(magicStr);
                if(CountOrdersAndPositionsForMagic(magic) == 0)
                {
-                  int kLast = g_barsInDay - 1;
                   int onCount = g_dayProgress[kLast].ONtradeCount;
                   double onWr = g_dayProgress[kLast].ONwinRate;
                   if(!(onCount == 2 && onWr >= 1.0) && onCount < 3)
                   {
-                     double orderPrice = NormalizeDouble(g_levelBelowL[k] + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
-                     double tp = NormalizeDouble(g_levelBelowL[k] + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
-                     double sl = NormalizeDouble(g_levelBelowL[k] - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+                     double orderPrice = NormalizeDouble(g_levelBelowL[kLast] + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
+                     double takeProfitVal = NormalizeDouble(g_levelBelowL[kLast] + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+                     double stopLossVal = NormalizeDouble(g_levelBelowL[kLast] - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
                      datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
-                     string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, g_levelBelowL[k], _Digits, tp, _Digits, sl, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
+                     string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, g_levelBelowL[kLast], _Digits, takeProfitVal, _Digits, stopLossVal, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
                      ExtTrade.SetExpertMagicNumber(magic);
-                     ExtTrade.BuyLimit(InpRuleset5_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expiration, comment);
+                     ExtTrade.BuyLimit(InpRuleset5_LotSize, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
                      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
                   }
                }
@@ -2168,42 +2167,42 @@ void OnTimer()
       }
    }
 
-   MqlDateTime mt;
-   TimeToStruct(g_lastTimer1Time, mt);
+   MqlDateTime mqlTime;
+   TimeToStruct(g_lastTimer1Time, mqlTime);
    datetime today = g_lastTimer1Time - (g_lastTimer1Time % 86400);
 
    // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37. CSV with headers: time, liveBid, liveAsk, closed_candle_time, closed_O, closed_H, closed_L, closed_C
-   if(dailySpamLog_LivePrice && mt.hour == 21 && mt.min >= 35 && mt.min <= 37 && g_barsInDay > 0)
+   if(dailySpamLog_LivePrice && mqlTime.hour == 21 && mqlTime.min >= 35 && mqlTime.min <= 37 && g_barsInDay > 0)
    {
       // g_m1Rates is oldest-first: [0]=first bar of day, [g_barsInDay-1]=last; closed candle = second-to-last when >=2 bars
       int kClosed = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
       datetime closedTime = g_m1Rates[kClosed].time;
       double closedO = g_m1Rates[kClosed].open, closedH = g_m1Rates[kClosed].high, closedL = g_m1Rates[kClosed].low, closedC = g_m1Rates[kClosed].close;
       string fname = TimeToString(today, TIME_DATE) + "_testing_liveprice.csv";
-      int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
-      if(fh != INVALID_HANDLE)
+      int fileHandle = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+      if(fileHandle != INVALID_HANDLE)
       {
-         FileSeek(fh, 0, SEEK_END);
-         if(FileTell(fh) == 0)
-            FileWrite(fh, "time", "liveBid", "liveAsk", "closed_candle_time", "closed_O", "closed_H", "closed_L", "closed_C");
-         FileWrite(fh, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+         FileSeek(fileHandle, 0, SEEK_END);
+         if(FileTell(fileHandle) == 0)
+            FileWrite(fileHandle, "time", "liveBid", "liveAsk", "closed_candle_time", "closed_O", "closed_H", "closed_L", "closed_C");
+         FileWrite(fileHandle, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
                    TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
-         FileClose(fh);
+         FileClose(fileHandle);
       }
       else
       {
-         fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
-         if(fh == INVALID_HANDLE)
+         fileHandle = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
+         if(fileHandle == INVALID_HANDLE)
             FatalError("OnTimer: could not open liveprice CSV " + fname);
-         FileWrite(fh, "time", "liveBid", "liveAsk", "closed_candle_time", "closed_O", "closed_H", "closed_L", "closed_C");
-         FileWrite(fh, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+         FileWrite(fileHandle, "time", "liveBid", "liveAsk", "closed_candle_time", "closed_O", "closed_H", "closed_L", "closed_C");
+         FileWrite(fileHandle, TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS), DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
                    TimeToString(closedTime, TIME_DATE|TIME_SECONDS), DoubleToString(closedO, _Digits), DoubleToString(closedH, _Digits), DoubleToString(closedL, _Digits), DoubleToString(closedC, _Digits));
-         FileClose(fh);
+         FileClose(fileHandle);
       }
    }
 
    // At 21:35: ensure current day is in dayStat (if missed at 21:30), then recalculate summary CSV so it always includes current day
-   if(mt.hour == 21 && mt.min == 35 && g_barsInDay > 0)
+   if(mqlTime.hour == 21 && mqlTime.min == 35 && g_barsInDay > 0)
    {
       TryLogDayStatForCurrentDay();
       WriteDayStatSummaryCsv();
@@ -2250,39 +2249,39 @@ void OnTimer()
    // --- ON and RTH session high/low so far at each bar k (bars 0..k). Fresh each candle; log reads from g_*AtBar[k].
    bool firstON = true, firstRTH = true;
    double runONhigh = 0, runONlow = 0, runRTHhigh = 0, runRTHlow = 0;
-   for(int k = 0; k < g_barsInDay; k++)
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
-      if(g_session[k] == "ON")
+      if(g_session[barIdx] == "ON")
       {
-         if(firstON) { runONhigh = g_m1Rates[k].high; runONlow = g_m1Rates[k].low; firstON = false; }
-         else        { runONhigh = MathMax(runONhigh, g_m1Rates[k].high); runONlow = MathMin(runONlow, g_m1Rates[k].low); }
-         g_ONhighSoFarAtBar[k].hasValue = true;
-         g_ONhighSoFarAtBar[k].value    = runONhigh;
-         g_ONlowSoFarAtBar[k].hasValue = true;
-         g_ONlowSoFarAtBar[k].value    = runONlow;
+         if(firstON) { runONhigh = g_m1Rates[barIdx].high; runONlow = g_m1Rates[barIdx].low; firstON = false; }
+         else        { runONhigh = MathMax(runONhigh, g_m1Rates[barIdx].high); runONlow = MathMin(runONlow, g_m1Rates[barIdx].low); }
+         g_ONhighSoFarAtBar[barIdx].hasValue = true;
+         g_ONhighSoFarAtBar[barIdx].value    = runONhigh;
+         g_ONlowSoFarAtBar[barIdx].hasValue = true;
+         g_ONlowSoFarAtBar[barIdx].value    = runONlow;
       }
       else
       {
-         g_ONhighSoFarAtBar[k].hasValue = !firstON;
-         g_ONhighSoFarAtBar[k].value    = runONhigh;
-         g_ONlowSoFarAtBar[k].hasValue  = !firstON;
-         g_ONlowSoFarAtBar[k].value     = runONlow;
+         g_ONhighSoFarAtBar[barIdx].hasValue = !firstON;
+         g_ONhighSoFarAtBar[barIdx].value    = runONhigh;
+         g_ONlowSoFarAtBar[barIdx].hasValue  = !firstON;
+         g_ONlowSoFarAtBar[barIdx].value     = runONlow;
       }
-      if(g_session[k] == "RTH")
+      if(g_session[barIdx] == "RTH")
       {
-         if(firstRTH) { runRTHhigh = g_m1Rates[k].high; runRTHlow = g_m1Rates[k].low; firstRTH = false; }
-         else         { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[k].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[k].low); }
-         g_rthHighSoFarAtBar[k].hasValue = true;
-         g_rthHighSoFarAtBar[k].value    = runRTHhigh;
-         g_rthLowSoFarAtBar[k].hasValue  = true;
-         g_rthLowSoFarAtBar[k].value     = runRTHlow;
+         if(firstRTH) { runRTHhigh = g_m1Rates[barIdx].high; runRTHlow = g_m1Rates[barIdx].low; firstRTH = false; }
+         else         { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[barIdx].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[barIdx].low); }
+         g_rthHighSoFarAtBar[barIdx].hasValue = true;
+         g_rthHighSoFarAtBar[barIdx].value    = runRTHhigh;
+         g_rthLowSoFarAtBar[barIdx].hasValue  = true;
+         g_rthLowSoFarAtBar[barIdx].value     = runRTHlow;
       }
       else
       {
-         g_rthHighSoFarAtBar[k].hasValue = !firstRTH;
-         g_rthHighSoFarAtBar[k].value    = runRTHhigh;
-         g_rthLowSoFarAtBar[k].hasValue  = !firstRTH;
-         g_rthLowSoFarAtBar[k].value     = runRTHlow;
+         g_rthHighSoFarAtBar[barIdx].hasValue = !firstRTH;
+         g_rthHighSoFarAtBar[barIdx].value    = runRTHhigh;
+         g_rthLowSoFarAtBar[barIdx].hasValue  = !firstRTH;
+         g_rthLowSoFarAtBar[barIdx].value     = runRTHlow;
       }
    }
 
@@ -2322,49 +2321,49 @@ void OnTimer()
          // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again). MT5 CSV with headers.
          if(dailyEODlog_PullingHistory && !FileIsExist(logName))
          {
-            int fh = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fh == INVALID_HANDLE)
+            int fileHandle = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandle == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + logName);
-            FileWrite(fh, "time", "O", "H", "L", "C", "levelAboveH", "levelBelowL", "session",
+            FileWrite(fileHandle, "time", "O", "H", "L", "C", "levelAboveH", "levelBelowL", "session",
                      "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum",
                      "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum",
                      "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum",
                      "ONhighSoFar", "ONlowSoFar", "rthHighSoFar", "rthLowSoFar",
                      "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
-            for(int k = 0; k < g_barsInDay; k++)
+         for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
             {
-               if(!g_ONhighSoFarAtBar[k].hasValue || !g_ONlowSoFarAtBar[k].hasValue)
-                  FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(k) + " time=" + TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES));
-               string rthH = g_rthHighSoFarAtBar[k].hasValue ? DoubleToString(g_rthHighSoFarAtBar[k].value, _Digits) : "";
-               string rthL = g_rthLowSoFarAtBar[k].hasValue ? DoubleToString(g_rthLowSoFarAtBar[k].value, _Digits) : "";
-               FileWrite(fh, TimeToString(g_m1Rates[k].time, TIME_DATE|TIME_MINUTES),
-                     DoubleToString(g_m1Rates[k].open, _Digits), DoubleToString(g_m1Rates[k].high, _Digits), DoubleToString(g_m1Rates[k].low, _Digits), DoubleToString(g_m1Rates[k].close, _Digits),
-                     DoubleToString(g_levelAboveH[k], 0), DoubleToString(g_levelBelowL[k], 0), g_session[k],
-                     DoubleToString(g_dayProgress[k].dayWinRate * 100.0, 0), IntegerToString(g_dayProgress[k].dayTradesCount), DoubleToString(g_dayProgress[k].dayPointsSum, _Digits), DoubleToString(g_dayProgress[k].dayProfitSum, 2),
-                     DoubleToString(g_dayProgress[k].ONwinRate * 100.0, 0), IntegerToString(g_dayProgress[k].ONtradeCount), DoubleToString(g_dayProgress[k].ONpointsSum, _Digits), DoubleToString(g_dayProgress[k].ONprofitSum, 2),
-                     DoubleToString(g_dayProgress[k].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[k].RTHtradeCount), DoubleToString(g_dayProgress[k].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[k].RTHprofitSum, 2),
-                     DoubleToString(g_ONhighSoFarAtBar[k].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[k].value, _Digits), rthH, rthL,
+               if(!g_ONhighSoFarAtBar[barIdx].hasValue || !g_ONlowSoFarAtBar[barIdx].hasValue)
+                  FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(barIdx) + " time=" + TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES));
+               string rthH = g_rthHighSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthHighSoFarAtBar[barIdx].value, _Digits) : "";
+               string rthL = g_rthLowSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthLowSoFarAtBar[barIdx].value, _Digits) : "";
+               FileWrite(fileHandle, TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES),
+                     DoubleToString(g_m1Rates[barIdx].open, _Digits), DoubleToString(g_m1Rates[barIdx].high, _Digits), DoubleToString(g_m1Rates[barIdx].low, _Digits), DoubleToString(g_m1Rates[barIdx].close, _Digits),
+                     DoubleToString(g_levelAboveH[barIdx], 0), DoubleToString(g_levelBelowL[barIdx], 0), g_session[barIdx],
+                     DoubleToString(g_dayProgress[barIdx].dayWinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].dayTradesCount), DoubleToString(g_dayProgress[barIdx].dayPointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].dayProfitSum, 2),
+                     DoubleToString(g_dayProgress[barIdx].ONwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].ONtradeCount), DoubleToString(g_dayProgress[barIdx].ONpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].ONprofitSum, 2),
+                     DoubleToString(g_dayProgress[barIdx].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].RTHtradeCount), DoubleToString(g_dayProgress[barIdx].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].RTHprofitSum, 2),
+                     DoubleToString(g_ONhighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[barIdx].value, _Digits), rthH, rthL,
                      DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
-            FileClose(fh);
+            FileClose(fileHandle);
          }
 
          // EOD one-line trades summary: same trade stats as latest row of pullinghistory (date)_summary_EOD_tradesSummary1line.csv
          string eodSummaryName = dateStr + "_summary_EOD_tradesSummary1line.csv";
          if(dailyEODlog_EodTradesSummary && !FileIsExist(eodSummaryName))
          {
-            int fhEod = FileOpen(eodSummaryName, FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fhEod != INVALID_HANDLE)
+            int fileHandleEod = FileOpen(eodSummaryName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandleEod != INVALID_HANDLE)
             {
-               FileWrite(fhEod, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
+               FileWrite(fileHandleEod, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
                if(kLast >= 0)
                {
-                  FileWrite(fhEod, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
+                  FileWrite(fileHandleEod, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
                      DoubleToString(g_dayProgress[kLast].dayWinRate * 100.0, 0), IntegerToString(g_dayProgress[kLast].dayTradesCount), DoubleToString(g_dayProgress[kLast].dayPointsSum, _Digits), DoubleToString(g_dayProgress[kLast].dayProfitSum, 2),
                      DoubleToString(g_dayProgress[kLast].ONwinRate * 100.0, 0), IntegerToString(g_dayProgress[kLast].ONtradeCount), DoubleToString(g_dayProgress[kLast].ONpointsSum, _Digits), DoubleToString(g_dayProgress[kLast].ONprofitSum, 2),
                      DoubleToString(g_dayProgress[kLast].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[kLast].RTHtradeCount), DoubleToString(g_dayProgress[kLast].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[kLast].RTHprofitSum, 2));
                }
-               FileClose(fhEod);
+               FileClose(fileHandleEod);
             }
          }
 
@@ -2384,11 +2383,11 @@ void OnTimer()
             g_summaryTrades_RTHpointsSum += g_dayProgress[kLast].RTHpointsSum;
             g_summaryTrades_RTHprofitSum += g_dayProgress[kLast].RTHprofitSum;
             g_summaryTrades_lastAddedDayStart = g_m1DayStart;
-            for(int tr = 0; tr < g_tradeResultsCount; tr++)
+            for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
             {
-               TradeResult r = g_tradeResults[tr];
-               if(!r.foundOut) continue;
-               int idx = FindOrAddPerTradeMagic(FirstDigitOfMagic(r.magic));
+               TradeResult tradeResult = g_tradeResults[trIdx];
+               if(!tradeResult.foundOut) continue;
+               int idx = FindOrAddPerTradeMagic(FirstDigitOfMagic(tradeResult.magic));
                if(idx < 0) continue;
                if(StringFind(g_perTradeSummaries[idx].datesList, dateStr) < 0)
                {
@@ -2397,61 +2396,61 @@ void OnTimer()
                   g_perTradeSummaries[idx].datesList += dateStr;
                }
                g_perTradeSummaries[idx].dayTradesCount++;
-               if(r.profit > 0) g_perTradeSummaries[idx].dayWins++;
-               g_perTradeSummaries[idx].dayPointsSum += r.priceDiff;
-               g_perTradeSummaries[idx].dayProfitSum += r.profit;
-               string endSession = GetSessionForCandleTime(r.endTime);
+               if(tradeResult.profit > 0) g_perTradeSummaries[idx].dayWins++;
+               g_perTradeSummaries[idx].dayPointsSum += tradeResult.priceDiff;
+               g_perTradeSummaries[idx].dayProfitSum += tradeResult.profit;
+               string endSession = GetSessionForCandleTime(tradeResult.endTime);
                if(endSession == "ON")
                {
                   g_perTradeSummaries[idx].ONtradeCount++;
-                  if(r.profit > 0) g_perTradeSummaries[idx].ONwins++;
-                  g_perTradeSummaries[idx].ONpointsSum += r.priceDiff;
-                  g_perTradeSummaries[idx].ONprofitSum += r.profit;
+                  if(tradeResult.profit > 0) g_perTradeSummaries[idx].ONwins++;
+                  g_perTradeSummaries[idx].ONpointsSum += tradeResult.priceDiff;
+                  g_perTradeSummaries[idx].ONprofitSum += tradeResult.profit;
                }
                else if(endSession == "RTH")
                {
                   g_perTradeSummaries[idx].RTHtradeCount++;
-                  if(r.profit > 0) g_perTradeSummaries[idx].RTHwins++;
-                  g_perTradeSummaries[idx].RTHpointsSum += r.priceDiff;
-                  g_perTradeSummaries[idx].RTHprofitSum += r.profit;
+                  if(tradeResult.profit > 0) g_perTradeSummaries[idx].RTHwins++;
+                  g_perTradeSummaries[idx].RTHpointsSum += tradeResult.priceDiff;
+                  g_perTradeSummaries[idx].RTHprofitSum += tradeResult.profit;
                }
             }
          }
          if(finalLog_SummaryTrades1line && g_barsInDay > 0)
          {
-            int fhEodAll = FileOpen("summary_tradesSummary1line.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fhEodAll != INVALID_HANDLE)
+            int fileHandleEodAll = FileOpen("summary_tradesSummary1line.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandleEodAll != INVALID_HANDLE)
             {
                double dayWr = (g_summaryTrades_dayTradesCount > 0) ? 100.0 * (double)g_summaryTrades_dayWins / (double)g_summaryTrades_dayTradesCount : 0.0;
                double onWr  = (g_summaryTrades_ONtradeCount > 0) ? 100.0 * (double)g_summaryTrades_ONwins / (double)g_summaryTrades_ONtradeCount : 0.0;
                double rthWr = (g_summaryTrades_RTHtradeCount > 0) ? 100.0 * (double)g_summaryTrades_RTHwins / (double)g_summaryTrades_RTHtradeCount : 0.0;
-               FileWrite(fhEodAll, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
-               FileWrite(fhEodAll, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
+               FileWrite(fileHandleEodAll, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
+               FileWrite(fileHandleEodAll, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
                   DoubleToString(dayWr, 0), IntegerToString(g_summaryTrades_dayTradesCount), DoubleToString(g_summaryTrades_dayPointsSum, _Digits), DoubleToString(g_summaryTrades_dayProfitSum, 2),
                   DoubleToString(onWr, 0), IntegerToString(g_summaryTrades_ONtradeCount), DoubleToString(g_summaryTrades_ONpointsSum, _Digits), DoubleToString(g_summaryTrades_ONprofitSum, 2),
                   DoubleToString(rthWr, 0), IntegerToString(g_summaryTrades_RTHtradeCount), DoubleToString(g_summaryTrades_RTHpointsSum, _Digits), DoubleToString(g_summaryTrades_RTHprofitSum, 2));
-               FileClose(fhEodAll);
+               FileClose(fileHandleEodAll);
             }
          }
          if(finalLog_SummaryTradesPerTrade && g_perTradeSummariesCount > 0)
          {
-            int fhPer = FileOpen("summary_tradesSummary_perTrade.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fhPer != INVALID_HANDLE)
+            int fileHandlePer = FileOpen("summary_tradesSummary_perTrade.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandlePer != INVALID_HANDLE)
             {
-               FileWrite(fhPer, "time", "magicFirstDigit", "dates", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
+               FileWrite(fileHandlePer, "time", "magicFirstDigit", "dates", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
                string rowTime = TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES);
-               for(int i = 0; i < g_perTradeSummariesCount; i++)
+               for(int summaryIdx = 0; summaryIdx < g_perTradeSummariesCount; summaryIdx++)
                {
-                  PerTradeSummary s = g_perTradeSummaries[i];
-                  double dayWr = (s.dayTradesCount > 0) ? 100.0 * (double)s.dayWins / (double)s.dayTradesCount : 0.0;
-                  double onWr  = (s.ONtradeCount > 0) ? 100.0 * (double)s.ONwins / (double)s.ONtradeCount : 0.0;
-                  double rthWr = (s.RTHtradeCount > 0) ? 100.0 * (double)s.RTHwins / (double)s.RTHtradeCount : 0.0;
-                  FileWrite(fhPer, rowTime, IntegerToString((long)s.magic), s.datesList,
-                     DoubleToString(dayWr, 0), IntegerToString(s.dayTradesCount), DoubleToString(s.dayPointsSum, _Digits), DoubleToString(s.dayProfitSum, 2),
-                     DoubleToString(onWr, 0), IntegerToString(s.ONtradeCount), DoubleToString(s.ONpointsSum, _Digits), DoubleToString(s.ONprofitSum, 2),
-                     DoubleToString(rthWr, 0), IntegerToString(s.RTHtradeCount), DoubleToString(s.RTHpointsSum, _Digits), DoubleToString(s.RTHprofitSum, 2));
+                  PerTradeSummary perTradeSum = g_perTradeSummaries[summaryIdx];
+                  double dayWr = (perTradeSum.dayTradesCount > 0) ? 100.0 * (double)perTradeSum.dayWins / (double)perTradeSum.dayTradesCount : 0.0;
+                  double onWr  = (perTradeSum.ONtradeCount > 0) ? 100.0 * (double)perTradeSum.ONwins / (double)perTradeSum.ONtradeCount : 0.0;
+                  double rthWr = (perTradeSum.RTHtradeCount > 0) ? 100.0 * (double)perTradeSum.RTHwins / (double)perTradeSum.RTHtradeCount : 0.0;
+                  FileWrite(fileHandlePer, rowTime, IntegerToString((long)perTradeSum.magic), perTradeSum.datesList,
+                     DoubleToString(dayWr, 0), IntegerToString(perTradeSum.dayTradesCount), DoubleToString(perTradeSum.dayPointsSum, _Digits), DoubleToString(perTradeSum.dayProfitSum, 2),
+                     DoubleToString(onWr, 0), IntegerToString(perTradeSum.ONtradeCount), DoubleToString(perTradeSum.ONpointsSum, _Digits), DoubleToString(perTradeSum.ONprofitSum, 2),
+                     DoubleToString(rthWr, 0), IntegerToString(perTradeSum.RTHtradeCount), DoubleToString(perTradeSum.RTHpointsSum, _Digits), DoubleToString(perTradeSum.RTHprofitSum, 2));
                }
-               FileClose(fhPer);
+               FileClose(fileHandlePer);
             }
          }
 
@@ -2459,88 +2458,88 @@ void OnTimer()
          string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day.csv";
          if(dailyEODlog_TradeResultsCsv && !FileIsExist(csvName))
          {
-            int fhTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
-            if(fhTr == INVALID_HANDLE)
+            int fileHandleTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
+            if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fhTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
-               for(int tr = 0; tr < g_tradeResultsCount; tr++)
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
+               for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
-                  TradeResult r = g_tradeResults[tr];
-                  string endTimeStr = r.foundOut ? TimeToString(r.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
-                  string priceEndStr = r.foundOut ? DoubleToString(r.priceEnd, _Digits) : "NOT_FOUND";
-                  string profitStr = r.foundOut ? DoubleToString(r.profit, 2) : "NOT_FOUND";
-                  string reasonStr = r.foundOut ? EnumToString((ENUM_DEAL_REASON)r.reason) : "NOT_FOUND";
-                  string typeStr = EnumToString((ENUM_DEAL_TYPE)r.type);
-                  FileWrite(fhTr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
-                     r.session, IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
-                     DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(r.volume, 2), r.bothComments, r.level, r.tp, r.sl);
+                  TradeResult tradeResult = g_tradeResults[trIdx];
+                  string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
+                  string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
+                  string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
+                  string reasonStr = tradeResult.foundOut ? EnumToString((ENUM_DEAL_REASON)tradeResult.reason) : "NOT_FOUND";
+                  string typeStr = EnumToString((ENUM_DEAL_TYPE)tradeResult.type);
+                  FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
+                     tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
+                     DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
+                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl);
                }
-               FileClose(fhTr);
+               FileClose(fileHandleTr);
             }
 
             // Append same day's results to all-days summary (single file, no date in name)
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            int fhSumTr = FileOpen(summaryAllName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fhSumTr != INVALID_HANDLE)
+            int fileHandleSumTr = FileOpen(summaryAllName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileSeek(fhSumTr, 0, SEEK_END);
-               if(FileTell(fhSumTr) == 0)
-                  FileWrite(fhSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
-               for(int tr = 0; tr < g_tradeResultsCount; tr++)
+               FileSeek(fileHandleSumTr, 0, SEEK_END);
+               if(FileTell(fileHandleSumTr) == 0)
+                  FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
+               for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
-                  TradeResult r = g_tradeResults[tr];
-                  string endTimeStr = r.foundOut ? TimeToString(r.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
-                  string priceEndStr = r.foundOut ? DoubleToString(r.priceEnd, _Digits) : "NOT_FOUND";
-                  string profitStr = r.foundOut ? DoubleToString(r.profit, 2) : "NOT_FOUND";
-                  string reasonStr = r.foundOut ? EnumToString((ENUM_DEAL_REASON)r.reason) : "NOT_FOUND";
-                  string typeStr = EnumToString((ENUM_DEAL_TYPE)r.type);
-                  FileWrite(fhSumTr, dateStr, r.symbol, TimeToString(r.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
-                     r.session, IntegerToString((long)r.magic), DoubleToString(r.priceStart, _Digits), priceEndStr,
-                     DoubleToString(r.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(r.volume, 2), r.bothComments, r.level, r.tp, r.sl);
+                  TradeResult tradeResult = g_tradeResults[trIdx];
+                  string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
+                  string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
+                  string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
+                  string reasonStr = tradeResult.foundOut ? EnumToString((ENUM_DEAL_REASON)tradeResult.reason) : "NOT_FOUND";
+                  string typeStr = EnumToString((ENUM_DEAL_TYPE)tradeResult.type);
+                  FileWrite(fileHandleSumTr, dateStr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
+                     tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
+                     DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
+                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl);
                }
-               FileClose(fhSumTr);
+               FileClose(fileHandleSumTr);
             }
          }
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
          const int HighestDiffRange_Log = 15;  // window in bars for both HighestDiffUp and HighestDiffDown in logs
          if(dailyEODlog_TestinglevelsPlus)
-         for(int e = 0; e < g_levelsTodayCount; e++)
+         for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
          {
-            string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, _Digits) + "_" + g_levelsExpanded[e].tag + ".csv";
+            string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[levelIdx].levelPrice, _Digits) + "_" + g_levelsExpanded[levelIdx].tag + ".csv";
             if(!FileIsExist(levelFile))
             {
-               int fhL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
-               if(fhL == INVALID_HANDLE)
+               int fileHandleL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+               if(fileHandleL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFile);
-               FileWrite(fhL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange", "ON_O_wasAboveL", "RTH_O_wasAboveL", "ONtradeCount_L", "ONwinRate_L", "ONpointsSum_L", "ONprofitSum_L", "RTHtradeCount_L", "RTHwinRate_L", "RTHpointsSum_L", "RTHprofitSum_L");
-               double lvl = g_levelsExpanded[e].levelPrice;
+               FileWrite(fileHandleL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange", "ON_O_wasAboveL", "RTH_O_wasAboveL", "ONtradeCount_L", "ONwinRate_L", "ONpointsSum_L", "ONprofitSum_L", "RTHtradeCount_L", "RTHwinRate_L", "RTHpointsSum_L", "RTHprofitSum_L");
+               double lvl = g_levelsExpanded[levelIdx].levelPrice;
                double onOpen = g_m1Rates[0].open;
                double rthOpen = GetRTHopenCurrentDay();
-               for(int k = 0; k < g_levelsExpanded[e].count; k++)
+               for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
                {
-                  string highestUp   = GetHighestDiffInWindowString(lvl, k, HighestDiffRange_Log, true);
-                  string highestDown = GetHighestDiffInWindowString(lvl, k, HighestDiffRange_Log, false);
-                  bool onKnown   = (k > 0);
-                  bool rthKnown  = (GetSessionForCandleTime(g_levelsExpanded[e].times[k]) != "ON");
+                  string highestUp   = GetHighestDiffInWindowString(lvl, barIdx, HighestDiffRange_Log, true);
+                  string highestDown = GetHighestDiffInWindowString(lvl, barIdx, HighestDiffRange_Log, false);
+                  bool onKnown   = (barIdx > 0);
+                  bool rthKnown  = (GetSessionForCandleTime(g_levelsExpanded[levelIdx].times[barIdx]) != "ON");
                   string onAboveStr  = GetOpenWasAboveLevelString(onOpen, lvl, onKnown);
                   string rthAboveStr = GetOpenWasAboveLevelString(rthOpen, lvl, rthKnown);
-                  FileWrite(fhL, TimeToString(g_levelsExpanded[e].times[k], TIME_DATE|TIME_MINUTES),
-                     DoubleToString(g_levelsExpanded[e].diffs[k], _Digits),
-                     DoubleToString(g_m1Rates[k].open, _Digits), DoubleToString(g_m1Rates[k].high, _Digits), DoubleToString(g_m1Rates[k].low, _Digits), DoubleToString(g_m1Rates[k].close, _Digits),
-                     (g_breaksLevelDown[e][k] ? "true" : "false"), (g_breaksLevelUpward[e][k] ? "true" : "false"),
-                     IntegerToString(g_cleanStreakAbove[e][k]), IntegerToString(g_cleanStreakBelow[e][k]),
-                     IntegerToString(g_aboveCnt[e][k]), DoubleToString(g_abovePerc[e][k], 2), IntegerToString(g_belowCnt[e][k]), DoubleToString(g_belowPerc[e][k], 2),
-                     IntegerToString(g_overlapStreak[e][k]), IntegerToString(g_overlapC[e][k]), DoubleToString(g_overlapPc[e][k], 2),
+                  FileWrite(fileHandleL, TimeToString(g_levelsExpanded[levelIdx].times[barIdx], TIME_DATE|TIME_MINUTES),
+                     DoubleToString(g_levelsExpanded[levelIdx].diffs[barIdx], _Digits),
+                     DoubleToString(g_m1Rates[barIdx].open, _Digits), DoubleToString(g_m1Rates[barIdx].high, _Digits), DoubleToString(g_m1Rates[barIdx].low, _Digits), DoubleToString(g_m1Rates[barIdx].close, _Digits),
+                     (g_breaksLevelDown[levelIdx][barIdx] ? "true" : "false"), (g_breaksLevelUpward[levelIdx][barIdx] ? "true" : "false"),
+                     IntegerToString(g_cleanStreakAbove[levelIdx][barIdx]), IntegerToString(g_cleanStreakBelow[levelIdx][barIdx]),
+                     IntegerToString(g_aboveCnt[levelIdx][barIdx]), DoubleToString(g_abovePerc[levelIdx][barIdx], 2), IntegerToString(g_belowCnt[levelIdx][barIdx]), DoubleToString(g_belowPerc[levelIdx][barIdx], 2),
+                     IntegerToString(g_overlapStreak[levelIdx][barIdx]), IntegerToString(g_overlapC[levelIdx][barIdx]), DoubleToString(g_overlapPc[levelIdx][barIdx], 2),
                      highestUp, IntegerToString(HighestDiffRange_Log), highestDown, IntegerToString(HighestDiffRange_Log),
                      onAboveStr, rthAboveStr,
-                     IntegerToString(g_ONtradeCount_L[e][k]), DoubleToString((g_ONtradeCount_L[e][k] > 0) ? (double)g_ONwins_L[e][k] / (double)g_ONtradeCount_L[e][k] * 100.0 : 0.0, 0), DoubleToString(g_ONpointsSum_L[e][k], _Digits), DoubleToString(g_ONprofitSum_L[e][k], 2),
-                     IntegerToString(g_RTHtradeCount_L[e][k]), DoubleToString((g_RTHtradeCount_L[e][k] > 0) ? (double)g_RTHwins_L[e][k] / (double)g_RTHtradeCount_L[e][k] * 100.0 : 0.0, 0), DoubleToString(g_RTHpointsSum_L[e][k], _Digits), DoubleToString(g_RTHprofitSum_L[e][k], 2));
+                     IntegerToString(g_ONtradeCount_L[levelIdx][barIdx]), DoubleToString((g_ONtradeCount_L[levelIdx][barIdx] > 0) ? (double)g_ONwins_L[levelIdx][barIdx] / (double)g_ONtradeCount_L[levelIdx][barIdx] * 100.0 : 0.0, 0), DoubleToString(g_ONpointsSum_L[levelIdx][barIdx], _Digits), DoubleToString(g_ONprofitSum_L[levelIdx][barIdx], 2),
+                     IntegerToString(g_RTHtradeCount_L[levelIdx][barIdx]), DoubleToString((g_RTHtradeCount_L[levelIdx][barIdx] > 0) ? (double)g_RTHwins_L[levelIdx][barIdx] / (double)g_RTHtradeCount_L[levelIdx][barIdx] * 100.0 : 0.0, 0), DoubleToString(g_RTHpointsSum_L[levelIdx][barIdx], _Digits), DoubleToString(g_RTHprofitSum_L[levelIdx][barIdx], 2));
                }
-               FileClose(fhL);
+               FileClose(fileHandleL);
             }
          }
 
@@ -2548,60 +2547,60 @@ void OnTimer()
          if(dailyEODlog_BreakCheck)
          {
          string breakCheckFile = dateStr + "_levels_breakCheck_breakingDown.csv";
-         int fhBreak = FileOpen(breakCheckFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
-         if(fhBreak != INVALID_HANDLE)
+         int fileHandleBreak = FileOpen(breakCheckFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+         if(fileHandleBreak != INVALID_HANDLE)
          {
             string cutoffStr = IntegerToString((int)MathRound(InpBreakCheckMaxDistPoints));
-            FileWrite(fhBreak, "levelPrice", "ONrangeStartTime", "ONcountCandles_" + cutoffStr, "ONaverage_" + cutoffStr, "ONmedian_" + cutoffStr, "RTHIBrangeStartTime", "RTHIBcountCandles_" + cutoffStr, "RTHIBaverage_" + cutoffStr, "RTHIBmedian_" + cutoffStr, "RTHcntrangeStartTime", "RTHcntcountCandles_" + cutoffStr, "RTHcntaverage_" + cutoffStr, "RTHcntmedian_" + cutoffStr);
+            FileWrite(fileHandleBreak, "levelPrice", "ONrangeStartTime", "ONcountCandles_" + cutoffStr, "ONaverage_" + cutoffStr, "ONmedian_" + cutoffStr, "RTHIBrangeStartTime", "RTHIBcountCandles_" + cutoffStr, "RTHIBaverage_" + cutoffStr, "RTHIBmedian_" + cutoffStr, "RTHcntrangeStartTime", "RTHcntcountCandles_" + cutoffStr, "RTHcntaverage_" + cutoffStr, "RTHcntmedian_" + cutoffStr);
             bool accumulateToday = (g_m1DayStart != 0 && g_m1DayStart != g_breakCheck_lastAggregatedDay);
             int order[];
             ArrayResize(order, g_levelsTodayCount);
-            for(int i = 0; i < g_levelsTodayCount; i++) order[i] = i;
-            for(int i = 0; i < g_levelsTodayCount; i++)
-               for(int j = i + 1; j < g_levelsTodayCount; j++)
-                  if(g_levelsExpanded[order[j]].levelPrice < g_levelsExpanded[order[i]].levelPrice)
-                  { int t = order[i]; order[i] = order[j]; order[j] = t; }
-            for(int i = 0; i < g_levelsTodayCount; i++)
+            for(int sortIdx = 0; sortIdx < g_levelsTodayCount; sortIdx++) order[sortIdx] = sortIdx;
+            for(int sortIdx = 0; sortIdx < g_levelsTodayCount; sortIdx++)
+               for(int innerIdx = sortIdx + 1; innerIdx < g_levelsTodayCount; innerIdx++)
+                  if(g_levelsExpanded[order[innerIdx]].levelPrice < g_levelsExpanded[order[sortIdx]].levelPrice)
+                  { int swapTmp = order[sortIdx]; order[sortIdx] = order[innerIdx]; order[innerIdx] = swapTmp; }
+            for(int sortIdx = 0; sortIdx < g_levelsTodayCount; sortIdx++)
             {
-               int e = order[i];
-               double lvl = g_levelsExpanded[e].levelPrice;
+               int levelIdx = order[sortIdx];
+               double lvl = g_levelsExpanded[levelIdx].levelPrice;
                double maxDist = InpBreakCheckMaxDistPoints;  // always in price
 
                BreakCheckSessionResult onRes    = BreakCheckSessionStats(lvl, maxDist, BREAKCHECK_ON);
                BreakCheckSessionResult rthibRes = BreakCheckSessionStats(lvl, maxDist, BREAKCHECK_RTHIB);
                BreakCheckSessionResult rthcntRes = BreakCheckSessionStats(lvl, maxDist, BREAKCHECK_RTHCNT);
 
-               FileWrite(fhBreak, DoubleToString(lvl, _Digits),
-                  onRes.rangeStartStr, IntegerToString(onRes.n), DoubleToString(onRes.avg, _Digits), DoubleToString(onRes.median, _Digits),
-                  rthibRes.rangeStartStr, IntegerToString(rthibRes.n), DoubleToString(rthibRes.avg, _Digits), DoubleToString(rthibRes.median, _Digits),
-                  rthcntRes.rangeStartStr, IntegerToString(rthcntRes.n), DoubleToString(rthcntRes.avg, _Digits), DoubleToString(rthcntRes.median, _Digits));
+               FileWrite(fileHandleBreak, DoubleToString(lvl, _Digits),
+                  onRes.rangeStartStr, IntegerToString(onRes.count), DoubleToString(onRes.avg, _Digits), DoubleToString(onRes.median, _Digits),
+                  rthibRes.rangeStartStr, IntegerToString(rthibRes.count), DoubleToString(rthibRes.avg, _Digits), DoubleToString(rthibRes.median, _Digits),
+                  rthcntRes.rangeStartStr, IntegerToString(rthcntRes.count), DoubleToString(rthcntRes.avg, _Digits), DoubleToString(rthcntRes.median, _Digits));
                if(accumulateToday)
                {
-                  bool excludeTertiary = (StringFind(g_levelsExpanded[e].categories, "tertiary") >= 0);
+                  bool excludeTertiary = (StringFind(g_levelsExpanded[levelIdx].categories, "tertiary") >= 0);
                   if(!excludeTertiary)
                   {
-                     g_agg_ONbreakDown_sumCandles += onRes.n; g_agg_ONbreakDown_sumAvg += onRes.avg; g_agg_ONbreakDown_sumMed += onRes.median; g_agg_ONbreakDown_n++;
-                     g_agg_RTHIBbreakDown_sumCandles += rthibRes.n; g_agg_RTHIBbreakDown_sumAvg += rthibRes.avg; g_agg_RTHIBbreakDown_sumMed += rthibRes.median; g_agg_RTHIBbreakDown_n++;
-                     g_agg_RTHcntbreakDown_sumCandles += rthcntRes.n; g_agg_RTHcntbreakDown_sumAvg += rthcntRes.avg; g_agg_RTHcntbreakDown_sumMed += rthcntRes.median; g_agg_RTHcntbreakDown_n++;
+                     g_agg_ONbreakDown_sumCandles += onRes.count; g_agg_ONbreakDown_sumAvg += onRes.avg; g_agg_ONbreakDown_sumMed += onRes.median; g_agg_ONbreakDown_n++;
+                     g_agg_RTHIBbreakDown_sumCandles += rthibRes.count; g_agg_RTHIBbreakDown_sumAvg += rthibRes.avg; g_agg_RTHIBbreakDown_sumMed += rthibRes.median; g_agg_RTHIBbreakDown_n++;
+                     g_agg_RTHcntbreakDown_sumCandles += rthcntRes.count; g_agg_RTHcntbreakDown_sumAvg += rthcntRes.avg; g_agg_RTHcntbreakDown_sumMed += rthcntRes.median; g_agg_RTHcntbreakDown_n++;
                   }
                }
             }
             if(accumulateToday) { g_breakCheck_lastAggregatedDay = g_m1DayStart; g_breakCheck_daysCount++; }
-            FileClose(fhBreak);
+            FileClose(fileHandleBreak);
          }
          // At 22:00 write single aggregate log (no date in name): type, avgcandles, avgavg, avgmedian for all 4 types
          if(minOfDay == 22*60+0)
          {
-            int fhSum = FileOpen("levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fhSum != INVALID_HANDLE)
+            int fileHandleSum = FileOpen("levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandleSum != INVALID_HANDLE)
             {
-               FileWrite(fhSum, "timerangeType", "avgCandleCount", "avgOfAvg", "avgOfMedian", "daysCount", "totalLevelCount");
+               FileWrite(fileHandleSum, "timerangeType", "avgCandleCount", "avgOfAvg", "avgOfMedian", "daysCount", "totalLevelCount");
                int daysCount = g_breakCheck_daysCount;
-               double n;
-               n = (double)g_agg_ONbreakDown_n;   FileWrite(fhSum, "ON",   (n > 0 ? DoubleToString(g_agg_ONbreakDown_sumCandles/n, 2) : "0"), (n > 0 ? DoubleToString(g_agg_ONbreakDown_sumAvg/n, _Digits) : "0"), (n > 0 ? DoubleToString(g_agg_ONbreakDown_sumMed/n, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_ONbreakDown_n));
-               n = (double)g_agg_RTHIBbreakDown_n; FileWrite(fhSum, "RTHIB", (n > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumCandles/n, 2) : "0"), (n > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumAvg/n, _Digits) : "0"), (n > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumMed/n, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_RTHIBbreakDown_n));
-               n = (double)g_agg_RTHcntbreakDown_n; FileWrite(fhSum, "RTHcnt", (n > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumCandles/n, 2) : "0"), (n > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumAvg/n, _Digits) : "0"), (n > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumMed/n, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_RTHcntbreakDown_n));
-               FileClose(fhSum);
+               double countDbl;
+               countDbl = (double)g_agg_ONbreakDown_n;   FileWrite(fileHandleSum, "ON",   (countDbl > 0 ? DoubleToString(g_agg_ONbreakDown_sumCandles/countDbl, 2) : "0"), (countDbl > 0 ? DoubleToString(g_agg_ONbreakDown_sumAvg/countDbl, _Digits) : "0"), (countDbl > 0 ? DoubleToString(g_agg_ONbreakDown_sumMed/countDbl, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_ONbreakDown_n));
+               countDbl = (double)g_agg_RTHIBbreakDown_n; FileWrite(fileHandleSum, "RTHIB", (countDbl > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumCandles/countDbl, 2) : "0"), (countDbl > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumAvg/countDbl, _Digits) : "0"), (countDbl > 0 ? DoubleToString(g_agg_RTHIBbreakDown_sumMed/countDbl, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_RTHIBbreakDown_n));
+               countDbl = (double)g_agg_RTHcntbreakDown_n; FileWrite(fileHandleSum, "RTHcnt", (countDbl > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumCandles/countDbl, 2) : "0"), (countDbl > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumAvg/countDbl, _Digits) : "0"), (countDbl > 0 ? DoubleToString(g_agg_RTHcntbreakDown_sumMed/countDbl, _Digits) : "0"), IntegerToString(daysCount), IntegerToString(g_agg_RTHcntbreakDown_n));
+               FileClose(fileHandleSum);
             }
          }
          }
@@ -2621,23 +2620,23 @@ void FinalizeCurrentCandle()
          FileClose(allCandlesFileHandle);
 
       string allFileName = dateStr + "-AllCandlesLog_Timer1.csv";
-      int fhAll = FileOpen(allFileName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
-      if(fhAll == INVALID_HANDLE)
-         fhAll = FileOpen(allFileName, FILE_WRITE | FILE_CSV | FILE_ANSI);
-      if(fhAll == INVALID_HANDLE)
+      int fileHandleAll = FileOpen(allFileName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+      if(fileHandleAll == INVALID_HANDLE)
+         fileHandleAll = FileOpen(allFileName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+      if(fileHandleAll == INVALID_HANDLE)
          FatalError("FinalizeCurrentCandle: could not open " + allFileName);
-      FileSeek(fhAll, 0, SEEK_END);
-      if(FileTell(fhAll) == 0)
-         FileWrite(fhAll, "time", "O", "H", "L", "C");
-      allCandlesFileHandle = fhAll;
+      FileSeek(fileHandleAll, 0, SEEK_END);
+      if(FileTell(fileHandleAll) == 0)
+         FileWrite(fileHandleAll, "time", "O", "H", "L", "C");
+      allCandlesFileHandle = fileHandleAll;
       allCandlesFileDate = candleDay;
    }
 
    // Day stat: once after 21:30 candle, set dayStat_day_had_OpenGapDown_bool (RTH open < PD RTH close) and write dayPriceStat_log + dayPriceStat_summaryLog
    {
-      MqlDateTime mt;
-      TimeToStruct(current_candle_time, mt);
-      if(mt.hour == 21 && mt.min == 30)
+      MqlDateTime mqlTime;
+      TimeToStruct(current_candle_time, mqlTime);
+      if(mqlTime.hour == 21 && mqlTime.min == 30)
       {
          TryLogDayStatForCurrentDay();  // per-day log written (or skipped by dailyEODlog_DayStat inside)
          if(finalLog_DayStatSummary)
@@ -2665,15 +2664,15 @@ void FinalizeCurrentCandle()
             string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.csv", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
-            int fhAra = FileOpen(araFile, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fhAra == INVALID_HANDLE)
-               fhAra = FileOpen(araFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
-            if(fhAra == INVALID_HANDLE)
+            int fileHandleAra = FileOpen(araFile, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandleAra == INVALID_HANDLE)
+               fileHandleAra = FileOpen(araFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fileHandleAra == INVALID_HANDLE)
                FatalError("FinalizeCurrentCandle: could not open " + araFile);
-            FileSeek(fhAra, 0, SEEK_END);
-            if(FileTell(fhAra) == 0)
-               FileWrite(fhAra, "time", "level", "O", "H", "low", "C", "diff_CloseToLevel", "DayBias", "Contact", "ContactCount", "BounceCount", "CandlesPassedSinceLastBounce", "CandlesBreakLevelCount", "RecoverCount");
-            levels[i].logRawEv_fileHandle = fhAra;
+            FileSeek(fileHandleAra, 0, SEEK_END);
+            if(FileTell(fileHandleAra) == 0)
+               FileWrite(fileHandleAra, "time", "level", "O", "H", "low", "C", "diff_CloseToLevel", "DayBias", "Contact", "ContactCount", "BounceCount", "CandlesPassedSinceLastBounce", "CandlesBreakLevelCount", "RecoverCount");
+            levels[i].logRawEv_fileHandle = fileHandleAra;
             }
             else
                levels[i].logRawEv_fileHandle = INVALID_HANDLE;
@@ -2766,8 +2765,8 @@ void FinalizeCurrentCandle()
             {
                double pip = PipSize();
                double orderPrice = NormalizeDouble(lvl + T_buy2ndBounce_PriceOffsetPips * pip, _Digits);
-               double sl = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
-               double tp = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
+               double stopLossVal = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * pip, _Digits);
+               double takeProfitVal = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * pip, _Digits);
                
                string orderComment = StringFormat("$%d %.0f %.0f %d",
                   (int)lvl,
@@ -2779,13 +2778,13 @@ void FinalizeCurrentCandle()
                
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
-               if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
+               if(ExtTrade.BuyLimit(T_buy2ndBounce_LotSize, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                {
                   ulong orderTicket = ExtTrade.ResultOrder();
                   datetime eventTime = current_candle_time;
                   if(orderTicket > 0 && OrderSelect(orderTicket))
                      eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-                  WriteTradeLog(tradeTypeStr, "pending_created", eventTime, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
+                  WriteTradeLog(tradeTypeStr, "pending_created", eventTime, "buy_limit", orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
                }
                
                ExtTrade.SetExpertMagicNumber(EA_MAGIC);
@@ -2814,8 +2813,8 @@ void FinalizeCurrentCandle()
             {
                double pip = PipSize();
                double orderPrice = NormalizeDouble(lvl + T_buy4thBounce_PriceOffsetPips * pip, _Digits);
-               double sl = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
-               double tp = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
+               double stopLossVal = NormalizeDouble(orderPrice - T_buy4thBounce_SLPips * pip, _Digits);
+               double takeProfitVal = NormalizeDouble(orderPrice + T_buy4thBounce_TPPips * pip, _Digits);
                
                string orderComment = StringFormat("$%d %.0f %.0f %d",
                   (int)lvl,
@@ -2827,13 +2826,13 @@ void FinalizeCurrentCandle()
                
                ExtTrade.SetExpertMagicNumber(tradeMagic);
                
-               if(ExtTrade.BuyLimit(T_buy4thBounce_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
+               if(ExtTrade.BuyLimit(T_buy4thBounce_LotSize, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expirationTime, orderComment))
                {
                   ulong orderTicket = ExtTrade.ResultOrder();
                   datetime eventTime = current_candle_time;
                   if(orderTicket > 0 && OrderSelect(orderTicket))
                      eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-                  WriteTradeLog(tradeTypeStr, "pending_created", eventTime, "buy_limit", orderPrice, sl, tp, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
+                  WriteTradeLog(tradeTypeStr, "pending_created", eventTime, "buy_limit", orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, tradeMagic);
                }
                
                ExtTrade.SetExpertMagicNumber(EA_MAGIC);
