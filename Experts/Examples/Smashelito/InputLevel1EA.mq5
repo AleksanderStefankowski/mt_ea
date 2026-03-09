@@ -35,6 +35,22 @@ input double   InpLotSize           = 0.01; // lot size for trade types
 input int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (timer/server time)
 input int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
 input bool     InpTestingPullM1History = true;  // if true: at 21:58-22:00 write (date)_testing_pullinghistory.csv and testinglevelsplus files
+//--- Log to file: set false to disable that log (optimization)
+//    finalLog_ = one file across whole run; dailyEODlog_ = daily once at EOD; dailySpamLog_ = daily and frequent
+input bool     dailyEODlog_PullingHistory   = true;  // (date)_testing_pullinghistory.csv
+input bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
+input bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSummary1line.csv
+input bool     finalLog_SummaryTrades1line  = true;  // summary_tradesSummary1line.csv
+input bool     dailyEODlog_TradeResultsCsv  = true;  // summaryZ_tradeResults_ALL_Day + summary_tradeResults_all_days
+input bool     dailyEODlog_TestinglevelsPlus = true;  // (date)_testinglevelsplus_(level)_(tag).csv per level
+input bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
+input bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
+input bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
+input bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
+input bool     finalLog_TradeLog            = true;  // B_TradeLog_(id).csv (WriteTradeLog)
+input bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
+input bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
+input bool     dailySpamLog_Arawevents      = true;  // Arawevents CSV + level logRawEv (FinalizeCurrentCandle)
 input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 input double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
@@ -940,6 +956,31 @@ void UpdateDayM1AndLevelsExpanded()
       }
    }
 
+   // Add PD RTH Close as a level for today only if static context was pulled for this day and no level is within proximity
+   if(g_staticMarketContextPulledForDate == g_m1DayStart && g_staticMarketContext.PDCpreviousDayRTHClose > 0.0)
+   {
+      string todayStr = dateStr;
+      double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+      bool PDrthLevel_tooClose_to_regularLevel = false;
+      for(int i = 0; i < g_levelsTotalCount; i++)
+      {
+         if(g_levels[i].startStr > todayStr || todayStr > g_levels[i].endStr) continue;
+         if(MathAbs(g_levels[i].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity) { PDrthLevel_tooClose_to_regularLevel = true; break; }
+      }
+      if(!PDrthLevel_tooClose_to_regularLevel && g_levelsTotalCount < MAX_LEVEL_ROWS)
+      {
+         string categories = "daily_tertiary_PDrthClose";
+         string baseName = todayStr + "_PDrthClose";
+         AddLevel(baseName, pdc, todayStr + " 00:00", todayStr + " 23:59", categories);
+         g_levels[g_levelsTotalCount].startStr   = todayStr;
+         g_levels[g_levelsTotalCount].endStr    = todayStr;
+         g_levels[g_levelsTotalCount].levelPrice = pdc;
+         g_levels[g_levelsTotalCount].categories = categories;
+         g_levels[g_levelsTotalCount].tag       = "PDrthClose";
+         g_levelsTotalCount++;
+      }
+   }
+
    // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
    g_levelsTodayCount = 0;
    for(int i = 0; i < g_levelsTotalCount && g_levelsTodayCount < MAX_LEVELS_EXPANDED; i++)
@@ -1615,6 +1656,7 @@ void WriteTradeLog(const string tradeType, const string eventType, datetime even
                   ulong orderTicket = 0, ulong dealTicket = 0, ulong positionTicket = 0,
                   ENUM_DEAL_REASON dealReason = (ENUM_DEAL_REASON)0, const string comment = "", long magic = 0)
 {
+   if(!finalLog_TradeLog) return;
    string fname = BuildTradeLogFileName(tradeType, eventTime);
    if(StringLen(fname) == 0) return;
 
@@ -1902,12 +1944,15 @@ bool TryLogDayStatForCurrentDay()
 
    string dateStrStat = TimeToString(g_m1DayStart, TIME_DATE);
    string dayStatLogName = dateStrStat + "_dayPriceStat_log.csv";
+   if(dailyEODlog_DayStat)
+   {
    int fhDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fhDay != INVALID_HANDLE)
    {
       FileWrite(fhDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH");
       FileWrite(fhDay, dateStrStat, (dayStat_day_had_OpenGapDown_bool ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"));
       FileClose(fhDay);
+   }
    }
 
    dayStat_totalDays++;
@@ -1982,6 +2027,8 @@ void OnDeinit(const int reason)
    if(allCandlesFileHandle != INVALID_HANDLE)
       FileClose(allCandlesFileHandle);
 
+   if(finalLog_FirstLastCandle)
+   {
    int fh = FileOpen(InpSessionFirstLastCandleFile, FILE_WRITE|FILE_TXT);
    if(fh != INVALID_HANDLE)
    {
@@ -2000,6 +2047,7 @@ void OnDeinit(const int reason)
       FileWrite(fh,"----------------------------------------");
       FileClose(fh);
    }
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -2011,67 +2059,56 @@ void OnTimer()
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
-   // Rulecheck: potentialTradeLevel when |g_liveBid - g_levelBelowL[k]| < 3 points; ruleset 5 cleanFirstBounceON
+   // Rulecheck: on timer, use latest candle's levelBelowL only. |g_liveBid - g_levelBelowL[kLatest]| < 3 pts → ruleset 5 cleanFirstBounceON.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
    {
       const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 5;
       double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-      const double RULE_DIST = 3.0;  // |liveBid - level| < 3 (plain number)
+      const double RULE_DIST = 3.0;
       const int HIGHEST_DIFF_UP_WINDOW = 15;
       const double HIGHEST_DIFF_UP_MIN = 9.0;
-      const double ORDER_OFFSET_POINTS = 0.5;  // ruleset-specified; use NewRulesets_ProcessInput for actual points
-      const double TP_SL_POINTS = 5.0;          // ruleset-specified; use NewRulesets_ProcessInput for actual points
+      const double ORDER_OFFSET_POINTS = 0.5;
+      const double TP_SL_POINTS = 5.0;
       const int EXPIRATION_MINUTES = 15;
 
-      for(int k = 0; k < g_barsInDay; k++)
+      int k = g_barsInDay - 1;  // latest bar only
+      if(MathAbs(g_liveBid - g_levelBelowL[k]) >= RULE_DIST) { /* not near level */ }
+      else
       {
-         if(g_levelBelowL[k] <= 0.0) continue;
-         double potentialTradeLevel = g_levelBelowL[k];
-         if(MathAbs(g_liveBid - potentialTradeLevel) >= RULE_DIST) continue;
-
          int e = -1;
          for(int i = 0; i < g_levelsTodayCount; i++)
+            if(g_levelsExpanded[i].levelPrice == g_levelBelowL[k]) { e = i; break; }
+         if(e >= 0)
          {
-            if(g_levelsExpanded[i].levelPrice == potentialTradeLevel) { e = i; break; }
+            string highestUp = GetHighestDiffInWindowString(g_levelBelowL[k], k, HIGHEST_DIFF_UP_WINDOW, true);
+            if(highestUp != "never" && StringToDouble(highestUp) > HIGHEST_DIFF_UP_MIN && g_overlapC[e][k] == 0 && g_session[k] == "ON")
+            {
+               MqlDateTime d;
+               TimeToStruct(g_m1DayStart, d);
+               string dateStr = StringFormat("%04d%02d%02d", d.year, d.mon, d.day);
+               string levelStr = IntegerToString((int)MathRound(g_levelBelowL[k]));
+               string magicStr = IntegerToString(RULESET_ID_CLEAN_FIRST_BOUNCE_ON) + dateStr + levelStr;
+               long magic = (long)StringToInteger(magicStr);
+               if(CountOrdersAndPositionsForMagic(magic) == 0)
+               {
+                  int kLast = g_barsInDay - 1;
+                  int onCount = g_dayProgress[kLast].ONtradeCount;
+                  double onWr = g_dayProgress[kLast].ONwinRate;
+                  if(!(onCount == 2 && onWr >= 1.0) && onCount < 3)
+                  {
+                     double orderPrice = NormalizeDouble(g_levelBelowL[k] + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
+                     double tp = NormalizeDouble(g_levelBelowL[k] + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+                     double sl = NormalizeDouble(g_levelBelowL[k] - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+                     datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
+                     string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, g_levelBelowL[k], _Digits, tp, _Digits, sl, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
+                     ExtTrade.SetExpertMagicNumber(magic);
+                     ExtTrade.BuyLimit(InpRuleset5_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expiration, comment);
+                     ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+                  }
+               }
+            }
          }
-         if(e < 0) continue;
-
-         string highestUp = GetHighestDiffInWindowString(potentialTradeLevel, k, HIGHEST_DIFF_UP_WINDOW, true);
-         if(highestUp == "never") continue;
-         if(StringToDouble(highestUp) <= HIGHEST_DIFF_UP_MIN) continue;
-         if(g_overlapC[e][k] != 0) continue;
-         if(g_session[k] != "ON") continue;
-
-         MqlDateTime d;
-         TimeToStruct(g_m1DayStart, d);
-         string dateStr = StringFormat("%04d%02d%02d", d.year, d.mon, d.day);
-         string levelStr = IntegerToString((int)MathRound(potentialTradeLevel));
-         string magicStr = IntegerToString(RULESET_ID_CLEAN_FIRST_BOUNCE_ON) + dateStr + levelStr;
-         long magic = (long)StringToInteger(magicStr);
-         if(CountOrdersAndPositionsForMagic(magic) != 0) continue;
-
-         // Day-level ON cap: no more ruleset 5 if today's overnight (pullinghistory data) already hit limits
-         int kLast = g_barsInDay - 1;
-         int onCount = g_dayProgress[kLast].ONtradeCount;
-         double onWr = g_dayProgress[kLast].ONwinRate;
-         if(onCount == 2 && onWr >= 1.0) continue;  // 2 ON trades and 100% win rate → stop ruleset 5 today
-         if(onCount >= 3) continue;                  // 3+ ON trades → stop ruleset 5 today
-
-         double orderPrice = NormalizeDouble(potentialTradeLevel + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
-         double tp = NormalizeDouble(potentialTradeLevel + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
-         double sl = NormalizeDouble(potentialTradeLevel - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
-         datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
-         string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, potentialTradeLevel, _Digits, tp, _Digits, sl, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
-
-         ExtTrade.SetExpertMagicNumber(magic);
-         if(ExtTrade.BuyLimit(InpRuleset5_LotSize, orderPrice, _Symbol, sl, tp, ORDER_TIME_SPECIFIED, expiration, comment))
-         {
-            ExtTrade.SetExpertMagicNumber(EA_MAGIC);
-            break;
-         }
-         ExtTrade.SetExpertMagicNumber(EA_MAGIC);
       }
-      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
    }
 
    MqlDateTime mt;
@@ -2079,7 +2116,7 @@ void OnTimer()
    datetime today = g_lastTimer1Time - (g_lastTimer1Time % 86400);
 
    // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37. CSV with headers: time, liveBid, liveAsk, closed_candle_time, closed_O, closed_H, closed_L, closed_C
-   if(mt.hour == 21 && mt.min >= 35 && mt.min <= 37 && g_barsInDay > 0)
+   if(dailySpamLog_LivePrice && mt.hour == 21 && mt.min >= 35 && mt.min <= 37 && g_barsInDay > 0)
    {
       // g_m1Rates is oldest-first: [0]=first bar of day, [g_barsInDay-1]=last; closed candle = second-to-last when >=2 bars
       int kClosed = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
@@ -2120,6 +2157,14 @@ void OnTimer()
    if(barNowM1 == g_lastBarTime) return;
 
    g_lastBarTime = barNowM1;
+
+   // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
+   datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   if(g_staticMarketContextPulledForDate != dayStartForContext)
+   {
+      UpdateStaticMarketContext(dayStartForContext);
+      g_staticMarketContextPulledForDate = dayStartForContext;
+   }
 
    // Refresh day M1 and levels first; then "the bar that just closed" = last bar in day M1 (same source as all level-bar stats)
    UpdateDayM1AndLevelsExpanded();
@@ -2193,44 +2238,11 @@ void OnTimer()
    // --- Per-level trade stats (trade results whose level matches levelPrice; ON/RTH by endTime)
    UpdateLevelTradeStats();
 
-   // --- Static market context: pull when we have at least one closed candle for current day and haven't pulled for that day yet. Set ONopen from first candle whenever we have bars.
+   // --- Static market context: pulled before UpdateDayM1AndLevelsExpanded(); set ONopen from first candle whenever we have bars.
    if(g_barsInDay > 0)
    {
       // g_m1Rates is oldest-first: [0]=first bar of day
       g_ONopen = g_m1Rates[0].open;
-      if(g_m1DayStart != 0 && g_staticMarketContextPulledForDate != g_m1DayStart)
-      {
-         UpdateStaticMarketContext(g_m1DayStart);
-         g_staticMarketContextPulledForDate = g_m1DayStart;
-         // Add PD RTH Close as a level for today only if no level eligible for that day is within 2 of PD RTH Close
-         if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0)
-         {
-            string todayStr = TimeToString(g_m1DayStart, TIME_DATE);
-            double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
-            bool PDrthLevel_tooClose_to_regularLevel = false;
-            for(int i = 0; i < g_levelsTotalCount; i++)
-            {
-               if(g_levels[i].startStr > todayStr || todayStr > g_levels[i].endStr) continue;
-               if(MathAbs(g_levels[i].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity) { PDrthLevel_tooClose_to_regularLevel = true; break; }
-            }
-            if(!PDrthLevel_tooClose_to_regularLevel)
-            {
-               string categories = "daily_tertiary_PDrthClose";
-               string baseName = todayStr + "_PDrthClose";
-               AddLevel(baseName, pdc, todayStr + " 00:00", todayStr + " 23:59", categories);
-               if(g_levelsTotalCount < MAX_LEVEL_ROWS)
-               {
-                  g_levels[g_levelsTotalCount].startStr   = todayStr;
-                  g_levels[g_levelsTotalCount].endStr    = todayStr;
-                  g_levels[g_levelsTotalCount].levelPrice = pdc;
-                  g_levels[g_levelsTotalCount].categories = categories;
-                  g_levels[g_levelsTotalCount].tag       = "PDrthClose";
-                  g_levelsTotalCount++;
-                  UpdateDayM1AndLevelsExpanded();
-               }
-            }
-         }
-      }
    }
    // --- Logging only in time window (performance)
    if(InpTestingPullM1History)
@@ -2244,13 +2256,13 @@ void OnTimer()
       if(inLogWindow && g_barsInDay > 0)
       {
          // Daily summary (Day_activeLevels, EOD account, AllHistoryOrders, AllHistoryDeals) — once per day when file missing
-         if(!FileIsExist(dateStr + "-Day_activeLevels.csv"))
+         if(dailyEODlog_DailySummary && !FileIsExist(dateStr + "-Day_activeLevels.csv"))
             WriteDailySummary();
 
          string logName = dateStr + "_testing_pullinghistory.csv";
 
          // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again). MT5 CSV with headers.
-         if(!FileIsExist(logName))
+         if(dailyEODlog_PullingHistory && !FileIsExist(logName))
          {
             int fh = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fh == INVALID_HANDLE)
@@ -2281,7 +2293,7 @@ void OnTimer()
 
          // EOD one-line trades summary: same trade stats as latest row of pullinghistory (date)_summary_EOD_tradesSummary1line.csv
          string eodSummaryName = dateStr + "_summary_EOD_tradesSummary1line.csv";
-         if(!FileIsExist(eodSummaryName))
+         if(dailyEODlog_EodTradesSummary && !FileIsExist(eodSummaryName))
          {
             int fhEod = FileOpen(eodSummaryName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fhEod != INVALID_HANDLE)
@@ -2317,7 +2329,7 @@ void OnTimer()
             g_summaryTrades_RTHprofitSum += g_dayProgress[kLast].RTHprofitSum;
             g_summaryTrades_lastAddedDayStart = g_m1DayStart;
          }
-         if(g_barsInDay > 0)
+         if(finalLog_SummaryTrades1line && g_barsInDay > 0)
          {
             int fhEodAll = FileOpen("summary_tradesSummary1line.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fhEodAll != INVALID_HANDLE)
@@ -2337,7 +2349,7 @@ void OnTimer()
 
          // Trade results CSV: (date)_summaryZ_tradeResults_ALL_Day.csv (only once; if missing, write again)
          string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day.csv";
-         if(!FileIsExist(csvName))
+         if(dailyEODlog_TradeResultsCsv && !FileIsExist(csvName))
          {
             int fhTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
             if(fhTr == INVALID_HANDLE)
@@ -2387,6 +2399,7 @@ void OnTimer()
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
          const int HighestDiffRange_Log = 15;  // window in bars for both HighestDiffUp and HighestDiffDown in logs
+         if(dailyEODlog_TestinglevelsPlus)
          for(int e = 0; e < g_levelsTodayCount; e++)
          {
             string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[e].levelPrice, _Digits) + "_" + g_levelsExpanded[e].tag + ".csv";
@@ -2424,6 +2437,8 @@ void OnTimer()
          }
 
          // Levels break check: one row per level (21:58). Separate ON (til 15:30) and RTH (15:30 onward). Rows sorted by levelPrice.
+         if(dailyEODlog_BreakCheck)
+         {
          string breakCheckFile = dateStr + "_levels_breakCheck_breakingDown.csv";
          int fhBreak = FileOpen(breakCheckFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
          if(fhBreak != INVALID_HANDLE)
@@ -2481,6 +2496,7 @@ void OnTimer()
                FileClose(fhSum);
             }
          }
+         }
       }
    }
 }
@@ -2491,7 +2507,7 @@ void FinalizeCurrentCandle()
    datetime candleDay = current_candle_time - (current_candle_time % 86400);
    string dateStr = TimeToString(current_candle_time,TIME_DATE);
 
-   if(allCandlesFileDate != candleDay)
+   if(dailySpamLog_AllCandles && allCandlesFileDate != candleDay)
    {
       if(allCandlesFileHandle != INVALID_HANDLE)
          FileClose(allCandlesFileHandle);
@@ -2516,6 +2532,8 @@ void FinalizeCurrentCandle()
       if(mt.hour == 21 && mt.min == 30)
       {
          if(TryLogDayStatForCurrentDay())
+            ;  // per-day log written (or skipped by dailyEODlog_DayStat inside)
+         if(finalLog_DayStatSummary)
             WriteDayStatSummaryCsv();
       }
    }
@@ -2535,6 +2553,8 @@ void FinalizeCurrentCandle()
             if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
                FileClose(levels[i].logRawEv_fileHandle);
 
+            if(dailySpamLog_Arawevents)
+            {
             string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.csv", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
@@ -2547,6 +2567,9 @@ void FinalizeCurrentCandle()
             if(FileTell(fhAra) == 0)
                FileWrite(fhAra, "time", "level", "O", "H", "low", "C", "diff_CloseToLevel", "DayBias", "Contact", "ContactCount", "BounceCount", "CandlesPassedSinceLastBounce", "CandlesBreakLevelCount", "RecoverCount");
             levels[i].logRawEv_fileHandle = fhAra;
+            }
+            else
+               levels[i].logRawEv_fileHandle = INVALID_HANDLE;
          }
 
          // OHLC values
