@@ -1472,6 +1472,66 @@ double GetONwinRate(int barIdx)
 }
 
 //+------------------------------------------------------------------+
+//| True if g_liveBid is within maxDistPoints of levelPrice (points, not pips). |
+//+------------------------------------------------------------------+
+bool IsLivePriceNearLevel(double levelPrice, double maxDistPoints)
+{
+   return (MathAbs(g_liveBid - levelPrice) < maxDistPoints);
+}
+
+//+------------------------------------------------------------------+
+//| True if ruleset 5 entry conditions: HighestDiffUp > min, overlapC==0, session ON. Uses g_levelsExpanded[levelIdx], kLast. |
+//+------------------------------------------------------------------+
+bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   const int HIGHEST_DIFF_UP_WINDOW = 15;
+   const double HIGHEST_DIFF_UP_MIN = 9.0;
+   string highestUp = GetHighestDiffInWindowString(levelBelow, kLast, HIGHEST_DIFF_UP_WINDOW, true);
+   if(highestUp == "never") return false;
+   if(StringToDouble(highestUp) <= HIGHEST_DIFF_UP_MIN) return false;
+   if(g_overlapC[levelIdx][kLast] != 0) return false;
+   if(g_session[kLast] != "ON") return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Place buy-limit ruleset-5 style: level + NewRulesets_ProcessInput(offset/tpSl) * point, 15 min expiration. Sets magic then restores EA_MAGIC. |
+//+------------------------------------------------------------------+
+void PlaceBuyLimitRuleset5Style(double levelPrice, double lot, long magic, int rulesetId)
+{
+   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   const double ORDER_OFFSET_POINTS = 0.5;
+   const double TP_SL_POINTS = 5.0;
+   const int EXPIRATION_MINUTES = 15;
+   double orderPrice = NormalizeDouble(levelPrice + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
+   double takeProfitVal = NormalizeDouble(levelPrice + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+   double stopLossVal = NormalizeDouble(levelPrice - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+   datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
+   string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, levelPrice, _Digits, takeProfitVal, _Digits, stopLossVal, rulesetId, _Digits, orderPrice);
+   ExtTrade.SetExpertMagicNumber(magic);
+   ExtTrade.BuyLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
+   ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+}
+
+//+------------------------------------------------------------------+
+//| After PlaceBuyLimitAtLevel returned true: log pending_created to B_TradeLog using ResultOrder() and level+pips for comment/prices. |
+//+------------------------------------------------------------------+
+void WriteTradeLogPendingOrder(int tradeTypeId, double levelPrice, double offsetPips, double slPips, double tpPips, long magic)
+{
+   string tradeTypeStr = GetTradeTypeStringFromId(tradeTypeId);
+   ulong orderTicket = ExtTrade.ResultOrder();
+   datetime eventTime = g_lastTimer1Time;
+   if(orderTicket > 0 && OrderSelect(orderTicket))
+      eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+   string orderComment = StringFormat("$%d %.0f %.0f %d", (int)levelPrice, tpPips, slPips, tradeTypeId);
+   double orderPrice = NormalizeDouble(levelPrice + offsetPips * PipSize(), _Digits);
+   double stopLossVal = NormalizeDouble(orderPrice - slPips * PipSize(), _Digits);
+   double takeProfitVal = NormalizeDouble(orderPrice + tpPips * PipSize(), _Digits);
+   WriteTradeLog(tradeTypeStr, "pending_created", eventTime, "buy_limit", orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
+}
+
+//+------------------------------------------------------------------+
 //| True if atTime is not inside any banned range for the given trade type. |
 //+------------------------------------------------------------------+
 bool IsTimeAllowedForTradeType(TRADE_TYPE_ID tradeTypeId, datetime atTime)
@@ -2219,55 +2279,33 @@ void OnTimer()
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
-   // Rulecheck: on timer, use latest candle's levelBelowL only. |g_liveBid - levelBelow| < 3 pts → ruleset 5 cleanFirstBounceON.
+   // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 5 cleanFirstBounceON; then ruleset 6.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
    {
       const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 5;
-      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-      const double RULE_DIST = 3.0;
-      const int HIGHEST_DIFF_UP_WINDOW = 15;
-      const double HIGHEST_DIFF_UP_MIN = 9.0;
-      const double ORDER_OFFSET_POINTS = 0.5;
-      const double TP_SL_POINTS = 5.0;
-      const int EXPIRATION_MINUTES = 15;
 
       double levelBelow = GetLevelBelow(g_barsInDay - 1);
       int kLast = g_barsInDay - 1;
-      if(MathAbs(g_liveBid - levelBelow) >= RULE_DIST) { /* not near level */ }
-      else
+      if(IsLivePriceNearLevel(levelBelow, 3.0))
       {
          int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
-         if(levelIdx >= 0)
+         if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast))
          {
-            string highestUp = GetHighestDiffInWindowString(levelBelow, kLast, HIGHEST_DIFF_UP_WINDOW, true);
-            if(highestUp != "never" && StringToDouble(highestUp) > HIGHEST_DIFF_UP_MIN && g_overlapC[levelIdx][kLast] == 0 && g_session[kLast] == "ON")
+            long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_m1DayStart, levelBelow, -1);
+            if(CountOrdersAndPositionsForMagic(magic) == 0)
             {
-               long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_m1DayStart, levelBelow, -1);
-               if(CountOrdersAndPositionsForMagic(magic) == 0)
-               {
-                  int onCount = GetONtradeCount(kLast);
-                  double onWr = GetONwinRate(kLast);
-                  if(!(onCount == 2 && onWr >= 1.0) && onCount < 3)
-                  {
-                     double orderPrice = NormalizeDouble(levelBelow + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
-                     double takeProfitVal = NormalizeDouble(levelBelow + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
-                     double stopLossVal = NormalizeDouble(levelBelow - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
-                     datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
-                     string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, levelBelow, _Digits, takeProfitVal, _Digits, stopLossVal, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
-                     ExtTrade.SetExpertMagicNumber(magic);
-                     ExtTrade.BuyLimit(InpRuleset5_LotSize, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
-                     ExtTrade.SetExpertMagicNumber(EA_MAGIC);
-                  }
-               }
+               int overnightTradeCount = GetONtradeCount(kLast);
+               double overnightWinRate = GetONwinRate(kLast);
+               if(!(overnightTradeCount == 2 && overnightWinRate >= 1.0) && overnightTradeCount < 3)
+                  PlaceBuyLimitRuleset5Style(levelBelow, InpRuleset5_LotSize, magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
             }
          }
       }
 
       // Ruleset 6: every OnTimer, live price near levelBelow; apply trade-1 entry rules; buy limit like trade 1.
       const int RULESET_ID_6 = 6;
-      const double RULESET6_RULE_DIST_PTS = 3.0;
       double levelBelow6 = GetLevelBelow(g_barsInDay - 1);
-      if(MathAbs(g_liveBid - levelBelow6) < RULESET6_RULE_DIST_PTS)
+      if(IsLivePriceNearLevel(levelBelow6, 3.0))
       {
          int levelsIdx = FindLevelIndexByPriceAndTime(levelBelow6, g_lastTimer1Time);
          if(levelsIdx >= 0 && MeetsTrade1EntryRule(levelsIdx, g_lastTimer1Time))
@@ -2276,18 +2314,7 @@ void OnTimer()
             if(CountOrdersAndPositionsForMagic(magic6) == 0)
             {
                if(PlaceBuyLimitAtLevel(levelBelow6, T_buy2ndBounce_PriceOffsetPips, T_buy2ndBounce_SLPips, T_buy2ndBounce_TPPips, 30, InpRuleset6_LotSize, magic6, RULESET_ID_6))
-               {
-                  string tradeTypeStr = GetTradeTypeStringFromId(RULESET_ID_6);
-                  ulong orderTicket = ExtTrade.ResultOrder();
-                  datetime eventTime = g_lastTimer1Time;
-                  if(orderTicket > 0 && OrderSelect(orderTicket))
-                     eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-                  string orderComment = StringFormat("$%d %.0f %.0f %d", (int)levelBelow6, T_buy2ndBounce_TPPips, T_buy2ndBounce_SLPips, RULESET_ID_6);
-                  double orderPrice = NormalizeDouble(levelBelow6 + T_buy2ndBounce_PriceOffsetPips * PipSize(), _Digits);
-                  double stopLossVal = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * PipSize(), _Digits);
-                  double takeProfitVal = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * PipSize(), _Digits);
-                  WriteTradeLog(tradeTypeStr, "pending_created", eventTime, "buy_limit", orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic6);
-               }
+                  WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, T_buy2ndBounce_PriceOffsetPips, T_buy2ndBounce_SLPips, T_buy2ndBounce_TPPips, magic6);
             }
          }
       }
