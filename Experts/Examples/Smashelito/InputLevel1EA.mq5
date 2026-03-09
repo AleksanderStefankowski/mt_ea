@@ -1393,30 +1393,32 @@ void ParseBannedRanges(const string s)
 }
 
 //+------------------------------------------------------------------+
-//| Build magic number for a trade. Trade uses date, price, tags, and trade type. |
-//| Level and magic are unrelated; level is not used here.            |
+//| Day-of-week suffix for magic: 0 when level has no "daily" in tags; 0..6 (Mon..Sun) when "daily". |
+//| Pass to BuildMagic; use -1 for rulesets (no suffix).               |
 //+------------------------------------------------------------------+
-long BuildTradeMagic(datetime validFrom, double price, string tagsCSV, TRADE_TYPE_ID tradeTypeId)
+int GetDayOfWeekSuffixForLevel(datetime validFrom, string tagsCSV)
 {
-   MqlDateTime mqlDt;
-   TimeToStruct(validFrom, mqlDt);
-   
-   string dateStr = IntegerToString(mqlDt.year) + 
-                    StringFormat("%02d", mqlDt.mon) + 
-                    StringFormat("%02d", mqlDt.day);
-   
-   string levelPriceStr = DoubleToString(price, 0);
-   StringReplace(levelPriceStr, ".", "");
-   
-   int dayOfWeek = 0;
-   if(StringFind(tagsCSV, "daily") != -1)
-   {
-      int mt5Day = mqlDt.day_of_week;
-      if(mt5Day == 0) mt5Day = 7;
-      dayOfWeek = mt5Day - 1;
-   }
-   
-   string magicStr = StringFormat("%d%s%s%d", tradeTypeId, dateStr, levelPriceStr, dayOfWeek);
+   if(StringFind(tagsCSV, "daily") < 0) return 0;
+   MqlDateTime dt;
+   TimeToStruct(validFrom, dt);
+   int mt5Day = dt.day_of_week;
+   if(mt5Day == 0) mt5Day = 7;
+   return mt5Day - 1;
+}
+
+//+------------------------------------------------------------------+
+//| Build magic number: id + date (YYYYMMDD from dayStart) + rounded level price. |
+//| If dayOfWeekSuffix >= 0, append it (for trade 1/2 daily levels); if < 0, omit (rulesets 5,6). |
+//+------------------------------------------------------------------+
+long BuildMagic(int id, datetime dayStart, double levelPrice, int dayOfWeekSuffix = -1)
+{
+   MqlDateTime dt;
+   TimeToStruct(dayStart, dt);
+   string dateStr = StringFormat("%04d%02d%02d", dt.year, dt.mon, dt.day);
+   string levelStr = IntegerToString((int)MathRound(levelPrice));
+   string magicStr = (dayOfWeekSuffix >= 0)
+      ? StringFormat("%d%s%s%d", id, dateStr, levelStr, dayOfWeekSuffix)
+      : IntegerToString(id) + dateStr + levelStr;
    return (long)StringToInteger(magicStr);
 }
 
@@ -1429,6 +1431,44 @@ int FindLevelIndexByPriceAndTime(double levelPrice, datetime atTime)
       if(levels[i].price == levelPrice && atTime >= levels[i].validFrom && atTime <= levels[i].validTo)
          return i;
    return -1;
+}
+
+//+------------------------------------------------------------------+
+//| Level below candle low at barIdx (g_levelBelowL). Returns 0.0 if barIdx invalid or no level. |
+//+------------------------------------------------------------------+
+double GetLevelBelow(int barIdx)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return 0.0;
+   return g_levelBelowL[barIdx];
+}
+
+//+------------------------------------------------------------------+
+//| Index in g_levelsExpanded for given level price, or -1 if not found. |
+//+------------------------------------------------------------------+
+int FindExpandedLevelIndexByPrice(double levelPrice)
+{
+   for(int idx = 0; idx < g_levelsTodayCount; idx++)
+      if(g_levelsExpanded[idx].levelPrice == levelPrice)
+         return idx;
+   return -1;
+}
+
+//+------------------------------------------------------------------+
+//| ON session trade count so far at barIdx (g_dayProgress). Returns 0 if barIdx invalid. |
+//+------------------------------------------------------------------+
+int GetONtradeCount(int barIdx)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return 0;
+   return g_dayProgress[barIdx].ONtradeCount;
+}
+
+//+------------------------------------------------------------------+
+//| ON session win rate (0..1) at barIdx (g_dayProgress). Returns 0.0 if barIdx invalid or no trades. |
+//+------------------------------------------------------------------+
+double GetONwinRate(int barIdx)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return 0.0;
+   return g_dayProgress[barIdx].ONwinRate;
 }
 
 //+------------------------------------------------------------------+
@@ -1464,19 +1504,6 @@ bool MeetsTrade1EntryRule(int levelsIdx, datetime atTime)
 }
 
 //+------------------------------------------------------------------+
-//| Magic for ruleset orders: rulesetId + date (YYYYMMDD from dayStart) + rounded level price. |
-//+------------------------------------------------------------------+
-long BuildRulesetMagic(int rulesetId, datetime dayStart, double levelPrice)
-{
-   MqlDateTime dt;
-   TimeToStruct(dayStart, dt);
-   string dateStr = StringFormat("%04d%02d%02d", dt.year, dt.mon, dt.day);
-   string levelStr = IntegerToString((int)MathRound(levelPrice));
-   string magicStr = IntegerToString(rulesetId) + dateStr + levelStr;
-   return (long)StringToInteger(magicStr);
-}
-
-//+------------------------------------------------------------------+
 //| Place a buy-limit at level with given pips and expiration. Sets magic then restores EA_MAGIC. Returns true if order sent successfully. |
 //+------------------------------------------------------------------+
 bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic, int commentTradeTypeId)
@@ -1491,14 +1518,6 @@ bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, d
    bool ok = ExtTrade.BuyLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(EA_MAGIC);
    return ok;
-}
-
-//+------------------------------------------------------------------+
-//| Place a buy-limit order using trade-1 style params (offset/TP/SL pips, 30 min expiration). Sets magic then restores EA_MAGIC. |
-//+------------------------------------------------------------------+
-void PlaceBuyLimitTrade1Style(double levelPrice, double lot, long magic, int commentTradeTypeId)
-{
-   PlaceBuyLimitAtLevel(levelPrice, T_buy2ndBounce_PriceOffsetPips, T_buy2ndBounce_SLPips, T_buy2ndBounce_TPPips, 30, lot, magic, commentTradeTypeId);
 }
 
 //+------------------------------------------------------------------+
@@ -2200,7 +2219,7 @@ void OnTimer()
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
-   // Rulecheck: on timer, use latest candle's levelBelowL only. |g_liveBid - g_levelBelowL[kLatest]| < 3 pts → ruleset 5 cleanFirstBounceON.
+   // Rulecheck: on timer, use latest candle's levelBelowL only. |g_liveBid - levelBelow| < 3 pts → ruleset 5 cleanFirstBounceON.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
    {
       const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 5;
@@ -2212,35 +2231,29 @@ void OnTimer()
       const double TP_SL_POINTS = 5.0;
       const int EXPIRATION_MINUTES = 15;
 
-      int kLast = g_barsInDay - 1;  // latest bar only
-      if(MathAbs(g_liveBid - g_levelBelowL[kLast]) >= RULE_DIST) { /* not near level */ }
+      double levelBelow = GetLevelBelow(g_barsInDay - 1);
+      int kLast = g_barsInDay - 1;
+      if(MathAbs(g_liveBid - levelBelow) >= RULE_DIST) { /* not near level */ }
       else
       {
-         int levelIdx = -1;
-         for(int idx = 0; idx < g_levelsTodayCount; idx++)
-            if(g_levelsExpanded[idx].levelPrice == g_levelBelowL[kLast]) { levelIdx = idx; break; }
+         int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
          if(levelIdx >= 0)
          {
-            string highestUp = GetHighestDiffInWindowString(g_levelBelowL[kLast], kLast, HIGHEST_DIFF_UP_WINDOW, true);
+            string highestUp = GetHighestDiffInWindowString(levelBelow, kLast, HIGHEST_DIFF_UP_WINDOW, true);
             if(highestUp != "never" && StringToDouble(highestUp) > HIGHEST_DIFF_UP_MIN && g_overlapC[levelIdx][kLast] == 0 && g_session[kLast] == "ON")
             {
-               MqlDateTime mqlDt;
-               TimeToStruct(g_m1DayStart, mqlDt);
-               string dateStr = StringFormat("%04d%02d%02d", mqlDt.year, mqlDt.mon, mqlDt.day);
-               string levelStr = IntegerToString((int)MathRound(g_levelBelowL[kLast]));
-               string magicStr = IntegerToString(RULESET_ID_CLEAN_FIRST_BOUNCE_ON) + dateStr + levelStr;
-               long magic = (long)StringToInteger(magicStr);
+               long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_m1DayStart, levelBelow, -1);
                if(CountOrdersAndPositionsForMagic(magic) == 0)
                {
-                  int onCount = g_dayProgress[kLast].ONtradeCount;
-                  double onWr = g_dayProgress[kLast].ONwinRate;
+                  int onCount = GetONtradeCount(kLast);
+                  double onWr = GetONwinRate(kLast);
                   if(!(onCount == 2 && onWr >= 1.0) && onCount < 3)
                   {
-                     double orderPrice = NormalizeDouble(g_levelBelowL[kLast] + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
-                     double takeProfitVal = NormalizeDouble(g_levelBelowL[kLast] + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
-                     double stopLossVal = NormalizeDouble(g_levelBelowL[kLast] - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+                     double orderPrice = NormalizeDouble(levelBelow + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
+                     double takeProfitVal = NormalizeDouble(levelBelow + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+                     double stopLossVal = NormalizeDouble(levelBelow - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
                      datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
-                     string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, g_levelBelowL[kLast], _Digits, takeProfitVal, _Digits, stopLossVal, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
+                     string comment = StringFormat("$%.*f %.*f %.*f %d %.*f %%", _Digits, levelBelow, _Digits, takeProfitVal, _Digits, stopLossVal, RULESET_ID_CLEAN_FIRST_BOUNCE_ON, _Digits, orderPrice);
                      ExtTrade.SetExpertMagicNumber(magic);
                      ExtTrade.BuyLimit(InpRuleset5_LotSize, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
                      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
@@ -2253,15 +2266,29 @@ void OnTimer()
       // Ruleset 6: every OnTimer, live price near levelBelow; apply trade-1 entry rules; buy limit like trade 1.
       const int RULESET_ID_6 = 6;
       const double RULESET6_RULE_DIST_PTS = 3.0;
-      double levelBelow = g_levelBelowL[kLast];
-      if(MathAbs(g_liveBid - levelBelow) < RULESET6_RULE_DIST_PTS)
+      double levelBelow6 = GetLevelBelow(g_barsInDay - 1);
+      if(MathAbs(g_liveBid - levelBelow6) < RULESET6_RULE_DIST_PTS)
       {
-         int levelsIdx = FindLevelIndexByPriceAndTime(levelBelow, g_lastTimer1Time);
+         int levelsIdx = FindLevelIndexByPriceAndTime(levelBelow6, g_lastTimer1Time);
          if(levelsIdx >= 0 && MeetsTrade1EntryRule(levelsIdx, g_lastTimer1Time))
          {
-            long magic6 = BuildRulesetMagic(RULESET_ID_6, g_m1DayStart, levelBelow);
+            long magic6 = BuildMagic(RULESET_ID_6, g_m1DayStart, levelBelow6, -1);
             if(CountOrdersAndPositionsForMagic(magic6) == 0)
-               PlaceBuyLimitTrade1Style(levelBelow, InpRuleset6_LotSize, magic6, RULESET_ID_6);
+            {
+               if(PlaceBuyLimitAtLevel(levelBelow6, T_buy2ndBounce_PriceOffsetPips, T_buy2ndBounce_SLPips, T_buy2ndBounce_TPPips, 30, InpRuleset6_LotSize, magic6, RULESET_ID_6))
+               {
+                  string tradeTypeStr = GetTradeTypeStringFromId(RULESET_ID_6);
+                  ulong orderTicket = ExtTrade.ResultOrder();
+                  datetime eventTime = g_lastTimer1Time;
+                  if(orderTicket > 0 && OrderSelect(orderTicket))
+                     eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+                  string orderComment = StringFormat("$%d %.0f %.0f %d", (int)levelBelow6, T_buy2ndBounce_TPPips, T_buy2ndBounce_SLPips, RULESET_ID_6);
+                  double orderPrice = NormalizeDouble(levelBelow6 + T_buy2ndBounce_PriceOffsetPips * PipSize(), _Digits);
+                  double stopLossVal = NormalizeDouble(orderPrice - T_buy2ndBounce_SLPips * PipSize(), _Digits);
+                  double takeProfitVal = NormalizeDouble(orderPrice + T_buy2ndBounce_TPPips * PipSize(), _Digits);
+                  WriteTradeLog(tradeTypeStr, "pending_created", eventTime, "buy_limit", orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic6);
+               }
+            }
          }
       }
    }
@@ -2853,8 +2880,8 @@ void FinalizeCurrentCandle()
          // --- Trade type 1 (buy_2nd_bounce): level + price + time. Entry rule: bounceCount==1, bias_long, no_contact, timeAllowed.
          {
             string tradeTypeStr = GetTradeTypeStringFromId(TRADE_TYPE_BUY_2ND_BOUNCE);
-            long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_2ND_BOUNCE);
-            bool allowed = (CountOrdersAndPositionsForMagic(tradeMagic) < Max_OrdersPerMagic) && MeetsBuyBounceEntryRule(i, current_candle_time, TRADE_TYPE_BUY_2ND_BOUNCE, 1, !in_contact);
+            long tradeMagic = BuildMagic((int)TRADE_TYPE_BUY_2ND_BOUNCE, levels[i].validFrom, levels[i].price, GetDayOfWeekSuffixForLevel(levels[i].validFrom, levels[i].tagsCSV));
+            bool allowed = (CountOrdersAndPositionsForMagic(tradeMagic) < Max_OrdersPerMagic) && MeetsTrade1EntryRule(i, current_candle_time);
 
             if(allowed && PlaceBuyLimitAtLevel(lvl, T_buy2ndBounce_PriceOffsetPips, T_buy2ndBounce_SLPips, T_buy2ndBounce_TPPips, 30, T_buy2ndBounce_LotSize, tradeMagic, (int)TRADE_TYPE_BUY_2ND_BOUNCE))
             {
@@ -2873,7 +2900,7 @@ void FinalizeCurrentCandle()
          // --- Trade type 2 (buy_4th_bounce): level + price + time. Entry rule: bounceCount==3, bias_long, no_contact, timeAllowed.
          {
             string tradeTypeStr = GetTradeTypeStringFromId(TRADE_TYPE_BUY_4TH_BOUNCE);
-            long tradeMagic = BuildTradeMagic(levels[i].validFrom, levels[i].price, levels[i].tagsCSV, TRADE_TYPE_BUY_4TH_BOUNCE);
+            long tradeMagic = BuildMagic((int)TRADE_TYPE_BUY_4TH_BOUNCE, levels[i].validFrom, levels[i].price, GetDayOfWeekSuffixForLevel(levels[i].validFrom, levels[i].tagsCSV));
             bool allowed = (CountOrdersAndPositionsForMagic(tradeMagic) < Max_OrdersPerMagic) && MeetsBuyBounceEntryRule(i, current_candle_time, TRADE_TYPE_BUY_4TH_BOUNCE, 3, !in_contact);
 
             if(allowed && PlaceBuyLimitAtLevel(lvl, T_buy4thBounce_PriceOffsetPips, T_buy4thBounce_SLPips, T_buy4thBounce_TPPips, 30, T_buy4thBounce_LotSize, tradeMagic, (int)TRADE_TYPE_BUY_4TH_BOUNCE))
