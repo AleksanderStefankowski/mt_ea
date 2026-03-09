@@ -41,6 +41,7 @@ input bool     dailyEODlog_PullingHistory   = true;  // (date)_testing_pullinghi
 input bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
 input bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSummary1line.csv
 input bool     finalLog_SummaryTrades1line  = true;  // summary_tradesSummary1line.csv
+input bool     finalLog_SummaryTradesPerTrade = true;  // summary_tradesSummary_perTrade.csv (one row per magic)
 input bool     dailyEODlog_TradeResultsCsv  = true;  // summaryZ_tradeResults_ALL_Day + summary_tradeResults_all_days
 input bool     dailyEODlog_TestinglevelsPlus = true;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 input bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
@@ -299,6 +300,62 @@ int      g_summaryTrades_RTHwins = 0;
 double   g_summaryTrades_RTHpointsSum = 0.0;
 double   g_summaryTrades_RTHprofitSum = 0.0;
 datetime g_summaryTrades_lastAddedDayStart = 0;  // avoid adding same day twice
+
+#define MAX_PER_TRADE_MAGICS 128
+struct PerTradeSummary
+{
+   long   magic;
+   string datesList;     // comma-separated list of dates that had trades (YYYY.MM.DD)
+   int    dayTradesCount;
+   int    dayWins;
+   double dayPointsSum;
+   double dayProfitSum;
+   int    ONtradeCount;
+   int    ONwins;
+   double ONpointsSum;
+   double ONprofitSum;
+   int    RTHtradeCount;
+   int    RTHwins;
+   double RTHpointsSum;
+   double RTHprofitSum;
+};
+PerTradeSummary g_perTradeSummaries[MAX_PER_TRADE_MAGICS];
+int g_perTradeSummariesCount = 0;
+
+// Returns index in g_perTradeSummaries for key (first digit of magic); adds new entry if not found (or -1 if table full).
+int FindOrAddPerTradeMagic(long keyFirstDigit)
+{
+   for(int i = 0; i < g_perTradeSummariesCount; i++)
+      if(g_perTradeSummaries[i].magic == keyFirstDigit)
+         return i;
+   if(g_perTradeSummariesCount >= MAX_PER_TRADE_MAGICS)
+      return -1;
+   int i = g_perTradeSummariesCount++;
+   g_perTradeSummaries[i].magic = keyFirstDigit;
+   g_perTradeSummaries[i].datesList = "";
+   g_perTradeSummaries[i].dayTradesCount = 0;
+   g_perTradeSummaries[i].dayWins = 0;
+   g_perTradeSummaries[i].dayPointsSum = 0.0;
+   g_perTradeSummaries[i].dayProfitSum = 0.0;
+   g_perTradeSummaries[i].ONtradeCount = 0;
+   g_perTradeSummaries[i].ONwins = 0;
+   g_perTradeSummaries[i].ONpointsSum = 0.0;
+   g_perTradeSummaries[i].ONprofitSum = 0.0;
+   g_perTradeSummaries[i].RTHtradeCount = 0;
+   g_perTradeSummaries[i].RTHwins = 0;
+   g_perTradeSummaries[i].RTHpointsSum = 0.0;
+   g_perTradeSummaries[i].RTHprofitSum = 0.0;
+   return i;
+}
+
+// First digit of magic (e.g. 5432131 -> 5). Used to group per-trade summary by trade type.
+long FirstDigitOfMagic(long magic)
+{
+   long n = magic;
+   if(n < 0) n = -n;
+   while(n >= 10) n /= 10;
+   return n;
+}
 
 //--- Levels break check aggregate (all days, tertiary excluded): running sums for ON, RTHIB, RTHcnt; written at 22:00 to levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv
 double   g_agg_ONbreakDown_sumCandles = 0, g_agg_ONbreakDown_sumAvg = 0, g_agg_ONbreakDown_sumMed = 0;
@@ -2255,6 +2312,7 @@ void OnTimer()
       bool inLogWindow = (minOfDay >= 21*60+58 && minOfDay <= 22*60+0);  // 21:58, 21:59, 22:00 (last bar may be 21:58 on Friday)
       if(inLogWindow && g_barsInDay > 0)
       {
+         int kLast = g_barsInDay - 1;
          // Daily summary (Day_activeLevels, EOD account, AllHistoryOrders, AllHistoryDeals) — once per day when file missing
          if(dailyEODlog_DailySummary && !FileIsExist(dateStr + "-Day_activeLevels.csv"))
             WriteDailySummary();
@@ -2299,7 +2357,6 @@ void OnTimer()
             if(fhEod != INVALID_HANDLE)
             {
                FileWrite(fhEod, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
-               int kLast = g_barsInDay - 1;
                if(kLast >= 0)
                {
                   FileWrite(fhEod, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
@@ -2314,7 +2371,6 @@ void OnTimer()
          // Accumulate this day into all-days summary (once per day), then write summary_tradesSummary1line.csv with totals
          if(g_barsInDay > 0 && g_m1DayStart != 0 && g_m1DayStart != g_summaryTrades_lastAddedDayStart)
          {
-            int kLast = g_barsInDay - 1;
             g_summaryTrades_dayTradesCount += g_dayProgress[kLast].dayTradesCount;
             g_summaryTrades_dayWins += (int)MathRound(g_dayProgress[kLast].dayWinRate * (double)g_dayProgress[kLast].dayTradesCount);
             g_summaryTrades_dayPointsSum += g_dayProgress[kLast].dayPointsSum;
@@ -2328,6 +2384,38 @@ void OnTimer()
             g_summaryTrades_RTHpointsSum += g_dayProgress[kLast].RTHpointsSum;
             g_summaryTrades_RTHprofitSum += g_dayProgress[kLast].RTHprofitSum;
             g_summaryTrades_lastAddedDayStart = g_m1DayStart;
+            for(int tr = 0; tr < g_tradeResultsCount; tr++)
+            {
+               TradeResult r = g_tradeResults[tr];
+               if(!r.foundOut) continue;
+               int idx = FindOrAddPerTradeMagic(FirstDigitOfMagic(r.magic));
+               if(idx < 0) continue;
+               if(StringFind(g_perTradeSummaries[idx].datesList, dateStr) < 0)
+               {
+                  if(StringLen(g_perTradeSummaries[idx].datesList) > 0)
+                     g_perTradeSummaries[idx].datesList += ",";
+                  g_perTradeSummaries[idx].datesList += dateStr;
+               }
+               g_perTradeSummaries[idx].dayTradesCount++;
+               if(r.profit > 0) g_perTradeSummaries[idx].dayWins++;
+               g_perTradeSummaries[idx].dayPointsSum += r.priceDiff;
+               g_perTradeSummaries[idx].dayProfitSum += r.profit;
+               string endSession = GetSessionForCandleTime(r.endTime);
+               if(endSession == "ON")
+               {
+                  g_perTradeSummaries[idx].ONtradeCount++;
+                  if(r.profit > 0) g_perTradeSummaries[idx].ONwins++;
+                  g_perTradeSummaries[idx].ONpointsSum += r.priceDiff;
+                  g_perTradeSummaries[idx].ONprofitSum += r.profit;
+               }
+               else if(endSession == "RTH")
+               {
+                  g_perTradeSummaries[idx].RTHtradeCount++;
+                  if(r.profit > 0) g_perTradeSummaries[idx].RTHwins++;
+                  g_perTradeSummaries[idx].RTHpointsSum += r.priceDiff;
+                  g_perTradeSummaries[idx].RTHprofitSum += r.profit;
+               }
+            }
          }
          if(finalLog_SummaryTrades1line && g_barsInDay > 0)
          {
@@ -2338,12 +2426,32 @@ void OnTimer()
                double onWr  = (g_summaryTrades_ONtradeCount > 0) ? 100.0 * (double)g_summaryTrades_ONwins / (double)g_summaryTrades_ONtradeCount : 0.0;
                double rthWr = (g_summaryTrades_RTHtradeCount > 0) ? 100.0 * (double)g_summaryTrades_RTHwins / (double)g_summaryTrades_RTHtradeCount : 0.0;
                FileWrite(fhEodAll, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
-               int kLast = g_barsInDay - 1;
                FileWrite(fhEodAll, TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES),
                   DoubleToString(dayWr, 0), IntegerToString(g_summaryTrades_dayTradesCount), DoubleToString(g_summaryTrades_dayPointsSum, _Digits), DoubleToString(g_summaryTrades_dayProfitSum, 2),
                   DoubleToString(onWr, 0), IntegerToString(g_summaryTrades_ONtradeCount), DoubleToString(g_summaryTrades_ONpointsSum, _Digits), DoubleToString(g_summaryTrades_ONprofitSum, 2),
                   DoubleToString(rthWr, 0), IntegerToString(g_summaryTrades_RTHtradeCount), DoubleToString(g_summaryTrades_RTHpointsSum, _Digits), DoubleToString(g_summaryTrades_RTHprofitSum, 2));
                FileClose(fhEodAll);
+            }
+         }
+         if(finalLog_SummaryTradesPerTrade && g_perTradeSummariesCount > 0)
+         {
+            int fhPer = FileOpen("summary_tradesSummary_perTrade.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            if(fhPer != INVALID_HANDLE)
+            {
+               FileWrite(fhPer, "time", "magicFirstDigit", "dates", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
+               string rowTime = TimeToString(g_m1Rates[kLast].time, TIME_DATE|TIME_MINUTES);
+               for(int i = 0; i < g_perTradeSummariesCount; i++)
+               {
+                  PerTradeSummary s = g_perTradeSummaries[i];
+                  double dayWr = (s.dayTradesCount > 0) ? 100.0 * (double)s.dayWins / (double)s.dayTradesCount : 0.0;
+                  double onWr  = (s.ONtradeCount > 0) ? 100.0 * (double)s.ONwins / (double)s.ONtradeCount : 0.0;
+                  double rthWr = (s.RTHtradeCount > 0) ? 100.0 * (double)s.RTHwins / (double)s.RTHtradeCount : 0.0;
+                  FileWrite(fhPer, rowTime, IntegerToString((long)s.magic), s.datesList,
+                     DoubleToString(dayWr, 0), IntegerToString(s.dayTradesCount), DoubleToString(s.dayPointsSum, _Digits), DoubleToString(s.dayProfitSum, 2),
+                     DoubleToString(onWr, 0), IntegerToString(s.ONtradeCount), DoubleToString(s.ONpointsSum, _Digits), DoubleToString(s.ONprofitSum, 2),
+                     DoubleToString(rthWr, 0), IntegerToString(s.RTHtradeCount), DoubleToString(s.RTHpointsSum, _Digits), DoubleToString(s.RTHprofitSum, 2));
+               }
+               FileClose(fhPer);
             }
          }
 
@@ -2531,8 +2639,7 @@ void FinalizeCurrentCandle()
       TimeToStruct(current_candle_time, mt);
       if(mt.hour == 21 && mt.min == 30)
       {
-         if(TryLogDayStatForCurrentDay())
-            ;  // per-day log written (or skipped by dailyEODlog_DayStat inside)
+         TryLogDayStatForCurrentDay();  // per-day log written (or skipped by dailyEODlog_DayStat inside)
          if(finalLog_DayStatSummary)
             WriteDayStatSummaryCsv();
       }
