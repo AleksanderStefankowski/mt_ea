@@ -76,7 +76,7 @@ input string   T_tradeType2_BannedRanges = "15,15,16,35";  // startH,startM,endH
 //--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
 input double   InpRuleset5_LotSize = 0.01;  // lot for ruleset 5 buy limit
 
-//--- Ruleset 6: trade-1-like on live price + levelBelow (OnTimer every ~1s: |liveBid-levelBelowL|<3pts, same entry as trade 1: bounceCount==1, bias_long, no_contact, time filter, then buy limit at level+offset)
+//--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
 input double   InpRuleset6_LotSize = 0.01;  // lot for ruleset 6 buy limit
 
 //--- Trade type config: useLevel/usePrice/useTimeFilter indicate what trade cares about; bannedRangesStr from input.
@@ -2302,7 +2302,7 @@ void OnTimer()
          }
       }
 
-      // Ruleset 6: every OnTimer, live price near levelBelow; apply trade-1 entry rules; buy limit like trade 1.
+      // Ruleset 6: every OnTimer, live price near levelBelow; entry (bounceCount==1, bias_long, no_contact, time filter); buy limit at level+offset.
       const int RULESET_ID_6 = 6;
       double levelBelow6 = GetLevelBelow(g_barsInDay - 1);
       if(IsLivePriceNearLevel(levelBelow6, 3.0))
