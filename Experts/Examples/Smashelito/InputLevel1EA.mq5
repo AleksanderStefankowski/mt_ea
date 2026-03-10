@@ -1506,12 +1506,13 @@ string BuildUnifiedOrderComment(int levelPriceInt, double takeProfitVal, double 
 void PlaceBuyLimitRuleset5Style(double levelPrice, double lot, long magic, int commentRulesetId)
 {
    double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   const double ORDER_OFFSET_POINTS = 0.5;
+   const double ORDER_OFFSET_POINTS = 2.4;
    const double TP_SL_POINTS = 5.0;
    const int EXPIRATION_MINUTES = 15;
    double orderPrice = NormalizeDouble(levelPrice + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
-   double takeProfitVal = NormalizeDouble(levelPrice + NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
-   double stopLossVal = NormalizeDouble(levelPrice - NewRulesets_ProcessInput(TP_SL_POINTS) * point, _Digits);
+   double tpSlPoints = NewRulesets_ProcessInput(TP_SL_POINTS) * point;
+   double takeProfitVal = NormalizeDouble(orderPrice + tpSlPoints, _Digits);
+   double stopLossVal = NormalizeDouble(orderPrice - tpSlPoints, _Digits);
    datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
    string comment = BuildUnifiedOrderComment((int)levelPrice, takeProfitVal, stopLossVal, orderPrice, commentRulesetId);
    ExtTrade.SetExpertMagicNumber(magic);
