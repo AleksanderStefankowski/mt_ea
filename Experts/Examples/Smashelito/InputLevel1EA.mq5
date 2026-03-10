@@ -68,12 +68,15 @@ input double   InpRuleset7_SLPips           = 20.0;  // SL = order price - this 
 input string   InpRuleset7_BannedRanges = "15,15,16,35";  // startH,startM,endH,endM;...
 
 //--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
+input bool     InpRuleset5_Enable = true;   // if false, ruleset 5 does not place orders
 input double   InpRuleset5_LotSize = 0.01;  // lot for ruleset 5 buy limit
 
 //--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
+input bool     InpRuleset6_Enable = false;   // if false, ruleset 6 does not place orders
 input double   InpRuleset6_LotSize = 0.01;  // lot for ruleset 6 buy limit
 
 //--- Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset
+input bool     InpRuleset7_Enable = false;   // if false, ruleset 7 does not place orders
 input double   InpRuleset7_LotSize = 0.01;  // lot for ruleset 7 buy limit
 
 //--- Ruleset config: useLevel/usePrice/useTimeFilter indicate what each ruleset cares about; bannedRangesStr from input.
@@ -2293,54 +2296,64 @@ void OnTimer()
    {
       const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 5;
 
-      double levelBelow = GetLevelBelow(g_barsInDay - 1);
-      int kLast = g_barsInDay - 1;
-      if(IsLivePriceNearLevel(levelBelow, 3.0))
+      if(InpRuleset5_Enable)
       {
-         int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
-         if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast))
+         double levelBelow = GetLevelBelow(g_barsInDay - 1);
+         int kLast = g_barsInDay - 1;
+         if(IsLivePriceNearLevel(levelBelow, 3.0))
          {
-            long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_m1DayStart, levelBelow, -1);
-            if(CountOrdersAndPositionsForMagic(magic) == 0)
+            int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
+            if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast))
             {
-               int overnightTradeCount = GetONtradeCount(kLast);
-               double overnightWinRate = GetONwinRate(kLast);
-               if(!(overnightTradeCount == 2 && overnightWinRate >= 1.0) && overnightTradeCount < 3)
-                  PlaceBuyLimitRuleset5Style(levelBelow, InpRuleset5_LotSize, magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
+               long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_m1DayStart, levelBelow, -1);
+               if(CountOrdersAndPositionsForMagic(magic) == 0)
+               {
+                  int overnightTradeCount = GetONtradeCount(kLast);
+                  double overnightWinRate = GetONwinRate(kLast);
+                  bool blockOnePerfect = (overnightTradeCount == 1 && overnightWinRate >= 1.0);
+                  if(!blockOnePerfect && overnightTradeCount < 3)
+                     PlaceBuyLimitRuleset5Style(levelBelow, InpRuleset5_LotSize, magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
+               }
             }
          }
       }
 
       // Ruleset 6: every OnTimer, live price near levelBelow; entry (bounceCount==1, bias_long, no_contact, time filter); buy limit at level+offset.
       const int RULESET_ID_6 = 6;
-      double levelBelow6 = GetLevelBelow(g_barsInDay - 1);
-      if(IsLivePriceNearLevel(levelBelow6, 3.0))
+      if(InpRuleset6_Enable)
       {
-         int levelsIdx = FindLevelIndexByPriceAndTime(levelBelow6, g_lastTimer1Time);
-         if(levelsIdx >= 0 && MeetsRuleset6EntryRule(levelsIdx, g_lastTimer1Time))
+         double levelBelow6 = GetLevelBelow(g_barsInDay - 1);
+         if(IsLivePriceNearLevel(levelBelow6, 3.0))
          {
-            long magic6 = BuildMagic(RULESET_ID_6, g_m1DayStart, levelBelow6, -1);
-            if(CountOrdersAndPositionsForMagic(magic6) == 0)
+            int levelsIdx = FindLevelIndexByPriceAndTime(levelBelow6, g_lastTimer1Time);
+            if(levelsIdx >= 0 && MeetsRuleset6EntryRule(levelsIdx, g_lastTimer1Time))
             {
-               if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, InpRuleset6_SLPips, InpRuleset6_TPPips, 30, InpRuleset6_LotSize, magic6, RULESET_ID_6))
-                  WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, InpRuleset6_PriceOffsetPips, InpRuleset6_SLPips, InpRuleset6_TPPips, magic6);
+               long magic6 = BuildMagic(RULESET_ID_6, g_m1DayStart, levelBelow6, -1);
+               if(CountOrdersAndPositionsForMagic(magic6) == 0)
+               {
+                  if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, InpRuleset6_SLPips, InpRuleset6_TPPips, 30, InpRuleset6_LotSize, magic6, RULESET_ID_6))
+                     WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, InpRuleset6_PriceOffsetPips, InpRuleset6_SLPips, InpRuleset6_TPPips, magic6);
+               }
             }
          }
       }
 
-      // Ruleset 7: same as 6 but bounceCount==3 and trade-2 banned time ranges; buy limit at level+offset (trade-2 params).
+      // Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset.
       const int RULESET_ID_7 = 7;
-      double levelBelow7 = GetLevelBelow(g_barsInDay - 1);
-      if(IsLivePriceNearLevel(levelBelow7, 3.0))
+      if(InpRuleset7_Enable)
       {
-         int levelsIdx7 = FindLevelIndexByPriceAndTime(levelBelow7, g_lastTimer1Time);
-         if(levelsIdx7 >= 0 && MeetsBuyBounceEntryRule(levelsIdx7, g_lastTimer1Time, RULESET_7, 3, !levels[levelsIdx7].lastCandleInContact))
+         double levelBelow7 = GetLevelBelow(g_barsInDay - 1);
+         if(IsLivePriceNearLevel(levelBelow7, 3.0))
          {
-            long magic7 = BuildMagic(RULESET_ID_7, g_m1DayStart, levelBelow7, -1);
-            if(CountOrdersAndPositionsForMagic(magic7) == 0)
+            int levelsIdx7 = FindLevelIndexByPriceAndTime(levelBelow7, g_lastTimer1Time);
+            if(levelsIdx7 >= 0 && MeetsBuyBounceEntryRule(levelsIdx7, g_lastTimer1Time, RULESET_7, 3, !levels[levelsIdx7].lastCandleInContact))
             {
-               if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, InpRuleset7_SLPips, InpRuleset7_TPPips, 30, InpRuleset7_LotSize, magic7, RULESET_ID_7))
-                  WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, InpRuleset7_SLPips, InpRuleset7_TPPips, magic7);
+               long magic7 = BuildMagic(RULESET_ID_7, g_m1DayStart, levelBelow7, -1);
+               if(CountOrdersAndPositionsForMagic(magic7) == 0)
+               {
+                  if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, InpRuleset7_SLPips, InpRuleset7_TPPips, 30, InpRuleset7_LotSize, magic7, RULESET_ID_7))
+                     WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, InpRuleset7_SLPips, InpRuleset7_TPPips, magic7);
+               }
             }
          }
       }
