@@ -58,18 +58,28 @@ input double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first ca
 
 //--- Ruleset 6: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset6_LotSize.
 input double   InpRuleset6_PriceOffsetPips  = 7.0;   // order price = level + this many pips
-input double   InpRuleset6_TPPips           = 80.0;  // TP = order price + this many pips
-input double   InpRuleset6_SLPips           = 80.0;  // SL = order price - this many pips
+input double   InpRuleset6_TPPips           = 8.0;   // TP (daily); ×10 = pips from order price
+input double   InpRuleset6_SLPips           = 8.0;   // SL (daily); ×10 = pips
+input double   InpRuleset6_TPPips_Weekly    = 10.0;  // TP when level categories contain "weekly"
+input double   InpRuleset6_SLPips_Weekly    = 10.0;  // SL when level categories contain "weekly"
 input string   InpRuleset6_BannedRanges = "0,0,0,59;15,15,16,35;21,28,23,59";  // startH,startM,endH,endM;...
 //--- Ruleset 7: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset7_LotSize.
 input double   InpRuleset7_PriceOffsetPips  = 5.0;   // order price = level + this many pips
-input double   InpRuleset7_TPPips           = 60.0;  // TP = order price + this many pips
-input double   InpRuleset7_SLPips           = 20.0;  // SL = order price - this many pips
+input double   InpRuleset7_TPPips           = 6.0;   // TP (daily); ×10 = pips from order price
+input double   InpRuleset7_SLPips           = 2.0;   // SL (daily); ×10 = pips
+input double   InpRuleset7_TPPips_Weekly    = 8.0;   // TP when level categories contain "weekly"
+input double   InpRuleset7_SLPips_Weekly    = 3.0;   // SL when level categories contain "weekly"
 input string   InpRuleset7_BannedRanges = "15,15,16,35";  // startH,startM,endH,endM;...
 
 //--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
 input bool     InpRuleset5_Enable = true;   // if false, ruleset 5 does not place orders
 input double   InpRuleset5_LotSize = 0.01;  // lot for ruleset 5 buy limit
+input double   InpRuleset5_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points; converted to pips for PlaceBuyLimitAtLevel
+input double   InpRuleset5_TPPips           = 3.2;   // TP (daily); ×10 = pips from order price
+input double   InpRuleset5_SLPips           = 5.0;   // SL (daily); ×10 = pips
+input double   InpRuleset5_TPPips_Weekly    = 6.0;   // TP when level categories contain "weekly"
+input double   InpRuleset5_SLPips_Weekly    = 6.0;   // SL when level categories contain "weekly"
+input string   InpRuleset5_BannedRanges    = "0,0,0,55";  // startH,startM,endH,endM;... (e.g. 00:00–00:15)
 
 //--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
 input bool     InpRuleset6_Enable = false;   // if false, ruleset 6 does not place orders
@@ -1480,6 +1490,32 @@ bool IsLivePriceNearLevel(double levelPrice, double maxDistPoints)
 }
 
 //+------------------------------------------------------------------+
+//| True if categories/tags string contains "weekly".                |
+//+------------------------------------------------------------------+
+bool LevelIsWeekly(const string &categoriesOrTags)
+{
+   return (StringFind(categoriesOrTags, "weekly") >= 0);
+}
+
+//+------------------------------------------------------------------+
+//| Categories string for ruleset 5 (g_levelsExpanded). Returns "" if invalid. |
+//+------------------------------------------------------------------+
+string GetCategoriesFromExpanded(int levelIdx)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return "";
+   return g_levelsExpanded[levelIdx].categories;
+}
+
+//+------------------------------------------------------------------+
+//| Categories string for ruleset 6/7 (levels[].tagsCSV). Returns "" if invalid. |
+//+------------------------------------------------------------------+
+string GetCategoriesFromLevels(int levelsIdx)
+{
+   if(levelsIdx < 0 || levelsIdx >= ArraySize(levels)) return "";
+   return levels[levelsIdx].tagsCSV;
+}
+
+//+------------------------------------------------------------------+
 //| True if ruleset 5 entry conditions: HighestDiffUp > min, overlapC==0, session ON. Uses g_levelsExpanded[levelIdx], kLast. |
 //+------------------------------------------------------------------+
 bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
@@ -1501,26 +1537,6 @@ bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
 string BuildUnifiedOrderComment(int levelPriceInt, double takeProfitVal, double stopLossVal, double orderPrice, int commentRulesetId)
 {
    return StringFormat("$%d %.*f %.*f %.*f %d", levelPriceInt, _Digits, takeProfitVal, _Digits, stopLossVal, _Digits, orderPrice, commentRulesetId);
-}
-
-//+------------------------------------------------------------------+
-//| Place buy-limit ruleset-5 style: level + NewRulesets_ProcessInput(offset/tpSl) * point, 15 min expiration. Sets magic then restores EA_MAGIC. |
-//+------------------------------------------------------------------+
-void PlaceBuyLimitRuleset5Style(double levelPrice, double lot, long magic, int commentRulesetId)
-{
-   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-   const double ORDER_OFFSET_POINTS = 2.4;
-   const double TP_SL_POINTS = 5.0;
-   const int EXPIRATION_MINUTES = 15;
-   double orderPrice = NormalizeDouble(levelPrice + NewRulesets_ProcessInput(ORDER_OFFSET_POINTS) * point, _Digits);
-   double tpSlPoints = NewRulesets_ProcessInput(TP_SL_POINTS) * point;
-   double takeProfitVal = NormalizeDouble(orderPrice + tpSlPoints, _Digits);
-   double stopLossVal = NormalizeDouble(orderPrice - tpSlPoints, _Digits);
-   datetime expiration = TimeCurrent() + EXPIRATION_MINUTES * 60;
-   string comment = BuildUnifiedOrderComment((int)levelPrice, takeProfitVal, stopLossVal, orderPrice, commentRulesetId);
-   ExtTrade.SetExpertMagicNumber(magic);
-   ExtTrade.BuyLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
-   ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 }
 
 //+------------------------------------------------------------------+
@@ -1647,14 +1663,6 @@ double PipSize()
    int digits = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
    if(digits == 3 || digits == 5) return SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 10.0;
    return SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-}
-
-//+------------------------------------------------------------------+
-//| For ruleset 5 and future rulesets: TP, SL and order offset input points are always x10 (e.g. 1 -> 10 pts, 0.7 -> 7 pts). |
-//+------------------------------------------------------------------+
-double NewRulesets_ProcessInput(double inputPoints)
-{
-   return inputPoints * 10.0;
 }
 
 //+------------------------------------------------------------------+
@@ -1922,6 +1930,9 @@ int OnInit()
    g_tradeConfig[RULESET_6].usePrice = true;
    g_tradeConfig[RULESET_6].useTimeFilter = true;
    g_tradeConfig[RULESET_6].bannedRangesStr = InpRuleset6_BannedRanges;
+
+   g_tradeConfig[5].useTimeFilter = true;
+   g_tradeConfig[5].bannedRangesStr = InpRuleset5_BannedRanges;
 
    g_tradeConfig[RULESET_7].useLevel = true;
    g_tradeConfig[RULESET_7].usePrice = true;
@@ -2303,7 +2314,7 @@ void OnTimer()
          if(IsLivePriceNearLevel(levelBelow, 3.0))
          {
             int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
-            if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast))
+            if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast) && IsTimeAllowedForTradeType(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_lastTimer1Time))
             {
                long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_m1DayStart, levelBelow, -1);
                if(CountOrdersAndPositionsForMagic(magic) == 0)
@@ -2312,7 +2323,16 @@ void OnTimer()
                   double overnightWinRate = GetONwinRate(kLast);
                   bool blockOnePerfect = (overnightTradeCount == 1 && overnightWinRate >= 1.0);
                   if(!blockOnePerfect && overnightTradeCount < 3)
-                     PlaceBuyLimitRuleset5Style(levelBelow, InpRuleset5_LotSize, magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
+                  {
+                     string categories = GetCategoriesFromExpanded(levelIdx);
+                     bool weekly = LevelIsWeekly(categories);
+                     double tp = (weekly ? InpRuleset5_TPPips_Weekly : InpRuleset5_TPPips) * 10.0;
+                     double sl = (weekly ? InpRuleset5_SLPips_Weekly : InpRuleset5_SLPips) * 10.0;
+                     double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+                     double offsetPips5 = (InpRuleset5_PriceOffsetPips * 10.0) * point / PipSize();
+                     if(PlaceBuyLimitAtLevel(levelBelow, offsetPips5, sl, tp, 15, InpRuleset5_LotSize, magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
+                        WriteTradeLogPendingOrder(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, levelBelow, offsetPips5, sl, tp, magic);
+                  }
                }
             }
          }
@@ -2331,8 +2351,12 @@ void OnTimer()
                long magic6 = BuildMagic(RULESET_ID_6, g_m1DayStart, levelBelow6, -1);
                if(CountOrdersAndPositionsForMagic(magic6) == 0)
                {
-                  if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, InpRuleset6_SLPips, InpRuleset6_TPPips, 30, InpRuleset6_LotSize, magic6, RULESET_ID_6))
-                     WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, InpRuleset6_PriceOffsetPips, InpRuleset6_SLPips, InpRuleset6_TPPips, magic6);
+                  string categories = GetCategoriesFromLevels(levelsIdx);
+                  bool weekly = LevelIsWeekly(categories);
+                  double tp = (weekly ? InpRuleset6_TPPips_Weekly : InpRuleset6_TPPips) * 10.0;
+                  double sl = (weekly ? InpRuleset6_SLPips_Weekly : InpRuleset6_SLPips) * 10.0;
+                  if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, 30, InpRuleset6_LotSize, magic6, RULESET_ID_6))
+                     WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, magic6);
                }
             }
          }
@@ -2351,8 +2375,12 @@ void OnTimer()
                long magic7 = BuildMagic(RULESET_ID_7, g_m1DayStart, levelBelow7, -1);
                if(CountOrdersAndPositionsForMagic(magic7) == 0)
                {
-                  if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, InpRuleset7_SLPips, InpRuleset7_TPPips, 30, InpRuleset7_LotSize, magic7, RULESET_ID_7))
-                     WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, InpRuleset7_SLPips, InpRuleset7_TPPips, magic7);
+                  string categories = GetCategoriesFromLevels(levelsIdx7);
+                  bool weekly = LevelIsWeekly(categories);
+                  double tp = (weekly ? InpRuleset7_TPPips_Weekly : InpRuleset7_TPPips) * 10.0;
+                  double sl = (weekly ? InpRuleset7_SLPips_Weekly : InpRuleset7_SLPips) * 10.0;
+                  if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, 30, InpRuleset7_LotSize, magic7, RULESET_ID_7))
+                     WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, magic7);
                }
             }
          }
