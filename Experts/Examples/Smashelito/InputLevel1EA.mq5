@@ -56,6 +56,7 @@ input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Ter
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 input double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 input bool     maemfe_testing             = true; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
+input bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for ruleset 5)
 
 
 //--- Ruleset 6: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset6_LotSize.
@@ -2416,10 +2417,7 @@ void OnTimer()
                long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
                if(CountOrdersAndPositionsForMagic(magic) == 0)
                {
-                  int overnightTradeCount = GetONtradeCount(kLast);
-                  double overnightWinRate = GetONwinRate(kLast);
-                  bool blockOnePerfect = (overnightTradeCount == 1 && overnightWinRate >= 1.0);
-                  if(!blockOnePerfect && overnightTradeCount < 3)
+                  if(allTrades_enable_perSession_limits == false || GetONtradeCount(kLast) < 3)
                   {
                      string categories = GetCategoriesFromExpanded(levelIdx);
                      bool weekly = LevelIsWeekly(categories);
