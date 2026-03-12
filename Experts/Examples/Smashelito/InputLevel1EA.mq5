@@ -561,6 +561,58 @@ string GetSessionForCandleTime(datetime t)
 }
 
 //+------------------------------------------------------------------+
+//| MFE/MAE from day M1: candles from 1 min after start to bar containing endTime. BUY: MFE=highest high, MAE=lowest low. SELL: MFE=lowest low, MAE=highest high. If range is 0 candles, use only the candle of end time. |
+//+------------------------------------------------------------------+
+void GetMFEandMAEForTrade(const TradeResult &tradeResult, double &mfe, double &mae)
+{
+   mfe = 0.0;
+   mae = 0.0;
+   if(!tradeResult.foundOut || tradeResult.endTime == 0 || g_barsInDay <= 0) return;
+   datetime startPlus1Min = tradeResult.startTime + 60;
+   datetime firstBarTime  = startPlus1Min - (startPlus1Min % 60);  // bar open 1 min after start (e.g. 01:22:00)
+   datetime lastBarTime   = tradeResult.endTime - (tradeResult.endTime % 60);  // bar open that contains endTime (e.g. 01:26:00)
+   double highestHigh = 0.0, lowestLow = 0.0;
+   bool found = false;
+   if(firstBarTime <= lastBarTime)
+   {
+      for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+      {
+         datetime barTime = g_m1Rates[barIdx].time;
+         if(barTime < firstBarTime) continue;
+         if(barTime > lastBarTime) break;
+         if(!found) { highestHigh = g_m1Rates[barIdx].high; lowestLow = g_m1Rates[barIdx].low; found = true; }
+         else
+         {
+            if(g_m1Rates[barIdx].high > highestHigh) highestHigh = g_m1Rates[barIdx].high;
+            if(g_m1Rates[barIdx].low < lowestLow) lowestLow = g_m1Rates[barIdx].low;
+         }
+      }
+   }
+   if(!found)
+   {
+      for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+         if(g_m1Rates[barIdx].time == lastBarTime)
+         {
+            highestHigh = g_m1Rates[barIdx].high;
+            lowestLow   = g_m1Rates[barIdx].low;
+            found = true;
+            break;
+         }
+   }
+   if(!found) return;
+   if(tradeResult.type == (long)DEAL_TYPE_BUY)
+   {
+      mfe = highestHigh;
+      mae = lowestLow;
+   }
+   else  // DEAL_TYPE_SELL
+   {
+      mfe = lowestLow;
+      mae = highestHigh;
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Returns "yes" if openPrice > level, "no" otherwise; "unknown" if not yet known. |
 //+------------------------------------------------------------------+
 string GetOpenWasAboveLevelString(double openPrice, double level, bool known)
@@ -2678,54 +2730,107 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
+                  double mfe = 0.0, mae = 0.0;
+                  GetMFEandMAEForTrade(tradeResult, mfe, mae);
                   string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
                   string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
                   string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
                   string reasonStr = tradeResult.foundOut ? EnumToString((ENUM_DEAL_REASON)tradeResult.reason) : "NOT_FOUND";
                   string typeStr = EnumToString((ENUM_DEAL_TYPE)tradeResult.type);
+                  string mfeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mfe, _Digits) : "";
+                  string maeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mae, _Digits) : "";
                   FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
                      tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl);
+                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr);
                }
                FileClose(fileHandleTr);
             }
 
-            // Append same day's results to all-days summary (single file, no date in name). Write rows sorted by startTime.
+            // All-days summary: read existing file into memory, add current day with MFE/MAE, write full file in overwrite mode.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            int fileHandleSumTr = FileOpen(summaryAllName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+            #define TRADERESULTS_ALLDAYS_COLS 19
+            string allDaysRows[];
+            int existingRowCount = 0;
+            int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
+            if(fileHandleRead != INVALID_HANDLE)
+            {
+               for(int h = 0; h < TRADERESULTS_ALLDAYS_COLS && !FileIsEnding(fileHandleRead); h++)
+                  FileReadString(fileHandleRead);
+               while(!FileIsEnding(fileHandleRead))
+               {
+                  int base = ArraySize(allDaysRows);
+                  ArrayResize(allDaysRows, base + TRADERESULTS_ALLDAYS_COLS);
+                  int c = 0;
+                  for(; c < TRADERESULTS_ALLDAYS_COLS && !FileIsEnding(fileHandleRead); c++)
+                     allDaysRows[base + c] = FileReadString(fileHandleRead);
+                  if(c == TRADERESULTS_ALLDAYS_COLS)
+                     existingRowCount++;
+                  else
+                     ArrayResize(allDaysRows, base);
+               }
+               FileClose(fileHandleRead);
+            }
+            int orderTr[];
+            ArrayResize(orderTr, g_tradeResultsCount);
+            for(int o = 0; o < g_tradeResultsCount; o++) orderTr[o] = o;
+            for(int o = 0; o < g_tradeResultsCount - 1; o++)
+               for(int o2 = o + 1; o2 < g_tradeResultsCount; o2++)
+                  if(g_tradeResults[orderTr[o2]].startTime < g_tradeResults[orderTr[o]].startTime)
+                  { int tmp = orderTr[o]; orderTr[o] = orderTr[o2]; orderTr[o2] = tmp; }
+            int newBase = existingRowCount * TRADERESULTS_ALLDAYS_COLS;
+            ArrayResize(allDaysRows, newBase + g_tradeResultsCount * TRADERESULTS_ALLDAYS_COLS);
+            for(int ti = 0; ti < g_tradeResultsCount; ti++)
+            {
+               int trIdx = orderTr[ti];
+               TradeResult tradeResult = g_tradeResults[trIdx];
+               double mfe = 0.0, mae = 0.0;
+               GetMFEandMAEForTrade(tradeResult, mfe, mae);
+               string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
+               string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
+               string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
+               string reasonStr = tradeResult.foundOut ? EnumToString((ENUM_DEAL_REASON)tradeResult.reason) : "NOT_FOUND";
+               string typeStr = EnumToString((ENUM_DEAL_TYPE)tradeResult.type);
+               string mfeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mfe, _Digits) : "";
+               string maeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mae, _Digits) : "";
+               int r = newBase + ti * TRADERESULTS_ALLDAYS_COLS;
+               allDaysRows[r++] = dateStr;
+               allDaysRows[r++] = tradeResult.symbol;
+               allDaysRows[r++] = TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS);
+               allDaysRows[r++] = endTimeStr;
+               allDaysRows[r++] = tradeResult.session;
+               allDaysRows[r++] = IntegerToString((long)tradeResult.magic);
+               allDaysRows[r++] = DoubleToString(tradeResult.priceStart, _Digits);
+               allDaysRows[r++] = priceEndStr;
+               allDaysRows[r++] = DoubleToString(tradeResult.priceDiff, _Digits);
+               allDaysRows[r++] = profitStr;
+               allDaysRows[r++] = typeStr;
+               allDaysRows[r++] = reasonStr;
+               allDaysRows[r++] = DoubleToString(tradeResult.volume, 2);
+               allDaysRows[r++] = tradeResult.bothComments;
+               allDaysRows[r++] = tradeResult.level;
+               allDaysRows[r++] = tradeResult.tp;
+               allDaysRows[r++] = tradeResult.sl;
+               allDaysRows[r++] = mfeStr;
+               allDaysRows[r++] = maeStr;
+            }
+            int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileSeek(fileHandleSumTr, 0, SEEK_END);
-               if(FileTell(fileHandleSumTr) == 0)
-                  FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl");
-               int orderTr[];
-               ArrayResize(orderTr, g_tradeResultsCount);
-               for(int o = 0; o < g_tradeResultsCount; o++) orderTr[o] = o;
-               for(int o = 0; o < g_tradeResultsCount - 1; o++)
-                  for(int o2 = o + 1; o2 < g_tradeResultsCount; o2++)
-                     if(g_tradeResults[orderTr[o2]].startTime < g_tradeResults[orderTr[o]].startTime)
-                     { int tmp = orderTr[o]; orderTr[o] = orderTr[o2]; orderTr[o2] = tmp; }
-               for(int ti = 0; ti < g_tradeResultsCount; ti++)
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE");
+               int totalRows = existingRowCount + g_tradeResultsCount;
+               for(int ri = 0; ri < totalRows; ri++)
                {
-                  int trIdx = orderTr[ti];
-                  TradeResult tradeResult = g_tradeResults[trIdx];
-                  string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
-                  string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
-                  string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
-                  string reasonStr = tradeResult.foundOut ? EnumToString((ENUM_DEAL_REASON)tradeResult.reason) : "NOT_FOUND";
-                  string typeStr = EnumToString((ENUM_DEAL_TYPE)tradeResult.type);
-                  FileWrite(fileHandleSumTr, dateStr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
-                     tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
-                     DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl);
+                  int base = ri * TRADERESULTS_ALLDAYS_COLS;
+                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18]);
                }
                FileClose(fileHandleSumTr);
             }
+            #undef TRADERESULTS_ALLDAYS_COLS
          }
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
