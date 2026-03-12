@@ -777,6 +777,30 @@ void GetSessionHighLow(const string sessionName, double &outHigh, double &outLow
 }
 
 //+------------------------------------------------------------------+
+//| True if dateStr (YYYY.MM.DD or YYYY-MM-DD) is a daylight-savings desync date: RTH session times differ (use 14:30 open / 20:59 close for PDO/PDC). |
+//+------------------------------------------------------------------+
+bool bool_RTHsession_Is_DaylightSavingsDesync(const string dateStr)
+{
+   // Normalize to YYYY.MM.DD so we match calendar/TimeToString(TIME_DATE) and the list below
+   string normalized = dateStr;
+   if(StringFind(dateStr, "-") >= 0)
+      StringReplace(normalized, "-", ".");  // modifies normalized in place; returns int (count)
+   static string daylightSavings_desync_dates[] = {
+      "2026.03.08", "2026.03.09", "2026.03.10", "2026.03.11", "2026.03.12",
+      "2026.03.13", "2026.03.14", "2026.03.15", "2026.03.16", "2026.03.17",
+      "2026.03.18", "2026.03.19", "2026.03.20", "2026.03.21", "2026.03.22",
+      "2026.03.23", "2026.03.24", "2026.03.25", "2026.03.26", "2026.03.27",
+      "2026.03.28",
+      "2026.10.25", "2026.10.26", "2026.10.27", "2026.10.28", "2026.10.29",
+      "2026.10.30", "2026.10.31"
+   };
+   for(int i = 0; i < ArraySize(daylightSavings_desync_dates); i++)
+      if(daylightSavings_desync_dates[i] == normalized)
+         return true;
+   return false;
+}
+
+//+------------------------------------------------------------------+
 //| Return previous trading day date string (YYYY.MM.DD) from calendar: go back 1 day, skip Saturday/Sunday. "" if not found. |
 //+------------------------------------------------------------------+
 string GetPreviousTradingDayDateString(datetime dayStart)
@@ -825,15 +849,24 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
    datetime prevDayStart = StructToTime(mtPrev);
    datetime prevDayEnd   = prevDayStart + 86400;
 
-   // PDO = open of 1m candle 15:30 (M1), PDC = close of 1m candle 21:59 (M1) — that candle ends at 22:00
-   datetime bar1530 = prevDayStart + 15*3600 + 30*60;
-   datetime bar2159 = prevDayStart + 21*3600 + 59*60;
-   int shift1530M1 = iBarShift(_Symbol, PERIOD_M1, bar1530, false);
-   int shift2159M1 = iBarShift(_Symbol, PERIOD_M1, bar2159, false);
-   if(shift1530M1 >= 0)
-      g_staticMarketContext.PDOpreviousDayRTHOpen = iOpen(_Symbol, PERIOD_M1, shift1530M1);
-   if(shift2159M1 >= 0)
-      g_staticMarketContext.PDCpreviousDayRTHClose = iClose(_Symbol, PERIOD_M1, shift2159M1);
+   // PDO = RTH open (M1), PDC = RTH close (M1). On daylight-savings desync dates use 14:30 / 21:00; else 15:30 / 21:59.
+   datetime barPDO, barPDC;
+   if(bool_RTHsession_Is_DaylightSavingsDesync(prevDayStr))
+   {
+      barPDO = prevDayStart + 14*3600 + 30*60;   // 14:30
+      barPDC = prevDayStart + 20*3600 + 59*60;  // 20:59
+   }
+   else
+   {
+      barPDO = prevDayStart + 15*3600 + 30*60;   // 15:30
+      barPDC = prevDayStart + 21*3600 + 59*60;  // 21:59
+   }
+   int shiftPDO_M1 = iBarShift(_Symbol, PERIOD_M1, barPDO, false);
+   int shiftPDC_M1 = iBarShift(_Symbol, PERIOD_M1, barPDC, false);
+   if(shiftPDO_M1 >= 0)
+      g_staticMarketContext.PDOpreviousDayRTHOpen = iOpen(_Symbol, PERIOD_M1, shiftPDO_M1);
+   if(shiftPDC_M1 >= 0)
+      g_staticMarketContext.PDCpreviousDayRTHClose = iClose(_Symbol, PERIOD_M1, shiftPDC_M1);
 
    // PDH/PDL = max High / min Low over the day — use same bar indexing as chart (iterate shifts for the day)
    int shiftDayStart = iBarShift(_Symbol, PERIOD_M30, prevDayStart, false);
