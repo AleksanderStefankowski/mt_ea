@@ -55,6 +55,7 @@ input bool     dailySpamLog_Arawevents      = true;  // Arawevents CSV + level l
 input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 input double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
+input bool     maemfe_testing             = true; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 
 
 //--- Ruleset 6: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset6_LotSize.
@@ -70,7 +71,7 @@ input double   InpRuleset6_LotSize = 0.01;  // lot for ruleset 6 buy limit
 
 
 //--- Ruleset 7: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset7_LotSize.
-input bool     InpRuleset7_Enable = false;   // if false, ruleset 7 does not place orders
+input bool     InpRuleset7_Enable = true;   // if false, ruleset 7 does not place orders
 input double   InpRuleset7_PriceOffsetPips  = 5.0;   // order price = level + this many pips
 input double   InpRuleset7_TPPips           = 6.0;   // TP (daily); ×10 = pips from order price
 input double   InpRuleset7_SLPips           = 2.0;   // SL (daily); ×10 = pips
@@ -137,6 +138,10 @@ enum RULESET_ID
    RULESET_6 = 6,
    RULESET_7 = 7
 };
+
+// List of all known EA trade (ruleset) IDs that can open positions. Used e.g. by CloseAnyEAPositionThatIsXMinutesOld.
+const int EA_KNOWN_RULESET_IDS[] = { 5, 6, 7 };
+#define EA_KNOWN_RULESET_COUNT 3
 
 CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
@@ -1642,6 +1647,7 @@ bool MeetsRuleset6EntryRule(int levelsIdx, datetime atTime)
 //+------------------------------------------------------------------+
 bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic, int commentRulesetId)
 {
+   if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
    double pip = PipSize();
    double orderPrice = NormalizeDouble(levelPrice + offsetPips * pip, _Digits);
    double stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
@@ -1745,6 +1751,27 @@ int CountOrdersAndPositionsForMagic(long magic)
       if(ExtOrderInfo.Magic() == magic) count++;
    }
    return count;
+}
+
+//+------------------------------------------------------------------+
+//| Close any position opened by this EA (magic in EA_KNOWN_RULESET_IDS) that has been open longer than minutes. Sets trade magic so OUT deal pairs with IN. |
+//+------------------------------------------------------------------+
+void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
+{
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(i)) continue;
+      if(ExtPositionInfo.Symbol() != _Symbol) continue;
+      long posMagic = ExtPositionInfo.Magic();
+      bool isEaMagic = false;
+      for(int k = 0; k < EA_KNOWN_RULESET_COUNT; k++)
+         if(posMagic == BuildMagic(EA_KNOWN_RULESET_IDS[k])) { isEaMagic = true; break; }
+      if(!isEaMagic) continue;
+      if(g_lastTimer1Time - ExtPositionInfo.Time() <= (datetime)(minutes * 60)) continue;
+      ExtTrade.SetExpertMagicNumber((ulong)posMagic);
+      ExtTrade.PositionClose(ExtPositionInfo.Ticket());
+      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -2350,6 +2377,9 @@ void OnTimer()
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 
+   if(maemfe_testing)
+      CloseAnyEAPositionThatIsXMinutesOld(20);
+
    // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 5 cleanFirstBounceON; then ruleset 6.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
    {
@@ -2481,6 +2511,9 @@ void OnTimer()
    if(barNowM1 == g_lastBarTime) return;
 
    g_lastBarTime = barNowM1;
+
+   if(maemfe_testing)
+      CloseAnyEAPositionThatIsXMinutesOld(20);
 
    // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
    datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
