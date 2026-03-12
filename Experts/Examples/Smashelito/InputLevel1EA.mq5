@@ -65,7 +65,7 @@ input double   InpRuleset6_TPPips           = 8.0;   // TP (daily); ×10 = pips 
 input double   InpRuleset6_SLPips           = 8.0;   // SL (daily); ×10 = pips
 input double   InpRuleset6_TPPips_Weekly    = 10.0;  // TP when level categories contain "weekly"
 input double   InpRuleset6_SLPips_Weekly    = 10.0;  // SL when level categories contain "weekly"
-input string   InpRuleset6_BannedRanges = "0,0,0,59;15,15,16,35;21,28,23,59";  // startH,startM,endH,endM;...
+input string   InpRuleset6_BannedRanges = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (same as ruleset 5)
 //--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
 input double   InpRuleset6_LotSize = 0.01;  // lot for ruleset 6 buy limit
 
@@ -77,7 +77,7 @@ input double   InpRuleset7_TPPips           = 6.0;   // TP (daily); ×10 = pips 
 input double   InpRuleset7_SLPips           = 2.0;   // SL (daily); ×10 = pips
 input double   InpRuleset7_TPPips_Weekly    = 8.0;   // TP when level categories contain "weekly"
 input double   InpRuleset7_SLPips_Weekly    = 3.0;   // SL when level categories contain "weekly"
-input string   InpRuleset7_BannedRanges = "15,15,16,35";  // startH,startM,endH,endM;...
+input string   InpRuleset7_BannedRanges = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (same as rulesets 5 and 6)
 //--- Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset
 input double   InpRuleset7_LotSize = 0.01;  // lot for ruleset 7 buy limit
 
@@ -90,7 +90,7 @@ input double   InpRuleset5_TPPips           = 3.2;   // TP (daily); ×10 = pips 
 input double   InpRuleset5_SLPips           = 5.0;   // SL (daily); ×10 = pips
 input double   InpRuleset5_TPPips_Weekly    = 6.0;   // TP when level categories contain "weekly"
 input double   InpRuleset5_SLPips_Weekly    = 6.0;   // SL when level categories contain "weekly"
-input string   InpRuleset5_BannedRanges    = "0,0,0,55";  // startH,startM,endH,endM;... (e.g. 00:00–00:15)
+input string   InpRuleset5_BannedRanges    = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (two ranges; no midnight wraparound in one range)
 
 
 
