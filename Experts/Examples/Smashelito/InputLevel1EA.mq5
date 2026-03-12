@@ -554,16 +554,26 @@ string GetCalendarDayOfWeek(datetime dt)
 }
 
 //+------------------------------------------------------------------+
-//| Session for candle time: before 15:30 ON, 15:30-22:00 RTH, else sleep. |
+//| Session for candle time: ON / RTH / sleep. On daylight-savings desync dates use 14:30–21:00 for RTH; else 15:30–22:00. |
 //+------------------------------------------------------------------+
 string GetSessionForCandleTime(datetime t)
 {
    MqlDateTime mqlTime;
    TimeToStruct(t, mqlTime);
    int minOfDay = mqlTime.hour * 60 + mqlTime.min;
-   if(minOfDay < 15*60+30) return "ON";   // before 15:30
-   if(minOfDay <= 22*60+0) return "RTH"; // 15:30 to 22:00
-   return "sleep";
+   string dateStr = TimeToString(t, TIME_DATE);
+   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
+   {
+      if(minOfDay < 14*60+30) return "ON";   // before 14:30
+      if(minOfDay <= 20*60+59) return "RTH"; // 14:30 to 20:59
+      return "sleep";
+   }
+   else
+   {
+      if(minOfDay < 15*60+30) return "ON";   // before 15:30
+      if(minOfDay <= 22*60+0) return "RTH";   // 15:30 to 22:00
+      return "sleep";
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -647,39 +657,50 @@ string GetOpenWasAboveLevelString(double openPrice, double level, bool known)
 }
 
 //+------------------------------------------------------------------+
-//| Find the 15:30 candle of current day in g_m1Rates. FatalError if not found. Returns its open price. |
+//| Find the RTH open candle of current day in g_m1Rates (14:30 on desync dates, else 15:30). FatalError if not found. Returns its open price. |
 //+------------------------------------------------------------------+
 double GetRTHopenCurrentDay()
 {
    if(g_barsInDay <= 0 || g_m1DayStart == 0)
       FatalError("GetRTHopenCurrentDay: no day data (g_barsInDay=" + IntegerToString(g_barsInDay) + " g_m1DayStart=0)");
-   datetime targetTime = g_m1DayStart + 15*3600 + 30*60;  // 15:30 bar open time
+   string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   datetime targetTime;
+   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
+      targetTime = g_m1DayStart + 14*3600 + 30*60;   // 14:30 bar
+   else
+      targetTime = g_m1DayStart + 15*3600 + 30*60;   // 15:30 bar
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
       if(g_m1Rates[barIdx].time == targetTime)
          return g_m1Rates[barIdx].open;
-   FatalError("GetRTHopenCurrentDay: 15:30 candle not found for " + TimeToString(g_m1DayStart, TIME_DATE));
+   FatalError("GetRTHopenCurrentDay: RTH open candle not found for " + TimeToString(g_m1DayStart, TIME_DATE));
    return 0.0;  // unreachable
 }
 
 //+------------------------------------------------------------------+
-//| True if bar time (open time) is in RTHIB window: 15:30 to 16:30 inclusive. |
+//| True if bar time (open time) is in RTHIB window: first hour of RTH (14:30–15:30 on desync, else 15:30–16:30). |
 //+------------------------------------------------------------------+
 bool IsBarRTHIB(datetime barTime)
 {
    MqlDateTime mqlTime;
    TimeToStruct(barTime, mqlTime);
    int minOfDay = mqlTime.hour * 60 + mqlTime.min;
+   string dateStr = TimeToString(barTime, TIME_DATE);
+   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
+      return (minOfDay >= 14*60+30 && minOfDay <= 15*60+30);
    return (minOfDay >= 15*60+30 && minOfDay <= 16*60+30);
 }
 
 //+------------------------------------------------------------------+
-//| True if bar time (open time) is in RTHcnt window: 16:31 onward. |
+//| True if bar time (open time) is in RTHcnt window: after RTHIB (15:31+ on desync, else 16:31+). |
 //+------------------------------------------------------------------+
 bool IsBarRTHcnt(datetime barTime)
 {
    MqlDateTime mqlTime;
    TimeToStruct(barTime, mqlTime);
    int minOfDay = mqlTime.hour * 60 + mqlTime.min;
+   string dateStr = TimeToString(barTime, TIME_DATE);
+   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
+      return (minOfDay >= 15*60+31);
    return (minOfDay >= 16*60+31);
 }
 
@@ -1102,17 +1123,20 @@ void UpdateDayM1AndLevelsExpanded()
    g_barsInDay = barsInDay;
    g_m1DayStart = dayStart;
 
-   // Ensure todayRTHopen is in g_levels when we have the 15:30 bar (data-driven; no reliance on new-bar event timing)
+   // Ensure todayRTHopen is in g_levels when we have the RTH open bar (14:30 on desync dates, else 15:30)
    {
-      double open1530 = 0;
+      double openRTH = 0;
+      bool useDesync = bool_RTHsession_Is_DaylightSavingsDesync(dateStr);
       for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
       {
          MqlDateTime mqlTime;
          TimeToStruct(g_m1Rates[barIdx].time, mqlTime);
-         if(mqlTime.hour == 15 && mqlTime.min == 30)
-            { open1530 = g_m1Rates[barIdx].open; break; }
+         if(useDesync && mqlTime.hour == 14 && mqlTime.min == 30)
+            { openRTH = g_m1Rates[barIdx].open; break; }
+         if(!useDesync && mqlTime.hour == 15 && mqlTime.min == 30)
+            { openRTH = g_m1Rates[barIdx].open; break; }
       }
-      if(open1530 != 0)
+      if(openRTH != 0)
       {
          string todayStr = dateStr;
          bool alreadyAdded = false;
@@ -1123,20 +1147,20 @@ void UpdateDayM1AndLevelsExpanded()
          if(!alreadyAdded)
             for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
                if(g_levels[levelIdx].startStr <= todayStr && todayStr <= g_levels[levelIdx].endStr &&
-                  MathAbs(g_levels[levelIdx].levelPrice - open1530) < tertiaryLevel_tooTight_toAdd_proximity)
+                  MathAbs(g_levels[levelIdx].levelPrice - openRTH) < tertiaryLevel_tooTight_toAdd_proximity)
                { tooClose = true; break; }
          if(!alreadyAdded && !tooClose && g_levelsTotalCount < MAX_LEVEL_ROWS)
          {
-            AddLevel(todayStr + "_todayRTHopen", open1530, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
+            AddLevel(todayStr + "_todayRTHopen", openRTH, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
             g_levels[g_levelsTotalCount].startStr   = todayStr;
             g_levels[g_levelsTotalCount].endStr     = todayStr;
-            g_levels[g_levelsTotalCount].levelPrice = open1530;
+            g_levels[g_levelsTotalCount].levelPrice = openRTH;
             g_levels[g_levelsTotalCount].categories = "daily_tertiary_todayRTHopen";
             g_levels[g_levelsTotalCount].tag        = "todayRTHopen";
             g_levelsTotalCount++;
          }
          else if(!alreadyAdded && !tooClose && g_levelsTotalCount >= MAX_LEVEL_ROWS)
-            FatalError("todayRTHopen: 15:30 bar found but g_levels full (g_levelsTotalCount=" + IntegerToString(g_levelsTotalCount) + ")");
+            FatalError("todayRTHopen: RTH open bar found but g_levels full (g_levelsTotalCount=" + IntegerToString(g_levelsTotalCount) + ")");
       }
    }
 
