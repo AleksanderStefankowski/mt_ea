@@ -56,20 +56,30 @@ input string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Ter
 input string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 input double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 
+
 //--- Ruleset 6: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset6_LotSize.
+input bool     InpRuleset6_Enable = true;   // disable trade. if false, ruleset 6 does not place orders
 input double   InpRuleset6_PriceOffsetPips  = 7.0;   // order price = level + this many pips
 input double   InpRuleset6_TPPips           = 8.0;   // TP (daily); ×10 = pips from order price
 input double   InpRuleset6_SLPips           = 8.0;   // SL (daily); ×10 = pips
 input double   InpRuleset6_TPPips_Weekly    = 10.0;  // TP when level categories contain "weekly"
 input double   InpRuleset6_SLPips_Weekly    = 10.0;  // SL when level categories contain "weekly"
 input string   InpRuleset6_BannedRanges = "0,0,0,59;15,15,16,35;21,28,23,59";  // startH,startM,endH,endM;...
+//--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
+input double   InpRuleset6_LotSize = 0.01;  // lot for ruleset 6 buy limit
+
+
 //--- Ruleset 7: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset7_LotSize.
+input bool     InpRuleset7_Enable = false;   // if false, ruleset 7 does not place orders
 input double   InpRuleset7_PriceOffsetPips  = 5.0;   // order price = level + this many pips
 input double   InpRuleset7_TPPips           = 6.0;   // TP (daily); ×10 = pips from order price
 input double   InpRuleset7_SLPips           = 2.0;   // SL (daily); ×10 = pips
 input double   InpRuleset7_TPPips_Weekly    = 8.0;   // TP when level categories contain "weekly"
 input double   InpRuleset7_SLPips_Weekly    = 3.0;   // SL when level categories contain "weekly"
 input string   InpRuleset7_BannedRanges = "15,15,16,35";  // startH,startM,endH,endM;...
+//--- Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset
+input double   InpRuleset7_LotSize = 0.01;  // lot for ruleset 7 buy limit
+
 
 //--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
 input bool     InpRuleset5_Enable = true;   // if false, ruleset 5 does not place orders
@@ -81,13 +91,7 @@ input double   InpRuleset5_TPPips_Weekly    = 6.0;   // TP when level categories
 input double   InpRuleset5_SLPips_Weekly    = 6.0;   // SL when level categories contain "weekly"
 input string   InpRuleset5_BannedRanges    = "0,0,0,55";  // startH,startM,endH,endM;... (e.g. 00:00–00:15)
 
-//--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
-input bool     InpRuleset6_Enable = false;   // if false, ruleset 6 does not place orders
-input double   InpRuleset6_LotSize = 0.01;  // lot for ruleset 6 buy limit
 
-//--- Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset
-input bool     InpRuleset7_Enable = false;   // if false, ruleset 7 does not place orders
-input double   InpRuleset7_LotSize = 0.01;  // lot for ruleset 7 buy limit
 
 //--- Ruleset config: useLevel/usePrice/useTimeFilter indicate what each ruleset cares about; bannedRangesStr from input.
 struct TradeTypeConfig
@@ -1417,19 +1421,11 @@ int GetDayOfWeekSuffixForLevel(datetime validFrom, string tagsCSV)
 }
 
 //+------------------------------------------------------------------+
-//| Build magic number: id + date (YYYYMMDD from dayStart) + rounded level price. |
-//| If dayOfWeekSuffix >= 0, append it (for ruleset 6/7 daily levels); if < 0, omit (ruleset 5). |
+//| Build magic number: trade (ruleset) id only.                      |
 //+------------------------------------------------------------------+
-long BuildMagic(int id, datetime dayStart, double levelPrice, int dayOfWeekSuffix = -1)
+long BuildMagic(int id)
 {
-   MqlDateTime dt;
-   TimeToStruct(dayStart, dt);
-   string dateStr = StringFormat("%04d%02d%02d", dt.year, dt.mon, dt.day);
-   string levelStr = IntegerToString((int)MathRound(levelPrice));
-   string magicStr = (dayOfWeekSuffix >= 0)
-      ? StringFormat("%d%s%s%d", id, dateStr, levelStr, dayOfWeekSuffix)
-      : IntegerToString(id) + dateStr + levelStr;
-   return (long)StringToInteger(magicStr);
+   return (long)id;
 }
 
 //+------------------------------------------------------------------+
@@ -2316,7 +2312,7 @@ void OnTimer()
             int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
             if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast) && IsTimeAllowedForTradeType(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_lastTimer1Time))
             {
-               long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_m1DayStart, levelBelow, -1);
+               long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
                if(CountOrdersAndPositionsForMagic(magic) == 0)
                {
                   int overnightTradeCount = GetONtradeCount(kLast);
@@ -2348,7 +2344,7 @@ void OnTimer()
             int levelsIdx = FindLevelIndexByPriceAndTime(levelBelow6, g_lastTimer1Time);
             if(levelsIdx >= 0 && MeetsRuleset6EntryRule(levelsIdx, g_lastTimer1Time))
             {
-               long magic6 = BuildMagic(RULESET_ID_6, g_m1DayStart, levelBelow6, -1);
+               long magic6 = BuildMagic(RULESET_ID_6);
                if(CountOrdersAndPositionsForMagic(magic6) == 0)
                {
                   string categories = GetCategoriesFromLevels(levelsIdx);
@@ -2372,7 +2368,7 @@ void OnTimer()
             int levelsIdx7 = FindLevelIndexByPriceAndTime(levelBelow7, g_lastTimer1Time);
             if(levelsIdx7 >= 0 && MeetsBuyBounceEntryRule(levelsIdx7, g_lastTimer1Time, RULESET_7, 3, !levels[levelsIdx7].lastCandleInContact))
             {
-               long magic7 = BuildMagic(RULESET_ID_7, g_m1DayStart, levelBelow7, -1);
+               long magic7 = BuildMagic(RULESET_ID_7);
                if(CountOrdersAndPositionsForMagic(magic7) == 0)
                {
                   string categories = GetCategoriesFromLevels(levelsIdx7);
