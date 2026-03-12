@@ -3071,7 +3071,7 @@ void FinalizeCurrentCandle()
          FatalError("FinalizeCurrentCandle: could not open " + allFileName);
       FileSeek(fileHandleAll, 0, SEEK_END);
       if(FileTell(fileHandleAll) == 0)
-         FileWrite(fileHandleAll, "time", "O", "H", "L", "C");
+         FileWrite(fileHandleAll, "time", "O", "H", "L", "C", "spreadOf_lastTick");
       allCandlesFileHandle = fileHandleAll;
       allCandlesFileDate = candleDay;
    }
@@ -3192,9 +3192,11 @@ void FinalizeCurrentCandle()
 
    if(allCandlesFileHandle != INVALID_HANDLE)
    {
+      double spread = g_liveAsk - g_liveBid;
       FileWrite(allCandlesFileHandle,
          TimeToString(current_candle_time, TIME_DATE|TIME_MINUTES),
-         DoubleToString(candle_open, _Digits), DoubleToString(candle_high, _Digits), DoubleToString(candle_low, _Digits), DoubleToString(candle_close, _Digits));
+         DoubleToString(candle_open, _Digits), DoubleToString(candle_high, _Digits), DoubleToString(candle_low, _Digits), DoubleToString(candle_close, _Digits),
+         DoubleToString(spread, _Digits));
    }
 
    if(first_candle_time==0)
