@@ -580,6 +580,26 @@ string GetSessionForCandleTime(datetime t)
 }
 
 //+------------------------------------------------------------------+
+//| True if t is in the EOD log window (21:58–22:00 inclusive). Used to gate pullinghistory and other daily logs. |
+//+------------------------------------------------------------------+
+bool IsInEODLogWindow(datetime t)
+{
+   MqlDateTime mql;
+   TimeToStruct(t, mql);
+   int minOfDay = mql.hour * 60 + mql.min;
+   return (minOfDay >= 21*60+58 && minOfDay <= 22*60+0);
+}
+
+//+------------------------------------------------------------------+
+//| Set outDayStart = start of day (00:00) and outDateStr = YYYY.MM.DD for the given time. |
+//+------------------------------------------------------------------+
+void GetDayStartAndDateStr(datetime t, datetime &outDayStart, string &outDateStr)
+{
+   outDayStart = t - (t % 86400);
+   outDateStr  = TimeToString(outDayStart, TIME_DATE);
+}
+
+//+------------------------------------------------------------------+
 //| MFE/MAE from day M1: candles from 1 min after start to bar containing endTime. BUY: MFE=highest high, MAE=lowest low. SELL: MFE=lowest low, MAE=highest high. If range is 0 candles, use only the candle of end time. |
 //| mfeCandle, maeCandle = 1-based index of the candle in that range that had the MFE/MAE price (0 if not found). |
 //+------------------------------------------------------------------+
@@ -1500,6 +1520,51 @@ void UpdateDayProgress()
       g_dayProgress[barIdx].RTHtradeCount = RTHtotal;
       g_dayProgress[barIdx].RTHpointsSum = RTHpointsSum;
       g_dayProgress[barIdx].RTHprofitSum = RTHprofitSum;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Fill g_ONhighSoFarAtBar, g_ONlowSoFarAtBar, g_rthHighSoFarAtBar, g_rthLowSoFarAtBar for bars 0..g_barsInDay-1. |
+//| For each bar k: ON high/low = running max/min of ON bars up to k; RTH same. Before first ON/RTH bar, hasValue false. |
+//+------------------------------------------------------------------+
+void UpdateONandRTHHighLowSoFarAtBar()
+{
+   bool firstON = true, firstRTH = true;
+   double runONhigh = 0, runONlow = 0, runRTHhigh = 0, runRTHlow = 0;
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      if(g_session[barIdx] == "ON")
+      {
+         if(firstON) { runONhigh = g_m1Rates[barIdx].high; runONlow = g_m1Rates[barIdx].low; firstON = false; }
+         else        { runONhigh = MathMax(runONhigh, g_m1Rates[barIdx].high); runONlow = MathMin(runONlow, g_m1Rates[barIdx].low); }
+         g_ONhighSoFarAtBar[barIdx].hasValue = true;
+         g_ONhighSoFarAtBar[barIdx].value    = runONhigh;
+         g_ONlowSoFarAtBar[barIdx].hasValue = true;
+         g_ONlowSoFarAtBar[barIdx].value    = runONlow;
+      }
+      else
+      {
+         g_ONhighSoFarAtBar[barIdx].hasValue = !firstON;
+         g_ONhighSoFarAtBar[barIdx].value    = runONhigh;
+         g_ONlowSoFarAtBar[barIdx].hasValue  = !firstON;
+         g_ONlowSoFarAtBar[barIdx].value     = runONlow;
+      }
+      if(g_session[barIdx] == "RTH")
+      {
+         if(firstRTH) { runRTHhigh = g_m1Rates[barIdx].high; runRTHlow = g_m1Rates[barIdx].low; firstRTH = false; }
+         else         { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[barIdx].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[barIdx].low); }
+         g_rthHighSoFarAtBar[barIdx].hasValue = true;
+         g_rthHighSoFarAtBar[barIdx].value    = runRTHhigh;
+         g_rthLowSoFarAtBar[barIdx].hasValue  = true;
+         g_rthLowSoFarAtBar[barIdx].value     = runRTHlow;
+      }
+      else
+      {
+         g_rthHighSoFarAtBar[barIdx].hasValue = !firstRTH;
+         g_rthHighSoFarAtBar[barIdx].value    = runRTHhigh;
+         g_rthLowSoFarAtBar[barIdx].hasValue  = !firstRTH;
+         g_rthLowSoFarAtBar[barIdx].value     = runRTHlow;
+      }
    }
 }
 
@@ -2640,68 +2705,14 @@ void OnTimer()
       g_staticMarketContextPulledForDate = dayStartForContext;
    }
 
-   // Refresh day M1 and levels first; then "the bar that just closed" = last bar in day M1 (same source as all level-bar stats)
+   // Refresh day M1 and levels first; then set closed-candle OHLC from same source (or terminal fallback)
    UpdateDayM1AndLevelsExpanded();
-
-   if(g_barsInDay > 0)
-   {
-      // g_m1Rates is oldest-first: [0]=first bar of day, [g_barsInDay-1]=last; bar that just closed = second-to-last when >=2 bars
-      int kClosed = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
-      current_candle_time = g_m1Rates[kClosed].time;
-      candle_open  = g_m1Rates[kClosed].open;
-      candle_high  = g_m1Rates[kClosed].high;
-      candle_low   = g_m1Rates[kClosed].low;
-      candle_close = g_m1Rates[kClosed].close;
-   }
-   else
-   {
-      current_candle_time = iTime(_Symbol, PERIOD_M1, 1);
-      candle_open  = iOpen(_Symbol, PERIOD_M1, 1);
-      candle_high  = iHigh(_Symbol, PERIOD_M1, 1);
-      candle_low   = iLow(_Symbol, PERIOD_M1, 1);
-      candle_close = iClose(_Symbol, PERIOD_M1, 1);
-   }
+   SetClosedCandleOHLCFromDayM1OrTerminal();
 
    FinalizeCurrentCandle();
 
    // --- ON and RTH session high/low so far at each bar k (bars 0..k). Fresh each candle; log reads from g_*AtBar[k].
-   bool firstON = true, firstRTH = true;
-   double runONhigh = 0, runONlow = 0, runRTHhigh = 0, runRTHlow = 0;
-   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
-   {
-      if(g_session[barIdx] == "ON")
-      {
-         if(firstON) { runONhigh = g_m1Rates[barIdx].high; runONlow = g_m1Rates[barIdx].low; firstON = false; }
-         else        { runONhigh = MathMax(runONhigh, g_m1Rates[barIdx].high); runONlow = MathMin(runONlow, g_m1Rates[barIdx].low); }
-         g_ONhighSoFarAtBar[barIdx].hasValue = true;
-         g_ONhighSoFarAtBar[barIdx].value    = runONhigh;
-         g_ONlowSoFarAtBar[barIdx].hasValue = true;
-         g_ONlowSoFarAtBar[barIdx].value    = runONlow;
-      }
-      else
-      {
-         g_ONhighSoFarAtBar[barIdx].hasValue = !firstON;
-         g_ONhighSoFarAtBar[barIdx].value    = runONhigh;
-         g_ONlowSoFarAtBar[barIdx].hasValue  = !firstON;
-         g_ONlowSoFarAtBar[barIdx].value     = runONlow;
-      }
-      if(g_session[barIdx] == "RTH")
-      {
-         if(firstRTH) { runRTHhigh = g_m1Rates[barIdx].high; runRTHlow = g_m1Rates[barIdx].low; firstRTH = false; }
-         else         { runRTHhigh = MathMax(runRTHhigh, g_m1Rates[barIdx].high); runRTHlow = MathMin(runRTHlow, g_m1Rates[barIdx].low); }
-         g_rthHighSoFarAtBar[barIdx].hasValue = true;
-         g_rthHighSoFarAtBar[barIdx].value    = runRTHhigh;
-         g_rthLowSoFarAtBar[barIdx].hasValue  = true;
-         g_rthLowSoFarAtBar[barIdx].value     = runRTHlow;
-      }
-      else
-      {
-         g_rthHighSoFarAtBar[barIdx].hasValue = !firstRTH;
-         g_rthHighSoFarAtBar[barIdx].value    = runRTHhigh;
-         g_rthLowSoFarAtBar[barIdx].hasValue  = !firstRTH;
-         g_rthLowSoFarAtBar[barIdx].value     = runRTHlow;
-      }
-   }
+   UpdateONandRTHHighLowSoFarAtBar();
 
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    UpdateTradeResultsForDay();
@@ -2718,18 +2729,18 @@ void OnTimer()
       // g_m1Rates is oldest-first: [0]=first bar of day
       g_ONopen = g_m1Rates[0].open;
    }
-   // --- Logging only in time window (performance)
+   // --- Logging only in EOD time window (21:58–22:00) when testing pull M1 history
    if(InpTestingPullM1History)
    {
-      MqlDateTime mtTest;
-      TimeToStruct(g_lastTimer1Time, mtTest);
-      int minOfDay = mtTest.hour * 60 + mtTest.min;
-      datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
-      string dateStr = TimeToString(dayStart, TIME_DATE);
-      bool inLogWindow = (minOfDay >= 21*60+58 && minOfDay <= 22*60+0);  // 21:58, 21:59, 22:00 (last bar may be 21:58 on Friday)
-      if(inLogWindow && g_barsInDay > 0)
+      datetime dayStart;
+      string dateStr;
+      GetDayStartAndDateStr(g_lastTimer1Time, dayStart, dateStr);
+      if(IsInEODLogWindow(g_lastTimer1Time) && g_barsInDay > 0)
       {
          int kLast = g_barsInDay - 1;
+         MqlDateTime mtEod;
+         TimeToStruct(g_lastTimer1Time, mtEod);
+         int minOfDay = mtEod.hour * 60 + mtEod.min;
          // Daily summary (Day_activeLevels, EOD account, AllHistoryOrders, AllHistoryDeals) — once per day when file missing
          if(dailyEODlog_DailySummary && !FileIsExist(dateStr + "-Day_activeLevels.csv"))
             WriteDailySummary();
@@ -3099,6 +3110,31 @@ void OnTimer()
          }
          }
       }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Set closed-candle globals (current_candle_time, candle_open/high/low/close) from day M1 or terminal. |
+//| When g_barsInDay > 0 uses g_m1Rates (bar that just closed = second-to-last); else uses terminal M1 bar 1. |
+//+------------------------------------------------------------------+
+void SetClosedCandleOHLCFromDayM1OrTerminal()
+{
+   if(g_barsInDay > 0)
+   {
+      int kClosed = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
+      current_candle_time = g_m1Rates[kClosed].time;
+      candle_open  = g_m1Rates[kClosed].open;
+      candle_high  = g_m1Rates[kClosed].high;
+      candle_low   = g_m1Rates[kClosed].low;
+      candle_close = g_m1Rates[kClosed].close;
+   }
+   else
+   {
+      current_candle_time = iTime(_Symbol, PERIOD_M1, 1);
+      candle_open  = iOpen(_Symbol, PERIOD_M1, 1);
+      candle_high  = iHigh(_Symbol, PERIOD_M1, 1);
+      candle_low   = iLow(_Symbol, PERIOD_M1, 1);
+      candle_close = iClose(_Symbol, PERIOD_M1, 1);
    }
 }
 
