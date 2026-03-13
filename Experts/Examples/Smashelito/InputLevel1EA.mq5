@@ -209,7 +209,8 @@ struct LevelInfoRow
 };
 #define MAX_LEVEL_ROWS 2000
 LevelInfoRow g_levels[MAX_LEVEL_ROWS];
-int g_levelsTotalCount = 0;  // total levels (all dates); subset for today → g_levelsTodayCount
+int g_levelsTotalCount = 0;  // levels for current day only (reloaded each new day)
+string g_levelsLoadedForDate = "";  // YYYY.MM.DD for which g_levels was loaded (empty = not yet loaded)
 
 //--- Levels expanded (built in testing loop: each level of the day vs whole price chart; newway_Diff_CloseToLevel per bar)
 struct LevelExpandedRow
@@ -255,6 +256,8 @@ MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of 
 int g_barsInDay = 0;
 datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
 double g_ONopen = 0.0;      // Open of first (oldest) candle of the day; set when we have at least 1 bar for the day
+double g_todayRTHopen = 0.0;       // RTH open (14:30 or 15:30 bar open) for current day when available
+bool   g_todayRTHopenValid = false; // true once we have the RTH open bar for the day (set in UpdateDayM1AndLevelsExpanded; log as "unknown" when false)
 // Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 21:59-22:00 window)
 double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high; 0 if none
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
@@ -677,6 +680,64 @@ double GetRTHopenCurrentDay()
 }
 
 //+------------------------------------------------------------------+
+//| Safe getter for today's RTH open. Returns true and sets outRthOpen only when g_todayRTHopenValid; otherwise false (do not use outRthOpen). |
+//+------------------------------------------------------------------+
+bool GetTodayRTHopenIfValid(double &outRthOpen)
+{
+   if(!g_todayRTHopenValid) return false;
+   outRthOpen = g_todayRTHopen;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Find today's RTH open bar in g_m1Rates (14:30 on desync dates, else 15:30) and assign g_todayRTHopen, g_todayRTHopenValid. |
+//+------------------------------------------------------------------+
+void AssignTodayRTHopenFromM1Rates(const string &dateStr)
+{
+   g_todayRTHopenValid = false;
+   if(g_barsInDay <= 0) return;
+   bool useDesync = bool_RTHsession_Is_DaylightSavingsDesync(dateStr);
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      MqlDateTime mqlTime;
+      TimeToStruct(g_m1Rates[barIdx].time, mqlTime);
+      if(useDesync && mqlTime.hour == 14 && mqlTime.min == 30)
+         { g_todayRTHopen = g_m1Rates[barIdx].open; g_todayRTHopenValid = true; return; }
+      if(!useDesync && mqlTime.hour == 15 && mqlTime.min == 30)
+         { g_todayRTHopen = g_m1Rates[barIdx].open; g_todayRTHopenValid = true; return; }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| If we have valid today RTH open, add it as a tertiary level (todayRTHopen) unless already present or too close to another level. |
+//+------------------------------------------------------------------+
+void TryAddTodayRTHopenLevel(const string &dateStr)
+{
+   if(!g_todayRTHopenValid) return;
+   const string todayStr = dateStr;
+   bool alreadyAdded = false;
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+      if(g_levels[levelIdx].tag == "todayRTHopen" && g_levels[levelIdx].startStr == todayStr && g_levels[levelIdx].endStr == todayStr)
+      { alreadyAdded = true; break; }
+   if(alreadyAdded) return;
+   bool tooClose = false;
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+      if(g_levels[levelIdx].startStr <= todayStr && todayStr <= g_levels[levelIdx].endStr &&
+         MathAbs(g_levels[levelIdx].levelPrice - g_todayRTHopen) < tertiaryLevel_tooTight_toAdd_proximity)
+      { tooClose = true; break; }
+   if(tooClose) return;
+   if(g_levelsTotalCount >= MAX_LEVEL_ROWS)
+      FatalError("todayRTHopen: RTH open bar found but g_levels full (g_levelsTotalCount=" + IntegerToString(g_levelsTotalCount) + ")");
+   AddLevel(todayStr + "_todayRTHopen", g_todayRTHopen, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
+   g_levels[g_levelsTotalCount].startStr   = todayStr;
+   g_levels[g_levelsTotalCount].endStr     = todayStr;
+   g_levels[g_levelsTotalCount].levelPrice = g_todayRTHopen;
+   g_levels[g_levelsTotalCount].categories = "daily_tertiary_todayRTHopen";
+   g_levels[g_levelsTotalCount].tag        = "todayRTHopen";
+   g_levelsTotalCount++;
+}
+
+//+------------------------------------------------------------------+
 //| True if bar time (open time) is in RTHIB window: first hour of RTH (14:30–15:30 on desync, else 15:30–16:30). |
 //+------------------------------------------------------------------+
 bool IsBarRTHIB(datetime barTime)
@@ -920,9 +981,10 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
 }
 
 //+------------------------------------------------------------------+
-//| Load levels CSV from Terminal/Common/Files. Format: start,end,levelPrice,categories,tag (header on first line). start/end YYYY.MM.DD. |
+//| Load levels for a single day from CSV. Only rows where startStr <= dateStr <= endStr are added. |
+//| Format: start,end,levelPrice,categories,tag (header on first line). start/end YYYY.MM.DD. |
 //+------------------------------------------------------------------+
-bool LoadLevels()
+bool LoadLevelsForDate(const string &dateStr)
 {
    g_levelsTotalCount = 0;
    int fileHandle = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
@@ -938,15 +1000,20 @@ bool LoadLevels()
       if(StringLen(line) == 0) continue;
       string parts[];
       if(StringSplit(line, ',', parts) < 5) continue;
-      g_levels[g_levelsTotalCount].startStr   = parts[0];
-      g_levels[g_levelsTotalCount].endStr     = parts[1];
-      g_levels[g_levelsTotalCount].levelPrice = StringToDouble(parts[2]);
-      g_levels[g_levelsTotalCount].categories = parts[3];
-      g_levels[g_levelsTotalCount].tag        = parts[4];
-      g_levelsTotalCount++;
+      string startStr = parts[0];
+      string endStr   = parts[1];
+      if(startStr <= dateStr && dateStr <= endStr)
+      {
+         g_levels[g_levelsTotalCount].startStr   = startStr;
+         g_levels[g_levelsTotalCount].endStr     = endStr;
+         g_levels[g_levelsTotalCount].levelPrice = StringToDouble(parts[2]);
+         g_levels[g_levelsTotalCount].categories = parts[3];
+         g_levels[g_levelsTotalCount].tag        = parts[4];
+         g_levelsTotalCount++;
+      }
    }
    FileClose(fileHandle);
-   return (g_levelsTotalCount > 0);
+   return true;  // file read ok (count may be 0 if no levels for this day)
 }
 
 //+------------------------------------------------------------------+
@@ -1096,6 +1163,19 @@ void UpdateDayM1AndLevelsExpanded()
    datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    string dateStr = TimeToString(dayStart, TIME_DATE);  // YYYY.MM.DD (MT5 default)
    string dayKey = dateStr;  // levels stored as YYYY.MM.DD
+
+   // On new day: reload levels for this day only (by time range); close level log handles before rebuild
+   if(dateStr != g_levelsLoadedForDate)
+   {
+      for(int i = 0; i < ArraySize(levels); i++)
+         if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
+            { FileClose(levels[i].logRawEv_fileHandle); levels[i].logRawEv_fileHandle = INVALID_HANDLE; }
+      if(!LoadLevelsForDate(dateStr))
+         return;  // file open failed; keep previous levels
+      g_levelsLoadedForDate = dateStr;
+      BuildLevelsFromCSV();
+   }
+
    MqlDateTime mtDay;
    TimeToStruct(dayStart, mtDay);
 
@@ -1123,46 +1203,9 @@ void UpdateDayM1AndLevelsExpanded()
    g_barsInDay = barsInDay;
    g_m1DayStart = dayStart;
 
-   // Ensure todayRTHopen is in g_levels when we have the RTH open bar (14:30 on desync dates, else 15:30)
-   {
-      double openRTH = 0;
-      bool useDesync = bool_RTHsession_Is_DaylightSavingsDesync(dateStr);
-      for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
-      {
-         MqlDateTime mqlTime;
-         TimeToStruct(g_m1Rates[barIdx].time, mqlTime);
-         if(useDesync && mqlTime.hour == 14 && mqlTime.min == 30)
-            { openRTH = g_m1Rates[barIdx].open; break; }
-         if(!useDesync && mqlTime.hour == 15 && mqlTime.min == 30)
-            { openRTH = g_m1Rates[barIdx].open; break; }
-      }
-      if(openRTH != 0)
-      {
-         string todayStr = dateStr;
-         bool alreadyAdded = false;
-         for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
-            if(g_levels[levelIdx].tag == "todayRTHopen" && g_levels[levelIdx].startStr == todayStr && g_levels[levelIdx].endStr == todayStr)
-            { alreadyAdded = true; break; }
-         bool tooClose = false;
-         if(!alreadyAdded)
-            for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
-               if(g_levels[levelIdx].startStr <= todayStr && todayStr <= g_levels[levelIdx].endStr &&
-                  MathAbs(g_levels[levelIdx].levelPrice - openRTH) < tertiaryLevel_tooTight_toAdd_proximity)
-               { tooClose = true; break; }
-         if(!alreadyAdded && !tooClose && g_levelsTotalCount < MAX_LEVEL_ROWS)
-         {
-            AddLevel(todayStr + "_todayRTHopen", openRTH, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
-            g_levels[g_levelsTotalCount].startStr   = todayStr;
-            g_levels[g_levelsTotalCount].endStr     = todayStr;
-            g_levels[g_levelsTotalCount].levelPrice = openRTH;
-            g_levels[g_levelsTotalCount].categories = "daily_tertiary_todayRTHopen";
-            g_levels[g_levelsTotalCount].tag        = "todayRTHopen";
-            g_levelsTotalCount++;
-         }
-         else if(!alreadyAdded && !tooClose && g_levelsTotalCount >= MAX_LEVEL_ROWS)
-            FatalError("todayRTHopen: RTH open bar found but g_levels full (g_levelsTotalCount=" + IntegerToString(g_levelsTotalCount) + ")");
-      }
-   }
+   // Ensure todayRTHopen is in g_levels when we have the RTH open bar (14:30 on desync dates, else 15:30). Use globals as single source for level and pullinghistory.
+   AssignTodayRTHopenFromM1Rates(dateStr);
+   TryAddTodayRTHopenLevel(dateStr);
 
    // Add PD RTH Close as a level for today only if static context was pulled for this day and no level is within proximity
    if(g_staticMarketContextPulledForDate == g_m1DayStart && g_staticMarketContext.PDCpreviousDayRTHClose > 0.0)
@@ -2101,12 +2144,15 @@ int OnInit()
    else
       Print("Calendar loaded: ", g_calendarCount, " rows from ", InpCalendarFile);
 
-   if(!LoadLevels())
+   datetime dayStartInit = TimeCurrent() - (TimeCurrent() % 86400);
+   string todayStrInit = TimeToString(dayStartInit, TIME_DATE);
+   if(!LoadLevelsForDate(todayStrInit))
    {
       Print("Levels file not loaded: ", InpLevelsFile, " (place CSV in Terminal/Common/Files)");
       return(INIT_FAILED);
    }
-   Print("Levels loaded: ", g_levelsTotalCount, " rows from ", InpLevelsFile);
+   g_levelsLoadedForDate = todayStrInit;
+   Print("Levels loaded for ", todayStrInit, ": ", g_levelsTotalCount, " rows from ", InpLevelsFile);
    BuildLevelsFromCSV();
 
    return(INIT_SUCCEEDED);
@@ -2586,9 +2632,6 @@ void OnTimer()
 
    g_lastBarTime = barNowM1;
 
-   if(maemfe_testing)
-      CloseAnyEAPositionThatIsXMinutesOld(20);
-
    // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
    datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    if(g_staticMarketContextPulledForDate != dayStartForContext)
@@ -2704,13 +2747,18 @@ void OnTimer()
                      "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum",
                      "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum",
                      "ONhighSoFar", "ONlowSoFar", "rthHighSoFar", "rthLowSoFar",
+                     "RTHopen",
                      "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
+         datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
          for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
             {
                if(!g_ONhighSoFarAtBar[barIdx].hasValue || !g_ONlowSoFarAtBar[barIdx].hasValue)
                   FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(barIdx) + " time=" + TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES));
-               string rthH = g_rthHighSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthHighSoFarAtBar[barIdx].value, _Digits) : "";
-               string rthL = g_rthLowSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthLowSoFarAtBar[barIdx].value, _Digits) : "";
+               bool barBeforeRTHopen = (g_m1Rates[barIdx].time < rthOpenBarTime);
+               string rthH = barBeforeRTHopen ? "unknown" : (g_rthHighSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthHighSoFarAtBar[barIdx].value, _Digits) : "unknown");
+               string rthL = barBeforeRTHopen ? "unknown" : (g_rthLowSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthLowSoFarAtBar[barIdx].value, _Digits) : "unknown");
+               double rthOpenVal = 0.0;
+               string rthOpenStr = (GetTodayRTHopenIfValid(rthOpenVal) && !barBeforeRTHopen) ? DoubleToString(rthOpenVal, _Digits) : "unknown";
                FileWrite(fileHandle, TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES),
                      DoubleToString(g_m1Rates[barIdx].open, _Digits), DoubleToString(g_m1Rates[barIdx].high, _Digits), DoubleToString(g_m1Rates[barIdx].low, _Digits), DoubleToString(g_m1Rates[barIdx].close, _Digits),
                      DoubleToString(g_levelAboveH[barIdx], 0), DoubleToString(g_levelBelowL[barIdx], 0), g_session[barIdx],
@@ -2718,6 +2766,7 @@ void OnTimer()
                      DoubleToString(g_dayProgress[barIdx].ONwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].ONtradeCount), DoubleToString(g_dayProgress[barIdx].ONpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].ONprofitSum, 2),
                      DoubleToString(g_dayProgress[barIdx].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].RTHtradeCount), DoubleToString(g_dayProgress[barIdx].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].RTHprofitSum, 2),
                      DoubleToString(g_ONhighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[barIdx].value, _Digits), rthH, rthL,
+                     rthOpenStr,
                      DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
             FileClose(fileHandle);
@@ -2962,15 +3011,16 @@ void OnTimer()
                FileWrite(fileHandleL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange", "ON_O_wasAboveL", "RTH_O_wasAboveL", "ONtradeCount_L", "ONwinRate_L", "ONpointsSum_L", "ONprofitSum_L", "RTHtradeCount_L", "RTHwinRate_L", "RTHpointsSum_L", "RTHprofitSum_L");
                double lvl = g_levelsExpanded[levelIdx].levelPrice;
                double onOpen = g_m1Rates[0].open;
-               double rthOpen = GetRTHopenCurrentDay();
+               double rthOpenVal = 0.0;
+               bool haveRthOpen = GetTodayRTHopenIfValid(rthOpenVal);
                for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
                {
                   string highestUp   = GetHighestDiffInWindowString(lvl, barIdx, HighestDiffRange_Log, true);
                   string highestDown = GetHighestDiffInWindowString(lvl, barIdx, HighestDiffRange_Log, false);
                   bool onKnown   = (barIdx > 0);
-                  bool rthKnown  = (GetSessionForCandleTime(g_levelsExpanded[levelIdx].times[barIdx]) != "ON");
+                  bool rthKnown  = haveRthOpen && (GetSessionForCandleTime(g_levelsExpanded[levelIdx].times[barIdx]) != "ON");
                   string onAboveStr  = GetOpenWasAboveLevelString(onOpen, lvl, onKnown);
-                  string rthAboveStr = GetOpenWasAboveLevelString(rthOpen, lvl, rthKnown);
+                  string rthAboveStr = GetOpenWasAboveLevelString(rthOpenVal, lvl, rthKnown);
                   FileWrite(fileHandleL, TimeToString(g_levelsExpanded[levelIdx].times[barIdx], TIME_DATE|TIME_MINUTES),
                      DoubleToString(g_levelsExpanded[levelIdx].diffs[barIdx], _Digits),
                      DoubleToString(g_m1Rates[barIdx].open, _Digits), DoubleToString(g_m1Rates[barIdx].high, _Digits), DoubleToString(g_m1Rates[barIdx].low, _Digits), DoubleToString(g_m1Rates[barIdx].close, _Digits),
