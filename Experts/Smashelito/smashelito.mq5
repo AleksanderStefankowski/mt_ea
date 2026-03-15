@@ -61,30 +61,6 @@ bool     allTrades_enable_perSession_limits = false;  // if true: apply per-sess
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
-//--- Ruleset 6: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset6_LotSize.
-bool     InpRuleset6_Enable = false;   // disable trade. if false, ruleset 6 does not place orders
-double   InpRuleset6_PriceOffsetPips  = 7.0;   // order price = level + this many pips
-double   InpRuleset6_TPPips           = 8.0;   // TP (daily); ×10 = pips from order price
-double   InpRuleset6_SLPips           = 8.0;   // SL (daily); ×10 = pips
-double   InpRuleset6_TPPips_Weekly    = 10.0;  // TP when level categories contain "weekly"
-double   InpRuleset6_SLPips_Weekly    = 10.0;  // SL when level categories contain "weekly"
-string   InpRuleset6_BannedRanges = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (same as ruleset 5)
-//--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
-int      InpRuleset6_TradeSizePct = 50;   // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
-
-
-//--- Ruleset 7: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset7_LotSize.
-bool     InpRuleset7_Enable = false;   // if false, ruleset 7 does not place orders
-double   InpRuleset7_PriceOffsetPips  = 5.0;   // order price = level + this many pips
-double   InpRuleset7_TPPips           = 6.0;   // TP (daily); ×10 = pips from order price
-double   InpRuleset7_SLPips           = 2.0;   // SL (daily); ×10 = pips
-double   InpRuleset7_TPPips_Weekly    = 8.0;   // TP when level categories contain "weekly"
-double   InpRuleset7_SLPips_Weekly    = 3.0;   // SL when level categories contain "weekly"
-string   InpRuleset7_BannedRanges = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (same as rulesets 5 and 6)
-//--- Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset
-int      InpRuleset7_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
-
-
 //--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
 bool     InpRuleset5_Enable = true;   // if false, ruleset 5 does not place orders
 int      InpRuleset5_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
@@ -112,7 +88,7 @@ struct TradeTypeConfig
    bool   usePrice;        // false = no price/level distance check
    string bannedRangesStr; // "startH,startM,endH,endM;..." e.g. "0,0,2,59;20,0,23,59"; empty = no time filter
 };
-TradeTypeConfig g_tradeConfig[60];  // index by ruleset id (55, 56, 57)
+TradeTypeConfig g_tradeConfig[60];  // index by ruleset id (55, 12)
 const int MAX_BANNED_RANGES = 10;
 int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges
 int g_bannedRangesCount = 0;
@@ -142,16 +118,9 @@ Level levels[];
 //--- Ruleset support (magic, logging)
 const long EA_MAGIC = 47001; // unique magic for this EA's orders
 
-// Ruleset IDs used for time filter and magic (56 = bounceCount==1 style, 57 = bounceCount==3 style)
-enum RULESET_ID
-{
-   RULESET_6 = 56,
-   RULESET_7 = 57
-};
-
 // List of all known EA trade (ruleset) IDs that can open positions. Used e.g. by CloseAnyEAPositionThatIsXMinutesOld.
-const int EA_KNOWN_RULESET_IDS[] = { 55, 56, 57, 12 };
-#define EA_KNOWN_RULESET_COUNT 4
+const int EA_KNOWN_RULESET_IDS[] = { 55, 12 };
+#define EA_KNOWN_RULESET_COUNT 2
 
 CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
@@ -385,7 +354,7 @@ int FindOrAddPerTradeMagic(long keyFirstDigit)
    return newIdx;
 }
 
-// Key for per-ruleset summary grouping. Returns ruleset id (55, 56, 57) so each gets its own row.
+// Key for per-ruleset summary grouping. Returns ruleset id (55, 12) so each gets its own row.
 long GetRulesetKeyFromMagic(long magic)
 {
    return (long)GetRulesetIdFromMagic(magic);
@@ -2155,14 +2124,6 @@ string GetCategoriesFromExpanded(int levelIdx)
 }
 
 //+------------------------------------------------------------------+
-//| Categories string for ruleset 6/7 (levels[].tagsCSV). Returns "" if invalid. |
-//+------------------------------------------------------------------+
-string GetCategoriesFromLevels(int levelsIdx)
-{
-   if(levelsIdx < 0 || levelsIdx >= ArraySize(levels)) return "";
-   return levels[levelsIdx].tagsCSV;
-}
-
 //+------------------------------------------------------------------+
 //| True if ruleset 5 entry conditions: HighestDiffUp > min, overlapC==0, session ON. Uses g_levelsExpanded[levelIdx], kLast. |
 //+------------------------------------------------------------------+
@@ -2180,7 +2141,7 @@ bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Unified order comment: $ (int)levelPrice takeProfitVal stopLossVal orderPrice commentRulesetId. Used by rulesets 5, 6, 7. |
+//| Unified order comment: $ (int)levelPrice takeProfitVal stopLossVal orderPrice commentRulesetId. Used by ruleset 5. |
 //+------------------------------------------------------------------+
 string BuildUnifiedOrderComment(int levelPriceInt, double takeProfitVal, double stopLossVal, double orderPrice, int commentRulesetId)
 {
@@ -2217,8 +2178,17 @@ bool IsTimeAllowedForTradeType(int rulesetId, datetime atTime)
 }
 
 //+------------------------------------------------------------------+
-//| True if level at levelsIdx meets ruleset 6/7 bounce entry: bounceCount==requiredBounceCount, bias_long, no_contact, candlesPassedSinceLastBounce < 65, time allowed for rulesetId. |
-//| no_contact is passed in (from current candle in_contact at close, or levels[].lastCandleInContact for OnTimer). |
+//| Categories string for a level (levels[].tagsCSV). Returns "" if invalid. Currently not used. |
+//+------------------------------------------------------------------+
+string GetCategoriesFromLevels(int levelsIdx)
+{
+   if(levelsIdx < 0 || levelsIdx >= ArraySize(levels)) return "";
+   return levels[levelsIdx].tagsCSV;
+}
+
+//+------------------------------------------------------------------+
+//| True if level at levelsIdx meets bounce entry: bounceCount==requiredBounceCount, bias_long, no_contact, candlesPassedSinceLastBounce < 65, time allowed for rulesetId. |
+//| no_contact is passed in (from current candle in_contact at close, or levels[].lastCandleInContact for OnTimer). Currently not used. |
 //+------------------------------------------------------------------+
 bool MeetsBuyBounceEntryRule(int levelsIdx, datetime atTime, int rulesetId, int requiredBounceCount, bool no_contact)
 {
@@ -2226,15 +2196,6 @@ bool MeetsBuyBounceEntryRule(int levelsIdx, datetime atTime, int rulesetId, int 
    bool bias_long = (levels[levelsIdx].dailyBias > 0);
    bool entryRule = (levels[levelsIdx].bounceCount == requiredBounceCount) && bias_long && no_contact && (levels[levelsIdx].candlesPassedSinceLastBounce < 65);
    return entryRule && IsTimeAllowedForTradeType(rulesetId, atTime);
-}
-
-//+------------------------------------------------------------------+
-//| True if level at levelsIdx meets ruleset 6 entry rule (bounceCount==1, bias_long, no_contact, candlesPassedSinceLastBounce < 65) and time allowed at atTime. |
-//+------------------------------------------------------------------+
-bool MeetsRuleset6EntryRule(int levelsIdx, datetime atTime)
-{
-   if(levelsIdx < 0 || levelsIdx >= ArraySize(levels)) return false;
-   return MeetsBuyBounceEntryRule(levelsIdx, atTime, RULESET_6, 1, !levels[levelsIdx].lastCandleInContact);
 }
 
 //+------------------------------------------------------------------+
@@ -2276,8 +2237,6 @@ double GetTradeLotForRuleset(int rulesetId)
    double base = g_global_base_trade_size;
    int pct = 100;
    if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 5");
-   else if(rulesetId == 56) pct = ValidateTradeSizePct(InpRuleset6_TradeSizePct, "Ruleset 6");
-   else if(rulesetId == 57) pct = ValidateTradeSizePct(InpRuleset7_TradeSizePct, "Ruleset 7");
    else if(rulesetId == 12) pct = ValidateTradeSizePct(InpRuleset12_TradeSizePct, "Ruleset 12");
    double lot = base * ((double)pct / 100.0);
    double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
@@ -2431,7 +2390,7 @@ void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
 }
 
 //+------------------------------------------------------------------+
-//| Ruleset id from magic. Known IDs 55,56,57,12 (or legacy 5,6,7) return full id; otherwise 0. |
+//| Ruleset id from magic. Known IDs 55,12 (or legacy 5,6,7) return full id; otherwise 0. |
 //+------------------------------------------------------------------+
 int GetRulesetIdFromMagic(long magicNumber)
 {
@@ -2670,16 +2629,7 @@ int OnInit()
    ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 
    // Ruleset config: useLevel/usePrice; bannedRangesStr applied when non-empty
-   g_tradeConfig[RULESET_6].useLevel = true;
-   g_tradeConfig[RULESET_6].usePrice = true;
-   g_tradeConfig[RULESET_6].bannedRangesStr = InpRuleset6_BannedRanges;
-
    g_tradeConfig[55].bannedRangesStr = InpRuleset5_BannedRanges;
-
-   g_tradeConfig[RULESET_7].useLevel = true;
-   g_tradeConfig[RULESET_7].usePrice = true;
-   g_tradeConfig[RULESET_7].bannedRangesStr = InpRuleset7_BannedRanges;
-
    g_tradeConfig[12].bannedRangesStr = InpRuleset12_BannedRanges;
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
@@ -3059,7 +3009,7 @@ void OnTimer()
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(20);
 
-   // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 5 cleanFirstBounceON; then ruleset 6.
+   // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 5 cleanFirstBounceON.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
    {
       const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 55;
@@ -3088,56 +3038,6 @@ void OnTimer()
                      if(PlaceBuyLimitAtLevel(levelBelow, offsetPips5, sl, tp, 15, GetTradeLotForRuleset(RULESET_ID_CLEAN_FIRST_BOUNCE_ON), magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
                         WriteTradeLogPendingOrder(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, levelBelow, offsetPips5, sl, tp, magic);
                   }
-               }
-            }
-         }
-      }
-
-      // Ruleset 6: every OnTimer, live price near levelBelow; entry (bounceCount==1, bias_long, no_contact, time filter); buy limit at level+offset.
-      const int RULESET_ID_6 = 56;
-      if(InpRuleset6_Enable)
-      {
-         double levelBelow6 = GetLevelBelow(g_barsInDay - 1);
-         if(IsLivePriceNearLevel(levelBelow6, 3.0))
-         {
-            int levelsIdx = FindLevelIndexByPriceAndTime(levelBelow6, g_lastTimer1Time);
-            if(levelsIdx >= 0 && MeetsRuleset6EntryRule(levelsIdx, g_lastTimer1Time))
-            {
-               long magic6 = BuildMagic(RULESET_ID_6);
-               if(CanPlaceNewOrderForMagic(magic6))
-               {
-                  string categories = GetCategoriesFromLevels(levelsIdx);
-                  bool weekly = LevelIsWeekly(categories);
-                  double tp, sl;
-                  if(weekly) { tp = InpRuleset6_TPPips_Weekly * 10.0; sl = InpRuleset6_SLPips_Weekly * 10.0; }
-                  else       { tp = InpRuleset6_TPPips * 10.0;      sl = InpRuleset6_SLPips * 10.0;      }
-                  if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, 30, GetTradeLotForRuleset(RULESET_ID_6), magic6, RULESET_ID_6))
-                     WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, magic6);
-               }
-            }
-         }
-      }
-
-      // Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset.
-      const int RULESET_ID_7 = 57;
-      if(InpRuleset7_Enable)
-      {
-         double levelBelow7 = GetLevelBelow(g_barsInDay - 1);
-         if(IsLivePriceNearLevel(levelBelow7, 3.0))
-         {
-            int levelsIdx7 = FindLevelIndexByPriceAndTime(levelBelow7, g_lastTimer1Time);
-            if(levelsIdx7 >= 0 && MeetsBuyBounceEntryRule(levelsIdx7, g_lastTimer1Time, RULESET_7, 3, !levels[levelsIdx7].lastCandleInContact))
-            {
-               long magic7 = BuildMagic(RULESET_ID_7);
-               if(CanPlaceNewOrderForMagic(magic7))
-               {
-                  string categories = GetCategoriesFromLevels(levelsIdx7);
-                  bool weekly = LevelIsWeekly(categories);
-                  double tp, sl;
-                  if(weekly) { tp = InpRuleset7_TPPips_Weekly * 10.0; sl = InpRuleset7_SLPips_Weekly * 10.0; }
-                  else       { tp = InpRuleset7_TPPips * 10.0;      sl = InpRuleset7_SLPips * 10.0;      }
-                  if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, 30, GetTradeLotForRuleset(RULESET_ID_7), magic7, RULESET_ID_7))
-                     WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, magic7);
                }
             }
          }
@@ -3838,7 +3738,7 @@ void FinalizeCurrentCandle()
                IntegerToString(levels[i].recoverCount));
          }
 
-         // --- Flow B: ruleset 6/7 place orders from OnTimer.
+         // --- Flow B: ruleset 5/12 place orders from OnTimer.
       }
    }
 
