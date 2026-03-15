@@ -411,6 +411,9 @@ OptionalDouble g_rthLowSoFarAtBar[MAX_BARS_IN_DAY];
 //--- Day high/low so far at each bar k (bars 0..k, whole day). Filled every OnTimer; log reads from here.
 OptionalDouble g_dayHighSoFarAtBar[MAX_BARS_IN_DAY];
 OptionalDouble g_dayLowSoFarAtBar[MAX_BARS_IN_DAY];
+//--- Day broke PDH/PDL so far at each bar: true if dayHighSoFar>PDH / dayLowSoFar<PDL (false when PDH/PDL unavailable).
+bool g_dayBrokePDHAtBar[MAX_BARS_IN_DAY];
+bool g_dayBrokePDLAtBar[MAX_BARS_IN_DAY];
 //--- IB (first hour of RTH) high/low: unknown before IB ends; after 16:30 (normal) or 15:30 (desync) = max/min of IB bars. Filled every OnTimer.
 OptionalDouble g_IBhighAtBar[MAX_BARS_IN_DAY];
 OptionalDouble g_IBlowAtBar[MAX_BARS_IN_DAY];
@@ -717,6 +720,32 @@ string GetIsGapDownDayString(datetime tradeOpenTime)
    if(rthOpen > pdc) return "gapUp_Day";
    if(rthOpen < pdc) return "gapDown_Day";
    return "unknown";
+}
+
+//+------------------------------------------------------------------+
+//| Day broke PDH at trade open time. Returns "true"/"false" based on g_dayBrokePDHAtBar; "unknown" if bar not found. |
+//+------------------------------------------------------------------+
+string GetDayBrokePDHAtTradeOpenTime(datetime tradeOpenTime)
+{
+   datetime barOpenTime = tradeOpenTime - (tradeOpenTime % 60);
+   int barIdx = -1;
+   for(int i = 0; i < g_barsInDay; i++)
+      if(g_m1Rates[i].time == barOpenTime) { barIdx = i; break; }
+   if(barIdx < 0) return "unknown";
+   return g_dayBrokePDHAtBar[barIdx] ? "true" : "false";
+}
+
+//+------------------------------------------------------------------+
+//| Day broke PDL at trade open time. Returns "true"/"false" based on g_dayBrokePDLAtBar; "unknown" if bar not found. |
+//+------------------------------------------------------------------+
+string GetDayBrokePDLAtTradeOpenTime(datetime tradeOpenTime)
+{
+   datetime barOpenTime = tradeOpenTime - (tradeOpenTime % 60);
+   int barIdx = -1;
+   for(int i = 0; i < g_barsInDay; i++)
+      if(g_m1Rates[i].time == barOpenTime) { barIdx = i; break; }
+   if(barIdx < 0) return "unknown";
+   return g_dayBrokePDLAtBar[barIdx] ? "true" : "false";
 }
 
 //+------------------------------------------------------------------+
@@ -1667,6 +1696,10 @@ void UpdateONandRTHHighLowSoFarAtBar()
       g_dayHighSoFarAtBar[barIdx].value    = runDayHigh;
       g_dayLowSoFarAtBar[barIdx].hasValue  = true;
       g_dayLowSoFarAtBar[barIdx].value     = runDayLow;
+      double pdh = g_staticMarketContext.PDHpreviousDayHigh;
+      double pdl = g_staticMarketContext.PDLpreviousDayLow;
+      g_dayBrokePDHAtBar[barIdx] = (pdh > 0.0 && runDayHigh > pdh);
+      g_dayBrokePDLAtBar[barIdx] = (pdl > 0.0 && runDayLow < pdl);
 
       if(g_session[barIdx] == "ON")
       {
@@ -2980,7 +3013,8 @@ void OnTimer()
                      "IBhigh", "IBlow",
                      "gapFillSoFar",
                      "RTHopen",
-                     "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
+                     "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate",
+                     "dayBrokePDH", "dayBrokePDL");
          for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
             {
                if(!g_ONhighSoFarAtBar[barIdx].hasValue || !g_ONlowSoFarAtBar[barIdx].hasValue)
@@ -3004,7 +3038,8 @@ void OnTimer()
                      ibH, ibL,
                      gapFillStr,
                      rthOpenStr,
-                     DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
+                     DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate,
+                     (g_dayBrokePDHAtBar[barIdx] ? "true" : "false"), (g_dayBrokePDLAtBar[barIdx] ? "true" : "false"));
             }
             FileClose(fileHandle);
          }
@@ -3149,7 +3184,7 @@ void OnTimer()
 
             // All-days summary: read existing file into memory, add current day with MFE/MAE, write full file in overwrite mode.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            #define TRADERESULTS_ALLDAYS_COLS 24
+            #define TRADERESULTS_ALLDAYS_COLS 26
             string allDaysRows[];
             int existingRowCount = 0;
             int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
@@ -3201,6 +3236,8 @@ void OnTimer()
                string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
                string isGapDownDayStr = GetIsGapDownDayString(tradeResult.startTime);
                string pdTrendStr = GetPDtrendString();
+               string dayBrokePDHStr = GetDayBrokePDHAtTradeOpenTime(tradeResult.startTime);
+               string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
                int r = newBase + ti * TRADERESULTS_ALLDAYS_COLS;
                allDaysRows[r++] = dateStr;
                allDaysRows[r++] = tradeResult.symbol;
@@ -3226,16 +3263,18 @@ void OnTimer()
                allDaysRows[r++] = gapFillPcStr;
                allDaysRows[r++] = isGapDownDayStr;
                allDaysRows[r++] = pdTrendStr;
+               allDaysRows[r++] = dayBrokePDHStr;
+               allDaysRows[r++] = dayBrokePDLStr;
             }
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {
                   int base = ri * TRADERESULTS_ALLDAYS_COLS;
-                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23]);
+                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25]);
                }
                FileClose(fileHandleSumTr);
             }
