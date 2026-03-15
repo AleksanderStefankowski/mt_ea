@@ -408,6 +408,9 @@ OptionalDouble g_ONlowSoFarAtBar[MAX_BARS_IN_DAY];
 //--- RTH session high/low so far at each bar k (bars 0..k with session=RTH). Filled every OnTimer; log reads from here.
 OptionalDouble g_rthHighSoFarAtBar[MAX_BARS_IN_DAY];
 OptionalDouble g_rthLowSoFarAtBar[MAX_BARS_IN_DAY];
+//--- Day high/low so far at each bar k (bars 0..k, whole day). Filled every OnTimer; log reads from here.
+OptionalDouble g_dayHighSoFarAtBar[MAX_BARS_IN_DAY];
+OptionalDouble g_dayLowSoFarAtBar[MAX_BARS_IN_DAY];
 
 //--- Trade results for the day
 #define MAX_TRADE_RESULTS 500
@@ -1524,15 +1527,23 @@ void UpdateDayProgress()
 }
 
 //+------------------------------------------------------------------+
-//| Fill g_ONhighSoFarAtBar, g_ONlowSoFarAtBar, g_rthHighSoFarAtBar, g_rthLowSoFarAtBar for bars 0..g_barsInDay-1. |
-//| For each bar k: ON high/low = running max/min of ON bars up to k; RTH same. Before first ON/RTH bar, hasValue false. |
+//| Fill g_ONhighSoFarAtBar, g_ONlowSoFarAtBar, g_rthHighSoFarAtBar, g_rthLowSoFarAtBar, g_dayHighSoFarAtBar, g_dayLowSoFarAtBar for bars 0..g_barsInDay-1. |
+//| For each bar k: ON high/low = running max/min of ON bars up to k; RTH same; day high/low = running max/min of all bars up to k. Before first ON/RTH bar, hasValue false. |
 //+------------------------------------------------------------------+
 void UpdateONandRTHHighLowSoFarAtBar()
 {
    bool firstON = true, firstRTH = true;
    double runONhigh = 0, runONlow = 0, runRTHhigh = 0, runRTHlow = 0;
+   double runDayHigh = (g_barsInDay > 0) ? g_m1Rates[0].high : 0, runDayLow = (g_barsInDay > 0) ? g_m1Rates[0].low : 0;
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
+      runDayHigh = MathMax(runDayHigh, g_m1Rates[barIdx].high);
+      runDayLow  = MathMin(runDayLow, g_m1Rates[barIdx].low);
+      g_dayHighSoFarAtBar[barIdx].hasValue = true;
+      g_dayHighSoFarAtBar[barIdx].value    = runDayHigh;
+      g_dayLowSoFarAtBar[barIdx].hasValue  = true;
+      g_dayLowSoFarAtBar[barIdx].value     = runDayLow;
+
       if(g_session[barIdx] == "ON")
       {
          if(firstON) { runONhigh = g_m1Rates[barIdx].high; runONlow = g_m1Rates[barIdx].low; firstON = false; }
@@ -2758,6 +2769,7 @@ void OnTimer()
                      "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum",
                      "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum",
                      "ONhighSoFar", "ONlowSoFar", "rthHighSoFar", "rthLowSoFar",
+                     "dayHighSoFar", "dayLowSoFar",
                      "RTHopen",
                      "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
          datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
@@ -2777,6 +2789,7 @@ void OnTimer()
                      DoubleToString(g_dayProgress[barIdx].ONwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].ONtradeCount), DoubleToString(g_dayProgress[barIdx].ONpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].ONprofitSum, 2),
                      DoubleToString(g_dayProgress[barIdx].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].RTHtradeCount), DoubleToString(g_dayProgress[barIdx].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].RTHprofitSum, 2),
                      DoubleToString(g_ONhighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[barIdx].value, _Digits), rthH, rthL,
+                     DoubleToString(g_dayHighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_dayLowSoFarAtBar[barIdx].value, _Digits),
                      rthOpenStr,
                      DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
