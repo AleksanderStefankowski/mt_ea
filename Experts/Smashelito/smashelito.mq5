@@ -62,14 +62,14 @@ bool     allTrades_enable_perSession_limits = false;  // if true: apply per-sess
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
 //--- Ruleset 55: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
-bool     InpRuleset5_Enable = true;   // if false, ruleset 55 does not place orders
-int      InpRuleset5_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
-double   InpRuleset5_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points; converted to pips for PlaceBuyLimitAtLevel
-double   InpRuleset5_TPPips           = 3.2;   // TP (daily); ×10 = pips from order price
-double   InpRuleset5_SLPips           = 5.0;   // SL (daily); ×10 = pips
-double   InpRuleset5_TPPips_Weekly    = 6.0;   // TP when level categories contain "weekly"
-double   InpRuleset5_SLPips_Weekly    = 6.0;   // SL when level categories contain "weekly"
-string   InpRuleset5_BannedRanges    = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (two ranges; no midnight wraparound in one range)
+bool     InpRuleset55_Enable = true;   // if false, ruleset 55 does not place orders
+int      InpRuleset55_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
+double   InpRuleset55_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points; converted to pips for PlaceBuyLimitAtLevel
+double   InpRuleset55_TPPips           = 3.2;   // TP (daily); ×10 = pips from order price
+double   InpRuleset55_SLPips           = 5.0;   // SL (daily); ×10 = pips
+double   InpRuleset55_TPPips_Weekly    = 6.0;   // TP when level categories contain "weekly"
+double   InpRuleset55_SLPips_Weekly    = 6.0;   // SL when level categories contain "weekly"
+string   InpRuleset55_BannedRanges    = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (two ranges; no midnight wraparound in one range)
 
 
 //--- Ruleset 12: long2 (OnTimer: streak above level >= 20, diff below >= 10 in 100 bars, diff above >= 12 in streak bars)
@@ -2151,7 +2151,7 @@ string GetCategoriesFromExpanded(int levelIdx)
 //+------------------------------------------------------------------+
 //| True if ruleset 55 entry conditions: HighestDiffUp > min, overlapC==0, session ON. Uses g_levelsExpanded[levelIdx], kLast. |
 //+------------------------------------------------------------------+
-bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
+bool MeetsRuleset55EntryRule(double levelBelow, int levelIdx, int kLast)
 {
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
    const int HIGHEST_DIFF_UP_WINDOW = 15;
@@ -2260,7 +2260,7 @@ double GetTradeLotForRuleset(int rulesetId)
 {
    double base = g_global_base_trade_size;
    int pct = 100;
-   if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 55");
+   if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset55_TradeSizePct, "Ruleset 55");
    else if(rulesetId == 12) pct = ValidateTradeSizePct(InpRuleset12_TradeSizePct, "Ruleset 12");
    double lot = base * ((double)pct / 100.0);
    double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
@@ -2653,7 +2653,7 @@ int OnInit()
    ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 
    // Ruleset config: useLevel/usePrice; bannedRangesStr applied when non-empty
-   g_tradeConfig[55].bannedRangesStr = InpRuleset5_BannedRanges;
+   g_tradeConfig[55].bannedRangesStr = InpRuleset55_BannedRanges;
    g_tradeConfig[12].bannedRangesStr = InpRuleset12_BannedRanges;
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
@@ -3038,14 +3038,14 @@ void OnTimer()
    {
       const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 55;
 
-      if(InpRuleset5_Enable)
+      if(InpRuleset55_Enable)
       {
          double levelBelow = GetLevelBelow(g_barsInDay - 1);
          int kLast = g_barsInDay - 1;
          if(IsLivePriceNearLevel(levelBelow, 3.0))
          {
             int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
-            if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast) && IsTimeAllowedForTradeType(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_lastTimer1Time))
+            if(levelIdx >= 0 && MeetsRuleset55EntryRule(levelBelow, levelIdx, kLast) && IsTimeAllowedForTradeType(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_lastTimer1Time))
             {
                long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
                if(CanPlaceNewOrderForMagic(magic))
@@ -3055,12 +3055,12 @@ void OnTimer()
                      string categories = GetCategoriesFromExpanded(levelIdx);
                      bool weekly = LevelIsWeekly(categories);
                      double tp, sl;
-                     if(weekly) { tp = InpRuleset5_TPPips_Weekly * 10.0; sl = InpRuleset5_SLPips_Weekly * 10.0; }
-                     else       { tp = InpRuleset5_TPPips * 10.0;      sl = InpRuleset5_SLPips * 10.0;      }
+                     if(weekly) { tp = InpRuleset55_TPPips_Weekly * 10.0; sl = InpRuleset55_SLPips_Weekly * 10.0; }
+                     else       { tp = InpRuleset55_TPPips * 10.0;      sl = InpRuleset55_SLPips * 10.0;      }
                      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-                     double offsetPips5 = (InpRuleset5_PriceOffsetPips * 10.0) * point / PipSize();
-                     if(PlaceBuyLimitAtLevel(levelBelow, offsetPips5, sl, tp, 15, GetTradeLotForRuleset(RULESET_ID_CLEAN_FIRST_BOUNCE_ON), magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
-                        WriteTradeLogPendingOrder(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, levelBelow, offsetPips5, sl, tp, magic);
+                     double offsetPips55 = (InpRuleset55_PriceOffsetPips * 10.0) * point / PipSize();
+                     if(PlaceBuyLimitAtLevel(levelBelow, offsetPips55, sl, tp, 15, GetTradeLotForRuleset(RULESET_ID_CLEAN_FIRST_BOUNCE_ON), magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
+                        WriteTradeLogPendingOrder(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, levelBelow, offsetPips55, sl, tp, magic);
                   }
                }
             }
