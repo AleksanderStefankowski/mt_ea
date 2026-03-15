@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                InputLevel1EA.mq5 |
+//|                                                    smashelito.mq5 |
 //+------------------------------------------------------------------+
 //|                   MetaTrader 5 Only (MT5-specific code)          |
 //|        Copyright 2026, Aleksander Stefankowski                   |
@@ -58,6 +58,8 @@ double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle b
 bool     maemfe_testing             = true; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for ruleset 5)
 
+//--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
+double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
 //--- Ruleset 6: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset6_LotSize.
 bool     InpRuleset6_Enable = true;   // disable trade. if false, ruleset 6 does not place orders
@@ -68,7 +70,7 @@ double   InpRuleset6_TPPips_Weekly    = 10.0;  // TP when level categories conta
 double   InpRuleset6_SLPips_Weekly    = 10.0;  // SL when level categories contain "weekly"
 string   InpRuleset6_BannedRanges = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (same as ruleset 5)
 //--- Ruleset 6: OnTimer every ~1s, liveBid near levelBelow (<3pts); entry: bounceCount==1, bias_long, no_contact, time filter; then buy limit at level+offset
-double   InpRuleset6_LotSize = 0.01;  // lot for ruleset 6 buy limit
+int      InpRuleset6_TradeSizePct = 50;   // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
 
 
 //--- Ruleset 7: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset7_LotSize.
@@ -80,12 +82,12 @@ double   InpRuleset7_TPPips_Weekly    = 8.0;   // TP when level categories conta
 double   InpRuleset7_SLPips_Weekly    = 3.0;   // SL when level categories contain "weekly"
 string   InpRuleset7_BannedRanges = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (same as rulesets 5 and 6)
 //--- Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset
-double   InpRuleset7_LotSize = 0.01;  // lot for ruleset 7 buy limit
+int      InpRuleset7_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
 
 
 //--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
 bool     InpRuleset5_Enable = true;   // if false, ruleset 5 does not place orders
-double   InpRuleset5_LotSize = 0.01;  // lot for ruleset 5 buy limit
+int      InpRuleset5_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
 double   InpRuleset5_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points; converted to pips for PlaceBuyLimitAtLevel
 double   InpRuleset5_TPPips           = 3.2;   // TP (daily); ×10 = pips from order price
 double   InpRuleset5_SLPips           = 5.0;   // SL (daily); ×10 = pips
@@ -2124,6 +2126,39 @@ bool MeetsRuleset6EntryRule(int levelsIdx, datetime atTime)
 }
 
 //+------------------------------------------------------------------+
+//| Validate trade_size_percentage is one of 10,20,30,40,50,60,70,80,90,100. FatalError if not. |
+//+------------------------------------------------------------------+
+int ValidateTradeSizePct(int pct, const string &context)
+{
+   if(pct == 10 || pct == 20 || pct == 30 || pct == 40 || pct == 50 ||
+      pct == 60 || pct == 70 || pct == 80 || pct == 90 || pct == 100)
+      return pct;
+   FatalError(context + ": trade_size_percentage must be one of 10,20,30,40,50,60,70,80,90,100; got " + IntegerToString(pct));
+   return 100;  // unreachable
+}
+
+//+------------------------------------------------------------------+
+//| Lot for ruleset = global_base_trade_size × (trade_size_percentage/100). Normalized to symbol min/max/step. |
+//+------------------------------------------------------------------+
+double GetTradeLotForRuleset(int rulesetId)
+{
+   double base = g_global_base_trade_size;
+   int pct = 100;
+   if(rulesetId == 5) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 5");
+   else if(rulesetId == 6) pct = ValidateTradeSizePct(InpRuleset6_TradeSizePct, "Ruleset 6");
+   else if(rulesetId == 7) pct = ValidateTradeSizePct(InpRuleset7_TradeSizePct, "Ruleset 7");
+   double lot = base * ((double)pct / 100.0);
+   double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double maxLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+   double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+   if(step <= 0) step = 0.01;
+   lot = MathMax(minLot, MathMin(maxLot, lot));
+   lot = NormalizeDouble(MathFloor(lot / step + 0.0001) * step, 2);
+   if(lot < minLot) lot = minLot;
+   return lot;
+}
+
+//+------------------------------------------------------------------+
 //| Place a buy-limit at level with given pips and expiration. Sets magic then restores EA_MAGIC. Returns true if order sent successfully. |
 //+------------------------------------------------------------------+
 bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic, int commentRulesetId)
@@ -2891,7 +2926,7 @@ void OnTimer()
                      double sl = (weekly ? InpRuleset5_SLPips_Weekly : InpRuleset5_SLPips) * 10.0;
                      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
                      double offsetPips5 = (InpRuleset5_PriceOffsetPips * 10.0) * point / PipSize();
-                     if(PlaceBuyLimitAtLevel(levelBelow, offsetPips5, sl, tp, 15, InpRuleset5_LotSize, magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
+                     if(PlaceBuyLimitAtLevel(levelBelow, offsetPips5, sl, tp, 15, GetTradeLotForRuleset(RULESET_ID_CLEAN_FIRST_BOUNCE_ON), magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
                         WriteTradeLogPendingOrder(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, levelBelow, offsetPips5, sl, tp, magic);
                   }
                }
@@ -2916,7 +2951,7 @@ void OnTimer()
                   bool weekly = LevelIsWeekly(categories);
                   double tp = (weekly ? InpRuleset6_TPPips_Weekly : InpRuleset6_TPPips) * 10.0;
                   double sl = (weekly ? InpRuleset6_SLPips_Weekly : InpRuleset6_SLPips) * 10.0;
-                  if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, 30, InpRuleset6_LotSize, magic6, RULESET_ID_6))
+                  if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, 30, GetTradeLotForRuleset(RULESET_ID_6), magic6, RULESET_ID_6))
                      WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, magic6);
                }
             }
@@ -2940,7 +2975,7 @@ void OnTimer()
                   bool weekly = LevelIsWeekly(categories);
                   double tp = (weekly ? InpRuleset7_TPPips_Weekly : InpRuleset7_TPPips) * 10.0;
                   double sl = (weekly ? InpRuleset7_SLPips_Weekly : InpRuleset7_SLPips) * 10.0;
-                  if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, 30, InpRuleset7_LotSize, magic7, RULESET_ID_7))
+                  if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, 30, GetTradeLotForRuleset(RULESET_ID_7), magic7, RULESET_ID_7))
                      WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, magic7);
                }
             }
