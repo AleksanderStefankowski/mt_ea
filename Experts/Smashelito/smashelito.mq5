@@ -105,7 +105,7 @@ struct TradeTypeConfig
    bool   useTimeFilter;   // true = apply banned ranges; false = no time filter or fixed time only
    string bannedRangesStr; // "startH,startM,endH,endM;..." e.g. "0,0,2,59;20,0,23,59"
 };
-TradeTypeConfig g_tradeConfig[8];   // index by ruleset id 6 or 7
+TradeTypeConfig g_tradeConfig[60];  // index by ruleset id (55, 56, 57)
 const int MAX_BANNED_RANGES = 10;
 int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges
 int g_bannedRangesCount = 0;
@@ -135,15 +135,15 @@ Level levels[];
 //--- Ruleset support (magic, logging)
 const long EA_MAGIC = 47001; // unique magic for this EA's orders
 
-// Ruleset IDs used for time filter and magic (6 = bounceCount==1 style, 7 = bounceCount==3 style)
+// Ruleset IDs used for time filter and magic (56 = bounceCount==1 style, 57 = bounceCount==3 style)
 enum RULESET_ID
 {
-   RULESET_6 = 6,
-   RULESET_7 = 7
+   RULESET_6 = 56,
+   RULESET_7 = 57
 };
 
 // List of all known EA trade (ruleset) IDs that can open positions. Used e.g. by CloseAnyEAPositionThatIsXMinutesOld.
-const int EA_KNOWN_RULESET_IDS[] = { 5, 6, 7 };
+const int EA_KNOWN_RULESET_IDS[] = { 55, 56, 57 };
 #define EA_KNOWN_RULESET_COUNT 3
 
 CTrade ExtTrade;
@@ -376,13 +376,10 @@ int FindOrAddPerTradeMagic(long keyFirstDigit)
    return newIdx;
 }
 
-// First digit of magic (e.g. 6... or 7...). Used to group per-ruleset summary.
-long FirstDigitOfMagic(long magic)
+// Key for per-ruleset summary grouping. Returns ruleset id (55, 56, 57) so each gets its own row.
+long GetRulesetKeyFromMagic(long magic)
 {
-   long num = magic;
-   if(num < 0) num = -num;
-   while(num >= 10) num /= 10;
-   return num;
+   return (long)GetRulesetIdFromMagic(magic);
 }
 
 //--- Levels break check aggregate (all days, tertiary excluded): running sums for ON, RTHIB, RTHcnt; written at 22:00 to levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv
@@ -1968,6 +1965,7 @@ int GetDayOfWeekSuffixForLevel(datetime validFrom, string tagsCSV)
 
 //+------------------------------------------------------------------+
 //| Build magic number: trade (ruleset) id only.                      |
+//| FUTURE: slot encoding [1][01][TT][00]...[00]: slot1=1, slot2=01 (script ver), slot3=trade type (05,06,07), slots4-9=00. long can hold 19 digits. |
 //+------------------------------------------------------------------+
 long BuildMagic(int id)
 {
@@ -2171,9 +2169,9 @@ double GetTradeLotForRuleset(int rulesetId)
 {
    double base = g_global_base_trade_size;
    int pct = 100;
-   if(rulesetId == 5) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 5");
-   else if(rulesetId == 6) pct = ValidateTradeSizePct(InpRuleset6_TradeSizePct, "Ruleset 6");
-   else if(rulesetId == 7) pct = ValidateTradeSizePct(InpRuleset7_TradeSizePct, "Ruleset 7");
+   if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 5");
+   else if(rulesetId == 56) pct = ValidateTradeSizePct(InpRuleset6_TradeSizePct, "Ruleset 6");
+   else if(rulesetId == 57) pct = ValidateTradeSizePct(InpRuleset7_TradeSizePct, "Ruleset 7");
    double lot = base * ((double)pct / 100.0);
    double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
    double maxLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
@@ -2318,16 +2316,13 @@ void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
 }
 
 //+------------------------------------------------------------------+
-//| Extract ruleset id from magic number (first digit).           |
-//| Magic is long; never cast to int (overflow). Use long for string. |
-//+------------------------------------------------------------------+
-//| Ruleset id from magic (leading digit(s)); returns 0 if unknown. |
+//| Ruleset id from magic. Known IDs 55,56,57 (or legacy 5,6,7) return full id; otherwise 0. |
 //+------------------------------------------------------------------+
 int GetRulesetIdFromMagic(long magicNumber)
 {
-   string magicStr = IntegerToString((long)magicNumber);
-   if(StringLen(magicStr) > 0)
-      return (int)StringToInteger(StringSubstr(magicStr, 0, 1));
+   for(int k = 0; k < EA_KNOWN_RULESET_COUNT; k++)
+      if((long)EA_KNOWN_RULESET_IDS[k] == magicNumber) return EA_KNOWN_RULESET_IDS[k];
+   if(magicNumber >= 5 && magicNumber <= 7) return (int)magicNumber;  // legacy
    return 0;
 }
 
@@ -2551,8 +2546,8 @@ int OnInit()
    g_tradeConfig[RULESET_6].useTimeFilter = true;
    g_tradeConfig[RULESET_6].bannedRangesStr = InpRuleset6_BannedRanges;
 
-   g_tradeConfig[5].useTimeFilter = true;
-   g_tradeConfig[5].bannedRangesStr = InpRuleset5_BannedRanges;
+   g_tradeConfig[55].useTimeFilter = true;
+   g_tradeConfig[55].bannedRangesStr = InpRuleset5_BannedRanges;
 
    g_tradeConfig[RULESET_7].useLevel = true;
    g_tradeConfig[RULESET_7].usePrice = true;
@@ -2931,7 +2926,7 @@ void OnTimer()
    // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 5 cleanFirstBounceON; then ruleset 6.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
    {
-      const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 5;
+      const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 55;
 
       if(InpRuleset5_Enable)
       {
@@ -2963,7 +2958,7 @@ void OnTimer()
       }
 
       // Ruleset 6: every OnTimer, live price near levelBelow; entry (bounceCount==1, bias_long, no_contact, time filter); buy limit at level+offset.
-      const int RULESET_ID_6 = 6;
+      const int RULESET_ID_6 = 56;
       if(InpRuleset6_Enable)
       {
          double levelBelow6 = GetLevelBelow(g_barsInDay - 1);
@@ -2988,7 +2983,7 @@ void OnTimer()
       }
 
       // Ruleset 7: same as 6 but bounceCount==3 and ruleset 7 banned time ranges; buy limit at level+offset.
-      const int RULESET_ID_7 = 7;
+      const int RULESET_ID_7 = 57;
       if(InpRuleset7_Enable)
       {
          double levelBelow7 = GetLevelBelow(g_barsInDay - 1);
@@ -3199,7 +3194,7 @@ void OnTimer()
             {
                TradeResult tradeResult = g_tradeResults[trIdx];
                if(!tradeResult.foundOut) continue;
-               int idx = FindOrAddPerTradeMagic(FirstDigitOfMagic(tradeResult.magic));
+               int idx = FindOrAddPerTradeMagic(GetRulesetKeyFromMagic(tradeResult.magic));
                if(idx < 0) continue;
                if(StringFind(g_perTradeSummaries[idx].datesList, dateStr) < 0)
                {
