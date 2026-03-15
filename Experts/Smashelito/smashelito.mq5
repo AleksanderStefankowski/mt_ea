@@ -55,14 +55,15 @@ bool     dailySpamLog_Arawevents      = true;  // Arawevents CSV + level logRawE
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
-bool     maemfe_testing             = true; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
+bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for ruleset 55)
+bool     ontimer_babysit = false;  // if true: adjust TP/SL based on open time (TP=+3 pips after 12 min, SL=+1.5 pips after 9 min)
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
 //--- Ruleset 55: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
-bool     InpRuleset55_Enable = true;   // if false, ruleset 55 does not place orders
+bool     InpRuleset55_Enable = false;   // if false, ruleset 55 does not place orders
 int      InpRuleset55_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
 double   InpRuleset55_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points; converted to pips for PlaceBuyLimitAtLevel
 double   InpRuleset55_TPPips           = 3.2;   // TP (daily); ×10 = pips from order price
@@ -2414,13 +2415,12 @@ void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
 }
 
 //+------------------------------------------------------------------+
-//| Ruleset id from magic. Known IDs 55,12 (or legacy 5,6,7) return full id; otherwise 0. |
+//| Ruleset id from magic. Known IDs 55,12 return full id; otherwise 0. |
 //+------------------------------------------------------------------+
 int GetRulesetIdFromMagic(long magicNumber)
 {
    for(int k = 0; k < EA_KNOWN_RULESET_COUNT; k++)
       if((long)EA_KNOWN_RULESET_IDS[k] == magicNumber) return EA_KNOWN_RULESET_IDS[k];
-   if(magicNumber >= 5 && magicNumber <= 7) return (int)magicNumber;  // legacy
    return 0;
 }
 
@@ -3032,6 +3032,63 @@ void OnTimer()
 
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(20);
+
+   // Adjust TP/SL based on open time: TP=+3 pips after 12 min; SL=+1.5 pips after 9 min
+   if(ontimer_babysit)
+   {
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(i)) continue;
+      if(ExtPositionInfo.Symbol() != _Symbol) continue;
+      long posMagic = ExtPositionInfo.Magic();
+      bool isEaMagic = false;
+      for(int k = 0; k < EA_KNOWN_RULESET_COUNT; k++)
+         if(posMagic == BuildMagic(EA_KNOWN_RULESET_IDS[k])) { isEaMagic = true; break; }
+      if(!isEaMagic) continue;
+      
+      datetime openTime = ExtPositionInfo.Time();
+      int minutesOpen = (int)((g_lastTimer1Time - openTime) / 60);
+      
+      double openPrice = ExtPositionInfo.PriceOpen();
+      double currentTP = ExtPositionInfo.TakeProfit();
+      double currentSL = ExtPositionInfo.StopLoss();
+      double pipSize = PipSize();
+      ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
+      ulong ticket = ExtPositionInfo.Ticket();
+      
+      ExtTrade.SetExpertMagicNumber((ulong)posMagic);
+      
+      // Set SL to +1.5 pips after 9 minutes
+      if(minutesOpen >= 9)
+      {
+         double newSL;
+         if(posType == POSITION_TYPE_BUY)
+            newSL = NormalizeDouble(openPrice + 1.5 * pipSize, _Digits);
+         else  // POSITION_TYPE_SELL
+            newSL = NormalizeDouble(openPrice - 1.5 * pipSize, _Digits);
+         if(MathAbs(newSL - currentSL) > SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 0.5)
+            ExtTrade.PositionModify(ticket, newSL, currentTP);
+      }
+      
+      // Refresh position info to get updated SL after potential SL modification
+      if(ExtPositionInfo.SelectByTicket(ticket))
+         currentSL = ExtPositionInfo.StopLoss();
+      
+      // Set TP to +3 pips after 12 minutes
+      if(minutesOpen > 12)
+      {
+         double newTP;
+         if(posType == POSITION_TYPE_BUY)
+            newTP = NormalizeDouble(openPrice + 3.0 * pipSize, _Digits);
+         else  // POSITION_TYPE_SELL
+            newTP = NormalizeDouble(openPrice - 3.0 * pipSize, _Digits);
+         if(MathAbs(newTP - currentTP) > SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 0.5)
+            ExtTrade.PositionModify(ticket, currentSL, newTP);
+      }
+      
+      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+   }
+   }
 
    // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 55 cleanFirstBounceON.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
