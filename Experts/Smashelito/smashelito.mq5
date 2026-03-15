@@ -414,6 +414,8 @@ OptionalDouble g_dayLowSoFarAtBar[MAX_BARS_IN_DAY];
 //--- IB (first hour of RTH) high/low: unknown before IB ends; after 16:30 (normal) or 15:30 (desync) = max/min of IB bars. Filled every OnTimer.
 OptionalDouble g_IBhighAtBar[MAX_BARS_IN_DAY];
 OptionalDouble g_IBlowAtBar[MAX_BARS_IN_DAY];
+//--- Gap fill so far: unknown before RTH open; after = 0–100 % based on rthLowSoFar (gap up) or rthHighSoFar (gap down). Filled every OnTimer.
+OptionalDouble g_gapFillSoFarAtBar[MAX_BARS_IN_DAY];
 //--- Trade results for the day
 #define MAX_TRADE_RESULTS 500
 #define MAX_DEALS_DAY 2000
@@ -685,6 +687,22 @@ string GetOpenWasAboveLevelString(double openPrice, double level, bool known)
 }
 
 //+------------------------------------------------------------------+
+//| Gap fill % at trade open time. Delegates to GetGapFillSoFarAtBar. Returns "unknown" before RTH open. |
+//+------------------------------------------------------------------+
+string GetGapFillPcAtTradeOpenTime(datetime tradeOpenTime)
+{
+   datetime barOpenTime = tradeOpenTime - (tradeOpenTime % 60);
+   int barIdx = -1;
+   for(int i = 0; i < g_barsInDay; i++)
+      if(g_m1Rates[i].time == barOpenTime) { barIdx = i; break; }
+   double val = 0.0;
+   datetime dayStart = g_m1DayStart;
+   string dateStr = TimeToString(dayStart, TIME_DATE);
+   if(!GetGapFillSoFarAtBar(barIdx, dayStart, dateStr, val)) return "unknown";
+   return DoubleToString(val, 2);
+}
+
+//+------------------------------------------------------------------+
 //| Find the RTH open candle of current day in g_m1Rates (14:30 on desync dates, else 15:30). FatalError if not found. Returns its open price. |
 //+------------------------------------------------------------------+
 double GetRTHopenCurrentDay()
@@ -772,6 +790,19 @@ bool GetIBlowAtBar(int barIdx, double &outVal)
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
    if(!g_IBlowAtBar[barIdx].hasValue) return false;
    outVal = g_IBlowAtBar[barIdx].value;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Safe getter for gapFillSoFar at bar. Returns true only when bar is at/after RTH open and value known; then sets outVal (0–100). Otherwise false (do not use outVal). |
+//+------------------------------------------------------------------+
+bool GetGapFillSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
+   if(!g_gapFillSoFarAtBar[barIdx].hasValue) return false;
+   outVal = g_gapFillSoFarAtBar[barIdx].value;
    return true;
 }
 
@@ -1672,6 +1703,49 @@ void UpdateIBHighLowAtBar()
       if(hasIBhigh) g_IBhighAtBar[barIdx].value = ibHigh;  // do not write sentinel when invalid
       g_IBlowAtBar[barIdx].hasValue  = hasIBlow;
       if(hasIBlow)  g_IBlowAtBar[barIdx].value  = ibLow;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Fill g_gapFillSoFarAtBar: % of gap filled so far. Gap up (RTHopen>PDC): use rthLowSoFar (fill from top). Gap down (RTHopen<PDC): use rthHighSoFar (fill from bottom). Unknown before RTH open. |
+//+------------------------------------------------------------------+
+void UpdateGapFillSoFarAtBar()
+{
+   if(g_barsInDay <= 0 || g_m1DayStart == 0) return;
+   if(!g_todayRTHopenValid || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0) return;
+   double rthOpen = g_todayRTHopen;
+   double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+   double range_top    = MathMax(pdc, rthOpen);
+   double range_bottom = MathMin(pdc, rthOpen);
+   double range_size   = range_top - range_bottom;
+   bool isGapUp = (rthOpen > pdc);
+   if(range_size <= 0.0) return;
+
+   string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   datetime rthOpenBarTime = g_m1DayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      if(g_m1Rates[barIdx].time < rthOpenBarTime)
+      {
+         g_gapFillSoFarAtBar[barIdx].hasValue = false;
+         continue;
+      }
+      if(!g_rthHighSoFarAtBar[barIdx].hasValue || !g_rthLowSoFarAtBar[barIdx].hasValue)
+      {
+         g_gapFillSoFarAtBar[barIdx].hasValue = false;
+         continue;
+      }
+      double rthH = g_rthHighSoFarAtBar[barIdx].value;
+      double rthL = g_rthLowSoFarAtBar[barIdx].value;
+      double filled = 0.0;
+      if(isGapUp)
+         filled = MathMax(0.0, MathMin(range_size, range_top - rthL));  // how far down from top
+      else
+         filled = MathMax(0.0, MathMin(range_size, rthH - range_bottom));  // how far up from bottom
+      double pct = MathMin(100.0, (filled / range_size) * 100.0);
+      g_gapFillSoFarAtBar[barIdx].hasValue = true;
+      g_gapFillSoFarAtBar[barIdx].value    = pct;
    }
 }
 
@@ -2824,6 +2898,9 @@ void OnTimer()
    // --- IB high/low (15:30–16:30 or 14:30–15:30); unknown before IB ends.
    UpdateIBHighLowAtBar();
 
+   // --- Gap fill so far: % of gap filled by rthLowSoFar (gap up) or rthHighSoFar (gap down); unknown before RTH open.
+   UpdateGapFillSoFarAtBar();
+
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    UpdateTradeResultsForDay();
 
@@ -2871,18 +2948,20 @@ void OnTimer()
                      "dayHighSoFar", "dayLowSoFar",
                      "sessionRangeMidpoint",
                      "IBhigh", "IBlow",
+                     "gapFillSoFar",
                      "RTHopen",
                      "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
          for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
             {
                if(!g_ONhighSoFarAtBar[barIdx].hasValue || !g_ONlowSoFarAtBar[barIdx].hasValue)
                   FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(barIdx) + " time=" + TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES));
-               double rthHVal = 0.0, rthLVal = 0.0, rthOpenVal = 0.0, ibHVal = 0.0, ibLVal = 0.0;
+               double rthHVal = 0.0, rthLVal = 0.0, rthOpenVal = 0.0, ibHVal = 0.0, ibLVal = 0.0, gapFillVal = 0.0;
                string rthH    = GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, rthHVal)    ? DoubleToString(rthHVal, _Digits) : "unknown";
                string rthL    = GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, rthLVal)     ? DoubleToString(rthLVal, _Digits) : "unknown";
                string rthOpenStr = GetRTHopenForBar(barIdx, dayStart, dateStr, rthOpenVal) ? DoubleToString(rthOpenVal, _Digits) : "unknown";
                string ibH     = GetIBhighAtBar(barIdx, ibHVal)  ? DoubleToString(ibHVal, _Digits) : "unknown";
                string ibL     = GetIBlowAtBar(barIdx, ibLVal)   ? DoubleToString(ibLVal, _Digits) : "unknown";
+               string gapFillStr = GetGapFillSoFarAtBar(barIdx, dayStart, dateStr, gapFillVal) ? DoubleToString(gapFillVal, 2) : "unknown";
                FileWrite(fileHandle, TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES),
                      DoubleToString(g_m1Rates[barIdx].open, _Digits), DoubleToString(g_m1Rates[barIdx].high, _Digits), DoubleToString(g_m1Rates[barIdx].low, _Digits), DoubleToString(g_m1Rates[barIdx].close, _Digits),
                      DoubleToString(g_levelAboveH[barIdx], 0), DoubleToString(g_levelBelowL[barIdx], 0), g_session[barIdx],
@@ -2893,6 +2972,7 @@ void OnTimer()
                      DoubleToString(g_dayHighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_dayLowSoFarAtBar[barIdx].value, _Digits),
                      DoubleToString((g_dayHighSoFarAtBar[barIdx].value + g_dayLowSoFarAtBar[barIdx].value) / 2.0, 2),
                      ibH, ibL,
+                     gapFillStr,
                      rthOpenStr,
                      DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
@@ -3039,7 +3119,7 @@ void OnTimer()
 
             // All-days summary: read existing file into memory, add current day with MFE/MAE, write full file in overwrite mode.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            #define TRADERESULTS_ALLDAYS_COLS 21
+            #define TRADERESULTS_ALLDAYS_COLS 22
             string allDaysRows[];
             int existingRowCount = 0;
             int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
@@ -3054,7 +3134,9 @@ void OnTimer()
                   int c = 0;
                   for(; c < TRADERESULTS_ALLDAYS_COLS && !FileIsEnding(fileHandleRead); c++)
                      allDaysRows[base + c] = FileReadString(fileHandleRead);
-                  if(c == TRADERESULTS_ALLDAYS_COLS)
+                  for(; c < TRADERESULTS_ALLDAYS_COLS; c++)
+                     allDaysRows[base + c] = "";
+                  if(c >= TRADERESULTS_ALLDAYS_COLS)
                      existingRowCount++;
                   else
                      ArrayResize(allDaysRows, base);
@@ -3086,6 +3168,7 @@ void OnTimer()
                string maeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mae, _Digits) : "";
                string mfeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(mfeCandle) : "";
                string maeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(maeCandle) : "";
+               string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
                int r = newBase + ti * TRADERESULTS_ALLDAYS_COLS;
                allDaysRows[r++] = dateStr;
                allDaysRows[r++] = tradeResult.symbol;
@@ -3108,16 +3191,17 @@ void OnTimer()
                allDaysRows[r++] = maeStr;
                allDaysRows[r++] = mfeCandleStr;
                allDaysRows[r++] = maeCandleStr;
+               allDaysRows[r++] = gapFillPcStr;
             }
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {
                   int base = ri * TRADERESULTS_ALLDAYS_COLS;
-                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20]);
+                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21]);
                }
                FileClose(fileHandleSumTr);
             }
