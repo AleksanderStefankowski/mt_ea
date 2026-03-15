@@ -658,6 +658,30 @@ void GetMFEandMAEForTrade(const TradeResult &tradeResult, double &mfe, double &m
 }
 
 //+------------------------------------------------------------------+
+//| Calculate MFEp and MAEp (Maximum Favorable/Adverse Excursion) from MFE/MAE prices and priceStart. |
+//| MFEp (long): highestHigh - priceStart. MFEp (short): priceStart - lowestLow. |
+//| MAEp (long): lowestLow - priceStart. MAEp (short): priceStart - highestHigh. |
+//+------------------------------------------------------------------+
+void GetMFEpAndMAEpForTrade(const TradeResult &tradeResult, double mfe, double mae, double &mfep, double &maep)
+{
+   mfep = 0.0;
+   maep = 0.0;
+   if(mfe == 0.0 && mae == 0.0) return;  // no MFE/MAE data available
+   if(tradeResult.type == (long)DEAL_TYPE_BUY)
+   {
+      // For long: MFEp = highestHigh - priceStart, MAEp = lowestLow - priceStart
+      if(mfe > 0.0) mfep = mfe - tradeResult.priceStart;
+      if(mae > 0.0) maep = mae - tradeResult.priceStart;
+   }
+   else  // DEAL_TYPE_SELL
+   {
+      // For short: MFEp = priceStart - lowestLow, MAEp = priceStart - highestHigh
+      if(mae > 0.0) mfep = tradeResult.priceStart - mae;  // mae for sell is lowestLow
+      if(mfe > 0.0) maep = tradeResult.priceStart - mfe;  // mfe for sell is highestHigh
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Contact proximity: candle containing trade start (e.g. 14:31) + 1 candle after (e.g. 14:32). BUY: level - low (min over 2 candles). SELL: level - high (max over 2 candles). Returns "NOT_FOUND" if no level or bars missing. |
 //+------------------------------------------------------------------+
 string GetContactProximityForTrade(const TradeResult &tradeResult)
@@ -3330,13 +3354,15 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
                   double mfe = 0.0, mae = 0.0;
                   int mfeCandle = 0, maeCandle = 0;
                   GetMFEandMAEForTrade(tradeResult, mfe, mae, mfeCandle, maeCandle);
+                  double mfep = 0.0, maep = 0.0;
+                  GetMFEpAndMAEpForTrade(tradeResult, mfe, mae, mfep, maep);
                   string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
                   string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
                   string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
@@ -3346,6 +3372,8 @@ void OnTimer()
                   string maeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mae, _Digits) : "";
                   string mfeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(mfeCandle) : "";
                   string maeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(maeCandle) : "";
+                  string mfepStr = (mfep != 0.0 || maep != 0.0) ? DoubleToString(mfep, 2) : "";
+                  string maepStr = (mfep != 0.0 || maep != 0.0) ? DoubleToString(maep, 2) : "";
                   string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
                   string isGapDownDayStr = GetIsGapDownDayString(tradeResult.startTime);
                   string pdTrendStr = GetPDtrendString();
@@ -3359,7 +3387,7 @@ void OnTimer()
                   FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
                      tradeResult.session, IntegerToString((long)tradeResult.magic), contactProxStr, DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr,
+                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr, mfepStr, maepStr,
                      gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow, levelTagStr, levelCatsStr);
                }
                FileClose(fileHandleTr);
@@ -3367,27 +3395,30 @@ void OnTimer()
 
             // All-days summary: read existing file into memory, add current day with MFE/MAE, write full file in overwrite mode.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            #define TRADERESULTS_ALLDAYS_COLS 31
+            #define TRADERESULTS_ALLDAYS_COLS 33
             string allDaysRows[];
             int existingRowCount = 0;
             int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
             if(fileHandleRead != INVALID_HANDLE)
             {
+               // Skip header line - read exactly TRADERESULTS_ALLDAYS_COLS fields
                for(int h = 0; h < TRADERESULTS_ALLDAYS_COLS && !FileIsEnding(fileHandleRead); h++)
                   FileReadString(fileHandleRead);
+               
+               // Read data rows - read exactly TRADERESULTS_ALLDAYS_COLS fields per row
                while(!FileIsEnding(fileHandleRead))
                {
                   int base = ArraySize(allDaysRows);
                   ArrayResize(allDaysRows, base + TRADERESULTS_ALLDAYS_COLS);
                   int c = 0;
+                  // Read exactly TRADERESULTS_ALLDAYS_COLS fields
                   for(; c < TRADERESULTS_ALLDAYS_COLS && !FileIsEnding(fileHandleRead); c++)
                      allDaysRows[base + c] = FileReadString(fileHandleRead);
+                  // Pad missing columns with empty strings if file ended early
                   for(; c < TRADERESULTS_ALLDAYS_COLS; c++)
                      allDaysRows[base + c] = "";
-                  if(c >= TRADERESULTS_ALLDAYS_COLS)
-                     existingRowCount++;
-                  else
-                     ArrayResize(allDaysRows, base);
+                  
+                  existingRowCount++;
                }
                FileClose(fileHandleRead);
             }
@@ -3407,6 +3438,8 @@ void OnTimer()
                double mfe = 0.0, mae = 0.0;
                int mfeCandle = 0, maeCandle = 0;
                GetMFEandMAEForTrade(tradeResult, mfe, mae, mfeCandle, maeCandle);
+               double mfep = 0.0, maep = 0.0;
+               GetMFEpAndMAEpForTrade(tradeResult, mfe, mae, mfep, maep);
                string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
                string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
                string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
@@ -3416,6 +3449,8 @@ void OnTimer()
                string maeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mae, _Digits) : "";
                string mfeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(mfeCandle) : "";
                string maeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(maeCandle) : "";
+               string mfepStr = (mfep != 0.0 || maep != 0.0) ? DoubleToString(mfep, 2) : "";
+               string maepStr = (mfep != 0.0 || maep != 0.0) ? DoubleToString(maep, 2) : "";
                string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
                string isGapDownDayStr = GetIsGapDownDayString(tradeResult.startTime);
                string pdTrendStr = GetPDtrendString();
@@ -3449,6 +3484,8 @@ void OnTimer()
                allDaysRows[r++] = maeStr;
                allDaysRows[r++] = mfeCandleStr;
                allDaysRows[r++] = maeCandleStr;
+               allDaysRows[r++] = mfepStr;
+               allDaysRows[r++] = maepStr;
                allDaysRows[r++] = gapFillPcStr;
                allDaysRows[r++] = isGapDownDayStr;
                allDaysRows[r++] = pdTrendStr;
@@ -3462,12 +3499,12 @@ void OnTimer()
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {
                   int base = ri * TRADERESULTS_ALLDAYS_COLS;
-                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25], allDaysRows[base+26], allDaysRows[base+27], allDaysRows[base+28], allDaysRows[base+29], allDaysRows[base+30]);
+                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25], allDaysRows[base+26], allDaysRows[base+27], allDaysRows[base+28], allDaysRows[base+29], allDaysRows[base+30], allDaysRows[base+31], allDaysRows[base+32]);
                }
                FileClose(fileHandleSumTr);
             }
