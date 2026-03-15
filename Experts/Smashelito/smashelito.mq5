@@ -1257,7 +1257,7 @@ double GetLevelExpandedDiff(double levelPrice, string tag, datetime barTime)
 //| Returns "never" if no bar had price above level (Up) or below level (Down); else returns value as string. |
 //| Uses OptionalDouble in memory (no -1e300 sentinel). |
 //+------------------------------------------------------------------+
-string GetHighestDiffInWindowString(double levelPrice, int barK, int windowBars, bool wantUp)
+string GetHighestDiffFromLevelInWindowString(double levelPrice, int barK, int windowBars, bool wantUp)
 {
    int startBar = MathMax(0, barK - windowBars + 1);
    OptionalDouble result;
@@ -2084,7 +2084,7 @@ bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
    const int HIGHEST_DIFF_UP_WINDOW = 15;
    const double HIGHEST_DIFF_UP_MIN = 9.0;
-   string highestUp = GetHighestDiffInWindowString(levelBelow, kLast, HIGHEST_DIFF_UP_WINDOW, true);
+   string highestUp = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, HIGHEST_DIFF_UP_WINDOW, true);
    if(highestUp == "never") return false;
    if(StringToDouble(highestUp) <= HIGHEST_DIFF_UP_MIN) return false;
    if(g_overlapC[levelIdx][kLast] != 0) return false;
@@ -2404,16 +2404,30 @@ void WriteDailySummary()
    {
       FileWrite(fileHandle1, "levelNo", "name", "price", "count", "contacts", "bias", "bounces", "levelTag", "levelCats");
       datetime today = now - (now % 86400);
-      for(int i=0; i<ArraySize(levels); i++)
+      int validIndices[];
+      ArrayResize(validIndices, ArraySize(levels));
+      int validCount = 0;
+      for(int i = 0; i < ArraySize(levels); i++)
       {
          if(levels[i].validFrom <= today && levels[i].validTo >= today)
-         {
-            string tagStr = (i < g_levelsTotalCount) ? g_levels[i].tag : "";
-            string catsStr = (i < g_levelsTotalCount) ? g_levels[i].categories : "";
-            FileWrite(fileHandle1, IntegerToString(i), levels[i].baseName, DoubleToString(levels[i].price, _Digits),
-                      IntegerToString(levels[i].count), IntegerToString(levels[i].approxContactCount),
-                      DoubleToString(levels[i].dailyBias, 0), IntegerToString(levels[i].bounceCount), tagStr, catsStr);
-         }
+            validIndices[validCount++] = i;
+      }
+      for(int a = 0; a < validCount - 1; a++)
+         for(int b = a + 1; b < validCount; b++)
+            if(levels[validIndices[a]].price < levels[validIndices[b]].price)
+            {
+               int t = validIndices[a];
+               validIndices[a] = validIndices[b];
+               validIndices[b] = t;
+            }
+      for(int k = 0; k < validCount; k++)
+      {
+         int i = validIndices[k];
+         string tagStr = (i < g_levelsTotalCount) ? g_levels[i].tag : "";
+         string catsStr = (i < g_levelsTotalCount) ? g_levels[i].categories : "";
+         FileWrite(fileHandle1, IntegerToString(i), levels[i].baseName, DoubleToString(levels[i].price, _Digits),
+                   IntegerToString(levels[i].count), IntegerToString(levels[i].approxContactCount),
+                   DoubleToString(levels[i].dailyBias, 0), IntegerToString(levels[i].bounceCount), tagStr, catsStr);
       }
       FileClose(fileHandle1);
    }
@@ -3428,8 +3442,8 @@ void OnTimer()
                bool haveRthOpen = GetTodayRTHopenIfValid(rthOpenVal);
                for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
                {
-                  string highestUp   = GetHighestDiffInWindowString(lvl, barIdx, HighestDiffRange_Log, true);
-                  string highestDown = GetHighestDiffInWindowString(lvl, barIdx, HighestDiffRange_Log, false);
+                  string highestUp   = GetHighestDiffFromLevelInWindowString(lvl, barIdx, HighestDiffRange_Log, true);
+                  string highestDown = GetHighestDiffFromLevelInWindowString(lvl, barIdx, HighestDiffRange_Log, false);
                   bool onKnown   = (barIdx > 0);
                   bool rthKnown  = haveRthOpen && (GetSessionForCandleTime(g_levelsExpanded[levelIdx].times[barIdx]) != "ON");
                   string onAboveStr  = GetOpenWasAboveLevelString(onOpen, lvl, onKnown);
