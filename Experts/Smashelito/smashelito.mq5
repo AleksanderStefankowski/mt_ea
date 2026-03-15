@@ -3158,7 +3158,7 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
@@ -3174,10 +3174,16 @@ void OnTimer()
                   string maeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mae, _Digits) : "";
                   string mfeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(mfeCandle) : "";
                   string maeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(maeCandle) : "";
+                  string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
+                  string isGapDownDayStr = GetIsGapDownDayString(tradeResult.startTime);
+                  string pdTrendStr = GetPDtrendString();
+                  string dayBrokePDHStr = GetDayBrokePDHAtTradeOpenTime(tradeResult.startTime);
+                  string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
                   FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
                      tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
-                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr);
+                     DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr,
+                     gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr);
                }
                FileClose(fileHandleTr);
             }
