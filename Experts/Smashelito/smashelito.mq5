@@ -1977,6 +1977,27 @@ int FindExpandedLevelIndexByPrice(double levelPrice)
 }
 
 //+------------------------------------------------------------------+
+//| Look up level in g_levelsExpanded by price (tradeResult.level string). Fills outTag (e.g. dailySmash) and outCats (e.g. daily_monday_smash_stacked). Empty if not found. |
+//+------------------------------------------------------------------+
+void GetLevelTagAndCatsForTrade(const string &levelStr, string &outTag, string &outCats)
+{
+   outTag = "";
+   outCats = "";
+   if(StringLen(levelStr) == 0) return;
+   double levelVal = StringToDouble(levelStr);
+   double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   for(int idx = 0; idx < g_levelsTodayCount; idx++)
+   {
+      if(MathAbs(g_levelsExpanded[idx].levelPrice - levelVal) < tolerance)
+      {
+         outTag  = g_levelsExpanded[idx].tag;
+         outCats = g_levelsExpanded[idx].categories;
+         return;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
 //| ON session trade count so far at barIdx (g_dayProgress). Returns 0 if barIdx invalid. |
 //+------------------------------------------------------------------+
 int GetONtradeCount(int barIdx)
@@ -2324,15 +2345,17 @@ void WriteDailySummary()
    if(fileHandle1 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + activeLevelsFile);
    {
-      FileWrite(fileHandle1, "levelNo", "name", "price", "count", "contacts", "bias", "bounces");
+      FileWrite(fileHandle1, "levelNo", "name", "price", "count", "contacts", "bias", "bounces", "levelTag", "levelCats");
       datetime today = now - (now % 86400);
       for(int i=0; i<ArraySize(levels); i++)
       {
          if(levels[i].validFrom <= today && levels[i].validTo >= today)
          {
+            string tagStr = (i < g_levelsTotalCount) ? g_levels[i].tag : "";
+            string catsStr = (i < g_levelsTotalCount) ? g_levels[i].categories : "";
             FileWrite(fileHandle1, IntegerToString(i), levels[i].baseName, DoubleToString(levels[i].price, _Digits),
                       IntegerToString(levels[i].count), IntegerToString(levels[i].approxContactCount),
-                      DoubleToString(levels[i].dailyBias, 0), IntegerToString(levels[i].bounceCount));
+                      DoubleToString(levels[i].dailyBias, 0), IntegerToString(levels[i].bounceCount), tagStr, catsStr);
          }
       }
       FileClose(fileHandle1);
@@ -3186,7 +3209,7 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
@@ -3209,18 +3232,20 @@ void OnTimer()
                   string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
                   string refAbove = "", refBelow = "";
                   GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
+                  string levelTagStr = "", levelCatsStr = "";
+                  GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
                   FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
                      tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
                      DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr,
-                     gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow);
+                     gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow, levelTagStr, levelCatsStr);
                }
                FileClose(fileHandleTr);
             }
 
             // All-days summary: read existing file into memory, add current day with MFE/MAE, write full file in overwrite mode.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            #define TRADERESULTS_ALLDAYS_COLS 28
+            #define TRADERESULTS_ALLDAYS_COLS 30
             string allDaysRows[];
             int existingRowCount = 0;
             int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
@@ -3276,6 +3301,8 @@ void OnTimer()
                string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
                string refAbove = "", refBelow = "";
                GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
+               string levelTagStr = "", levelCatsStr = "";
+               GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
                int r = newBase + ti * TRADERESULTS_ALLDAYS_COLS;
                allDaysRows[r++] = dateStr;
                allDaysRows[r++] = tradeResult.symbol;
@@ -3305,16 +3332,18 @@ void OnTimer()
                allDaysRows[r++] = dayBrokePDLStr;
                allDaysRows[r++] = refAbove;
                allDaysRows[r++] = refBelow;
+               allDaysRows[r++] = levelTagStr;
+               allDaysRows[r++] = levelCatsStr;
             }
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {
                   int base = ri * TRADERESULTS_ALLDAYS_COLS;
-                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25], allDaysRows[base+26], allDaysRows[base+27]);
+                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25], allDaysRows[base+26], allDaysRows[base+27], allDaysRows[base+28], allDaysRows[base+29]);
                }
                FileClose(fileHandleSumTr);
             }
