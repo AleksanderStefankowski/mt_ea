@@ -714,7 +714,7 @@ string GetIsGapDownDayString(datetime tradeOpenTime)
 {
    datetime dayStart = g_m1DayStart;
    string dateStr = TimeToString(dayStart, TIME_DATE);
-   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   datetime rthOpenBarTime = dayStart + GetRthOpenBarOffsetSeconds(dateStr);
    if(tradeOpenTime < rthOpenBarTime) return "unknown";
    if(!g_todayRTHopenValid || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0) return "unknown";
    double rthOpen = g_todayRTHopen;
@@ -799,7 +799,7 @@ bool GetTodayRTHopenIfValid(double &outRthOpen)
 bool GetRthHighSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
-   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   datetime rthOpenBarTime = dayStart + GetRthOpenBarOffsetSeconds(dateStr);
    if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
    if(!g_rthHighSoFarAtBar[barIdx].hasValue) return false;
    outVal = g_rthHighSoFarAtBar[barIdx].value;
@@ -812,7 +812,7 @@ bool GetRthHighSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, 
 bool GetRthLowSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
-   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   datetime rthOpenBarTime = dayStart + GetRthOpenBarOffsetSeconds(dateStr);
    if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
    if(!g_rthLowSoFarAtBar[barIdx].hasValue) return false;
    outVal = g_rthLowSoFarAtBar[barIdx].value;
@@ -826,7 +826,7 @@ bool GetRTHopenForBar(int barIdx, datetime dayStart, const string &dateStr, doub
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
    if(!g_todayRTHopenValid) return false;
-   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   datetime rthOpenBarTime = dayStart + GetRthOpenBarOffsetSeconds(dateStr);
    if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
    outVal = g_todayRTHopen;
    return true;
@@ -860,7 +860,7 @@ bool GetIBlowAtBar(int barIdx, double &outVal)
 bool GetGapFillSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
-   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   datetime rthOpenBarTime = dayStart + GetRthOpenBarOffsetSeconds(dateStr);
    if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
    if(!g_gapFillSoFarAtBar[barIdx].hasValue) return false;
    outVal = g_gapFillSoFarAtBar[barIdx].value;
@@ -1089,6 +1089,19 @@ bool bool_RTHsession_Is_DaylightSavingsDesync(const string dateStr)
       if(daylightSavings_desync_dates[i] == normalized)
          return true;
    return false;
+}
+
+//+------------------------------------------------------------------+
+//| RTH open bar offset in seconds from day start. Desync dates: 14:30 (52200); normal: 15:30 (55800). |
+//+------------------------------------------------------------------+
+int GetRthOpenBarOffsetSeconds(const string dateStr)
+{
+   int offset;
+   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
+      offset = 14*3600 + 30*60;
+   else
+      offset = 15*3600 + 30*60;
+   return offset;
 }
 
 //+------------------------------------------------------------------+
@@ -1484,9 +1497,17 @@ void UpdateDayM1AndLevelsExpanded()
          int curBelow  = IsBarCleanBelow(open_, high_, low_, close_, levelPrice) ? 1 : 0;
          int curOverlap = IsBarOverlap(low_, high_, levelPrice) ? 1 : 0;
 
-         g_cleanStreakAbove[levelIdx][barIdx] = (barIdx == 0) ? 0 : (prevAbove ? 1 + runAbove : 0);
-         g_cleanStreakBelow[levelIdx][barIdx] = (barIdx == 0) ? 0 : (prevBelow ? 1 + runBelow : 0);
-         g_overlapStreak[levelIdx][barIdx]    = (barIdx == 0) ? 0 : (prevOverlap ? 1 + runOverlap : 0);
+         int streakAbove, streakBelow, streakOverlap;
+         if(barIdx == 0) { streakAbove = 0; streakBelow = 0; streakOverlap = 0; }
+         else
+         {
+            streakAbove  = prevAbove  ? 1 + runAbove  : 0;
+            streakBelow  = prevBelow  ? 1 + runBelow  : 0;
+            streakOverlap = prevOverlap ? 1 + runOverlap : 0;
+         }
+         g_cleanStreakAbove[levelIdx][barIdx] = streakAbove;
+         g_cleanStreakBelow[levelIdx][barIdx] = streakBelow;
+         g_overlapStreak[levelIdx][barIdx]    = streakOverlap;
 
          sumAbove += curAbove; sumBelow += curBelow; sumOverlap += curOverlap;
          g_aboveCnt[levelIdx][barIdx] = sumAbove;
@@ -1665,7 +1686,9 @@ void UpdateDayProgress()
 {
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
-      datetime candleCloseTime = (barIdx + 1 < g_barsInDay) ? g_m1Rates[barIdx + 1].time : (g_m1Rates[barIdx].time + 60);
+      datetime candleCloseTime;
+      if(barIdx + 1 < g_barsInDay) candleCloseTime = g_m1Rates[barIdx + 1].time;
+      else candleCloseTime = g_m1Rates[barIdx].time + 60;
       int wins = 0, total = 0;
       double dayPointsSum = 0, dayProfitSum = 0;
       int ONwins = 0, ONtotal = 0;
@@ -1776,9 +1799,11 @@ void UpdateIBHighLowAtBar()
 {
    if(g_barsInDay <= 0 || g_m1DayStart == 0) return;
    string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
-   datetime lastIBBarTime = bool_RTHsession_Is_DaylightSavingsDesync(dateStr)
-      ? (g_m1DayStart + 15*3600 + 30*60)   // 15:30
-      : (g_m1DayStart + 16*3600 + 30*60);  // 16:30
+   datetime lastIBBarTime;
+   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
+      lastIBBarTime = g_m1DayStart + 15*3600 + 30*60;   // 15:30
+   else
+      lastIBBarTime = g_m1DayStart + 16*3600 + 30*60;   // 16:30
 
    double ibHigh = -1e300, ibLow = 1e300;
    bool ibComplete = false;
@@ -1818,7 +1843,7 @@ void UpdateGapFillSoFarAtBar()
    if(range_size <= 0.0) return;
 
    string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
-   datetime rthOpenBarTime = g_m1DayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   datetime rthOpenBarTime = g_m1DayStart + GetRthOpenBarOffsetSeconds(dateStr);
 
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
@@ -1881,7 +1906,9 @@ void UpdateLevelTradeStats()
       int barCount = g_levelsExpanded[levelIdx].count;
       for(int barIdx = 0; barIdx < barCount; barIdx++)
       {
-         datetime candleCloseTime = (barIdx + 1 < barCount) ? g_levelsExpanded[levelIdx].times[barIdx + 1] : (g_levelsExpanded[levelIdx].times[barIdx] + 60);
+         datetime candleCloseTime;
+         if(barIdx + 1 < barCount) candleCloseTime = g_levelsExpanded[levelIdx].times[barIdx + 1];
+         else candleCloseTime = g_levelsExpanded[levelIdx].times[barIdx] + 60;
          if(tradeResult.endTime >= candleCloseTime) continue;
          if(endSession == "ON")
          {
@@ -2922,8 +2949,9 @@ void OnTimer()
                   {
                      string categories = GetCategoriesFromExpanded(levelIdx);
                      bool weekly = LevelIsWeekly(categories);
-                     double tp = (weekly ? InpRuleset5_TPPips_Weekly : InpRuleset5_TPPips) * 10.0;
-                     double sl = (weekly ? InpRuleset5_SLPips_Weekly : InpRuleset5_SLPips) * 10.0;
+                     double tp, sl;
+                     if(weekly) { tp = InpRuleset5_TPPips_Weekly * 10.0; sl = InpRuleset5_SLPips_Weekly * 10.0; }
+                     else       { tp = InpRuleset5_TPPips * 10.0;      sl = InpRuleset5_SLPips * 10.0;      }
                      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
                      double offsetPips5 = (InpRuleset5_PriceOffsetPips * 10.0) * point / PipSize();
                      if(PlaceBuyLimitAtLevel(levelBelow, offsetPips5, sl, tp, 15, GetTradeLotForRuleset(RULESET_ID_CLEAN_FIRST_BOUNCE_ON), magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
@@ -2949,8 +2977,9 @@ void OnTimer()
                {
                   string categories = GetCategoriesFromLevels(levelsIdx);
                   bool weekly = LevelIsWeekly(categories);
-                  double tp = (weekly ? InpRuleset6_TPPips_Weekly : InpRuleset6_TPPips) * 10.0;
-                  double sl = (weekly ? InpRuleset6_SLPips_Weekly : InpRuleset6_SLPips) * 10.0;
+                  double tp, sl;
+                  if(weekly) { tp = InpRuleset6_TPPips_Weekly * 10.0; sl = InpRuleset6_SLPips_Weekly * 10.0; }
+                  else       { tp = InpRuleset6_TPPips * 10.0;      sl = InpRuleset6_SLPips * 10.0;      }
                   if(PlaceBuyLimitAtLevel(levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, 30, GetTradeLotForRuleset(RULESET_ID_6), magic6, RULESET_ID_6))
                      WriteTradeLogPendingOrder(RULESET_ID_6, levelBelow6, InpRuleset6_PriceOffsetPips, sl, tp, magic6);
                }
@@ -2973,8 +3002,9 @@ void OnTimer()
                {
                   string categories = GetCategoriesFromLevels(levelsIdx7);
                   bool weekly = LevelIsWeekly(categories);
-                  double tp = (weekly ? InpRuleset7_TPPips_Weekly : InpRuleset7_TPPips) * 10.0;
-                  double sl = (weekly ? InpRuleset7_SLPips_Weekly : InpRuleset7_SLPips) * 10.0;
+                  double tp, sl;
+                  if(weekly) { tp = InpRuleset7_TPPips_Weekly * 10.0; sl = InpRuleset7_SLPips_Weekly * 10.0; }
+                  else       { tp = InpRuleset7_TPPips * 10.0;      sl = InpRuleset7_SLPips * 10.0;      }
                   if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, 30, GetTradeLotForRuleset(RULESET_ID_7), magic7, RULESET_ID_7))
                      WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, magic7);
                }
