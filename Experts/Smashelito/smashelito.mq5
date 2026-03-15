@@ -96,14 +96,21 @@ double   InpRuleset5_SLPips_Weekly    = 6.0;   // SL when level categories conta
 string   InpRuleset5_BannedRanges    = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (two ranges; no midnight wraparound in one range)
 
 
+//--- Ruleset 12: long2 (OnTimer: streak above level >= 20, diff below >= 10 in 100 bars, diff above >= 12 in streak bars)
+bool     InpRuleset12_Enable = true;
+int      InpRuleset12_TradeSizePct = 100;
+double   InpRuleset12_PriceOffsetPips  = 2.6;   // same as ruleset 55: (this×10) points
+double   InpRuleset12_TPPips = 8.0;
+double   InpRuleset12_SLPips = 8.0;
+string   InpRuleset12_BannedRanges = "22,0,23,59;0,0,1,0";
 
-//--- Ruleset config: useLevel/usePrice/useTimeFilter indicate what each ruleset cares about; bannedRangesStr from input.
+
+//--- Ruleset config: useLevel/usePrice indicate what each ruleset cares about; bannedRangesStr always applied when non-empty.
 struct TradeTypeConfig
 {
    bool   useLevel;        // false = ruleset does not use level
    bool   usePrice;        // false = no price/level distance check
-   bool   useTimeFilter;   // true = apply banned ranges; false = no time filter or fixed time only
-   string bannedRangesStr; // "startH,startM,endH,endM;..." e.g. "0,0,2,59;20,0,23,59"
+   string bannedRangesStr; // "startH,startM,endH,endM;..." e.g. "0,0,2,59;20,0,23,59"; empty = no time filter
 };
 TradeTypeConfig g_tradeConfig[60];  // index by ruleset id (55, 56, 57)
 const int MAX_BANNED_RANGES = 10;
@@ -143,8 +150,8 @@ enum RULESET_ID
 };
 
 // List of all known EA trade (ruleset) IDs that can open positions. Used e.g. by CloseAnyEAPositionThatIsXMinutesOld.
-const int EA_KNOWN_RULESET_IDS[] = { 55, 56, 57 };
-#define EA_KNOWN_RULESET_COUNT 3
+const int EA_KNOWN_RULESET_IDS[] = { 55, 56, 57, 12 };
+#define EA_KNOWN_RULESET_COUNT 4
 
 CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
@@ -1993,6 +2000,41 @@ double GetLevelBelow(int barIdx)
 }
 
 //+------------------------------------------------------------------+
+//| Closest non-tertiary level to price. wantAbove: true = lowest level above price; false = highest level below price. Returns 0.0 if none. |
+//+------------------------------------------------------------------+
+double GetClosestNonTertiaryLevelToPrice(double price, bool wantAbove)
+{
+   double best = 0.0;
+   double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   for(int idx = 0; idx < g_levelsTodayCount; idx++)
+   {
+      if(LevelIsTertiary(g_levelsExpanded[idx].categories)) continue;
+      double lvl = g_levelsExpanded[idx].levelPrice;
+      if(wantAbove)
+         { if(lvl > price + tolerance && (best == 0.0 || lvl < best)) best = lvl; }
+      else
+         { if(lvl < price - tolerance && (best == 0.0 || lvl > best)) best = lvl; }
+   }
+   return best;
+}
+
+//+------------------------------------------------------------------+
+//| Closest non-tertiary level below price. Wrapper for GetClosestNonTertiaryLevelToPrice(price, false). |
+//+------------------------------------------------------------------+
+double GetClosestNonTertiaryLevelBelowPrice(double price)
+{
+   return GetClosestNonTertiaryLevelToPrice(price, false);
+}
+
+//+------------------------------------------------------------------+
+//| Closest non-tertiary level above price. Wrapper for GetClosestNonTertiaryLevelToPrice(price, true). |
+//+------------------------------------------------------------------+
+double GetClosestNonTertiaryLevelAbovePrice(double price)
+{
+   return GetClosestNonTertiaryLevelToPrice(price, true);
+}
+
+//+------------------------------------------------------------------+
 //| Index in g_levelsExpanded for given level price, or -1 if not found. |
 //+------------------------------------------------------------------+
 int FindExpandedLevelIndexByPrice(double levelPrice)
@@ -2056,6 +2098,14 @@ bool IsLivePriceNearLevel(double levelPrice, double maxDistPoints)
 bool LevelIsWeekly(const string &categoriesOrTags)
 {
    return (StringFind(categoriesOrTags, "weekly") >= 0);
+}
+
+//+------------------------------------------------------------------+
+//| True if categories string contains "tertiary" (e.g. daily_tertiary_todayRTHopen). |
+//+------------------------------------------------------------------+
+bool LevelIsTertiary(const string &categories)
+{
+   return (StringFind(categories, "tertiary") >= 0);
 }
 
 //+------------------------------------------------------------------+
@@ -2123,7 +2173,7 @@ void WriteTradeLogPendingOrder(int commentRulesetId, double levelPrice, double o
 bool IsTimeAllowedForTradeType(int rulesetId, datetime atTime)
 {
    if(rulesetId < 0 || rulesetId >= ArraySize(g_tradeConfig)) return true;
-   if(!g_tradeConfig[rulesetId].useTimeFilter || StringLen(g_tradeConfig[rulesetId].bannedRangesStr) == 0)
+   if(StringLen(g_tradeConfig[rulesetId].bannedRangesStr) == 0)
       return true;
    ParseBannedRanges(g_tradeConfig[rulesetId].bannedRangesStr);
    return IsTradingAllowed(atTime, g_bannedRangesBuffer, g_bannedRangesCount);
@@ -2151,6 +2201,25 @@ bool MeetsRuleset6EntryRule(int levelsIdx, datetime atTime)
 }
 
 //+------------------------------------------------------------------+
+//| True if ruleset 12 (long2) entry: streak above level >= 20, diff below >= 10 in 100 bars, diff above >= 12 in 20 bars. |
+//+------------------------------------------------------------------+
+bool MeetsRuleset12EntryRule(double levelBelow, int levelIdx, int kLast)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   const int STREAK_MIN = 20;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < STREAK_MIN) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, 100, false);
+   if(diffBelow == "never") return false;
+   if(StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, STREAK_MIN, true);
+   if(diffAbove == "never") return false;
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
 //| Validate trade_size_percentage is one of 10,20,30,40,50,60,70,80,90,100. FatalError if not. |
 //+------------------------------------------------------------------+
 int ValidateTradeSizePct(int pct, const string &context)
@@ -2172,6 +2241,7 @@ double GetTradeLotForRuleset(int rulesetId)
    if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 5");
    else if(rulesetId == 56) pct = ValidateTradeSizePct(InpRuleset6_TradeSizePct, "Ruleset 6");
    else if(rulesetId == 57) pct = ValidateTradeSizePct(InpRuleset7_TradeSizePct, "Ruleset 7");
+   else if(rulesetId == 12) pct = ValidateTradeSizePct(InpRuleset12_TradeSizePct, "Ruleset 12");
    double lot = base * ((double)pct / 100.0);
    double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
    double maxLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
@@ -2295,6 +2365,14 @@ int CountOrdersAndPositionsForMagic(long magic)
 }
 
 //+------------------------------------------------------------------+
+//| Basic rule: true when no open position or pending order with this magic (allows placing new order). |
+//+------------------------------------------------------------------+
+bool CanPlaceNewOrderForMagic(long magic)
+{
+   return (CountOrdersAndPositionsForMagic(magic) == 0);
+}
+
+//+------------------------------------------------------------------+
 //| Close any position opened by this EA (magic in EA_KNOWN_RULESET_IDS) that has been open longer than minutes. Sets trade magic so OUT deal pairs with IN. |
 //+------------------------------------------------------------------+
 void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
@@ -2316,7 +2394,7 @@ void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
 }
 
 //+------------------------------------------------------------------+
-//| Ruleset id from magic. Known IDs 55,56,57 (or legacy 5,6,7) return full id; otherwise 0. |
+//| Ruleset id from magic. Known IDs 55,56,57,12 (or legacy 5,6,7) return full id; otherwise 0. |
 //+------------------------------------------------------------------+
 int GetRulesetIdFromMagic(long magicNumber)
 {
@@ -2554,19 +2632,18 @@ int OnInit()
    Print("Level Logger EA initialized.");
    ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 
-   // Ruleset config: useLevel/usePrice/useTimeFilter indicate what each ruleset cares about (level, price, time)
+   // Ruleset config: useLevel/usePrice; bannedRangesStr applied when non-empty
    g_tradeConfig[RULESET_6].useLevel = true;
    g_tradeConfig[RULESET_6].usePrice = true;
-   g_tradeConfig[RULESET_6].useTimeFilter = true;
    g_tradeConfig[RULESET_6].bannedRangesStr = InpRuleset6_BannedRanges;
 
-   g_tradeConfig[55].useTimeFilter = true;
    g_tradeConfig[55].bannedRangesStr = InpRuleset5_BannedRanges;
 
    g_tradeConfig[RULESET_7].useLevel = true;
    g_tradeConfig[RULESET_7].usePrice = true;
-   g_tradeConfig[RULESET_7].useTimeFilter = true;
    g_tradeConfig[RULESET_7].bannedRangesStr = InpRuleset7_BannedRanges;
+
+   g_tradeConfig[12].bannedRangesStr = InpRuleset12_BannedRanges;
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
@@ -2952,7 +3029,7 @@ void OnTimer()
             if(levelIdx >= 0 && MeetsRuleset5EntryRule(levelBelow, levelIdx, kLast) && IsTimeAllowedForTradeType(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_lastTimer1Time))
             {
                long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
-               if(CountOrdersAndPositionsForMagic(magic) == 0)
+               if(CanPlaceNewOrderForMagic(magic))
                {
                   if(allTrades_enable_perSession_limits == false || GetONtradeCount(kLast) < 3)
                   {
@@ -2982,7 +3059,7 @@ void OnTimer()
             if(levelsIdx >= 0 && MeetsRuleset6EntryRule(levelsIdx, g_lastTimer1Time))
             {
                long magic6 = BuildMagic(RULESET_ID_6);
-               if(CountOrdersAndPositionsForMagic(magic6) == 0)
+               if(CanPlaceNewOrderForMagic(magic6))
                {
                   string categories = GetCategoriesFromLevels(levelsIdx);
                   bool weekly = LevelIsWeekly(categories);
@@ -3007,7 +3084,7 @@ void OnTimer()
             if(levelsIdx7 >= 0 && MeetsBuyBounceEntryRule(levelsIdx7, g_lastTimer1Time, RULESET_7, 3, !levels[levelsIdx7].lastCandleInContact))
             {
                long magic7 = BuildMagic(RULESET_ID_7);
-               if(CountOrdersAndPositionsForMagic(magic7) == 0)
+               if(CanPlaceNewOrderForMagic(magic7))
                {
                   string categories = GetCategoriesFromLevels(levelsIdx7);
                   bool weekly = LevelIsWeekly(categories);
@@ -3016,6 +3093,31 @@ void OnTimer()
                   else       { tp = InpRuleset7_TPPips * 10.0;      sl = InpRuleset7_SLPips * 10.0;      }
                   if(PlaceBuyLimitAtLevel(levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, 30, GetTradeLotForRuleset(RULESET_ID_7), magic7, RULESET_ID_7))
                      WriteTradeLogPendingOrder(RULESET_ID_7, levelBelow7, InpRuleset7_PriceOffsetPips, sl, tp, magic7);
+               }
+            }
+         }
+      }
+
+      // Ruleset 12: long2 — closest non-tertiary level below liveBid; streak above >= 20; diff below >= 10 (100 bars); diff above >= 12 (20 bars).
+      const int RULESET_ID_12 = 12;
+      if(InpRuleset12_Enable)
+      {
+         double levelBelow12 = GetClosestNonTertiaryLevelBelowPrice(g_liveBid);
+         int kLast = g_barsInDay - 1;
+         if(levelBelow12 > 0.0 && IsLivePriceNearLevel(levelBelow12, 3.0))
+         {
+            int levelIdx12 = FindExpandedLevelIndexByPrice(levelBelow12);
+            if(levelIdx12 >= 0 && MeetsRuleset12EntryRule(levelBelow12, levelIdx12, kLast) && IsTimeAllowedForTradeType(RULESET_ID_12, g_lastTimer1Time))
+            {
+               long magic12 = BuildMagic(RULESET_ID_12);
+               if(CanPlaceNewOrderForMagic(magic12))
+               {
+                  double tp12 = InpRuleset12_TPPips * 10.0;
+                  double sl12 = InpRuleset12_SLPips * 10.0;
+                  double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+                  double offsetPips12 = (InpRuleset12_PriceOffsetPips * 10.0) * point / PipSize();
+                  if(PlaceBuyLimitAtLevel(levelBelow12, offsetPips12, sl12, tp12, 5, GetTradeLotForRuleset(RULESET_ID_12), magic12, RULESET_ID_12))
+                     WriteTradeLogPendingOrder(RULESET_ID_12, levelBelow12, offsetPips12, sl12, tp12, magic12);
                }
             }
          }
