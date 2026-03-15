@@ -62,7 +62,7 @@ bool     allTrades_enable_perSession_limits = false;  // if true: apply per-sess
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
 //--- Ruleset 6: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset6_LotSize.
-bool     InpRuleset6_Enable = true;   // disable trade. if false, ruleset 6 does not place orders
+bool     InpRuleset6_Enable = false;   // disable trade. if false, ruleset 6 does not place orders
 double   InpRuleset6_PriceOffsetPips  = 7.0;   // order price = level + this many pips
 double   InpRuleset6_TPPips           = 8.0;   // TP (daily); ×10 = pips from order price
 double   InpRuleset6_SLPips           = 8.0;   // SL (daily); ×10 = pips
@@ -74,7 +74,7 @@ int      InpRuleset6_TradeSizePct = 50;   // 10,20,30,40,50,60,70,80,90,100; lot
 
 
 //--- Ruleset 7: OnTimer params (offset/TP/SL pips, banned time ranges). Lot = InpRuleset7_LotSize.
-bool     InpRuleset7_Enable = true;   // if false, ruleset 7 does not place orders
+bool     InpRuleset7_Enable = false;   // if false, ruleset 7 does not place orders
 double   InpRuleset7_PriceOffsetPips  = 5.0;   // order price = level + this many pips
 double   InpRuleset7_TPPips           = 6.0;   // TP (daily); ×10 = pips from order price
 double   InpRuleset7_SLPips           = 2.0;   // SL (daily); ×10 = pips
@@ -684,6 +684,39 @@ void GetMFEandMAEForTrade(const TradeResult &tradeResult, double &mfe, double &m
       mfeCandle = candleLowestLow;
       maeCandle = candleHighestHigh;
    }
+}
+
+//+------------------------------------------------------------------+
+//| Contact proximity: candle containing trade start (e.g. 14:31) + 1 candle after (e.g. 14:32). BUY: level - low (min over 2 candles). SELL: level - high (max over 2 candles). Returns "NOT_FOUND" if no level or bars missing. |
+//+------------------------------------------------------------------+
+string GetContactProximityForTrade(const TradeResult &tradeResult)
+{
+   if(StringLen(tradeResult.level) == 0 || g_barsInDay <= 0) return "NOT_FOUND";
+   double levelVal = StringToDouble(tradeResult.level);
+   datetime currBarTime = tradeResult.startTime - (tradeResult.startTime % 60);  // candle containing trade (e.g. 14:31)
+   datetime nextBarTime = currBarTime + 60;                                       // 1 candle after (e.g. 14:32)
+   double v1 = 0.0, v2 = 0.0;
+   bool has1 = false, has2 = false;
+   for(int i = 0; i < g_barsInDay; i++)
+   {
+      if(g_m1Rates[i].time == currBarTime)
+         { v1 = (tradeResult.type == (long)DEAL_TYPE_BUY) ? g_m1Rates[i].low : g_m1Rates[i].high; has1 = true; }
+      if(g_m1Rates[i].time == nextBarTime)
+         { v2 = (tradeResult.type == (long)DEAL_TYPE_BUY) ? g_m1Rates[i].low : g_m1Rates[i].high; has2 = true; }
+   }
+   if(!has1 && !has2) return "NOT_FOUND";
+   double cp;
+   if(tradeResult.type == (long)DEAL_TYPE_BUY)
+   {
+      if(has1 && has2) cp = MathMin(levelVal - v1, levelVal - v2);
+      else cp = has1 ? (levelVal - v1) : (levelVal - v2);
+   }
+   else  // DEAL_TYPE_SELL
+   {
+      if(has1 && has2) cp = MathMax(levelVal - v1, levelVal - v2);
+      else cp = has1 ? (levelVal - v1) : (levelVal - v2);
+   }
+   return DoubleToString(cp, _Digits);
 }
 
 //+------------------------------------------------------------------+
@@ -3385,7 +3418,7 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
@@ -3410,8 +3443,9 @@ void OnTimer()
                   GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
                   string levelTagStr = "", levelCatsStr = "";
                   GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
+                  string contactProxStr = GetContactProximityForTrade(tradeResult);
                   FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
-                     tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
+                     tradeResult.session, IntegerToString((long)tradeResult.magic), contactProxStr, DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
                      DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr,
                      gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow, levelTagStr, levelCatsStr);
@@ -3421,7 +3455,7 @@ void OnTimer()
 
             // All-days summary: read existing file into memory, add current day with MFE/MAE, write full file in overwrite mode.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            #define TRADERESULTS_ALLDAYS_COLS 30
+            #define TRADERESULTS_ALLDAYS_COLS 31
             string allDaysRows[];
             int existingRowCount = 0;
             int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
@@ -3479,6 +3513,7 @@ void OnTimer()
                GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
                string levelTagStr = "", levelCatsStr = "";
                GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
+               string contactProxStrAll = GetContactProximityForTrade(tradeResult);
                int r = newBase + ti * TRADERESULTS_ALLDAYS_COLS;
                allDaysRows[r++] = dateStr;
                allDaysRows[r++] = tradeResult.symbol;
@@ -3486,6 +3521,7 @@ void OnTimer()
                allDaysRows[r++] = endTimeStr;
                allDaysRows[r++] = tradeResult.session;
                allDaysRows[r++] = IntegerToString((long)tradeResult.magic);
+               allDaysRows[r++] = contactProxStrAll;
                allDaysRows[r++] = DoubleToString(tradeResult.priceStart, _Digits);
                allDaysRows[r++] = priceEndStr;
                allDaysRows[r++] = DoubleToString(tradeResult.priceDiff, _Digits);
@@ -3514,12 +3550,12 @@ void OnTimer()
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {
                   int base = ri * TRADERESULTS_ALLDAYS_COLS;
-                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25], allDaysRows[base+26], allDaysRows[base+27], allDaysRows[base+28], allDaysRows[base+29]);
+                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25], allDaysRows[base+26], allDaysRows[base+27], allDaysRows[base+28], allDaysRows[base+29], allDaysRows[base+30]);
                }
                FileClose(fileHandleSumTr);
             }
