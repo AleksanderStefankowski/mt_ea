@@ -411,7 +411,6 @@ OptionalDouble g_rthLowSoFarAtBar[MAX_BARS_IN_DAY];
 //--- Day high/low so far at each bar k (bars 0..k, whole day). Filled every OnTimer; log reads from here.
 OptionalDouble g_dayHighSoFarAtBar[MAX_BARS_IN_DAY];
 OptionalDouble g_dayLowSoFarAtBar[MAX_BARS_IN_DAY];
-
 //--- Trade results for the day
 #define MAX_TRADE_RESULTS 500
 #define MAX_DEALS_DAY 2000
@@ -2770,6 +2769,7 @@ void OnTimer()
                      "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum",
                      "ONhighSoFar", "ONlowSoFar", "rthHighSoFar", "rthLowSoFar",
                      "dayHighSoFar", "dayLowSoFar",
+                     "sessionRangeMidpoint",
                      "RTHopen",
                      "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
          datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
@@ -2790,6 +2790,7 @@ void OnTimer()
                      DoubleToString(g_dayProgress[barIdx].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].RTHtradeCount), DoubleToString(g_dayProgress[barIdx].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].RTHprofitSum, 2),
                      DoubleToString(g_ONhighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[barIdx].value, _Digits), rthH, rthL,
                      DoubleToString(g_dayHighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_dayLowSoFarAtBar[barIdx].value, _Digits),
+                     DoubleToString((g_dayHighSoFarAtBar[barIdx].value + g_dayLowSoFarAtBar[barIdx].value) / 2.0, 2),
                      rthOpenStr,
                      DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
