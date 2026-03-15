@@ -866,6 +866,37 @@ bool GetGapFillSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, 
 }
 
 //+------------------------------------------------------------------+
+//| Reference points above/below trade open price at trade open time. Skips refs that are "unknown". Fills outAbove and outBelow with semicolon-separated ref names. |
+//+------------------------------------------------------------------+
+void GetReferencePointsAboveBelow(datetime tradeOpenTime, double tradePrice, string &outAbove, string &outBelow)
+{
+   outAbove = "";
+   outBelow = "";
+   datetime barOpenTime = tradeOpenTime - (tradeOpenTime % 60);
+   int barIdx = -1;
+   for(int i = 0; i < g_barsInDay; i++)
+      if(g_m1Rates[i].time == barOpenTime) { barIdx = i; break; }
+   if(barIdx < 0) return;
+   datetime dayStart = g_m1DayStart;
+   string dateStr = TimeToString(dayStart, TIME_DATE);
+
+   double v = 0.0;
+   if(g_staticMarketContext.PDOpreviousDayRTHOpen > 0.0) { v = g_staticMarketContext.PDOpreviousDayRTHOpen; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDO"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDO"; }
+   if(g_staticMarketContext.PDHpreviousDayHigh > 0.0) { v = g_staticMarketContext.PDHpreviousDayHigh; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDH"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDH"; }
+   if(g_staticMarketContext.PDLpreviousDayLow > 0.0) { v = g_staticMarketContext.PDLpreviousDayLow; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDL"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDL"; }
+   if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0) { v = g_staticMarketContext.PDCpreviousDayRTHClose; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDC"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDC"; }
+   if(g_ONhighSoFarAtBar[barIdx].hasValue) { v = g_ONhighSoFarAtBar[barIdx].value; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "ONH"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "ONH"; }
+   if(g_ONlowSoFarAtBar[barIdx].hasValue) { v = g_ONlowSoFarAtBar[barIdx].value; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "ONL"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "ONL"; }
+   if(GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "RTHH"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "RTHH"; }
+   if(GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "RTHL"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "RTHL"; }
+   if(GetIBlowAtBar(barIdx, v)) { if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "IBL"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "IBL"; }
+   if(GetIBhighAtBar(barIdx, v)) { if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "IBH"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "IBH"; }
+   if(g_dayHighSoFarAtBar[barIdx].hasValue) { v = g_dayHighSoFarAtBar[barIdx].value; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar"; }
+   if(g_dayLowSoFarAtBar[barIdx].hasValue) { v = g_dayLowSoFarAtBar[barIdx].value; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar"; }
+   if(g_dayHighSoFarAtBar[barIdx].hasValue && g_dayLowSoFarAtBar[barIdx].hasValue) { v = (g_dayHighSoFarAtBar[barIdx].value + g_dayLowSoFarAtBar[barIdx].value) / 2.0; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint"; }
+}
+
+//+------------------------------------------------------------------+
 //| Find today's RTH open bar in g_m1Rates (14:30 on desync dates, else 15:30) and assign g_todayRTHopen, g_todayRTHopenValid. |
 //+------------------------------------------------------------------+
 void AssignTodayRTHopenFromM1Rates(const string &dateStr)
@@ -3158,7 +3189,7 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
@@ -3179,18 +3210,20 @@ void OnTimer()
                   string pdTrendStr = GetPDtrendString();
                   string dayBrokePDHStr = GetDayBrokePDHAtTradeOpenTime(tradeResult.startTime);
                   string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
+                  string refAbove = "", refBelow = "";
+                  GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
                   FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
                      tradeResult.session, IntegerToString((long)tradeResult.magic), DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
                      DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr,
-                     gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr);
+                     gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow);
                }
                FileClose(fileHandleTr);
             }
 
             // All-days summary: read existing file into memory, add current day with MFE/MAE, write full file in overwrite mode.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            #define TRADERESULTS_ALLDAYS_COLS 26
+            #define TRADERESULTS_ALLDAYS_COLS 28
             string allDaysRows[];
             int existingRowCount = 0;
             int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
@@ -3244,6 +3277,8 @@ void OnTimer()
                string pdTrendStr = GetPDtrendString();
                string dayBrokePDHStr = GetDayBrokePDHAtTradeOpenTime(tradeResult.startTime);
                string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
+               string refAbove = "", refBelow = "";
+               GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
                int r = newBase + ti * TRADERESULTS_ALLDAYS_COLS;
                allDaysRows[r++] = dateStr;
                allDaysRows[r++] = tradeResult.symbol;
@@ -3271,16 +3306,18 @@ void OnTimer()
                allDaysRows[r++] = pdTrendStr;
                allDaysRows[r++] = dayBrokePDHStr;
                allDaysRows[r++] = dayBrokePDLStr;
+               allDaysRows[r++] = refAbove;
+               allDaysRows[r++] = refBelow;
             }
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {
                   int base = ri * TRADERESULTS_ALLDAYS_COLS;
-                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25]);
+                  FileWrite(fileHandleSumTr, allDaysRows[base], allDaysRows[base+1], allDaysRows[base+2], allDaysRows[base+3], allDaysRows[base+4], allDaysRows[base+5], allDaysRows[base+6], allDaysRows[base+7], allDaysRows[base+8], allDaysRows[base+9], allDaysRows[base+10], allDaysRows[base+11], allDaysRows[base+12], allDaysRows[base+13], allDaysRows[base+14], allDaysRows[base+15], allDaysRows[base+16], allDaysRows[base+17], allDaysRows[base+18], allDaysRows[base+19], allDaysRows[base+20], allDaysRows[base+21], allDaysRows[base+22], allDaysRows[base+23], allDaysRows[base+24], allDaysRows[base+25], allDaysRows[base+26], allDaysRows[base+27]);
                }
                FileClose(fileHandleSumTr);
             }
