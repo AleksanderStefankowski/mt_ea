@@ -284,6 +284,8 @@ double   dayStat_onLow   = 0.0;   // ON session low (same day)
 bool     dayStat_ONH_t_RTH = false;  // true if rthHigh >= ONH (RTH took out overnight high)
 bool     dayStat_ONL_t_RTH = false;  // true if rthLow <= ONL (RTH took out overnight low)
 bool     dayStat_ONboth_t_RTH = false; // true if both ONH_t_RTH and ONL_t_RTH
+double   dayStat_spreadHighestSeen = 0.0;  // highest spread (ask - bid) seen today; reset each new day
+double   dayStat_spreadLowestSeen = 0.0;   // lowest spread (ask - bid) seen today; reset each new day
 int      dayStat_totalDays = 0;
 int      dayStat_daysWithGapDown = 0;
 int      dayStat_daysWithoutGapDown = 0;
@@ -1433,6 +1435,8 @@ void UpdateDayM1AndLevelsExpanded()
          return;  // file open failed; keep previous levels
       g_levelsLoadedForDate = dateStr;
       BuildLevelsFromCSV();
+      dayStat_spreadHighestSeen = 0.0;  // reset for new day
+      dayStat_spreadLowestSeen = 0.0;
    }
 
    MqlDateTime mtDay;
@@ -2934,8 +2938,8 @@ bool TryLogDayStatForCurrentDay()
    int fileHandleDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
    if(fileHandleDay != INVALID_HANDLE)
    {
-      FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH", "PD_trend");
-      FileWrite(fileHandleDay, dateStrStat, (dayStat_hasGapDown ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"), GetPDtrendString());
+      FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH", "spreadHighestSeen", "spreadLowestSeen", "PD_trend");
+      FileWrite(fileHandleDay, dateStrStat, (dayStat_hasGapDown ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"), DoubleToString(dayStat_spreadHighestSeen, 2), DoubleToString(dayStat_spreadLowestSeen, 2), GetPDtrendString());
       FileClose(fileHandleDay);
    }
    }
@@ -3043,6 +3047,14 @@ void OnTimer()
    g_lastTimer1Time = TimeCurrent();
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double spread = g_liveAsk - g_liveBid;
+   if(spread > 0.0)
+   {
+      if(dayStat_spreadHighestSeen == 0.0 || spread > dayStat_spreadHighestSeen)
+         dayStat_spreadHighestSeen = spread;
+      if(dayStat_spreadLowestSeen == 0.0 || spread < dayStat_spreadLowestSeen)
+         dayStat_spreadLowestSeen = spread;
+   }
 
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(20);
