@@ -264,7 +264,7 @@ double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
 string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
 
 //--- Day stat: open gap down (RTH open < PD RTH close). Set once after 21:30 candle; logged per day and in summary.
-bool     dayStat_day_had_OpenGapDown_bool = false;
+bool     dayStat_hasGapDown = false;
 bool     dayStat_hasGapUp = false;   // RTH open > PD RTH close
 double   dayStat_openGapDown_percentageFill = 0.0;  // % of gap range (PD RTH close ↔ today RTH open) filled by day's H/L; 0..100
 double   dayStat_gapDiff = 0.0;   // debug: range size (top - bottom)
@@ -2521,7 +2521,7 @@ bool TryLogDayStatForCurrentDay()
       return false;
    double rthOpen = GetRTHopenCurrentDay();
    double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
-   dayStat_day_had_OpenGapDown_bool = (rthOpen < pdc);
+   dayStat_hasGapDown = (rthOpen < pdc);
    dayStat_hasGapUp = (rthOpen > pdc);
 
    // Range from the two numbers (higher = top, lower = bottom); % gap filled = share of range touched by RTH session H/L only
@@ -2563,13 +2563,13 @@ bool TryLogDayStatForCurrentDay()
    if(fileHandleDay != INVALID_HANDLE)
    {
       FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH");
-      FileWrite(fileHandleDay, dateStrStat, (dayStat_day_had_OpenGapDown_bool ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"));
+      FileWrite(fileHandleDay, dateStrStat, (dayStat_hasGapDown ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"));
       FileClose(fileHandleDay);
    }
    }
 
    dayStat_totalDays++;
-   if(dayStat_day_had_OpenGapDown_bool)
+   if(dayStat_hasGapDown)
       AccumulateGapDownThresholds(dayStat_openGapDown_percentageFill);
    else
       dayStat_daysWithoutGapDown++;
@@ -3278,7 +3278,7 @@ void FinalizeCurrentCandle()
       allCandlesFileDate = candleDay;
    }
 
-   // Day stat: once after 21:30 candle, set dayStat_day_had_OpenGapDown_bool (RTH open < PD RTH close) and write dayPriceStat_log + dayPriceStat_summaryLog
+   // Day stat: once after 21:30 candle, set dayStat_hasGapDown (RTH open < PD RTH close) and write dayPriceStat_log + dayPriceStat_summaryLog
    {
       MqlDateTime mqlTime;
       TimeToStruct(current_candle_time, mqlTime);
