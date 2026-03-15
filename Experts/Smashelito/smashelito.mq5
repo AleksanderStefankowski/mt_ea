@@ -411,6 +411,9 @@ OptionalDouble g_rthLowSoFarAtBar[MAX_BARS_IN_DAY];
 //--- Day high/low so far at each bar k (bars 0..k, whole day). Filled every OnTimer; log reads from here.
 OptionalDouble g_dayHighSoFarAtBar[MAX_BARS_IN_DAY];
 OptionalDouble g_dayLowSoFarAtBar[MAX_BARS_IN_DAY];
+//--- IB (first hour of RTH) high/low: unknown before IB ends; after 16:30 (normal) or 15:30 (desync) = max/min of IB bars. Filled every OnTimer.
+OptionalDouble g_IBhighAtBar[MAX_BARS_IN_DAY];
+OptionalDouble g_IBlowAtBar[MAX_BARS_IN_DAY];
 //--- Trade results for the day
 #define MAX_TRADE_RESULTS 500
 #define MAX_DEALS_DAY 2000
@@ -708,6 +711,67 @@ bool GetTodayRTHopenIfValid(double &outRthOpen)
 {
    if(!g_todayRTHopenValid) return false;
    outRthOpen = g_todayRTHopen;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Safe getter for rthHighSoFar at bar. Returns true only when bar is at/after RTH open and value known; then sets outVal. Otherwise false (do not use outVal). |
+//+------------------------------------------------------------------+
+bool GetRthHighSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
+   if(!g_rthHighSoFarAtBar[barIdx].hasValue) return false;
+   outVal = g_rthHighSoFarAtBar[barIdx].value;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Safe getter for rthLowSoFar at bar. Returns true only when bar is at/after RTH open and value known; then sets outVal. Otherwise false (do not use outVal). |
+//+------------------------------------------------------------------+
+bool GetRthLowSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
+   if(!g_rthLowSoFarAtBar[barIdx].hasValue) return false;
+   outVal = g_rthLowSoFarAtBar[barIdx].value;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Safe getter for RTHopen for a given bar. Returns true only when bar is at/after RTH open and g_todayRTHopenValid; then sets outVal. Otherwise false (do not use outVal). |
+//+------------------------------------------------------------------+
+bool GetRTHopenForBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   if(!g_todayRTHopenValid) return false;
+   datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
+   if(g_m1Rates[barIdx].time < rthOpenBarTime) return false;
+   outVal = g_todayRTHopen;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Safe getter for IBhigh at bar. Returns true only when IB complete and value known; then sets outVal. Otherwise false (do not use outVal). |
+//+------------------------------------------------------------------+
+bool GetIBhighAtBar(int barIdx, double &outVal)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   if(!g_IBhighAtBar[barIdx].hasValue) return false;
+   outVal = g_IBhighAtBar[barIdx].value;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Safe getter for IBlow at bar. Returns true only when IB complete and value known; then sets outVal. Otherwise false (do not use outVal). |
+//+------------------------------------------------------------------+
+bool GetIBlowAtBar(int barIdx, double &outVal)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   if(!g_IBlowAtBar[barIdx].hasValue) return false;
+   outVal = g_IBlowAtBar[barIdx].value;
    return true;
 }
 
@@ -1575,6 +1639,39 @@ void UpdateONandRTHHighLowSoFarAtBar()
          g_rthLowSoFarAtBar[barIdx].hasValue  = !firstRTH;
          g_rthLowSoFarAtBar[barIdx].value     = runRTHlow;
       }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Fill g_IBhighAtBar, g_IBlowAtBar: IB = first hour of RTH (15:30–16:30 normal, 14:30–15:30 desync). hasValue false before last IB bar; after, value = max high / min low of IB bars. |
+//+------------------------------------------------------------------+
+void UpdateIBHighLowAtBar()
+{
+   if(g_barsInDay <= 0 || g_m1DayStart == 0) return;
+   string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   datetime lastIBBarTime = bool_RTHsession_Is_DaylightSavingsDesync(dateStr)
+      ? (g_m1DayStart + 15*3600 + 30*60)   // 15:30
+      : (g_m1DayStart + 16*3600 + 30*60);  // 16:30
+
+   double ibHigh = -1e300, ibLow = 1e300;
+   bool ibComplete = false;
+
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      if(IsBarRTHIB(g_m1Rates[barIdx].time))
+      {
+         ibHigh = MathMax(ibHigh, g_m1Rates[barIdx].high);
+         ibLow  = MathMin(ibLow, g_m1Rates[barIdx].low);
+      }
+      if(g_m1Rates[barIdx].time >= lastIBBarTime)
+         ibComplete = true;
+
+      bool hasIBhigh = ibComplete && (ibHigh > -1e299);
+      bool hasIBlow  = ibComplete && (ibLow < 1e299);
+      g_IBhighAtBar[barIdx].hasValue = hasIBhigh;
+      if(hasIBhigh) g_IBhighAtBar[barIdx].value = ibHigh;  // do not write sentinel when invalid
+      g_IBlowAtBar[barIdx].hasValue  = hasIBlow;
+      if(hasIBlow)  g_IBlowAtBar[barIdx].value  = ibLow;
    }
 }
 
@@ -2724,6 +2821,9 @@ void OnTimer()
    // --- ON and RTH session high/low so far at each bar k (bars 0..k). Fresh each candle; log reads from g_*AtBar[k].
    UpdateONandRTHHighLowSoFarAtBar();
 
+   // --- IB high/low (15:30–16:30 or 14:30–15:30); unknown before IB ends.
+   UpdateIBHighLowAtBar();
+
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    UpdateTradeResultsForDay();
 
@@ -2770,18 +2870,19 @@ void OnTimer()
                      "ONhighSoFar", "ONlowSoFar", "rthHighSoFar", "rthLowSoFar",
                      "dayHighSoFar", "dayLowSoFar",
                      "sessionRangeMidpoint",
+                     "IBhigh", "IBlow",
                      "RTHopen",
                      "PDOpreviousDayRTHOpen", "PDHpreviousDayHigh", "PDLpreviousDayLow", "PDCpreviousDayRTHClose", "PDdate");
-         datetime rthOpenBarTime = dayStart + (bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 14*3600+30*60 : 15*3600+30*60);
          for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
             {
                if(!g_ONhighSoFarAtBar[barIdx].hasValue || !g_ONlowSoFarAtBar[barIdx].hasValue)
                   FatalError("pullinghistory: ONhighSoFar/ONlowSoFar required but no ON bar so far at bar k=" + IntegerToString(barIdx) + " time=" + TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES));
-               bool barBeforeRTHopen = (g_m1Rates[barIdx].time < rthOpenBarTime);
-               string rthH = barBeforeRTHopen ? "unknown" : (g_rthHighSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthHighSoFarAtBar[barIdx].value, _Digits) : "unknown");
-               string rthL = barBeforeRTHopen ? "unknown" : (g_rthLowSoFarAtBar[barIdx].hasValue ? DoubleToString(g_rthLowSoFarAtBar[barIdx].value, _Digits) : "unknown");
-               double rthOpenVal = 0.0;
-               string rthOpenStr = (GetTodayRTHopenIfValid(rthOpenVal) && !barBeforeRTHopen) ? DoubleToString(rthOpenVal, _Digits) : "unknown";
+               double rthHVal = 0.0, rthLVal = 0.0, rthOpenVal = 0.0, ibHVal = 0.0, ibLVal = 0.0;
+               string rthH    = GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, rthHVal)    ? DoubleToString(rthHVal, _Digits) : "unknown";
+               string rthL    = GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, rthLVal)     ? DoubleToString(rthLVal, _Digits) : "unknown";
+               string rthOpenStr = GetRTHopenForBar(barIdx, dayStart, dateStr, rthOpenVal) ? DoubleToString(rthOpenVal, _Digits) : "unknown";
+               string ibH     = GetIBhighAtBar(barIdx, ibHVal)  ? DoubleToString(ibHVal, _Digits) : "unknown";
+               string ibL     = GetIBlowAtBar(barIdx, ibLVal)   ? DoubleToString(ibLVal, _Digits) : "unknown";
                FileWrite(fileHandle, TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES),
                      DoubleToString(g_m1Rates[barIdx].open, _Digits), DoubleToString(g_m1Rates[barIdx].high, _Digits), DoubleToString(g_m1Rates[barIdx].low, _Digits), DoubleToString(g_m1Rates[barIdx].close, _Digits),
                      DoubleToString(g_levelAboveH[barIdx], 0), DoubleToString(g_levelBelowL[barIdx], 0), g_session[barIdx],
@@ -2791,6 +2892,7 @@ void OnTimer()
                      DoubleToString(g_ONhighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[barIdx].value, _Digits), rthH, rthL,
                      DoubleToString(g_dayHighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_dayLowSoFarAtBar[barIdx].value, _Digits),
                      DoubleToString((g_dayHighSoFarAtBar[barIdx].value + g_dayLowSoFarAtBar[barIdx].value) / 2.0, 2),
+                     ibH, ibL,
                      rthOpenStr,
                      DoubleToString(g_staticMarketContext.PDOpreviousDayRTHOpen, _Digits), DoubleToString(g_staticMarketContext.PDHpreviousDayHigh, _Digits), DoubleToString(g_staticMarketContext.PDLpreviousDayLow, _Digits), DoubleToString(g_staticMarketContext.PDCpreviousDayRTHClose, _Digits), g_staticMarketContext.PDdate);
             }
