@@ -56,13 +56,13 @@ string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = true; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
-bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for ruleset 5)
+bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for ruleset 55)
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
-//--- Ruleset 5: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
-bool     InpRuleset5_Enable = true;   // if false, ruleset 5 does not place orders
+//--- Ruleset 55: cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
+bool     InpRuleset5_Enable = true;   // if false, ruleset 55 does not place orders
 int      InpRuleset5_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
 double   InpRuleset5_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points; converted to pips for PlaceBuyLimitAtLevel
 double   InpRuleset5_TPPips           = 3.2;   // TP (daily); ×10 = pips from order price
@@ -2115,7 +2115,7 @@ bool LevelIsTertiary(const string &categories)
 }
 
 //+------------------------------------------------------------------+
-//| Categories string for ruleset 5 (g_levelsExpanded). Returns "" if invalid. |
+//| Categories string for ruleset 55 (g_levelsExpanded). Returns "" if invalid. |
 //+------------------------------------------------------------------+
 string GetCategoriesFromExpanded(int levelIdx)
 {
@@ -2125,7 +2125,7 @@ string GetCategoriesFromExpanded(int levelIdx)
 
 //+------------------------------------------------------------------+
 //+------------------------------------------------------------------+
-//| True if ruleset 5 entry conditions: HighestDiffUp > min, overlapC==0, session ON. Uses g_levelsExpanded[levelIdx], kLast. |
+//| True if ruleset 55 entry conditions: HighestDiffUp > min, overlapC==0, session ON. Uses g_levelsExpanded[levelIdx], kLast. |
 //+------------------------------------------------------------------+
 bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
 {
@@ -2141,7 +2141,7 @@ bool MeetsRuleset5EntryRule(double levelBelow, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Unified order comment: $ (int)levelPrice takeProfitVal stopLossVal orderPrice commentRulesetId. Used by ruleset 5. |
+//| Unified order comment: $ (int)levelPrice takeProfitVal stopLossVal orderPrice commentRulesetId. Used by ruleset 55. |
 //+------------------------------------------------------------------+
 string BuildUnifiedOrderComment(int levelPriceInt, double takeProfitVal, double stopLossVal, double orderPrice, int commentRulesetId)
 {
@@ -2236,7 +2236,7 @@ double GetTradeLotForRuleset(int rulesetId)
 {
    double base = g_global_base_trade_size;
    int pct = 100;
-   if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 5");
+   if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset5_TradeSizePct, "Ruleset 55");
    else if(rulesetId == 12) pct = ValidateTradeSizePct(InpRuleset12_TradeSizePct, "Ruleset 12");
    double lot = base * ((double)pct / 100.0);
    double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
@@ -3009,7 +3009,7 @@ void OnTimer()
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(20);
 
-   // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 5 cleanFirstBounceON.
+   // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → ruleset 55 cleanFirstBounceON.
    if(g_barsInDay > 0 && g_levelsTodayCount > 0)
    {
       const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 55;
@@ -3738,7 +3738,7 @@ void FinalizeCurrentCandle()
                IntegerToString(levels[i].recoverCount));
          }
 
-         // --- Flow B: ruleset 5/12 place orders from OnTimer.
+         // --- Flow B: ruleset 55/12 place orders from OnTimer.
       }
    }
 
