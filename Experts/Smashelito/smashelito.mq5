@@ -2236,11 +2236,18 @@ bool MeetsRuleset12EntryRule(double levelBelow, int levelIdx, int kLast)
    string diffBelow = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, 100, false);
    if(diffBelow == "never") return false;
    if(StringToDouble(diffBelow) < 10.0) return false;
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, STREAK_MIN, true);
+
+   // rule: price recent range shouldn't be too big (below level)
+   string diffBelow75 = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, 75, false);
+   // if(diffBelow75 != "never" && StringToDouble(diffBelow75) > 50.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, streakAbove, true);
    if(diffAbove == "never") return false;
    if(StringToDouble(diffAbove) < 12.0) return false;
-   // PD trend must be PD_red
-   // if(GetPDtrendString() != "PD_red") return false;
+   // testing extra rules? 
+   //    if(GetPDtrendString() != "PD_red") return false;
+
+   // dayHighSoFar - level must be < 25 (points)
+   // if(g_dayHighSoFarAtBar[kLast].value - levelBelow >= 25.0) return false;
    return true;
 }
 
