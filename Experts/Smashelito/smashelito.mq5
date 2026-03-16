@@ -55,7 +55,7 @@ bool     dailySpamLog_Arawevents      = true;  // Arawevents CSV + level logRawE
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
-bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
+bool     maemfe_testing             = true; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for ruleset 55)
 bool     ontimer_babysit = false;  // if true: adjust TP/SL based on open time (TP=+3 pips after 12 min, SL=+1.5 pips after 9 min)
 
@@ -2239,6 +2239,8 @@ bool MeetsRuleset12EntryRule(double levelBelow, int levelIdx, int kLast)
    string diffAbove = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, STREAK_MIN, true);
    if(diffAbove == "never") return false;
    if(StringToDouble(diffAbove) < 12.0) return false;
+   // PD trend must be PD_red
+   // if(GetPDtrendString() != "PD_red") return false;
    return true;
 }
 
@@ -3031,7 +3033,7 @@ void OnTimer()
    }
 
    if(maemfe_testing)
-      CloseAnyEAPositionThatIsXMinutesOld(20);
+      CloseAnyEAPositionThatIsXMinutesOld(10);
 
    // Adjust TP/SL based on open time: TP=+3 pips after 12 min; SL=+1.5 pips after 9 min
    if(ontimer_babysit)
