@@ -250,87 +250,87 @@ end
 # TRADE NORMALIZED ANALYSIS
 # ============================================================
 
-puts "\n=== STRATEGY EDGE SUMMARY — TRADE NORMALIZED (quant version) ==="
+# puts "\n=== STRATEGY EDGE SUMMARY — TRADE NORMALIZED (quant version) ==="
 
-trade_groups = expanded.group_by{|r| r[:trade_id]}
+# trade_groups = expanded.group_by{|r| r[:trade_id]}
 
-trade_factor_stats = Hash.new{|h,k| h[k]=[]}
+# trade_factor_stats = Hash.new{|h,k| h[k]=[]}
 
-trade_groups.each do |trade_id, rows|
+# trade_groups.each do |trade_id, rows|
 
-  magic = rows.first[:magic]
-  next unless magic == MAGIC_TO_ANALYZE
+#   magic = rows.first[:magic]
+#   next unless magic == MAGIC_TO_ANALYZE
 
-  profit = rows.first[:profit]
+#   profit = rows.first[:profit]
 
-  factors = Set.new
+#   factors = Set.new
 
-  rows.each do |r|
+#   rows.each do |r|
 
-    if r[:direction]=="above"
-      factors.add("price below #{r[:ref]}")
-    else
-      factors.add("price above #{r[:ref]}")
-    end
+#     if r[:direction]=="above"
+#       factors.add("price below #{r[:ref]}")
+#     else
+#       factors.add("price above #{r[:ref]}")
+#     end
 
-    r[:filters].each do |k,v|
-      factors.add("#{k}=#{v}")
-    end
+#     r[:filters].each do |k,v|
+#       factors.add("#{k}=#{v}")
+#     end
 
-  end
+#   end
 
-  factors.each { |f| trade_factor_stats[f] << profit }
+#   factors.each { |f| trade_factor_stats[f] << profit }
 
-end
+# end
 
-factor_rows = []
+# factor_rows = []
 
-trade_factor_stats.each do |factor,profits|
+# trade_factor_stats.each do |factor,profits|
 
-  count = profits.size
-  next if count < MIN_TRADES
+#   count = profits.size
+#   next if count < MIN_TRADES
 
-  winrate = profits.count{|p|p>0}/count.to_f
-  avg = profits.sum/count
+#   winrate = profits.count{|p|p>0}/count.to_f
+#   avg = profits.sum/count
 
-  factor_rows << [factor, count, winrate.round(3), avg.round(2)]
+#   factor_rows << [factor, count, winrate.round(3), avg.round(2)]
 
-end
+# end
 
 # sort by winrate
-factor_rows.sort_by! { |r| -r[2] }
+# factor_rows.sort_by! { |r| -r[2] }
 
-CSV.open(EXPORT_FILE_TRADE,"w",col_sep:"\t") do |out|
+# CSV.open(EXPORT_FILE_TRADE,"w",col_sep:"\t") do |out|
 
-  out << ["factor","count","winrate","avg_profit"]
+#   out << ["factor","count","winrate","avg_profit"]
 
-  factor_rows.each { |r| out << r }
+#   factor_rows.each { |r| out << r }
 
-end
+# end
 
-edges_trade = factor_rows.map do |r|
-  {factor: r[0], count: r[1], winrate: r[2]}
-end
+# edges_trade = factor_rows.map do |r|
+#   {factor: r[0], count: r[1], winrate: r[2]}
+# end
 
-positive = edges_trade.sort_by{|e| -e[:winrate]}
-negative = edges_trade.sort_by{|e| e[:winrate]}
+# positive = edges_trade.sort_by{|e| -e[:winrate]}
+# negative = edges_trade.sort_by{|e| e[:winrate]}
 
-puts "\nALLOW FACTORS"
+# puts "\nALLOW FACTORS"
 
-positive.first(10).each do |e|
-  puts "#{e[:factor]}"
-  puts "  trades: #{e[:count]}"
-  puts "  winrate: #{(e[:winrate]*100).round(1)}%"
-  puts
-end
+# positive.first(10).each do |e|
+#   puts "#{e[:factor]}"
+#   puts "  trades: #{e[:count]}"
+#   puts "  winrate: #{(e[:winrate]*100).round(1)}%"
+#   puts
+# end
 
-puts "\nBAN FACTORS"
+# puts "\nBAN FACTORS"
 
-negative.first(10).each do |e|
-  puts "#{e[:factor]}"
-  puts "  trades: #{e[:count]}"
-  puts "  winrate: #{(e[:winrate]*100).round(1)}%"
-  puts
-end
+# negative.first(10).each do |e|
+#   puts "#{e[:factor]}"
+#   puts "  trades: #{e[:count]}"
+#   puts "  winrate: #{(e[:winrate]*100).round(1)}%"
+#   puts
+# end
 
-puts "Saved trade-normalized metrics → #{EXPORT_FILE_TRADE}"
+# puts "Saved trade-normalized metrics → #{EXPORT_FILE_TRADE}"
