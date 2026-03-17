@@ -2402,11 +2402,20 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].candlesPassedSinceLastBounce = 0;
 }
 
+//+------------------------------------------------------------------+
+//| Return the price distance of 1 pip. We only trade 2-decimal symbols (e.g. 123.45): 1 pip = 1 point. |
+//+------------------------------------------------------------------+
 double PipSize()
 {
-   int digits = (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS);
-   if(digits == 3 || digits == 5) return SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 10.0;
    return SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+}
+
+//+------------------------------------------------------------------+
+//| Input params (e.g. InpRuleset55_TPPips = 3.2) use display units; ×10 gives pips for PlaceBuyLimitAtLevel. Use for TP, SL, offset. |
+//+------------------------------------------------------------------+
+double InputPipsToOrderPips(double inputPips)
+{
+   return inputPips * 10.0;
 }
 
 //+------------------------------------------------------------------+
@@ -3169,11 +3178,9 @@ void OnTimer()
                   {
                      string categories = GetCategoriesFromExpanded(levelIdx);
                      bool weekly = LevelIsWeekly(categories);
-                     double tp, sl;
-                     if(weekly) { tp = InpRuleset55_TPPips_Weekly * 10.0; sl = InpRuleset55_SLPips_Weekly * 10.0; }
-                     else       { tp = InpRuleset55_TPPips * 10.0;      sl = InpRuleset55_SLPips * 10.0;      }
-                     double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-                     double offsetPips55 = (InpRuleset55_PriceOffsetPips * 10.0) * point / PipSize();
+                     double tp   = InputPipsToOrderPips(weekly ? InpRuleset55_TPPips_Weekly : InpRuleset55_TPPips);
+                     double sl   = InputPipsToOrderPips(weekly ? InpRuleset55_SLPips_Weekly : InpRuleset55_SLPips);
+                     double offsetPips55 = InputPipsToOrderPips(InpRuleset55_PriceOffsetPips);
                      if(PlaceBuyLimitAtLevel(levelBelow, offsetPips55, sl, tp, 15, GetTradeLotForRuleset(RULESET_ID_CLEAN_FIRST_BOUNCE_ON), magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
                         WriteTradeLogPendingOrder(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, levelBelow, offsetPips55, sl, tp, magic);
                   }
@@ -3196,10 +3203,9 @@ void OnTimer()
                long magic12 = BuildMagic(RULESET_ID_12);
                if(CanPlaceNewOrderForMagic(magic12))
                {
-                  double tp12 = InpRuleset12_TPPips * 10.0;
-                  double sl12 = InpRuleset12_SLPips * 10.0;
-                  double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-                  double offsetPips12 = (InpRuleset12_PriceOffsetPips * 10.0) * point / PipSize();
+                  double tp12   = InputPipsToOrderPips(InpRuleset12_TPPips);
+                  double sl12   = InputPipsToOrderPips(InpRuleset12_SLPips);
+                  double offsetPips12 = InputPipsToOrderPips(InpRuleset12_PriceOffsetPips);
                   if(PlaceBuyLimitAtLevel(levelBelow12, offsetPips12, sl12, tp12, 5, GetTradeLotForRuleset(RULESET_ID_12), magic12, RULESET_ID_12))
                      WriteTradeLogPendingOrder(RULESET_ID_12, levelBelow12, offsetPips12, sl12, tp12, magic12);
                }
