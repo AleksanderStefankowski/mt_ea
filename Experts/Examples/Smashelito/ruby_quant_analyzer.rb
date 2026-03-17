@@ -6,8 +6,8 @@ FILE = "summary_tradeResults_all_days.csv"
 
 FILTER_KEYS = ["openGap_info","PD_trend","dayBrokePDH","dayBrokePDL"]
 
-EXPORT_FILE_FACTORS = "ruby_quant_a_factor_trade_level_metrics.tsv"
-EXPORT_FILE_SETUPS  = "ruby_quant_a_ruby_factor_trade_setups.tsv"
+EXPORT_FILE_FACTORS = "ruby_factor_trade_level_metrics.tsv"
+EXPORT_FILE_SETUPS  = "ruby_factor_trade_setups.tsv"
 
 MIN_TRADES_FACTORS = 5   # Minimum trades to analyze a factor (per magic number)
 MIN_TRADES_SETUPS  = 2   # Minimum trades to analyze a setup (per magic number)

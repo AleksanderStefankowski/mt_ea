@@ -1,0 +1,27 @@
+magic	factor	count	winrate	avg_profit
+121	dayBrokePDL=false	6	1.0	146.91
+121	price below ONH	14	0.929	127.03
+121	price below PDC	9	0.889	113.01
+121	dayBrokePDH=false	9	0.889	113.01
+121	price above PDL	15	0.867	109.18
+121	price above ONL	14	0.857	106.69
+121	openGap_info=gapDown_Day	13	0.846	103.83
+121	price above PDO	13	0.846	103.66
+121	price below midpoint	6	0.833	96.33
+121	price above dayLowSoFar	17	0.824	96.34
+121	price above RTHL	17	0.824	96.34
+121	price below dayHighSoFar	17	0.824	96.34
+121	price below RTHH	17	0.824	96.34
+121	PD_trend=PD_green	17	0.824	96.34
+121	price above midpoint	11	0.818	96.35
+121	price above IBL	16	0.813	93.33
+121	price below PDH	14	0.786	85.01
+121	price above PDC	8	0.75	77.6
+121	price below IBH	12	0.75	74.71
+121	dayBrokePDH=true	8	0.75	77.6
+121	dayBrokePDL=true	11	0.727	68.76
+122	price above IBL	16	0.375	-33.15
+122	price above PDL	17	0.353	-38.87
+122	openGap_info=gapUp_Day	12	0.333	-44.02
+122	price below midpoint	10	0.3	-56.9
+122	price below ONL	5	0.2	-84.62
