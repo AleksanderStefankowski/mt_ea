@@ -727,6 +727,44 @@ void GetMFEpAndMAEpForTrade(const TradeResult &tradeResult, double mfe, double m
 }
 
 //+------------------------------------------------------------------+
+//| TP/SL level price for "N" in input pips format (same as order TP/SL: InputPipsToOrderPips(N)*PipSize()). BUY TP = priceStart+dist, SL = priceStart-dist; SELL opposite. |
+//+------------------------------------------------------------------+
+double GetLevelPriceForTPorSL(const TradeResult &tradeResult, int N, bool isTP)
+{
+   double dist = InputPipsToOrderPips((double)N) * PipSize();
+   if(tradeResult.type == (long)DEAL_TYPE_BUY)
+      return isTP ? tradeResult.priceStart + dist : tradeResult.priceStart - dist;
+   return isTP ? tradeResult.priceStart - dist : tradeResult.priceStart + dist;
+}
+
+//+------------------------------------------------------------------+
+//| First candle (1-based, 1..30) from trade start where OHLC reached level. Candle 1 = bar containing startTime; range = 30 minutes. |
+//| isTP: BUY = high>=level, SELL = low<=level. !isTP (SL): BUY = low<=level, SELL = high>=level. Returns 0 if never reached. |
+//+------------------------------------------------------------------+
+int GetCandleWhereLevelReached(const TradeResult &tradeResult, double levelPrice, bool isTP)
+{
+   if(g_barsInDay <= 0) return 0;
+   datetime firstBarTime = tradeResult.startTime - (tradeResult.startTime % 60);
+   datetime lastBarTime = firstBarTime + 29 * 60;  // 30 candles: 0..29 min after first bar
+   bool isBuy = (tradeResult.type == (long)DEAL_TYPE_BUY);
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      datetime barTime = g_m1Rates[barIdx].time;
+      if(barTime < firstBarTime) continue;
+      if(barTime > lastBarTime) break;
+      int candleNum = (int)((barTime - firstBarTime) / 60) + 1;  // 1-based
+      double h = g_m1Rates[barIdx].high, l = g_m1Rates[barIdx].low;
+      bool hit = false;
+      if(isTP)
+         hit = isBuy ? (h >= levelPrice) : (l <= levelPrice);
+      else
+         hit = isBuy ? (l <= levelPrice) : (h >= levelPrice);
+      if(hit) return candleNum;
+   }
+   return 0;
+}
+
+//+------------------------------------------------------------------+
 //| Contact proximity: candle containing trade start (e.g. 14:31) + 1 candle after (e.g. 14:32). BUY: level - low (min over 2 candles). SELL: level - high (max over 2 candles). Returns "NOT_FOUND" if no level or bars missing. |
 //+------------------------------------------------------------------+
 string GetContactProximityForTrade(const TradeResult &tradeResult)
@@ -2281,7 +2319,7 @@ bool MeetsRuleset12EntryRule(double levelBelow, int levelIdx, int kLast)
    if(diffBelow == "never") return false;
    if(StringToDouble(diffBelow) < 10.0) return false;
 
-  string diffAbove = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, streakAbove, true);
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, streakAbove, true);
    if(diffAbove == "never") return false;
    if(StringToDouble(diffAbove) < 12.0) return false;
 
@@ -3475,7 +3513,7 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
@@ -3505,6 +3543,24 @@ void OnTimer()
                   string mae_c11Str = (mfe_c11 != 0.0 || mae_c11 != 0.0) ? DoubleToString(mae_c11, 2) : "";
                   string mfe_c16Str = (mfe_c16 != 0.0 || mae_c16 != 0.0) ? DoubleToString(mfe_c16, 2) : "";
                   string mae_c16Str = (mfe_c16 != 0.0 || mae_c16 != 0.0) ? DoubleToString(mae_c16, 2) : "";
+                  int sl4_c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 4, false), false);
+                  int tp6c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 6, true), true);
+                  int sl6c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 6, false), false);
+                  int tp8c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 8, true), true);
+                  int sl8c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 8, false), false);
+                  int tp10c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 10, true), true);
+                  int sl10c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 10, false), false);
+                  int tp12c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 12, true), true);
+                  int sl12c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 12, false), false);
+                  string sl4_cStr = (sl4_c > 0) ? IntegerToString(sl4_c) : "";
+                  string tp6cStr = (tp6c > 0) ? IntegerToString(tp6c) : "";
+                  string sl6cStr = (sl6c > 0) ? IntegerToString(sl6c) : "";
+                  string tp8cStr = (tp8c > 0) ? IntegerToString(tp8c) : "";
+                  string sl8cStr = (sl8c > 0) ? IntegerToString(sl8c) : "";
+                  string tp10cStr = (tp10c > 0) ? IntegerToString(tp10c) : "";
+                  string sl10cStr = (sl10c > 0) ? IntegerToString(sl10c) : "";
+                  string tp12cStr = (tp12c > 0) ? IntegerToString(tp12c) : "";
+                  string sl12cStr = (sl12c > 0) ? IntegerToString(sl12c) : "";
                   string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
                   string isGapDownDayStr = GetIsGapDownDayString(tradeResult.startTime);
                   string pdTrendStr = GetPDtrendString();
@@ -3519,6 +3575,7 @@ void OnTimer()
                      tradeResult.session, IntegerToString((long)tradeResult.magic), contactProxStr, DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
                      DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr, mfepStr, maepStr, mfe_c6Str, mae_c6Str, mfe_c11Str, mae_c11Str, mfe_c16Str, mae_c16Str,
+                     sl4_cStr, tp6cStr, sl6cStr, tp8cStr, sl8cStr, tp10cStr, sl10cStr, tp12cStr, sl12cStr,
                      gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow, levelTagStr, levelCatsStr);
                }
                FileClose(fileHandleTr);
@@ -3527,7 +3584,7 @@ void OnTimer()
             // All-days summary: read existing file (guaranteed correct schema), merge new day in memory, write whole file.
             // NEVER try to support old files from before schema changes. We always start clean. Don't care about backward compat.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            const string TRADERESULTS_ALLDAYS_HEADER = "date,symbol,startTime,endTime,session,magic,contactProximity,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,tp,sl,MFE,MAE,mfeCandle,maeCandle,MFEp,MAEp,MFE_c6,MAE_c6,MFE_c11,MAE_c11,MFE_c16,MAE_c16,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelTag,levelCats";
+            const string TRADERESULTS_ALLDAYS_HEADER = "date,symbol,startTime,endTime,session,magic,contactProximity,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,tp,sl,MFE,MAE,mfeCandle,maeCandle,MFEp,MAEp,MFE_c6,MAE_c6,MFE_c11,MAE_c11,MFE_c16,MAE_c16,SL4_c,TP6c,SL6c,TP8c,SL8c,TP10c,SL10c,TP12c,SL12c,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelTag,levelCats";
             string headerParts[];
             int schemaCols = StringSplit(TRADERESULTS_ALLDAYS_HEADER, ',', headerParts);
             string allDaysRows[];
@@ -3593,6 +3650,24 @@ void OnTimer()
                string mae_c11Str = (mfe_c11 != 0.0 || mae_c11 != 0.0) ? DoubleToString(mae_c11, 2) : "";
                string mfe_c16Str = (mfe_c16 != 0.0 || mae_c16 != 0.0) ? DoubleToString(mfe_c16, 2) : "";
                string mae_c16Str = (mfe_c16 != 0.0 || mae_c16 != 0.0) ? DoubleToString(mae_c16, 2) : "";
+               int sl4_c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 4, false), false);
+               int tp6c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 6, true), true);
+               int sl6c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 6, false), false);
+               int tp8c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 8, true), true);
+               int sl8c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 8, false), false);
+               int tp10c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 10, true), true);
+               int sl10c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 10, false), false);
+               int tp12c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 12, true), true);
+               int sl12c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 12, false), false);
+               string sl4_cStr = (sl4_c > 0) ? IntegerToString(sl4_c) : "";
+               string tp6cStr = (tp6c > 0) ? IntegerToString(tp6c) : "";
+               string sl6cStr = (sl6c > 0) ? IntegerToString(sl6c) : "";
+               string tp8cStr = (tp8c > 0) ? IntegerToString(tp8c) : "";
+               string sl8cStr = (sl8c > 0) ? IntegerToString(sl8c) : "";
+               string tp10cStr = (tp10c > 0) ? IntegerToString(tp10c) : "";
+               string sl10cStr = (sl10c > 0) ? IntegerToString(sl10c) : "";
+               string tp12cStr = (tp12c > 0) ? IntegerToString(tp12c) : "";
+               string sl12cStr = (sl12c > 0) ? IntegerToString(sl12c) : "";
                string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
                string isGapDownDayStr = GetIsGapDownDayString(tradeResult.startTime);
                string pdTrendStr = GetPDtrendString();
@@ -3634,6 +3709,15 @@ void OnTimer()
                allDaysRows[r++] = mae_c11Str;
                allDaysRows[r++] = mfe_c16Str;
                allDaysRows[r++] = mae_c16Str;
+               allDaysRows[r++] = sl4_cStr;
+               allDaysRows[r++] = tp6cStr;
+               allDaysRows[r++] = sl6cStr;
+               allDaysRows[r++] = tp8cStr;
+               allDaysRows[r++] = sl8cStr;
+               allDaysRows[r++] = tp10cStr;
+               allDaysRows[r++] = sl10cStr;
+               allDaysRows[r++] = tp12cStr;
+               allDaysRows[r++] = sl12cStr;
                allDaysRows[r++] = gapFillPcStr;
                allDaysRows[r++] = isGapDownDayStr;
                allDaysRows[r++] = pdTrendStr;
@@ -3647,12 +3731,12 @@ void OnTimer()
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {
                   int rowBase = (ri < existingRowCount) ? (ri * cols) : (newBase + (ri - existingRowCount) * schemaCols);
-                  FileWrite(fileHandleSumTr, allDaysRows[rowBase], allDaysRows[rowBase+1], allDaysRows[rowBase+2], allDaysRows[rowBase+3], allDaysRows[rowBase+4], allDaysRows[rowBase+5], allDaysRows[rowBase+6], allDaysRows[rowBase+7], allDaysRows[rowBase+8], allDaysRows[rowBase+9], allDaysRows[rowBase+10], allDaysRows[rowBase+11], allDaysRows[rowBase+12], allDaysRows[rowBase+13], allDaysRows[rowBase+14], allDaysRows[rowBase+15], allDaysRows[rowBase+16], allDaysRows[rowBase+17], allDaysRows[rowBase+18], allDaysRows[rowBase+19], allDaysRows[rowBase+20], allDaysRows[rowBase+21], allDaysRows[rowBase+22], allDaysRows[rowBase+23], allDaysRows[rowBase+24], allDaysRows[rowBase+25], allDaysRows[rowBase+26], allDaysRows[rowBase+27], allDaysRows[rowBase+28], allDaysRows[rowBase+29], allDaysRows[rowBase+30], allDaysRows[rowBase+31], allDaysRows[rowBase+32], allDaysRows[rowBase+33], allDaysRows[rowBase+34], allDaysRows[rowBase+35], allDaysRows[rowBase+36], allDaysRows[rowBase+37], allDaysRows[rowBase+38]);
+                  FileWrite(fileHandleSumTr, allDaysRows[rowBase], allDaysRows[rowBase+1], allDaysRows[rowBase+2], allDaysRows[rowBase+3], allDaysRows[rowBase+4], allDaysRows[rowBase+5], allDaysRows[rowBase+6], allDaysRows[rowBase+7], allDaysRows[rowBase+8], allDaysRows[rowBase+9], allDaysRows[rowBase+10], allDaysRows[rowBase+11], allDaysRows[rowBase+12], allDaysRows[rowBase+13], allDaysRows[rowBase+14], allDaysRows[rowBase+15], allDaysRows[rowBase+16], allDaysRows[rowBase+17], allDaysRows[rowBase+18], allDaysRows[rowBase+19], allDaysRows[rowBase+20], allDaysRows[rowBase+21], allDaysRows[rowBase+22], allDaysRows[rowBase+23], allDaysRows[rowBase+24], allDaysRows[rowBase+25], allDaysRows[rowBase+26], allDaysRows[rowBase+27], allDaysRows[rowBase+28], allDaysRows[rowBase+29], allDaysRows[rowBase+30], allDaysRows[rowBase+31], allDaysRows[rowBase+32], allDaysRows[rowBase+33], allDaysRows[rowBase+34], allDaysRows[rowBase+35], allDaysRows[rowBase+36], allDaysRows[rowBase+37], allDaysRows[rowBase+38], allDaysRows[rowBase+39], allDaysRows[rowBase+40], allDaysRows[rowBase+41], allDaysRows[rowBase+42], allDaysRows[rowBase+43], allDaysRows[rowBase+44], allDaysRows[rowBase+45], allDaysRows[rowBase+46], allDaysRows[rowBase+47]);
                }
                FileClose(fileHandleSumTr);
             }
