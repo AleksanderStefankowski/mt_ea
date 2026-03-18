@@ -1,22 +1,29 @@
 require 'csv'
+require 'time'
 
 file_path = "summary_tradeResults_all_days.csv"
 
 # =======================
 # CONFIG
 # =======================
-PRINT_ALL_WINRATE = false   # true = print all combos, false = top 5
-PRINT_ALL_GAIN    = false
+PRINT_ALL_WINRATE = false
+PRINT_ALL_GAIN    = true
 PRINT_ALL_BE      = false
 
 # =======================
 # DATA STRUCTURE
 # =======================
 data = Hash.new { |h, k| h[k] = [] }
+date_ranges = Hash.new { |h, k| h[k] = { min: nil, max: nil } }
 
 def to_f_or_nil(val)
   return nil if val.nil? || val.strip.empty?
   val.to_f
+end
+
+def parse_date(val)
+  return nil if val.nil? || val.strip.empty?
+  Time.parse(val) rescue nil
 end
 
 # =======================
@@ -46,6 +53,17 @@ puts "Count of possible combinations: #{all_combos.size}"
 CSV.foreach(file_path, headers: true, col_sep: "\t") do |row|
   magic = row["magic"]
   next if magic.nil?
+
+  # --- DATE TRACKING ---
+  trade_date = parse_date(row["startTime"] || row["date"])
+  if trade_date
+    if date_ranges[magic][:min].nil? || trade_date < date_ranges[magic][:min]
+      date_ranges[magic][:min] = trade_date
+    end
+    if date_ranges[magic][:max].nil? || trade_date > date_ranges[magic][:max]
+      date_ranges[magic][:max] = trade_date
+    end
+  end
 
   record = {}
 
@@ -87,7 +105,14 @@ data.each do |magic, trades|
   skipped_cases = trades.sum { |t| t.count { |_, v| v[:skipped] } }
   skipped_percent = (skipped_cases.to_f / total_cases * 100).round(1)
 
-  puts "\nMagic number: #{magic} (total trades: #{trades.size})"
+  # --- FORMAT DATE RANGE ---
+  min_d = date_ranges[magic][:min]
+  max_d = date_ranges[magic][:max]
+
+  min_str = min_d ? min_d.strftime("%Y-%m-%d") : "N/A"
+  max_str = max_d ? max_d.strftime("%Y-%m-%d") : "N/A"
+
+  puts "\nMagic number: #{magic} (total trades: #{trades.size}, range: #{min_str} → #{max_str})"
   puts "Trades skipped (both SL & TP blank): #{skipped_cases} (#{skipped_percent}%)"
 
   combination_stats = Hash.new { |h, k| h[k] = { profits: [], breakeven_candles: [] } }
@@ -151,7 +176,7 @@ data.each do |magic, trades|
   end
 
   # =======================
-  # BREAKEVEN (EARLIEST)
+  # BREAKEVEN
   # =======================
   puts "\nTop combinations by earliest breakeven:"
   sorted = combo_results.select { |c| c[:avg_breakeven] }.sort_by { |c| c[:avg_breakeven] }

@@ -34,7 +34,7 @@ int      Max_OrdersPerMagic = 1; // max open positions + pending orders with thi
 double   InpLotSize           = 0.01; // lot size for rulesets
 int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (timer/server time)
 int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
-bool     InpTestingPullM1History = true;  // if true: at 21:58-22:00 write (date)_testing_pullinghistory.csv and testinglevelsplus files
+bool     InpEODLogging = true;  // if true: at 21:58-22:00 write EOD logs (summaryZ_tradeResults, summary_tradeResults_all_days, pullinghistory, levels, etc.)
 //--- Log to file: set false to disable that log (optimization)
 //    finalLog_ = one file across whole run; dailyEODlog_ = daily once at EOD; dailySpamLog_ = daily and frequent
 bool     dailyEODlog_PullingHistory   = true;  // (date)_testing_pullinghistory.csv
@@ -57,7 +57,7 @@ string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for cleanFirstBounceON)
-bool     ontimer_babysit = false;  // if true: adjust TP/SL based on open time (TP=+3 pips after 12 min, SL=+1.5 pips after 9 min)
+bool     ontimer_babysit = true;
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
@@ -77,12 +77,12 @@ string   InpRuleset55_BannedRanges    = "22,0,23,59;0,0,1,0";  // 22:00–23:59 
 bool     InpRuleset121_Enable = true;
 int      InpRuleset121_TradeSizePct = 100;
 double   InpRuleset121_PriceOffsetPips  = 2.6;   // same convention as cleanFirstBounceON: (this×10) points
-double   InpRuleset121_TPPips = 8.0;
-double   InpRuleset121_SLPips = 8.0;
+double   InpRuleset121_TPPips = 12.0;
+double   InpRuleset121_SLPips = 12.0;
 string   InpRuleset121_BannedRanges = "22,0,23,59;0,0,1,0";
 
 //--- long2 duplicate (same logic as 121; separate magic and params)
-bool     InpRuleset122_Enable = true;
+bool     InpRuleset122_Enable = false;
 int      InpRuleset122_TradeSizePct = 100;
 double   InpRuleset122_PriceOffsetPips  = 2.6;
 double   InpRuleset122_TPPips = 8.0;
@@ -245,7 +245,7 @@ datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
 double g_ONopen = 0.0;      // Open of first (oldest) candle of the day; set when we have at least 1 bar for the day
 double g_todayRTHopen = 0.0;       // RTH open (14:30 or 15:30 bar open) for current day when available
 bool   g_todayRTHopenValid = false; // true once we have the RTH open bar for the day (set in UpdateDayM1AndLevelsExpanded; log as "unknown" when false)
-// Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 21:59-22:00 window)
+// Per-bar data (filled in UpdateDayM1AndLevelsExpanded; logged in 21:58-22:00 window)
 double g_levelAboveH[MAX_BARS_IN_DAY];  // level (levelPrice) above candle high; 0 if none
 double g_levelBelowL[MAX_BARS_IN_DAY];  // level below candle low; 0 if none
 string g_session[MAX_BARS_IN_DAY];      // "ON"|"RTH"|"sleep"
@@ -577,6 +577,7 @@ string GetSessionForCandleTime(datetime t)
 
 //+------------------------------------------------------------------+
 //| True if t is in the EOD log window (21:58–22:00 inclusive). Used to gate pullinghistory and other daily logs. |
+//| WARNING: Setting the window even 1 minute later (e.g. 21:59) can break EOD logging: the tester may not deliver a tick in that later minute, so summaryZ_tradeResults and summary_tradeResults_all_days may never be written. |
 //+------------------------------------------------------------------+
 bool IsInEODLogWindow(datetime t)
 {
@@ -1688,7 +1689,7 @@ void UpdateDayM1AndLevelsExpanded()
       }
    }
 
-   // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:59-22:00)
+   // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:58-22:00)
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
       double aboveH = 0;
@@ -2376,8 +2377,11 @@ bool MeetsRuleset121EntryRule(double levelBelow, int levelIdx, int kLast)
    // testing extra rules? PD_red PD_green
    if(GetPDtrendString() == "PD_red") return false;
    if(g_session[kLast] == "ON") return false;
-      
 
+   // price must be below ON high so far (from UpdateONandRTHHighLowSoFarAtBar; we are in RTH so ON has run)
+   if(levelBelow >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   
    // dayHighSoFar - level must be < 25 (points)
    // if(g_dayHighSoFarAtBar[kLast].value - levelBelow >= 25.0) return false;
    return true;
@@ -2622,6 +2626,30 @@ void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
          if(posMagic == BuildMagic(EA_KNOWN_RULESET_IDS[k])) { isEaMagic = true; break; }
       if(!isEaMagic) continue;
       if(g_lastTimer1Time - ExtPositionInfo.Time() <= (datetime)(minutes * 60)) continue;
+      ExtTrade.SetExpertMagicNumber((ulong)posMagic);
+      ExtTrade.PositionClose(ExtPositionInfo.Ticket());
+      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
+   }
+}
+
+//+------------------------------------------------------------------+
+//| If latest closed M1 candle (bar 1) is 21:57, close all EA positions (so EOD write at 21:58 sees OUT). Sets trade magic so OUT pairs with IN. |
+//+------------------------------------------------------------------+
+void CloseAnyOpenTrade_atEOD_2158()
+{
+   datetime lastClosedBarTime = iTime(_Symbol, PERIOD_M1, 1);
+   MqlDateTime mtClosed;
+   TimeToStruct(lastClosedBarTime, mtClosed);
+   if(mtClosed.hour != 21 || mtClosed.min != 57) return;
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(i)) continue;
+      if(ExtPositionInfo.Symbol() != _Symbol) continue;
+      long posMagic = ExtPositionInfo.Magic();
+      bool isEaMagic = false;
+      for(int k = 0; k < EA_KNOWN_RULESET_COUNT; k++)
+         if(posMagic == BuildMagic(EA_KNOWN_RULESET_IDS[k])) { isEaMagic = true; break; }
+      if(!isEaMagic) continue;
       ExtTrade.SetExpertMagicNumber((ulong)posMagic);
       ExtTrade.PositionClose(ExtPositionInfo.Ticket());
       ExtTrade.SetExpertMagicNumber(EA_MAGIC);
@@ -3248,61 +3276,45 @@ void OnTimer()
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
 
-   // if babysit: Adjust TP/SL based on open time: TP=+3 pips after 12 min; SL=+1.5 pips after 9 min
+   // babesit: after 11 min, try to set SL to -0.5 (price from entry); if not -0.5 try -1, -2, ... only tighter (never e.g. -6 -> -7)
    if(ontimer_babysit)
    {
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
-   {
-      if(!ExtPositionInfo.SelectByIndex(i)) continue;
-      if(ExtPositionInfo.Symbol() != _Symbol) continue;
-      long posMagic = ExtPositionInfo.Magic();
-      bool isEaMagic = false;
-      for(int k = 0; k < EA_KNOWN_RULESET_COUNT; k++)
-         if(posMagic == BuildMagic(EA_KNOWN_RULESET_IDS[k])) { isEaMagic = true; break; }
-      if(!isEaMagic) continue;
-      
-      datetime openTime = ExtPositionInfo.Time();
-      int minutesOpen = (int)((g_lastTimer1Time - openTime) / 60);
-      
-      double openPrice = ExtPositionInfo.PriceOpen();
-      double currentTP = ExtPositionInfo.TakeProfit();
-      double currentSL = ExtPositionInfo.StopLoss();
-      double pipSize = PipSize();
-      ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
-      ulong ticket = ExtPositionInfo.Ticket();
-      
-      ExtTrade.SetExpertMagicNumber((ulong)posMagic);
-      
-      // Set SL to +1.5 pips after 9 minutes
-      if(minutesOpen >= 9)
+      double babysit_targets[] = {-0.5, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0};
+      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+      double tol = point * 0.5;
+      for(int i = PositionsTotal() - 1; i >= 0; i--)
       {
-         double newSL;
-         if(posType == POSITION_TYPE_BUY)
-            newSL = NormalizeDouble(openPrice + 1.5 * pipSize, _Digits);
-         else  // POSITION_TYPE_SELL
-            newSL = NormalizeDouble(openPrice - 1.5 * pipSize, _Digits);
-         if(MathAbs(newSL - currentSL) > SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 0.5)
-            ExtTrade.PositionModify(ticket, newSL, currentTP);
+         if(!ExtPositionInfo.SelectByIndex(i)) continue;
+         if(ExtPositionInfo.Symbol() != _Symbol) continue;
+         long posMagic = ExtPositionInfo.Magic();
+         bool isEaMagic = false;
+         for(int k = 0; k < EA_KNOWN_RULESET_COUNT; k++)
+            if(posMagic == BuildMagic(EA_KNOWN_RULESET_IDS[k])) { isEaMagic = true; break; }
+         if(!isEaMagic) continue;
+         int minutesOpen = (int)((g_lastTimer1Time - ExtPositionInfo.Time()) / 60);
+         if(minutesOpen < 11) continue;
+         double openPrice = ExtPositionInfo.PriceOpen();
+         double currentTP = ExtPositionInfo.TakeProfit();
+         ulong ticket = ExtPositionInfo.Ticket();
+         ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
+         double currentSL = ExtPositionInfo.StopLoss();
+         double currentOffset = (posType == POSITION_TYPE_BUY) ? (currentSL - openPrice) : (openPrice - currentSL);
+         ExtTrade.SetExpertMagicNumber((ulong)posMagic);
+         for(int t = 0; t < ArraySize(babysit_targets); t++)
+         {
+            double target = babysit_targets[t];
+            if(target <= currentOffset) continue;   // only tighten: never e.g. -6 -> -7
+            double newSL = (posType == POSITION_TYPE_BUY) ? openPrice + target : openPrice - target;
+            newSL = NormalizeDouble(newSL, _Digits);
+            if(MathAbs(newSL - currentSL) <= tol) break;
+            if(!ExtTrade.PositionModify(ticket, newSL, currentTP)) continue;
+            if(!ExtPositionInfo.SelectByTicket(ticket)) break;
+            currentSL = ExtPositionInfo.StopLoss();
+            currentOffset = (posType == POSITION_TYPE_BUY) ? (currentSL - openPrice) : (openPrice - currentSL);
+            if(currentOffset >= target - tol) break;   // at or tighter than target
+         }
+         ExtTrade.SetExpertMagicNumber(EA_MAGIC);
       }
-      
-      // Refresh position info to get updated SL after potential SL modification
-      if(ExtPositionInfo.SelectByTicket(ticket))
-         currentSL = ExtPositionInfo.StopLoss();
-      
-      // Set TP to +3 pips after 12 minutes
-      if(minutesOpen > 12)
-      {
-         double newTP;
-         if(posType == POSITION_TYPE_BUY)
-            newTP = NormalizeDouble(openPrice + 3.0 * pipSize, _Digits);
-         else  // POSITION_TYPE_SELL
-            newTP = NormalizeDouble(openPrice - 3.0 * pipSize, _Digits);
-         if(MathAbs(newTP - currentTP) > SymbolInfoDouble(_Symbol, SYMBOL_POINT) * 0.5)
-            ExtTrade.PositionModify(ticket, currentSL, newTP);
-      }
-      
-      ExtTrade.SetExpertMagicNumber(EA_MAGIC);
-   }
    }
 
    // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → cleanFirstBounceON.
@@ -3433,6 +3445,8 @@ void OnTimer()
 
    g_lastBarTime = barNowM1;
 
+   CloseAnyOpenTrade_atEOD_2158();   // closed candle 21:57 → close all EA positions (EOD write at 21:58)
+
    // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
    datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    if(g_staticMarketContextPulledForDate != dayStartForContext)
@@ -3471,8 +3485,8 @@ void OnTimer()
       // g_m1Rates is oldest-first: [0]=first bar of day
       g_ONopen = g_m1Rates[0].open;
    }
-   // --- Logging only in EOD time window (21:58–22:00) when testing pull M1 history
-   if(InpTestingPullM1History)
+   
+   if(InpEODLogging)
    {
       datetime dayStart;
       string dateStr;
@@ -3640,6 +3654,8 @@ void OnTimer()
          }
 
          // Trade results CSV: (date)_summaryZ_tradeResults_ALL_Day.csv (only once; if missing, write again). Skip when no trades.
+         // Refresh trade results so OUT deals from CloseAnyOpenTrade_atEOD_2158() (same tick) are in history and paired.
+         UpdateTradeResultsForDay();
          string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day.csv";
          if(dailyEODlog_TradeResultsCsv && g_tradeResultsCount > 0 && !FileIsExist(csvName))
          {
@@ -3921,7 +3937,7 @@ void OnTimer()
             }
          }
 
-         // Levels break check: one row per level (21:58). Separate ON (til 15:30) and RTH (15:30 onward). Rows sorted by levelPrice.
+         // Levels break check: one row per level (EOD 21:58). Separate ON (til 15:30) and RTH (15:30 onward). Rows sorted by levelPrice.
          if(dailyEODlog_BreakCheck)
          {
          string breakCheckFile = dateStr + "_levels_breakCheck_breakingDown.csv";
