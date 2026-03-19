@@ -56,32 +56,20 @@ string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
-bool     allTrades_enable_perSession_limits = false;  // if true: apply per-session trade limits (e.g. ON trades < 3 for cleanFirstBounceON)
 bool     ontimer_babysit = true;
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
-//--- cleanFirstBounceON (rulecheck in OnTimer: |liveBid-levelBelowL|<3pts, HighestDiffUp>12, overlapC==0, session ON, then buy limit)
-bool     InpRuleset55_Enable = false;   // if false, this ruleset does not place orders
-int      InpRuleset55_TradeSizePct = 100;  // 10,20,30,40,50,60,70,80,90,100; lot = g_global_base_trade_size × (pct/100)
-double   InpRuleset55_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points; converted to pips for PlaceBuyLimitAtLevel
-double   InpRuleset55_TPPips           = 3.2;   // TP (daily); ×10 = pips from order price
-double   InpRuleset55_SLPips           = 5.0;   // SL (daily); ×10 = pips
-double   InpRuleset55_TPPips_Weekly    = 6.0;   // TP when level categories contain "weekly"
-double   InpRuleset55_SLPips_Weekly    = 6.0;   // SL when level categories contain "weekly"
-string   InpRuleset55_BannedRanges    = "22,0,23,59;0,0,1,0";  // 22:00–23:59 and 00:00–01:00 (two ranges; no midnight wraparound in one range)
-
-
-//--- long2 (OnTimer: streak above level >= 20, diff below >= 10 in 100 bars, diff above >= 12 in streak bars)
+//--- Ruleset 121 (OnTimer: closest non-tertiary level below bid; streak above >= 20; diff below >= 10 in 100 bars; diff above >= 12 in streak bars)
 bool     InpRuleset121_Enable = true;
 int      InpRuleset121_TradeSizePct = 100;
-double   InpRuleset121_PriceOffsetPips  = 2.6;   // same convention as cleanFirstBounceON: (this×10) points
+double   InpRuleset121_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points via InputPipsToOrderPips
 double   InpRuleset121_TPPips = 12.0;
 double   InpRuleset121_SLPips = 12.0;
 string   InpRuleset121_BannedRanges = "22,0,23,59;0,0,1,0";
 
-//--- long2 duplicate (same logic as 121; separate magic and params)
+//--- Ruleset 122 (same entry logic as 121; separate inputs and magic)
 bool     InpRuleset122_Enable = false;
 int      InpRuleset122_TradeSizePct = 100;
 double   InpRuleset122_PriceOffsetPips  = 2.6;
@@ -128,8 +116,8 @@ Level levels[];
 const long EA_MAGIC = 47001; // unique magic for this EA's orders
 
 // List of all known EA trade (ruleset) IDs that can open positions. Used e.g. by CloseAnyEAPositionThatIsXMinutesOld.
-const int EA_KNOWN_RULESET_IDS[] = { 55, 121, 122 };
-#define EA_KNOWN_RULESET_COUNT 3
+const int EA_KNOWN_RULESET_IDS[] = { 121, 122 };
+#define EA_KNOWN_RULESET_COUNT 2
 
 CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
@@ -2150,12 +2138,20 @@ int FindLevelIndexByPriceAndTime(double levelPrice, datetime atTime)
 }
 
 //+------------------------------------------------------------------+
-//| Level below candle low at barIdx (g_levelBelowL). Returns 0.0 if barIdx invalid or no level. |
+//| True if at least one level is loaded for today (g_levelsExpanded). |
 //+------------------------------------------------------------------+
-double GetLevelBelow(int barIdx)
+bool HasAnyLevelToday()
 {
-   if(barIdx < 0 || barIdx >= g_barsInDay) return 0.0;
-   return g_levelBelowL[barIdx];
+   return (g_levelsTodayCount > 0);
+}
+
+//+------------------------------------------------------------------+
+//| Categories string for level from g_levelsExpanded. Returns "" if invalid. |
+//+------------------------------------------------------------------+
+string GetCategoriesFromExpanded(int levelIdx)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return "";
+   return g_levelsExpanded[levelIdx].categories;
 }
 
 //+------------------------------------------------------------------+
@@ -2268,32 +2264,6 @@ bool LevelIsTertiary(const string &categories)
 }
 
 //+------------------------------------------------------------------+
-//| Categories string for level from g_levelsExpanded. Returns "" if invalid. |
-//+------------------------------------------------------------------+
-string GetCategoriesFromExpanded(int levelIdx)
-{
-   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return "";
-   return g_levelsExpanded[levelIdx].categories;
-}
-
-//+------------------------------------------------------------------+
-//+------------------------------------------------------------------+
-//| True if cleanFirstBounceON entry conditions: HighestDiffUp > min, overlapC==0, session ON. Uses g_levelsExpanded[levelIdx], kLast. |
-//+------------------------------------------------------------------+
-bool MeetsRuleset55EntryRule(double levelBelow, int levelIdx, int kLast)
-{
-   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
-   const int HIGHEST_DIFF_UP_WINDOW = 15;
-   const double HIGHEST_DIFF_UP_MIN = 9.0;
-   string highestUp = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, HIGHEST_DIFF_UP_WINDOW, true);
-   if(highestUp == "never") return false;
-   if(StringToDouble(highestUp) <= HIGHEST_DIFF_UP_MIN) return false;
-   if(g_overlapC[levelIdx][kLast] != 0) return false;
-   if(g_session[kLast] != "ON") return false;
-   return true;
-}
-
-//+------------------------------------------------------------------+
 //| Unified order comment: $ (int)levelPrice takeProfitVal stopLossVal orderPrice commentRulesetId. Used by buy-limit rulesets. |
 //+------------------------------------------------------------------+
 string BuildUnifiedOrderComment(int levelPriceInt, double takeProfitVal, double stopLossVal, double orderPrice, int commentRulesetId)
@@ -2352,7 +2322,7 @@ bool MeetsBuyBounceEntryRule(int levelsIdx, datetime atTime, int rulesetId, int 
 }
 
 //+------------------------------------------------------------------+
-//| True if long2 (121) entry: streak above level >= 20, diff below >= 10 in 100 bars, diff above >= 12 in 20 bars. |
+//| Ruleset 121 entry: streak above level >= 20, diff below >= 10 in 100 bars, diff above >= 12 in streak bars. |
 //+------------------------------------------------------------------+
 bool MeetsRuleset121EntryRule(double levelBelow, int levelIdx, int kLast)
 {
@@ -2388,7 +2358,7 @@ bool MeetsRuleset121EntryRule(double levelBelow, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| True if long2 (122) entry: duplicate of 121 logic (streak above >= 20, diff below >= 10 in 100 bars, diff above >= 12 in 20 bars). |
+//| Ruleset 122 entry: same conditions as MeetsRuleset121EntryRule (separate ruleset id / magic). |
 //+------------------------------------------------------------------+
 bool MeetsRuleset122EntryRule(double levelBelow, int levelIdx, int kLast)
 {
@@ -2451,14 +2421,14 @@ bool MeetsRuleset123EntryRule(double levelBelow, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Validate trade_size_percentage is one of 10,20,30,40,50,60,70,80,90,100. FatalError if not. |
+//| Validate trade_size_percentage is one of 10,20,30,40,50,60,70,80,90,100. FatalError if not. rulesetId = magic (BuildMagic). |
 //+------------------------------------------------------------------+
-int ValidateTradeSizePct(int pct, const string &context)
+int ValidateTradeSizePct(int pct, int rulesetId)
 {
    if(pct == 10 || pct == 20 || pct == 30 || pct == 40 || pct == 50 ||
       pct == 60 || pct == 70 || pct == 80 || pct == 90 || pct == 100)
       return pct;
-   FatalError(context + ": trade_size_percentage must be one of 10,20,30,40,50,60,70,80,90,100; got " + IntegerToString(pct));
+   FatalError("magic number (id) " + IntegerToString(rulesetId) + ": trade_size_percentage must be one of 10,20,30,40,50,60,70,80,90,100; got " + IntegerToString(pct));
    return 100;  // unreachable
 }
 
@@ -2469,9 +2439,8 @@ double GetTradeLotForRuleset(int rulesetId)
 {
    double base = g_global_base_trade_size;
    int pct = 100;
-   if(rulesetId == 55) pct = ValidateTradeSizePct(InpRuleset55_TradeSizePct, "cleanFirstBounceON");
-   else if(rulesetId == 121) pct = ValidateTradeSizePct(InpRuleset121_TradeSizePct, "long2");
-   else if(rulesetId == 122) pct = ValidateTradeSizePct(InpRuleset122_TradeSizePct, "long2b");
+   if(rulesetId == 121) pct = ValidateTradeSizePct(InpRuleset121_TradeSizePct, 121);
+   else if(rulesetId == 122) pct = ValidateTradeSizePct(InpRuleset122_TradeSizePct, 122);
    double lot = base * ((double)pct / 100.0);
    double minLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
    double maxLot = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
@@ -2895,7 +2864,6 @@ int OnInit()
    ExtTrade.SetExpertMagicNumber(EA_MAGIC);
 
    // Ruleset config: useLevel/usePrice; bannedRangesStr applied when non-empty
-   g_tradeConfig[55].bannedRangesStr = InpRuleset55_BannedRanges;
    g_tradeConfig[121].bannedRangesStr = InpRuleset121_BannedRanges;
    g_tradeConfig[122].bannedRangesStr = InpRuleset122_BannedRanges;
 
@@ -3276,7 +3244,7 @@ void OnTimer()
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
 
-   // babesit: after 11 min, try to set SL to -0.5 (price from entry); if not -0.5 try -1, -2, ... only tighter (never e.g. -6 -> -7)
+   // ontimer_babysit: after 11 min, try to set SL to -0.5 (price from entry); if not -0.5 try -1, -2, ... only tighter (never e.g. -6 -> -7)
    if(ontimer_babysit)
    {
       double babysit_targets[] = {-0.5, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0};
@@ -3317,39 +3285,9 @@ void OnTimer()
       }
    }
 
-   // Rulecheck: on timer, use latest candle's levelBelow. If g_liveBid near levelBelow (IsLivePriceNearLevel) → cleanFirstBounceON.
-   if(g_barsInDay > 0 && g_levelsTodayCount > 0)
+   if(HasAnyLevelToday() && g_barsInDay > 0)
    {
-      const int RULESET_ID_CLEAN_FIRST_BOUNCE_ON = 55;
-
-      if(InpRuleset55_Enable)
-      {
-         double levelBelow = GetLevelBelow(g_barsInDay - 1);
-         int kLast = g_barsInDay - 1;
-         if(IsLivePriceNearLevel(levelBelow, 3.0))
-         {
-            int levelIdx = FindExpandedLevelIndexByPrice(levelBelow);
-            if(levelIdx >= 0 && MeetsRuleset55EntryRule(levelBelow, levelIdx, kLast) && IsTimeAllowedForTradeType(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, g_lastTimer1Time))
-            {
-               long magic = BuildMagic(RULESET_ID_CLEAN_FIRST_BOUNCE_ON);
-               if(CanPlaceNewOrderForMagic(magic))
-               {
-                  if(allTrades_enable_perSession_limits == false || GetONtradeCount(kLast) < 3)
-                  {
-                     string categories = GetCategoriesFromExpanded(levelIdx);
-                     bool weekly = LevelIsWeekly(categories);
-                     double tp   = InputPipsToOrderPips(weekly ? InpRuleset55_TPPips_Weekly : InpRuleset55_TPPips);
-                     double sl   = InputPipsToOrderPips(weekly ? InpRuleset55_SLPips_Weekly : InpRuleset55_SLPips);
-                     double offsetPips55 = InputPipsToOrderPips(InpRuleset55_PriceOffsetPips);
-                     if(PlaceBuyLimitAtLevel(levelBelow, offsetPips55, sl, tp, 15, GetTradeLotForRuleset(RULESET_ID_CLEAN_FIRST_BOUNCE_ON), magic, RULESET_ID_CLEAN_FIRST_BOUNCE_ON))
-                        WriteTradeLogPendingOrder(RULESET_ID_CLEAN_FIRST_BOUNCE_ON, levelBelow, offsetPips55, sl, tp, magic);
-                  }
-               }
-            }
-         }
-      }
-
-      // long2 — closest non-tertiary level below liveBid; streak above >= 20; diff below >= 10 (100 bars); diff above >= 12 (20 bars).
+      // Ruleset 121: closest non-tertiary level below bid; streak/diff rules in MeetsRuleset121EntryRule.
       const int RULESET_ID_121 = 121;
       if(InpRuleset121_Enable)
       {
@@ -3373,7 +3311,7 @@ void OnTimer()
          }
       }
 
-      // long2b — same as long2; separate magic and params (122).
+      // Ruleset 122: same placement pattern as 121; MeetsRuleset122EntryRule; separate inputs/magic.
       const int RULESET_ID_122 = 122;
       if(InpRuleset122_Enable)
       {
@@ -4161,7 +4099,6 @@ void FinalizeCurrentCandle()
                IntegerToString(levels[i].recoverCount));
          }
 
-         // --- Flow B: known rulesets (cleanFirstBounceON, long2, ...) place orders from OnTimer.
       }
    }
 
