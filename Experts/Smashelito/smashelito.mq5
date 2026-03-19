@@ -61,8 +61,9 @@ bool     ontimer_babysit = true;
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
 
-//--- Ruleset 121 (OnTimer: closest non-tertiary level below bid; streak above >= 20; diff below >= 10 in 100 bars; diff above >= 12 in streak bars)
+//--- Ruleset 121 (OnTimer: closest non-tertiary level below bid; g_cleanStreakAbove >= InpRuleset121_CleanStreakAboveMin; diff below >= 10 in 100 bars; diff above >= 12 in streak bars)
 bool     InpRuleset121_Enable = true;
+int      InpRuleset121_CleanStreakAboveMin = 20;   // min consecutive bars with OHLC above level (g_cleanStreakAbove)
 int      InpRuleset121_TradeSizePct = 100;
 double   InpRuleset121_PriceOffsetPips  = 2.6;   // order price = level + (this×10) points via InputPipsToOrderPips
 double   InpRuleset121_TPPips = 12.0;
@@ -71,6 +72,7 @@ string   InpRuleset121_BannedRanges = "22,0,23,59;0,0,1,0";
 
 //--- Ruleset 122 (same entry logic as 121; separate inputs and magic)
 bool     InpRuleset122_Enable = false;
+int      InpRuleset122_CleanStreakAboveMin = 20;   // min consecutive bars with OHLC above level (g_cleanStreakAbove)
 int      InpRuleset122_TradeSizePct = 100;
 double   InpRuleset122_PriceOffsetPips  = 2.6;
 double   InpRuleset122_TPPips = 8.0;
@@ -2322,15 +2324,17 @@ bool MeetsBuyBounceEntryRule(int levelsIdx, datetime atTime, int rulesetId, int 
 }
 
 //+------------------------------------------------------------------+
-//| Ruleset 121 entry: streak above level >= 20, diff below >= 10 in 100 bars, diff above >= 12 in streak bars. |
+//| no comment
 //+------------------------------------------------------------------+
 bool MeetsRuleset121EntryRule(double levelBelow, int levelIdx, int kLast)
 {
+   if(GetPDtrendString() == "PD_red") return false;
+   if(g_session[kLast] == "ON") return false;
+
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   const int STREAK_MIN = 20;
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
-   if(streakAbove < STREAK_MIN) return false;
+   if(streakAbove < InpRuleset121_CleanStreakAboveMin) return false;
    string diffBelow = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, 100, false);
    if(diffBelow == "never") return false;
    if(StringToDouble(diffBelow) < 10.0) return false;
@@ -2343,14 +2347,8 @@ bool MeetsRuleset121EntryRule(double levelBelow, int levelIdx, int kLast)
    string diffBelow75 = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, 75, false);
    // if(diffBelow75 != "never" && StringToDouble(diffBelow75) > 50.0) return false;
  
-
-   // testing extra rules? PD_red PD_green
-   if(GetPDtrendString() == "PD_red") return false;
-   if(g_session[kLast] == "ON") return false;
-
    // price must be below ON high so far (from UpdateONandRTHHighLowSoFarAtBar; we are in RTH so ON has run)
    if(levelBelow >= g_ONhighSoFarAtBar[kLast].value) return false;
-
    
    // dayHighSoFar - level must be < 25 (points)
    // if(g_dayHighSoFarAtBar[kLast].value - levelBelow >= 25.0) return false;
@@ -2358,15 +2356,17 @@ bool MeetsRuleset121EntryRule(double levelBelow, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Ruleset 122 entry: same conditions as MeetsRuleset121EntryRule (separate ruleset id / magic). |
+//| no comment |
 //+------------------------------------------------------------------+
 bool MeetsRuleset122EntryRule(double levelBelow, int levelIdx, int kLast)
 {
+   if(GetPDtrendString() == "PD_green") return false;
+   if(g_session[kLast] == "ON") return false;
+      
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   const int STREAK_MIN = 20;
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
-   if(streakAbove < STREAK_MIN) return false;
+   if(streakAbove < InpRuleset122_CleanStreakAboveMin) return false;
    string diffBelow = GetHighestDiffFromLevelInWindowString(levelBelow, kLast, 100, false);
    if(diffBelow == "never") return false;
    if(StringToDouble(diffBelow) < 10.0) return false;
@@ -2380,10 +2380,7 @@ bool MeetsRuleset122EntryRule(double levelBelow, int levelIdx, int kLast)
    // if(diffBelow75 != "never" && StringToDouble(diffBelow75) > 50.0) return false;
  
 
-   // testing extra rules? PD_red PD_green
-   if(GetPDtrendString() == "PD_green") return false;
-   if(g_session[kLast] == "ON") return false;
-      
+
 
    // dayHighSoFar - level must be < 25 (points)
    // if(g_dayHighSoFarAtBar[kLast].value - levelBelow >= 25.0) return false;
@@ -3287,7 +3284,6 @@ void OnTimer()
 
    if(HasAnyLevelToday() && g_barsInDay > 0)
    {
-      // Ruleset 121: closest non-tertiary level below bid; streak/diff rules in MeetsRuleset121EntryRule.
       const int RULESET_ID_121 = 121;
       if(InpRuleset121_Enable)
       {
