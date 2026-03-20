@@ -9,6 +9,7 @@
 //
 // OVERFLOW: Magic numbers and MT5 IDs (order/deal/position) can exceed INT_MAX.
 // Never cast them to (int). Use long/ulong and IntegerToString((long)value) for logging.
+// COMPOSITE MAGIC: Never write the full numeric composite (entire fixed-width variant long) inside comments; use g_trade[row] or “see PendingRuleSubsetPassesForFullMagic literals”. Cursor/IDE rules: repo .cursor/rules or project AGENTS.md.
 
 
 #property copyright "Copyright 2026, Aleksander Stefankowski"
@@ -51,7 +52,7 @@ bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summ
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
-bool     finalLog_TradeLog            = true;  // B_TradeLog_<12-digit magic>.csv (WriteTradeLog)
+bool     finalLog_TradeLog            = true;  // B_TradeLog_<composite per variant>.csv (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
 bool     dailySpamLog_Arawevents      = true;  // Arawevents CSV + level logRawEv (FinalizeCurrentCandle)
@@ -73,7 +74,7 @@ double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this fu
 #define TRADE_LEVEL_FOCUS_BELOW  1
 #define TRADE_LEVEL_FOCUS_ABOVE  2
 #define TRADE_LEVEL_FOCUS_BOTH   3
-// Stage-2 pending: fullMagic is routed to the matching RuleSubsetPasses_* (see OnInit validation).
+// Stage-2 pending: fullMagic is routed by PendingRuleSubsetPassesForFullMagic (see OnInit validation).
 // Pipeline builds fullMagic once per row (BuildMagicForVariant) and copies it through maybe-stage-1 → maybe-stage-2 → place.
 
 struct VariantTrade
@@ -98,12 +99,12 @@ VariantTrade g_trade[TRADE_VARIANT_COUNT];
 
 //--- OnTimer pending pipeline (see RunTimerPendingNearLevelsPipeline):
 //    A   prerequisites (levels, bars, nearest levels to bid)
-//    B–C one pass per g_trade[] row: proximity + maybe stage 1 gates → maybeStage1Candidates (stage-2 RuleSubsetPasses_* not run yet)
-//    D–E: RuleSubsetPasses_* (maybe stage 2); on pass → maybeStage2Candidates (anchor + SL/TP).
+//    B–C one pass per g_trade[] row: proximity + maybe stage 1 gates → maybeStage1Candidates (stage-2 subset rules not run yet)
+//    D–E: subset rules (maybe stage 2); on pass → maybeStage2Candidates (anchor + SL/TP).
 //    F   PlacePendingFromMagic (+ log)
 struct PendingMaybeCandidate
 {
-   // Populated after maybe stage 1 (common gates); stage-2 RuleSubsetPasses_* not run yet.
+   // Populated after maybe stage 1 (common gates); stage-2 subset rules not run yet.
    int    variantIdx;       // index into g_trade[]
    long   fullMagic;        // BuildMagicForVariant(variantIdx) at stage B–C; carried unchanged through later stages
    double nearestLevelBelowBid;
@@ -115,7 +116,7 @@ struct PendingMaybeCandidate
 };
 struct PendingMaybeStage2Candidate
 {
-   // Populated only after RuleSubsetPasses_* returns true (maybe stage 2 pass); F sends the order.
+   // Populated only after stage-2 subset rule passes (maybe stage 2 pass); F sends the order.
    int    variantIdx;
    long   fullMagic;        // copy from maybe-stage-1 candidate (same value as BuildMagicForVariant(variantIdx))
    double anchorLevelPrice;  // level used for pending anchor (focus / BOTH logic)
@@ -123,7 +124,7 @@ struct PendingMaybeStage2Candidate
    double slPipsNormalized;
    double tpPipsNormalized;
 };
-// Resolved level for RuleSubsetPasses_* (focus logic lives here once, not in each subset).
+// Resolved level for stage-2 subset rules (focus logic lives here once, not in each subset).
 struct EntryLevelCtx
 {
    bool   ok;
@@ -182,7 +183,9 @@ const double g_pendingTriggerSymmetrySpread = 0.7;
 #define MAGIC_IS_RTH_AND_PD_RED    4
 // Digits 3–4: trade-type id 01..99 per row (g_trade[i].tradeTypeId)
 //--- Fixed layout for string decode (must match BuildBetterMagicNumber StringFormat exactly; indices 0-based)
-#define COMPOSITE_MAGIC_STRING_LEN   12
+#define COMPOSITE_MAGIC_STRING_LEN   15
+// Core composite (legacy) was 12 digits; MagicNumberToFixedWidthString appends "000" babysit if only 12 digits present.
+#define COMPOSITE_MAGIC_CORE_LEN     12
 // Fixed-width magic string: INDEX_* = start char for StringSubstr; LENGTH_* = how many chars.
 #define COMPOSITE_MAGIC_INDEX_DIRECTION      0
 #define COMPOSITE_MAGIC_LENGTH_DIRECTION     1
@@ -196,6 +199,8 @@ const double g_pendingTriggerSymmetrySpread = 0.7;
 #define COMPOSITE_MAGIC_LENGTH_LEVEL_OFFSET    3
 #define COMPOSITE_MAGIC_INDEX_RULE_SUBSET    10  // %02d
 #define COMPOSITE_MAGIC_LENGTH_RULE_SUBSET   2
+#define COMPOSITE_MAGIC_INDEX_BABYSIT        12  // %03d: 000=off; 8xx=on, minutes=xx (01..99)
+#define COMPOSITE_MAGIC_LENGTH_BABYSIT       3
 
 struct TradeKey
 {
@@ -205,6 +210,7 @@ struct TradeKey
    int triggerTenths;   // 1..999 from magic %03d
    int offsetTenths;     // 1..999 from magic %03d
    int subset;
+   int babysitEncoded;   // 000 off; 801..899 = on, start minute = value - 800 (01..99)
 };
 
 CTrade ExtTrade;
@@ -2224,8 +2230,20 @@ double DecodeMagicTripleIntToDouble(int encodedTenths)
 }
 
 //+------------------------------------------------------------------+
-//| Composite magic — 12 digits concatenated (no | in stored value). Bookmark2. Layout: |
-//|   1|2|33|444|555|66|  — digit count per slot = field width (not example values). |
+//| Babysit tail %03d for composite magic: 000 = off; 801..899 = on (800 + minute, minute 01..99). |
+//+------------------------------------------------------------------+
+int EncodeBabysitMagicThreeDigits(const bool babysitEnabled, const int babysitStartMinute)
+{
+   if(!babysitEnabled)
+      return 0;
+   if(babysitStartMinute < 1 || babysitStartMinute > 99)
+      FatalError(StringFormat("EncodeBabysitMagicThreeDigits: when babysit enabled, minute must be 1..99, got %d", babysitStartMinute));
+   return 800 + babysitStartMinute;
+}
+
+//+------------------------------------------------------------------+
+//| Composite magic — 15 digits concatenated (no | in stored value). Bookmark2. Layout: |
+//|   1|2|33|444|555|66|777|  — digit count per slot = field width (not example values). |
 //| Slot 1 (1 digit) — g_trade[].tradeDirectionCategory / PlacePendingFromMagic pending kind (MAGIC_TRADE_*): |
 //|   1 = MAGIC_TRADE_LONG          — buy limit |
 //|   2 = MAGIC_TRADE_SHORT         — sell limit |
@@ -2239,12 +2257,15 @@ double DecodeMagicTripleIntToDouble(int encodedTenths)
 //| Slot 3 (33):   tradeType   — %02d, g_trade[].tradeTypeId 01..99. |
 //| Slot 4 (444):  liveTrigger — %03d, EncodeMagicTripleFromTenths(live proximity) 1..999 tenths. |
 //| Slot 5 (555):  levelOffset — %03d, EncodeMagicTripleFromTenths(level offset) 1..999 tenths. |
-//| Slot 6 (66):   ruleSubset  — not used for any logic. %02d, RuleSubsetPasses_* dispatch tag 01..99.  |
-//| Result is always exactly 12 decimal digits (see AssertCompositeMagicDecimalWidthOrFatal on init). |
-//| Maintainer / agent note: never hand-write a composite long with ≠12 digits; stage-2 dispatcher branches |
+//| Slot 6 (66):   ruleSubset  — not used for any logic. %02d, dispatch tag 01..99.  |
+//| Slot 7 (777):  babysit     — %03d: first digit 0 = disabled, 8 = enabled; last two digits = start minute 01..99 when enabled. |
+//| Result is always exactly 15 decimal digits (see AssertCompositeMagicDecimalWidthOrFatal on init). |
+//| Legacy 12-digit magics: MagicNumberToFixedWidthString appends "000" (no babysit). |
+//| Maintainer / agent note: never hand-write a composite long with wrong digit count; stage-2 dispatcher branches |
 //| must use the same long IntegerToString(BuildMagicForVariant(row)) would print for that g_trade[] row. |
 //+------------------------------------------------------------------+
-long BuildBetterMagicNumber(int tradeDirectionCategory, int sessionPdCategory, int tradeTypeId, double livePriceDiffTrigger, double levelOffsetValue, int ruleSubsetId)
+long BuildBetterMagicNumber(int tradeDirectionCategory, int sessionPdCategory, int tradeTypeId, double livePriceDiffTrigger, double levelOffsetValue, int ruleSubsetId,
+                            const bool babysitEnabled, const int babysitStartMinute)
 {
    if(tradeDirectionCategory < 1 || tradeDirectionCategory > 4)
       FatalError(StringFormat("BuildBetterMagicNumber: tradeDirectionCategory must be 1..4 (long/short/longRev/shortRev), got %d", tradeDirectionCategory));
@@ -2256,20 +2277,25 @@ long BuildBetterMagicNumber(int tradeDirectionCategory, int sessionPdCategory, i
       FatalError(StringFormat("BuildBetterMagicNumber: ruleSubsetId must be 1..99, got %d", ruleSubsetId));
    int triLive = EncodeMagicTripleFromTenths(livePriceDiffTrigger);
    int triLvl  = EncodeMagicTripleFromTenths(levelOffsetValue);
-   string s = StringFormat("%d%d%02d%03d%03d%02d", tradeDirectionCategory, sessionPdCategory, tradeTypeId, triLive, triLvl, ruleSubsetId);
+   int bab = EncodeBabysitMagicThreeDigits(babysitEnabled, babysitStartMinute);
+   string s = StringFormat("%d%d%02d%03d%03d%02d%03d", tradeDirectionCategory, sessionPdCategory, tradeTypeId, triLive, triLvl, ruleSubsetId, bab);
    if(StringLen(s) != COMPOSITE_MAGIC_STRING_LEN)
       FatalError(StringFormat("BuildBetterMagicNumber: internal error, string len %d != COMPOSITE_MAGIC_STRING_LEN %d", StringLen(s), COMPOSITE_MAGIC_STRING_LEN));
    return (long)StringToInteger(s);
 }
 
 //+------------------------------------------------------------------+
-//| Magic long → exactly COMPOSITE_MAGIC_STRING_LEN decimal chars (pad left with '0'). |
+//| Magic long → exactly COMPOSITE_MAGIC_STRING_LEN decimal chars. Legacy 12-digit core is left-padded to 12 then "000" babysit appended; newer values left-padded to 15. |
 //+------------------------------------------------------------------+
 string MagicNumberToFixedWidthString(long magic)
 {
    string s = IntegerToString(magic);
    if(StringLen(s) > COMPOSITE_MAGIC_STRING_LEN)
       FatalError(StringFormat("MagicNumberToFixedWidthString: value has %d digits, max %d", StringLen(s), COMPOSITE_MAGIC_STRING_LEN));
+   while(StringLen(s) < COMPOSITE_MAGIC_CORE_LEN)
+      s = "0" + s;
+   if(StringLen(s) == COMPOSITE_MAGIC_CORE_LEN)
+      s = s + "000";
    while(StringLen(s) < COMPOSITE_MAGIC_STRING_LEN)
       s = "0" + s;
    return s;
@@ -2288,6 +2314,7 @@ TradeKey ParseCompositeMagic(long magic)
    k.triggerTenths = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_LIVE_TRIGGER, COMPOSITE_MAGIC_LENGTH_LIVE_TRIGGER));
    k.offsetTenths = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_LEVEL_OFFSET, COMPOSITE_MAGIC_LENGTH_LEVEL_OFFSET));
    k.subset = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_RULE_SUBSET, COMPOSITE_MAGIC_LENGTH_RULE_SUBSET));
+   k.babysitEncoded = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_BABYSIT, COMPOSITE_MAGIC_LENGTH_BABYSIT));
    return k;
 }
 
@@ -2341,7 +2368,7 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[2].babysit_enabled      = false;
    g_trade[2].babysitStart_minute  = 11;
 
-   // g_trade[3..10]: same session/type/subset as [1]; trigger/offset pips differ — new row needs stage-2 dispatcher branch + RuleSubsetPasses_*.
+   // g_trade[3..10]: same session/type/subset as [1]; trigger/offset pips differ — new row needs dispatcher branch + Subset_<fullmagic> handler.
    g_trade[3].enabled                  = false;
    g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[3].tradeTypeId          = 2;
@@ -2477,7 +2504,8 @@ long BuildMagicForVariant(int variantIdx)
    return BuildBetterMagicNumber(g_trade[variantIdx].tradeDirectionCategory, g_trade[variantIdx].sessionPdCategory,
                                  g_trade[variantIdx].tradeTypeId,
                                  g_trade[variantIdx].livePriceDiffTrigger, g_trade[variantIdx].levelOffsetPips,
-                                 g_trade[variantIdx].ruleSubsetId);
+                                 g_trade[variantIdx].ruleSubsetId,
+                                 g_trade[variantIdx].babysit_enabled, g_trade[variantIdx].babysitStart_minute);
 }
 
 //+------------------------------------------------------------------+
@@ -2525,6 +2553,9 @@ void ValidateMagicCompositionOnInit()
          g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_ABOVE &&
          g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_BOTH)
          FatalError(StringFormat("g_trade[%d].levelProximityFocus must be 1=below 2=above 3=both, got %d", variantIdx, g_trade[variantIdx].levelProximityFocus));
+      if(g_trade[variantIdx].babysit_enabled &&
+         (g_trade[variantIdx].babysitStart_minute < 1 || g_trade[variantIdx].babysitStart_minute > 99))
+         FatalError(StringFormat("g_trade[%d]: babysit_enabled requires babysitStart_minute in 1..99, got %d", variantIdx, g_trade[variantIdx].babysitStart_minute));
    }
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
@@ -2546,6 +2577,11 @@ void ValidateMagicCompositionOnInit()
          FatalError("ParseCompositeMagic: tradeType mismatch variant row");
       if(parsedKey.subset != g_trade[variantIdx].ruleSubsetId)
          FatalError("ParseCompositeMagic: subset mismatch variant row");
+      int expectBabysit = 0;
+      if(g_trade[variantIdx].babysit_enabled)
+         expectBabysit = 800 + g_trade[variantIdx].babysitStart_minute;
+      if(parsedKey.babysitEncoded != expectBabysit)
+         FatalError(StringFormat("ParseCompositeMagic: babysit block mismatch vs g_trade[%d] (encoded %d, expected %d)", variantIdx, parsedKey.babysitEncoded, expectBabysit));
    }
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
@@ -2905,7 +2941,7 @@ bool PendingPassesRulesetPolicy(int variantIdx)
 }
 
 //+------------------------------------------------------------------+
-//| levelProximityFocus → single (levelPx, levelIdx) for RuleSubsetPasses_* (keep subset functions short). |
+//| levelProximityFocus → single (levelPx, levelIdx) for stage-2 subset rules (keep handlers short). |
 //+------------------------------------------------------------------+
 EntryLevelCtx PendingBuildEntryLevelCtx(int variantIdx, double levelBelow, int idxBelow, double levelAbove, int idxAbove)
 {
@@ -2937,15 +2973,16 @@ EntryLevelCtx PendingBuildEntryLevelCtx(int variantIdx, double levelBelow, int i
 }
 
 //+------------------------------------------------------------------+
-//| POLICY — RuleSubsetPasses_* (read before editing any subset):     |
-//| Each implementation must be standalone (no forwarding to another RuleSubsetPasses_*). |
-//| If two rows share logic today, duplicate the body.                 |
+//| POLICY — Subset_<full15digitcomposite> handlers (read before editing any subset): |
+//| Each implementation must be standalone (no forwarding to another handler). |
+//| If two rows share logic today, duplicate the body. |
+//| Handler name must match the full composite long (same digits as PendingRuleSubsetPassesForFullMagic). Do not spell that value in // comments (file header rule). |
 //+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[0]. Streak / diffs / below ONH. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_130203002601(double levelPx, int levelIdx, int kLast)
+bool Subset_130203002601811(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -2963,7 +3000,7 @@ bool RuleSubsetPasses_130203002601(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[1]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120203002601(double levelPx, int levelIdx, int kLast)
+bool Subset_120203002601000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -2981,7 +3018,7 @@ bool RuleSubsetPasses_120203002601(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[3]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120203003101(double levelPx, int levelIdx, int kLast)
+bool Subset_120203003101000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -2999,7 +3036,7 @@ bool RuleSubsetPasses_120203003101(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[4]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120203002101(double levelPx, int levelIdx, int kLast)
+bool Subset_120203002101000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3017,7 +3054,7 @@ bool RuleSubsetPasses_120203002101(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[5]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120203502601(double levelPx, int levelIdx, int kLast)
+bool Subset_120203502601000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3035,7 +3072,7 @@ bool RuleSubsetPasses_120203502601(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[6]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120203503101(double levelPx, int levelIdx, int kLast)
+bool Subset_120203503101000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3053,7 +3090,7 @@ bool RuleSubsetPasses_120203503101(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[7]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120203502101(double levelPx, int levelIdx, int kLast)
+bool Subset_120203502101000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3071,7 +3108,7 @@ bool RuleSubsetPasses_120203502101(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[8]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120204002601(double levelPx, int levelIdx, int kLast)
+bool Subset_120204002601000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3089,7 +3126,7 @@ bool RuleSubsetPasses_120204002601(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[9]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120204003101(double levelPx, int levelIdx, int kLast)
+bool Subset_120204003101000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3107,7 +3144,7 @@ bool RuleSubsetPasses_120204003101(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 //| Pending stage-2 rules for g_trade[10]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_120204002101(double levelPx, int levelIdx, int kLast)
+bool Subset_120204002101000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3123,9 +3160,9 @@ bool RuleSubsetPasses_120204002101(double levelPx, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Pending stage-2 rules for g_trade[2] (RTH+PD red long, type 02). Standalone — POLICY header above. |
+//| Reserved subset handler — not called from PendingRuleSubsetPassesForFullMagic until a row uses this composite. POLICY above. |
 //+------------------------------------------------------------------+
-bool RuleSubsetPasses_140203002601(double levelPx, int levelIdx, int kLast)
+bool Subset_140203002601000(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -3141,33 +3178,21 @@ bool RuleSubsetPasses_140203002601(double levelPx, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Stage-2: dispatch fullMagic → RuleSubsetPasses_* (width + literals = BuildMagicForVariant per row). |
-//| New g_trade[] row: add one if here + standalone RuleSubsetPasses_* (no duplicate magic list elsewhere). |
+//| Stage-2: fullMagic compared to hardcoded composite long literals (must match SyncTradeVariantsFromInputs / BuildBetterMagicNumber). |
+//| Do not paste the literal values into comments (file header rule). New row: add literal if + handler. |
 //+------------------------------------------------------------------+
 bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double levelPx, const int levelIdx, const int kLast)
 {
-   if(fullMagic == 130203002601L)
-      return RuleSubsetPasses_130203002601(levelPx, levelIdx, kLast);
-   if(fullMagic == 140203002601L)
-      return RuleSubsetPasses_140203002601(levelPx, levelIdx, kLast);
-   if(fullMagic == 120203002601L)
-      return RuleSubsetPasses_120203002601(levelPx, levelIdx, kLast);
-   if(fullMagic == 120203003101L)
-      return RuleSubsetPasses_120203003101(levelPx, levelIdx, kLast);
-   if(fullMagic == 120203002101L)
-      return RuleSubsetPasses_120203002101(levelPx, levelIdx, kLast);
-   if(fullMagic == 120203502601L)
-      return RuleSubsetPasses_120203502601(levelPx, levelIdx, kLast);
-   if(fullMagic == 120203503101L)
-      return RuleSubsetPasses_120203503101(levelPx, levelIdx, kLast);
-   if(fullMagic == 120203502101L)
-      return RuleSubsetPasses_120203502101(levelPx, levelIdx, kLast);
-   if(fullMagic == 120204002601L)
-      return RuleSubsetPasses_120204002601(levelPx, levelIdx, kLast);
-   if(fullMagic == 120204003101L)
-      return RuleSubsetPasses_120204003101(levelPx, levelIdx, kLast);
-   if(fullMagic == 120204002101L)
-      return RuleSubsetPasses_120204002101(levelPx, levelIdx, kLast);
+   if(fullMagic == 130203002601811L)  return Subset_130203002601811(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203002601000L)  return Subset_120203002601000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203003101000L)  return Subset_120203003101000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203002101000L)  return Subset_120203002101000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203502601000L)  return Subset_120203502601000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203503101000L)  return Subset_120203503101000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203502101000L)  return Subset_120203502101000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120204002601000L)  return Subset_120204002601000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120204003101000L)  return Subset_120204003101000(levelPx, levelIdx, kLast);
+   if(fullMagic == 120204002101000L)  return Subset_120204002101000(levelPx, levelIdx, kLast);
    return false;
 }
 
@@ -3449,7 +3474,7 @@ void CloseAnyOpenTrade_atEOD_2158()
 }
 
 //+------------------------------------------------------------------+
-//| Full composite magic as 12-char string for B_TradeLog filename; "" if not a variant magic. |
+//| Full composite magic as COMPOSITE_MAGIC_STRING_LEN-char string for B_TradeLog filename; "" if not a variant magic. |
 //+------------------------------------------------------------------+
 string GetMagicStrForLogFilename(long magic)
 {
@@ -3458,7 +3483,7 @@ string GetMagicStrForLogFilename(long magic)
 }
 
 //+------------------------------------------------------------------+
-//| Build B_TradeLog filename: YYYY.MM.DD_B_TradeLog_<12-digit magic>.csv |
+//| Build B_TradeLog filename: YYYY.MM.DD_B_TradeLog_<fixed-width composite string>.csv |
 //+------------------------------------------------------------------+
 string BuildTradeLogFileName(const string magicStrForLogFilename, datetime forTime)
 {
@@ -3630,7 +3655,7 @@ void WriteDailySummary()
    }
 }
 
-//| magicStrForLogFilename: full composite magic as 12-char string → B_TradeLog_<date>_<that>.csv (see GetMagicStrForLogFilename). |
+//| magicStrForLogFilename: full composite magic as a string → B_TradeLog_<date>_<that>.csv (see GetMagicStrForLogFilename). |
 //| comment: custom comment string (optional) |
 //| magic: trade magic number when available (optional, 0 = omit from log row) |
 //+------------------------------------------------------------------+
