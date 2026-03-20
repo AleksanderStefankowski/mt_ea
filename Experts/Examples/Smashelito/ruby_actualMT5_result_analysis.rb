@@ -50,14 +50,14 @@ CSV.foreach(FILE, headers: true, col_sep: DELIMITER) do |row|
 end
 
 # --- OVERALL STATS ---
-puts "\n=== OVERALL TRADES STATISTICS ==="
+puts "\nOVERALL TRADES STATISTICS ---"
 overall_stats = calculate_stats(trades)
 overall_stats.each do |k,v|
   puts "%-20s : %s" % [k.to_s, v]
 end
 
 # --- PER MAGIC NUMBER STATS ---
-puts "\n=== PER MAGIC NUMBER STATISTICS ==="
+puts "\nPER MAGIC NUMBER STATISTICS ---"
 trades.group_by { |t| t[:magic] }.each do |magic, magic_trades|
   stats = calculate_stats(magic_trades)
   puts "\nMAGIC #{magic}"
