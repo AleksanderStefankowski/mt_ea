@@ -56,7 +56,7 @@ string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
-bool     ontimer_babysit = true;
+bool     ontimer_babysit = false;
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
@@ -65,15 +65,16 @@ double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this fu
 
 //--- Trades: TRADE_VARIANT_COUNT rows in g_trade[] — defaults assigned in SyncTradeVariantsFromInputs() (g_trade[i].field = …).
 //    tradeDirectionCategory 1..4 → magic digit 1. sessionPdCategory → digit 2. levelProximityFocus: TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH.
-//    bannedRanges: no '|' inside string. Handlers: RuleSubsetPasses_130203002601, RuleSubsetPasses_110203002601.
-#define TRADE_VARIANT_COUNT 2
+//    bannedRanges: no '|' inside string.
+#define TRADE_VARIANT_COUNT 3
 #define TRADE_LEVEL_FOCUS_BELOW  1
 #define TRADE_LEVEL_FOCUS_ABOVE  2
 #define TRADE_LEVEL_FOCUS_BOTH   3
 // Full composite magics for RuleSubsetPasses_* + pending pipeline dispatch (sync with BuildMagicForVariant).
 #define PENDING_ENTRY_MAGIC_130203002601  130203002601L
 #define PENDING_ENTRY_MAGIC_110203002601  110203002601L
-// Example: 130203002601 (sessPd=3 RTH+PDg subset01), 110203002601 (sessPd=1 ON+PDg subset01). Recompute if rows change.
+#define PENDING_ENTRY_MAGIC_319903002601  319903002601L
+#define PENDING_ENTRY_MAGIC_310203002601  310203002601L // same row if g_trade[].tradeTypeId=02 instead of 99 (digits 3–4)
 
 struct VariantTrade
 {
@@ -168,7 +169,7 @@ const long DEFAULT_ORDER_MAGIC = 47001; // restore CTrade magic when not using a
 // Digit 1 of composite magic: maps to pending order type (see PlacePendingFromMagic).
 #define MAGIC_TRADE_LONG            1   // buy limit
 #define MAGIC_TRADE_SHORT           2   // sell limit
-#define MAGIC_TRADE_LONG_REVERSED   3   // sell stop
+#define MAGIC_TRADE_LONG_REVERSED   3   // sell stop — entry at level+offset (same side as buy limit); see PlaceSellStopAtLevel
 #define MAGIC_TRADE_SHORT_REVERSED  4   // buy stop
 // Digit 2: session (ON vs RTH) + prior-day colour — name groups PD with green/red
 #define MAGIC_IS_ON_AND_PD_GREEN   1
@@ -2293,7 +2294,7 @@ void SyncTradeVariantsFromInputs()
    g_trade[0].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
    g_trade[0].bannedRanges         = "22,0,23,59;0,0,1,0";
 
-   g_trade[1].enabled                  = true;
+   g_trade[1].enabled                  = false;
    g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[1].tradeTypeId          = 2;
    g_trade[1].ruleSubsetId         = 1; // not used in EA logic; only encoded in composite magic (custom meaning — Aleksander)
@@ -2305,6 +2306,20 @@ void SyncTradeVariantsFromInputs()
    g_trade[1].levelOffsetPips      = 2.6;
    g_trade[1].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
    g_trade[1].bannedRanges         = "22,0,23,59;0,0,1,0";
+
+   // 319903002601: sell stop (MAGIC_TRADE_LONG_REVERSED); same session/trigger/offset/focus and RuleSubsetPasses_* logic as 110203002601 — only order kind differs.
+   g_trade[2].enabled                  = true;
+   g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED; // sell stop
+   g_trade[2].tradeTypeId          = 99; // must match PENDING_ENTRY_MAGIC_319903002601 (…99…); if you use 02 here magic is 310203002601 — still dispatched below
+   g_trade[2].ruleSubsetId         = 1; // not used in EA logic; only encoded in composite magic (custom meaning — Aleksander)
+   g_trade[2].sessionPdCategory    = MAGIC_IS_ON_AND_PD_GREEN;
+   g_trade[2].tradeSizePct         = 100;
+   g_trade[2].tpPips               = 8.0;
+   g_trade[2].slPips               = 8.0;
+   g_trade[2].livePriceDiffTrigger = 3.0;
+   g_trade[2].levelOffsetPips      = 2.6;
+   g_trade[2].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[2].bannedRanges         = "22,0,23,59;0,0,1,0";
 }
 
 //+------------------------------------------------------------------+
@@ -2721,6 +2736,37 @@ bool RuleSubsetPasses_110203002601(double levelPx, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
+//| Rule subset for 319903002601 / 310203002601: ON+PD green sell stop (MAGIC_TRADE_LONG_REVERSED). Same filters as 110203002601 — |
+//| only the pending order type differs (sell stop vs buy limit via composite magic digit 1). Kept as its own function for clarity. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_319903002601(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Stage 2: lookup rule implementation by composite magic (same value already on the maybe-stage-1 candidate). |
+//| Not BuildMagicForVariant again — avoids “recompute row magic, then compare to the literal that row always produces”. |
+//+------------------------------------------------------------------+
+bool PendingRuleSubsetPassesForMagic(long compositeMagic, double levelPx, int levelIdx, int kLast)
+{
+   if(compositeMagic == PENDING_ENTRY_MAGIC_130203002601) return RuleSubsetPasses_130203002601(levelPx, levelIdx, kLast);
+   if(compositeMagic == PENDING_ENTRY_MAGIC_110203002601) return RuleSubsetPasses_110203002601(levelPx, levelIdx, kLast);
+   if(compositeMagic == PENDING_ENTRY_MAGIC_319903002601 || compositeMagic == PENDING_ENTRY_MAGIC_310203002601)
+      return RuleSubsetPasses_319903002601(levelPx, levelIdx, kLast);
+   return false;
+}
+
+//+------------------------------------------------------------------+
 //| Validate trade_size_percentage is one of 10,20,...,100. FatalError if not. |
 //+------------------------------------------------------------------+
 int ValidateTradeSizePct(int pct, int variantIdx)
@@ -2789,13 +2835,14 @@ bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, 
 }
 
 //+------------------------------------------------------------------+
-//| Sell stop: same price/SL/TP geometry as sell limit. |
+//| Sell stop (MAGIC_TRADE_LONG_REVERSED): entry same side as buy limit — level + offset (above level), not level − offset (sell limit). |
+//| Short risk: SL above entry, TP below. NOTE: MT5 requires pending SellStop price < Bid; if entry ends up above Bid, placement may fail (then SellLimit is the usual fix). |
 //+------------------------------------------------------------------+
 bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
 {
    if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
    double pip = PipSize();
-   double orderPrice = NormalizeDouble(levelPrice - offsetPips * pip, _Digits);
+   double orderPrice = NormalizeDouble(levelPrice + offsetPips * pip, _Digits);
    double stopLossVal = NormalizeDouble(orderPrice + slPips * pip, _Digits);
    double takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
@@ -3636,21 +3683,11 @@ void RunTimerPendingNearLevelsPipeline()
    for(int stage1Idx = 0; stage1Idx < maybeStage1Count; stage1Idx++)
    {
       const int variantIdx = maybeStage1Candidates[stage1Idx].variantIdx;
-      const long rowCompositeMagic = maybeStage1Candidates[stage1Idx].compositeMagic;
-      bool ruleSubsetPasses = false;
-      if(rowCompositeMagic == PENDING_ENTRY_MAGIC_130203002601 || rowCompositeMagic == PENDING_ENTRY_MAGIC_110203002601)
-      {
-         EntryLevelCtx entryLevel = PendingBuildEntryLevelCtx(variantIdx,
-            maybeStage1Candidates[stage1Idx].nearestLevelBelowBid, maybeStage1Candidates[stage1Idx].levelIndexBelow,
-            maybeStage1Candidates[stage1Idx].nearestLevelAboveBid, maybeStage1Candidates[stage1Idx].levelIndexAbove);
-         if(entryLevel.ok)
-         {
-            if(rowCompositeMagic == PENDING_ENTRY_MAGIC_130203002601)
-               ruleSubsetPasses = RuleSubsetPasses_130203002601(entryLevel.levelPx, entryLevel.levelIdx, maybeStage1Candidates[stage1Idx].lastBarIndexToday);
-            else
-               ruleSubsetPasses = RuleSubsetPasses_110203002601(entryLevel.levelPx, entryLevel.levelIdx, maybeStage1Candidates[stage1Idx].lastBarIndexToday);
-         }
-      }
+      EntryLevelCtx entryLevel = PendingBuildEntryLevelCtx(variantIdx,
+         maybeStage1Candidates[stage1Idx].nearestLevelBelowBid, maybeStage1Candidates[stage1Idx].levelIndexBelow,
+         maybeStage1Candidates[stage1Idx].nearestLevelAboveBid, maybeStage1Candidates[stage1Idx].levelIndexAbove);
+      bool ruleSubsetPasses = (entryLevel.ok &&
+         PendingRuleSubsetPassesForMagic(maybeStage1Candidates[stage1Idx].compositeMagic, entryLevel.levelPx, entryLevel.levelIdx, maybeStage1Candidates[stage1Idx].lastBarIndexToday));
       if(!ruleSubsetPasses) continue;
 
       const double triggerDistancePts = g_trade[variantIdx].livePriceDiffTrigger;
