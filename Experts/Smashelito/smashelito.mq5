@@ -18,6 +18,9 @@
 #include <Trade\PositionInfo.mqh>
 #include <Trade\DealInfo.mqh>
 
+//--- MT5 hard limit for ORDER_COMMENT / deal comment on many builds (truncate beyond this breaks parsing intent).
+#define MT5_ORDER_COMMENT_MAX_LEN 31
+
 //--- Stops EA and further execution when required data/handle is missing (no silent fallbacks).
 void FatalError(string msg)
 {
@@ -56,7 +59,7 @@ string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
-bool     ontimer_babysit = false;
+bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half
@@ -66,14 +69,12 @@ double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this fu
 //--- Trades: TRADE_VARIANT_COUNT rows in g_trade[] — defaults assigned in SyncTradeVariantsFromInputs() (g_trade[i].field = …).
 //    tradeDirectionCategory 1..4 → magic digit 1. sessionPdCategory → digit 2. levelProximityFocus: TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH.
 //    bannedRanges: no '|' inside string.
-#define TRADE_VARIANT_COUNT 3
+#define TRADE_VARIANT_COUNT 11
 #define TRADE_LEVEL_FOCUS_BELOW  1
 #define TRADE_LEVEL_FOCUS_ABOVE  2
 #define TRADE_LEVEL_FOCUS_BOTH   3
-// Full composite magics for RuleSubsetPasses_* + pending pipeline dispatch (sync with BuildMagicForVariant).
-#define PENDING_ENTRY_MAGIC_130203002601  130203002601L
-#define PENDING_ENTRY_MAGIC_120203002601  120203002601L // long, ON+PD red, type 02; RuleSubsetPasses_120203002601 (below ONH body)
-#define PENDING_ENTRY_MAGIC_140203002601  140203002601L // long, RTH+PD red, type 02; RuleSubsetPasses_140203002601 (same body)
+// Stage-2 pending: fullMagic is routed to the matching RuleSubsetPasses_* (see OnInit validation).
+// Pipeline builds fullMagic once per row (BuildMagicForVariant) and copies it through maybe-stage-1 → maybe-stage-2 → place.
 
 struct VariantTrade
 {
@@ -88,6 +89,8 @@ struct VariantTrade
    double livePriceDiffTrigger;  // composite magic digits 4–6 (0.1..99.9): live-price proximity vs level for pipeline gate
    double levelOffsetPips;       // composite magic digits 7–9 (0.1..99.9): pending offset in input pips → InputPipsToOrderPips
    int    levelProximityFocus;   // TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH
+   bool   babysit_enabled;      // if true and babysit_global_flipper, OnTimer may tighten SL for this variant's positions
+   int    babysitStart_minute;   // minutes after position open before babysit runs
    string bannedRanges;
 };
 // Populated at startup by SyncTradeVariantsFromInputs() — edit assignments there (g_trade[0].enabled = true, …).
@@ -102,7 +105,7 @@ struct PendingMaybeCandidate
 {
    // Populated after maybe stage 1 (common gates); stage-2 RuleSubsetPasses_* not run yet.
    int    variantIdx;       // index into g_trade[]
-   long   compositeMagic;   // BuildMagicForVariant(variantIdx)
+   long   fullMagic;        // BuildMagicForVariant(variantIdx) at stage B–C; carried unchanged through later stages
    double nearestLevelBelowBid;
    double nearestLevelAboveBid;
    int    levelIndexBelow;
@@ -114,7 +117,7 @@ struct PendingMaybeStage2Candidate
 {
    // Populated only after RuleSubsetPasses_* returns true (maybe stage 2 pass); F sends the order.
    int    variantIdx;
-   long   compositeMagic;
+   long   fullMagic;        // copy from maybe-stage-1 candidate (same value as BuildMagicForVariant(variantIdx))
    double anchorLevelPrice;  // level used for pending anchor (focus / BOTH logic)
    double pendingOffsetPips;
    double slPipsNormalized;
@@ -1785,7 +1788,7 @@ string BuildBothComments(const string &entryComment, const string &outComment, b
 
 //+------------------------------------------------------------------+
 //| EA order comment sentinel: leading '$' marks BuildUnifiedOrderComment format so UpdateTradeResultsForDay |
-//| can split level/tp/sl (first 3 tokens after '$' removed). Magic lives on DEAL_MAGIC / ORDER_MAGIC, not in comment. |
+//| can split level/tp/sl (first 3 tokens after '$' removed). Level is full price; tp/sl/entry use mod-100 tails. Optional " b<n>" when g_trade[].babysit_enabled. Magic on DEAL_MAGIC / ORDER_MAGIC. Length validated vs MT5_ORDER_COMMENT_MAX_LEN. |
 //+------------------------------------------------------------------+
 int ChangeBothCommentsToArrayOfStrings(const string &bothComments, string &result[])
 {
@@ -2185,7 +2188,7 @@ void ParseBannedRanges(const string s)
 
 //+------------------------------------------------------------------+
 //| Day-of-week suffix for magic: 0 when level has no "daily" in tags; 0..6 (Mon..Sun) when "daily". |
-//| Reserved for future level-scoped magic suffixes (variant magic uses BuildMagicForVariant(vi) only). |
+//| Reserved for future level-scoped magic suffixes (variant magic uses BuildMagicForVariant(variantIdx) only). |
 //+------------------------------------------------------------------+
 int GetDayOfWeekSuffixForLevel(datetime validFrom, string tagsCSV)
 {
@@ -2203,10 +2206,10 @@ int GetDayOfWeekSuffixForLevel(datetime validFrom, string tagsCSV)
 int EncodeMagicTripleFromTenths(double v)
 {
    double clamped = MathMax(0.1, MathMin(99.9, v));
-   int n = (int)MathRound(clamped * 10.0);
-   if(n < 1) n = 1;
-   if(n > 999) n = 999;
-   return n;
+   int tenthsInt = (int)MathRound(clamped * 10.0);
+   if(tenthsInt < 1) tenthsInt = 1;
+   if(tenthsInt > 999) tenthsInt = 999;
+   return tenthsInt;
 }
 
 //+------------------------------------------------------------------+
@@ -2214,10 +2217,10 @@ int EncodeMagicTripleFromTenths(double v)
 //+------------------------------------------------------------------+
 double DecodeMagicTripleIntToDouble(int encodedTenths)
 {
-   long n = encodedTenths;
-   if(n < 1) n = 1;
-   if(n > 999) n = 999;
-   return (double)n / 10.0;
+   long clampedTenths = encodedTenths;
+   if(clampedTenths < 1) clampedTenths = 1;
+   if(clampedTenths > 999) clampedTenths = 999;
+   return (double)clampedTenths / 10.0;
 }
 
 //+------------------------------------------------------------------+
@@ -2237,6 +2240,9 @@ double DecodeMagicTripleIntToDouble(int encodedTenths)
 //| Slot 4 (444):  liveTrigger — %03d, EncodeMagicTripleFromTenths(live proximity) 1..999 tenths. |
 //| Slot 5 (555):  levelOffset — %03d, EncodeMagicTripleFromTenths(level offset) 1..999 tenths. |
 //| Slot 6 (66):   ruleSubset  — not used for any logic. %02d, RuleSubsetPasses_* dispatch tag 01..99.  |
+//| Result is always exactly 12 decimal digits (see AssertCompositeMagicDecimalWidthOrFatal on init). |
+//| Maintainer / agent note: never hand-write a composite long with ≠12 digits; stage-2 dispatcher branches |
+//| must use the same long IntegerToString(BuildMagicForVariant(row)) would print for that g_trade[] row. |
 //+------------------------------------------------------------------+
 long BuildBetterMagicNumber(int tradeDirectionCategory, int sessionPdCategory, int tradeTypeId, double livePriceDiffTrigger, double levelOffsetValue, int ruleSubsetId)
 {
@@ -2290,7 +2296,7 @@ TradeKey ParseCompositeMagic(long magic)
 //+------------------------------------------------------------------+
 void SyncTradeVariantsFromInputs() // bookmark1
 {
-   g_trade[0].enabled                  = false; // good
+   g_trade[0].enabled                  = true; // good
    g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;   // buy limit (or 1..4)
    g_trade[0].tradeTypeId          = 2;
    g_trade[0].ruleSubsetId         = 1; // not used in EA logic; only encoded in composite magic (custom meaning — Aleksander)
@@ -2302,9 +2308,10 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[0].levelOffsetPips      = 2.6;
    g_trade[0].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
    g_trade[0].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[0].babysit_enabled      = true;
+   g_trade[0].babysitStart_minute  = 11;
 
-   // 120203002601: buy limit, ON+PD red, type 02; rule body = 130203002601 (streak/diffs + below ONH).
-   g_trade[1].enabled                  = true; // testing other entry values now
+   g_trade[1].enabled                  = false; // testing other entry values now
    g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[1].tradeTypeId          = 2;
    g_trade[1].ruleSubsetId         = 1;
@@ -2316,8 +2323,9 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[1].levelOffsetPips      = 2.6;
    g_trade[1].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
    g_trade[1].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[1].babysit_enabled      = false;
+   g_trade[1].babysitStart_minute  = 11;
 
-   // 140203002601: buy limit, RTH+PD red, type 02; same RuleSubsetPasses_* body as 120203002601.
    g_trade[2].enabled                  = false; // test later if other price triggers do more trades
    g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[2].tradeTypeId          = 2;
@@ -2330,6 +2338,134 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[2].levelOffsetPips      = 2.6;
    g_trade[2].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
    g_trade[2].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[2].babysit_enabled      = false;
+   g_trade[2].babysitStart_minute  = 11;
+
+   // g_trade[3..10]: same session/type/subset as [1]; trigger/offset pips differ — new row needs stage-2 dispatcher branch + RuleSubsetPasses_*.
+   g_trade[3].enabled                  = false;
+   g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[3].tradeTypeId          = 2;
+   g_trade[3].ruleSubsetId         = 1;
+   g_trade[3].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[3].tradeSizePct         = 100;
+   g_trade[3].tpPips               = 8.0;
+   g_trade[3].slPips               = 8.0;
+   g_trade[3].livePriceDiffTrigger = 3.0;
+   g_trade[3].levelOffsetPips      = 3.1;
+   g_trade[3].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[3].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[3].babysit_enabled      = false;
+   g_trade[3].babysitStart_minute  = 11;
+   g_trade[4].enabled                  = false;
+   g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[4].tradeTypeId          = 2;
+   g_trade[4].ruleSubsetId         = 1;
+   g_trade[4].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[4].tradeSizePct         = 100;
+   g_trade[4].tpPips               = 8.0;
+   g_trade[4].slPips               = 8.0;
+   g_trade[4].livePriceDiffTrigger = 3.0;
+   g_trade[4].levelOffsetPips      = 2.1;
+   g_trade[4].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[4].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[4].babysit_enabled      = false;
+   g_trade[4].babysitStart_minute  = 11;
+   g_trade[5].enabled                  = false;
+   g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[5].tradeTypeId          = 2;
+   g_trade[5].ruleSubsetId         = 1;
+   g_trade[5].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[5].tradeSizePct         = 100;
+   g_trade[5].tpPips               = 8.0;
+   g_trade[5].slPips               = 8.0;
+   g_trade[5].livePriceDiffTrigger = 3.5;
+   g_trade[5].levelOffsetPips      = 2.6;
+   g_trade[5].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[5].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[5].babysit_enabled      = false;
+   g_trade[5].babysitStart_minute  = 11;
+   g_trade[6].enabled                  = false;
+   g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[6].tradeTypeId          = 2;
+   g_trade[6].ruleSubsetId         = 1;
+   g_trade[6].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[6].tradeSizePct         = 100;
+   g_trade[6].tpPips               = 8.0;
+   g_trade[6].slPips               = 8.0;
+   g_trade[6].livePriceDiffTrigger = 3.5;
+   g_trade[6].levelOffsetPips      = 3.1;
+   g_trade[6].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[6].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[6].babysit_enabled      = false;
+   g_trade[6].babysitStart_minute  = 11;
+   g_trade[7].enabled                  = false;
+   g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[7].tradeTypeId          = 2;
+   g_trade[7].ruleSubsetId         = 1;
+   g_trade[7].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[7].tradeSizePct         = 100;
+   g_trade[7].tpPips               = 8.0;
+   g_trade[7].slPips               = 8.0;
+   g_trade[7].livePriceDiffTrigger = 3.5;
+   g_trade[7].levelOffsetPips      = 2.1;
+   g_trade[7].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[7].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[7].babysit_enabled      = false;
+   g_trade[7].babysitStart_minute  = 11;
+   g_trade[8].enabled                  = false;
+   g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[8].tradeTypeId          = 2;
+   g_trade[8].ruleSubsetId         = 1;
+   g_trade[8].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[8].tradeSizePct         = 100;
+   g_trade[8].tpPips               = 8.0;
+   g_trade[8].slPips               = 8.0;
+   g_trade[8].livePriceDiffTrigger = 4.0;
+   g_trade[8].levelOffsetPips      = 2.6;
+   g_trade[8].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[8].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[8].babysit_enabled      = false;
+   g_trade[8].babysitStart_minute  = 11;
+   g_trade[9].enabled                  = false;
+   g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[9].tradeTypeId          = 2;
+   g_trade[9].ruleSubsetId         = 1;
+   g_trade[9].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[9].tradeSizePct         = 100;
+   g_trade[9].tpPips               = 8.0;
+   g_trade[9].slPips               = 8.0;
+   g_trade[9].livePriceDiffTrigger = 4.0;
+   g_trade[9].levelOffsetPips      = 3.1;
+   g_trade[9].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[9].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[9].babysit_enabled      = false;
+   g_trade[9].babysitStart_minute  = 11;
+   g_trade[10].enabled                  = false;
+   g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[10].tradeTypeId          = 2;
+   g_trade[10].ruleSubsetId         = 1;
+   g_trade[10].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[10].tradeSizePct         = 100;
+   g_trade[10].tpPips               = 8.0;
+   g_trade[10].slPips               = 8.0;
+   g_trade[10].livePriceDiffTrigger = 4.0;
+   g_trade[10].levelOffsetPips      = 2.1;
+   g_trade[10].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[10].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[10].babysit_enabled      = false;
+   g_trade[10].babysitStart_minute  = 11;
+}
+
+//+------------------------------------------------------------------+
+//| Composite magic as long must print with exactly COMPOSITE_MAGIC_STRING_LEN decimal digits. |
+//+------------------------------------------------------------------+
+void AssertCompositeMagicDecimalWidthOrFatal(const long compositeMagic, const int variantIdxForMsg)
+{
+   string magicDecimalString = IntegerToString(compositeMagic);
+   int decimalDigitCount = (int)StringLen(magicDecimalString);
+   if(decimalDigitCount != COMPOSITE_MAGIC_STRING_LEN)
+      FatalError(StringFormat("g_trade[%d]: composite magic has %d decimal digits (required %d) — BuildBetterMagicNumber",
+         variantIdxForMsg, decimalDigitCount, COMPOSITE_MAGIC_STRING_LEN));
 }
 
 //+------------------------------------------------------------------+
@@ -2347,11 +2483,21 @@ long BuildMagicForVariant(int variantIdx)
 //+------------------------------------------------------------------+
 //| True if magic matches any configured variant’s BuildMagicForVariant. |
 //+------------------------------------------------------------------+
-bool IsVariantTradeCompositeMagic(long magic)
+bool IsVariantTradeCompositeMagic(long compositeMagic)
 {
-   for(int vi = 0; vi < TRADE_VARIANT_COUNT; vi++)
-      if(BuildMagicForVariant(vi) == magic) return true;
+   for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
+      if(BuildMagicForVariant(variantIdx) == compositeMagic) return true;
    return false;
+}
+
+//+------------------------------------------------------------------+
+//| g_trade[] index whose BuildMagicForVariant matches compositeMagic, or -1. |
+//+------------------------------------------------------------------+
+int FindVariantIndexForCompositeMagic(const long compositeMagic)
+{
+   for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
+      if(BuildMagicForVariant(variantIdx) == compositeMagic) return variantIdx;
+   return -1;
 }
 
 //+------------------------------------------------------------------+
@@ -2361,72 +2507,73 @@ void ValidateMagicCompositionOnInit()
 {
    SyncTradeVariantsFromInputs();
 
-   for(int vi = 0; vi < TRADE_VARIANT_COUNT; vi++)
+   for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
    {
-      if(g_trade[vi].tradeDirectionCategory < 1 || g_trade[vi].tradeDirectionCategory > 4)
-         FatalError(StringFormat("g_trade[%d].tradeDirectionCategory must be 1..4: 1=buy limit, 2=sell limit, 3=sell stop, 4=buy stop", vi));
-      if(g_trade[vi].tradeTypeId < 1 || g_trade[vi].tradeTypeId > 99)
-         FatalError(StringFormat("g_trade[%d].tradeTypeId must be 1..99", vi));
-      if(g_trade[vi].ruleSubsetId < 1 || g_trade[vi].ruleSubsetId > 99)
-         FatalError(StringFormat("g_trade[%d].ruleSubsetId must be 1..99", vi));
-      if(g_trade[vi].sessionPdCategory < 1 || g_trade[vi].sessionPdCategory > 4)
-         FatalError(StringFormat("g_trade[%d].sessionPdCategory must be 1..4 (MAGIC_IS_ON_AND_PD_GREEN … MAGIC_IS_RTH_AND_PD_RED)", vi));
-      if(g_trade[vi].livePriceDiffTrigger < 0.1 || g_trade[vi].livePriceDiffTrigger > 99.9)
-         FatalError(StringFormat("g_trade[%d].livePriceDiffTrigger must be 0.1..99.9", vi));
-      if(g_trade[vi].levelOffsetPips < 0.1 || g_trade[vi].levelOffsetPips > 99.9)
-         FatalError(StringFormat("g_trade[%d].levelOffsetPips must be 0.1..99.9", vi));
-      if(g_trade[vi].levelProximityFocus != TRADE_LEVEL_FOCUS_BELOW &&
-         g_trade[vi].levelProximityFocus != TRADE_LEVEL_FOCUS_ABOVE &&
-         g_trade[vi].levelProximityFocus != TRADE_LEVEL_FOCUS_BOTH)
-         FatalError(StringFormat("g_trade[%d].levelProximityFocus must be 1=below 2=above 3=both, got %d", vi, g_trade[vi].levelProximityFocus));
+      if(g_trade[variantIdx].tradeDirectionCategory < 1 || g_trade[variantIdx].tradeDirectionCategory > 4)
+         FatalError(StringFormat("g_trade[%d].tradeDirectionCategory must be 1..4: 1=buy limit, 2=sell limit, 3=sell stop, 4=buy stop", variantIdx));
+      if(g_trade[variantIdx].tradeTypeId < 1 || g_trade[variantIdx].tradeTypeId > 99)
+         FatalError(StringFormat("g_trade[%d].tradeTypeId must be 1..99", variantIdx));
+      if(g_trade[variantIdx].ruleSubsetId < 1 || g_trade[variantIdx].ruleSubsetId > 99)
+         FatalError(StringFormat("g_trade[%d].ruleSubsetId must be 1..99", variantIdx));
+      if(g_trade[variantIdx].sessionPdCategory < 1 || g_trade[variantIdx].sessionPdCategory > 4)
+         FatalError(StringFormat("g_trade[%d].sessionPdCategory must be 1..4 (MAGIC_IS_ON_AND_PD_GREEN … MAGIC_IS_RTH_AND_PD_RED)", variantIdx));
+      if(g_trade[variantIdx].livePriceDiffTrigger < 0.1 || g_trade[variantIdx].livePriceDiffTrigger > 99.9)
+         FatalError(StringFormat("g_trade[%d].livePriceDiffTrigger must be 0.1..99.9", variantIdx));
+      if(g_trade[variantIdx].levelOffsetPips < 0.1 || g_trade[variantIdx].levelOffsetPips > 99.9)
+         FatalError(StringFormat("g_trade[%d].levelOffsetPips must be 0.1..99.9", variantIdx));
+      if(g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_BELOW &&
+         g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_ABOVE &&
+         g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_BOTH)
+         FatalError(StringFormat("g_trade[%d].levelProximityFocus must be 1=below 2=above 3=both, got %d", variantIdx, g_trade[variantIdx].levelProximityFocus));
    }
 
-   for(int vi = 0; vi < TRADE_VARIANT_COUNT; vi++)
+   for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
    {
-      long m = BuildMagicForVariant(vi);
-      TradeKey tk = ParseCompositeMagic(m);
-      if(tk.direction != g_trade[vi].tradeDirectionCategory)
-         FatalError(StringFormat("ParseCompositeMagic: direction mismatch vs g_trade[%d].tradeDirectionCategory", vi));
-      if(tk.sessionPd != g_trade[vi].sessionPdCategory)
-         FatalError(StringFormat("ParseCompositeMagic: sessionPd mismatch vs g_trade[%d].sessionPdCategory", vi));
-      int expTrig = EncodeMagicTripleFromTenths(g_trade[vi].livePriceDiffTrigger);
-      int expOff = EncodeMagicTripleFromTenths(g_trade[vi].levelOffsetPips);
-      if(tk.triggerTenths != expTrig)
-         FatalError(StringFormat("ParseCompositeMagic: trigger block mismatch vs g_trade[%d].livePriceDiffTrigger", vi));
-      if(tk.offsetTenths != expOff)
-         FatalError(StringFormat("ParseCompositeMagic: offset block mismatch vs g_trade[%d].levelOffsetPips", vi));
-      if(tk.tradeType != g_trade[vi].tradeTypeId)
+      long rowCompositeMagic = BuildMagicForVariant(variantIdx);
+      AssertCompositeMagicDecimalWidthOrFatal(rowCompositeMagic, variantIdx);
+      TradeKey parsedKey = ParseCompositeMagic(rowCompositeMagic);
+      if(parsedKey.direction != g_trade[variantIdx].tradeDirectionCategory)
+         FatalError(StringFormat("ParseCompositeMagic: direction mismatch vs g_trade[%d].tradeDirectionCategory", variantIdx));
+      if(parsedKey.sessionPd != g_trade[variantIdx].sessionPdCategory)
+         FatalError(StringFormat("ParseCompositeMagic: sessionPd mismatch vs g_trade[%d].sessionPdCategory", variantIdx));
+      int expectedTriggerTenths = EncodeMagicTripleFromTenths(g_trade[variantIdx].livePriceDiffTrigger);
+      int expectedOffsetTenths = EncodeMagicTripleFromTenths(g_trade[variantIdx].levelOffsetPips);
+      if(parsedKey.triggerTenths != expectedTriggerTenths)
+         FatalError(StringFormat("ParseCompositeMagic: trigger block mismatch vs g_trade[%d].livePriceDiffTrigger", variantIdx));
+      if(parsedKey.offsetTenths != expectedOffsetTenths)
+         FatalError(StringFormat("ParseCompositeMagic: offset block mismatch vs g_trade[%d].levelOffsetPips", variantIdx));
+      if(parsedKey.tradeType != g_trade[variantIdx].tradeTypeId)
          FatalError("ParseCompositeMagic: tradeType mismatch variant row");
-      if(tk.subset != g_trade[vi].ruleSubsetId)
+      if(parsedKey.subset != g_trade[variantIdx].ruleSubsetId)
          FatalError("ParseCompositeMagic: subset mismatch variant row");
    }
 
-   for(int vi = 0; vi < TRADE_VARIANT_COUNT; vi++)
-      for(int vj = vi + 1; vj < TRADE_VARIANT_COUNT; vj++)
-         if(BuildMagicForVariant(vi) == BuildMagicForVariant(vj))
-            FatalError(StringFormat("Composite magic collision: variant %d and %d produce same magic", vi, vj));
+   for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
+      for(int otherVariantIdx = variantIdx + 1; otherVariantIdx < TRADE_VARIANT_COUNT; otherVariantIdx++)
+         if(BuildMagicForVariant(variantIdx) == BuildMagicForVariant(otherVariantIdx))
+            FatalError(StringFormat("Composite magic collision: variant %d and %d produce same magic", variantIdx, otherVariantIdx));
 }
 
 //+------------------------------------------------------------------+
 //| Session+PD digit (1..4) from ParseCompositeMagic.                |
 //+------------------------------------------------------------------+
-int ExtractMagicSessionPdCategoryFromMagic(long magic)
+int ExtractMagicSessionPdCategoryFromMagic(long compositeMagic)
 {
-   return ParseCompositeMagic(magic).sessionPd;
+   return ParseCompositeMagic(compositeMagic).sessionPd;
 }
 
 //+------------------------------------------------------------------+
 //| Session + PD gate from composite magic digit 2 (MAGIC_IS_*_AND_PD_*). |
-//| Pass the same long magic you will attach to the order (e.g. BuildMagicForVariant(vi)). |
+//| Pass the same composite magic long you attach to the order (e.g. BuildMagicForVariant(variantIdx)). |
 //+------------------------------------------------------------------+
-bool MeetsMagicSessionPdEntryGate(long magic, int kLast)
+bool MeetsMagicSessionPdEntryGate(long compositeMagic, int kLast)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   int code = ExtractMagicSessionPdCategoryFromMagic(magic);
+   int sessionPdCode = ExtractMagicSessionPdCategoryFromMagic(compositeMagic);
    string sess = g_session[kLast];
    string pd = GetPDtrendString();
    // Only != comparisons (g_session is "ON"|"RTH"|"sleep"). ON = not RTH and not sleep; RTH-style = not ON.
-   switch(code)
+   switch(sessionPdCode)
    {
       case MAGIC_IS_ON_AND_PD_GREEN:
          return (sess != "RTH" && sess != "sleep" && pd != "PD_red");
@@ -2579,11 +2726,48 @@ bool LevelIsTertiary(const string &categories)
 }
 
 //+------------------------------------------------------------------+
-//| Order comment (≤31 chars MT5 limit): $ levelInt tp sl entryPrice — no magic (use order/deal magic field). |
+//| For tp/sl/entry only: last two digits of whole part + fractional (6904.6→04.6). Level uses full DoubleToString in BuildUnifiedOrderComment. |
 //+------------------------------------------------------------------+
-string BuildUnifiedOrderComment(int levelPriceInt, double takeProfitVal, double stopLossVal, double orderPrice)
+string ShortPriceTailForOrderComment(const double price)
 {
-   return StringFormat("$%d %.*f %.*f %.*f", levelPriceInt, _Digits, takeProfitVal, _Digits, stopLossVal, _Digits, orderPrice);
+   double sign = (price < 0.0) ? -1.0 : 1.0;
+   double ap = MathAbs(price);
+   double w = MathFloor(ap + 1e-12);
+   int hh = (int)MathMod(w, 100.0);
+   if(hh < 0) hh += 100;
+   double fr = NormalizeDouble(ap - w, _Digits);
+   string fracFull = DoubleToString(fr, _Digits);
+   int dotPos = StringFind(fracFull, ".");
+   string fracSuffix = (dotPos >= 0) ? StringSubstr(fracFull, dotPos) : "";
+   string core = StringFormat("%02d", hh) + fracSuffix;
+   if(sign < 0.0) return "-" + core;
+   return core;
+}
+
+//+------------------------------------------------------------------+
+//| " b<n>" if variant has babysit_enabled (n = babysitStart_minute); else "". |
+//+------------------------------------------------------------------+
+string BabysitOrderCommentSuffixFromMagic(const long compositeMagic)
+{
+   int v = FindVariantIndexForCompositeMagic(compositeMagic);
+   if(v < 0 || !g_trade[v].babysit_enabled) return "";
+   return StringFormat(" b%d", g_trade[v].babysitStart_minute);
+}
+
+//+------------------------------------------------------------------+
+//| Unified pending comment: $ fullLevel shortTP shortSL shortEntry [b<n>]. Fails fast if longer than MT5 cap. |
+//+------------------------------------------------------------------+
+string BuildUnifiedOrderComment(double levelPrice, double takeProfitVal, double stopLossVal, double orderPrice, const long magicForBabysit)
+{
+   string levelStr = DoubleToString(NormalizeDouble(levelPrice, _Digits), _Digits);
+   string s = "$" + levelStr + " " + ShortPriceTailForOrderComment(takeProfitVal) + " "
+              + ShortPriceTailForOrderComment(stopLossVal) + " " + ShortPriceTailForOrderComment(orderPrice)
+              + BabysitOrderCommentSuffixFromMagic(magicForBabysit);
+   int n = (int)StringLen(s);
+   if(n > MT5_ORDER_COMMENT_MAX_LEN)
+      FatalError(StringFormat("Order comment length %d > MT5_ORDER_COMMENT_MAX_LEN %d: \"%s\" (try lower _Digits or shorter babysit tag)",
+         n, MT5_ORDER_COMMENT_MAX_LEN, s));
+   return s;
 }
 
 //+------------------------------------------------------------------+
@@ -2641,7 +2825,7 @@ void WriteTradeLogPendingOrder(double levelPrice, double offsetPips, double slPi
          takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
          break;
    }
-   string orderComment = BuildUnifiedOrderComment((int)levelPrice, takeProfitVal, stopLossVal, orderPrice);
+   string orderComment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    WriteTradeLog(magicStrForLogFilename, "pending_created", eventTime, orderKind, orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
 }
 
@@ -2679,29 +2863,29 @@ bool MeetsBuyBounceEntryRule(int levelsIdx, datetime atTime, int variantIdx, int
 }
 
 //+------------------------------------------------------------------+
-//| Proximity gate: which side(s) matter comes from g_trade[vi].levelProximityFocus. |
+//| Proximity gate: which side(s) matter comes from g_trade[variantIdx].levelProximityFocus. |
 //+------------------------------------------------------------------+
-bool PendingVariantWithinPriceTriggerDistance(int vi, double levelBelow, double levelAbove, double nearDistPts)
+bool PendingVariantWithinPriceTriggerDistance(int variantIdx, double levelBelow, double levelAbove, double nearDistPts)
 {
-   if(vi < 0 || vi >= TRADE_VARIANT_COUNT) return false;
+   if(variantIdx < 0 || variantIdx >= TRADE_VARIANT_COUNT) return false;
    bool nearBelow = (levelBelow > 0.0 && IsLivePriceNearLevel(levelBelow, nearDistPts));
    bool nearAbove = (levelAbove > 0.0 && IsLivePriceNearLevel(levelAbove, nearDistPts));
-   int f = g_trade[vi].levelProximityFocus;
-   if(f == TRADE_LEVEL_FOCUS_BELOW) return nearBelow;
-   if(f == TRADE_LEVEL_FOCUS_ABOVE) return nearAbove;
-   if(f == TRADE_LEVEL_FOCUS_BOTH) return (nearBelow || nearAbove);
+   int proximityFocus = g_trade[variantIdx].levelProximityFocus;
+   if(proximityFocus == TRADE_LEVEL_FOCUS_BELOW) return nearBelow;
+   if(proximityFocus == TRADE_LEVEL_FOCUS_ABOVE) return nearAbove;
+   if(proximityFocus == TRADE_LEVEL_FOCUS_BOTH) return (nearBelow || nearAbove);
    return false;
 }
 
 //+------------------------------------------------------------------+
 //| Order anchor level after entry passes (BOTH: prefer below if both in trigger band, else whichever is in band). |
 //+------------------------------------------------------------------+
-double PendingOrderAnchorLevelForVariant(int vi, double levelBelow, double levelAbove, double nearDistPts)
+double PendingOrderAnchorLevelForVariant(int variantIdx, double levelBelow, double levelAbove, double nearDistPts)
 {
-   if(vi < 0 || vi >= TRADE_VARIANT_COUNT) return 0.0;
-   int f = g_trade[vi].levelProximityFocus;
-   if(f == TRADE_LEVEL_FOCUS_BELOW) return levelBelow;
-   if(f == TRADE_LEVEL_FOCUS_ABOVE) return levelAbove;
+   if(variantIdx < 0 || variantIdx >= TRADE_VARIANT_COUNT) return 0.0;
+   int proximityFocus = g_trade[variantIdx].levelProximityFocus;
+   if(proximityFocus == TRADE_LEVEL_FOCUS_BELOW) return levelBelow;
+   if(proximityFocus == TRADE_LEVEL_FOCUS_ABOVE) return levelAbove;
    bool nearBelow = (levelBelow > 0.0 && IsLivePriceNearLevel(levelBelow, nearDistPts));
    bool nearAbove = (levelAbove > 0.0 && IsLivePriceNearLevel(levelAbove, nearDistPts));
    if(nearBelow && nearAbove) return levelBelow;
@@ -2723,37 +2907,43 @@ bool PendingPassesRulesetPolicy(int variantIdx)
 //+------------------------------------------------------------------+
 //| levelProximityFocus → single (levelPx, levelIdx) for RuleSubsetPasses_* (keep subset functions short). |
 //+------------------------------------------------------------------+
-EntryLevelCtx PendingBuildEntryLevelCtx(int vi, double levelBelow, int idxBelow, double levelAbove, int idxAbove)
+EntryLevelCtx PendingBuildEntryLevelCtx(int variantIdx, double levelBelow, int idxBelow, double levelAbove, int idxAbove)
 {
-   EntryLevelCtx z;
-   z.ok = false;
-   z.levelPx = 0.0;
-   z.levelIdx = -1;
-   if(vi < 0 || vi >= TRADE_VARIANT_COUNT) return z;
-   int focus = g_trade[vi].levelProximityFocus;
-   if(focus == TRADE_LEVEL_FOCUS_BELOW)
+   EntryLevelCtx levelCtx;
+   levelCtx.ok = false;
+   levelCtx.levelPx = 0.0;
+   levelCtx.levelIdx = -1;
+   if(variantIdx < 0 || variantIdx >= TRADE_VARIANT_COUNT) return levelCtx;
+   int proximityFocus = g_trade[variantIdx].levelProximityFocus;
+   if(proximityFocus == TRADE_LEVEL_FOCUS_BELOW)
    {
-      if(idxBelow < 0) return z;
-      z.levelPx = levelBelow;
-      z.levelIdx = idxBelow;
-      z.ok = true;
-      return z;
+      if(idxBelow < 0) return levelCtx;
+      levelCtx.levelPx = levelBelow;
+      levelCtx.levelIdx = idxBelow;
+      levelCtx.ok = true;
+      return levelCtx;
    }
-   if(focus == TRADE_LEVEL_FOCUS_ABOVE)
+   if(proximityFocus == TRADE_LEVEL_FOCUS_ABOVE)
    {
-      if(idxAbove < 0) return z;
-      z.levelPx = levelAbove;
-      z.levelIdx = idxAbove;
-      z.ok = true;
-      return z;
+      if(idxAbove < 0) return levelCtx;
+      levelCtx.levelPx = levelAbove;
+      levelCtx.levelIdx = idxAbove;
+      levelCtx.ok = true;
+      return levelCtx;
    }
-   if(idxBelow >= 0) { z.levelPx = levelBelow; z.levelIdx = idxBelow; z.ok = true; return z; }
-   if(idxAbove >= 0) { z.levelPx = levelAbove; z.levelIdx = idxAbove; z.ok = true; return z; }
-   return z;
+   if(idxBelow >= 0) { levelCtx.levelPx = levelBelow; levelCtx.levelIdx = idxBelow; levelCtx.ok = true; return levelCtx; }
+   if(idxAbove >= 0) { levelCtx.levelPx = levelAbove; levelCtx.levelIdx = idxAbove; levelCtx.ok = true; return levelCtx; }
+   return levelCtx;
 }
 
 //+------------------------------------------------------------------+
-//| Rule subset for composite magic 130203002601 (subset 01; default row 0 build). Streak / diffs / below ONH. |
+//| POLICY — RuleSubsetPasses_* (read before editing any subset):     |
+//| Each implementation must be standalone (no forwarding to another RuleSubsetPasses_*). |
+//| If two rows share logic today, duplicate the body.                 |
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[0]. Streak / diffs / below ONH. |
 //+------------------------------------------------------------------+
 bool RuleSubsetPasses_130203002601(double levelPx, int levelIdx, int kLast)
 {
@@ -2771,30 +2961,213 @@ bool RuleSubsetPasses_130203002601(double levelPx, int levelIdx, int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Rule subset for 120203002601 (ON+PD red long, subset 01). Same logic as RuleSubsetPasses_130203002601 (streak/diffs + below ONH). |
+//| Pending stage-2 rules for g_trade[1]. Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
 bool RuleSubsetPasses_120203002601(double levelPx, int levelIdx, int kLast)
 {
-   return RuleSubsetPasses_130203002601(levelPx, levelIdx, kLast);
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
 }
 
 //+------------------------------------------------------------------+
-//| Rule subset for 140203002601 (RTH+PD red long, subset 01). Same logic as 130203002601. |
+//| Pending stage-2 rules for g_trade[3]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120203003101(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[4]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120203002101(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[5]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120203502601(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[6]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120203503101(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[7]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120203502101(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[8]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120204002601(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[9]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120204003101(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[10]. Standalone — POLICY header above. |
+//+------------------------------------------------------------------+
+bool RuleSubsetPasses_120204002101(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Pending stage-2 rules for g_trade[2] (RTH+PD red long, type 02). Standalone — POLICY header above. |
 //+------------------------------------------------------------------+
 bool RuleSubsetPasses_140203002601(double levelPx, int levelIdx, int kLast)
 {
-   return RuleSubsetPasses_130203002601(levelPx, levelIdx, kLast);
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
 }
 
 //+------------------------------------------------------------------+
-//| Stage 2: lookup rule implementation by composite magic (same value already on the maybe-stage-1 candidate). |
-//| Not BuildMagicForVariant again — avoids “recompute row magic, then compare to the literal that row always produces”. |
+//| Stage-2: dispatch fullMagic → RuleSubsetPasses_* (width + literals = BuildMagicForVariant per row). |
+//| New g_trade[] row: add one if here + standalone RuleSubsetPasses_* (no duplicate magic list elsewhere). |
 //+------------------------------------------------------------------+
-bool PendingRuleSubsetPassesForMagic(long compositeMagic, double levelPx, int levelIdx, int kLast)
+bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double levelPx, const int levelIdx, const int kLast)
 {
-   if(compositeMagic == PENDING_ENTRY_MAGIC_130203002601) return RuleSubsetPasses_130203002601(levelPx, levelIdx, kLast);
-   if(compositeMagic == PENDING_ENTRY_MAGIC_120203002601) return RuleSubsetPasses_120203002601(levelPx, levelIdx, kLast);
-   if(compositeMagic == PENDING_ENTRY_MAGIC_140203002601) return RuleSubsetPasses_140203002601(levelPx, levelIdx, kLast);
+   if(fullMagic == 130203002601L)
+      return RuleSubsetPasses_130203002601(levelPx, levelIdx, kLast);
+   if(fullMagic == 140203002601L)
+      return RuleSubsetPasses_140203002601(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203002601L)
+      return RuleSubsetPasses_120203002601(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203003101L)
+      return RuleSubsetPasses_120203003101(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203002101L)
+      return RuleSubsetPasses_120203002101(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203502601L)
+      return RuleSubsetPasses_120203502601(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203503101L)
+      return RuleSubsetPasses_120203503101(levelPx, levelIdx, kLast);
+   if(fullMagic == 120203502101L)
+      return RuleSubsetPasses_120203502101(levelPx, levelIdx, kLast);
+   if(fullMagic == 120204002601L)
+      return RuleSubsetPasses_120204002601(levelPx, levelIdx, kLast);
+   if(fullMagic == 120204003101L)
+      return RuleSubsetPasses_120204003101(levelPx, levelIdx, kLast);
+   if(fullMagic == 120204002101L)
+      return RuleSubsetPasses_120204002101(levelPx, levelIdx, kLast);
    return false;
 }
 
@@ -2841,7 +3214,7 @@ bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, d
    double stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
    double takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
-   string comment = BuildUnifiedOrderComment((int)levelPrice, takeProfitVal, stopLossVal, orderPrice);
+   string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.BuyLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -2859,7 +3232,7 @@ bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, 
    double stopLossVal = NormalizeDouble(orderPrice + slPips * pip, _Digits);
    double takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
-   string comment = BuildUnifiedOrderComment((int)levelPrice, takeProfitVal, stopLossVal, orderPrice);
+   string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.SellLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -2879,7 +3252,7 @@ bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, d
    double stopLossVal = NormalizeDouble(orderPrice + slPips * pip, _Digits);
    double takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
-   string comment = BuildUnifiedOrderComment((int)levelPrice, takeProfitVal, stopLossVal, orderPrice);
+   string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.SellStop(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -2898,7 +3271,7 @@ bool PlaceBuyStopAtLevel(double levelPrice, double offsetPips, double slPips, do
    double stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
    double takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
-   string comment = BuildUnifiedOrderComment((int)levelPrice, takeProfitVal, stopLossVal, orderPrice);
+   string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.BuyStop(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -3297,8 +3670,8 @@ int OnInit()
 
    ValidateMagicCompositionOnInit();
 
-   for(int vi = 0; vi < TRADE_VARIANT_COUNT; vi++)
-      g_tradeConfig[vi].bannedRangesStr = g_trade[vi].bannedRanges;
+   for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
+      g_tradeConfig[variantIdx].bannedRangesStr = g_trade[variantIdx].bannedRanges;
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
@@ -3660,10 +4033,10 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 //| OnTimer(1s) pending pipeline — maybe stage 1 → maybe stage 2 → place (F):                |
 //|  A. Prerequisites: levels + bars; nearest levels below/above bid.                       |
-//|  B–C. One loop per row: proximity (trigger band + focus) then stage-1 gates (time, cap,  |
-//|      session/PD, policy, level indices) → maybeStage1Candidates.                        |
-//|  D–E. RuleSubsetPasses_* (maybe stage 2); on pass → maybeStage2Candidates.         |
-//|  F. PlacePendingFromMagic + log.                                                        |
+//|  B–C. One loop per row: fullMagic = BuildMagicForVariant(variantIdx) once; proximity +    |
+//|      stage-1 gates use that same fullMagic; store it on maybeStage1Candidates.          |
+//|  D–E. Stage-2 rule dispatcher (fullMagic); copy fullMagic → maybeStage2.                  |
+//|  F. PlacePendingFromMagic(fullMagic,…) + log.                                           |
 //+------------------------------------------------------------------+
 void RunTimerPendingNearLevelsPipeline()
 {
@@ -3684,12 +4057,12 @@ void RunTimerPendingNearLevelsPipeline()
       if(!PendingVariantWithinPriceTriggerDistance(variantIdx, nearestLevelBelowBid, nearestLevelAboveBid, triggerDistancePts))
          continue;
 
-      const long compositeMagic = BuildMagicForVariant(variantIdx);
+      const long fullMagic = BuildMagicForVariant(variantIdx);
       const double pendingOffsetPips = InputPipsToOrderPips(g_trade[variantIdx].levelOffsetPips);
 
       if(!IsTimeAllowedForTradeType(variantIdx, g_lastTimer1Time)) continue;
-      if(!CanPlaceNewOrderForMagic(compositeMagic)) continue;
-      if(!MeetsMagicSessionPdEntryGate(compositeMagic, lastBarIndexToday)) continue;
+      if(!CanPlaceNewOrderForMagic(fullMagic)) continue;
+      if(!MeetsMagicSessionPdEntryGate(fullMagic, lastBarIndexToday)) continue;
       if(!PendingPassesRulesetPolicy(variantIdx)) continue;
 
       const int levelIndexBelow = (nearestLevelBelowBid > 0.0) ? FindExpandedLevelIndexByPrice(nearestLevelBelowBid) : -1;
@@ -3700,7 +4073,7 @@ void RunTimerPendingNearLevelsPipeline()
       if(proximityFocus == TRADE_LEVEL_FOCUS_BOTH && levelIndexBelow < 0 && levelIndexAbove < 0) continue;
 
       maybeStage1Candidates[maybeStage1Count].variantIdx = variantIdx;
-      maybeStage1Candidates[maybeStage1Count].compositeMagic = compositeMagic;
+      maybeStage1Candidates[maybeStage1Count].fullMagic = fullMagic;
       maybeStage1Candidates[maybeStage1Count].nearestLevelBelowBid = nearestLevelBelowBid;
       maybeStage1Candidates[maybeStage1Count].nearestLevelAboveBid = nearestLevelAboveBid;
       maybeStage1Candidates[maybeStage1Count].levelIndexBelow = levelIndexBelow;
@@ -3711,17 +4084,22 @@ void RunTimerPendingNearLevelsPipeline()
    }
    if(maybeStage1Count == 0) return;
 
-   //--- D–E. Single loop per maybe-stage-1 row: RuleSubsetPasses_* (maybe stage 2); if true, append maybeStage2Candidates (ready for F).
+   //--- D–E. Stage 2: use fullMagic carried from B–C (must still match row config).
    PendingMaybeStage2Candidate maybeStage2Candidates[TRADE_VARIANT_COUNT];
    int maybeStage2Count = 0;
    for(int stage1Idx = 0; stage1Idx < maybeStage1Count; stage1Idx++)
    {
       const int variantIdx = maybeStage1Candidates[stage1Idx].variantIdx;
+      const long fullMagic = maybeStage1Candidates[stage1Idx].fullMagic;
       EntryLevelCtx entryLevel = PendingBuildEntryLevelCtx(variantIdx,
          maybeStage1Candidates[stage1Idx].nearestLevelBelowBid, maybeStage1Candidates[stage1Idx].levelIndexBelow,
          maybeStage1Candidates[stage1Idx].nearestLevelAboveBid, maybeStage1Candidates[stage1Idx].levelIndexAbove);
-      bool ruleSubsetPasses = (entryLevel.ok &&
-         PendingRuleSubsetPassesForMagic(maybeStage1Candidates[stage1Idx].compositeMagic, entryLevel.levelPx, entryLevel.levelIdx, maybeStage1Candidates[stage1Idx].lastBarIndexToday));
+      bool ruleSubsetPasses = false;
+      if(entryLevel.ok && fullMagic == BuildMagicForVariant(variantIdx))
+      {
+         const int kBar = maybeStage1Candidates[stage1Idx].lastBarIndexToday;
+         ruleSubsetPasses = PendingRuleSubsetPassesForFullMagic(fullMagic, entryLevel.levelPx, entryLevel.levelIdx, kBar);
+      }
       if(!ruleSubsetPasses) continue;
 
       const double triggerDistancePts = g_trade[variantIdx].livePriceDiffTrigger;
@@ -3730,7 +4108,7 @@ void RunTimerPendingNearLevelsPipeline()
       if(anchorLevelPrice <= 0.0) continue;
 
       maybeStage2Candidates[maybeStage2Count].variantIdx = variantIdx;
-      maybeStage2Candidates[maybeStage2Count].compositeMagic = maybeStage1Candidates[stage1Idx].compositeMagic;
+      maybeStage2Candidates[maybeStage2Count].fullMagic = fullMagic;
       maybeStage2Candidates[maybeStage2Count].anchorLevelPrice = anchorLevelPrice;
       maybeStage2Candidates[maybeStage2Count].pendingOffsetPips = maybeStage1Candidates[stage1Idx].pendingOffsetPips;
       maybeStage2Candidates[maybeStage2Count].slPipsNormalized = InputPipsToOrderPips(g_trade[variantIdx].slPips);
@@ -3738,16 +4116,64 @@ void RunTimerPendingNearLevelsPipeline()
       maybeStage2Count++;
    }
 
-   //--- F. Trade attempts — PlacePendingFromMagic (+ log). Time + order-cap only in maybe stage 1.
+   //--- F. Trade attempts — PlacePendingFromMagic (+ log). fullMagic carried from D–E.
    for(int placeIdx = 0; placeIdx < maybeStage2Count; placeIdx++)
    {
       const int variantIdx = maybeStage2Candidates[placeIdx].variantIdx;
-      const long compositeMagic = maybeStage2Candidates[placeIdx].compositeMagic;
-      if(PlacePendingFromMagic(compositeMagic, maybeStage2Candidates[placeIdx].anchorLevelPrice, maybeStage2Candidates[placeIdx].pendingOffsetPips,
+      const long fullMagic = maybeStage2Candidates[placeIdx].fullMagic;
+      if(fullMagic != BuildMagicForVariant(variantIdx)) continue;
+      if(PlacePendingFromMagic(fullMagic, maybeStage2Candidates[placeIdx].anchorLevelPrice, maybeStage2Candidates[placeIdx].pendingOffsetPips,
             maybeStage2Candidates[placeIdx].slPipsNormalized, maybeStage2Candidates[placeIdx].tpPipsNormalized, 5, GetTradeLotForVariant(variantIdx)))
          WriteTradeLogPendingOrder(maybeStage2Candidates[placeIdx].anchorLevelPrice, maybeStage2Candidates[placeIdx].pendingOffsetPips,
-            maybeStage2Candidates[placeIdx].slPipsNormalized, maybeStage2Candidates[placeIdx].tpPipsNormalized, compositeMagic);
+            maybeStage2Candidates[placeIdx].slPipsNormalized, maybeStage2Candidates[placeIdx].tpPipsNormalized, fullMagic);
    }
+}
+
+//+------------------------------------------------------------------+
+//| ExtPositionInfo must already select the position. After babysitStartMinute open time, tighten SL in steps from entry (only tighter). |
+//+------------------------------------------------------------------+
+void BabysitTryTightenStopsForSelectedPosition(const long positionMagic, const int babysitStartMinute)
+{
+   //--- 1. Babysit disabled for this row (negative minute = off).
+   if(babysitStartMinute < 0) return;
+   //--- 2. Age of position in whole minutes (position open time vs last 1s timer tick).
+   int minutesOpen = (int)((g_lastTimer1Time - ExtPositionInfo.Time()) / 60);
+   //--- 3. Do nothing until the trade has been open at least babysitStartMinute minutes.
+   if(minutesOpen < babysitStartMinute) return;
+   //--- 4. Ladder of SL distances from entry (signed); for a buy, negative = SL below open. Tries tightest (-0.5) first, then wider steps.
+   double babysit_targets[] = {-0.5, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0};
+   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   double tol = point * 0.5;
+   //--- 5. Snapshot selected position: open, TP, ticket, side, current SL.
+   double openPrice = ExtPositionInfo.PriceOpen();
+   double currentTP = ExtPositionInfo.TakeProfit();
+   ulong ticket = ExtPositionInfo.Ticket();
+   ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
+   double currentSL = ExtPositionInfo.StopLoss();
+   //--- 6. currentOffset in the same units as targets (buy: SL - open; sell: open - SL). More negative = stop further from entry on the protective side.
+   double currentOffset = (posType == POSITION_TYPE_BUY) ? (currentSL - openPrice) : (openPrice - currentSL);
+   //--- 7. PositionModify must use this row’s magic so the server accepts the change.
+   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
+   for(int targetIdx = 0; targetIdx < ArraySize(babysit_targets); targetIdx++)
+   {
+      double target = babysit_targets[targetIdx];
+      //--- 8. Skip rungs already achieved or passed (would only loosen / duplicate).
+      if(target <= currentOffset) continue;
+      //--- 9. New SL price for this rung: entry +/- |target| on the correct side for long/short.
+      double newSL = (posType == POSITION_TYPE_BUY) ? openPrice + target : openPrice - target;
+      newSL = NormalizeDouble(newSL, _Digits);
+      //--- 10. Broker already has this SL within tolerance — stop (no pointless retries).
+      if(MathAbs(newSL - currentSL) <= tol) break;
+      //--- 11. Apply SL; TP unchanged. On failure, try next rung; on success, re-read position.
+      if(!ExtTrade.PositionModify(ticket, newSL, currentTP)) continue;
+      if(!ExtPositionInfo.SelectByTicket(ticket)) break;
+      currentSL = ExtPositionInfo.StopLoss();
+      currentOffset = (posType == POSITION_TYPE_BUY) ? (currentSL - openPrice) : (openPrice - currentSL);
+      //--- 12. Rung reached (or broker quantized to it) — done for this timer pass.
+      if(currentOffset >= target - tol) break;
+   }
+   //--- 13. Restore default magic for the rest of the EA.
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
 }
 
 //+------------------------------------------------------------------+
@@ -3770,41 +4196,19 @@ void OnTimer()
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
 
-   // ontimer_babysit: after 11 min, try to set SL to -0.5 (price from entry); if not -0.5 try -1, -2, ... only tighter (never e.g. -6 -> -7)
-   if(ontimer_babysit)
+   // babysit_global_flipper: per open position, if variant has babysit_enabled run BabysitTryTightenStops after babysitStart_minute
+   if(babysit_global_flipper)
    {
-      double babysit_targets[] = {-0.5, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0};
-      double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
-      double tol = point * 0.5;
-      for(int i = PositionsTotal() - 1; i >= 0; i--)
+      for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
       {
-         if(!ExtPositionInfo.SelectByIndex(i)) continue;
+         if(!ExtPositionInfo.SelectByIndex(positionIdx)) continue;
          if(ExtPositionInfo.Symbol() != _Symbol) continue;
          long posMagic = ExtPositionInfo.Magic();
          if(!IsVariantTradeCompositeMagic(posMagic)) continue;
-         int minutesOpen = (int)((g_lastTimer1Time - ExtPositionInfo.Time()) / 60);
-         if(minutesOpen < 11) continue;
-         double openPrice = ExtPositionInfo.PriceOpen();
-         double currentTP = ExtPositionInfo.TakeProfit();
-         ulong ticket = ExtPositionInfo.Ticket();
-         ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
-         double currentSL = ExtPositionInfo.StopLoss();
-         double currentOffset = (posType == POSITION_TYPE_BUY) ? (currentSL - openPrice) : (openPrice - currentSL);
-         ExtTrade.SetExpertMagicNumber((ulong)posMagic);
-         for(int t = 0; t < ArraySize(babysit_targets); t++)
-         {
-            double target = babysit_targets[t];
-            if(target <= currentOffset) continue;   // only tighten: never e.g. -6 -> -7
-            double newSL = (posType == POSITION_TYPE_BUY) ? openPrice + target : openPrice - target;
-            newSL = NormalizeDouble(newSL, _Digits);
-            if(MathAbs(newSL - currentSL) <= tol) break;
-            if(!ExtTrade.PositionModify(ticket, newSL, currentTP)) continue;
-            if(!ExtPositionInfo.SelectByTicket(ticket)) break;
-            currentSL = ExtPositionInfo.StopLoss();
-            currentOffset = (posType == POSITION_TYPE_BUY) ? (currentSL - openPrice) : (openPrice - currentSL);
-            if(currentOffset >= target - tol) break;   // at or tighter than target
-         }
-         ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+         int variantIdx = FindVariantIndexForCompositeMagic(posMagic);
+         if(variantIdx < 0) continue;
+         if(!g_trade[variantIdx].babysit_enabled) continue;
+         BabysitTryTightenStopsForSelectedPosition(posMagic, g_trade[variantIdx].babysitStart_minute);
       }
    }
 
