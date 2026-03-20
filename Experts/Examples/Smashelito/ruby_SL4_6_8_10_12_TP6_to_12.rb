@@ -10,6 +10,9 @@ PRINT_ALL_WINRATE = false
 PRINT_ALL_GAIN    = true
 PRINT_ALL_BE      = false
 
+minimum_trades = 5
+skip_results_with_winrate_between = [40, 60]  # in %
+
 # =======================
 # DATA STRUCTURE
 # =======================
@@ -54,7 +57,6 @@ CSV.foreach(file_path, headers: true, col_sep: "\t") do |row|
   magic = row["magic"]
   next if magic.nil?
 
-  # --- DATE TRACKING ---
   trade_date = parse_date(row["startTime"] || row["date"])
   if trade_date
     if date_ranges[magic][:min].nil? || trade_date < date_ranges[magic][:min]
@@ -105,14 +107,13 @@ data.each do |magic, trades|
   skipped_cases = trades.sum { |t| t.count { |_, v| v[:skipped] } }
   skipped_percent = (skipped_cases.to_f / total_cases * 100).round(1)
 
-  # --- FORMAT DATE RANGE ---
   min_d = date_ranges[magic][:min]
   max_d = date_ranges[magic][:max]
 
   min_str = min_d ? min_d.strftime("%Y-%m-%d") : "N/A"
   max_str = max_d ? max_d.strftime("%Y-%m-%d") : "N/A"
 
-  puts "\nMagic number: #{magic} (total trades: #{trades.size}, range: #{min_str} → #{max_str})"
+  puts "\nMagic number: #{magic} (total trades: #{trades.size}, range: #{min_str} → #{max_str}) ----------------------------"
   puts "Trades skipped (both SL & TP blank): #{skipped_cases} (#{skipped_percent}%)"
 
   combination_stats = Hash.new { |h, k| h[k] = { profits: [], breakeven_candles: [] } }
@@ -134,7 +135,17 @@ data.each do |magic, trades|
     next if profits.empty?
 
     sample_size = profits.size
+    next if sample_size < minimum_trades
+
     win_rate = profits.count { |p| p > 0 }.to_f / sample_size
+    win_rate_pct = win_rate * 100
+
+    # ✅ skip mid win-rate zone
+    if win_rate_pct >= skip_results_with_winrate_between[0] &&
+       win_rate_pct <= skip_results_with_winrate_between[1]
+      next
+    end
+
     avg_gain = profits.sum.to_f / sample_size
 
     breakevens = vals[:breakeven_candles]
@@ -148,6 +159,11 @@ data.each do |magic, trades|
       avg_breakeven: avg_breakeven
     }
   end.compact
+
+  if combo_results.empty?
+    puts "\nNo combinations meet filters (min_trades=#{minimum_trades}, skipped winrate #{skip_results_with_winrate_between})"
+    next
+  end
 
   # =======================
   # WIN RATE
