@@ -2321,7 +2321,7 @@ TradeKey ParseCompositeMagic(long magic)
 //+------------------------------------------------------------------+
 void SyncTradeVariantsFromInputs() // bookmark1
 {
-   g_trade[0].enabled                  = false; // good
+   g_trade[0].enabled                  = true; // good
    g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;   // buy limit (or 1..4)
    g_trade[0].tradeTypeId          = 2;
    g_trade[0].ruleSubsetId         = 1; // not used in EA logic; only encoded in composite magic (custom meaning — Aleksander)
@@ -2351,7 +2351,7 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[1].babysit_enabled      = false;
    g_trade[1].babysitStart_minute  = 11;
 
-   g_trade[2].enabled                  = true; // test later if other price triggers do more trades
+   g_trade[2].enabled                  = false; // test later if other price triggers do more trades
    g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[2].tradeTypeId          = 2;
    g_trade[2].ruleSubsetId         = 1;
@@ -2367,7 +2367,7 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[2].babysitStart_minute  = 11;
 
    // g_trade[3..10]: same session/type/subset as [1]; trigger/offset pips differ — new row needs dispatcher branch + Subset_<fullmagic> handler.
-   g_trade[3].enabled                  = true;
+   g_trade[3].enabled                  = false;
    g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[3].tradeTypeId          = 2;
    g_trade[3].ruleSubsetId         = 1;
@@ -2381,7 +2381,8 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[3].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[3].babysit_enabled      = false;
    g_trade[3].babysitStart_minute  = 11;
-   g_trade[4].enabled                  = true;
+
+   g_trade[4].enabled                  = false;
    g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[4].tradeTypeId          = 2;
    g_trade[4].ruleSubsetId         = 1;
@@ -2395,7 +2396,8 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[4].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[4].babysit_enabled      = false;
    g_trade[4].babysitStart_minute  = 11;
-   g_trade[5].enabled                  = true;
+
+   g_trade[5].enabled                  = false;
    g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[5].tradeTypeId          = 2;
    g_trade[5].ruleSubsetId         = 1;
@@ -2409,7 +2411,8 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[5].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[5].babysit_enabled      = false;
    g_trade[5].babysitStart_minute  = 11;
-   g_trade[6].enabled                  = true;
+
+   g_trade[6].enabled                  = false;
    g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[6].tradeTypeId          = 2;
    g_trade[6].ruleSubsetId         = 1;
@@ -2423,7 +2426,8 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[6].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[6].babysit_enabled      = false;
    g_trade[6].babysitStart_minute  = 11;
-   g_trade[7].enabled                  = true;
+
+   g_trade[7].enabled                  = false;
    g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[7].tradeTypeId          = 2;
    g_trade[7].ruleSubsetId         = 1;
@@ -2437,7 +2441,8 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[7].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[7].babysit_enabled      = false;
    g_trade[7].babysitStart_minute  = 11;
-   g_trade[8].enabled                  = true;
+
+   g_trade[8].enabled                  = false;
    g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[8].tradeTypeId          = 2;
    g_trade[8].ruleSubsetId         = 1;
@@ -2451,7 +2456,8 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[8].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[8].babysit_enabled      = false;
    g_trade[8].babysitStart_minute  = 11;
-   g_trade[9].enabled                  = true;
+
+   g_trade[9].enabled                  = false;
    g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[9].tradeTypeId          = 2;
    g_trade[9].ruleSubsetId         = 1;
@@ -2465,7 +2471,8 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[9].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[9].babysit_enabled      = false;
    g_trade[9].babysitStart_minute  = 11;
-   g_trade[10].enabled                  = true;
+
+   g_trade[10].enabled                  = false;
    g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_LONG;
    g_trade[10].tradeTypeId          = 2;
    g_trade[10].ruleSubsetId         = 1;
@@ -2480,7 +2487,7 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[10].babysit_enabled      = false;
    g_trade[10].babysitStart_minute  = 11;
 
-   g_trade[11].enabled                  = true;
+   g_trade[11].enabled                  = false;
    g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
    g_trade[11].tradeTypeId          = 2;
    g_trade[11].ruleSubsetId         = 1;
