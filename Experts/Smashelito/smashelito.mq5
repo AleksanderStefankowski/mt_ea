@@ -2235,31 +2235,41 @@ int EncodeMagicTpSlWholePips(double pips, string ctxLabel)
 }
 
 //+------------------------------------------------------------------+
-//| Babysit tail %03d for composite magic: 007 = off (numeric 7); 801..899 = on (800 + minute, minute 01..99). |
+//| Babysit tail %03d for composite magic: 700 = off (numeric 700); 801..899 = on (800 + minute, minute 01..99). |
 //+------------------------------------------------------------------+
 int EncodeBabysitMagicThreeDigits(bool babysitEnabled, int babysitStartMinute)
 {
    if(!babysitEnabled)
-      return 7;
+      return 700;
    if(babysitStartMinute < 1 || babysitStartMinute > 99)
       FatalError(StringFormat("EncodeBabysitMagicThreeDigits: when babysit enabled, minute must be 1..99, got %d", babysitStartMinute));
    return 800 + babysitStartMinute;
 }
 
 //+------------------------------------------------------------------+
-//| Composite magic — 17 digits concatenated (no | in stored value). Bookmark2. Layout (digit counts per slot): |
-//|   1|22|66|3|44|55|777|88|99|  — not numeric examples. |
-//| Slot 1 (1):  tradeDirectionCategory / PlacePendingFromMagic (MAGIC_TRADE_*). |
-//| Slot 2 (22): tradeTypeId %02d, 01..99. |
-//| Slot 3 (66): ruleSubsetId %02d, 01..99. |
-//| Slot 4 (3):  sessionPdCategory (MAGIC_IS_* 1..4). |
-//| Slot 5 (44): live proximity — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9). |
-//| Slot 6 (55): level offset pips — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9). |
-//| Slot 7 (777): babysit %03d — 007 off (value 7); 8 + minute 01..99 when on (801..899). |
-//| Slot 8 (88): TP whole pips %02d, 01..99 (EncodeMagicTpSlWholePips). |
-//| Slot 9 (99): SL whole pips %02d, 01..99. |
+//| Composite magic — 17 decimal digits concatenated (no | in stored value). Bookmark2. |
+//| Layout (width = repeat slot index; not example values): 1|22|33|4|55|66||777|88|99 — 17 digits; “||” is doc-only (not in stored magic). |
+//| Slot 1 (1 digit) — g_trade[].tradeDirectionCategory / PlacePendingFromMagic (MAGIC_TRADE_*), must be 1..4: |
+//|   1 = MAGIC_TRADE_LONG           → buy limit pending. |
+//|   2 = MAGIC_TRADE_SHORT          → sell limit pending. |
+//|   3 = MAGIC_TRADE_LONG_REVERSED  → sell stop (reversed long); entry −s; SL/TP from fill; see PlaceSellStopAtLevel. |
+//|   4 = MAGIC_TRADE_SHORT_REVERSED → buy stop (reversed short); entry +s; SL/TP from fill; see PlaceBuyStopAtLevel. |
+//| Slot 2 (22): tradeTypeId as %02d, 01..99 (variant row id / config grouping). |
+//| Slot 3 (33): ruleSubsetId as %02d, 01..99 (stage-2 subset dispatch with slot 1+2 → BuildStage2SubsetHandlerKeyFromFullMagic). |
+//| Slot 4 (4) — one digit: g_trade[].sessionPdCategory (MAGIC_IS_*), must be 1..4 — session band vs prior-day colour: |
+//|   1 = MAGIC_IS_ON_AND_PD_GREEN   → ON session, PD green. |
+//|   2 = MAGIC_IS_ON_AND_PD_RED     → ON session, PD red. |
+//|   3 = MAGIC_IS_RTH_AND_PD_GREEN  → RTH session, PD green. |
+//|   4 = MAGIC_IS_RTH_AND_PD_RED    → RTH session, PD red. |
+//| Slot 5 (55): live proximity — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9 pip distance gate). |
+//| Slot 6 (66): level offset pips — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9 input pips → order pips). |
+//| Slot 7 (777) — babysit %03d via EncodeBabysitMagicThreeDigits; off vs on (hundreds digit 7 vs 8): |
+//|   babysit_enabled false → stored numeric 700 → string "700" (off; hundreds digit 7). |
+//|   babysit_enabled true  → 800 + babysitStart_minute (minute 01..99) → "801".."899" (on; hundreds digit 8). |
+//| Slot 8 (88) — take-profit distance as %02d via EncodeMagicTpSlWholePips: whole pips only, 1..99 (no half pips). |
+//|   Encoded value is the rounded integer pip count (e.g. 12.0 → "12" → field "12" zero-padded to width 2). |
+//| Slot 9 (99): SL whole pips %02d, 01..99 (same rules as slot 8; EncodeMagicTpSlWholePips). |
 //| Result length = COMPOSITE_MAGIC_STRING_LEN (AssertCompositeMagicDecimalWidthOrFatal). |
-//| Maintainer: stage-2 Subset_<key> handlers must cover every subset dispatch key produced by enabled g_trade[] rows (see BuildStage2SubsetHandlerKeyFromFullMagic). |
 //+------------------------------------------------------------------+
 long BuildBetterMagicNumber(int tradeDirectionCategory, int tradeTypeId, int ruleSubsetId, int sessionPdCategory,
                             double livePriceDiffTrigger, double levelOffsetValue,
@@ -2358,7 +2368,7 @@ int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
 //+------------------------------------------------------------------+
 void SyncTradeVariantsFromInputs() // bookmark1
 {
-   g_trade[0].enabled                  = false; // good
+   g_trade[0].enabled                  = true; // good
    g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;   // buy limit (or 1..4)
    g_trade[0].tradeTypeId          = 2;
    g_trade[0].ruleSubsetId         = 1; // not used in EA logic; only encoded in composite magic (custom meaning — Aleksander)
@@ -2657,7 +2667,7 @@ void ValidateMagicCompositionOnInit()
          FatalError(StringFormat("ParseCompositeMagic: trigger block mismatch vs g_trade[%d].livePriceDiffTrigger", variantIdx));
       if(parsedKey.offsetTenths != expectedOffsetTenths)
          FatalError(StringFormat("ParseCompositeMagic: offset block mismatch vs g_trade[%d].levelOffsetPips", variantIdx));
-      int expectBabysit = 7;
+      int expectBabysit = 700;
       if(g_trade[variantIdx].babysit_enabled)
          expectBabysit = 800 + g_trade[variantIdx].babysitStart_minute;
       if(parsedKey.babysitEncoded != expectBabysit)
