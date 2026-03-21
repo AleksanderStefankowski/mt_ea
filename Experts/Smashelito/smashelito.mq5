@@ -70,7 +70,7 @@ double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this fu
 //--- Trades: TRADE_VARIANT_COUNT rows in g_trade[] — defaults assigned in SyncTradeVariantsFromInputs() (g_trade[i].field = …).
 //    tradeDirectionCategory → slot 1; tradeTypeId → slot 2; sessionPdCategory → slot 3; see BuildBetterMagicNumber layout. levelProximityFocus: TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH.
 //    bannedRanges: no '|' inside string.
-#define TRADE_VARIANT_COUNT 11
+#define TRADE_VARIANT_COUNT 99
 #define TRADE_LEVEL_FOCUS_BELOW  1
 #define TRADE_LEVEL_FOCUS_ABOVE  2
 #define TRADE_LEVEL_FOCUS_BOTH   3
@@ -2479,6 +2479,21 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[10].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[10].babysit_enabled      = false;
    g_trade[10].babysitStart_minute  = 11;
+
+   g_trade[11].enabled                  = true;
+   g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+   g_trade[11].tradeTypeId          = 2;
+   g_trade[11].ruleSubsetId         = 1;
+   g_trade[11].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[11].tradeSizePct         = 100;
+   g_trade[11].tpPips               = 8.0;
+   g_trade[11].slPips               = 8.0;
+   g_trade[11].livePriceDiffTrigger = 4.0;
+   g_trade[11].levelOffsetPips      = 2.6;
+   g_trade[11].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[11].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[11].babysit_enabled      = false;
+   g_trade[11].babysitStart_minute  = 11;
 }
 
 //+------------------------------------------------------------------+
@@ -2499,6 +2514,11 @@ void AssertCompositeMagicDecimalWidthOrFatal(const long compositeMagic, const in
 long BuildMagicForVariant(int variantIdx)
 {
    if(variantIdx < 0 || variantIdx >= TRADE_VARIANT_COUNT) return 0;
+   // A zero tradeTypeId indicates an uninitialized/nonexistent variant. Return 0, which is an invalid magic number.
+   // This prevents BuildBetterMagicNumber from crashing on validation for these slots.
+   if(g_trade[variantIdx].tradeTypeId == 0)
+      return 0;
+
    return BuildBetterMagicNumber(g_trade[variantIdx].tradeDirectionCategory, g_trade[variantIdx].sessionPdCategory,
                                  g_trade[variantIdx].tradeTypeId,
                                  g_trade[variantIdx].livePriceDiffTrigger, g_trade[variantIdx].levelOffsetPips,
@@ -2536,6 +2556,10 @@ void ValidateMagicCompositionOnInit()
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
    {
+      // Skip validation for uninitialized/nonexistent variants, identified by a zero tradeTypeId.
+      if(g_trade[variantIdx].tradeTypeId == 0)
+         continue;
+
       if(g_trade[variantIdx].tradeDirectionCategory < 1 || g_trade[variantIdx].tradeDirectionCategory > 4)
          FatalError(StringFormat("g_trade[%d].tradeDirectionCategory must be 1..4: 1=buy limit, 2=sell limit, 3=sell stop, 4=buy stop", variantIdx));
       if(g_trade[variantIdx].tradeTypeId < 1 || g_trade[variantIdx].tradeTypeId > 99)
@@ -2567,6 +2591,10 @@ void ValidateMagicCompositionOnInit()
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
    {
+      // Skip validation for uninitialized/nonexistent variants.
+      if(g_trade[variantIdx].tradeTypeId == 0)
+         continue;
+
       long rowCompositeMagic = BuildMagicForVariant(variantIdx);
       AssertCompositeMagicDecimalWidthOrFatal(rowCompositeMagic, variantIdx);
       TradeKey parsedKey = ParseCompositeMagic(rowCompositeMagic);
@@ -2598,9 +2626,17 @@ void ValidateMagicCompositionOnInit()
    }
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
+   {
+      long magic1 = BuildMagicForVariant(variantIdx);
+      if(magic1 == 0) // Skip uninitialized variants
+         continue;
+
       for(int otherVariantIdx = variantIdx + 1; otherVariantIdx < TRADE_VARIANT_COUNT; otherVariantIdx++)
-         if(BuildMagicForVariant(variantIdx) == BuildMagicForVariant(otherVariantIdx))
-            FatalError(StringFormat("Composite magic collision: variant %d and %d produce same magic", variantIdx, otherVariantIdx));
+      {
+         if(magic1 == BuildMagicForVariant(otherVariantIdx))
+            FatalError(StringFormat("Composite magic collision: variant %d and %d produce same magic %s", variantIdx, otherVariantIdx, IntegerToString(magic1)));
+      }
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -3190,6 +3226,21 @@ bool Subset_10224021010000808(double levelPx, int levelIdx, int kLast)
    return true;
 }
 
+bool Subset_102_01(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
 //+------------------------------------------------------------------+
 //| Reserved subset handler — not called from PendingRuleSubsetPassesForFullMagic until a row uses this composite. POLICY above. |
 //+------------------------------------------------------------------+
@@ -3214,18 +3265,25 @@ bool Subset_40223026010000808(double levelPx, int levelIdx, int kLast)
 //+------------------------------------------------------------------+
 bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double levelPx, const int levelIdx, const int kLast)
 {
-   if(fullMagic == 10233026018111212L)  return Subset_10233026018111212(levelPx, levelIdx, kLast);
-   if(fullMagic == 10223026010000808L)  return Subset_10223026010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10223026010001212L)  return Subset_10223026010001212(levelPx, levelIdx, kLast);
-   if(fullMagic == 10223031010000808L)  return Subset_10223031010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10223021010000808L)  return Subset_10223021010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10223526010000808L)  return Subset_10223526010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10223531010000808L)  return Subset_10223531010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10223521010000808L)  return Subset_10223521010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10224026010000808L)  return Subset_10224026010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10224031010000808L)  return Subset_10224031010000808(levelPx, levelIdx, kLast);
-   if(fullMagic == 10224021010000808L)  return Subset_10224021010000808(levelPx, levelIdx, kLast);
-   return false;
+   if(fullMagic == 10233026018111212L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10223026010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10223026010001212L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10223031010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10223021010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10223526010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10223531010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10223521010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10224026010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10224031010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 10224021010000808L)  return Subset_102_01(levelPx, levelIdx, kLast);
+
+   
+   if(fullMagic == 10243026010001212L) return Subset_102_01(levelPx, levelIdx, kLast);
+   if(fullMagic == 30224026010000808L) return Subset_102_01(levelPx, levelIdx, kLast);
+   // If an enabled variant passes stage 1 but has no stage-2 rule subset function, it's a config error.
+   // Fail fast so the developer is forced to add the handler or disable the variant.
+   FatalError(StringFormat("Missing stage-2 rule subset function for magic number %s. Check PendingRuleSubsetPassesForFullMagic", IntegerToString(fullMagic), IntegerToString(fullMagic), IntegerToString(fullMagic)));
+   return false; // Unreachable, but keeps compiler happy.
 }
 
 //+------------------------------------------------------------------+
