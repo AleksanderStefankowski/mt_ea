@@ -3326,6 +3326,32 @@ double GetTradeLotForVariant(int variantIdx)
 }
 
 //+------------------------------------------------------------------+
+//| Helper to log context before order placement (Magic, Level, Bid/Ask, Streaks). |
+//+------------------------------------------------------------------+
+void LogPreOrderContext(long magic, double levelPrice, double orderPrice, string type, int expirationMin)
+{
+   int levelIdx = FindExpandedLevelIndexByPrice(levelPrice);
+   int kLast = g_barsInDay - 1;
+   int sAbove = -1, sBelow = -1;
+   if(levelIdx >= 0 && kLast >= 0 && kLast < MAX_BARS_IN_DAY)
+   {
+      sAbove = g_cleanStreakAbove[levelIdx][kLast];
+      sBelow = g_cleanStreakBelow[levelIdx][kLast];
+   }
+
+   // Look up the original offset from the variant config using the magic number
+   int variantIdx = FindVariantIndexForCompositeMagic(magic);
+   string offsetStr = "N/A";
+   if(variantIdx != -1)
+      offsetStr = DoubleToString(g_trade[variantIdx].levelOffsetPips, 1);
+
+   Print(StringFormat("Attempting %s Magic=%s Level=%s Offset=%s OrderPrice=%s ExpMin=%d Bid=%s Ask=%s StreakAbove=%d StreakBelow=%d",
+         type, IntegerToString(magic), DoubleToString(levelPrice, _Digits), offsetStr, DoubleToString(orderPrice, _Digits), expirationMin,
+         DoubleToString(g_liveBid, _Digits), DoubleToString(g_liveAsk, _Digits),
+         sAbove, sBelow));
+}
+
+//+------------------------------------------------------------------+
 //| Place a buy-limit at level with given pips and expiration. Sets magic then restores DEFAULT_ORDER_MAGIC. Returns true if order sent successfully. |
 //+------------------------------------------------------------------+
 bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
@@ -3337,6 +3363,7 @@ bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, d
    double takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
+   LogPreOrderContext(magic, levelPrice, orderPrice, "BuyLimit", expirationMin);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.BuyLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -3355,6 +3382,7 @@ bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, 
    double takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
+   LogPreOrderContext(magic, levelPrice, orderPrice, "SellLimit", expirationMin);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.SellLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -3375,6 +3403,7 @@ bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, d
    double takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
+   LogPreOrderContext(magic, levelPrice, orderPrice, "SellStop", expirationMin);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.SellStop(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -3394,6 +3423,7 @@ bool PlaceBuyStopAtLevel(double levelPrice, double offsetPips, double slPips, do
    double takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
+   LogPreOrderContext(magic, levelPrice, orderPrice, "BuyStop", expirationMin);
    ExtTrade.SetExpertMagicNumber(magic);
    bool ok = ExtTrade.BuyStop(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
