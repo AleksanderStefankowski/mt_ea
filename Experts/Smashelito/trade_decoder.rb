@@ -130,17 +130,27 @@ end
 
 # --- OUTPUT ---
 data.sort.each do |idx, t|
-  puts "\n=============================="
-  puts "Trade index: #{idx}"
-  puts "------------------------------"
+  puts "\n"
+  puts "g_trade[#{idx}].enabled                  = #{t["enabled"]};"
+  puts "g_trade[#{idx}].tradeDirectionCategory   = #{t["tradeDirectionCategory"]};"
+  puts "g_trade[#{idx}].tradeTypeId              = #{t["tradeTypeId"]};"
+  puts "g_trade[#{idx}].ruleSubsetId             = #{t["ruleSubsetId"]};"
+  puts "g_trade[#{idx}].sessionPdCategory        = #{t["sessionPdCategory"]};"
+  puts "g_trade[#{idx}].tradeSizePct             = #{t["tradeSizePct"]};"
+  puts "g_trade[#{idx}].tpPips                   = #{t["tpPips"]};"
+  puts "g_trade[#{idx}].slPips                   = #{t["slPips"]};"
+  puts "g_trade[#{idx}].livePriceDiffTrigger     = #{t["livePriceDiffTrigger"]};"
+  puts "g_trade[#{idx}].levelOffsetPips          = #{t["levelOffsetPips"]};"
+  puts "g_trade[#{idx}].levelProximityFocus      = #{t["levelProximityFocus"]};"
+  puts "g_trade[#{idx}].bannedRanges = #{t["bannedRanges"]};"
+  puts "g_trade[#{idx}].babysit_enabled          = #{t["babysit_enabled"]};"
 
-  t.each do |k, v|
-    puts "#{k}: #{v}"
-  end
+  # normalize babysit minute (optional improvement)
+  babysit_min = t["babysit_enabled"] == "true" ? t["babysitStart_minute"] : "0"
+  puts "g_trade[#{idx}].babysitStart_minute      = #{babysit_min};"
 
   magic = build_magic(t)
   puts "MAGIC:           #{magic}"
   puts "--MAGIC SLOTTED: D TT SS C PR OF BBY TP SL"
   puts "--MAGIC SLOTTED: #{format_magic_slots(magic)}"
-
 end
