@@ -299,8 +299,16 @@ Break and hold above 6692 would target 6726 / 6749 / 6770
 
 Holding below 6692 would target 6658 / 6625 / 6600
 
+ES Daily Plan | March 19, 2026
 
+Break and hold above 6692 would target 6715 / 6737 / 6764
 
+Holding below 6692 would target 6665 / 6636 / 6600
+
+ES Daily Plan | March 20, 2026
+Break and hold above 6669 would target 6692 / 6715 / 6737
+
+Holding below 6669 would target 6636 / 6600 / 6568
 '''	
 
 import re
