@@ -354,6 +354,27 @@ def expand_range(token):
         raise ValueError(f"Range difference too small (<10) in token: '{token}' -> {left_int}-{right_int}")
     return [left_int, right_int]
 
+def split_sections(text):
+    lines = text.splitlines()
+    sections = []
+    current = []
+
+    for line in lines:
+        line = line.strip()
+
+        if re.search(r'(Daily Plan|Weekly Plan)\s*\|', line):
+            if current:
+                sections.append("\n".join(current))
+                current = []
+
+        if line:
+            current.append(line)
+
+    if current:
+        sections.append("\n".join(current))
+
+    return sections
+
 def parse_dates(title):
     """Parse date range from section title."""
     date_part = title.split("|")[1].strip()
@@ -376,7 +397,7 @@ def parse_dates(title):
 
 def parse_plan(text):
     results = []
-    sections = re.split(r'\n(?=[A-Z].*?\|\s+[A-Za-z]+\s+\d)', text.strip())
+    sections = split_sections(text)
     for section in sections:
         lines = [l.strip() for l in section.splitlines() if l.strip()]
         if not lines:
@@ -448,7 +469,7 @@ avg_daily_per_week = daily_count / daily_weeks if daily_weeks else 0
 
 # --- Print first/last + summary ---
 if data:
-    print("First level:", data[0])
+    print("\n\nFirst level:", data[0])
     print("Last level:", data[-1])
 
 print("\nSummary:")
@@ -457,3 +478,30 @@ print("Total weekly levels:", weekly_count)
 print("Total daily levels:", daily_count)
 print("Average weekly levels per week:", round(avg_weekly_per_week, 2))
 print("Average daily levels per week:", round(avg_daily_per_week, 2))
+
+
+# --- LAST 5 DAYS OUTPUT ---
+
+# get all unique dates from data
+all_dates = sorted(set(d["start"] for d in data))
+
+# take last 5 days
+last_5_days = all_dates[-5:]
+
+print("\n--- LAST 5 DAYS LEVELS ---")
+print("Days:", last_5_days)
+
+# filter levels
+last_5_levels = [d for d in data if d["start"] in last_5_days]
+
+# sort nicely (by date then price)
+last_5_levels.sort(key=lambda x: (x["start"], x["levelPrice"]))
+
+# print
+current_day = None
+for row in last_5_levels:
+    if row["start"] != current_day:
+        current_day = row["start"]
+        print(f"Date: {current_day}")
+
+    print(f"  {row['levelPrice']:>5} | {row['tag']} | {','.join(row['categories'])}")

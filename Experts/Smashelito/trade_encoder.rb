@@ -1,6 +1,6 @@
 # ================== CONFIG (EDIT HERE) ==================
-MAGIC_NUMBER = "10201240217000808"
-TRADE_INDEX  = 10
+MAGIC_NUMBER = "30201240267000808"
+TRADE_INDEX  = 15
 
 
 ENABLED      = true

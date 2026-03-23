@@ -2548,7 +2548,53 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[11].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[11].babysit_enabled      = false;
    g_trade[11].babysitStart_minute  = 11;
+
+   g_trade[12].enabled                  = true;
+   g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+   g_trade[12].tradeTypeId              = 2;
+   g_trade[12].ruleSubsetId             = 1;
+   g_trade[12].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[12].tradeSizePct             = 100;
+   g_trade[12].tpPips                   = 6.0;
+   g_trade[12].slPips                   = 10.0;
+   g_trade[12].livePriceDiffTrigger     = 4.0;
+   g_trade[12].levelOffsetPips          = 2.6;
+   g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
+   g_trade[12].babysit_enabled          = false;
+   g_trade[12].babysitStart_minute      = 0;
+
+   g_trade[14].enabled                  = true;
+   g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+   g_trade[14].tradeTypeId              = 2;
+   g_trade[14].ruleSubsetId             = 1;
+   g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+   g_trade[14].tradeSizePct             = 100;
+   g_trade[14].tpPips                   = 10.0;
+   g_trade[14].slPips                   = 10.0;
+   g_trade[14].livePriceDiffTrigger     = 3.0;
+   g_trade[14].levelOffsetPips          = 2.6;
+   g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[14].bannedRanges = "22,0,23,59;0,0,1,0";
+   g_trade[14].babysit_enabled          = false;
+   g_trade[14].babysitStart_minute      = 0;
+
+   g_trade[15].enabled                  = true;
+   g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+   g_trade[15].tradeTypeId              = 2;
+   g_trade[15].ruleSubsetId             = 1;
+   g_trade[15].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+   g_trade[15].tradeSizePct             = 100;
+   g_trade[15].tpPips                   = 8.0;
+   g_trade[15].slPips                   = 8.0;
+   g_trade[15].livePriceDiffTrigger     = 4.0;
+   g_trade[15].levelOffsetPips          = 2.6;
+   g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[15].bannedRanges = "22,0,23,59;0,0,1,0";
+   g_trade[15].babysit_enabled          = false;
+   g_trade[15].babysitStart_minute      = 0;
 }
+//bookmark4
 
 //+------------------------------------------------------------------+
 //| Composite magic as long must print with exactly COMPOSITE_MAGIC_STRING_LEN decimal digits. |
