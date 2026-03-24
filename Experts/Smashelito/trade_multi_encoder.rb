@@ -1,14 +1,14 @@
 # ================== CONFIG (EDIT HERE) ==================
 
-set_4_context = false
+set_4_context = true
 
 set_ruleset = false
 set_ruleset_input = '08'
 # overwrite 4th and 5th digit (indexes 3 and 4)
 
 #                 DttSScPPofBBBtpSL    DttSScPPofBBBtpSL    DttSScPPofBBBtpSL    DttSScPPofBBBtpSL
-MAGIC_NUMBERS = ["30204235267000808", "30205235267000808", "30206235267000808", "30208235267000808", "30207235267000808"]
-TRADE_INDEX_START = 6
+MAGIC_NUMBERS = ["20101130268060808", "20101130268060808", "20101130268060808", "20101130268060808"]
+TRADE_INDEX_START = 18
 
 ENABLED      = true
 TRADE_SIZE   = 100
