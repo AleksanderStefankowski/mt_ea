@@ -94,7 +94,7 @@ struct VariantTrade
    int    babysitStart_minute;   // minutes after position open before babysit runs
    string bannedRanges;
 };
-// Populated at startup by SyncTradeVariantsFromInputs() — edit assignments there (g_trade[0].enabled = true, …).
+// Populated at startup by SyncTradeVariantsFromInputs() — edit assignments there.
 VariantTrade g_trade[TRADE_VARIANT_COUNT];
 
 //--- OnTimer pending pipeline (see RunTimerPendingNearLevelsPipeline):
@@ -2367,7 +2367,8 @@ int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
 //| Trade variant defaults — edit here only (no InpTradeN_* globals). Called before validate. |
 //+------------------------------------------------------------------+
 void SyncTradeVariantsFromInputs() // bookmark1
-{
+{  
+   // 10201330268111212
    g_trade[0].enabled                  = true; // good
    g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;   // buy limit (or 1..4)
    g_trade[0].tradeTypeId          = 2;
@@ -2382,217 +2383,236 @@ void SyncTradeVariantsFromInputs() // bookmark1
    g_trade[0].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[0].babysit_enabled      = true;
    g_trade[0].babysitStart_minute  = 11;
+// encoding input magic: 10204335267000808 save
+g_trade[1].enabled                  = true;
+g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[1].tradeTypeId              = 2;
+g_trade[1].ruleSubsetId             = 4;
+g_trade[1].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[1].tradeSizePct             = 100;
+g_trade[1].tpPips                   = 8.0;
+g_trade[1].slPips                   = 8.0;
+g_trade[1].livePriceDiffTrigger     = 3.5;
+g_trade[1].levelOffsetPips          = 2.6;
+g_trade[1].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[1].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[1].babysit_enabled          = false;
+g_trade[1].babysitStart_minute      = 0;
 
-   g_trade[1].enabled                  = true; // testing other entry values now
-   g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[1].tradeTypeId          = 2;
-   g_trade[1].ruleSubsetId         = 1;
-   g_trade[1].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[1].tradeSizePct         = 100;
-   g_trade[1].tpPips               = 8.0;
-   g_trade[1].slPips               = 8.0;
-   g_trade[1].livePriceDiffTrigger = 3.0;
-   g_trade[1].levelOffsetPips      = 2.6;
-   g_trade[1].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[1].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[1].babysit_enabled      = false;
-   g_trade[1].babysitStart_minute  = 11;
+// encoding input magic: 10205335267000808 save
+g_trade[2].enabled                  = true;
+g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[2].tradeTypeId              = 2;
+g_trade[2].ruleSubsetId             = 5;
+g_trade[2].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[2].tradeSizePct             = 100;
+g_trade[2].tpPips                   = 8.0;
+g_trade[2].slPips                   = 8.0;
+g_trade[2].livePriceDiffTrigger     = 3.5;
+g_trade[2].levelOffsetPips          = 2.6;
+g_trade[2].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[2].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[2].babysit_enabled          = false;
+g_trade[2].babysitStart_minute      = 0;
 
-   g_trade[2].enabled                  = true; // test later if other price triggers do more trades
-   g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[2].tradeTypeId          = 2;
-   g_trade[2].ruleSubsetId         = 1;
-   g_trade[2].sessionPdCategory    = MAGIC_IS_RTH_AND_PD_RED;
-   g_trade[2].tradeSizePct         = 100;
-   g_trade[2].tpPips               = 12.0;
-   g_trade[2].slPips               = 12.0;
-   g_trade[2].livePriceDiffTrigger = 3.0;
-   g_trade[2].levelOffsetPips      = 2.6;
-   g_trade[2].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[2].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[2].babysit_enabled      = false;
-   g_trade[2].babysitStart_minute  = 11;
+// encoding input magic: 10206335267000808 save
+g_trade[3].enabled                  = true;
+g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[3].tradeTypeId              = 2;
+g_trade[3].ruleSubsetId             = 6;
+g_trade[3].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[3].tradeSizePct             = 100;
+g_trade[3].tpPips                   = 8.0;
+g_trade[3].slPips                   = 8.0;
+g_trade[3].livePriceDiffTrigger     = 3.5;
+g_trade[3].levelOffsetPips          = 2.6;
+g_trade[3].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[3].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[3].babysit_enabled          = false;
+g_trade[3].babysitStart_minute      = 0;
 
-   // g_trade[3..10]: same session/type/subset as [1]; trigger/offset pips differ — new row needs PendingRuleSubsetPassesForFullMagic branch for its subset key (BuildStage2SubsetHandlerKeyFromFullMagic).
-   g_trade[3].enabled                  = true;
-   g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[3].tradeTypeId          = 2;
-   g_trade[3].ruleSubsetId         = 1;
-   g_trade[3].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[3].tradeSizePct         = 100;
-   g_trade[3].tpPips               = 8.0;
-   g_trade[3].slPips               = 8.0;
-   g_trade[3].livePriceDiffTrigger = 3.0;
-   g_trade[3].levelOffsetPips      = 3.1;
-   g_trade[3].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[3].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[3].babysit_enabled      = false;
-   g_trade[3].babysitStart_minute  = 11;
+// encoding input magic: 10207335267000808 save
+g_trade[4].enabled                  = true;
+g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[4].tradeTypeId              = 2;
+g_trade[4].ruleSubsetId             = 7;
+g_trade[4].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[4].tradeSizePct             = 100;
+g_trade[4].tpPips                   = 8.0;
+g_trade[4].slPips                   = 8.0;
+g_trade[4].livePriceDiffTrigger     = 3.5;
+g_trade[4].levelOffsetPips          = 2.6;
+g_trade[4].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[4].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[4].babysit_enabled          = false;
+g_trade[4].babysitStart_minute      = 0;
 
-   g_trade[4].enabled                  = true;
-   g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[4].tradeTypeId          = 2;
-   g_trade[4].ruleSubsetId         = 1;
-   g_trade[4].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[4].tradeSizePct         = 100;
-   g_trade[4].tpPips               = 8.0;
-   g_trade[4].slPips               = 8.0;
-   g_trade[4].livePriceDiffTrigger = 3.0;
-   g_trade[4].levelOffsetPips      = 2.1;
-   g_trade[4].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[4].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[4].babysit_enabled      = false;
-   g_trade[4].babysitStart_minute  = 11;
+// encoding input magic: 10208335267000808 save
+g_trade[5].enabled                  = true;
+g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[5].tradeTypeId              = 2;
+g_trade[5].ruleSubsetId             = 8;
+g_trade[5].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[5].tradeSizePct             = 100;
+g_trade[5].tpPips                   = 8.0;
+g_trade[5].slPips                   = 8.0;
+g_trade[5].livePriceDiffTrigger     = 3.5;
+g_trade[5].levelOffsetPips          = 2.6;
+g_trade[5].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[5].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[5].babysit_enabled          = false;
+g_trade[5].babysitStart_minute      = 0;
 
-   g_trade[5].enabled                  = true;
-   g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[5].tradeTypeId          = 2;
-   g_trade[5].ruleSubsetId         = 1;
-   g_trade[5].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[5].tradeSizePct         = 100;
-   g_trade[5].tpPips               = 8.0;
-   g_trade[5].slPips               = 8.0;
-   g_trade[5].livePriceDiffTrigger = 3.5;
-   g_trade[5].levelOffsetPips      = 2.6;
-   g_trade[5].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[5].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[5].babysit_enabled      = false;
-   g_trade[5].babysitStart_minute  = 11;
+// encoding input magic: 30204235267000808
+g_trade[6].enabled                  = true;
+g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[6].tradeTypeId              = 2;
+g_trade[6].ruleSubsetId             = 4;
+g_trade[6].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[6].tradeSizePct             = 100;
+g_trade[6].tpPips                   = 8.0;
+g_trade[6].slPips                   = 8.0;
+g_trade[6].livePriceDiffTrigger     = 3.5;
+g_trade[6].levelOffsetPips          = 2.6;
+g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[6].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[6].babysit_enabled          = false;
+g_trade[6].babysitStart_minute      = 0;
 
-   g_trade[6].enabled                  = true;
-   g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[6].tradeTypeId          = 2;
-   g_trade[6].ruleSubsetId         = 1;
-   g_trade[6].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[6].tradeSizePct         = 100;
-   g_trade[6].tpPips               = 8.0;
-   g_trade[6].slPips               = 8.0;
-   g_trade[6].livePriceDiffTrigger = 3.5;
-   g_trade[6].levelOffsetPips      = 3.1;
-   g_trade[6].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[6].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[6].babysit_enabled      = false;
-   g_trade[6].babysitStart_minute  = 11;
 
-   g_trade[7].enabled                  = true;
-   g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[7].tradeTypeId          = 2;
-   g_trade[7].ruleSubsetId         = 1;
-   g_trade[7].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[7].tradeSizePct         = 100;
-   g_trade[7].tpPips               = 8.0;
-   g_trade[7].slPips               = 8.0;
-   g_trade[7].livePriceDiffTrigger = 3.5;
-   g_trade[7].levelOffsetPips      = 2.1;
-   g_trade[7].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[7].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[7].babysit_enabled      = false;
-   g_trade[7].babysitStart_minute  = 11;
+// encoding input magic: 30205235267000808
+g_trade[7].enabled                  = true;
+g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[7].tradeTypeId              = 2;
+g_trade[7].ruleSubsetId             = 5;
+g_trade[7].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[7].tradeSizePct             = 100;
+g_trade[7].tpPips                   = 8.0;
+g_trade[7].slPips                   = 8.0;
+g_trade[7].livePriceDiffTrigger     = 3.5;
+g_trade[7].levelOffsetPips          = 2.6;
+g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[7].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[7].babysit_enabled          = false;
+g_trade[7].babysitStart_minute      = 0;
 
-   g_trade[8].enabled                  = true;
-   g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[8].tradeTypeId          = 2;
-   g_trade[8].ruleSubsetId         = 1;
-   g_trade[8].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[8].tradeSizePct         = 100;
-   g_trade[8].tpPips               = 8.0;
-   g_trade[8].slPips               = 8.0;
-   g_trade[8].livePriceDiffTrigger = 4.0;
-   g_trade[8].levelOffsetPips      = 2.6;
-   g_trade[8].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[8].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[8].babysit_enabled      = false;
-   g_trade[8].babysitStart_minute  = 11;
 
-   g_trade[9].enabled                  = true;
-   g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[9].tradeTypeId          = 2;
-   g_trade[9].ruleSubsetId         = 1;
-   g_trade[9].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[9].tradeSizePct         = 100;
-   g_trade[9].tpPips               = 8.0;
-   g_trade[9].slPips               = 8.0;
-   g_trade[9].livePriceDiffTrigger = 4.0;
-   g_trade[9].levelOffsetPips      = 3.1;
-   g_trade[9].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[9].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[9].babysit_enabled      = false;
-   g_trade[9].babysitStart_minute  = 11;
+// encoding input magic: 30206235267000808
+g_trade[8].enabled                  = true;
+g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[8].tradeTypeId              = 2;
+g_trade[8].ruleSubsetId             = 6;
+g_trade[8].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[8].tradeSizePct             = 100;
+g_trade[8].tpPips                   = 8.0;
+g_trade[8].slPips                   = 8.0;
+g_trade[8].livePriceDiffTrigger     = 3.5;
+g_trade[8].levelOffsetPips          = 2.6;
+g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[8].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[8].babysit_enabled          = false;
+g_trade[8].babysitStart_minute      = 0;
 
-   g_trade[10].enabled                  = true;
-   g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[10].tradeTypeId          = 2;
-   g_trade[10].ruleSubsetId         = 1;
-   g_trade[10].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[10].tradeSizePct         = 100;
-   g_trade[10].tpPips               = 8.0;
-   g_trade[10].slPips               = 8.0;
-   g_trade[10].livePriceDiffTrigger = 4.0;
-   g_trade[10].levelOffsetPips      = 2.1;
-   g_trade[10].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[10].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[10].babysit_enabled      = false;
-   g_trade[10].babysitStart_minute  = 11;
 
-   g_trade[11].enabled                  = true;
-   g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
-   g_trade[11].tradeTypeId          = 2;
-   g_trade[11].ruleSubsetId         = 1;
-   g_trade[11].sessionPdCategory    = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[11].tradeSizePct         = 100;
-   g_trade[11].tpPips               = 7.0;
-   g_trade[11].slPips               = 8.0;
-   g_trade[11].livePriceDiffTrigger = 4.0;
-   g_trade[11].levelOffsetPips      = 2.6;
-   g_trade[11].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[11].bannedRanges         = "22,0,23,59;0,0,1,0";
-   g_trade[11].babysit_enabled      = false;
-   g_trade[11].babysitStart_minute  = 11;
+// encoding input magic: 30208235267000808
+g_trade[9].enabled                  = true;
+g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[9].tradeTypeId              = 2;
+g_trade[9].ruleSubsetId             = 8;
+g_trade[9].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[9].tradeSizePct             = 100;
+g_trade[9].tpPips                   = 8.0;
+g_trade[9].slPips                   = 8.0;
+g_trade[9].livePriceDiffTrigger     = 3.5;
+g_trade[9].levelOffsetPips          = 2.6;
+g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[9].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[9].babysit_enabled          = false;
+g_trade[9].babysitStart_minute      = 0;
 
-   g_trade[12].enabled                  = true;
-   g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
-   g_trade[12].tradeTypeId              = 2;
-   g_trade[12].ruleSubsetId             = 1;
-   g_trade[12].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[12].tradeSizePct             = 100;
-   g_trade[12].tpPips                   = 6.0;
-   g_trade[12].slPips                   = 10.0;
-   g_trade[12].livePriceDiffTrigger     = 4.0;
-   g_trade[12].levelOffsetPips          = 2.6;
-   g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
-   g_trade[12].babysit_enabled          = false;
-   g_trade[12].babysitStart_minute      = 0;
 
-   g_trade[14].enabled                  = true;
-   g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-   g_trade[14].tradeTypeId              = 2;
-   g_trade[14].ruleSubsetId             = 1;
-   g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-   g_trade[14].tradeSizePct             = 100;
-   g_trade[14].tpPips                   = 10.0;
-   g_trade[14].slPips                   = 10.0;
-   g_trade[14].livePriceDiffTrigger     = 3.0;
-   g_trade[14].levelOffsetPips          = 2.6;
-   g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[14].bannedRanges = "22,0,23,59;0,0,1,0";
-   g_trade[14].babysit_enabled          = false;
-   g_trade[14].babysitStart_minute      = 0;
+// encoding input magic: 30207235267000808
+g_trade[10].enabled                  = true;
+g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[10].tradeTypeId              = 2;
+g_trade[10].ruleSubsetId             = 7;
+g_trade[10].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[10].tradeSizePct             = 100;
+g_trade[10].tpPips                   = 8.0;
+g_trade[10].slPips                   = 8.0;
+g_trade[10].livePriceDiffTrigger     = 3.5;
+g_trade[10].levelOffsetPips          = 2.6;
+g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[10].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[10].babysit_enabled          = false;
+g_trade[10].babysitStart_minute      = 0;
+// encoding input magic: 10201330268110808
+g_trade[11].enabled                  = true;
+g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[11].tradeTypeId              = 2;
+g_trade[11].ruleSubsetId             = 1;
+g_trade[11].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[11].tradeSizePct             = 100;
+g_trade[11].tpPips                   = 8.0;
+g_trade[11].slPips                   = 8.0;
+g_trade[11].livePriceDiffTrigger     = 3.0;
+g_trade[11].levelOffsetPips          = 2.6;
+g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[11].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[11].babysit_enabled          = true;
+g_trade[11].babysitStart_minute      = 11;
 
-   g_trade[15].enabled                  = true;
-   g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
-   g_trade[15].tradeTypeId              = 2;
-   g_trade[15].ruleSubsetId             = 1;
-   g_trade[15].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[15].tradeSizePct             = 100;
-   g_trade[15].tpPips                   = 8.0;
-   g_trade[15].slPips                   = 8.0;
-   g_trade[15].livePriceDiffTrigger     = 4.0;
-   g_trade[15].levelOffsetPips          = 2.6;
-   g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[15].bannedRanges = "22,0,23,59;0,0,1,0";
-   g_trade[15].babysit_enabled          = false;
-   g_trade[15].babysitStart_minute      = 0;
+
+// encoding input magic: 10201335318110808
+g_trade[12].enabled                  = true;
+g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[12].tradeTypeId              = 2;
+g_trade[12].ruleSubsetId             = 1;
+g_trade[12].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[12].tradeSizePct             = 100;
+g_trade[12].tpPips                   = 8.0;
+g_trade[12].slPips                   = 8.0;
+g_trade[12].livePriceDiffTrigger     = 3.5;
+g_trade[12].levelOffsetPips          = 3.1;
+g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[12].babysit_enabled          = true;
+g_trade[12].babysitStart_minute      = 11;
+
+// encoding input magic: 10201330268060808
+g_trade[13].enabled                  = true;
+g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[13].tradeTypeId              = 2;
+g_trade[13].ruleSubsetId             = 1;
+g_trade[13].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[13].tradeSizePct             = 100;
+g_trade[13].tpPips                   = 8.0;
+g_trade[13].slPips                   = 8.0;
+g_trade[13].livePriceDiffTrigger     = 3.0;
+g_trade[13].levelOffsetPips          = 2.6;
+g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[13].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[13].babysit_enabled          = true;
+g_trade[13].babysitStart_minute      = 6;
+
+// encoding input magic: 10201330267000808
+g_trade[14].enabled                  = true;
+g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[14].tradeTypeId              = 2;
+g_trade[14].ruleSubsetId             = 1;
+g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[14].tradeSizePct             = 100;
+g_trade[14].tpPips                   = 8.0;
+g_trade[14].slPips                   = 8.0;
+g_trade[14].livePriceDiffTrigger     = 3.0;
+g_trade[14].levelOffsetPips          = 2.6;
+g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[14].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[14].babysit_enabled          = false;
+g_trade[14].babysitStart_minute      = 0;
+
+
+
 }
 //bookmark4
 
@@ -3129,7 +3149,7 @@ EntryLevelCtx PendingBuildEntryLevelCtx(int variantIdx, double levelBelow, int i
 //| If two keys share logic today, duplicate the body. |
 //| Do not spell full 17-digit composite values in // comments (file header rule). |
 //+------------------------------------------------------------------+
-
+// bookmark6
 bool Subset_10201(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
@@ -3141,6 +3161,35 @@ bool Subset_10201(double levelPx, int levelIdx, int kLast)
    if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
    string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+bool Subset_10207(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+bool Subset_30207(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
    if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
    return true;
 }
@@ -3160,6 +3209,218 @@ bool Subset_30201(double levelPx, int levelIdx, int kLast)
    return true;
 }
 
+bool Subset_10202(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 25.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+bool Subset_10203(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 21;
+   const int cleanStreakAboveMax = 59;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if( StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 25.0) return false;
+
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   return true;
+}
+
+bool Subset_10204(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 21;
+   const int cleanStreakAboveMax = 59;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 2.0) return false;
+
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 2.0) return false;
+
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   if(levelPx <= g_ONlowSoFarAtBar[kLast].value) return false; 
+
+   return true;
+}
+bool Subset_30204(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 21;
+   const int cleanStreakAboveMax = 59;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 2.0) return false;
+
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 2.0) return false;
+
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   if(levelPx <= g_ONlowSoFarAtBar[kLast].value) return false; // # quant
+
+   return true;
+}
+
+bool Subset_10205(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 21;
+   const int cleanStreakAboveMax = 59;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(StringToDouble(diffBelow) < 2.0) return false;
+
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 2.0) return false;
+
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   if(levelPx <= g_ONlowSoFarAtBar[kLast].value) return false; // # quant
+   return true;
+}
+bool Subset_30205(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 21;
+   const int cleanStreakAboveMax = 59;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(StringToDouble(diffBelow) < 2.0) return false;
+
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 2.0) return false;
+
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   if(levelPx <= g_ONlowSoFarAtBar[kLast].value) return false; // # quant
+   return true;
+}
+bool Subset_10206(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 21;
+   const int cleanStreakAboveMax = 59;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(StringToDouble(diffBelow) < 10.0) return false;
+
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+
+   return true;
+}
+bool Subset_30206(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 21;
+   const int cleanStreakAboveMax = 59;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(StringToDouble(diffBelow) < 10.0) return false;
+
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+
+   return true;
+}
+bool Subset_10208(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   // if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+bool Subset_30208(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   // if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+
+bool Subset_20101(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakAboveMin = 20; // ok
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   return true;
+}
+
+
+
+
+// bookmark7
+
+
+
+
+
+
+
+
 //+------------------------------------------------------------------+
 //| Stage-2: derive subsetHandlerKey from fullMagic (slots 1–3), dispatch to Subset_<key>. |
 //+------------------------------------------------------------------+
@@ -3171,8 +3432,40 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
    const int subsetHandlerKey = slot1 * 10000 + slot2 * 100 + slot3;
    if(subsetHandlerKey == 10201)
       return Subset_10201(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10202)
+      return Subset_10202(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10203)
+      return Subset_10203(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10204)
+      return Subset_10204(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10205)
+      return Subset_10205(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10206)
+      return Subset_10206(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10207)
+      return Subset_10207(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10208)
+      return Subset_10208(levelPx, levelIdx, kLast);
+
    if(subsetHandlerKey == 30201)
       return Subset_30201(levelPx, levelIdx, kLast);
+   //if(subsetHandlerKey == 30202)
+   //   return Subset_30202(levelPx, levelIdx, kLast);
+   //if(subsetHandlerKey == 30203)
+   //   return Subset_30203(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 30204)
+      return Subset_30204(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 30205)
+      return Subset_30205(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 30206)
+      return Subset_30206(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 30207)
+      return Subset_30207(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 30208)
+      return Subset_30208(levelPx, levelIdx, kLast);
+   //if(subsetHandlerKey == 30209)
+   //   return Subset_30209(levelPx, levelIdx, kLast);
+   
    // If an enabled variant passes stage 1 but has no stage-2 rule subset function, it's a config error.
    FatalError(StringFormat("Missing stage-2 rule subset function for subset key %d (slots %d, %d, %d), magic %s. Check PendingRuleSubsetPassesForFullMagic",
       subsetHandlerKey, slot1, slot2, slot3, IntegerToString(fullMagic)));
@@ -4215,6 +4508,110 @@ void BabysitTryTightenStopsForSelectedPosition(const long positionMagic, const i
 }
 
 //+------------------------------------------------------------------+
+//| Same timing/ladder idea as TightenStops, but tighten TP toward entry (only tighter / closer to open). |
+//| BUY: TP above open — ladder +0.5..+10 from entry; SELL: TP below open — same magnitudes, mirrored formulas. SL left unchanged. |
+//+------------------------------------------------------------------+
+void BabysitTryTightenStopsForSelectedPosition_reversed(const long positionMagic, const int babysitStartMinute)
+{
+   if(babysitStartMinute < 0) return;
+   int minutesOpen = (int)((g_lastTimer1Time - ExtPositionInfo.Time()) / 60);
+   if(minutesOpen < babysitStartMinute) return;
+
+   double babysit_tp_targets[] = {0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
+   double point = SymbolInfoDouble(_Symbol, SYMBOL_POINT);
+   double tol = point * 0.5;
+
+   double openPrice = ExtPositionInfo.PriceOpen();
+   double currentSL = ExtPositionInfo.StopLoss();
+   ulong ticket = ExtPositionInfo.Ticket();
+   ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
+   double currentTP = ExtPositionInfo.TakeProfit();
+
+   // Offset magnitude in same spirit as SL path: BUY (TP-open); SELL (open-TP).
+   double currentOffset = (posType == POSITION_TYPE_BUY) ? (currentTP - openPrice) : (openPrice - currentTP);
+
+   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
+   for(int targetIdx = 0; targetIdx < ArraySize(babysit_tp_targets); targetIdx++)
+   {
+      double target = babysit_tp_targets[targetIdx];
+      // Skip rungs we already tightened past (TP closer to entry than this rung).
+      if(target >= currentOffset) continue;
+
+      double newTP = (posType == POSITION_TYPE_BUY) ? openPrice + target : openPrice - target;
+      newTP = NormalizeDouble(newTP, _Digits);
+      if(MathAbs(newTP - currentTP) <= tol) break;
+      if(!ExtTrade.PositionModify(ticket, currentSL, newTP)) continue;
+      if(!ExtPositionInfo.SelectByTicket(ticket)) break;
+      currentTP = ExtPositionInfo.TakeProfit();
+      currentOffset = (posType == POSITION_TYPE_BUY) ? (currentTP - openPrice) : (openPrice - currentTP);
+      if(currentOffset <= target + tol) break;
+   }
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+}
+
+//+------------------------------------------------------------------+
+//| ExtPositionInfo must already select the position. If live quote is far enough in profit vs PriceOpen, market-close (buy: Bid; sell: Ask). |
+//| profitInputPips uses same units as g_trade TP/SL: distance = InputPipsToOrderPips(profitInputPips) * PipSize() (see PlaceBuyLimitAtLevel / pending TP). |
+//| Returns true if PositionClose reported success (position may be gone). |
+//+------------------------------------------------------------------+
+bool BabysitTry_CloseForProfit(const long positionMagic, const double profitInputPips)
+{
+   if(profitInputPips <= 0.0)
+      return false;
+
+   const double minProfitDistance = InputPipsToOrderPips(profitInputPips) * PipSize();
+   const double openPrice = ExtPositionInfo.PriceOpen();
+   const ulong ticket = ExtPositionInfo.Ticket();
+   const ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
+
+   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
+   bool closed = false;
+   if(posType == POSITION_TYPE_BUY)
+   {
+      const double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+      if(bid >= openPrice + minProfitDistance)
+         closed = ExtTrade.PositionClose(ticket);
+   }
+   else if(posType == POSITION_TYPE_SELL)
+   {
+      const double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+      if(ask <= openPrice - minProfitDistance)
+         closed = ExtTrade.PositionClose(ticket);
+   }
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   return closed;
+}
+
+//+------------------------------------------------------------------+
+//| On Timer helper |
+//+------------------------------------------------------------------+
+void BabysitRunAllOpenPositionsForSymbol()
+{
+   for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(positionIdx))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      const long posMagic = ExtPositionInfo.Magic();
+      if(!IsVariantTradeCompositeMagic(posMagic))
+         continue;
+      const int variantIdx = FindVariantIndexForCompositeMagic(posMagic);
+      if(variantIdx < 0)
+         continue;
+      if(!g_trade[variantIdx].babysit_enabled)
+         continue;
+      // Optional profit market-close before SL babysit (profitInputPips → InputPipsToOrderPips × PipSize(), same as TP/SL) — comment out the next 2 lines to disable only this step.
+      // if((posMagic, 3.0))
+      //   BabysitTry_CloseForProfitcontinue;
+      // BabysitTryTightenStopsForSelectedPosition(posMagic, g_trade[variantIdx].babysitStart_minute);
+      BabysitTryTightenStopsForSelectedPosition_reversed(posMagic, g_trade[variantIdx].babysitStart_minute);
+
+      //bookmark5
+   }
+}
+
+//+------------------------------------------------------------------+
 //| OnTimer(1s): detect new bar, load closed bar from history, run FinalizeCurrentCandle. Sets g_lastTimer1Time = TimeCurrent(). |
 //+------------------------------------------------------------------+
 void OnTimer()
@@ -4234,21 +4631,9 @@ void OnTimer()
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
 
-   // babysit_global_flipper: per open position, if variant has babysit_enabled run BabysitTryTightenStops after babysitStart_minute
+   // per open position, if variant has babysit_enabled run BabysitTryTightenStops after babysitStart_minute
    if(babysit_global_flipper)
-   {
-      for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
-      {
-         if(!ExtPositionInfo.SelectByIndex(positionIdx)) continue;
-         if(ExtPositionInfo.Symbol() != _Symbol) continue;
-         long posMagic = ExtPositionInfo.Magic();
-         if(!IsVariantTradeCompositeMagic(posMagic)) continue;
-         int variantIdx = FindVariantIndexForCompositeMagic(posMagic);
-         if(variantIdx < 0) continue;
-         if(!g_trade[variantIdx].babysit_enabled) continue;
-         BabysitTryTightenStopsForSelectedPosition(posMagic, g_trade[variantIdx].babysitStart_minute);
-      }
-   }
+      BabysitRunAllOpenPositionsForSymbol();
 
    RunTimerPendingNearLevelsPipeline();
 

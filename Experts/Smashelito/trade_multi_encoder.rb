@@ -1,13 +1,17 @@
 # ================== CONFIG (EDIT HERE) ==================
-#               DttSScPPofBBBtpSL
-MAGIC_NUMBER = "10201330267000808"
-TRADE_INDEX  = 14
 
+set_4_context = false
+
+set_ruleset = false
+set_ruleset_input = '08'
+# overwrite 4th and 5th digit (indexes 3 and 4)
+
+#                 DttSScPPofBBBtpSL    DttSScPPofBBBtpSL    DttSScPPofBBBtpSL    DttSScPPofBBBtpSL
+MAGIC_NUMBERS = ["30204235267000808", "30205235267000808", "30206235267000808", "30208235267000808", "30207235267000808"]
+TRADE_INDEX_START = 6
 
 ENABLED      = true
 TRADE_SIZE   = 100
-# =======================================================
-
 =begin
 //+------------------------------------------------------------------+
 //| Composite magic — 17 decimal digits concatenated (no | in stored value). Bookmark2. |
@@ -31,10 +35,9 @@ TRADE_SIZE   = 100
 //| Slot 9 (99): SL pips |
 //+------------------------------------------------------------------+
 =end
-
-
 # --- PARSE MAGIC ---
 def parse_magic(m)
+  m = m.to_s
   raise "Magic must be 17 digits" unless m.length == 17
 
   {
@@ -88,26 +91,63 @@ def parse_babysit(raw)
   end
 end
 
+# --- APPLY CONTEXT OVERRIDE ---
+def apply_4_context(magic_list, enabled)
+  return magic_list unless enabled && magic_list.length == 4
+
+  magic_list.each_with_index.map do |m, i|
+    m = m.to_s.dup
+    m[5] = (i + 1).to_s
+    m
+  end
+end
+
+# --- APPLY RULESET OVERRIDE ---
+def apply_ruleset(magic_list, enabled, input)
+  return magic_list unless enabled
+
+  raise "ruleset input must be 2 digits" unless input.to_s.length == 2
+
+  magic_list.map do |m|
+    m = m.to_s.dup
+    m[3] = input[0]
+    m[4] = input[1]
+    m
+  end
+end
+
 # --- BUILD OUTPUT ---
-data = parse_magic(MAGIC_NUMBER)
 
-babysit_enabled, babysit_minute = parse_babysit(data[:babysit_raw])
 
-idx = TRADE_INDEX
-puts "\n"
-puts "// encoding input magic: #{MAGIC_NUMBER}"
-puts "g_trade[#{idx}].enabled                  = #{ENABLED};"
-puts "g_trade[#{idx}].tradeDirectionCategory   = #{direction_to_enum(data[:direction])};"
-puts "g_trade[#{idx}].tradeTypeId              = #{data[:type_id]};"
-puts "g_trade[#{idx}].ruleSubsetId             = #{data[:subset_id]};"
-puts "g_trade[#{idx}].sessionPdCategory        = #{session_to_enum(data[:session])};"
-puts "g_trade[#{idx}].tradeSizePct             = #{TRADE_SIZE};"
-puts "g_trade[#{idx}].tpPips                   = #{data[:tp]};"
-puts "g_trade[#{idx}].slPips                   = #{data[:sl]};"
-puts "g_trade[#{idx}].livePriceDiffTrigger     = #{data[:price_prox]};"
-puts "g_trade[#{idx}].levelOffsetPips          = #{data[:level_offset]};"
-puts "g_trade[#{idx}].levelProximityFocus      = #{level_focus(data[:direction])};"
-puts 'g_trade[' + idx.to_s + '].bannedRanges = "22,0,23,59;0,0,1,0";'
-puts "g_trade[#{idx}].babysit_enabled          = #{babysit_enabled};"
-puts "g_trade[#{idx}].babysitStart_minute      = #{babysit_minute};"
-puts "\n"
+final_magics = MAGIC_NUMBERS
+final_magics = apply_ruleset(final_magics, set_ruleset, set_ruleset_input)
+final_magics = apply_4_context(final_magics, set_4_context)
+
+print "\n"
+print final_magics
+print "\n"
+
+final_magics.each_with_index do |magic, i|
+  data = parse_magic(magic)
+  babysit_enabled, babysit_minute = parse_babysit(data[:babysit_raw])
+
+  idx = TRADE_INDEX_START + i
+
+  puts "\n"
+  puts "// encoding input magic: #{magic}"
+  puts "g_trade[#{idx}].enabled                  = #{ENABLED};"
+  puts "g_trade[#{idx}].tradeDirectionCategory   = #{direction_to_enum(data[:direction])};"
+  puts "g_trade[#{idx}].tradeTypeId              = #{data[:type_id]};"
+  puts "g_trade[#{idx}].ruleSubsetId             = #{data[:subset_id]};"
+  puts "g_trade[#{idx}].sessionPdCategory        = #{session_to_enum(data[:session])};"
+  puts "g_trade[#{idx}].tradeSizePct             = #{TRADE_SIZE};"
+  puts "g_trade[#{idx}].tpPips                   = #{data[:tp]};"
+  puts "g_trade[#{idx}].slPips                   = #{data[:sl]};"
+  puts "g_trade[#{idx}].livePriceDiffTrigger     = #{data[:price_prox]};"
+  puts "g_trade[#{idx}].levelOffsetPips          = #{data[:level_offset]};"
+  puts "g_trade[#{idx}].levelProximityFocus      = #{level_focus(data[:direction])};"
+  puts 'g_trade[' + idx.to_s + '].bannedRanges = "22,0,23,59;0,0,1,0";'
+  puts "g_trade[#{idx}].babysit_enabled          = #{babysit_enabled};"
+  puts "g_trade[#{idx}].babysitStart_minute      = #{babysit_minute};"
+  puts "\n"
+end

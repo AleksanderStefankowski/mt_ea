@@ -1,18 +1,18 @@
 trades = '''
-   g_trade[12].enabled                  = true;
-   g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
-   g_trade[12].tradeTypeId              = 2;
-   g_trade[12].ruleSubsetId             = 1;
-   g_trade[12].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-   g_trade[12].tradeSizePct             = 100;
-   g_trade[12].tpPips                   = 6.0;
-   g_trade[12].slPips                   = 10.0;
-   g_trade[12].livePriceDiffTrigger     = 4.0;
-   g_trade[12].levelOffsetPips          = 2.6;
-   g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
-   g_trade[12].babysit_enabled          = false;
-   g_trade[12].babysitStart_minute      = 0;
+   g_trade[0].enabled                  = true; // good
+   g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;   // buy limit (or 1..4)
+   g_trade[0].tradeTypeId          = 2;
+   g_trade[0].ruleSubsetId         = 1; // not used in EA logic; only encoded in composite magic (custom meaning — Aleksander)
+   g_trade[0].sessionPdCategory    = MAGIC_IS_RTH_AND_PD_GREEN;
+   g_trade[0].tradeSizePct         = 100;
+   g_trade[0].tpPips               = 12.0;
+   g_trade[0].slPips               = 12.0;
+   g_trade[0].livePriceDiffTrigger = 3.0;
+   g_trade[0].levelOffsetPips      = 2.6;
+   g_trade[0].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
+   g_trade[0].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[0].babysit_enabled      = true;
+   g_trade[0].babysitStart_minute  = 11;
 '''
 
 
