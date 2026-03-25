@@ -9,7 +9,7 @@
 //
 // OVERFLOW: Magic numbers and MT5 IDs (order/deal/position) can exceed INT_MAX.
 // Never cast them to (int). Use long/ulong and IntegerToString((long)value) for logging.
-// COMPOSITE MAGIC: Never write the full numeric composite (entire fixed-width variant long) inside comments; use g_trade[row] or stage-2 subset dispatch keys (slot1|slot2|slot3 → e.g. 10201). Cursor/IDE rules: repo .cursor/rules or project AGENTS.md.
+// COMPOSITE MAGIC: Never write the full numeric composite (entire fixed-width variant long) inside comments; use g_trade[row] or stage-2 subset disptch keys (slot1|slot2|slot3 → e.g. 10201). Cursor/IDE rules: repo .cursor/rules or project AGENTS.md.
 
 
 #property copyright "Copyright 2026, Aleksander Stefankowski"
@@ -167,14 +167,14 @@ Level levels[];
 
 //--- Variant composite magic + B_TradeLog (per-magic filename)
 const long DEFAULT_ORDER_MAGIC = 47001; // restore CTrade magic when not using a variant composite magic
-// Entry only: sell stop −s, buy stop +s (same bid/ask arming vs mirror limit). SL/TP = plain pip distance from that order price — no spread bump on exits.
+// Entry: s ≈ spread in price. Buy limit at L=level+off fills when Ask=L; sell stop at L−s triggers when Bid=L−s (same tick if Ask−Bid=s). Sell limit at S=level−off fills when Bid=S; buy stop at S+s triggers when Ask=S+s. SL/TP = pip from order price — no exit spread bump.
 const double g_pendingTriggerSymmetrySpread = 0.7;
 
 // Composite magic — digit 1: pending order kind (g_trade[i].tradeDirectionCategory; see MAGIC_TRADE_* / PlacePendingFromMagic).
 #define MAGIC_TRADE_LONG            1   // buy limit
 #define MAGIC_TRADE_SHORT           2   // sell limit
-#define MAGIC_TRADE_LONG_REVERSED   3   // sell stop — entry −s; SL/TP from fill only; see PlaceSellStopAtLevel
-#define MAGIC_TRADE_SHORT_REVERSED  4   // buy stop — entry +s; SL/TP from fill only; see PlaceBuyStopAtLevel
+#define MAGIC_TRADE_LONG_REVERSED   3   // sell stop at (level+off)−s — pairs buy limit Ask fill; see PlaceSellStopAtLevel
+#define MAGIC_TRADE_SHORT_REVERSED  4   // buy stop at (level−off)+s — pairs sell limit Bid fill; see PlaceBuyStopAtLevel
 // MAGIC_IS_*: session (ON vs RTH) + prior-day colour — encoded in composite slot 4 (see BuildBetterMagicNumber banner).
 #define MAGIC_IS_ON_AND_PD_GREEN   1
 #define MAGIC_IS_ON_AND_PD_RED     2
@@ -476,6 +476,8 @@ OptionalDouble g_rthLowSoFarAtBar[MAX_BARS_IN_DAY];
 //--- Day high/low so far at each bar k (bars 0..k, whole day). Filled every OnTimer; log reads from here.
 OptionalDouble g_dayHighSoFarAtBar[MAX_BARS_IN_DAY];
 OptionalDouble g_dayLowSoFarAtBar[MAX_BARS_IN_DAY];
+//--- (dayHighSoFar + dayLowSoFar) / 2 at bar k; filled with day H/L in UpdateONandRTHHighLowSoFarAtBar.
+OptionalDouble g_sessionRangeMidpointAtBar[MAX_BARS_IN_DAY];
 //--- Day broke PDH/PDL so far at each bar: true if dayHighSoFar>PDH / dayLowSoFar<PDL (false when PDH/PDL unavailable).
 bool g_dayBrokePDHAtBar[MAX_BARS_IN_DAY];
 bool g_dayBrokePDLAtBar[MAX_BARS_IN_DAY];
@@ -890,9 +892,9 @@ int Get3c30cLevelBreakevenCForTrade(const TradeResult &tradeResult)
 }
 
 //+------------------------------------------------------------------+
-//| Contact proximity: candle containing trade start (e.g. 14:31) + 1 candle after (e.g. 14:32). BUY: level - low (min over 2 candles). SELL: level - high (max over 2 candles). Returns "NOT_FOUND" if no level or bars missing. |
+//| priceBreakLevel_c1c2: candle containing trade start (c1) + next candle (c2). BUY: level - low (min over 2). SELL: level - high (max over 2). Returns "NOT_FOUND" if no level or bars missing. |
 //+------------------------------------------------------------------+
-string GetContactProximityForTrade(const TradeResult &tradeResult)
+string GetPriceBreakLevel_c1c2_ForTrade(const TradeResult &tradeResult)
 {
    if(StringLen(tradeResult.level) == 0 || g_barsInDay <= 0) return "NOT_FOUND";
    double levelVal = StringToDouble(tradeResult.level);
@@ -1095,6 +1097,17 @@ bool GetIBlowAtBar(int barIdx, double &outVal)
 }
 
 //+------------------------------------------------------------------+
+//| Safe getter for ON session high so far at bar. False before any ON bar in the day (do not use outVal). |
+//+------------------------------------------------------------------+
+bool GetONhighSoFarAtBar(int barIdx, double &outVal)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   if(!g_ONhighSoFarAtBar[barIdx].hasValue) return false;
+   outVal = g_ONhighSoFarAtBar[barIdx].value;
+   return true;
+}
+
+//+------------------------------------------------------------------+
 //| Safe getter for gapFillSoFar at bar. Returns true only when bar is at/after RTH open and value known; then sets outVal (0–100). Otherwise false (do not use outVal). |
 //+------------------------------------------------------------------+
 bool GetGapFillSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, double &outVal)
@@ -1135,7 +1148,7 @@ void GetReferencePointsAboveBelow(datetime tradeOpenTime, double tradePrice, str
    if(GetIBhighAtBar(barIdx, v)) { if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "IBH"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "IBH"; }
    if(g_dayHighSoFarAtBar[barIdx].hasValue) { v = g_dayHighSoFarAtBar[barIdx].value; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar"; }
    if(g_dayLowSoFarAtBar[barIdx].hasValue) { v = g_dayLowSoFarAtBar[barIdx].value; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar"; }
-   if(g_dayHighSoFarAtBar[barIdx].hasValue && g_dayLowSoFarAtBar[barIdx].hasValue) { v = (g_dayHighSoFarAtBar[barIdx].value + g_dayLowSoFarAtBar[barIdx].value) / 2.0; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint"; }
+   if(g_sessionRangeMidpointAtBar[barIdx].hasValue) { v = g_sessionRangeMidpointAtBar[barIdx].value; if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint"; else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint"; }
 }
 
 //+------------------------------------------------------------------+
@@ -1979,8 +1992,8 @@ void UpdateDayProgress()
 }
 
 //+------------------------------------------------------------------+
-//| Fill g_ONhighSoFarAtBar, g_ONlowSoFarAtBar, g_rthHighSoFarAtBar, g_rthLowSoFarAtBar, g_dayHighSoFarAtBar, g_dayLowSoFarAtBar for bars 0..g_barsInDay-1. |
-//| For each bar k: ON high/low = running max/min of ON bars up to k; RTH same; day high/low = running max/min of all bars up to k. Before first ON/RTH bar, hasValue false. |
+//| Fill g_ONhighSoFarAtBar, g_ONlowSoFarAtBar, g_rthHighSoFarAtBar, g_rthLowSoFarAtBar, g_dayHighSoFarAtBar, g_dayLowSoFarAtBar, g_sessionRangeMidpointAtBar for bars 0..g_barsInDay-1. |
+//| For each bar k: ON high/low = running max/min of ON bars up to k; RTH same; day high/low = running max/min of all bars up to k; sessionRangeMidpoint = (dayHigh+dayLow)/2. Before first ON/RTH bar, hasValue false. |
 //+------------------------------------------------------------------+
 void UpdateONandRTHHighLowSoFarAtBar()
 {
@@ -1995,6 +2008,8 @@ void UpdateONandRTHHighLowSoFarAtBar()
       g_dayHighSoFarAtBar[barIdx].value    = runDayHigh;
       g_dayLowSoFarAtBar[barIdx].hasValue  = true;
       g_dayLowSoFarAtBar[barIdx].value     = runDayLow;
+      g_sessionRangeMidpointAtBar[barIdx].hasValue = true;
+      g_sessionRangeMidpointAtBar[barIdx].value    = (runDayHigh + runDayLow) / 2.0;
       double pdh = g_staticMarketContext.PDHpreviousDayHigh;
       double pdl = g_staticMarketContext.PDLpreviousDayLow;
       g_dayBrokePDHAtBar[barIdx] = (pdh > 0.0 && runDayHigh > pdh);
@@ -2247,15 +2262,15 @@ int EncodeBabysitMagicThreeDigits(bool babysitEnabled, int babysitStartMinute)
 }
 
 //+------------------------------------------------------------------+
-//| Composite magic — 17 decimal digits concatenated (no | in stored value). Bookmark2. |
+//| Composite magic — 17 decimal digits concatenated (no | in stored value). Bookmark0. |
 //| Layout (width = repeat slot index; not example values): 1|22|33|4|55|66||777|88|99 — 17 digits; “||” is doc-only (not in stored magic). |
 //| Slot 1 (1 digit) — g_trade[].tradeDirectionCategory / PlacePendingFromMagic (MAGIC_TRADE_*), must be 1..4: |
 //|   1 = MAGIC_TRADE_LONG           → buy limit pending. |
 //|   2 = MAGIC_TRADE_SHORT          → sell limit pending. |
-//|   3 = MAGIC_TRADE_LONG_REVERSED  → sell stop (reversed long); entry −s; SL/TP from fill; see PlaceSellStopAtLevel. |
-//|   4 = MAGIC_TRADE_SHORT_REVERSED → buy stop (reversed short); entry +s; SL/TP from fill; see PlaceBuyStopAtLevel. |
+//|   3 = MAGIC_TRADE_LONG_REVERSED  → sell stop at (level+off)−s, same instant as buy limit at level+off (Bid vs Ask). |
+//|   4 = MAGIC_TRADE_SHORT_REVERSED → buy stop at (level−off)+s, same instant as sell limit at level−off. |
 //| Slot 2 (22): tradeTypeId as %02d, 01..99 (variant row id / config grouping). |
-//| Slot 3 (33): ruleSubsetId as %02d, 01..99 (stage-2 subset dispatch with slot 1+2 → BuildStage2SubsetHandlerKeyFromFullMagic). |
+//| Slot 3 (33): ruleSubsetId as %02d, 01..99 (stage-2 subset disptch with slot 1+2 → BuildStage2SubsetHandlerKeyFromFullMagic). |
 //| Slot 4 (4) — one digit: g_trade[].sessionPdCategory (MAGIC_IS_*), must be 1..4 — session band vs prior-day colour: |
 //|   1 = MAGIC_IS_ON_AND_PD_GREEN   → ON session, PD green. |
 //|   2 = MAGIC_IS_ON_AND_PD_RED     → ON session, PD red. |
@@ -2354,7 +2369,7 @@ int CompositeMagicExtractSlot3RuleSubsetId(const long magic)
 }
 
 //+------------------------------------------------------------------+
-//| Stage-2 subset dispatch key: slot1×10000 + slot2×100 + slot3 (e.g. 1,02,01 → 10201). |
+//| Stage-2 subset disptch key: slot1×10000 + slot2×100 + slot3 (e.g. 1,02,01 → 10201). |
 //| Same fields as CompositeMagicExtractSlot* / ParseCompositeMagic (single parse here). |
 //+------------------------------------------------------------------+
 int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
@@ -2368,7 +2383,7 @@ int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
 //+------------------------------------------------------------------+
 void SyncTradeVariantsFromInputs() // bookmark1
 {  
-   // 10201330268111212
+   // 10201330268111212 save
    g_trade[0].enabled                  = true; // good
    g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;   // buy limit (or 1..4)
    g_trade[0].tradeTypeId          = 2;
@@ -2463,158 +2478,512 @@ g_trade[5].bannedRanges             = "22,0,23,59;0,0,1,0";
 g_trade[5].babysit_enabled          = false;
 g_trade[5].babysitStart_minute      = 0;
 
-// encoding input magic: 30204235267000808
+// encoding input magic: 10201335318110808 save
 g_trade[6].enabled                  = true;
-g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[6].tradeTypeId              = 2;
-g_trade[6].ruleSubsetId             = 4;
-g_trade[6].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[6].ruleSubsetId             = 1;
+g_trade[6].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[6].tradeSizePct             = 100;
 g_trade[6].tpPips                   = 8.0;
 g_trade[6].slPips                   = 8.0;
 g_trade[6].livePriceDiffTrigger     = 3.5;
-g_trade[6].levelOffsetPips          = 2.6;
+g_trade[6].levelOffsetPips          = 3.1;
 g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[6].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[6].babysit_enabled          = false;
-g_trade[6].babysitStart_minute      = 0;
+g_trade[6].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[6].babysit_enabled          = true;
+g_trade[6].babysitStart_minute      = 11;
 
-
-// encoding input magic: 30205235267000808
+// encoding input magic: 10201330268060808 save
 g_trade[7].enabled                  = true;
-g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[7].tradeTypeId              = 2;
-g_trade[7].ruleSubsetId             = 5;
-g_trade[7].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[7].ruleSubsetId             = 1;
+g_trade[7].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[7].tradeSizePct             = 100;
 g_trade[7].tpPips                   = 8.0;
 g_trade[7].slPips                   = 8.0;
-g_trade[7].livePriceDiffTrigger     = 3.5;
+g_trade[7].livePriceDiffTrigger     = 3.0;
 g_trade[7].levelOffsetPips          = 2.6;
 g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[7].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[7].babysit_enabled          = false;
-g_trade[7].babysitStart_minute      = 0;
+g_trade[7].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[7].babysit_enabled          = true;
+g_trade[7].babysitStart_minute      = 6;
 
-
-// encoding input magic: 30206235267000808
+// encoding input magic: 10201330267000808 save
 g_trade[8].enabled                  = true;
-g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[8].tradeTypeId              = 2;
-g_trade[8].ruleSubsetId             = 6;
-g_trade[8].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[8].ruleSubsetId             = 1;
+g_trade[8].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[8].tradeSizePct             = 100;
 g_trade[8].tpPips                   = 8.0;
 g_trade[8].slPips                   = 8.0;
-g_trade[8].livePriceDiffTrigger     = 3.5;
+g_trade[8].livePriceDiffTrigger     = 3.0;
 g_trade[8].levelOffsetPips          = 2.6;
 g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[8].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[8].bannedRanges             = "22,0,23,59;0,0,1,0";
 g_trade[8].babysit_enabled          = false;
 g_trade[8].babysitStart_minute      = 0;
 
-
-// encoding input magic: 30208235267000808
+// encoding input magic: 10201330267001010 save
 g_trade[9].enabled                  = true;
-g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
+g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[9].tradeTypeId              = 2;
-g_trade[9].ruleSubsetId             = 8;
-g_trade[9].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[9].ruleSubsetId             = 1;
+g_trade[9].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[9].tradeSizePct             = 100;
-g_trade[9].tpPips                   = 8.0;
-g_trade[9].slPips                   = 8.0;
-g_trade[9].livePriceDiffTrigger     = 3.5;
+g_trade[9].tpPips                   = 10.0;
+g_trade[9].slPips                   = 10.0;
+g_trade[9].livePriceDiffTrigger     = 3.0;
 g_trade[9].levelOffsetPips          = 2.6;
 g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[9].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[9].bannedRanges             = "22,0,23,59;0,0,1,0";
 g_trade[9].babysit_enabled          = false;
 g_trade[9].babysitStart_minute      = 0;
 
 
-// encoding input magic: 30207235267000808
+// encoding input magic: 20101130267001010
 g_trade[10].enabled                  = true;
-g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_LONG_REVERSED;
-g_trade[10].tradeTypeId              = 2;
-g_trade[10].ruleSubsetId             = 7;
-g_trade[10].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[10].tradeTypeId              = 1;
+g_trade[10].ruleSubsetId             = 1;
+g_trade[10].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
 g_trade[10].tradeSizePct             = 100;
-g_trade[10].tpPips                   = 8.0;
-g_trade[10].slPips                   = 8.0;
-g_trade[10].livePriceDiffTrigger     = 3.5;
+g_trade[10].tpPips                   = 10.0;
+g_trade[10].slPips                   = 10.0;
+g_trade[10].livePriceDiffTrigger     = 3.0;
 g_trade[10].levelOffsetPips          = 2.6;
-g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[10].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[10].babysit_enabled          = false;
 g_trade[10].babysitStart_minute      = 0;
-// encoding input magic: 10201330268110808
+
+
+// encoding input magic: 20101230267001010
 g_trade[11].enabled                  = true;
-g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[11].tradeTypeId              = 2;
+g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[11].tradeTypeId              = 1;
 g_trade[11].ruleSubsetId             = 1;
-g_trade[11].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[11].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
 g_trade[11].tradeSizePct             = 100;
-g_trade[11].tpPips                   = 8.0;
-g_trade[11].slPips                   = 8.0;
+g_trade[11].tpPips                   = 10.0;
+g_trade[11].slPips                   = 10.0;
 g_trade[11].livePriceDiffTrigger     = 3.0;
 g_trade[11].levelOffsetPips          = 2.6;
-g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[11].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[11].babysit_enabled          = true;
-g_trade[11].babysitStart_minute      = 11;
+g_trade[11].babysit_enabled          = false;
+g_trade[11].babysitStart_minute      = 0;
 
 
-// encoding input magic: 10201335318110808
+// encoding input magic: 20101330267001010
 g_trade[12].enabled                  = true;
-g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[12].tradeTypeId              = 2;
+g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[12].tradeTypeId              = 1;
 g_trade[12].ruleSubsetId             = 1;
 g_trade[12].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[12].tradeSizePct             = 100;
-g_trade[12].tpPips                   = 8.0;
-g_trade[12].slPips                   = 8.0;
-g_trade[12].livePriceDiffTrigger     = 3.5;
-g_trade[12].levelOffsetPips          = 3.1;
-g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[12].tpPips                   = 10.0;
+g_trade[12].slPips                   = 10.0;
+g_trade[12].livePriceDiffTrigger     = 3.0;
+g_trade[12].levelOffsetPips          = 2.6;
+g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[12].babysit_enabled          = true;
-g_trade[12].babysitStart_minute      = 11;
+g_trade[12].babysit_enabled          = false;
+g_trade[12].babysitStart_minute      = 0;
 
-// encoding input magic: 10201330268060808
+
+// encoding input magic: 20101430267001010
 g_trade[13].enabled                  = true;
-g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[13].tradeTypeId              = 2;
+g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[13].tradeTypeId              = 1;
 g_trade[13].ruleSubsetId             = 1;
-g_trade[13].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[13].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
 g_trade[13].tradeSizePct             = 100;
-g_trade[13].tpPips                   = 8.0;
-g_trade[13].slPips                   = 8.0;
+g_trade[13].tpPips                   = 10.0;
+g_trade[13].slPips                   = 10.0;
 g_trade[13].livePriceDiffTrigger     = 3.0;
 g_trade[13].levelOffsetPips          = 2.6;
-g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[13].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[13].babysit_enabled          = true;
-g_trade[13].babysitStart_minute      = 6;
+g_trade[13].babysit_enabled          = false;
+g_trade[13].babysitStart_minute      = 0;
 
-// encoding input magic: 10201330267000808
+
+// encoding input magic: 20101130267000808
 g_trade[14].enabled                  = true;
-g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[14].tradeTypeId              = 2;
+g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[14].tradeTypeId              = 1;
 g_trade[14].ruleSubsetId             = 1;
-g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[14].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
 g_trade[14].tradeSizePct             = 100;
 g_trade[14].tpPips                   = 8.0;
 g_trade[14].slPips                   = 8.0;
 g_trade[14].livePriceDiffTrigger     = 3.0;
 g_trade[14].levelOffsetPips          = 2.6;
-g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[14].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[14].babysit_enabled          = false;
 g_trade[14].babysitStart_minute      = 0;
 
 
+// encoding input magic: 20101230267000808
+g_trade[15].enabled                  = true;
+g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[15].tradeTypeId              = 1;
+g_trade[15].ruleSubsetId             = 1;
+g_trade[15].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[15].tradeSizePct             = 100;
+g_trade[15].tpPips                   = 8.0;
+g_trade[15].slPips                   = 8.0;
+g_trade[15].livePriceDiffTrigger     = 3.0;
+g_trade[15].levelOffsetPips          = 2.6;
+g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[15].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[15].babysit_enabled          = false;
+g_trade[15].babysitStart_minute      = 0;
 
+
+// encoding input magic: 20101330267000808
+g_trade[16].enabled                  = true;
+g_trade[16].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[16].tradeTypeId              = 1;
+g_trade[16].ruleSubsetId             = 1;
+g_trade[16].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[16].tradeSizePct             = 100;
+g_trade[16].tpPips                   = 8.0;
+g_trade[16].slPips                   = 8.0;
+g_trade[16].livePriceDiffTrigger     = 3.0;
+g_trade[16].levelOffsetPips          = 2.6;
+g_trade[16].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[16].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[16].babysit_enabled          = false;
+g_trade[16].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20101430267000808
+g_trade[17].enabled                  = true;
+g_trade[17].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[17].tradeTypeId              = 1;
+g_trade[17].ruleSubsetId             = 1;
+g_trade[17].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[17].tradeSizePct             = 100;
+g_trade[17].tpPips                   = 8.0;
+g_trade[17].slPips                   = 8.0;
+g_trade[17].livePriceDiffTrigger     = 3.0;
+g_trade[17].levelOffsetPips          = 2.6;
+g_trade[17].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[17].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[17].babysit_enabled          = false;
+g_trade[17].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20101130268060808
+g_trade[18].enabled                  = true;
+g_trade[18].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[18].tradeTypeId              = 1;
+g_trade[18].ruleSubsetId             = 1;
+g_trade[18].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[18].tradeSizePct             = 100;
+g_trade[18].tpPips                   = 8.0;
+g_trade[18].slPips                   = 8.0;
+g_trade[18].livePriceDiffTrigger     = 3.0;
+g_trade[18].levelOffsetPips          = 2.6;
+g_trade[18].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[18].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[18].babysit_enabled          = true;
+g_trade[18].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20101230268060808
+g_trade[19].enabled                  = true;
+g_trade[19].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[19].tradeTypeId              = 1;
+g_trade[19].ruleSubsetId             = 1;
+g_trade[19].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[19].tradeSizePct             = 100;
+g_trade[19].tpPips                   = 8.0;
+g_trade[19].slPips                   = 8.0;
+g_trade[19].livePriceDiffTrigger     = 3.0;
+g_trade[19].levelOffsetPips          = 2.6;
+g_trade[19].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[19].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[19].babysit_enabled          = true;
+g_trade[19].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20101330268060808
+g_trade[20].enabled                  = true;
+g_trade[20].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[20].tradeTypeId              = 1;
+g_trade[20].ruleSubsetId             = 1;
+g_trade[20].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[20].tradeSizePct             = 100;
+g_trade[20].tpPips                   = 8.0;
+g_trade[20].slPips                   = 8.0;
+g_trade[20].livePriceDiffTrigger     = 3.0;
+g_trade[20].levelOffsetPips          = 2.6;
+g_trade[20].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[20].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[20].babysit_enabled          = true;
+g_trade[20].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20101430268060808
+g_trade[21].enabled                  = true;
+g_trade[21].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[21].tradeTypeId              = 1;
+g_trade[21].ruleSubsetId             = 1;
+g_trade[21].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[21].tradeSizePct             = 100;
+g_trade[21].tpPips                   = 8.0;
+g_trade[21].slPips                   = 8.0;
+g_trade[21].livePriceDiffTrigger     = 3.0;
+g_trade[21].levelOffsetPips          = 2.6;
+g_trade[21].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[21].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[21].babysit_enabled          = true;
+g_trade[21].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20103330268060808
+g_trade[22].enabled                  = true;
+g_trade[22].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[22].tradeTypeId              = 1;
+g_trade[22].ruleSubsetId             = 3;
+g_trade[22].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[22].tradeSizePct             = 100;
+g_trade[22].tpPips                   = 8.0;
+g_trade[22].slPips                   = 8.0;
+g_trade[22].livePriceDiffTrigger     = 3.0;
+g_trade[22].levelOffsetPips          = 2.6;
+g_trade[22].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[22].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[22].babysit_enabled          = true;
+g_trade[22].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20103430268060808
+g_trade[23].enabled                  = true;
+g_trade[23].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[23].tradeTypeId              = 1;
+g_trade[23].ruleSubsetId             = 3;
+g_trade[23].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[23].tradeSizePct             = 100;
+g_trade[23].tpPips                   = 8.0;
+g_trade[23].slPips                   = 8.0;
+g_trade[23].livePriceDiffTrigger     = 3.0;
+g_trade[23].levelOffsetPips          = 2.6;
+g_trade[23].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[23].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[23].babysit_enabled          = true;
+g_trade[23].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20103430267000808
+g_trade[24].enabled                  = true;
+g_trade[24].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[24].tradeTypeId              = 1;
+g_trade[24].ruleSubsetId             = 3;
+g_trade[24].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[24].tradeSizePct             = 100;
+g_trade[24].tpPips                   = 8.0;
+g_trade[24].slPips                   = 8.0;
+g_trade[24].livePriceDiffTrigger     = 3.0;
+g_trade[24].levelOffsetPips          = 2.6;
+g_trade[24].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[24].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[24].babysit_enabled          = false;
+g_trade[24].babysitStart_minute      = 0;
+
+
+// encoding input magic: 40104330267000808
+g_trade[25].enabled                  = true;
+g_trade[25].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[25].tradeTypeId              = 1;
+g_trade[25].ruleSubsetId             = 4;
+g_trade[25].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[25].tradeSizePct             = 100;
+g_trade[25].tpPips                   = 8.0;
+g_trade[25].slPips                   = 8.0;
+g_trade[25].livePriceDiffTrigger     = 3.0;
+g_trade[25].levelOffsetPips          = 2.6;
+g_trade[25].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[25].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[25].babysit_enabled          = false;
+g_trade[25].babysitStart_minute      = 0;
+
+
+// encoding input magic: 40105130267000808
+g_trade[26].enabled                  = true;
+g_trade[26].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[26].tradeTypeId              = 1;
+g_trade[26].ruleSubsetId             = 5;
+g_trade[26].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[26].tradeSizePct             = 100;
+g_trade[26].tpPips                   = 8.0;
+g_trade[26].slPips                   = 8.0;
+g_trade[26].livePriceDiffTrigger     = 3.0;
+g_trade[26].levelOffsetPips          = 2.6;
+g_trade[26].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[26].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[26].babysit_enabled          = false;
+g_trade[26].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20102230268060808
+g_trade[27].enabled                  = true;
+g_trade[27].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[27].tradeTypeId              = 1;
+g_trade[27].ruleSubsetId             = 2;
+g_trade[27].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[27].tradeSizePct             = 100;
+g_trade[27].tpPips                   = 8.0;
+g_trade[27].slPips                   = 8.0;
+g_trade[27].livePriceDiffTrigger     = 3.0;
+g_trade[27].levelOffsetPips          = 2.6;
+g_trade[27].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[27].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[27].babysit_enabled          = true;
+g_trade[27].babysitStart_minute      = 6;
+
+// encoding input magic: 20107430268060808
+g_trade[28].enabled                  = true;
+g_trade[28].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[28].tradeTypeId              = 1;
+g_trade[28].ruleSubsetId             = 7;
+g_trade[28].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[28].tradeSizePct             = 100;
+g_trade[28].tpPips                   = 8.0;
+g_trade[28].slPips                   = 8.0;
+g_trade[28].livePriceDiffTrigger     = 3.0;
+g_trade[28].levelOffsetPips          = 2.6;
+g_trade[28].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[28].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[28].babysit_enabled          = true;
+g_trade[28].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20108430267000808
+g_trade[29].enabled                  = true;
+g_trade[29].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[29].tradeTypeId              = 1;
+g_trade[29].ruleSubsetId             = 8;
+g_trade[29].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[29].tradeSizePct             = 100;
+g_trade[29].tpPips                   = 8.0;
+g_trade[29].slPips                   = 8.0;
+g_trade[29].livePriceDiffTrigger     = 3.0;
+g_trade[29].levelOffsetPips          = 2.6;
+g_trade[29].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[29].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[29].babysit_enabled          = false;
+g_trade[29].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20109230268060808
+g_trade[30].enabled                  = true;
+g_trade[30].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[30].tradeTypeId              = 1;
+g_trade[30].ruleSubsetId             = 9;
+g_trade[30].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[30].tradeSizePct             = 100;
+g_trade[30].tpPips                   = 8.0;
+g_trade[30].slPips                   = 8.0;
+g_trade[30].livePriceDiffTrigger     = 3.0;
+g_trade[30].levelOffsetPips          = 2.6;
+g_trade[30].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[30].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[30].babysit_enabled          = true;
+g_trade[30].babysitStart_minute      = 6;
+
+
+// encoding input magic: 20110430268060808
+g_trade[31].enabled                  = true;
+g_trade[31].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[31].tradeTypeId              = 1;
+g_trade[31].ruleSubsetId             = 10;
+g_trade[31].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[31].tradeSizePct             = 100;
+g_trade[31].tpPips                   = 8.0;
+g_trade[31].slPips                   = 8.0;
+g_trade[31].livePriceDiffTrigger     = 3.0;
+g_trade[31].levelOffsetPips          = 2.6;
+g_trade[31].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[31].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[31].babysit_enabled          = true;
+g_trade[31].babysitStart_minute      = 6;
+
+
+// encoding input magic: 40111130267000808
+g_trade[32].enabled                  = true;
+g_trade[32].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[32].tradeTypeId              = 1;
+g_trade[32].ruleSubsetId             = 11;
+g_trade[32].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[32].tradeSizePct             = 100;
+g_trade[32].tpPips                   = 8.0;
+g_trade[32].slPips                   = 8.0;
+g_trade[32].livePriceDiffTrigger     = 3.0;
+g_trade[32].levelOffsetPips          = 2.6;
+g_trade[32].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[32].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[32].babysit_enabled          = false;
+g_trade[32].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20112430267000808
+g_trade[33].enabled                  = true;
+g_trade[33].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[33].tradeTypeId              = 1;
+g_trade[33].ruleSubsetId             = 12;
+g_trade[33].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[33].tradeSizePct             = 100;
+g_trade[33].tpPips                   = 8.0;
+g_trade[33].slPips                   = 8.0;
+g_trade[33].livePriceDiffTrigger     = 3.0;
+g_trade[33].levelOffsetPips          = 2.6;
+g_trade[33].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[33].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[33].babysit_enabled          = false;
+g_trade[33].babysitStart_minute      = 0;
+
+
+// encoding input magic: 40101130267000808
+g_trade[34].enabled                  = true;
+g_trade[34].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[34].tradeTypeId              = 1;
+g_trade[34].ruleSubsetId             = 1;
+g_trade[34].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[34].tradeSizePct             = 100;
+g_trade[34].tpPips                   = 8.0;
+g_trade[34].slPips                   = 8.0;
+g_trade[34].livePriceDiffTrigger     = 3.0;
+g_trade[34].levelOffsetPips          = 2.6;
+g_trade[34].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[34].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[34].babysit_enabled          = false;
+g_trade[34].babysitStart_minute      = 0;
+
+
+// encoding input magic: 40102230267000808
+g_trade[35].enabled                  = true;
+g_trade[35].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[35].tradeTypeId              = 1;
+g_trade[35].ruleSubsetId             = 2;
+g_trade[35].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[35].tradeSizePct             = 100;
+g_trade[35].tpPips                   = 8.0;
+g_trade[35].slPips                   = 8.0;
+g_trade[35].livePriceDiffTrigger     = 3.0;
+g_trade[35].levelOffsetPips          = 2.6;
+g_trade[35].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[35].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[35].babysit_enabled          = false;
+g_trade[35].babysitStart_minute      = 0;
+//bookmark2 bookmarktradeend
 }
-//bookmark4
 
 //+------------------------------------------------------------------+
 //| Composite magic as long must print with exactly COMPOSITE_MAGIC_STRING_LEN decimal digits. |
@@ -2890,6 +3259,25 @@ void GetLevelTagAndCatsForTrade(const string &levelStr, string &outTag, string &
 }
 
 //+------------------------------------------------------------------+
+//| Level categories string (levels file column → g_levelsExpanded[].categories) for this price. Same lookup as GetLevelTagAndCatsForTrade. Empty if not found. |
+//+------------------------------------------------------------------+
+void GetLevelCategories(const string &levelStr, string &outCategories)
+{
+   outCategories = "";
+   if(StringLen(levelStr) == 0) return;
+   double levelVal = StringToDouble(levelStr);
+   double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   for(int idx = 0; idx < g_levelsTodayCount; idx++)
+   {
+      if(MathAbs(g_levelsExpanded[idx].levelPrice - levelVal) < tolerance)
+      {
+         outCategories = g_levelsExpanded[idx].categories;
+         return;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
 //| ON session trade count so far at barIdx (g_dayProgress). Returns 0 if barIdx invalid. |
 //+------------------------------------------------------------------+
 int GetONtradeCount(int barIdx)
@@ -2929,6 +3317,25 @@ bool LevelIsWeekly(const string &categoriesOrTags)
 bool LevelIsTertiary(const string &categories)
 {
    return (StringFind(categories, "tertiary") >= 0);
+}
+
+//+------------------------------------------------------------------+
+//| True if level categories string (from loaded levels definition, not trade logs) contains any needle substring. Case-insensitive. Empty categories → false. |
+//+------------------------------------------------------------------+
+bool Gate_LevelCategoriesContain_CategorySubstring(const string &needles[], const string &categories)
+{
+   if(StringLen(categories) == 0) return false;
+   string s = categories;
+   StringToLower(s);
+   const int n = ArraySize(needles);
+   for(int i = 0; i < n; i++)
+   {
+      if(StringLen(needles[i]) == 0) continue;
+      string key = needles[i];
+      StringToLower(key);
+      if(StringFind(s, key) >= 0) return true;
+   }
+   return false;
 }
 
 //+------------------------------------------------------------------+
@@ -3019,7 +3426,7 @@ void WriteTradeLogPendingOrder(double levelPrice, double offsetPips, double slPi
       {
          orderKind = "buy_stop";
          const double s = g_pendingTriggerSymmetrySpread;
-         orderPrice = NormalizeDouble(levelPrice + offsetPips * pip + s, _Digits);
+         orderPrice = NormalizeDouble(levelPrice - offsetPips * pip + s, _Digits);
          stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
          takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
          break;
@@ -3149,7 +3556,7 @@ EntryLevelCtx PendingBuildEntryLevelCtx(int variantIdx, double levelBelow, int i
 //| If two keys share logic today, duplicate the body. |
 //| Do not spell full 17-digit composite values in // comments (file header rule). |
 //+------------------------------------------------------------------+
-// bookmark6
+// bookmark6 bookmarkSubsetStart
 bool Subset_10201(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakAboveMin = 20;
@@ -3393,26 +3800,402 @@ bool Subset_30208(double levelPx, int levelIdx, int kLast)
    return true;
 }
 
-
-bool Subset_20101(double levelPx, int levelIdx, int kLast)
+//+------------------------------------------------------------------+
+//| Reusable stage-2 gates (prefix Gate_). Bounds checked inside each. |
+//+------------------------------------------------------------------+
+//| Gate_DayHighSoFar_AtLeastX_AboveLevel: day high so far ≥ levelPx + x (price units; x = e.g. 2.0). |
+//+------------------------------------------------------------------+
+bool Gate_DayHighSoFar_AtLeastX_AboveLevel(const int kLast, const double levelPx, const double x)
 {
-   const int cleanStreakAboveMin = 20; // ok
-   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
-   if(streakAbove < cleanStreakAboveMin) return false;
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
-   if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
-   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+   if(!g_dayHighSoFarAtBar[kLast].hasValue) return false;
+   return (g_dayHighSoFarAtBar[kLast].value >= levelPx + x);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_CandleLows_FewerThanX_BelowLevel: count of bars [0..kLast] with low < levelPx is strictly < x (x e.g. 15 ⇒ 0..14 allowed). |
+//+------------------------------------------------------------------+
+bool Gate_CandleLows_FewerThanX_BelowLevel(const int kLast, const double levelPx, const int x)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(x <= 0) return false;
+   int countLowBelow = 0;
+   for(int k = 0; k <= kLast; k++)
+   {
+      if(g_m1Rates[k].low < levelPx)
+      {
+         countLowBelow++;
+         if(countLowBelow >= x)
+            return false;
+      }
+   }
    return true;
 }
 
+//+------------------------------------------------------------------+
+//| Gate_CandleLows_FewerThanX_AboveLevel: count of bars [0..kLast] with low > levelPx is strictly < x (same exclusive rule as BelowLevel). |
+//+------------------------------------------------------------------+
+bool Gate_CandleLows_FewerThanX_AboveLevel(const int kLast, const double levelPx, const int x)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(x <= 0) return false;
+   int countLowAbove = 0;
+   for(int k = 0; k <= kLast; k++)
+   {
+      if(g_m1Rates[k].low > levelPx)
+      {
+         countLowAbove++;
+         if(countLowAbove >= x)
+            return false;
+      }
+   }
+   return true;
+}
 
+//+------------------------------------------------------------------+
+//| Gate_CleanStreak_AtLeastX_AboveLevel: OHLC clean streak above level ≥ x bars (g_cleanStreakAbove). |
+//+------------------------------------------------------------------+
+bool Gate_CleanStreak_AtLeastX_AboveLevel(const int levelIdx, const int kLast, const int x)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   return (g_cleanStreakAbove[levelIdx][kLast] >= x);
+}
 
+//+------------------------------------------------------------------+
+//| Gate_CleanStreak_AtLeastX_BelowLevel: OHLC clean streak below level ≥ x bars (g_cleanStreakBelow). |
+//+------------------------------------------------------------------+
+bool Gate_CleanStreak_AtLeastX_BelowLevel(const int levelIdx, const int kLast, const int x)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   return (g_cleanStreakBelow[levelIdx][kLast] >= x);
+}
 
-// bookmark7
+//+------------------------------------------------------------------+
+//| Gate_Level_AbovePDO: level price strictly above previous day RTH open (PDO). |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbovePDO(const double levelPx)
+{
+   const double pdo = g_staticMarketContext.PDOpreviousDayRTHOpen;
+   if(pdo <= 0.0) return false;
+   return (levelPx > pdo);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_AbovePDH: level price strictly above previous day high (PDH). False if PDH unavailable. |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbovePDH(const double levelPx)
+{
+   const double pdh = g_staticMarketContext.PDHpreviousDayHigh;
+   if(pdh <= 0.0) return false;
+   return (levelPx > pdh);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_AbovePDC: level price strictly above previous day RTH close (PDC). False if PDC unavailable. |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbovePDC(const double levelPx)
+{
+   const double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+   if(pdc <= 0.0) return false;
+   return (levelPx > pdc);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_AboveIBH: level price strictly above IB high at bar kLast. False if IB not complete yet at that bar, or level not above IBH. |
+//+------------------------------------------------------------------+
+bool Gate_Level_AboveIBH(const int kLast, const double levelPx)
+{
+   double ibh;
+   if(!GetIBhighAtBar(kLast, ibh)) return false;
+   return (levelPx > ibh);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_AboveONH: level strictly above ON session high so far at kLast. False if no ONH yet at that bar, or level not above ONH. |
+//+------------------------------------------------------------------+
+bool Gate_Level_AboveONH(const int kLast, const double levelPx)
+{
+   double onh;
+   if(!GetONhighSoFarAtBar(kLast, onh)) return false;
+   return (levelPx > onh);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_Above_PriceMidpoint: true when levelPx is strictly above session-range midpoint (day H+L)/2 at kLast. |
+//+------------------------------------------------------------------+
+bool Gate_Level_Above_PriceMidpoint(const int kLast, const double levelPx)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!g_sessionRangeMidpointAtBar[kLast].hasValue) return false;
+   const double mid = g_sessionRangeMidpointAtBar[kLast].value;
+   return (mid < levelPx);
+}
+
+bool Subset_20101(double levelPx, int levelIdx, int kLast)
+{
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20102(double levelPx, int levelIdx, int kLast) // 20101230268060808 -> 20102230268060808
+{
+   if(!Gate_Level_AbovePDO(levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20103(double levelPx, int levelIdx, int kLast) // 
+{
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20104(double levelPx, int levelIdx, int kLast) 
+{
+   if(Gate_Level_AbovePDH(levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20105(double levelPx, int levelIdx, int kLast) 
+{
+   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20106(double levelPx, int levelIdx, int kLast) 
+{
+   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20107(double levelPx, int levelIdx, int kLast) // Subset_20103+
+{
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDC(levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20108(double levelPx, int levelIdx, int kLast) // Subset_20103+
+{
+   if(!Gate_Level_AbovePDC(levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20109(double levelPx, int levelIdx, int kLast) // Subset_20101+
+{
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDO(levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20110(double levelPx, int levelIdx, int kLast) // Subset_20101+
+{
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40111(double levelPx, int levelIdx, int kLast)  // Subset_20105+
+{
+   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high n  o more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20112(double levelPx, int levelIdx, int kLast) // Subset_20101+
+{
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
+   
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40101(double levelPx, int levelIdx, int kLast) // Subset_20101+
+{
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40102(double levelPx, int levelIdx, int kLast) // Subset_20101+
+{
+   string levelCats;
+   GetLevelCategories(DoubleToString(levelPx, _Digits), levelCats);
+   string weekdays[2];
+   weekdays[0] = "monday";
+   weekdays[1] = "thursday";
+   if(!Gate_LevelCategoriesContain_CategorySubstring(weekdays, levelCats)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40103(double levelPx, int levelIdx, int kLast) // 40111 -> 40103
+{
+   string levelCats;
+   GetLevelCategories(DoubleToString(levelPx, _Digits), levelCats);
+   string weekdays[4];
+   weekdays[0] = "smash";
+   weekdays[1] = "wednesday";
+   weekdays[3] = "weekly";
+   weekdays[4] = "stacked";
+   if(!Gate_LevelCategoriesContain_CategorySubstring(weekdays, levelCats)) return false;
+
+   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high n  o more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40104(double levelPx, int levelIdx, int kLast) // 20101330267000808 -> 40104330267000808
+{
+   string levelCats;
+   GetLevelCategories(DoubleToString(levelPx, _Digits), levelCats);
+   string weekdays[2];
+   weekdays[0] = "stacked";
+   weekdays[1] = "monday";
+   if(!Gate_LevelCategoriesContain_CategorySubstring(weekdays, levelCats)) return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40105(double levelPx, int levelIdx, int kLast) // xxxxxxx -> xxxxxx
+{
+   varrrrrrrrrrrrrrrrrr = Get_LevelTags_Weekly_Simplified() // simplified is value that either can be weeklyup, weeklydown (so it does not care if it is weeklyup1 or 2 or 3), weeklysmash
+   
+   if(!Gate_LevelTags_WeeklySimple_is "weeklydown"  return false;
+
+   //const double minDayHighOverLevelPoints = 0.77;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   const int cleanStreakBelow_Minimum = 20;
+   //może zrobić też day high no more than x above level?
+   //if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+// bookmark7 bookmarkSubsetEnd
 
 
 
@@ -3465,11 +4248,58 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
       return Subset_30208(levelPx, levelIdx, kLast);
    //if(subsetHandlerKey == 30209)
    //   return Subset_30209(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 20101)
+      return Subset_20101(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20102)
+      return Subset_20102(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20103)
+      return Subset_20103(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 20104)
+      return Subset_20104(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 40104)
+      return Subset_20104(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 20105)
+      return Subset_20105(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 40105)
+      return Subset_20105(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 20106)
+      return Subset_20106(levelPx, levelIdx, kLast);      
+
+   if(subsetHandlerKey == 40101)
+      return Subset_40101(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 40102)
+      return Subset_40102(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 20106)
+      return Subset_20106(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20107)
+      return Subset_20107(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20108)
+      return Subset_20108(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20109)
+      return Subset_20109(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20110)
+      return Subset_20110(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 40111)
+      return Subset_40111(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20112)
+      return Subset_20112(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 40103)
+      return Subset_40103(levelPx, levelIdx, kLast);
+
    
+
+
    // If an enabled variant passes stage 1 but has no stage-2 rule subset function, it's a config error.
-   FatalError(StringFormat("Missing stage-2 rule subset function for subset key %d (slots %d, %d, %d), magic %s. Check PendingRuleSubsetPassesForFullMagic",
+   FatalError(StringFormat("bookmarkE1 Missing stage-2 rule subset function for subset key %d (slots %d, %d, %d), magic %s. Check PendingRuleSubsetPassesForFullMagic",
       subsetHandlerKey, slot1, slot2, slot3, IntegerToString(fullMagic)));
    return false; // Unreachable, but keeps compiler happy.
+   // bookmark8 bookdispatch
 }
 
 //+------------------------------------------------------------------+
@@ -3569,7 +4399,7 @@ bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, 
 }
 
 //+------------------------------------------------------------------+
-//| Sell stop: entry −s vs buy limit; SL/TP = pip from fill only (no spread on exits). |
+//| Sell stop at (level+off)−s: triggers on Bid; pairs buy limit at level+off (Ask). SL/TP = pip from order price. |
 //| Short risk: SL above entry, TP below. NOTE: MT5 requires pending SellStop price < Bid; if entry ends up above Bid, placement may fail (then SellLimit is the usual fix). |
 //+------------------------------------------------------------------+
 bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
@@ -3590,14 +4420,14 @@ bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, d
 }
 
 //+------------------------------------------------------------------+
-//| Buy stop: entry +s vs sell-limit Bid; SL/TP = pip from fill only. |
+//| Buy stop at (level−off)+s: triggers on Ask; pairs sell limit at level−off (Bid). SL/TP = pip from order price. |
 //+------------------------------------------------------------------+
 bool PlaceBuyStopAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
 {
    if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
    double pip = PipSize();
    const double s = g_pendingTriggerSymmetrySpread;
-   double orderPrice = NormalizeDouble(levelPrice + offsetPips * pip + s, _Digits);
+   double orderPrice = NormalizeDouble(levelPrice - offsetPips * pip + s, _Digits);
    double stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
    double takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
    datetime expiration = TimeCurrent() + expirationMin * 60;
@@ -4366,7 +5196,7 @@ void OnDeinit(const int reason)
 //|  A. Prerequisites: levels + bars; nearest levels below/above bid.                       |
 //|  B–C. One loop per row: fullMagic = BuildMagicForVariant(variantIdx) once; proximity +    |
 //|      stage-1 gates use that same fullMagic; store it on maybeStage1Candidates.          |
-//|  D–E. Stage-2 rule dispatcher (fullMagic); copy fullMagic → maybeStage2.                  |
+//|  D–E. Stage-2 rule disptcher (fullMagic); copy fullMagic → maybeStage2.                  |
 //|  F. PlacePendingFromMagic(fullMagic,…) + log.                                           |
 //+------------------------------------------------------------------+
 void RunTimerPendingNearLevelsPipeline()
@@ -4607,7 +5437,7 @@ void BabysitRunAllOpenPositionsForSymbol()
       // BabysitTryTightenStopsForSelectedPosition(posMagic, g_trade[variantIdx].babysitStart_minute);
       BabysitTryTightenStopsForSelectedPosition_reversed(posMagic, g_trade[variantIdx].babysitStart_minute);
 
-      //bookmark5
+      //bookmark5 bookmarkbabysit
    }
 }
 
@@ -4779,7 +5609,7 @@ void OnTimer()
                      DoubleToString(g_dayProgress[barIdx].RTHwinRate * 100.0, 0), IntegerToString(g_dayProgress[barIdx].RTHtradeCount), DoubleToString(g_dayProgress[barIdx].RTHpointsSum, _Digits), DoubleToString(g_dayProgress[barIdx].RTHprofitSum, 2),
                      DoubleToString(g_ONhighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_ONlowSoFarAtBar[barIdx].value, _Digits), rthH, rthL,
                      DoubleToString(g_dayHighSoFarAtBar[barIdx].value, _Digits), DoubleToString(g_dayLowSoFarAtBar[barIdx].value, _Digits),
-                     DoubleToString((g_dayHighSoFarAtBar[barIdx].value + g_dayLowSoFarAtBar[barIdx].value) / 2.0, 2),
+                     (g_sessionRangeMidpointAtBar[barIdx].hasValue ? DoubleToString(g_sessionRangeMidpointAtBar[barIdx].value, 2) : "unknown"),
                      ibH, ibL,
                      gapFillStr,
                      rthOpenStr,
@@ -4902,7 +5732,7 @@ void OnTimer()
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
-               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleTr, "symbol", "startTime", "endTime", "session", "magic", "priceBreakLevel_c1c2", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
@@ -4961,9 +5791,9 @@ void OnTimer()
                   GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
                   string levelTagStr = "", levelCatsStr = "";
                   GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
-                  string contactProxStr = GetContactProximityForTrade(tradeResult);
+                  string priceBreakLevel_c1c2_Str = GetPriceBreakLevel_c1c2_ForTrade(tradeResult);
                   FileWrite(fileHandleTr, tradeResult.symbol, TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS), endTimeStr,
-                     tradeResult.session, IntegerToString((long)tradeResult.magic), contactProxStr, DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
+                     tradeResult.session, IntegerToString((long)tradeResult.magic), priceBreakLevel_c1c2_Str, DoubleToString(tradeResult.priceStart, _Digits), priceEndStr,
                      DoubleToString(tradeResult.priceDiff, _Digits), profitStr, typeStr, reasonStr,
                      DoubleToString(tradeResult.volume, 2), tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl, mfeStr, maeStr, mfeCandleStr, maeCandleStr, mfepStr, maepStr, mfe_c6Str, mae_c6Str, mfe_c11Str, mae_c11Str, mfe_c16Str, mae_c16Str,
                      sl4_cStr, tp6cStr, sl6cStr, tp8cStr, sl8cStr, tp10cStr, sl10cStr, tp12cStr, sl12cStr, breakevenCStr,
@@ -4975,7 +5805,7 @@ void OnTimer()
             // All-days summary: read existing file (guaranteed correct schema), merge new day in memory, write whole file.
             // NEVER try to support old files from before schema changes. We always start clean. Don't care about backward compat.
             string summaryAllName = "summary_tradeResults_all_days.csv";
-            const string TRADERESULTS_ALLDAYS_HEADER = "date,symbol,startTime,endTime,session,magic,contactProximity,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,tp,sl,MFE,MAE,mfeCandle,maeCandle,MFEp,MAEp,MFE_c6,MAE_c6,MFE_c11,MAE_c11,MFE_c16,MAE_c16,SL4_c,TP6c,SL6c,TP8c,SL8c,TP10c,SL10c,TP12c,SL12c,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelTag,levelCats";
+            const string TRADERESULTS_ALLDAYS_HEADER = "date,symbol,startTime,endTime,session,magic,priceBreakLevel_c1c2,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,tp,sl,MFE,MAE,mfeCandle,maeCandle,MFEp,MAEp,MFE_c6,MAE_c6,MFE_c11,MAE_c11,MFE_c16,MAE_c16,SL4_c,TP6c,SL6c,TP8c,SL8c,TP10c,SL10c,TP12c,SL12c,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelTag,levelCats";
             string headerParts[];
             int schemaCols = StringSplit(TRADERESULTS_ALLDAYS_HEADER, ',', headerParts);
             string allDaysRows[];
@@ -5070,7 +5900,7 @@ void OnTimer()
                GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
                string levelTagStr = "", levelCatsStr = "";
                GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
-               string contactProxStrAll = GetContactProximityForTrade(tradeResult);
+               string priceBreakLevel_c1c2_StrAll = GetPriceBreakLevel_c1c2_ForTrade(tradeResult);
                int r = newBase + ti * schemaCols;
                allDaysRows[r++] = dateStr;
                allDaysRows[r++] = tradeResult.symbol;
@@ -5078,7 +5908,7 @@ void OnTimer()
                allDaysRows[r++] = endTimeStr;
                allDaysRows[r++] = tradeResult.session;
                allDaysRows[r++] = IntegerToString((long)tradeResult.magic);
-               allDaysRows[r++] = contactProxStrAll;
+               allDaysRows[r++] = priceBreakLevel_c1c2_StrAll;
                allDaysRows[r++] = DoubleToString(tradeResult.priceStart, _Digits);
                allDaysRows[r++] = priceEndStr;
                allDaysRows[r++] = DoubleToString(tradeResult.priceDiff, _Digits);
@@ -5125,7 +5955,7 @@ void OnTimer()
             int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
-               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "contactProximity", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+               FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceBreakLevel_c1c2", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
                int totalRows = existingRowCount + g_tradeResultsCount;
                for(int ri = 0; ri < totalRows; ri++)
                {

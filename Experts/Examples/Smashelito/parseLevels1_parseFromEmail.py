@@ -309,199 +309,186 @@ ES Daily Plan | March 20, 2026
 Break and hold above 6669 would target 6692 / 6715 / 6737
 
 Holding below 6669 would target 6636 / 6600 / 6568
+
+ES Weekly Plan | March 23-27, 2026
+Break and hold above 6616 would target 6692 / 6755 / 6785* / 6840 / 6880
+
+Holding below 6616 would target 6511 / 6446 / 6360 / 6330* / 6280
+
+ES Daily Plan | March 23, 2026
+Break and hold above 6581 would target 6616 / 6643
+
+Holding below 6581 would target 6544 / 6511 / 6470
+
+ES Daily Plan | March 24, 2026
+Holding above 6616 would target 6658 / 6692 / 6715
+
+Break and hold below 6616 would target 6581 / 6544
+
+ES Daily Plan | March 25, 2026
+Break and hold above 6611 would target 6636 / 6658 / 6692
+
+Holding below 6611 would target 6586 / 6544 / 6511
 '''	
 
+# bookmark
 import re
 from calendar import month_name
 from datetime import datetime
+import os
 import json
 
-# --- Helper functions ---
 
-def get_week_id(date_str):
-    """Return year + ISO week number for a date string YYYY.MM.DD"""
-    dt = datetime.strptime(date_str, "%Y.%m.%d")
-    return f"{dt.isocalendar()[0]}-{dt.isocalendar()[1]:02d}"
-    
 def month_to_number(month_str):
     for i in range(1, 13):
         if month_name[i].lower() == month_str.lower():
             return i
     raise ValueError(f"Invalid month: {month_str}")
 
+
 def expand_range(token):
-    """Expand level tokens like 7031-43, 7031-7043, 7045* and validate them."""
-    token = token.replace("*", "").strip()
+    """
+    Expands:
+        7031-43   -> [7031, 7043]
+        7031-7043 -> [7031, 7043]
+        7045*     -> [7045]
+    """
+    token = token.replace("*", "")
+
     if "-" not in token:
-        if not token.isdigit():
-            raise ValueError(f"Invalid level token: '{token}'")
         return [int(token)]
-    parts = token.split("-")
-    if len(parts) != 2:
-        raise ValueError(f"Invalid range token: '{token}'")
-    left, right = parts
-    if not left.isdigit() or not right.isdigit():
-        raise ValueError(f"Invalid numbers in range token: '{token}'")
+
+    left, right = token.split("-")
+
+    # Handle short range like 7031-43
     if len(right) < len(left):
-        right_full = left[:len(left) - len(right)] + right
-    else:
-        right_full = right
-    left_int = int(left)
-    right_int = int(right_full)
-    if right_int < left_int:
-        raise ValueError(f"Right side smaller than left in range: '{token}' -> {left_int}-{right_int}")
-    if right_int - left_int < 10:
-        raise ValueError(f"Range difference too small (<10) in token: '{token}' -> {left_int}-{right_int}")
-    return [left_int, right_int]
+        right = left[:len(left) - len(right)] + right
 
-def split_sections(text):
-    lines = text.splitlines()
-    sections = []
-    current = []
+    return [int(left), int(right)]
 
-    for line in lines:
-        line = line.strip()
-
-        if re.search(r'(Daily Plan|Weekly Plan)\s*\|', line):
-            if current:
-                sections.append("\n".join(current))
-                current = []
-
-        if line:
-            current.append(line)
-
-    if current:
-        sections.append("\n".join(current))
-
-    return sections
 
 def parse_dates(title):
-    """Parse date range from section title."""
+    """
+    Returns (start_date, end_date) in YYYY.MM.DD format.
+    """
     date_part = title.split("|")[1].strip()
+
     month_str, rest = date_part.split(" ", 1)
     month = month_to_number(month_str)
+
     if "-" in rest:
         days_part, year = rest.split(",")
         start_day, end_day = days_part.split("-")
         year = int(year.strip())
+
         start_iso = f"{year:04d}.{month:02d}.{int(start_day):02d}"
         end_iso = f"{year:04d}.{month:02d}.{int(end_day):02d}"
     else:
         day, year = rest.split(",")
         year = int(year.strip())
+
         start_iso = f"{year:04d}.{month:02d}.{int(day):02d}"
         end_iso = start_iso
+
     return start_iso, end_iso
 
-# --- Main parser ---
 
 def parse_plan(text):
     results = []
-    sections = split_sections(text)
+
+    sections = re.split(r'\n(?=[A-Z].*?\|\s+[A-Za-z]+\s+\d)', text.strip())
+
     for section in sections:
         lines = [l.strip() for l in section.splitlines() if l.strip()]
         if not lines:
             continue
+
         title = lines[0]
+
         category = "weekly" if "Weekly" in title else "daily"
         start_date, end_date = parse_dates(title)
+
         smash = None
         ups = []
         downs = []
+
         for line in lines[1:]:
+
             smash_match = re.search(r'(above|below)\s+(\d+)', line)
             if smash_match:
                 smash = int(smash_match.group(2))
+
             target_match = re.search(r'would target (.+)', line)
             if target_match:
                 raw_targets = target_match.group(1)
                 tokens = re.findall(r'\d+\*?(?:-\d+\*?)?', raw_targets)
+
                 numbers = []
                 for token in tokens:
                     numbers.extend(expand_range(token))
+
                 if "above" in line:
                     ups.extend(numbers)
                 elif "below" in line:
                     downs.extend(numbers)
+
+        # --- Smash level ---
         if smash is not None:
-            results.append({
-                "start": start_date,
-                "end": end_date,
-                "levelPrice": smash,
-                "categories": [category, "smash"],
-                "tag": f"{category}Smash"
-            })
-        for level in ups:
+            if category == "weekly":
+                results.append({
+                    "start": start_date,
+                    "end": end_date,
+                    "levelPrice": smash,
+                    "categories": ["weekly", "smash"],
+                    "tag": "weeklySmash"
+                })
+            else:
+                # daily: include day of week
+                dt = datetime.strptime(start_date, "%Y.%m.%d")
+                weekday = dt.strftime("%A").lower()
+
+                results.append({
+                    "start": start_date,
+                    "end": end_date,
+                    "levelPrice": smash,
+                    "categories": ["daily", weekday, "smash"],
+                    "tag": "dailySmash"
+                })
+
+        # --- Ups (sorted ascending) ---
+        for i, level in enumerate(sorted(ups), start=1):
+            tag = f"{category}Up{i}"
             results.append({
                 "start": start_date,
                 "end": end_date,
                 "levelPrice": level,
                 "categories": [category],
-                "tag": f"{category}Up"
+                "tag": tag
             })
-        for level in downs:
+
+        # --- Downs (sorted descending) ---
+        for i, level in enumerate(sorted(downs, reverse=True), start=1):
+            tag = f"{category}Down{i}"
             results.append({
                 "start": start_date,
                 "end": end_date,
                 "levelPrice": level,
                 "categories": [category],
-                "tag": f"{category}Down"
+                "tag": tag
             })
+
     return results
 
-# --- Run parser ---
+
+# ---- Usage ----
+
 data = parse_plan(text)
 
-# --- Summary ---
-total_count = len(data)
-weekly_levels = [d for d in data if "weekly" in d["categories"]]
-daily_levels = [d for d in data if "daily" in d["categories"]]
+script_dir = os.path.dirname(os.path.abspath(__file__))
+out_path = os.path.join(script_dir, "levelsinfo_raw.txt")
 
-weekly_count = len(weekly_levels)
-daily_count = len(daily_levels)
+with open(out_path, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2)
 
-# Average weekly/daily levels per week
-weekly_weeks = len(set((d["start"], d["end"]) for d in weekly_levels))
-daily_weeks = len(set(get_week_id(d["start"]) for d in daily_levels))
-
-avg_weekly_per_week = weekly_count / weekly_weeks if weekly_weeks else 0
-avg_daily_per_week = daily_count / daily_weeks if daily_weeks else 0
-
-# --- Print first/last + summary ---
-if data:
-    print("\n\nFirst level:", data[0])
-    print("Last level:", data[-1])
-
-print("\nSummary:")
-print("Total levels:", total_count)
-print("Total weekly levels:", weekly_count)
-print("Total daily levels:", daily_count)
-print("Average weekly levels per week:", round(avg_weekly_per_week, 2))
-print("Average daily levels per week:", round(avg_daily_per_week, 2))
-
-
-# --- LAST 5 DAYS OUTPUT ---
-
-# get all unique dates from data
-all_dates = sorted(set(d["start"] for d in data))
-
-# take last 5 days
-last_5_days = all_dates[-5:]
-
-print("\n--- LAST 5 DAYS LEVELS ---")
-print("Days:", last_5_days)
-
-# filter levels
-last_5_levels = [d for d in data if d["start"] in last_5_days]
-
-# sort nicely (by date then price)
-last_5_levels.sort(key=lambda x: (x["start"], x["levelPrice"]))
-
-# print
-current_day = None
-for row in last_5_levels:
-    if row["start"] != current_day:
-        current_day = row["start"]
-        print(f"Date: {current_day}")
-
-    print(f"  {row['levelPrice']:>5} | {row['tag']} | {','.join(row['categories'])}")
+for row in data:
+    print(row)
