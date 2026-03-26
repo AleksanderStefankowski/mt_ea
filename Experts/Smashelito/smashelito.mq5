@@ -3384,46 +3384,41 @@ bool LevelIsWeekly(const string &categoriesOrTags)
    return (StringFind(categoriesOrTags, "weekly") >= 0);
 }
 
-// Weekly simplified bucket strings (returned by GetLevelTagWeeklySimplified).
-#define LEVEL_WEEKLY_SIMPLE_UP    "weeklyup"
-#define LEVEL_WEEKLY_SIMPLE_DOWN  "weeklydown"
-#define LEVEL_WEEKLY_SIMPLE_SMASH "weeklysmash"
-
 //+------------------------------------------------------------------+
-//| From level tag only (GetLevelTag): if not weekly, outSimple="". Else bucket weeklyup / weeklydown / weeklysmash (ignores 1/2/3 suffixes on tag). Order: smash, then down, then up. |
+//| g_levelsExpanded[levelIdx].tag only; levelIdx must be stage-1 row (no price re-match, no other fallback). |
+//| outSimple is "weeklysmash" | "weeklydown" | "weeklyup" or "". Lowercase tag; order smash → down → up so weeklydown before weeklyup. |
 //+------------------------------------------------------------------+
-void GetLevelTagWeeklySimplified(const double levelPx, string &outSimple)
+void GetLevelTagWeeklySimplified(const int levelIdx, string &outSimple)
 {
    outSimple = "";
-   string tag;
-   GetLevelTag(DoubleToString(levelPx, _Digits), tag);
-   string t = tag;
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return;
+   string t = g_levelsExpanded[levelIdx].tag;
    StringToLower(t);
    if(StringFind(t, "weekly") < 0) return;
    if(StringFind(t, "smash") >= 0)
    {
-      outSimple = LEVEL_WEEKLY_SIMPLE_SMASH;
+      outSimple = "weeklysmash";
       return;
    }
    if(StringFind(t, "weeklydown") >= 0 || StringFind(t, "weekly_down") >= 0)
    {
-      outSimple = LEVEL_WEEKLY_SIMPLE_DOWN;
+      outSimple = "weeklydown";
       return;
    }
    if(StringFind(t, "weeklyup") >= 0 || StringFind(t, "weekly_up") >= 0)
    {
-      outSimple = LEVEL_WEEKLY_SIMPLE_UP;
+      outSimple = "weeklyup";
       return;
    }
 }
 
 //+------------------------------------------------------------------+
-//| True when GetLevelTagWeeklySimplified equals want (e.g. LEVEL_WEEKLY_SIMPLE_DOWN). |
+//| True when GetLevelTagWeeklySimplified equals want (e.g. "weeklydown"). want must match returned bucket string exactly. |
 //+------------------------------------------------------------------+
-bool Gate_Level_WeeklySimplified_is(const double levelPx, const string &want)
+bool Gate_Level_WeeklySimplified_is(const int levelIdx, const string &want)
 {
    string s;
-   GetLevelTagWeeklySimplified(levelPx, s);
+   GetLevelTagWeeklySimplified(levelIdx, s);
    return (s == want);
 }
 
@@ -4297,7 +4292,7 @@ bool Subset_40104(double levelPx, int levelIdx, int kLast) // 20101330267000808 
 
 bool Subset_40105(double levelPx, int levelIdx, int kLast) // 20101230267001010 -> 40105230267001010. 20101430267001010 -> 40105430267001010
 {
-   if(!Gate_Level_WeeklySimplified_is(levelPx, LEVEL_WEEKLY_SIMPLE_DOWN)) return false;
+   if(!Gate_Level_WeeklySimplified_is(levelIdx, "weeklydown")) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -4372,12 +4367,8 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
 
    if(subsetHandlerKey == 20104)
       return Subset_20104(levelPx, levelIdx, kLast);
-   if(subsetHandlerKey == 40104)
-      return Subset_20104(levelPx, levelIdx, kLast);
 
    if(subsetHandlerKey == 20105)
-      return Subset_20105(levelPx, levelIdx, kLast);
-   if(subsetHandlerKey == 40105)
       return Subset_20105(levelPx, levelIdx, kLast);
 
    if(subsetHandlerKey == 20106)
@@ -4398,8 +4389,6 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
       return Subset_20109(levelPx, levelIdx, kLast);
    if(subsetHandlerKey == 20110)
       return Subset_20110(levelPx, levelIdx, kLast);
-   if(subsetHandlerKey == 40111)
-      return Subset_40111(levelPx, levelIdx, kLast);
    if(subsetHandlerKey == 20112)
       return Subset_20112(levelPx, levelIdx, kLast);
 
@@ -4409,7 +4398,8 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
       return Subset_40104(levelPx, levelIdx, kLast);
    if(subsetHandlerKey == 40105)
       return Subset_40105(levelPx, levelIdx, kLast);   
-
+   if(subsetHandlerKey == 40111)
+      return Subset_40111(levelPx, levelIdx, kLast);
 
    // If an enabled variant passes stage 1 but has no stage-2 rule subset function, it's a config error.
    FatalError(StringFormat("bookmarkE1 Missing stage-2 rule subset function for subset key %d (slots %d, %d, %d), magic %s. Check PendingRuleSubsetPassesForFullMagic",
