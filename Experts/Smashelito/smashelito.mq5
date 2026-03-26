@@ -2982,6 +2982,60 @@ g_trade[35].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[35].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[35].babysit_enabled          = false;
 g_trade[35].babysitStart_minute      = 0;
+
+
+// encoding input magic: 40103130267000808
+g_trade[36].enabled                  = true;
+g_trade[36].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[36].tradeTypeId              = 1;
+g_trade[36].ruleSubsetId             = 3;
+g_trade[36].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[36].tradeSizePct             = 100;
+g_trade[36].tpPips                   = 8.0;
+g_trade[36].slPips                   = 8.0;
+g_trade[36].livePriceDiffTrigger     = 3.0;
+g_trade[36].levelOffsetPips          = 2.6;
+g_trade[36].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[36].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[36].babysit_enabled          = false;
+g_trade[36].babysitStart_minute      = 0;
+
+
+// encoding input magic: 40101230267001010
+g_trade[37].enabled                  = true;
+g_trade[37].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[37].tradeTypeId              = 1;
+g_trade[37].ruleSubsetId             = 1;
+g_trade[37].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[37].tradeSizePct             = 100;
+g_trade[37].tpPips                   = 10.0;
+g_trade[37].slPips                   = 10.0;
+g_trade[37].livePriceDiffTrigger     = 3.0;
+g_trade[37].levelOffsetPips          = 2.6;
+g_trade[37].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[37].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[37].babysit_enabled          = false;
+g_trade[37].babysitStart_minute      = 0;
+
+// encoding input magic: 40105430267001010
+g_trade[38].enabled                  = true;
+g_trade[38].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[38].tradeTypeId              = 1;
+g_trade[38].ruleSubsetId             = 5;
+g_trade[38].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[38].tradeSizePct             = 100;
+g_trade[38].tpPips                   = 10.0;
+g_trade[38].slPips                   = 10.0;
+g_trade[38].livePriceDiffTrigger     = 3.0;
+g_trade[38].levelOffsetPips          = 2.6;
+g_trade[38].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[38].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[38].babysit_enabled          = false;
+g_trade[38].babysitStart_minute      = 0;
+
+
+
+
 //bookmark2 bookmarktradeend
 }
 
@@ -3278,6 +3332,25 @@ void GetLevelCategories(const string &levelStr, string &outCategories)
 }
 
 //+------------------------------------------------------------------+
+//| Level tag string (levels file column → g_levelsExpanded[].tag) for this price. Same lookup as GetLevelCategories. Empty if not found. |
+//+------------------------------------------------------------------+
+void GetLevelTag(const string &levelStr, string &outTag)
+{
+   outTag = "";
+   if(StringLen(levelStr) == 0) return;
+   double levelVal = StringToDouble(levelStr);
+   double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   for(int idx = 0; idx < g_levelsTodayCount; idx++)
+   {
+      if(MathAbs(g_levelsExpanded[idx].levelPrice - levelVal) < tolerance)
+      {
+         outTag = g_levelsExpanded[idx].tag;
+         return;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
 //| ON session trade count so far at barIdx (g_dayProgress). Returns 0 if barIdx invalid. |
 //+------------------------------------------------------------------+
 int GetONtradeCount(int barIdx)
@@ -3309,6 +3382,49 @@ bool IsLivePriceNearLevel(double levelPrice, double maxDistPoints)
 bool LevelIsWeekly(const string &categoriesOrTags)
 {
    return (StringFind(categoriesOrTags, "weekly") >= 0);
+}
+
+// Weekly simplified bucket strings (returned by GetLevelTagWeeklySimplified).
+#define LEVEL_WEEKLY_SIMPLE_UP    "weeklyup"
+#define LEVEL_WEEKLY_SIMPLE_DOWN  "weeklydown"
+#define LEVEL_WEEKLY_SIMPLE_SMASH "weeklysmash"
+
+//+------------------------------------------------------------------+
+//| From level tag only (GetLevelTag): if not weekly, outSimple="". Else bucket weeklyup / weeklydown / weeklysmash (ignores 1/2/3 suffixes on tag). Order: smash, then down, then up. |
+//+------------------------------------------------------------------+
+void GetLevelTagWeeklySimplified(const double levelPx, string &outSimple)
+{
+   outSimple = "";
+   string tag;
+   GetLevelTag(DoubleToString(levelPx, _Digits), tag);
+   string t = tag;
+   StringToLower(t);
+   if(StringFind(t, "weekly") < 0) return;
+   if(StringFind(t, "smash") >= 0)
+   {
+      outSimple = LEVEL_WEEKLY_SIMPLE_SMASH;
+      return;
+   }
+   if(StringFind(t, "weeklydown") >= 0 || StringFind(t, "weekly_down") >= 0)
+   {
+      outSimple = LEVEL_WEEKLY_SIMPLE_DOWN;
+      return;
+   }
+   if(StringFind(t, "weeklyup") >= 0 || StringFind(t, "weekly_up") >= 0)
+   {
+      outSimple = LEVEL_WEEKLY_SIMPLE_UP;
+      return;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| True when GetLevelTagWeeklySimplified equals want (e.g. LEVEL_WEEKLY_SIMPLE_DOWN). |
+//+------------------------------------------------------------------+
+bool Gate_Level_WeeklySimplified_is(const double levelPx, const string &want)
+{
+   string s;
+   GetLevelTagWeeklySimplified(levelPx, s);
+   return (s == want);
 }
 
 //+------------------------------------------------------------------+
@@ -4143,8 +4259,8 @@ bool Subset_40103(double levelPx, int levelIdx, int kLast) // 40111 -> 40103
    string weekdays[4];
    weekdays[0] = "smash";
    weekdays[1] = "wednesday";
-   weekdays[3] = "weekly";
-   weekdays[4] = "stacked";
+   weekdays[2] = "weekly";
+   weekdays[3] = "stacked";
    if(!Gate_LevelCategoriesContain_CategorySubstring(weekdays, levelCats)) return false;
 
    if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
@@ -4179,11 +4295,9 @@ bool Subset_40104(double levelPx, int levelIdx, int kLast) // 20101330267000808 
    return true;
 }
 
-bool Subset_40105(double levelPx, int levelIdx, int kLast) // xxxxxxx -> xxxxxx
+bool Subset_40105(double levelPx, int levelIdx, int kLast) // 20101230267001010 -> 40105230267001010. 20101430267001010 -> 40105430267001010
 {
-   varrrrrrrrrrrrrrrrrr = Get_LevelTags_Weekly_Simplified() // simplified is value that either can be weeklyup, weeklydown (so it does not care if it is weeklyup1 or 2 or 3), weeklysmash
-   
-   if(!Gate_LevelTags_WeeklySimple_is "weeklydown"  return false;
+   if(!Gate_Level_WeeklySimplified_is(levelPx, LEVEL_WEEKLY_SIMPLE_DOWN)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -4291,8 +4405,10 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
 
    if(subsetHandlerKey == 40103)
       return Subset_40103(levelPx, levelIdx, kLast);
-
-   
+   if(subsetHandlerKey == 40104)
+      return Subset_40104(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 40105)
+      return Subset_40105(levelPx, levelIdx, kLast);   
 
 
    // If an enabled variant passes stage 1 but has no stage-2 rule subset function, it's a config error.
