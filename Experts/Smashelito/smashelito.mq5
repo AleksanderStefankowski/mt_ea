@@ -598,7 +598,7 @@ bool IsTradingAllowed(datetime candleTime, int &bannedRanges[][4], int rangeCoun
 bool LoadCalendar()
 {
    g_calendarCount = 0;
-   int fileHandle = FileOpen(InpCalendarFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
+   int fileHandle = FileOpen(InpCalendarFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle == INVALID_HANDLE)
    {
       FatalError("Calendar file could not be opened: " + InpCalendarFile + " (place CSV in Terminal/Common/Files)");
@@ -1462,7 +1462,7 @@ void UpdateStaticMarketContext(datetime referenceDayStart)
 bool LoadLevelsForDate(const string &dateStr)
 {
    g_levelsTotalCount = 0;
-   int fileHandle = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON);
+   int fileHandle = FileOpen(InpLevelsFile, FILE_READ | FILE_TXT | FILE_ANSI | FILE_COMMON | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle == INVALID_HANDLE)
    {
       FatalError("Levels file could not be opened: " + InpLevelsFile + " (place CSV in Terminal/Common/Files)");
@@ -3116,6 +3116,36 @@ void GetLevelTagWeeklySimplified(const int levelIdx, string &outSimple)
 }
 
 //+------------------------------------------------------------------+
+//| g_levelsExpanded[levelIdx].tag only; levelIdx must be stage-1 row (no price re-match, no other fallback). |
+//| outSimple is "smash" | "down" | "up" or "". Lowercase tag; order smash → down → up (so weeklydown before weeklyup). |
+//| Daily + weekly: dailySmash/weeklySmash, dailyDown*/weeklyDown*, dailyUp*/weeklyUp* (+ *_down / *_up spellings). |
+//+------------------------------------------------------------------+
+void GetLevelTagSimplified(const int levelIdx, string &outSimple)
+{
+   outSimple = "";
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return;
+   string t = g_levelsExpanded[levelIdx].tag;
+   StringToLower(t);
+   if(StringFind(t, "smash") >= 0)
+   {
+      outSimple = "smash";
+      return;
+   }
+   if(StringFind(t, "weeklydown") >= 0 || StringFind(t, "weekly_down") >= 0 ||
+      StringFind(t, "dailydown") >= 0 || StringFind(t, "daily_down") >= 0)
+   {
+      outSimple = "down";
+      return;
+   }
+   if(StringFind(t, "weeklyup") >= 0 || StringFind(t, "weekly_up") >= 0 ||
+      StringFind(t, "dailyup") >= 0 || StringFind(t, "daily_up") >= 0)
+   {
+      outSimple = "up";
+      return;
+   }
+}
+
+//+------------------------------------------------------------------+
 //| True when GetLevelTagWeeklySimplified equals want (e.g. "weeklydown"). want must match returned bucket string exactly. |
 //+------------------------------------------------------------------+
 bool Gate_Level_Weekly_TagSimplified_is(const int levelIdx, const string &want)
@@ -4394,11 +4424,11 @@ double InputPipsToOrderPips(double inputPips)
 //+------------------------------------------------------------------+
 int OpenOrCreateForAppend(string path)
 {
-   int fileHandle = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_READ);
+   int fileHandle = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_READ | FILE_SHARE_READ);
    if(fileHandle != INVALID_HANDLE)
       FileSeek(fileHandle, 0, SEEK_END);
    else
-      fileHandle = FileOpen(path, FILE_WRITE | FILE_TXT);
+      fileHandle = FileOpen(path, FILE_WRITE | FILE_TXT | FILE_SHARE_READ);
    return fileHandle;
 }
 
@@ -4533,7 +4563,7 @@ void WriteDailySummary()
    string dateStr = TimeToString(now, TIME_DATE);
    
    string activeLevelsFile = dateStr + "-Day_activeLevels.csv";
-   int fileHandle1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   int fileHandle1 = FileOpen(activeLevelsFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle1 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + activeLevelsFile);
    {
@@ -4568,7 +4598,7 @@ void WriteDailySummary()
    }
    
    string accountFile = dateStr + "-Day_EOD_accountSummary.txt";
-   int fileHandle2 = FileOpen(accountFile, FILE_WRITE | FILE_TXT);
+   int fileHandle2 = FileOpen(accountFile, FILE_WRITE | FILE_TXT | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle2 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + accountFile);
    {
@@ -4588,7 +4618,7 @@ void WriteDailySummary()
    }
    
    string ordersFile = dateStr + "-not_from_globals_AllHistoryOrders.csv";
-   int fileHandle3 = FileOpen(ordersFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   int fileHandle3 = FileOpen(ordersFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle3 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + ordersFile);
    {
@@ -4622,7 +4652,7 @@ void WriteDailySummary()
    }
    
    string dealsFile = dateStr + "-not_from_globals_AllHistoryDeals.csv";
-   int fileHandle4 = FileOpen(dealsFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   int fileHandle4 = FileOpen(dealsFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle4 == INVALID_HANDLE)
       FatalError("WriteDailySummary: could not open " + dealsFile);
    {
@@ -4667,9 +4697,9 @@ void WriteTradeLog(const string magicStrForLogFilename, const string eventType, 
 
    double bal = AccountInfoDouble(ACCOUNT_BALANCE);
    double equity = AccountInfoDouble(ACCOUNT_EQUITY);
-   int fileHandle = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+   int fileHandle = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle == INVALID_HANDLE)
-      fileHandle = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
+      fileHandle = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle == INVALID_HANDLE)
       FatalError("WriteTradeLog: could not open " + fname);
    FileSeek(fileHandle, 0, SEEK_END);
@@ -4687,6 +4717,8 @@ void WriteTradeLog(const string magicStrForLogFilename, const string eventType, 
 //+------------------------------------------------------------------+
 int OnInit()
 {
+   FileDelete("summary_tradeResults_all_days.csv");
+
    Print("Level Logger EA initialized.");
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
 
@@ -4948,7 +4980,7 @@ bool TryLogDayStatForCurrentDay()
    string dayStatLogName = dateStrStat + "_dayPriceStat_log.csv";
    if(dailyEODlog_DayStat)
    {
-   int fileHandleDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+   int fileHandleDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleDay != INVALID_HANDLE)
    {
       FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH", "spreadHighestSeen", "spreadLowestSeen", "PD_trend");
@@ -4978,7 +5010,7 @@ bool TryLogDayStatForCurrentDay()
 //+------------------------------------------------------------------+
 void WriteDayStatSummaryCsv()
 {
-   int fileHandleSum = FileOpen("dayPriceStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+   int fileHandleSum = FileOpen("dayPriceStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleSum != INVALID_HANDLE)
    {
       double avgFillD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
@@ -5031,7 +5063,7 @@ void OnDeinit(const int reason)
 
    if(finalLog_FirstLastCandle)
    {
-   int fileHandle = FileOpen(InpSessionFirstLastCandleFile, FILE_WRITE|FILE_TXT);
+   int fileHandle = FileOpen(InpSessionFirstLastCandleFile, FILE_WRITE | FILE_TXT | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle != INVALID_HANDLE)
    {
       FileWrite(fileHandle,"----------------------------------------");
@@ -5340,7 +5372,7 @@ void OnTimer()
       datetime closedTime = g_m1Rates[kClosed].time;
       double closedO = g_m1Rates[kClosed].open, closedH = g_m1Rates[kClosed].high, closedL = g_m1Rates[kClosed].low, closedC = g_m1Rates[kClosed].close;
       string fname = TimeToString(today, TIME_DATE) + "_testing_liveprice.csv";
-      int fileHandle = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+      int fileHandle = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
       if(fileHandle != INVALID_HANDLE)
       {
          FileSeek(fileHandle, 0, SEEK_END);
@@ -5352,7 +5384,7 @@ void OnTimer()
       }
       else
       {
-         fileHandle = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI);
+         fileHandle = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
          if(fileHandle == INVALID_HANDLE)
             FatalError("OnTimer: could not open liveprice CSV " + fname);
          FileWrite(fileHandle, "time", "liveBid", "liveAsk", "closed_candle_time", "closed_O", "closed_H", "closed_L", "closed_C");
@@ -5436,7 +5468,7 @@ void OnTimer()
          // Log pullinghistory from g_m1Rates (only once per day; if file missing, write again). MT5 CSV with headers.
          if(dailyEODlog_PullingHistory && !FileIsExist(logName))
          {
-            int fileHandle = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            int fileHandle = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandle == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + logName);
             FileWrite(fileHandle, "time", "O", "H", "L", "C", "levelAboveH", "levelBelowL", "session",
@@ -5484,7 +5516,7 @@ void OnTimer()
          string eodSummaryName = dateStr + "_summary_EOD_tradesSummary1line.csv";
          if(dailyEODlog_EodTradesSummary && !FileIsExist(eodSummaryName) && kLast >= 0 && g_dayProgress[kLast].dayTradesCount > 0)
          {
-            int fileHandleEod = FileOpen(eodSummaryName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            int fileHandleEod = FileOpen(eodSummaryName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleEod != INVALID_HANDLE)
             {
                FileWrite(fileHandleEod, "time", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
@@ -5547,7 +5579,7 @@ void OnTimer()
          }
          if(finalLog_SummaryTrades1line && g_barsInDay > 0)
          {
-            int fileHandleEodAll = FileOpen("summary_tradesSummary1line.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            int fileHandleEodAll = FileOpen("summary_tradesSummary1line.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleEodAll != INVALID_HANDLE)
             {
                double dayWr = (g_summaryTrades_dayTradesCount > 0) ? 100.0 * (double)g_summaryTrades_dayWins / (double)g_summaryTrades_dayTradesCount : 0.0;
@@ -5563,7 +5595,7 @@ void OnTimer()
          }
          if(finalLog_SummaryTradesPerTrade && g_perTradeSummariesCount > 0)
          {
-            int fileHandlePer = FileOpen("summary_tradesSummary_perTrade.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            int fileHandlePer = FileOpen("summary_tradesSummary_perTrade.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandlePer != INVALID_HANDLE)
             {
                FileWrite(fileHandlePer, "time", "magicFirstDigit", "dates", "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "ONwinRate", "ONtradeCount", "ONpointsSum", "ONprofitSum", "RTHwinRate", "RTHtradeCount", "RTHpointsSum", "RTHprofitSum");
@@ -5589,7 +5621,7 @@ void OnTimer()
          string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day.csv";
          if(dailyEODlog_TradeResultsCsv && g_tradeResultsCount > 0 && !FileIsExist(csvName))
          {
-            int fileHandleTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV);
+            int fileHandleTr = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleTr == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + csvName);
             {
@@ -5672,7 +5704,7 @@ void OnTimer()
             string allDaysRows[];
             int existingRowCount = 0;
             int fileCols = 0;
-            int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI);
+            int fileHandleRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleRead != INVALID_HANDLE)
             {
                // Skip header (schemaCols fields)
@@ -5813,7 +5845,7 @@ void OnTimer()
                allDaysRows[r++] = levelTagStr;
                allDaysRows[r++] = levelCatsStr;
             }
-            int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+            int fileHandleSumTr = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleSumTr != INVALID_HANDLE)
             {
                FileWrite(fileHandleSumTr, "date", "symbol", "startTime", "endTime", "session", "magic", "priceBreakLevel_c1c2", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp", "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16", "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
@@ -5835,7 +5867,7 @@ void OnTimer()
             string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[levelIdx].levelPrice, _Digits) + "_" + g_levelsExpanded[levelIdx].tag + ".csv";
             if(!FileIsExist(levelFile))
             {
-               int fileHandleL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+               int fileHandleL = FileOpen(levelFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
                if(fileHandleL == INVALID_HANDLE)
                   FatalError("OnTimer: could not open " + levelFile);
                FileWrite(fileHandleL, "time", "diff_CloseToLevel", "O", "H", "L", "C", "breaksLevelDown", "breaksLevelUpward", "cleanStreakAbove", "cleanStreakBelow", "aboveCnt", "abovePerc", "belowCnt", "belowPerc", "overlapStreak", "overlapC", "overlapPc", "HighestDiffUp_rangeArg", "HighestDiffUpRange", "HighestDiffDown_rangeArg", "HighestDiffDownRange", "ON_O_wasAboveL", "RTH_O_wasAboveL", "ONtradeCount_L", "ONwinRate_L", "ONpointsSum_L", "ONprofitSum_L", "RTHtradeCount_L", "RTHwinRate_L", "RTHpointsSum_L", "RTHprofitSum_L");
@@ -5871,7 +5903,7 @@ void OnTimer()
          if(dailyEODlog_BreakCheck)
          {
          string breakCheckFile = dateStr + "_levels_breakCheck_breakingDown.csv";
-         int fileHandleBreak = FileOpen(breakCheckFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+         int fileHandleBreak = FileOpen(breakCheckFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
          if(fileHandleBreak != INVALID_HANDLE)
          {
             string cutoffStr = IntegerToString((int)MathRound(InpBreakCheckMaxDistPoints));
@@ -5915,7 +5947,7 @@ void OnTimer()
          // At 22:00 write single aggregate log (no date in name): type, avgcandles, avgavg, avgmedian for all 4 types
          if(minOfDay == 22*60+0)
          {
-            int fileHandleSum = FileOpen("levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv", FILE_WRITE | FILE_CSV | FILE_ANSI);
+            int fileHandleSum = FileOpen("levels_breakCheck_breakingDown_tertiaryLevelsExcluded_summary.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleSum != INVALID_HANDLE)
             {
                FileWrite(fileHandleSum, "timerangeType", "avgCandleCount", "avgOfAvg", "avgOfMedian", "daysCount", "totalLevelCount");
@@ -5969,9 +6001,9 @@ void FinalizeCurrentCandle()
          FileClose(allCandlesFileHandle);
 
       string allFileName = dateStr + "-AllCandlesLog_Timer1.csv";
-      int fileHandleAll = FileOpen(allFileName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+      int fileHandleAll = FileOpen(allFileName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
       if(fileHandleAll == INVALID_HANDLE)
-         fileHandleAll = FileOpen(allFileName, FILE_WRITE | FILE_CSV | FILE_ANSI);
+         fileHandleAll = FileOpen(allFileName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
       if(fileHandleAll == INVALID_HANDLE)
          FatalError("FinalizeCurrentCandle: could not open " + allFileName);
       FileSeek(fileHandleAll, 0, SEEK_END);
@@ -6013,9 +6045,9 @@ void FinalizeCurrentCandle()
             string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.csv", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
 
-            int fileHandleAra = FileOpen(araFile, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI);
+            int fileHandleAra = FileOpen(araFile, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleAra == INVALID_HANDLE)
-               fileHandleAra = FileOpen(araFile, FILE_WRITE | FILE_CSV | FILE_ANSI);
+               fileHandleAra = FileOpen(araFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleAra == INVALID_HANDLE)
                FatalError("FinalizeCurrentCandle: could not open " + araFile);
             FileSeek(fileHandleAra, 0, SEEK_END);
