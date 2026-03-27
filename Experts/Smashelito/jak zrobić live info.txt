@@ -1,0 +1,4 @@
+1. Zamknąć wszystkie charty
+2. View -> market watch -> na us500 right click -> Chart window
+3. View -> navigator -> przenieść smashelito na chart
+4. na chart dać enable Algo Trading
