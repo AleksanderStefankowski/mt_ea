@@ -335,6 +335,11 @@ Holding above 6631 would target 6662 / 6692 / 6715
 
 Break and hold below 6631 would target 6611 / 6586 / 6544
 
+ES Daily Plan | March 27, 2026
+Break and hold above 6549 would target 6580 / 6611
+
+Holding below 6549 would target 6511 / 6470 / 6446
+
 
 '''	
 

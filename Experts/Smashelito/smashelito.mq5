@@ -1820,6 +1820,41 @@ int ChangeBothCommentsToArrayOfStrings(const string &bothComments, string &resul
    return StringSplit(commentStr, ' ', result);
 }
 
+double Loghelper_MergeLevelWithTpSl(double level, double tpOrSl)
+{
+   int levelInt = (int)level;
+   double levelFrac = level - levelInt;
+
+   int tpInt = (int)tpOrSl;
+   double tpFrac = tpOrSl - tpInt;
+
+   int prefix = levelInt / 100;
+   int newInt = prefix * 100 + tpInt;
+
+   return newInt + tpFrac;
+}
+
+void Loghelper_FillLevelTpSlFromBothComments(const string &bothComments, string &outLevel, string &outTp, string &outSl)
+{
+   if(StringFind(bothComments, "$") < 0)
+   {
+      outLevel = outTp = outSl = "";
+      return;
+   }
+   string arr[];
+   ChangeBothCommentsToArrayOfStrings(bothComments, arr);
+   outLevel = (ArraySize(arr) > 0) ? arr[0] : "";
+   outTp    = (ArraySize(arr) > 1) ? arr[1] : "";
+   outSl    = (ArraySize(arr) > 2) ? arr[2] : "";
+
+   if(StringLen(outLevel) >= 2)
+   {
+      double levelVal = StringToDouble(outLevel);
+      if(outTp != "") outTp = DoubleToString(Loghelper_MergeLevelWithTpSl(levelVal, StringToDouble(outTp)), 1);
+      if(outSl != "") outSl = DoubleToString(Loghelper_MergeLevelWithTpSl(levelVal, StringToDouble(outSl)), 1);
+   }
+}
+
 //+------------------------------------------------------------------+
 //| Load deals for current day, reject DEAL_TYPE_BALANCE, group by magic, pair IN/OUT into g_tradeResults. Call from loop2. |
 //+------------------------------------------------------------------+
@@ -1899,16 +1934,7 @@ void UpdateTradeResultsForDay()
             tradeResult.reason    = g_dealReason[outIdx];
             string commentsStr = BuildBothComments(g_dealComment[g_inIdx[pairIdx]], g_dealComment[outIdx], true);
             tradeResult.bothComments = commentsStr;
-            if(StringFind(commentsStr, "$") < 0)
-               tradeResult.level = tradeResult.tp = tradeResult.sl = "";
-            else
-            {
-               string arr[];
-               ChangeBothCommentsToArrayOfStrings(commentsStr, arr);
-               tradeResult.level = (ArraySize(arr) > 0) ? arr[0] : "";
-               tradeResult.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
-               tradeResult.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
-            }
+            Loghelper_FillLevelTpSlFromBothComments(commentsStr, tradeResult.level, tradeResult.tp, tradeResult.sl);
          }
          else
          {
@@ -1919,16 +1945,7 @@ void UpdateTradeResultsForDay()
             tradeResult.reason    = 0;
             string commentsStr = BuildBothComments(g_dealComment[g_inIdx[pairIdx]], "", false);
             tradeResult.bothComments = commentsStr;
-            if(StringFind(commentsStr, "$") < 0)
-               tradeResult.level = tradeResult.tp = tradeResult.sl = "";
-            else
-            {
-               string arr[];
-               ChangeBothCommentsToArrayOfStrings(commentsStr, arr);
-               tradeResult.level = (ArraySize(arr) > 0) ? arr[0] : "";
-               tradeResult.tp    = (ArraySize(arr) > 1) ? arr[1] : "";
-               tradeResult.sl    = (ArraySize(arr) > 2) ? arr[2] : "";
-            }
+            Loghelper_FillLevelTpSlFromBothComments(commentsStr, tradeResult.level, tradeResult.tp, tradeResult.sl);
          }
          g_tradeResults[g_tradeResultsCount++] = tradeResult;
       }
@@ -2381,7 +2398,7 @@ int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
 //+------------------------------------------------------------------+
 //| Trade variant defaults — edit here only (no InpTradeN_* globals). Called before validate. |
 //+------------------------------------------------------------------+
-void SyncTradeVariantsFromInputs() // bookmark1 bookmark tradestart
+void SyncTradeVariantsFromInputs() // bookmark1tradebegin
 {  
 
 // encoding input magic: 10207335267000808
@@ -2606,7 +2623,7 @@ g_trade[12].babysitStart_minute      = 0;
 
 ///////////////////////
 // encoding input magic: 40113135217000606
-g_trade[13].enabled                  = true;
+g_trade[13].enabled = true;
 g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
 g_trade[13].tradeTypeId              = 1;
 g_trade[13].ruleSubsetId             = 13;
@@ -2623,7 +2640,7 @@ g_trade[13].babysitStart_minute      = 0;
 
 
 // encoding input magic: 40113235217000606
-g_trade[14].enabled                  = true;
+g_trade[14].enabled = true;
 g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
 g_trade[14].tradeTypeId              = 1;
 g_trade[14].ruleSubsetId             = 13;
@@ -2640,7 +2657,7 @@ g_trade[14].babysitStart_minute      = 0;
 
 
 // encoding input magic: 40113335217000606
-g_trade[15].enabled                  = true;
+g_trade[15].enabled = true;
 g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
 g_trade[15].tradeTypeId              = 1;
 g_trade[15].ruleSubsetId             = 13;
@@ -2657,7 +2674,7 @@ g_trade[15].babysitStart_minute      = 0;
 
 
 // encoding input magic: 40113435217000606
-g_trade[16].enabled                  = true;
+g_trade[16].enabled = true;
 g_trade[16].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
 g_trade[16].tradeTypeId              = 1;
 g_trade[16].ruleSubsetId             = 13;
@@ -2673,7 +2690,7 @@ g_trade[16].babysit_enabled          = false;
 g_trade[16].babysitStart_minute      = 0;
 
 // encoding input magic: 20113135217000606
-g_trade[17].enabled                  = true;
+g_trade[17].enabled = true;
 g_trade[17].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
 g_trade[17].tradeTypeId              = 1;
 g_trade[17].ruleSubsetId             = 13;
@@ -2690,7 +2707,7 @@ g_trade[17].babysitStart_minute      = 0;
 
 
 // encoding input magic: 20113235217000606
-g_trade[18].enabled                  = true;
+g_trade[18].enabled = true;
 g_trade[18].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
 g_trade[18].tradeTypeId              = 1;
 g_trade[18].ruleSubsetId             = 13;
@@ -2707,7 +2724,7 @@ g_trade[18].babysitStart_minute      = 0;
 
 
 // encoding input magic: 20113335217000606
-g_trade[19].enabled                  = true;
+g_trade[19].enabled = true;
 g_trade[19].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
 g_trade[19].tradeTypeId              = 1;
 g_trade[19].ruleSubsetId             = 13;
@@ -2724,7 +2741,7 @@ g_trade[19].babysitStart_minute      = 0;
 
 
 // encoding input magic: 20113435217000606
-g_trade[20].enabled                  = true;
+g_trade[20].enabled = true;
 g_trade[20].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
 g_trade[20].tradeTypeId              = 1;
 g_trade[20].ruleSubsetId             = 13;
@@ -2739,7 +2756,10 @@ g_trade[20].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[20].babysit_enabled          = false;
 g_trade[20].babysitStart_minute      = 0;
 
-//bookmark2 bookmarktradeend
+
+
+
+//bookmark2tradeend
 }
 
 //+------------------------------------------------------------------+
@@ -3238,6 +3258,43 @@ string BuildUnifiedOrderComment(double levelPrice, double takeProfitVal, double 
 }
 
 //+------------------------------------------------------------------+
+//| Single source: pending order price, SL, TP for MAGIC_TRADE_* direction (Place*AtLevel + WriteTradeLogPendingOrder). |
+//+------------------------------------------------------------------+
+void PendingOrderPricesForDirection(const int direction, const double levelPrice, const double offsetPips, const double slPips, const double tpPips,
+   double &outOrderPrice, double &outStopLoss, double &outTakeProfit)
+{
+   double pip = PipSize();
+   const double spr = g_pendingTriggerSymmetrySpread;
+   switch(direction)
+   {
+      case MAGIC_TRADE_LONG:
+         outOrderPrice = NormalizeDouble(levelPrice + offsetPips * pip, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice - slPips * pip, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice + tpPips * pip, _Digits);
+         return;
+      case MAGIC_TRADE_SHORT:
+         outOrderPrice = NormalizeDouble(levelPrice - offsetPips * pip, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice + slPips * pip, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice - tpPips * pip, _Digits);
+         return;
+      case MAGIC_TRADE_LONG_REVERSED:
+         outOrderPrice = NormalizeDouble(levelPrice + offsetPips * pip - spr, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice +0.0 + slPips * pip, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice +0.0 - tpPips * pip, _Digits);
+         return;
+      case MAGIC_TRADE_SHORT_REVERSED:
+         // diff często to 0.1 od short-not-reversed, ale czasem są oszukane spikes i oba trejdy przegrywają.
+         outOrderPrice = NormalizeDouble(levelPrice - offsetPips * pip + spr, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice -0.0  - tpPips * pip, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice  -0.0  + slPips * pip, _Digits);
+         return;
+      default:
+         FatalError(StringFormat("PendingOrderPricesForDirection: invalid direction %d (expected %d..%d)",
+            direction, MAGIC_TRADE_LONG, MAGIC_TRADE_SHORT_REVERSED));
+   }
+}
+
+//+------------------------------------------------------------------+
 //| After PlacePendingFromMagic returned true: log pending_created (order kind + prices match Place*). |
 //+------------------------------------------------------------------+
 void WriteTradeLogPendingOrder(double levelPrice, double offsetPips, double slPips, double tpPips, long magic)
@@ -3247,51 +3304,21 @@ void WriteTradeLogPendingOrder(double levelPrice, double offsetPips, double slPi
    datetime eventTime = g_lastTimer1Time;
    if(orderTicket > 0 && OrderSelect(orderTicket))
       eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
-   double pip = PipSize();
    int dir = ParseCompositeMagic(magic).direction;
-   string orderKind = "buy_limit";
+   string orderKind;
+   switch(dir)
+   {
+      case MAGIC_TRADE_LONG:           orderKind = "buy_limit";  break;
+      case MAGIC_TRADE_SHORT:          orderKind = "sell_limit"; break;
+      case MAGIC_TRADE_LONG_REVERSED:  orderKind = "sell_stop";  break;
+      case MAGIC_TRADE_SHORT_REVERSED: orderKind = "buy_stop";   break;
+      default:
+         FatalError(StringFormat("WriteTradeLogPendingOrder: invalid direction %d magic %s", dir, IntegerToString(magic)));
+   }
    double orderPrice = 0.0;
    double stopLossVal = 0.0;
    double takeProfitVal = 0.0;
-   switch(dir)
-   {
-      case MAGIC_TRADE_LONG:
-         orderKind = "buy_limit";
-         orderPrice = NormalizeDouble(levelPrice + offsetPips * pip, _Digits);
-         stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
-         takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
-         break;
-      case MAGIC_TRADE_SHORT:
-         orderKind = "sell_limit";
-         orderPrice = NormalizeDouble(levelPrice - offsetPips * pip, _Digits);
-         stopLossVal = NormalizeDouble(orderPrice + slPips * pip, _Digits);
-         takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
-         break;
-      case MAGIC_TRADE_LONG_REVERSED:
-      {
-         orderKind = "sell_stop";
-         const double s = g_pendingTriggerSymmetrySpread;
-         orderPrice = NormalizeDouble(levelPrice + offsetPips * pip - s, _Digits);
-         stopLossVal = NormalizeDouble(orderPrice + slPips * pip, _Digits);
-         takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
-         break;
-      }
-      case MAGIC_TRADE_SHORT_REVERSED:
-      {
-         orderKind = "buy_stop";
-         const double s = g_pendingTriggerSymmetrySpread;
-         orderPrice = NormalizeDouble(levelPrice - offsetPips * pip + s, _Digits);
-         stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
-         takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
-         break;
-      }
-      default:
-         orderKind = "unknown";
-         orderPrice = NormalizeDouble(levelPrice + offsetPips * pip, _Digits);
-         stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
-         takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
-         break;
-   }
+   PendingOrderPricesForDirection(dir, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
    string orderComment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    WriteTradeLog(magicStrForLogFilename, "pending_created", eventTime, orderKind, orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
 }
@@ -3806,6 +3833,64 @@ bool Gate_Level_Above_PriceMidpoint(const int kLast, const double levelPx)
    return (mid < levelPx);
 }
 
+//+------------------------------------------------------------------+
+//| Gap down day: today's RTH open < prior day RTH close (PDC). Same rule as dayPriceStat_log hasGapDown once logged; uses g_todayRTHopen so valid after RTH open bar exists. |
+//+------------------------------------------------------------------+
+bool Gate_Day_HasGapDown_is_TOTEST()
+{
+   if(!g_todayRTHopenValid || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0) return false;
+   return (g_todayRTHopen < g_staticMarketContext.PDCpreviousDayRTHClose);
+}
+
+//+------------------------------------------------------------------+
+//| Gap up day: RTH open > PDC. Same as dayPriceStat_log hasGapUp. |
+//+------------------------------------------------------------------+
+bool Gate_Day_HasGapUp_is_TOTEST()
+{
+   if(!g_todayRTHopenValid || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0) return false;
+   return (g_todayRTHopen > g_staticMarketContext.PDCpreviousDayRTHClose);
+}
+
+//+------------------------------------------------------------------+
+//| At bar kLast: running day high has broken prior day high (PDH). Same as _testing_pullinghistory dayBrokePDH column. |
+//+------------------------------------------------------------------+
+bool Gate_Day_DayBrokePDH_atBar_TOTEST(const int kLast)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   return g_dayBrokePDHAtBar[kLast];
+}
+
+//+------------------------------------------------------------------+
+//| At bar kLast: running day low has broken prior day low (PDL). Same as pullinghistory dayBrokePDL. |
+//+------------------------------------------------------------------+
+bool Gate_Day_DayBrokePDL_atBar_TOTEST(const int kLast)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   return g_dayBrokePDLAtBar[kLast];
+}
+
+//+------------------------------------------------------------------+
+//| Gap-fill state at bar kLast from g_gapFillSoFarAtBar (same % as pullinghistory gapFillSoFar). |
+//| "unknown" if before RTH open or value not computed; "filled" if pct >= 90; else "unfilled". |
+//+------------------------------------------------------------------+
+string GetGapFillStatus_atBar(const int kLast)
+{
+   if(g_m1DayStart == 0) return "unknown";
+   const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   double pct = 0.0;
+   if(!GetGapFillSoFarAtBar(kLast, g_m1DayStart, dateStr, pct)) return "unknown";
+   if(pct >= 90.0) return "filled";
+   return "unfilled";
+}
+
+//+------------------------------------------------------------------+
+//| True if GetGapFillStatus_atBar(kLast) == "filled" (gap fill % >= 90 at that bar). |
+//+------------------------------------------------------------------+
+bool Gate_GapFilled_atBar_TOTEST(const int kLast)
+{
+   return (GetGapFillStatus_atBar(kLast) == "filled");
+}
+
 bool Subset_20101(double levelPx, int levelIdx, int kLast)
 {
    //const double minDayHighOverLevelPoints = 0.77;
@@ -4086,6 +4171,73 @@ bool Subset_20113(double levelPx, int levelIdx, int kLast)
    if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
    return true;
 }
+
+
+
+bool Subset_20201(double levelPx, int levelIdx, int kLast)
+{
+   //clean streak 11 udowadnia że cena było czysto poniżej levela niedawno	
+   //clean streak pod levelem 24 udowadnia że teraz cena czysto i nie za długo
+
+   //if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   ///if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakBelowMin = 20;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+
+   // highest diff above: 9 pkt ostatnie 24 świece udowadnia że cena wysoko powyżej levela niedawno	
+   // highest diff above: 19 pkt ostatnie (var streak 24 + przed streakiem 30 czyli łącznie 54) świece 
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+
+   //highest diff below: 11 pkt ostatnie 24 świece (w tym clean streaku) udowadnia że cena była nisko poniżej levela niedawno (i więcej niż nasz target TPSL)
+   //udowadnia że cena wysoko powyżej levela niedawno (i 19 to więcej niż target TP SL)
+   //highest diff below: 16 pkt ostatnie 2 świece udowadnia że cena była nisko poniżej levela niedawno	
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 9.0) return false;
+
+   return true;
+}
+
+bool Subset_20301(double levelPx, int levelIdx, int kLast)
+{
+      // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. i screeny pokazują że ślepy short 1st touch jest słaby ale warto i tak potem przetestować taki trade type (nie 03) 
+
+   double levelBelow = GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   // Check if a level was found (returns 0.0 if none) and perform logic
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   // if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   // if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 35; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+
+   return true;
+}
+
 // bookmark7 bookmarkSubsetEnd
 
 
@@ -4257,10 +4409,8 @@ void LogPreOrderContext(long magic, double levelPrice, double orderPrice, string
 bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
 {
    if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
-   double pip = PipSize();
-   double orderPrice = NormalizeDouble(levelPrice + offsetPips * pip, _Digits);
-   double stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
-   double takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
+   double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
+   PendingOrderPricesForDirection(MAGIC_TRADE_LONG, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "BuyLimit", expirationMin);
@@ -4276,10 +4426,8 @@ bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, d
 bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
 {
    if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
-   double pip = PipSize();
-   double orderPrice = NormalizeDouble(levelPrice - offsetPips * pip, _Digits);
-   double stopLossVal = NormalizeDouble(orderPrice + slPips * pip, _Digits);
-   double takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
+   double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
+   PendingOrderPricesForDirection(MAGIC_TRADE_SHORT, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "SellLimit", expirationMin);
@@ -4290,17 +4438,14 @@ bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, 
 }
 
 //+------------------------------------------------------------------+
-//| Sell stop at (level+off)−s: triggers on Bid; pairs buy limit at level+off (Ask). SL/TP = pip from order price. |
+//| Sell stop at (level+off)−s: triggers on Bid; pairs buy limit at level+off (Ask). SL/TP from ref = orderPrice+s (= limit+off), same absolute prices as Buy Limit SL/TP. |
 //| Short risk: SL above entry, TP below. NOTE: MT5 requires pending SellStop price < Bid; if entry ends up above Bid, placement may fail (then SellLimit is the usual fix). |
 //+------------------------------------------------------------------+
 bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
 {
    if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
-   double pip = PipSize();
-   const double s = g_pendingTriggerSymmetrySpread;
-   double orderPrice = NormalizeDouble(levelPrice + offsetPips * pip - s, _Digits);
-   double stopLossVal = NormalizeDouble(orderPrice + slPips * pip, _Digits);
-   double takeProfitVal = NormalizeDouble(orderPrice - tpPips * pip, _Digits);
+   double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
+   PendingOrderPricesForDirection(MAGIC_TRADE_LONG_REVERSED, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "SellStop", expirationMin);
@@ -4311,16 +4456,13 @@ bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, d
 }
 
 //+------------------------------------------------------------------+
-//| Buy stop at (level−off)+s: triggers on Ask; pairs sell limit at level−off (Bid). SL/TP = pip from order price. |
+//| Buy stop at (level−off)+s: triggers on Ask; pairs sell limit at level−off (Bid). SL/TP from ref = orderPrice−s: SL = SellLimit TP, TP = SellLimit SL. |
 //+------------------------------------------------------------------+
 bool PlaceBuyStopAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
 {
    if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
-   double pip = PipSize();
-   const double s = g_pendingTriggerSymmetrySpread;
-   double orderPrice = NormalizeDouble(levelPrice - offsetPips * pip + s, _Digits);
-   double stopLossVal = NormalizeDouble(orderPrice - slPips * pip, _Digits);
-   double takeProfitVal = NormalizeDouble(orderPrice + tpPips * pip, _Digits);
+   double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
+   PendingOrderPricesForDirection(MAGIC_TRADE_SHORT_REVERSED, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "BuyStop", expirationMin);
@@ -5186,7 +5328,7 @@ void RunTimerPendingNearLevelsPipeline()
 //+------------------------------------------------------------------+
 //| ExtPositionInfo must already select the position. After babysitStartMinute open time, tighten SL in steps from entry (only tighter). |
 //+------------------------------------------------------------------+
-void BabysitTryTightenStopsForSelectedPosition(const long positionMagic, const int babysitStartMinute)
+void Babysitf_TryTightenStopsForSelectedPosition(const long positionMagic, const int babysitStartMinute)
 {
    //--- 1. Babysit disabled for this row (negative minute = off).
    if(babysitStartMinute < 0) return;
@@ -5234,7 +5376,7 @@ void BabysitTryTightenStopsForSelectedPosition(const long positionMagic, const i
 //| Same timing/ladder idea as TightenStops, but tighten TP toward entry (only tighter / closer to open). |
 //| BUY: TP above open — ladder +0.5..+10 from entry; SELL: TP below open — same magnitudes, mirrored formulas. SL left unchanged. |
 //+------------------------------------------------------------------+
-void BabysitTryTightenStopsForSelectedPosition_reversed(const long positionMagic, const int babysitStartMinute)
+void Babysitf_TryTightenStopsForSelectedPosition_reversed(const long positionMagic, const int babysitStartMinute)
 {
    if(babysitStartMinute < 0) return;
    int minutesOpen = (int)((g_lastTimer1Time - ExtPositionInfo.Time()) / 60);
@@ -5277,7 +5419,7 @@ void BabysitTryTightenStopsForSelectedPosition_reversed(const long positionMagic
 //| profitInputPips uses same units as g_trade TP/SL: distance = InputPipsToOrderPips(profitInputPips) * PipSize() (see PlaceBuyLimitAtLevel / pending TP). |
 //| Returns true if PositionClose reported success (position may be gone). |
 //+------------------------------------------------------------------+
-bool BabysitTry_CloseForProfit(const long positionMagic, const double profitInputPips)
+bool Babysitf_Try_CloseForProfit(const long positionMagic, const double profitInputPips)
 {
    if(profitInputPips <= 0.0)
       return false;
@@ -5305,10 +5447,187 @@ bool BabysitTry_CloseForProfit(const long positionMagic, const double profitInpu
    return closed;
 }
 
+
+//+------------------------------------------------------------------+
+//| ExtPositionInfo must already select the position.                |
+//| Distance to TP: BUY uses g_liveBid; SELL uses g_liveAsk (OnTimer). |
+//| Distance to SL: BUY (Bid−SL); SELL (SL−Ask).                     |
+//| Proximity / open-offset use same price distance as pending TP/SL: |
+//| InputPipsToOrderPips(n) * PipSize() (see Babysitf_Try_CloseForProfit). |
+//| Within 3.0 input pips of TP: SL = open ± 0.5 input pips (BUY +, SELL −). |
+//| Within 3.0 input pips of SL: TP = open ∓ 0.5 input pips (BUY −, SELL +). |
+//| Only tightens; returns true if PositionModify succeeds.          |
+//+------------------------------------------------------------------+
+bool Babysitf_SecurePosition(const long positionMagic)
+{
+   const double targetProximity = InputPipsToOrderPips(1.4) * PipSize();
+   const double secureDist = InputPipsToOrderPips(0.7) * PipSize();
+
+   const ulong ticket = ExtPositionInfo.Ticket();
+   const double openPrice = ExtPositionInfo.PriceOpen();
+   const double currentSL = ExtPositionInfo.StopLoss();
+   const double currentTP = ExtPositionInfo.TakeProfit();
+   const ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
+
+   const double bid = g_liveBid;
+   const double ask = g_liveAsk;
+
+   double newSL = currentSL;
+   double newTP = currentTP;
+   bool changeSL = false;
+   bool changeTP = false;
+
+   if(posType == POSITION_TYPE_BUY)
+   {
+      if(currentTP > 0.0 && (currentTP - bid) <= targetProximity)
+      {
+         const double sl = NormalizeDouble(openPrice + secureDist, _Digits);
+         if(sl < bid && (currentSL <= 0.0 || sl > currentSL))
+         {
+            newSL = sl;
+            changeSL = true;
+         }
+      }
+      if(currentSL > 0.0 && (bid - currentSL) <= targetProximity)
+      {
+         const double tp = NormalizeDouble(openPrice - secureDist, _Digits);
+         if(tp > ask && (currentTP <= 0.0 || tp < currentTP))
+         {
+            newTP = tp;
+            changeTP = true;
+         }
+      }
+   }
+   else if(posType == POSITION_TYPE_SELL)
+   {
+      if(currentTP > 0.0 && (ask - currentTP) <= targetProximity)
+      {
+         const double sl = NormalizeDouble(openPrice - secureDist, _Digits);
+         if(sl > ask && (currentSL <= 0.0 || sl < currentSL))
+         {
+            newSL = sl;
+            changeSL = true;
+         }
+      }
+      if(currentSL > 0.0 && (currentSL - ask) <= targetProximity)
+      {
+         const double tp = NormalizeDouble(openPrice + secureDist, _Digits);
+         if(tp < bid && (currentTP <= 0.0 || tp > currentTP))
+         {
+            newTP = tp;
+            changeTP = true;
+         }
+      }
+   }
+
+   if(!changeSL && !changeTP)
+      return false;
+
+   if(!changeSL)
+      newSL = currentSL;
+   if(!changeTP)
+      newTP = currentTP;
+
+   string reasons = "";
+   if(changeSL)
+      reasons += (reasons != "" ? "; " : "") + "near TP: SL=open" + (posType == POSITION_TYPE_BUY ? "+" : "-") + "0.5pip";
+   if(changeTP)
+      reasons += (reasons != "" ? "; " : "") + "near SL: TP=open" + (posType == POSITION_TYPE_BUY ? "-" : "+") + "0.5pip";
+
+   double distQuoteToTP = 0.0;
+   double distQuoteToSL = 0.0;
+   if(posType == POSITION_TYPE_BUY)
+   {
+      if(currentTP > 0.0)
+         distQuoteToTP = currentTP - bid;
+      if(currentSL > 0.0)
+         distQuoteToSL = bid - currentSL;
+   }
+   else if(posType == POSITION_TYPE_SELL)
+   {
+      if(currentTP > 0.0)
+         distQuoteToTP = ask - currentTP;
+      if(currentSL > 0.0)
+         distQuoteToSL = currentSL - ask;
+   }
+
+   const string sideStr = (posType == POSITION_TYPE_BUY) ? "BUY" : "SELL";
+   const string slWas = (currentSL > 0.0) ? DoubleToString(currentSL, _Digits) : "none";
+   const string tpWas = (currentTP > 0.0) ? DoubleToString(currentTP, _Digits) : "none";
+   Print(StringFormat(
+            "Babysitf_SecurePosition TRY %s ticket=%I64u magic=%I64d sym=%s reasons=[%s] bid=%s ask=%s open=%s | SL %s -> %s | TP %s -> %s | distToTP=%s distToSL=%s | maxDist=%s (3.0 input pips to price) openLegOffset=%s (0.5 input pips to price)",
+            sideStr,
+            ticket,
+            positionMagic,
+            _Symbol,
+            reasons,
+            DoubleToString(bid, _Digits),
+            DoubleToString(ask, _Digits),
+            DoubleToString(ExtPositionInfo.PriceOpen(), _Digits),
+            slWas,
+            DoubleToString(newSL, _Digits),
+            tpWas,
+            DoubleToString(newTP, _Digits),
+            DoubleToString(distQuoteToTP, _Digits),
+            DoubleToString(distQuoteToSL, _Digits),
+            DoubleToString(targetProximity, _Digits),
+            DoubleToString(secureDist, _Digits)));
+
+   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
+   const bool ok = ExtTrade.PositionModify(ticket, newSL, newTP);
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   if(!ok)
+      Print(StringFormat(
+               "Babysitf_SecurePosition FAIL ticket=%I64u retcode=%u %s",
+               ticket,
+               ExtTrade.ResultRetcode(),
+               ExtTrade.ResultRetcodeDescription()));
+   return ok;
+}
+
+//+------------------------------------------------------------------+
+//| Closes the position if the current price is within a specified distance of the TP.
+//| pointsThreshold: e.g. 0.2. Works for both long and short positions.
+//+------------------------------------------------------------------+
+bool Babysitf_CloseForProfit_if_AlmostTP(const long positionMagic, const double pointsThreshold)
+{
+   if(pointsThreshold <= 0.0) return false;
+
+   double currentTP = ExtPositionInfo.TakeProfit();
+   if(currentTP <= 0.0) return false; // Logic requires an active TP to compare against
+
+   ulong ticket = ExtPositionInfo.Ticket();
+   ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
+
+   bool triggerClose = false;
+   if(posType == POSITION_TYPE_BUY)
+   {
+      double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+      // If Bid is at or above (TP - threshold), we are close enough to exit
+      if(bid >= currentTP - pointsThreshold)
+         triggerClose = true;
+   }
+   else if(posType == POSITION_TYPE_SELL)
+   {
+      double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+      // If Ask is at or below (TP + threshold), we are close enough to exit
+      if(ask <= currentTP + pointsThreshold)
+         triggerClose = true;
+   }
+
+   if(!triggerClose) return false;
+
+   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
+   bool result = ExtTrade.PositionClose(ticket);
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   return result;
+}
+
+
 //+------------------------------------------------------------------+
 //| On Timer helper |
 //+------------------------------------------------------------------+
-void BabysitRunAllOpenPositionsForSymbol()
+void Babysitf_RunAllOpenPositionsForSymbol()
 {
    for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
    {
@@ -5322,13 +5641,23 @@ void BabysitRunAllOpenPositionsForSymbol()
       const int variantIdx = FindVariantIndexForCompositeMagic(posMagic);
       if(variantIdx < 0)
          continue;
+
+      // these are checked ALWAYS
+      if(Babysitf_SecurePosition(posMagic))
+         continue;
+      //if(Babysitf_CloseForProfit_if_AlmostTP(posMagic, 1.1))
+      //   continue;
+
+
       if(!g_trade[variantIdx].babysit_enabled)
          continue;
+      // these are checked ONLY if trade has babysit enabled
+
       // Optional profit market-close before SL babysit (profitInputPips → InputPipsToOrderPips × PipSize(), same as TP/SL) — comment out the next 2 lines to disable only this step.
       // if((posMagic, 3.0))
-      //   BabysitTry_CloseForProfitcontinue;
-      // BabysitTryTightenStopsForSelectedPosition(posMagic, g_trade[variantIdx].babysitStart_minute);
-      BabysitTryTightenStopsForSelectedPosition_reversed(posMagic, g_trade[variantIdx].babysitStart_minute);
+      //   Babysitf_Try_CloseForProfitcontinue;
+      // Babysitf_TryTightenStopsForSelectedPosition(posMagic, g_trade[variantIdx].babysitStart_minute);
+      Babysitf_TryTightenStopsForSelectedPosition_reversed(posMagic, g_trade[variantIdx].babysitStart_minute);
 
       //bookmark5 bookmarkbabysit
    }
@@ -5355,8 +5684,8 @@ void OnTimer()
       CloseAnyEAPositionThatIsXMinutesOld(10);
 
    // per open position, if variant has babysit_enabled run BabysitTryTightenStops after babysitStart_minute
-   if(babysit_global_flipper)
-      BabysitRunAllOpenPositionsForSymbol();
+   //if(babysit_global_flipper)
+   Babysitf_RunAllOpenPositionsForSymbol();
 
    RunTimerPendingNearLevelsPipeline();
 
