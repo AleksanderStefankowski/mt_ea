@@ -85,10 +85,10 @@ struct VariantTrade
    int    ruleSubsetId;          // 1..99 → composite slot 3 (%02d)
    int    sessionPdCategory;     // 1..4 → composite slot 4 (MAGIC_IS_ON_AND_PD_GREEN … MAGIC_IS_RTH_AND_PD_RED)
    int    tradeSizePct;
-   double tpPips;                // whole 1..99 only; composite slot 8 (%02d)
-   double slPips;                // whole 1..99 only; composite slot 9 (%02d)
+   double tpPoints;                // whole 1..99 only; composite slot 8 (%02d)
+   double slPoints;                // whole 1..99 only; composite slot 9 (%02d)
    double livePriceDiffTrigger;  // composite slot 5: %02d tenths (0.1..9.9), live-price proximity vs level for pipeline gate
-   double levelOffsetPips;       // composite slot 6: %02d tenths (0.1..9.9), pending offset in input pips → InputPipsToOrderPips
+   double levelOffsetPoints;       // composite slot 6: %02d tenths (0.1..9.9), pending offset in PointSized points
    int    levelProximityFocus;   // TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH
    bool   babysit_enabled;      // if true and babysit_global_flipper, OnTimer may tighten SL for this variant's positions
    int    babysitStart_minute;   // minutes after position open before babysit runs
@@ -112,7 +112,7 @@ struct PendingMaybeCandidate
    int    levelIndexBelow;
    int    levelIndexAbove;
    int    lastBarIndexToday; // kLast = g_barsInDay-1
-   double pendingOffsetPips; // after InputPipsToOrderPips(levelOffsetPips)
+   double pendingOffsetPoints; // g_trade[].levelOffsetPoints (PointSized units → PendingOrderPricesForDirection)
 };
 struct PendingMaybeStage2Candidate
 {
@@ -120,9 +120,9 @@ struct PendingMaybeStage2Candidate
    int    variantIdx;
    long   fullMagic;        // copy from maybe-stage-1 candidate (same value as BuildMagicForVariant(variantIdx))
    double anchorLevelPrice;  // level used for pending anchor (focus / BOTH logic)
-   double pendingOffsetPips;
-   double slPipsNormalized;
-   double tpPipsNormalized;
+   double pendingOffsetPoints; // PointSized points (from stage-1)
+   double slPointsInput;       // g_trade[].slPoints
+   double tpPointsInput;       // g_trade[].tpPoints
 };
 // Resolved level for stage-2 subset rules (focus logic lives here once, not in each subset).
 struct EntryLevelCtx
@@ -167,7 +167,7 @@ Level levels[];
 
 //--- Variant composite magic + B_TradeLog (per-magic filename)
 const long DEFAULT_ORDER_MAGIC = 47001; // restore CTrade magic when not using a variant composite magic
-// Entry: s ≈ spread in price. Buy limit at L=level+off fills when Ask=L; sell stop at L−s triggers when Bid=L−s (same tick if Ask−Bid=s). Sell limit at S=level−off fills when Bid=S; buy stop at S+s triggers when Ask=S+s. SL/TP = pip from order price — no exit spread bump.
+// Entry: s ≈ spread in price. Buy limit at L=level+off fills when Ask=L; sell stop at L−s triggers when Bid=L−s (same tick if Ask−Bid=s). Sell limit at S=level−off fills when Bid=S; buy stop at S+s triggers when Ask=S+s. SL/TP = PointSized points from order price — no exit spread bump.
 const double g_pendingTriggerSymmetrySpread = 0.7;
 
 // Composite magic — digit 1: pending order kind (g_trade[i].tradeDirectionCategory; see MAGIC_TRADE_* / PlacePendingFromMagic).
@@ -198,10 +198,10 @@ const double g_pendingTriggerSymmetrySpread = 0.7;
 #define COMPOSITE_MAGIC_LENGTH_LEVEL_OFFSET  2
 #define COMPOSITE_MAGIC_INDEX_BABYSIT        10
 #define COMPOSITE_MAGIC_LENGTH_BABYSIT       3
-#define COMPOSITE_MAGIC_INDEX_TP_PIPS        13
-#define COMPOSITE_MAGIC_LENGTH_TP_PIPS       2
-#define COMPOSITE_MAGIC_INDEX_SL_PIPS        15
-#define COMPOSITE_MAGIC_LENGTH_SL_PIPS       2
+#define COMPOSITE_MAGIC_INDEX_TP_POINTS        13
+#define COMPOSITE_MAGIC_LENGTH_TP_POINTS       2
+#define COMPOSITE_MAGIC_INDEX_SL_POINTS        15
+#define COMPOSITE_MAGIC_LENGTH_SL_POINTS       2
 
 struct TradeKey
 {
@@ -212,8 +212,8 @@ struct TradeKey
    int triggerTenths;    // 1..99 from %02d (tenths; max 9.9)
    int offsetTenths;
    int babysitEncoded;
-   int tpPipsEncoded;    // 1..99 whole pips
-   int slPipsEncoded;
+   int tpPointsEncoded;    // 1..99 whole points (magic slots 8–9)
+   int slPointsEncoded;
 };
 
 CTrade ExtTrade;
@@ -817,11 +817,11 @@ void GetMFEpAndMAEpForTrade(const TradeResult &tradeResult, double mfe, double m
 }
 
 //+------------------------------------------------------------------+
-//| TP/SL level price for "N" in input pips format (same as order TP/SL: InputPipsToOrderPips(N)*PipSize()). BUY TP = priceStart+dist, SL = priceStart-dist; SELL opposite. |
+//| TP/SL level price for "N" in PointSized points (same distance as pending TP/SL: PointSized(N)). BUY TP = priceStart+dist, SL = priceStart-dist; SELL opposite. |
 //+------------------------------------------------------------------+
 double GetLevelPriceForTPorSL(const TradeResult &tradeResult, int N, bool isTP)
 {
-   double dist = InputPipsToOrderPips((double)N) * PipSize();
+   double dist = PointSized((double)N);
    if(tradeResult.type == (long)DEAL_TYPE_BUY)
       return isTP ? tradeResult.priceStart + dist : tradeResult.priceStart - dist;
    return isTP ? tradeResult.priceStart - dist : tradeResult.priceStart + dist;
@@ -2254,15 +2254,15 @@ int EncodeMagicTwoDigitTenths(double v)
 }
 
 //+------------------------------------------------------------------+
-//| TP/SL in magic: whole pips 1..99 only (no 12.5). |
+//| TP/SL in magic: whole points 1..99 only (no 12.5) — PointSized display units. |
 //+------------------------------------------------------------------+
-int EncodeMagicTpSlWholePips(double pips, string ctxLabel)
+int EncodeMagicTpSlWholePoints(double points, string ctxLabel)
 {
-   if(pips < 1.0 || pips > 99.0)
-      FatalError(StringFormat("%s: pips must be 1..99, got %s", ctxLabel, DoubleToString(pips, 4)));
-   double r = MathRound(pips);
-   if(MathAbs(pips - r) > 1e-5)
-      FatalError(StringFormat("%s: pips must be a whole integer (e.g. 12), got %s", ctxLabel, DoubleToString(pips, 4)));
+   if(points < 1.0 || points > 99.0)
+      FatalError(StringFormat("%s: points must be 1..99, got %s", ctxLabel, DoubleToString(points, 4)));
+   double r = MathRound(points);
+   if(MathAbs(points - r) > 1e-5)
+      FatalError(StringFormat("%s: points must be a whole integer (e.g. 12), got %s", ctxLabel, DoubleToString(points, 4)));
    return (int)r;
 }
 
@@ -2293,19 +2293,19 @@ int EncodeBabysitMagicThreeDigits(bool babysitEnabled, int babysitStartMinute)
 //|   2 = MAGIC_IS_ON_AND_PD_RED     → ON session, PD red. |
 //|   3 = MAGIC_IS_RTH_AND_PD_GREEN  → RTH session, PD green. |
 //|   4 = MAGIC_IS_RTH_AND_PD_RED    → RTH session, PD red. |
-//| Slot 5 (55): live proximity — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9 pip distance gate). |
-//| Slot 6 (66): level offset pips — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9 input pips → order pips). |
+//| Slot 5 (55): live proximity — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9 point distance gate). |
+//| Slot 6 (66): level offset points — %02d tenths via EncodeMagicTwoDigitTenths (0.1..9.9 PointSized points). |
 //| Slot 7 (777) — babysit %03d via EncodeBabysitMagicThreeDigits; off vs on (hundreds digit 7 vs 8): |
 //|   babysit_enabled false → stored numeric 700 → string "700" (off; hundreds digit 7). |
 //|   babysit_enabled true  → 800 + babysitStart_minute (minute 01..99) → "801".."899" (on; hundreds digit 8). |
-//| Slot 8 (88) — take-profit distance as %02d via EncodeMagicTpSlWholePips: whole pips only, 1..99 (no half pips). |
-//|   Encoded value is the rounded integer pip count (e.g. 12.0 → "12" → field "12" zero-padded to width 2). |
-//| Slot 9 (99): SL whole pips %02d, 01..99 (same rules as slot 8; EncodeMagicTpSlWholePips). |
+//| Slot 8 (88) — take-profit distance as %02d via EncodeMagicTpSlWholePoints: whole points only, 1..99 (no half). |
+//|   Encoded value is the rounded integer point count (e.g. 12.0 → "12" → field "12" zero-padded to width 2). |
+//| Slot 9 (99): SL whole points %02d, 01..99 (same rules as slot 8; EncodeMagicTpSlWholePoints). |
 //| Result length = COMPOSITE_MAGIC_STRING_LEN (AssertCompositeMagicDecimalWidthOrFatal). |
 //+------------------------------------------------------------------+
 long BuildBetterMagicNumber(int tradeDirectionCategory, int tradeTypeId, int ruleSubsetId, int sessionPdCategory,
                             double livePriceDiffTrigger, double levelOffsetValue,
-                            bool babysitEnabled, int babysitStartMinute, double tpPips, double slPips)
+                            bool babysitEnabled, int babysitStartMinute, double tpPoints, double slPoints)
 {
    if(tradeDirectionCategory < 1 || tradeDirectionCategory > 4)
       FatalError(StringFormat("BuildBetterMagicNumber: tradeDirectionCategory must be 1..4 (long/short/longRev/shortRev), got %d", tradeDirectionCategory));
@@ -2318,8 +2318,8 @@ long BuildBetterMagicNumber(int tradeDirectionCategory, int tradeTypeId, int rul
    int triLive = EncodeMagicTwoDigitTenths(livePriceDiffTrigger);
    int triLvl  = EncodeMagicTwoDigitTenths(levelOffsetValue);
    int bab = EncodeBabysitMagicThreeDigits(babysitEnabled, babysitStartMinute);
-   int tpEnc = EncodeMagicTpSlWholePips(tpPips, "BuildBetterMagicNumber tpPips");
-   int slEnc = EncodeMagicTpSlWholePips(slPips, "BuildBetterMagicNumber slPips");
+   int tpEnc = EncodeMagicTpSlWholePoints(tpPoints, "BuildBetterMagicNumber tpPoints");
+   int slEnc = EncodeMagicTpSlWholePoints(slPoints, "BuildBetterMagicNumber slPoints");
    string s = StringFormat("%d%02d%02d%d%02d%02d%03d%02d%02d", tradeDirectionCategory, tradeTypeId, ruleSubsetId, sessionPdCategory, triLive, triLvl, bab, tpEnc, slEnc);
    if(StringLen(s) != COMPOSITE_MAGIC_STRING_LEN)
       FatalError(StringFormat("BuildBetterMagicNumber: internal error, string len %d != COMPOSITE_MAGIC_STRING_LEN %d", StringLen(s), COMPOSITE_MAGIC_STRING_LEN));
@@ -2353,8 +2353,8 @@ TradeKey ParseCompositeMagic(long magic)
    k.triggerTenths = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_LIVE_TRIGGER, COMPOSITE_MAGIC_LENGTH_LIVE_TRIGGER));
    k.offsetTenths = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_LEVEL_OFFSET, COMPOSITE_MAGIC_LENGTH_LEVEL_OFFSET));
    k.babysitEncoded = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_BABYSIT, COMPOSITE_MAGIC_LENGTH_BABYSIT));
-   k.tpPipsEncoded = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_TP_PIPS, COMPOSITE_MAGIC_LENGTH_TP_PIPS));
-   k.slPipsEncoded = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_SL_PIPS, COMPOSITE_MAGIC_LENGTH_SL_PIPS));
+   k.tpPointsEncoded = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_TP_POINTS, COMPOSITE_MAGIC_LENGTH_TP_POINTS));
+   k.slPointsEncoded = (int)StringToInteger(StringSubstr(s, COMPOSITE_MAGIC_INDEX_SL_POINTS, COMPOSITE_MAGIC_LENGTH_SL_POINTS));
    return k;
 }
 
@@ -2402,16 +2402,16 @@ void SyncTradeVariantsFromInputs() // bookmark1tradebegin
 {  
 
 // encoding input magic: 10207335267000808
-g_trade[0].enabled = false;
+g_trade[0].enabled = true;
 g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[0].tradeTypeId              = 2;
 g_trade[0].ruleSubsetId             = 7;
 g_trade[0].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[0].tradeSizePct             = 100;
-g_trade[0].tpPips                   = 8.0;
-g_trade[0].slPips                   = 8.0;
+g_trade[0].tpPoints                   = 8.0;
+g_trade[0].slPoints                   = 8.0;
 g_trade[0].livePriceDiffTrigger     = 3.5;
-g_trade[0].levelOffsetPips          = 2.6;
+g_trade[0].levelOffsetPoints          = 2.6;
 g_trade[0].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[0].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[0].babysit_enabled          = false;
@@ -2419,16 +2419,16 @@ g_trade[0].babysitStart_minute      = 0;
 
 
 // encoding input magic: 10201330267000808
-g_trade[1].enabled = false;
+g_trade[1].enabled = true;
 g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[1].tradeTypeId              = 2;
 g_trade[1].ruleSubsetId             = 1;
 g_trade[1].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[1].tradeSizePct             = 100;
-g_trade[1].tpPips                   = 8.0;
-g_trade[1].slPips                   = 8.0;
+g_trade[1].tpPoints                   = 8.0;
+g_trade[1].slPoints                   = 8.0;
 g_trade[1].livePriceDiffTrigger     = 3.0;
-g_trade[1].levelOffsetPips          = 2.6;
+g_trade[1].levelOffsetPoints          = 2.6;
 g_trade[1].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[1].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[1].babysit_enabled          = false;
@@ -2436,16 +2436,16 @@ g_trade[1].babysitStart_minute      = 0;
 
 
 // encoding input magic: 40103130267000808
-g_trade[2].enabled = false;
+g_trade[2].enabled = true;
 g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
 g_trade[2].tradeTypeId              = 1;
 g_trade[2].ruleSubsetId             = 3;
 g_trade[2].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
 g_trade[2].tradeSizePct             = 100;
-g_trade[2].tpPips                   = 8.0;
-g_trade[2].slPips                   = 8.0;
+g_trade[2].tpPoints                   = 8.0;
+g_trade[2].slPoints                   = 8.0;
 g_trade[2].livePriceDiffTrigger     = 3.0;
-g_trade[2].levelOffsetPips          = 2.6;
+g_trade[2].levelOffsetPoints          = 2.6;
 g_trade[2].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[2].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[2].babysit_enabled          = false;
@@ -2453,16 +2453,16 @@ g_trade[2].babysitStart_minute      = 0;
 
 
 // encoding input magic: 10201330267001010
-g_trade[3].enabled = false;
+g_trade[3].enabled = true;
 g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[3].tradeTypeId              = 2;
 g_trade[3].ruleSubsetId             = 1;
 g_trade[3].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[3].tradeSizePct             = 100;
-g_trade[3].tpPips                   = 10.0;
-g_trade[3].slPips                   = 10.0;
+g_trade[3].tpPoints                   = 10.0;
+g_trade[3].slPoints                   = 10.0;
 g_trade[3].livePriceDiffTrigger     = 3.0;
-g_trade[3].levelOffsetPips          = 2.6;
+g_trade[3].levelOffsetPoints          = 2.6;
 g_trade[3].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[3].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[3].babysit_enabled          = false;
@@ -2470,16 +2470,16 @@ g_trade[3].babysitStart_minute      = 0;
 
 
 // encoding input magic: 10201335318110808
-g_trade[4].enabled = false;
+g_trade[4].enabled = true;
 g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[4].tradeTypeId              = 2;
 g_trade[4].ruleSubsetId             = 1;
 g_trade[4].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[4].tradeSizePct             = 100;
-g_trade[4].tpPips                   = 8.0;
-g_trade[4].slPips                   = 8.0;
+g_trade[4].tpPoints                   = 8.0;
+g_trade[4].slPoints                   = 8.0;
 g_trade[4].livePriceDiffTrigger     = 3.5;
-g_trade[4].levelOffsetPips          = 3.1;
+g_trade[4].levelOffsetPoints          = 3.1;
 g_trade[4].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[4].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[4].babysit_enabled          = true;
@@ -2487,16 +2487,16 @@ g_trade[4].babysitStart_minute      = 11;
 
 
 // encoding input magic: 10204335267000808
-g_trade[5].enabled = false;
+g_trade[5].enabled = true;
 g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[5].tradeTypeId              = 2;
 g_trade[5].ruleSubsetId             = 4;
 g_trade[5].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[5].tradeSizePct             = 100;
-g_trade[5].tpPips                   = 8.0;
-g_trade[5].slPips                   = 8.0;
+g_trade[5].tpPoints                   = 8.0;
+g_trade[5].slPoints                   = 8.0;
 g_trade[5].livePriceDiffTrigger     = 3.5;
-g_trade[5].levelOffsetPips          = 2.6;
+g_trade[5].levelOffsetPoints          = 2.6;
 g_trade[5].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[5].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[5].babysit_enabled          = false;
@@ -2504,16 +2504,16 @@ g_trade[5].babysitStart_minute      = 0;
 
 
 // encoding input magic: 10205335267000808
-g_trade[6].enabled = false;
+g_trade[6].enabled = true;
 g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[6].tradeTypeId              = 2;
 g_trade[6].ruleSubsetId             = 5;
 g_trade[6].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[6].tradeSizePct             = 100;
-g_trade[6].tpPips                   = 8.0;
-g_trade[6].slPips                   = 8.0;
+g_trade[6].tpPoints                   = 8.0;
+g_trade[6].slPoints                   = 8.0;
 g_trade[6].livePriceDiffTrigger     = 3.5;
-g_trade[6].levelOffsetPips          = 2.6;
+g_trade[6].levelOffsetPoints          = 2.6;
 g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[6].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[6].babysit_enabled          = false;
@@ -2521,16 +2521,16 @@ g_trade[6].babysitStart_minute      = 0;
 
 
 // encoding input magic: 10208335267000808
-g_trade[7].enabled = false;
+g_trade[7].enabled = true;
 g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[7].tradeTypeId              = 2;
 g_trade[7].ruleSubsetId             = 8;
 g_trade[7].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[7].tradeSizePct             = 100;
-g_trade[7].tpPips                   = 8.0;
-g_trade[7].slPips                   = 8.0;
+g_trade[7].tpPoints                   = 8.0;
+g_trade[7].slPoints                   = 8.0;
 g_trade[7].livePriceDiffTrigger     = 3.5;
-g_trade[7].levelOffsetPips          = 2.6;
+g_trade[7].levelOffsetPoints          = 2.6;
 g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[7].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[7].babysit_enabled          = false;
@@ -2538,16 +2538,16 @@ g_trade[7].babysitStart_minute      = 0;
 
 
 // encoding input magic: 40102230267000808
-g_trade[8].enabled = false;
+g_trade[8].enabled = true;
 g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
 g_trade[8].tradeTypeId              = 1;
 g_trade[8].ruleSubsetId             = 2;
 g_trade[8].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
 g_trade[8].tradeSizePct             = 100;
-g_trade[8].tpPips                   = 8.0;
-g_trade[8].slPips                   = 8.0;
+g_trade[8].tpPoints                   = 8.0;
+g_trade[8].slPoints                   = 8.0;
 g_trade[8].livePriceDiffTrigger     = 3.0;
-g_trade[8].levelOffsetPips          = 2.6;
+g_trade[8].levelOffsetPoints          = 2.6;
 g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[8].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[8].babysit_enabled          = false;
@@ -2555,16 +2555,16 @@ g_trade[8].babysitStart_minute      = 0;
 
 
 // encoding input magic: 10206335267000808
-g_trade[9].enabled = false;
+g_trade[9].enabled = true;
 g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG;
 g_trade[9].tradeTypeId              = 2;
 g_trade[9].ruleSubsetId             = 6;
 g_trade[9].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[9].tradeSizePct             = 100;
-g_trade[9].tpPips                   = 8.0;
-g_trade[9].slPips                   = 8.0;
+g_trade[9].tpPoints                   = 8.0;
+g_trade[9].slPoints                   = 8.0;
 g_trade[9].livePriceDiffTrigger     = 3.5;
-g_trade[9].levelOffsetPips          = 2.6;
+g_trade[9].levelOffsetPoints          = 2.6;
 g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[9].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[9].babysit_enabled          = false;
@@ -2572,16 +2572,16 @@ g_trade[9].babysitStart_minute      = 0;
 
 
 // encoding input magic: 20107430268060808
-g_trade[10].enabled = false;
+g_trade[10].enabled = true;
 g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
 g_trade[10].tradeTypeId              = 1;
 g_trade[10].ruleSubsetId             = 7;
 g_trade[10].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
 g_trade[10].tradeSizePct             = 100;
-g_trade[10].tpPips                   = 8.0;
-g_trade[10].slPips                   = 8.0;
+g_trade[10].tpPoints                   = 8.0;
+g_trade[10].slPoints                   = 8.0;
 g_trade[10].livePriceDiffTrigger     = 3.0;
-g_trade[10].levelOffsetPips          = 2.6;
+g_trade[10].levelOffsetPoints          = 2.6;
 g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[10].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[10].babysit_enabled          = true;
@@ -2589,16 +2589,16 @@ g_trade[10].babysitStart_minute      = 6;
 
 
 // encoding input magic: 20103430267000808
-g_trade[11].enabled = false;
+g_trade[11].enabled = true;
 g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
 g_trade[11].tradeTypeId              = 1;
 g_trade[11].ruleSubsetId             = 3;
 g_trade[11].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
 g_trade[11].tradeSizePct             = 100;
-g_trade[11].tpPips                   = 8.0;
-g_trade[11].slPips                   = 8.0;
+g_trade[11].tpPoints                   = 8.0;
+g_trade[11].slPoints                   = 8.0;
 g_trade[11].livePriceDiffTrigger     = 3.0;
-g_trade[11].levelOffsetPips          = 2.6;
+g_trade[11].levelOffsetPoints          = 2.6;
 g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[11].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[11].babysit_enabled          = false;
@@ -2606,16 +2606,16 @@ g_trade[11].babysitStart_minute      = 0;
 
 
 // encoding input magic: 20112430267000808
-g_trade[12].enabled = false;
+g_trade[12].enabled = true;
 g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
 g_trade[12].tradeTypeId              = 1;
 g_trade[12].ruleSubsetId             = 12;
 g_trade[12].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
 g_trade[12].tradeSizePct             = 100;
-g_trade[12].tpPips                   = 8.0;
-g_trade[12].slPips                   = 8.0;
+g_trade[12].tpPoints                   = 8.0;
+g_trade[12].slPoints                   = 8.0;
 g_trade[12].livePriceDiffTrigger     = 3.0;
-g_trade[12].levelOffsetPips          = 2.6;
+g_trade[12].levelOffsetPoints          = 2.6;
 g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[12].babysit_enabled          = false;
@@ -2629,10 +2629,10 @@ g_trade[13].tradeTypeId              = 1;
 g_trade[13].ruleSubsetId             = 13;
 g_trade[13].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
 g_trade[13].tradeSizePct             = 100;
-g_trade[13].tpPips                   = 6.0;
-g_trade[13].slPips                   = 6.0;
+g_trade[13].tpPoints                   = 6.0;
+g_trade[13].slPoints                   = 6.0;
 g_trade[13].livePriceDiffTrigger     = 3.5;
-g_trade[13].levelOffsetPips          = 2.1;
+g_trade[13].levelOffsetPoints          = 2.1;
 g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[13].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[13].babysit_enabled          = false;
@@ -2646,10 +2646,10 @@ g_trade[14].tradeTypeId              = 1;
 g_trade[14].ruleSubsetId             = 13;
 g_trade[14].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
 g_trade[14].tradeSizePct             = 100;
-g_trade[14].tpPips                   = 6.0;
-g_trade[14].slPips                   = 6.0;
+g_trade[14].tpPoints                   = 6.0;
+g_trade[14].slPoints                   = 6.0;
 g_trade[14].livePriceDiffTrigger     = 3.5;
-g_trade[14].levelOffsetPips          = 2.1;
+g_trade[14].levelOffsetPoints          = 2.1;
 g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[14].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[14].babysit_enabled          = false;
@@ -2663,10 +2663,10 @@ g_trade[15].tradeTypeId              = 1;
 g_trade[15].ruleSubsetId             = 13;
 g_trade[15].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[15].tradeSizePct             = 100;
-g_trade[15].tpPips                   = 6.0;
-g_trade[15].slPips                   = 6.0;
+g_trade[15].tpPoints                   = 6.0;
+g_trade[15].slPoints                   = 6.0;
 g_trade[15].livePriceDiffTrigger     = 3.5;
-g_trade[15].levelOffsetPips          = 2.1;
+g_trade[15].levelOffsetPoints          = 2.1;
 g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[15].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[15].babysit_enabled          = false;
@@ -2680,10 +2680,10 @@ g_trade[16].tradeTypeId              = 1;
 g_trade[16].ruleSubsetId             = 13;
 g_trade[16].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
 g_trade[16].tradeSizePct             = 100;
-g_trade[16].tpPips                   = 6.0;
-g_trade[16].slPips                   = 6.0;
+g_trade[16].tpPoints                   = 6.0;
+g_trade[16].slPoints                   = 6.0;
 g_trade[16].livePriceDiffTrigger     = 3.5;
-g_trade[16].levelOffsetPips          = 2.1;
+g_trade[16].levelOffsetPoints          = 2.1;
 g_trade[16].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[16].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[16].babysit_enabled          = false;
@@ -2696,10 +2696,10 @@ g_trade[17].tradeTypeId              = 1;
 g_trade[17].ruleSubsetId             = 13;
 g_trade[17].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
 g_trade[17].tradeSizePct             = 100;
-g_trade[17].tpPips                   = 6.0;
-g_trade[17].slPips                   = 6.0;
+g_trade[17].tpPoints                   = 6.0;
+g_trade[17].slPoints                   = 6.0;
 g_trade[17].livePriceDiffTrigger     = 3.5;
-g_trade[17].levelOffsetPips          = 2.1;
+g_trade[17].levelOffsetPoints          = 2.1;
 g_trade[17].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[17].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[17].babysit_enabled          = false;
@@ -2713,10 +2713,10 @@ g_trade[18].tradeTypeId              = 1;
 g_trade[18].ruleSubsetId             = 13;
 g_trade[18].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
 g_trade[18].tradeSizePct             = 100;
-g_trade[18].tpPips                   = 6.0;
-g_trade[18].slPips                   = 6.0;
+g_trade[18].tpPoints                   = 6.0;
+g_trade[18].slPoints                   = 6.0;
 g_trade[18].livePriceDiffTrigger     = 3.5;
-g_trade[18].levelOffsetPips          = 2.1;
+g_trade[18].levelOffsetPoints          = 2.1;
 g_trade[18].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[18].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[18].babysit_enabled          = false;
@@ -2730,10 +2730,10 @@ g_trade[19].tradeTypeId              = 1;
 g_trade[19].ruleSubsetId             = 13;
 g_trade[19].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[19].tradeSizePct             = 100;
-g_trade[19].tpPips                   = 6.0;
-g_trade[19].slPips                   = 6.0;
+g_trade[19].tpPoints                   = 6.0;
+g_trade[19].slPoints                   = 6.0;
 g_trade[19].livePriceDiffTrigger     = 3.5;
-g_trade[19].levelOffsetPips          = 2.1;
+g_trade[19].levelOffsetPoints          = 2.1;
 g_trade[19].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[19].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[19].babysit_enabled          = false;
@@ -2747,16 +2747,64 @@ g_trade[20].tradeTypeId              = 1;
 g_trade[20].ruleSubsetId             = 13;
 g_trade[20].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
 g_trade[20].tradeSizePct             = 100;
-g_trade[20].tpPips                   = 6.0;
-g_trade[20].slPips                   = 6.0;
+g_trade[20].tpPoints                   = 6.0;
+g_trade[20].slPoints                   = 6.0;
 g_trade[20].livePriceDiffTrigger     = 3.5;
-g_trade[20].levelOffsetPips          = 2.1;
+g_trade[20].levelOffsetPoints          = 2.1;
 g_trade[20].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
 g_trade[20].bannedRanges = "22,0,23,59;0,0,1,0";
 g_trade[20].babysit_enabled          = false;
 g_trade[20].babysitStart_minute      = 0;
 
+// encoding input magic: 20114435217000606
+g_trade[21].enabled                  = true;
+g_trade[21].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[21].tradeTypeId              = 1;
+g_trade[21].ruleSubsetId             = 14;
+g_trade[21].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[21].tradeSizePct             = 100;
+g_trade[21].tpPoints                 = 6.0;
+g_trade[21].slPoints                 = 6.0;
+g_trade[21].livePriceDiffTrigger     = 3.5;
+g_trade[21].levelOffsetPoints        = 2.1;
+g_trade[21].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[21].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[21].babysit_enabled          = false;
+g_trade[21].babysitStart_minute      = 0;
 
+
+// encoding input magic: 40106135217000606
+g_trade[22].enabled                  = true;
+g_trade[22].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[22].tradeTypeId              = 1;
+g_trade[22].ruleSubsetId             = 6;
+g_trade[22].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[22].tradeSizePct             = 100;
+g_trade[22].tpPoints                 = 6.0;
+g_trade[22].slPoints                 = 6.0;
+g_trade[22].livePriceDiffTrigger     = 3.5;
+g_trade[22].levelOffsetPoints        = 2.1;
+g_trade[22].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[22].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[22].babysit_enabled          = false;
+g_trade[22].babysitStart_minute      = 0;
+
+
+// encoding input magic: 40107235217000606
+g_trade[23].enabled                  = true;
+g_trade[23].tradeDirectionCategory   = MAGIC_TRADE_SHORT_REVERSED;
+g_trade[23].tradeTypeId              = 1;
+g_trade[23].ruleSubsetId             = 7;
+g_trade[23].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[23].tradeSizePct             = 100;
+g_trade[23].tpPoints                 = 6.0;
+g_trade[23].slPoints                 = 6.0;
+g_trade[23].livePriceDiffTrigger     = 3.5;
+g_trade[23].levelOffsetPoints        = 2.1;
+g_trade[23].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[23].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[23].babysit_enabled          = false;
+g_trade[23].babysitStart_minute      = 0;
 
 
 //bookmark2tradeend
@@ -2789,9 +2837,9 @@ long BuildMagicForVariant(int variantIdx)
                                  g_trade[variantIdx].tradeTypeId,
                                  g_trade[variantIdx].ruleSubsetId,
                                  g_trade[variantIdx].sessionPdCategory,
-                                 g_trade[variantIdx].livePriceDiffTrigger, g_trade[variantIdx].levelOffsetPips,
+                                 g_trade[variantIdx].livePriceDiffTrigger, g_trade[variantIdx].levelOffsetPoints,
                                  g_trade[variantIdx].babysit_enabled, g_trade[variantIdx].babysitStart_minute,
-                                 g_trade[variantIdx].tpPips, g_trade[variantIdx].slPips);
+                                 g_trade[variantIdx].tpPoints, g_trade[variantIdx].slPoints);
 }
 
 //+------------------------------------------------------------------+
@@ -2837,16 +2885,16 @@ void ValidateMagicCompositionOnInit()
          FatalError(StringFormat("g_trade[%d].sessionPdCategory must be 1..4 (MAGIC_IS_ON_AND_PD_GREEN … MAGIC_IS_RTH_AND_PD_RED)", variantIdx));
       if(g_trade[variantIdx].livePriceDiffTrigger < 0.1 || g_trade[variantIdx].livePriceDiffTrigger > 9.9)
          FatalError(StringFormat("g_trade[%d].livePriceDiffTrigger must be 0.1..9.9 (two-digit tenths field in composite)", variantIdx));
-      if(g_trade[variantIdx].levelOffsetPips < 0.1 || g_trade[variantIdx].levelOffsetPips > 9.9)
-         FatalError(StringFormat("g_trade[%d].levelOffsetPips must be 0.1..9.9 (two-digit tenths field in composite)", variantIdx));
-      if(g_trade[variantIdx].tpPips < 1.0 || g_trade[variantIdx].tpPips > 99.0)
-         FatalError(StringFormat("g_trade[%d].tpPips must be 1..99", variantIdx));
-      if(MathAbs(g_trade[variantIdx].tpPips - MathRound(g_trade[variantIdx].tpPips)) > 1e-5)
-         FatalError(StringFormat("g_trade[%d].tpPips must be a whole integer (e.g. 12), not fractional", variantIdx));
-      if(g_trade[variantIdx].slPips < 1.0 || g_trade[variantIdx].slPips > 99.0)
-         FatalError(StringFormat("g_trade[%d].slPips must be 1..99", variantIdx));
-      if(MathAbs(g_trade[variantIdx].slPips - MathRound(g_trade[variantIdx].slPips)) > 1e-5)
-         FatalError(StringFormat("g_trade[%d].slPips must be a whole integer (e.g. 12), not fractional", variantIdx));
+      if(g_trade[variantIdx].levelOffsetPoints < 0.1 || g_trade[variantIdx].levelOffsetPoints > 9.9)
+         FatalError(StringFormat("g_trade[%d].levelOffsetPoints must be 0.1..9.9 (two-digit tenths field in composite)", variantIdx));
+      if(g_trade[variantIdx].tpPoints < 1.0 || g_trade[variantIdx].tpPoints > 99.0)
+         FatalError(StringFormat("g_trade[%d].tpPoints must be 1..99", variantIdx));
+      if(MathAbs(g_trade[variantIdx].tpPoints - MathRound(g_trade[variantIdx].tpPoints)) > 1e-5)
+         FatalError(StringFormat("g_trade[%d].tpPoints must be a whole integer (e.g. 12), not fractional", variantIdx));
+      if(g_trade[variantIdx].slPoints < 1.0 || g_trade[variantIdx].slPoints > 99.0)
+         FatalError(StringFormat("g_trade[%d].slPoints must be 1..99", variantIdx));
+      if(MathAbs(g_trade[variantIdx].slPoints - MathRound(g_trade[variantIdx].slPoints)) > 1e-5)
+         FatalError(StringFormat("g_trade[%d].slPoints must be a whole integer (e.g. 12), not fractional", variantIdx));
       if(g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_BELOW &&
          g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_ABOVE &&
          g_trade[variantIdx].levelProximityFocus != TRADE_LEVEL_FOCUS_BOTH)
@@ -2874,22 +2922,22 @@ void ValidateMagicCompositionOnInit()
       if(parsedKey.sessionPd != g_trade[variantIdx].sessionPdCategory)
          FatalError(StringFormat("ParseCompositeMagic: sessionPd mismatch vs g_trade[%d].sessionPdCategory", variantIdx));
       int expectedTriggerTenths = EncodeMagicTwoDigitTenths(g_trade[variantIdx].livePriceDiffTrigger);
-      int expectedOffsetTenths = EncodeMagicTwoDigitTenths(g_trade[variantIdx].levelOffsetPips);
+      int expectedOffsetTenths = EncodeMagicTwoDigitTenths(g_trade[variantIdx].levelOffsetPoints);
       if(parsedKey.triggerTenths != expectedTriggerTenths)
          FatalError(StringFormat("ParseCompositeMagic: trigger block mismatch vs g_trade[%d].livePriceDiffTrigger", variantIdx));
       if(parsedKey.offsetTenths != expectedOffsetTenths)
-         FatalError(StringFormat("ParseCompositeMagic: offset block mismatch vs g_trade[%d].levelOffsetPips", variantIdx));
+         FatalError(StringFormat("ParseCompositeMagic: offset block mismatch vs g_trade[%d].levelOffsetPoints", variantIdx));
       int expectBabysit = 700;
       if(g_trade[variantIdx].babysit_enabled)
          expectBabysit = 800 + g_trade[variantIdx].babysitStart_minute;
       if(parsedKey.babysitEncoded != expectBabysit)
          FatalError(StringFormat("ParseCompositeMagic: babysit block mismatch vs g_trade[%d] (encoded %d, expected %d)", variantIdx, parsedKey.babysitEncoded, expectBabysit));
-      int expectTp = (int)MathRound(g_trade[variantIdx].tpPips);
-      int expectSl = (int)MathRound(g_trade[variantIdx].slPips);
-      if(parsedKey.tpPipsEncoded != expectTp)
-         FatalError(StringFormat("ParseCompositeMagic: TP pips mismatch vs g_trade[%d].tpPips", variantIdx));
-      if(parsedKey.slPipsEncoded != expectSl)
-         FatalError(StringFormat("ParseCompositeMagic: SL pips mismatch vs g_trade[%d].slPips", variantIdx));
+      int expectTp = (int)MathRound(g_trade[variantIdx].tpPoints);
+      int expectSl = (int)MathRound(g_trade[variantIdx].slPoints);
+      if(parsedKey.tpPointsEncoded != expectTp)
+         FatalError(StringFormat("ParseCompositeMagic: TP points mismatch vs g_trade[%d].tpPoints", variantIdx));
+      if(parsedKey.slPointsEncoded != expectSl)
+         FatalError(StringFormat("ParseCompositeMagic: SL points mismatch vs g_trade[%d].slPoints", variantIdx));
    }
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
@@ -3092,7 +3140,7 @@ double GetONwinRate(int barIdx)
 }
 
 //+------------------------------------------------------------------+
-//| True if g_liveBid is within maxDistPoints of levelPrice (points, not pips). |
+//| True if g_liveBid is within maxDistPoints of levelPrice (raw price distance, not PointSized). |
 //+------------------------------------------------------------------+
 bool IsLivePriceNearLevel(double levelPrice, double maxDistPoints)
 {
@@ -3259,34 +3307,37 @@ string BuildUnifiedOrderComment(double levelPrice, double takeProfitVal, double 
 
 //+------------------------------------------------------------------+
 //| Single source: pending order price, SL, TP for MAGIC_TRADE_* direction (Place*AtLevel + WriteTradeLogPendingOrder). |
+//| offsetPoints, slPoints, tpPoints: same units as g_trade (PointSized points); price via PointSized only. |
 //+------------------------------------------------------------------+
-void PendingOrderPricesForDirection(const int direction, const double levelPrice, const double offsetPips, const double slPips, const double tpPips,
+void PendingOrderPricesForDirection(const int direction, const double levelPrice, const double offsetPoints, const double slPoints, const double tpPoints,
    double &outOrderPrice, double &outStopLoss, double &outTakeProfit)
 {
-   double pip = PipSize();
+   const double offPx = PointSized(offsetPoints);
+   const double slPx = PointSized(slPoints);
+   const double tpPx = PointSized(tpPoints);
    const double spr = g_pendingTriggerSymmetrySpread;
    switch(direction)
    {
       case MAGIC_TRADE_LONG:
-         outOrderPrice = NormalizeDouble(levelPrice + offsetPips * pip, _Digits);
-         outStopLoss = NormalizeDouble(outOrderPrice - slPips * pip, _Digits);
-         outTakeProfit = NormalizeDouble(outOrderPrice + tpPips * pip, _Digits);
+         outOrderPrice = NormalizeDouble(levelPrice + offPx, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice - slPx, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice + tpPx, _Digits);
          return;
       case MAGIC_TRADE_SHORT:
-         outOrderPrice = NormalizeDouble(levelPrice - offsetPips * pip, _Digits);
-         outStopLoss = NormalizeDouble(outOrderPrice + slPips * pip, _Digits);
-         outTakeProfit = NormalizeDouble(outOrderPrice - tpPips * pip, _Digits);
+         outOrderPrice = NormalizeDouble(levelPrice - offPx, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice + slPx, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice - tpPx, _Digits);
          return;
       case MAGIC_TRADE_LONG_REVERSED:
-         outOrderPrice = NormalizeDouble(levelPrice + offsetPips * pip - spr, _Digits);
-         outStopLoss = NormalizeDouble(outOrderPrice +0.0 + slPips * pip, _Digits);
-         outTakeProfit = NormalizeDouble(outOrderPrice +0.0 - tpPips * pip, _Digits);
+         outOrderPrice = NormalizeDouble(levelPrice + offPx - spr, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice +0.0 + slPx, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice +0.0 - tpPx, _Digits);
          return;
       case MAGIC_TRADE_SHORT_REVERSED:
          // diff często to 0.1 od short-not-reversed, ale czasem są oszukane spikes i oba trejdy przegrywają.
-         outOrderPrice = NormalizeDouble(levelPrice - offsetPips * pip + spr, _Digits);
-         outStopLoss = NormalizeDouble(outOrderPrice -0.0  - tpPips * pip, _Digits);
-         outTakeProfit = NormalizeDouble(outOrderPrice  -0.0  + slPips * pip, _Digits);
+         outOrderPrice = NormalizeDouble(levelPrice - offPx + spr, _Digits);
+         outStopLoss = NormalizeDouble(outOrderPrice -0.0  - tpPx, _Digits);
+         outTakeProfit = NormalizeDouble(outOrderPrice  -0.0  + slPx, _Digits);
          return;
       default:
          FatalError(StringFormat("PendingOrderPricesForDirection: invalid direction %d (expected %d..%d)",
@@ -3297,7 +3348,7 @@ void PendingOrderPricesForDirection(const int direction, const double levelPrice
 //+------------------------------------------------------------------+
 //| After PlacePendingFromMagic returned true: log pending_created (order kind + prices match Place*). |
 //+------------------------------------------------------------------+
-void WriteTradeLogPendingOrder(double levelPrice, double offsetPips, double slPips, double tpPips, long magic)
+void WriteTradeLogPendingOrder(double levelPrice, double offsetPoints, double slPoints, double tpPoints, long magic)
 {
    string magicStrForLogFilename = IsVariantTradeCompositeMagic(magic) ? MagicNumberToFixedWidthString(magic) : "";
    ulong orderTicket = ExtTrade.ResultOrder();
@@ -3318,7 +3369,7 @@ void WriteTradeLogPendingOrder(double levelPrice, double offsetPips, double slPi
    double orderPrice = 0.0;
    double stopLossVal = 0.0;
    double takeProfitVal = 0.0;
-   PendingOrderPricesForDirection(dir, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
+   PendingOrderPricesForDirection(dir, levelPrice, offsetPoints, slPoints, tpPoints, orderPrice, stopLossVal, takeProfitVal);
    string orderComment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    WriteTradeLog(magicStrForLogFilename, "pending_created", eventTime, orderKind, orderPrice, stopLossVal, takeProfitVal, 30, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
 }
@@ -4174,6 +4225,84 @@ bool Subset_20113(double levelPx, int levelIdx, int kLast)
 
 
 
+bool Subset_20114_from20113(double levelPx, int levelIdx, int kLast) // 20114435217000606
+{
+
+   if(!Gate_Day_HasGapUp_is_TOTEST()) return false;
+
+   string levelCats;
+   GetLevelCategories(DoubleToString(levelPx, _Digits), levelCats);
+   string weekdays[2];
+   weekdays[0] = "thursday";
+   weekdays[1] = "friday";
+   if(!Gate_LevelCategoriesContain_CategorySubstring(weekdays, levelCats)) return false;
+   
+   // if(Gate_Level_AbovePDH(levelPx)) return false;
+
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+
+   //const int exclusiveMaxCandlesLowAboveLevel = 15;
+   //if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40106_from20113(double levelPx, int levelIdx, int kLast) 
+{
+   // if(Gate_Level_AbovePDH(levelPx)) return false;
+
+   if(!Gate_Level_TagSimplified_is(levelIdx, "down")) return false;
+
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+
+   //const int exclusiveMaxCandlesLowAboveLevel = 15;
+   //if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_40107_from20113(double levelPx, int levelIdx, int kLast) 
+{
+   // if(Gate_Level_AbovePDH(levelPx)) return false;
+
+   if(!Gate_Day_DayBrokePDL_atBar_TOTEST(kLast)) return false;
+
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+
+   //const int exclusiveMaxCandlesLowAboveLevel = 15;
+   //if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+
 bool Subset_20201(double levelPx, int levelIdx, int kLast)
 {
    //clean streak 11 udowadnia że cena było czysto poniżej levela niedawno	
@@ -4313,8 +4442,6 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
    if(subsetHandlerKey == 40102)
       return Subset_40102(levelPx, levelIdx, kLast);
 
-   if(subsetHandlerKey == 20106)
-      return Subset_20106(levelPx, levelIdx, kLast);
    if(subsetHandlerKey == 20107)
       return Subset_20107(levelPx, levelIdx, kLast);
    if(subsetHandlerKey == 20108)
@@ -4328,6 +4455,13 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
 
    if(subsetHandlerKey == 20113 || subsetHandlerKey == 40113)
       return Subset_20113(levelPx, levelIdx, kLast);
+   
+   if(subsetHandlerKey == 20114)
+      return Subset_20114_from20113(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 40106)
+      return Subset_40106_from20113(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 40107)
+      return Subset_40107_from20113(levelPx, levelIdx, kLast); 
 
    if(subsetHandlerKey == 40103)
       return Subset_40103(levelPx, levelIdx, kLast);
@@ -4395,7 +4529,7 @@ void LogPreOrderContext(long magic, double levelPrice, double orderPrice, string
    int variantIdx = FindVariantIndexForCompositeMagic(magic);
    string offsetStr = "N/A";
    if(variantIdx != -1)
-      offsetStr = DoubleToString(g_trade[variantIdx].levelOffsetPips, 1);
+      offsetStr = DoubleToString(g_trade[variantIdx].levelOffsetPoints, 1);
 
    Print(StringFormat("Attempting %s Magic=%s Level=%s Offset=%s OrderPrice=%s ExpMin=%d Bid=%s Ask=%s StreakAbove=%d StreakBelow=%d",
          type, IntegerToString(magic), DoubleToString(levelPrice, _Digits), offsetStr, DoubleToString(orderPrice, _Digits), expirationMin,
@@ -4404,13 +4538,13 @@ void LogPreOrderContext(long magic, double levelPrice, double orderPrice, string
 }
 
 //+------------------------------------------------------------------+
-//| Place a buy-limit at level with given pips and expiration. Sets magic then restores DEFAULT_ORDER_MAGIC. Returns true if order sent successfully. |
+//| Place a buy-limit at level with given PointSized offsets and expiration. Sets magic then restores DEFAULT_ORDER_MAGIC. Returns true if order sent successfully. |
 //+------------------------------------------------------------------+
-bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
+bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot, long magic)
 {
-   if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
+   if(maemfe_testing) { tpPoints = 3000.0; slPoints = 3000.0; }
    double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
-   PendingOrderPricesForDirection(MAGIC_TRADE_LONG, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
+   PendingOrderPricesForDirection(MAGIC_TRADE_LONG, levelPrice, offsetPoints, slPoints, tpPoints, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "BuyLimit", expirationMin);
@@ -4423,11 +4557,11 @@ bool PlaceBuyLimitAtLevel(double levelPrice, double offsetPips, double slPips, d
 //+------------------------------------------------------------------+
 //| Sell limit: level − offset; SL above, TP below (no exit spread bump). |
 //+------------------------------------------------------------------+
-bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
+bool PlaceSellLimitAtLevel(double levelPrice, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot, long magic)
 {
-   if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
+   if(maemfe_testing) { tpPoints = 3000.0; slPoints = 3000.0; }
    double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
-   PendingOrderPricesForDirection(MAGIC_TRADE_SHORT, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
+   PendingOrderPricesForDirection(MAGIC_TRADE_SHORT, levelPrice, offsetPoints, slPoints, tpPoints, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "SellLimit", expirationMin);
@@ -4441,11 +4575,11 @@ bool PlaceSellLimitAtLevel(double levelPrice, double offsetPips, double slPips, 
 //| Sell stop at (level+off)−s: triggers on Bid; pairs buy limit at level+off (Ask). SL/TP from ref = orderPrice+s (= limit+off), same absolute prices as Buy Limit SL/TP. |
 //| Short risk: SL above entry, TP below. NOTE: MT5 requires pending SellStop price < Bid; if entry ends up above Bid, placement may fail (then SellLimit is the usual fix). |
 //+------------------------------------------------------------------+
-bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
+bool PlaceSellStopAtLevel(double levelPrice, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot, long magic)
 {
-   if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
+   if(maemfe_testing) { tpPoints = 3000.0; slPoints = 3000.0; }
    double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
-   PendingOrderPricesForDirection(MAGIC_TRADE_LONG_REVERSED, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
+   PendingOrderPricesForDirection(MAGIC_TRADE_LONG_REVERSED, levelPrice, offsetPoints, slPoints, tpPoints, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "SellStop", expirationMin);
@@ -4458,11 +4592,11 @@ bool PlaceSellStopAtLevel(double levelPrice, double offsetPips, double slPips, d
 //+------------------------------------------------------------------+
 //| Buy stop at (level−off)+s: triggers on Ask; pairs sell limit at level−off (Bid). SL/TP from ref = orderPrice−s: SL = SellLimit TP, TP = SellLimit SL. |
 //+------------------------------------------------------------------+
-bool PlaceBuyStopAtLevel(double levelPrice, double offsetPips, double slPips, double tpPips, int expirationMin, double lot, long magic)
+bool PlaceBuyStopAtLevel(double levelPrice, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot, long magic)
 {
-   if(maemfe_testing) { tpPips = 3000.0; slPips = 3000.0; }
+   if(maemfe_testing) { tpPoints = 3000.0; slPoints = 3000.0; }
    double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
-   PendingOrderPricesForDirection(MAGIC_TRADE_SHORT_REVERSED, levelPrice, offsetPips, slPips, tpPips, orderPrice, stopLossVal, takeProfitVal);
+   PendingOrderPricesForDirection(MAGIC_TRADE_SHORT_REVERSED, levelPrice, offsetPoints, slPoints, tpPoints, orderPrice, stopLossVal, takeProfitVal);
    datetime expiration = TimeCurrent() + expirationMin * 60;
    string comment = BuildUnifiedOrderComment(levelPrice, takeProfitVal, stopLossVal, orderPrice, magic);
    LogPreOrderContext(magic, levelPrice, orderPrice, "BuyStop", expirationMin);
@@ -4475,19 +4609,19 @@ bool PlaceBuyStopAtLevel(double levelPrice, double offsetPips, double slPips, do
 //+------------------------------------------------------------------+
 //| Composite magic digit 1 (ParseCompositeMagic.direction) selects pending order type. |
 //+------------------------------------------------------------------+
-bool PlacePendingFromMagic(long magic, double anchorLevel, double offsetPips, double slPips, double tpPips, int expirationMin, double lot)
+bool PlacePendingFromMagic(long magic, double anchorLevel, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot)
 {
    int dir = ParseCompositeMagic(magic).direction;
    switch(dir)
    {
       case MAGIC_TRADE_LONG:
-         return PlaceBuyLimitAtLevel(anchorLevel, offsetPips, slPips, tpPips, expirationMin, lot, magic);
+         return PlaceBuyLimitAtLevel(anchorLevel, offsetPoints, slPoints, tpPoints, expirationMin, lot, magic);
       case MAGIC_TRADE_SHORT:
-         return PlaceSellLimitAtLevel(anchorLevel, offsetPips, slPips, tpPips, expirationMin, lot, magic);
+         return PlaceSellLimitAtLevel(anchorLevel, offsetPoints, slPoints, tpPoints, expirationMin, lot, magic);
       case MAGIC_TRADE_LONG_REVERSED:
-         return PlaceSellStopAtLevel(anchorLevel, offsetPips, slPips, tpPips, expirationMin, lot, magic);
+         return PlaceSellStopAtLevel(anchorLevel, offsetPoints, slPoints, tpPoints, expirationMin, lot, magic);
       case MAGIC_TRADE_SHORT_REVERSED:
-         return PlaceBuyStopAtLevel(anchorLevel, offsetPips, slPips, tpPips, expirationMin, lot, magic);
+         return PlaceBuyStopAtLevel(anchorLevel, offsetPoints, slPoints, tpPoints, expirationMin, lot, magic);
       default:
          return false;
    }
@@ -4546,19 +4680,20 @@ void AddLevel(string baseName, double price, string from, string to, string tags
 }
 
 //+------------------------------------------------------------------+
-//| Return the price distance of 1 pip. We only trade 2-decimal symbols (e.g. 123.45): 1 pip = 1 point. |
+//| MT5 minimal price step for _Symbol (SYMBOL_POINT). Not a PointSized point. |
 //+------------------------------------------------------------------+
-double PipSize()
+double Instrument_PointStepSize()
 {
    return SymbolInfoDouble(_Symbol, SYMBOL_POINT);
 }
 
 //+------------------------------------------------------------------+
-//| Input params (e.g. InpRuleset*_TPPips) use display units; ×10 gives pips for PlaceBuyLimitAtLevel. Use for TP, SL, offset. |
+//| Custom “point” (e.g. 6895.5→6896.5 = 1): g_trade / magic display units → price distance. |
+//| Formula: points × 10 × Instrument_PointStepSize() (legacy ×10 encoding). |
 //+------------------------------------------------------------------+
-double InputPipsToOrderPips(double inputPips)
+double PointSized(double points)
 {
-   return inputPips * 10.0;
+   return points * 10.0 * Instrument_PointStepSize();
 }
 
 //+------------------------------------------------------------------+
@@ -5254,8 +5389,6 @@ void RunTimerPendingNearLevelsPipeline()
          continue;
 
       const long fullMagic = BuildMagicForVariant(variantIdx);
-      const double pendingOffsetPips = InputPipsToOrderPips(g_trade[variantIdx].levelOffsetPips);
-
       if(!IsTimeAllowedForTradeType(variantIdx, g_lastTimer1Time)) continue;
       if(!CanPlaceNewOrderForMagic(fullMagic)) continue;
       if(!MeetsMagicSessionPdEntryGate(fullMagic, lastBarIndexToday)) continue;
@@ -5275,7 +5408,7 @@ void RunTimerPendingNearLevelsPipeline()
       maybeStage1Candidates[maybeStage1Count].levelIndexBelow = levelIndexBelow;
       maybeStage1Candidates[maybeStage1Count].levelIndexAbove = levelIndexAbove;
       maybeStage1Candidates[maybeStage1Count].lastBarIndexToday = lastBarIndexToday;
-      maybeStage1Candidates[maybeStage1Count].pendingOffsetPips = pendingOffsetPips;
+      maybeStage1Candidates[maybeStage1Count].pendingOffsetPoints = g_trade[variantIdx].levelOffsetPoints;
       maybeStage1Count++;
    }
    if(maybeStage1Count == 0) return;
@@ -5306,9 +5439,9 @@ void RunTimerPendingNearLevelsPipeline()
       maybeStage2Candidates[maybeStage2Count].variantIdx = variantIdx;
       maybeStage2Candidates[maybeStage2Count].fullMagic = fullMagic;
       maybeStage2Candidates[maybeStage2Count].anchorLevelPrice = anchorLevelPrice;
-      maybeStage2Candidates[maybeStage2Count].pendingOffsetPips = maybeStage1Candidates[stage1Idx].pendingOffsetPips;
-      maybeStage2Candidates[maybeStage2Count].slPipsNormalized = InputPipsToOrderPips(g_trade[variantIdx].slPips);
-      maybeStage2Candidates[maybeStage2Count].tpPipsNormalized = InputPipsToOrderPips(g_trade[variantIdx].tpPips);
+      maybeStage2Candidates[maybeStage2Count].pendingOffsetPoints = maybeStage1Candidates[stage1Idx].pendingOffsetPoints;
+      maybeStage2Candidates[maybeStage2Count].slPointsInput = g_trade[variantIdx].slPoints;
+      maybeStage2Candidates[maybeStage2Count].tpPointsInput = g_trade[variantIdx].tpPoints;
       maybeStage2Count++;
    }
 
@@ -5318,10 +5451,10 @@ void RunTimerPendingNearLevelsPipeline()
       const int variantIdx = maybeStage2Candidates[placeIdx].variantIdx;
       const long fullMagic = maybeStage2Candidates[placeIdx].fullMagic;
       if(fullMagic != BuildMagicForVariant(variantIdx)) continue;
-      if(PlacePendingFromMagic(fullMagic, maybeStage2Candidates[placeIdx].anchorLevelPrice, maybeStage2Candidates[placeIdx].pendingOffsetPips,
-            maybeStage2Candidates[placeIdx].slPipsNormalized, maybeStage2Candidates[placeIdx].tpPipsNormalized, 5, GetTradeLotForVariant(variantIdx)))
-         WriteTradeLogPendingOrder(maybeStage2Candidates[placeIdx].anchorLevelPrice, maybeStage2Candidates[placeIdx].pendingOffsetPips,
-            maybeStage2Candidates[placeIdx].slPipsNormalized, maybeStage2Candidates[placeIdx].tpPipsNormalized, fullMagic);
+      if(PlacePendingFromMagic(fullMagic, maybeStage2Candidates[placeIdx].anchorLevelPrice, maybeStage2Candidates[placeIdx].pendingOffsetPoints,
+            maybeStage2Candidates[placeIdx].slPointsInput, maybeStage2Candidates[placeIdx].tpPointsInput, 5, GetTradeLotForVariant(variantIdx)))
+         WriteTradeLogPendingOrder(maybeStage2Candidates[placeIdx].anchorLevelPrice, maybeStage2Candidates[placeIdx].pendingOffsetPoints,
+            maybeStage2Candidates[placeIdx].slPointsInput, maybeStage2Candidates[placeIdx].tpPointsInput, fullMagic);
    }
 }
 
@@ -5416,15 +5549,15 @@ void Babysitf_TryTightenStopsForSelectedPosition_reversed(const long positionMag
 
 //+------------------------------------------------------------------+
 //| ExtPositionInfo must already select the position. If live quote is far enough in profit vs PriceOpen, market-close (buy: Bid; sell: Ask). |
-//| profitInputPips uses same units as g_trade TP/SL: distance = InputPipsToOrderPips(profitInputPips) * PipSize() (see PlaceBuyLimitAtLevel / pending TP). |
+//| profitInputPoints: same units as g_trade TP/SL; distance = PointSized(profitInputPoints). |
 //| Returns true if PositionClose reported success (position may be gone). |
 //+------------------------------------------------------------------+
-bool Babysitf_Try_CloseForProfit(const long positionMagic, const double profitInputPips)
+bool Babysitf_Try_CloseForProfit(const long positionMagic, const double profitInputPoints)
 {
-   if(profitInputPips <= 0.0)
+   if(profitInputPoints <= 0.0)
       return false;
 
-   const double minProfitDistance = InputPipsToOrderPips(profitInputPips) * PipSize();
+   const double minProfitDistance = PointSized(profitInputPoints);
    const double openPrice = ExtPositionInfo.PriceOpen();
    const ulong ticket = ExtPositionInfo.Ticket();
    const ENUM_POSITION_TYPE posType = (ENUM_POSITION_TYPE)ExtPositionInfo.PositionType();
@@ -5453,15 +5586,15 @@ bool Babysitf_Try_CloseForProfit(const long positionMagic, const double profitIn
 //| Distance to TP: BUY uses g_liveBid; SELL uses g_liveAsk (OnTimer). |
 //| Distance to SL: BUY (Bid−SL); SELL (SL−Ask).                     |
 //| Proximity / open-offset use same price distance as pending TP/SL: |
-//| InputPipsToOrderPips(n) * PipSize() (see Babysitf_Try_CloseForProfit). |
-//| Within 3.0 input pips of TP: SL = open ± 0.5 input pips (BUY +, SELL −). |
-//| Within 3.0 input pips of SL: TP = open ∓ 0.5 input pips (BUY −, SELL +). |
+//| Proximity / open-offset: PointSized(...) (see Babysitf_Try_CloseForProfit). |
+//| Within 3.0 points of TP: SL = open ± 0.5 points (BUY +, SELL −). |
+//| Within 3.0 points of SL: TP = open ∓ 0.5 points (BUY −, SELL +). |
 //| Only tightens; returns true if PositionModify succeeds.          |
 //+------------------------------------------------------------------+
 bool Babysitf_SecurePosition(const long positionMagic)
 {
-   const double targetProximity = InputPipsToOrderPips(1.4) * PipSize();
-   const double secureDist = InputPipsToOrderPips(0.7) * PipSize();
+   const double targetProximity = PointSized(1.4);
+   const double secureDist = PointSized(0.7);
 
    const ulong ticket = ExtPositionInfo.Ticket();
    const double openPrice = ExtPositionInfo.PriceOpen();
@@ -5530,9 +5663,9 @@ bool Babysitf_SecurePosition(const long positionMagic)
 
    string reasons = "";
    if(changeSL)
-      reasons += (reasons != "" ? "; " : "") + "near TP: SL=open" + (posType == POSITION_TYPE_BUY ? "+" : "-") + "0.5pip";
+      reasons += (reasons != "" ? "; " : "") + "near TP: SL=open" + (posType == POSITION_TYPE_BUY ? "+" : "-") + "0.5pt";
    if(changeTP)
-      reasons += (reasons != "" ? "; " : "") + "near SL: TP=open" + (posType == POSITION_TYPE_BUY ? "-" : "+") + "0.5pip";
+      reasons += (reasons != "" ? "; " : "") + "near SL: TP=open" + (posType == POSITION_TYPE_BUY ? "-" : "+") + "0.5pt";
 
    double distQuoteToTP = 0.0;
    double distQuoteToSL = 0.0;
@@ -5555,7 +5688,7 @@ bool Babysitf_SecurePosition(const long positionMagic)
    const string slWas = (currentSL > 0.0) ? DoubleToString(currentSL, _Digits) : "none";
    const string tpWas = (currentTP > 0.0) ? DoubleToString(currentTP, _Digits) : "none";
    Print(StringFormat(
-            "Babysitf_SecurePosition TRY %s ticket=%I64u magic=%I64d sym=%s reasons=[%s] bid=%s ask=%s open=%s | SL %s -> %s | TP %s -> %s | distToTP=%s distToSL=%s | maxDist=%s (3.0 input pips to price) openLegOffset=%s (0.5 input pips to price)",
+            "Babysitf_SecurePosition TRY %s ticket=%I64u magic=%I64d sym=%s reasons=[%s] bid=%s ask=%s open=%s | SL %s -> %s | TP %s -> %s | distToTP=%s distToSL=%s | maxDist=%s (3.0 PointSized→price) openLegOffset=%s (0.5 PointSized→price)",
             sideStr,
             ticket,
             positionMagic,
@@ -5653,7 +5786,7 @@ void Babysitf_RunAllOpenPositionsForSymbol()
          continue;
       // these are checked ONLY if trade has babysit enabled
 
-      // Optional profit market-close before SL babysit (profitInputPips → InputPipsToOrderPips × PipSize(), same as TP/SL) — comment out the next 2 lines to disable only this step.
+      // Optional profit market-close before SL babysit (profitInputPoints → PointSized, same as TP/SL) — comment out the next 2 lines to disable only this step.
       // if((posMagic, 3.0))
       //   Babysitf_Try_CloseForProfitcontinue;
       // Babysitf_TryTightenStopsForSelectedPosition(posMagic, g_trade[variantIdx].babysitStart_minute);
