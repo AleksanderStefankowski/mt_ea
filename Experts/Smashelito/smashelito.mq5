@@ -43,19 +43,19 @@ bool     InpEODLogging = true;  // if true: at 21:58-22:00 write EOD logs (summa
 //    finalLog_ = one file across whole run; dailyEODlog_ = daily once at EOD; dailySpamLog_ = daily and frequent
 bool     dailyEODlog_PullingHistory   = true;  // (date)_testing_pullinghistory.csv
 bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
-bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSummary1line.csv
-bool     finalLog_SummaryTrades1line  = true;  // summary_tradesSummary1line.csv
-bool     finalLog_SummaryTradesPerTrade = true;  // summary_tradesSummary_perTrade.csv (one row per magic)
+bool     dailyEODlog_EodTradesSummary = false;  // (date)_summary_EOD_tradesSummary1line.csv
+bool     finalLog_SummaryTrades1line  = false;  // summary_tradesSummary1line.csv
+bool     finalLog_SummaryTradesPerTrade = false;  // summary_tradesSummary_perTrade.csv (one row per magic)
 bool     dailyEODlog_TradeResultsCsv  = true;  // summaryZ_tradeResults_ALL_Day + summary_tradeResults_all_days
 bool     dailyEODlog_TestinglevelsPlus = true;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
-bool     finalLog_TradeLog            = true;  // B_TradeLog_<composite per variant>.csv (WriteTradeLog)
+bool     finalLog_TradeLog            = false; // B_TradeLog_<composite per variant>.csv (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
-bool     dailySpamLog_Arawevents      = true;  // Arawevents CSV + level logRawEv (FinalizeCurrentCandle)
+bool     dailySpamLog_Arawevents      = false; // Arawevents CSV + level logRawEv (FinalizeCurrentCandle)
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
@@ -63,19 +63,20 @@ bool     maemfe_testing             = false; // if true: all trades use TP=SL=30
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
-double   g_global_base_trade_size = 0.1;  // base lot; 100% trade type = this full size; 50% = half //  bookmark
+double   g_global_base_trade_size = 0.1;  // bookmark // base lot; 100% trade type = this full size; 50% = half   
 
 //--- Composite magic digit 1 (pending order kind) is per row: g_trade[i].tradeDirectionCategory (MAGIC_TRADE_*). Other digits: see VariantTrade.
 
 //--- Trades: TRADE_VARIANT_COUNT rows in g_trade[] — defaults assigned in SyncTradeVariantsFromInputs() (g_trade[i].field = …).
 //    tradeDirectionCategory → slot 1; tradeTypeId → slot 2; ruleSubsetId → slot 3; sessionPdCategory → slot 4; see BuildBetterMagicNumber layout. levelProximityFocus: TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH.
 //    bannedRanges: no '|' inside string.
-#define TRADE_VARIANT_COUNT 99
+// bookmark tradecount
+#define TRADE_VARIANT_COUNT 400
 #define TRADE_LEVEL_FOCUS_BELOW  1
 #define TRADE_LEVEL_FOCUS_ABOVE  2
 #define TRADE_LEVEL_FOCUS_BOTH   3
 // Stage-2 pending: fullMagic is routed by PendingRuleSubsetPassesForFullMagic (see OnInit validation).
-// Pipeline builds fullMagic once per row (BuildMagicForVariant) and copies it through maybe-stage-1 → maybe-stage-2 → place.
+// Pipeline: g_trade[i].fullMagic precomputed in OnInit; BuildMagicForVariant reads cache; copies through maybe-stage-1 → maybe-stage-2 → place.
 
 struct VariantTrade
 {
@@ -93,6 +94,7 @@ struct VariantTrade
    bool   babysit_enabled;      // if true and babysit_global_flipper, OnTimer may tighten SL for this variant's positions
    int    babysitStart_minute;   // minutes after position open before babysit runs
    string bannedRanges;
+   long   fullMagic;             // composite magic; filled by RebuildVariantFullMagicCache() after row fields are valid (OnInit), not rebuilt on timer
 };
 // Populated at startup by SyncTradeVariantsFromInputs() — edit assignments there.
 VariantTrade g_trade[TRADE_VARIANT_COUNT];
@@ -139,9 +141,13 @@ struct TradeTypeConfig
    string bannedRangesStr; // "startH,startM,endH,endM;..." e.g. "0,0,2,59;20,0,23,59"; empty = no time filter
 };
 TradeTypeConfig g_tradeConfig[TRADE_VARIANT_COUNT];  // index by variant row 0..TRADE_VARIANT_COUNT-1
-const int MAX_BANNED_RANGES = 10;
-int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges
+#define MAX_BANNED_RANGES 10
+int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges (OnInit rebuild path)
 int g_bannedRangesCount = 0;
+// Per-variant banned intervals as minutes since midnight [0..1439]; filled by RebuildAllVariantBannedRangesCache (OnInit; re-call if bannedRangesStr changes at runtime).
+struct BannedRangeMinutes { int startMin; int endMin; };
+BannedRangeMinutes g_variantBannedRanges[TRADE_VARIANT_COUNT][MAX_BANNED_RANGES];
+int g_variantBannedRangeCount[TRADE_VARIANT_COUNT];
 
 struct Level
 {
@@ -523,7 +529,8 @@ double g_dealVolume[MAX_DEALS_DAY];
 string g_dealSymbol[MAX_DEALS_DAY];
 string g_dealComment[MAX_DEALS_DAY];
 int g_dealCount = 0;
-int g_dealOrder[MAX_DEALS_DAY];  // sorted indices
+int g_dealOrder[MAX_DEALS_DAY];     // sorted indices by magic, time
+int g_dealOrderTmp[MAX_DEALS_DAY];  // merge sort buffer
 #define MAX_IN_OUT_PER_MAGIC 200
 int g_inIdx[MAX_IN_OUT_PER_MAGIC];
 int g_outIdx[MAX_IN_OUT_PER_MAGIC];
@@ -1856,6 +1863,81 @@ void Loghelper_FillLevelTpSlFromBothComments(const string &bothComments, string 
 }
 
 //+------------------------------------------------------------------+
+//| Sort g_dealOrder[0..g_dealCount-1] by deal magic asc, then time asc (O(n log n)). |
+//+------------------------------------------------------------------+
+void MergeSortDealOrder()
+{
+   int n = g_dealCount;
+   for(int i = 0; i < n; i++)
+      g_dealOrder[i] = i;
+   if(n <= 1)
+      return;
+   int w = 1;
+   while(w < n)
+   {
+      for(int i0 = 0; i0 < n; i0 += 2 * w)
+      {
+         int m = MathMin(i0 + w, n);
+         int i1 = MathMin(i0 + 2 * w, n);
+         int p = i0, q = m, o = i0;
+         while(p < m && q < i1)
+         {
+            int ap = g_dealOrder[p], aq = g_dealOrder[q];
+            bool takeP = (g_dealMagic[ap] < g_dealMagic[aq]) ||
+                         (g_dealMagic[ap] == g_dealMagic[aq] && g_dealTime[ap] <= g_dealTime[aq]);
+            if(takeP)
+               g_dealOrderTmp[o++] = g_dealOrder[p++];
+            else
+               g_dealOrderTmp[o++] = g_dealOrder[q++];
+         }
+         while(p < m)
+            g_dealOrderTmp[o++] = g_dealOrder[p++];
+         while(q < i1)
+            g_dealOrderTmp[o++] = g_dealOrder[q++];
+      }
+      ArrayCopy(g_dealOrder, g_dealOrderTmp, 0, 0, n);
+      w *= 2;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Sort indices[] by g_tradeResults[idx].startTime ascending (O(n log n)); used for EOD CSV ordering. |
+//+------------------------------------------------------------------+
+void SortIndicesByTradeStartAsc(int &indices[])
+{
+   int n = ArraySize(indices);
+   if(n <= 1)
+      return;
+   int tmp[];
+   ArrayResize(tmp, n);
+   int w = 1;
+   while(w < n)
+   {
+      for(int i0 = 0; i0 < n; i0 += 2 * w)
+      {
+         int m = MathMin(i0 + w, n);
+         int i1 = MathMin(i0 + 2 * w, n);
+         int p = i0, q = m, o = i0;
+         while(p < m && q < i1)
+         {
+            int ap = indices[p], aq = indices[q];
+            bool takeP = (g_tradeResults[ap].startTime <= g_tradeResults[aq].startTime);
+            if(takeP)
+               tmp[o++] = indices[p++];
+            else
+               tmp[o++] = indices[q++];
+         }
+         while(p < m)
+            tmp[o++] = indices[p++];
+         while(q < i1)
+            tmp[o++] = indices[q++];
+      }
+      ArrayCopy(indices, tmp, 0, 0, n);
+      w *= 2;
+   }
+}
+
+//+------------------------------------------------------------------+
 //| Load deals for current day, reject DEAL_TYPE_BALANCE, group by magic, pair IN/OUT into g_tradeResults. Call from loop2. |
 //+------------------------------------------------------------------+
 void UpdateTradeResultsForDay()
@@ -1888,15 +1970,7 @@ void UpdateTradeResultsForDay()
       g_dealSymbol[idx]  = sym;
       g_dealComment[idx] = HistoryDealGetString(ticket, DEAL_COMMENT);
    }
-   // Sort indices by magic then time
-   for(int dealIdx = 0; dealIdx < g_dealCount; dealIdx++) g_dealOrder[dealIdx] = dealIdx;
-   for(int dealIdx = 0; dealIdx < g_dealCount - 1; dealIdx++)
-      for(int innerIdx = dealIdx + 1; innerIdx < g_dealCount; innerIdx++)
-      {
-         int orderA = g_dealOrder[dealIdx], orderB = g_dealOrder[innerIdx];
-         if(g_dealMagic[orderA] > g_dealMagic[orderB] || (g_dealMagic[orderA] == g_dealMagic[orderB] && g_dealTime[orderA] > g_dealTime[orderB]))
-         { int tmp = g_dealOrder[dealIdx]; g_dealOrder[dealIdx] = g_dealOrder[innerIdx]; g_dealOrder[innerIdx] = tmp; }
-      }
+   MergeSortDealOrder();
    // Group by magic, pair IN with next OUT
    int dealIdx = 0;
    while(dealIdx < g_dealCount && g_tradeResultsCount < MAX_TRADE_RESULTS)
@@ -1954,44 +2028,78 @@ void UpdateTradeResultsForDay()
 
 //+------------------------------------------------------------------+
 //| For each bar k, set g_dayProgress[k] from trades with endTime < candle k close time (so close at 16:45:00 counts for 16:45 bar, not 16:44). |
+//| Same totals as nested loops: closed trades sorted by endTime, one sweep as candle close advances. |
 //+------------------------------------------------------------------+
 void UpdateDayProgress()
 {
+   int closedIdx[MAX_TRADE_RESULTS];
+   string closedSess[MAX_TRADE_RESULTS];
+   int nc = 0;
+   for(int i = 0; i < g_tradeResultsCount; i++)
+   {
+      if(!g_tradeResults[i].foundOut)
+         continue;
+      closedIdx[nc] = i;
+      closedSess[nc] = GetSessionForCandleTime(g_tradeResults[i].endTime);
+      nc++;
+   }
+   for(int a = 1; a < nc; a++)
+   {
+      int keyIdx = closedIdx[a];
+      datetime keyT = g_tradeResults[keyIdx].endTime;
+      string keyS = closedSess[a];
+      int b = a - 1;
+      while(b >= 0 && g_tradeResults[closedIdx[b]].endTime > keyT)
+      {
+         closedIdx[b + 1] = closedIdx[b];
+         closedSess[b + 1] = closedSess[b];
+         b--;
+      }
+      closedIdx[b + 1] = keyIdx;
+      closedSess[b + 1] = keyS;
+   }
+
+   int p = 0;
+   int wins = 0, total = 0;
+   double dayPointsSum = 0, dayProfitSum = 0;
+   int ONwins = 0, ONtotal = 0;
+   double ONpointsSum = 0, ONprofitSum = 0;
+   int RTHwins = 0, RTHtotal = 0;
+   double RTHpointsSum = 0, RTHprofitSum = 0;
+
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
       datetime candleCloseTime;
-      if(barIdx + 1 < g_barsInDay) candleCloseTime = g_m1Rates[barIdx + 1].time;
-      else candleCloseTime = g_m1Rates[barIdx].time + 60;
-      int wins = 0, total = 0;
-      double dayPointsSum = 0, dayProfitSum = 0;
-      int ONwins = 0, ONtotal = 0;
-      double ONpointsSum = 0, ONprofitSum = 0;
-      int RTHwins = 0, RTHtotal = 0;
-      double RTHpointsSum = 0, RTHprofitSum = 0;
-      for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+      if(barIdx + 1 < g_barsInDay)
+         candleCloseTime = g_m1Rates[barIdx + 1].time;
+      else
+         candleCloseTime = g_m1Rates[barIdx].time + 60;
+      while(p < nc && g_tradeResults[closedIdx[p]].endTime < candleCloseTime)
       {
-         TradeResult tradeResult = g_tradeResults[trIdx];
-         if(!tradeResult.foundOut) continue;
-         if(tradeResult.endTime >= candleCloseTime) continue;
+         TradeResult tr = g_tradeResults[closedIdx[p]];
          total++;
-         if(tradeResult.profit > 0) wins++;
-         dayPointsSum += tradeResult.priceDiff;
-         dayProfitSum += tradeResult.profit;
-         string endSession = GetSessionForCandleTime(tradeResult.endTime);
+         if(tr.profit > 0)
+            wins++;
+         dayPointsSum += tr.priceDiff;
+         dayProfitSum += tr.profit;
+         string endSession = closedSess[p];
          if(endSession == "ON")
          {
             ONtotal++;
-            if(tradeResult.profit > 0) ONwins++;
-            ONpointsSum += tradeResult.priceDiff;
-            ONprofitSum += tradeResult.profit;
+            if(tr.profit > 0)
+               ONwins++;
+            ONpointsSum += tr.priceDiff;
+            ONprofitSum += tr.profit;
          }
          else if(endSession == "RTH")
          {
             RTHtotal++;
-            if(tradeResult.profit > 0) RTHwins++;
-            RTHpointsSum += tradeResult.priceDiff;
-            RTHprofitSum += tradeResult.profit;
+            if(tr.profit > 0)
+               RTHwins++;
+            RTHpointsSum += tr.priceDiff;
+            RTHprofitSum += tr.profit;
          }
+         p++;
       }
       g_dayProgress[barIdx].dayWinRate   = (total > 0) ? (double)wins / (double)total : 0.0;
       g_dayProgress[barIdx].dayTradesCount = total;
@@ -2146,6 +2254,31 @@ void UpdateGapFillSoFarAtBar()
 }
 
 //+------------------------------------------------------------------+
+//| Smallest barIdx where candle close time > endTime (same close rule as UpdateLevelTradeStats); barCount if none. |
+//+------------------------------------------------------------------+
+int LevelExpandedFirstBarWhereCloseAfter(datetime &times[], int barCount, datetime endTime)
+{
+   int lo = 0, hi = barCount - 1, ans = barCount;
+   while(lo <= hi)
+   {
+      int mid = (lo + hi) / 2;
+      datetime cclose;
+      if(mid + 1 < barCount)
+         cclose = times[mid + 1];
+      else
+         cclose = times[mid] + 60;
+      if(cclose > endTime)
+      {
+         ans = mid;
+         hi = mid - 1;
+      }
+      else
+         lo = mid + 1;
+   }
+   return ans;
+}
+
+//+------------------------------------------------------------------+
 //| Per (level e, bar k): aggregate trades whose level matches levelPrice and endTime < bar k close. Same frequency as trade results. |
 //+------------------------------------------------------------------+
 void UpdateLevelTradeStats()
@@ -2179,20 +2312,21 @@ void UpdateLevelTradeStats()
       if(levelIdx < 0) continue;
       string endSession = GetSessionForCandleTime(tradeResult.endTime);
       int barCount = g_levelsExpanded[levelIdx].count;
-      for(int barIdx = 0; barIdx < barCount; barIdx++)
+      int firstBar = LevelExpandedFirstBarWhereCloseAfter(g_levelsExpanded[levelIdx].times, barCount, tradeResult.endTime);
+      if(firstBar >= barCount) continue;
+      if(endSession == "ON")
       {
-         datetime candleCloseTime;
-         if(barIdx + 1 < barCount) candleCloseTime = g_levelsExpanded[levelIdx].times[barIdx + 1];
-         else candleCloseTime = g_levelsExpanded[levelIdx].times[barIdx] + 60;
-         if(tradeResult.endTime >= candleCloseTime) continue;
-         if(endSession == "ON")
+         for(int barIdx = firstBar; barIdx < barCount; barIdx++)
          {
             g_ONtradeCount_L[levelIdx][barIdx]++;
             if(tradeResult.profit > 0) g_ONwins_L[levelIdx][barIdx]++;
             g_ONpointsSum_L[levelIdx][barIdx] += tradeResult.priceDiff;
             g_ONprofitSum_L[levelIdx][barIdx] += tradeResult.profit;
          }
-         else if(endSession == "RTH")
+      }
+      else if(endSession == "RTH")
+      {
+         for(int barIdx = firstBar; barIdx < barCount; barIdx++)
          {
             g_RTHtradeCount_L[levelIdx][barIdx]++;
             if(tradeResult.profit > 0) g_RTHwins_L[levelIdx][barIdx]++;
@@ -2225,6 +2359,33 @@ void ParseBannedRanges(const string s)
       g_bannedRangesBuffer[g_bannedRangesCount][3] = (int)StringToInteger(nums[3]);
       g_bannedRangesCount++;
    }
+}
+
+//+------------------------------------------------------------------+
+//| Copy ParseBannedRanges output into g_variantBannedRanges[variantIdx] (minutes since midnight). |
+//+------------------------------------------------------------------+
+void FillVariantBannedRangesMinutesFromParsedString(const int variantIdx, const string s)
+{
+   g_variantBannedRangeCount[variantIdx] = 0;
+   ParseBannedRanges(s);
+   int n = g_bannedRangesCount;
+   if(n > MAX_BANNED_RANGES)
+      n = MAX_BANNED_RANGES;
+   for(int i = 0; i < n; i++)
+   {
+      g_variantBannedRanges[variantIdx][i].startMin = g_bannedRangesBuffer[i][0] * 60 + g_bannedRangesBuffer[i][1];
+      g_variantBannedRanges[variantIdx][i].endMin   = g_bannedRangesBuffer[i][2] * 60 + g_bannedRangesBuffer[i][3];
+   }
+   g_variantBannedRangeCount[variantIdx] = n;
+}
+
+//+------------------------------------------------------------------+
+//| After g_tradeConfig[].bannedRangesStr is set (OnInit or if you change bans at runtime). |
+//+------------------------------------------------------------------+
+void RebuildAllVariantBannedRangesCache()
+{
+   for(int v = 0; v < TRADE_VARIANT_COUNT; v++)
+      FillVariantBannedRangesMinutesFromParsedString(v, g_tradeConfig[v].bannedRangesStr);
 }
 
 //+------------------------------------------------------------------+
@@ -8947,23 +9108,39 @@ void AssertCompositeMagicDecimalWidthOrFatal(const long compositeMagic, const in
 }
 
 //+------------------------------------------------------------------+
-//| Build composite magic for variant row (unified prefix + row type/subset). |
+//| Fill g_trade[i].fullMagic via BuildBetterMagicNumber (StringFormat path). Call once after row fields validated (OnInit only). |
+//+------------------------------------------------------------------+
+void RebuildVariantFullMagicCache()
+{
+   for(int i = 0; i < TRADE_VARIANT_COUNT; i++)
+   {
+      if(g_trade[i].tradeTypeId == 0)
+      {
+         g_trade[i].fullMagic = 0;
+         continue;
+      }
+      g_trade[i].fullMagic = BuildBetterMagicNumber(
+         g_trade[i].tradeDirectionCategory,
+         g_trade[i].tradeTypeId,
+         g_trade[i].ruleSubsetId,
+         g_trade[i].sessionPdCategory,
+         g_trade[i].livePriceDiffTrigger,
+         g_trade[i].levelOffsetPoints,
+         g_trade[i].babysit_enabled,
+         g_trade[i].babysitStart_minute,
+         g_trade[i].tpPoints,
+         g_trade[i].slPoints);
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Cached composite magic for variant row (see RebuildVariantFullMagicCache). |
 //+------------------------------------------------------------------+
 long BuildMagicForVariant(int variantIdx)
 {
-   if(variantIdx < 0 || variantIdx >= TRADE_VARIANT_COUNT) return 0;
-   // A zero tradeTypeId indicates an uninitialized/nonexistent variant. Return 0, which is an invalid magic number.
-   // This prevents BuildBetterMagicNumber from crashing on validation for these slots.
-   if(g_trade[variantIdx].tradeTypeId == 0)
+   if(variantIdx < 0 || variantIdx >= TRADE_VARIANT_COUNT)
       return 0;
-
-   return BuildBetterMagicNumber(g_trade[variantIdx].tradeDirectionCategory,
-                                 g_trade[variantIdx].tradeTypeId,
-                                 g_trade[variantIdx].ruleSubsetId,
-                                 g_trade[variantIdx].sessionPdCategory,
-                                 g_trade[variantIdx].livePriceDiffTrigger, g_trade[variantIdx].levelOffsetPoints,
-                                 g_trade[variantIdx].babysit_enabled, g_trade[variantIdx].babysitStart_minute,
-                                 g_trade[variantIdx].tpPoints, g_trade[variantIdx].slPoints);
+   return g_trade[variantIdx].fullMagic;
 }
 
 //+------------------------------------------------------------------+
@@ -9027,6 +9204,8 @@ void ValidateMagicCompositionOnInit()
          (g_trade[variantIdx].babysitStart_minute < 1 || g_trade[variantIdx].babysitStart_minute > 99))
          FatalError(StringFormat("g_trade[%d]: babysit_enabled requires babysitStart_minute in 1..99, got %d", variantIdx, g_trade[variantIdx].babysitStart_minute));
    }
+
+   RebuildVariantFullMagicCache();
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
    {
@@ -9503,11 +9682,21 @@ void WriteTradeLogPendingOrder(double levelPrice, double offsetPoints, double sl
 //+------------------------------------------------------------------+
 bool IsTimeAllowedForTradeType(int variantIdx, datetime atTime)
 {
-   if(variantIdx < 0 || variantIdx >= ArraySize(g_tradeConfig)) return true;
-   if(StringLen(g_tradeConfig[variantIdx].bannedRangesStr) == 0)
+   if(variantIdx < 0 || variantIdx >= TRADE_VARIANT_COUNT)
       return true;
-   ParseBannedRanges(g_tradeConfig[variantIdx].bannedRangesStr);
-   return IsTradingAllowed(atTime, g_bannedRangesBuffer, g_bannedRangesCount);
+   if(g_variantBannedRangeCount[variantIdx] == 0)
+      return true;
+   MqlDateTime mqlTime;
+   TimeToStruct(atTime, mqlTime);
+   int curMin = mqlTime.hour * 60 + mqlTime.min;
+   for(int i = 0; i < g_variantBannedRangeCount[variantIdx]; i++)
+   {
+      int sm = g_variantBannedRanges[variantIdx][i].startMin;
+      int em = g_variantBannedRanges[variantIdx][i].endMin;
+      if(curMin >= sm && curMin <= em)
+         return false;
+   }
+   return true;
 }
 
 //+------------------------------------------------------------------+
@@ -11184,6 +11373,7 @@ int OnInit()
 
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
       g_tradeConfig[variantIdx].bannedRangesStr = g_trade[variantIdx].bannedRanges;
+   RebuildAllVariantBannedRangesCache();
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
@@ -12404,10 +12594,7 @@ void OnTimer()
             int orderTr[];
             ArrayResize(orderTr, g_tradeResultsCount);
             for(int o = 0; o < g_tradeResultsCount; o++) orderTr[o] = o;
-            for(int o = 0; o < g_tradeResultsCount - 1; o++)
-               for(int o2 = o + 1; o2 < g_tradeResultsCount; o2++)
-                  if(g_tradeResults[orderTr[o2]].startTime < g_tradeResults[orderTr[o]].startTime)
-                  { int tmp = orderTr[o]; orderTr[o] = orderTr[o2]; orderTr[o2] = tmp; }
+            SortIndicesByTradeStartAsc(orderTr);
             int cols = (fileCols > 0) ? fileCols : schemaCols;
             int newBase = existingRowCount * cols;
             ArrayResize(allDaysRows, newBase + g_tradeResultsCount * schemaCols);
