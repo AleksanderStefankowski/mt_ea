@@ -1,17 +1,18 @@
 # ================== CONFIG (EDIT HERE) ==================
 
-set_4_context = true
+set_4_context =          true
 
-set_ruleset = true
+set_ruleset =            false
 set_ruleset_input = '13'
-# overwrite 4th and 5th digit (indexes 3 and 4)
-set_1st_digit_flipper = true 
-set_1st_digit = 4
 
-TRADE_INDEX_START = 17
+set_1st_digit_flipper =  false # true
+set_1st_digit = 2
+
+TRADE_INDEX_START = 25
+MAGIC_NUMBERS = ["20141435257000606", "20141435257000606", "20141435257000606", "20141435257000606"] 
 
 #                 DttSScPPofBBBtpSL    DttSScPPofBBBtpSL    DttSScPPofBBBtpSL    DttSScPPofBBBtpSL
-MAGIC_NUMBERS = ["20107435217000606", "20108435217000606", "20109235217000606", "20110435217000606"]
+# MAGIC_NUMBERS = ["20107435217000606", "20108435217000606", "20109235217000606", "20110435217000606"]
 #  "40111135217000606", '20112435217000606', '40101135217000606']
 
 # numbers_text = <<~TEXT
@@ -52,10 +53,10 @@ TRADE_SIZE   = 100
 //|   3 = MAGIC_IS_RTH_AND_PD_GREEN  |
 //|   4 = MAGIC_IS_RTH_AND_PD_RED    |
 //| Slot 5 (55): live proximity — %02d tenths (0.1..9.9). |
-//| Slot 6 (66): level offset pips — %02d tenths (0.1..9.9). |
+//| Slot 6 (66): level offset points — %02d tenths (0.1..9.9). |
 //| Slot 7 (777): babysit |
-//| Slot 8 (88): TP pips |
-//| Slot 9 (99): SL pips |
+//| Slot 8 (88): TP points |
+//| Slot 9 (99): SL points |
 //+------------------------------------------------------------------+
 =end
 # --- PARSE MAGIC ---
@@ -139,12 +140,24 @@ def apply_ruleset(magic_list, enabled, input)
   end
 end
 
+# --- APPLY 1ST DIGIT FLIPPER ---
+def apply_1st_digit_flipper(magic_list, enabled, digit)
+  return magic_list unless enabled
+
+  magic_list.map do |m|
+    m = m.to_s.dup
+    m[0] = digit.to_s
+    m
+  end
+end
+
 # --- BUILD OUTPUT ---
 
 
 final_magics = MAGIC_NUMBERS
 final_magics = apply_ruleset(final_magics, set_ruleset, set_ruleset_input)
 final_magics = apply_4_context(final_magics, set_4_context)
+final_magics = apply_1st_digit_flipper(final_magics, set_1st_digit_flipper, set_1st_digit)
 
 print "\n"
 print final_magics
@@ -164,10 +177,10 @@ final_magics.each_with_index do |magic, i|
   puts "g_trade[#{idx}].ruleSubsetId             = #{data[:subset_id]};"
   puts "g_trade[#{idx}].sessionPdCategory        = #{session_to_enum(data[:session])};"
   puts "g_trade[#{idx}].tradeSizePct             = #{TRADE_SIZE};"
-  puts "g_trade[#{idx}].tpPips                   = #{data[:tp]};"
-  puts "g_trade[#{idx}].slPips                   = #{data[:sl]};"
+  puts "g_trade[#{idx}].tpPoints                 = #{data[:tp]};"
+  puts "g_trade[#{idx}].slPoints                 = #{data[:sl]};"
   puts "g_trade[#{idx}].livePriceDiffTrigger     = #{data[:price_prox]};"
-  puts "g_trade[#{idx}].levelOffsetPips          = #{data[:level_offset]};"
+  puts "g_trade[#{idx}].levelOffsetPoints        = #{data[:level_offset]};"
   puts "g_trade[#{idx}].levelProximityFocus      = #{level_focus(data[:direction])};"
   puts 'g_trade[' + idx.to_s + '].bannedRanges = "22,0,23,59;0,0,1,0";'
   puts "g_trade[#{idx}].babysit_enabled          = #{babysit_enabled};"

@@ -5,10 +5,10 @@ trades = '''
    g_trade[0].ruleSubsetId         = 1; // not used in EA logic; only encoded in composite magic (custom meaning — Aleksander)
    g_trade[0].sessionPdCategory    = MAGIC_IS_RTH_AND_PD_GREEN;
    g_trade[0].tradeSizePct         = 100;
-   g_trade[0].tpPips               = 12.0;
-   g_trade[0].slPips               = 12.0;
+   g_trade[0].tpPoints             = 12.0;
+   g_trade[0].slPoints             = 12.0;
    g_trade[0].livePriceDiffTrigger = 3.0;
-   g_trade[0].levelOffsetPips      = 2.6;
+   g_trade[0].levelOffsetPoints    = 2.6;
    g_trade[0].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
    g_trade[0].bannedRanges         = "22,0,23,59;0,0,1,0";
    g_trade[0].babysit_enabled      = true;
@@ -87,12 +87,12 @@ def build_magic(t)
   sess  = SESSION_MAP[t["sessionPdCategory"]]
 
   prox  = encode_2digit_tenths(t["livePriceDiffTrigger"])
-  off   = encode_2digit_tenths(t["levelOffsetPips"])
+  off   = encode_2digit_tenths(t["levelOffsetPoints"] || t["levelOffsetPips"])
 
   baby  = encode_babysit(t["babysit_enabled"], t["babysitStart_minute"])
 
-  tp    = encode_tp_sl(t["tpPips"])
-  sl    = encode_tp_sl(t["slPips"])
+  tp    = encode_tp_sl(t["tpPoints"] || t["tpPips"])
+  sl    = encode_tp_sl(t["slPoints"] || t["slPips"])
 
   "#{dir}#{type}#{subset}#{sess}#{prox}#{off}#{baby}#{tp}#{sl}"
 end
@@ -106,10 +106,10 @@ data.sort.each do |idx, t|
   puts "g_trade[#{idx}].ruleSubsetId             = #{t["ruleSubsetId"]};"
   puts "g_trade[#{idx}].sessionPdCategory        = #{t["sessionPdCategory"]};"
   puts "g_trade[#{idx}].tradeSizePct             = #{t["tradeSizePct"]};"
-  puts "g_trade[#{idx}].tpPips                   = #{t["tpPips"]};"
-  puts "g_trade[#{idx}].slPips                   = #{t["slPips"]};"
+  puts "g_trade[#{idx}].tpPoints                 = #{t["tpPoints"] || t["tpPips"]};"
+  puts "g_trade[#{idx}].slPoints                 = #{t["slPoints"] || t["slPips"]};"
   puts "g_trade[#{idx}].livePriceDiffTrigger     = #{t["livePriceDiffTrigger"]};"
-  puts "g_trade[#{idx}].levelOffsetPips          = #{t["levelOffsetPips"]};"
+  puts "g_trade[#{idx}].levelOffsetPoints        = #{t["levelOffsetPoints"] || t["levelOffsetPips"]};"
   puts "g_trade[#{idx}].levelProximityFocus      = #{t["levelProximityFocus"]};"
   puts "g_trade[#{idx}].bannedRanges = #{t["bannedRanges"]};"
   puts "g_trade[#{idx}].babysit_enabled          = #{t["babysit_enabled"]};"
