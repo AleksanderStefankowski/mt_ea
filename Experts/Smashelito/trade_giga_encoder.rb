@@ -2,15 +2,52 @@
 # DttSScPPofBBBtpSL
 # 20141435257000606
 
-d  = "2"
-tt = "01"
-ss = ["01", "13", "12"]
-c  = ["1", "2", "3", "4"]
+=begin trade_db_reader.rb :
+=== CATEGORY 102 ===
+Total magics: 53
+tt: ["02"]
+ss: ["01", "02", "03", "04", "05", "06", "07", "08"]
+of: ["26", "31"]
+
+=== CATEGORY 201 ===
+Total magics: 36
+tt: ["01"]
+ss: ["01", "02", "03", "07", "08", "10", "12", "21", "31", "41"]
+of: ["05", "26"]
+
+=== CATEGORY 302 ===
+Total magics: 16
+tt: ["02"]
+ss: ["01", "04", "05", "06", "07", "08"]
+of: ["26", "31"]
+
+=== CATEGORY 401 ===
+Total magics: 6
+tt: ["01"]
+ss: ["02", "03", "04", "05", "11"]
+of: ["26"]
+end
+
+
+=begin 
+=== GROUPED (last 2 digits) BY FIRST 3 DIGITS ===
+Group 102: ["01", "02", "03", "04", "05", "06", "07", "08"]
+Group 201: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "12", "13", "14", "21", "31", "41"]
+Group 202: ["01"]
+Group 203: ["01"]
+Group 302: ["01", "04", "05", "06", "07", "08"]
+Group 401: ["01", "02", "03", "04", "05", "06", "07", "11"]
+=end
+
+d  = "1"
+tt = "02"
+ss = ["01", "02", "03", "04", "05", "06", "07", "08"].uniq
+c  = ["1", "2", "3", "4", "4"].uniq
 pp = "30"
-of = ["05", "03"]
+of = ["10","05", "03", "15"].uniq
 bbb = "812"
-tp = ["05", "07"]
-sl = ["03", "05"]
+tp = ["05", "07"].uniq
+sl = ["03", "05"].uniq
 
 # Generate all combinations
 combinations = ss.product(c, of, tp, sl).map do |s, c_val, of_val, tp_val, sl_val|
@@ -19,8 +56,8 @@ end
 
 puts "\nTotal combinations: #{combinations.size}"
 
-TRADE_INDEX_START = 25
-MAGIC_NUMBERS = combinations
+TRADE_INDEX_START = 0
+MAGIC_NUMBERS = combinations.uniq
 ENABLED      = true
 TRADE_SIZE   = 100
 
