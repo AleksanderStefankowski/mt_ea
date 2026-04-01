@@ -375,7 +375,7 @@ start,end,levelPrice,categories,tag
 2026.03.30,2026.04.03,6446,weekly_smash_stacked_monday_tuesday,weeklySmash
 2026.03.30,2026.04.03,6520,weekly,weeklyUp1
 2026.03.30,2026.04.03,6605,weekly,weeklyUp2
-2026.03.30,2026.04.03,6635,weekly,weeklyUp3
+2026.03.30,2026.04.03,6635,weekly_stacked_wednesday,weeklyUp3
 2026.03.30,2026.04.03,6692,weekly,weeklyUp4
 2026.03.30,2026.04.03,6764,weekly,weeklyUp5
 2026.03.30,2026.04.03,6350,weekly,weeklyDown1
@@ -393,3 +393,7 @@ start,end,levelPrice,categories,tag
 2026.03.31,2026.03.31,6468,daily_tuesday,dailyUp2
 2026.03.31,2026.03.31,6370,daily_tuesday,dailyDown1
 2026.03.31,2026.03.31,6299,daily_tuesday,dailyDown3
+2026.04.01,2026.04.01,6566,daily_wednesday_smash,dailySmash
+2026.04.01,2026.04.01,6611,daily_wednesday,dailyUp1
+2026.04.01,2026.04.01,6529,daily_wednesday,dailyDown1
+2026.04.01,2026.04.01,6497,daily_wednesday,dailyDown2
