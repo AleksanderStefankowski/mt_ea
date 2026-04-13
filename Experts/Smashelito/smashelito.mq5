@@ -1557,7 +1557,7 @@ double GetLevelExpandedDiff(double levelPrice, string tag, datetime barTime)
 //| Returns "never" if no bar had price above level (Up) or below level (Down); else returns value as string. |
 //| Uses OptionalDouble in memory (no -1e300 sentinel). |
 //+------------------------------------------------------------------+
-string GetHighestDiffFromLevelInWindowString(double levelPrice, int barK, int windowBars, bool wantUp)
+string Rules_GetHighestDiffFromLevelInWindowString(double levelPrice, int barK, int windowBars, bool wantUp)
 {
    int startBar = MathMax(0, barK - windowBars + 1);
    OptionalDouble result;
@@ -2605,6 +2605,413 @@ int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
 void SyncTradeVariantsFromInputs() // bookmark1tradebegin
 {  
 
+// encoding input magic: 20202130057000505
+g_trade[0].enabled                  = true;
+g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[0].tradeTypeId              = 2;
+g_trade[0].ruleSubsetId             = 2;
+g_trade[0].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[0].tradeSizePct             = 100;
+g_trade[0].tpPoints                 = 5.0;
+g_trade[0].slPoints                 = 5.0;
+g_trade[0].livePriceDiffTrigger     = 3.0;
+g_trade[0].levelOffsetPoints        = 0.5;
+g_trade[0].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[0].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[0].babysit_enabled          = false;
+g_trade[0].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202130057000705
+g_trade[1].enabled                  = true;
+g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[1].tradeTypeId              = 2;
+g_trade[1].ruleSubsetId             = 2;
+g_trade[1].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[1].tradeSizePct             = 100;
+g_trade[1].tpPoints                 = 7.0;
+g_trade[1].slPoints                 = 5.0;
+g_trade[1].livePriceDiffTrigger     = 3.0;
+g_trade[1].levelOffsetPoints        = 0.5;
+g_trade[1].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[1].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[1].babysit_enabled          = false;
+g_trade[1].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202130037000505
+g_trade[2].enabled                  = true;
+g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[2].tradeTypeId              = 2;
+g_trade[2].ruleSubsetId             = 2;
+g_trade[2].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[2].tradeSizePct             = 100;
+g_trade[2].tpPoints                 = 5.0;
+g_trade[2].slPoints                 = 5.0;
+g_trade[2].livePriceDiffTrigger     = 3.0;
+g_trade[2].levelOffsetPoints        = 0.3;
+g_trade[2].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[2].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[2].babysit_enabled          = false;
+g_trade[2].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202130037000705
+g_trade[3].enabled                  = true;
+g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[3].tradeTypeId              = 2;
+g_trade[3].ruleSubsetId             = 2;
+g_trade[3].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[3].tradeSizePct             = 100;
+g_trade[3].tpPoints                 = 7.0;
+g_trade[3].slPoints                 = 5.0;
+g_trade[3].livePriceDiffTrigger     = 3.0;
+g_trade[3].levelOffsetPoints        = 0.3;
+g_trade[3].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[3].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[3].babysit_enabled          = false;
+g_trade[3].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202130157000505
+g_trade[4].enabled                  = true;
+g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[4].tradeTypeId              = 2;
+g_trade[4].ruleSubsetId             = 2;
+g_trade[4].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[4].tradeSizePct             = 100;
+g_trade[4].tpPoints                 = 5.0;
+g_trade[4].slPoints                 = 5.0;
+g_trade[4].livePriceDiffTrigger     = 3.0;
+g_trade[4].levelOffsetPoints        = 1.5;
+g_trade[4].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[4].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[4].babysit_enabled          = false;
+g_trade[4].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202130157000705
+g_trade[5].enabled                  = true;
+g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[5].tradeTypeId              = 2;
+g_trade[5].ruleSubsetId             = 2;
+g_trade[5].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[5].tradeSizePct             = 100;
+g_trade[5].tpPoints                 = 7.0;
+g_trade[5].slPoints                 = 5.0;
+g_trade[5].livePriceDiffTrigger     = 3.0;
+g_trade[5].levelOffsetPoints        = 1.5;
+g_trade[5].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[5].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[5].babysit_enabled          = false;
+g_trade[5].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202230057000505
+g_trade[6].enabled                  = true;
+g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[6].tradeTypeId              = 2;
+g_trade[6].ruleSubsetId             = 2;
+g_trade[6].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[6].tradeSizePct             = 100;
+g_trade[6].tpPoints                 = 5.0;
+g_trade[6].slPoints                 = 5.0;
+g_trade[6].livePriceDiffTrigger     = 3.0;
+g_trade[6].levelOffsetPoints        = 0.5;
+g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[6].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[6].babysit_enabled          = false;
+g_trade[6].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202230057000705
+g_trade[7].enabled                  = true;
+g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[7].tradeTypeId              = 2;
+g_trade[7].ruleSubsetId             = 2;
+g_trade[7].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[7].tradeSizePct             = 100;
+g_trade[7].tpPoints                 = 7.0;
+g_trade[7].slPoints                 = 5.0;
+g_trade[7].livePriceDiffTrigger     = 3.0;
+g_trade[7].levelOffsetPoints        = 0.5;
+g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[7].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[7].babysit_enabled          = false;
+g_trade[7].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202230037000505
+g_trade[8].enabled                  = true;
+g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[8].tradeTypeId              = 2;
+g_trade[8].ruleSubsetId             = 2;
+g_trade[8].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[8].tradeSizePct             = 100;
+g_trade[8].tpPoints                 = 5.0;
+g_trade[8].slPoints                 = 5.0;
+g_trade[8].livePriceDiffTrigger     = 3.0;
+g_trade[8].levelOffsetPoints        = 0.3;
+g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[8].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[8].babysit_enabled          = false;
+g_trade[8].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202230037000705
+g_trade[9].enabled                  = true;
+g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[9].tradeTypeId              = 2;
+g_trade[9].ruleSubsetId             = 2;
+g_trade[9].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[9].tradeSizePct             = 100;
+g_trade[9].tpPoints                 = 7.0;
+g_trade[9].slPoints                 = 5.0;
+g_trade[9].livePriceDiffTrigger     = 3.0;
+g_trade[9].levelOffsetPoints        = 0.3;
+g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[9].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[9].babysit_enabled          = false;
+g_trade[9].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202230157000505
+g_trade[10].enabled                  = true;
+g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[10].tradeTypeId              = 2;
+g_trade[10].ruleSubsetId             = 2;
+g_trade[10].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[10].tradeSizePct             = 100;
+g_trade[10].tpPoints                 = 5.0;
+g_trade[10].slPoints                 = 5.0;
+g_trade[10].livePriceDiffTrigger     = 3.0;
+g_trade[10].levelOffsetPoints        = 1.5;
+g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[10].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[10].babysit_enabled          = false;
+g_trade[10].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202230157000705
+g_trade[11].enabled                  = true;
+g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[11].tradeTypeId              = 2;
+g_trade[11].ruleSubsetId             = 2;
+g_trade[11].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[11].tradeSizePct             = 100;
+g_trade[11].tpPoints                 = 7.0;
+g_trade[11].slPoints                 = 5.0;
+g_trade[11].livePriceDiffTrigger     = 3.0;
+g_trade[11].levelOffsetPoints        = 1.5;
+g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[11].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[11].babysit_enabled          = false;
+g_trade[11].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202330057000505
+g_trade[12].enabled                  = true;
+g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[12].tradeTypeId              = 2;
+g_trade[12].ruleSubsetId             = 2;
+g_trade[12].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[12].tradeSizePct             = 100;
+g_trade[12].tpPoints                 = 5.0;
+g_trade[12].slPoints                 = 5.0;
+g_trade[12].livePriceDiffTrigger     = 3.0;
+g_trade[12].levelOffsetPoints        = 0.5;
+g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[12].babysit_enabled          = false;
+g_trade[12].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202330057000705
+g_trade[13].enabled                  = true;
+g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[13].tradeTypeId              = 2;
+g_trade[13].ruleSubsetId             = 2;
+g_trade[13].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[13].tradeSizePct             = 100;
+g_trade[13].tpPoints                 = 7.0;
+g_trade[13].slPoints                 = 5.0;
+g_trade[13].livePriceDiffTrigger     = 3.0;
+g_trade[13].levelOffsetPoints        = 0.5;
+g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[13].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[13].babysit_enabled          = false;
+g_trade[13].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202330037000505
+g_trade[14].enabled                  = true;
+g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[14].tradeTypeId              = 2;
+g_trade[14].ruleSubsetId             = 2;
+g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[14].tradeSizePct             = 100;
+g_trade[14].tpPoints                 = 5.0;
+g_trade[14].slPoints                 = 5.0;
+g_trade[14].livePriceDiffTrigger     = 3.0;
+g_trade[14].levelOffsetPoints        = 0.3;
+g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[14].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[14].babysit_enabled          = false;
+g_trade[14].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202330037000705
+g_trade[15].enabled                  = true;
+g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[15].tradeTypeId              = 2;
+g_trade[15].ruleSubsetId             = 2;
+g_trade[15].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[15].tradeSizePct             = 100;
+g_trade[15].tpPoints                 = 7.0;
+g_trade[15].slPoints                 = 5.0;
+g_trade[15].livePriceDiffTrigger     = 3.0;
+g_trade[15].levelOffsetPoints        = 0.3;
+g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[15].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[15].babysit_enabled          = false;
+g_trade[15].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202330157000505
+g_trade[16].enabled                  = true;
+g_trade[16].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[16].tradeTypeId              = 2;
+g_trade[16].ruleSubsetId             = 2;
+g_trade[16].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[16].tradeSizePct             = 100;
+g_trade[16].tpPoints                 = 5.0;
+g_trade[16].slPoints                 = 5.0;
+g_trade[16].livePriceDiffTrigger     = 3.0;
+g_trade[16].levelOffsetPoints        = 1.5;
+g_trade[16].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[16].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[16].babysit_enabled          = false;
+g_trade[16].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202330157000705
+g_trade[17].enabled                  = true;
+g_trade[17].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[17].tradeTypeId              = 2;
+g_trade[17].ruleSubsetId             = 2;
+g_trade[17].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[17].tradeSizePct             = 100;
+g_trade[17].tpPoints                 = 7.0;
+g_trade[17].slPoints                 = 5.0;
+g_trade[17].livePriceDiffTrigger     = 3.0;
+g_trade[17].levelOffsetPoints        = 1.5;
+g_trade[17].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[17].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[17].babysit_enabled          = false;
+g_trade[17].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202430057000505
+g_trade[18].enabled                  = true;
+g_trade[18].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[18].tradeTypeId              = 2;
+g_trade[18].ruleSubsetId             = 2;
+g_trade[18].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[18].tradeSizePct             = 100;
+g_trade[18].tpPoints                 = 5.0;
+g_trade[18].slPoints                 = 5.0;
+g_trade[18].livePriceDiffTrigger     = 3.0;
+g_trade[18].levelOffsetPoints        = 0.5;
+g_trade[18].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[18].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[18].babysit_enabled          = false;
+g_trade[18].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202430057000705
+g_trade[19].enabled                  = true;
+g_trade[19].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[19].tradeTypeId              = 2;
+g_trade[19].ruleSubsetId             = 2;
+g_trade[19].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[19].tradeSizePct             = 100;
+g_trade[19].tpPoints                 = 7.0;
+g_trade[19].slPoints                 = 5.0;
+g_trade[19].livePriceDiffTrigger     = 3.0;
+g_trade[19].levelOffsetPoints        = 0.5;
+g_trade[19].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[19].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[19].babysit_enabled          = false;
+g_trade[19].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202430037000505
+g_trade[20].enabled                  = true;
+g_trade[20].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[20].tradeTypeId              = 2;
+g_trade[20].ruleSubsetId             = 2;
+g_trade[20].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[20].tradeSizePct             = 100;
+g_trade[20].tpPoints                 = 5.0;
+g_trade[20].slPoints                 = 5.0;
+g_trade[20].livePriceDiffTrigger     = 3.0;
+g_trade[20].levelOffsetPoints        = 0.3;
+g_trade[20].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[20].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[20].babysit_enabled          = false;
+g_trade[20].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202430037000705
+g_trade[21].enabled                  = true;
+g_trade[21].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[21].tradeTypeId              = 2;
+g_trade[21].ruleSubsetId             = 2;
+g_trade[21].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[21].tradeSizePct             = 100;
+g_trade[21].tpPoints                 = 7.0;
+g_trade[21].slPoints                 = 5.0;
+g_trade[21].livePriceDiffTrigger     = 3.0;
+g_trade[21].levelOffsetPoints        = 0.3;
+g_trade[21].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[21].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[21].babysit_enabled          = false;
+g_trade[21].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202430157000505
+g_trade[22].enabled                  = true;
+g_trade[22].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[22].tradeTypeId              = 2;
+g_trade[22].ruleSubsetId             = 2;
+g_trade[22].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[22].tradeSizePct             = 100;
+g_trade[22].tpPoints                 = 5.0;
+g_trade[22].slPoints                 = 5.0;
+g_trade[22].livePriceDiffTrigger     = 3.0;
+g_trade[22].levelOffsetPoints        = 1.5;
+g_trade[22].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[22].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[22].babysit_enabled          = false;
+g_trade[22].babysitStart_minute      = 0;
+
+
+// encoding input magic: 20202430157000705
+g_trade[23].enabled                  = true;
+g_trade[23].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[23].tradeTypeId              = 2;
+g_trade[23].ruleSubsetId             = 2;
+g_trade[23].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[23].tradeSizePct             = 100;
+g_trade[23].tpPoints                 = 7.0;
+g_trade[23].slPoints                 = 5.0;
+g_trade[23].livePriceDiffTrigger     = 3.0;
+g_trade[23].levelOffsetPoints        = 1.5;
+g_trade[23].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[23].bannedRanges = "22,0,23,59;0,0,1,0";
+g_trade[23].babysit_enabled          = false;
+g_trade[23].babysitStart_minute      = 0;
+
 
 
 //tradeDeleter_ends_here. AI never edit this comment
@@ -2858,7 +3265,7 @@ double GetClosestNonTertiaryLevelToPrice(double price, bool wantAbove)
 //+------------------------------------------------------------------+
 //| Closest non-tertiary level below price. Wrapper for GetClosestNonTertiaryLevelToPrice(price, false). |
 //+------------------------------------------------------------------+
-double GetClosestNonTertiaryLevelBelowPrice(double price)
+double Rules_GetClosestNonTertiaryLevelBelowPrice(double price)
 {
    return GetClosestNonTertiaryLevelToPrice(price, false);
 }
@@ -2866,7 +3273,7 @@ double GetClosestNonTertiaryLevelBelowPrice(double price)
 //+------------------------------------------------------------------+
 //| Closest non-tertiary level above price. Wrapper for GetClosestNonTertiaryLevelToPrice(price, true). |
 //+------------------------------------------------------------------+
-double GetClosestNonTertiaryLevelAbovePrice(double price)
+double Rules_GetClosestNonTertiaryLevelAbovePrice(double price)
 {
    return GetClosestNonTertiaryLevelToPrice(price, true);
 }
@@ -3326,9 +3733,9 @@ bool Subset_10201(double levelPx, int levelIdx, int kLast)
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin) return false;
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
    if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
    return true;
@@ -3341,9 +3748,9 @@ bool Subset_10207(double levelPx, int levelIdx, int kLast)
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin) return false;
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if(StringToDouble(diffBelow) < 10.0) return false;
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(StringToDouble(diffAbove) < 12.0) return false;
    if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
    return true;
@@ -3356,9 +3763,9 @@ bool Subset_10202(double levelPx, int levelIdx, int kLast)
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin) return false;
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if(diffBelow == "never" || StringToDouble(diffBelow) < 25.0) return false;
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
    if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
    return true;
@@ -3374,10 +3781,10 @@ bool Subset_10203(double levelPx, int levelIdx, int kLast)
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
 
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if( StringToDouble(diffBelow) < 25.0) return false;
 
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(StringToDouble(diffAbove) < 25.0) return false;
 
    if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
@@ -3395,10 +3802,10 @@ bool Subset_10204(double levelPx, int levelIdx, int kLast)
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
 
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if(diffBelow == "never" || StringToDouble(diffBelow) < 2.0) return false;
 
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(diffAbove == "never" || StringToDouble(diffAbove) < 2.0) return false;
 
    if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
@@ -3417,10 +3824,10 @@ bool Subset_10205(double levelPx, int levelIdx, int kLast)
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
 
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if(StringToDouble(diffBelow) < 2.0) return false;
 
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(StringToDouble(diffAbove) < 2.0) return false;
 
    if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
@@ -3438,10 +3845,10 @@ bool Subset_10206(double levelPx, int levelIdx, int kLast)
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
 
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if(StringToDouble(diffBelow) < 10.0) return false;
 
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(StringToDouble(diffAbove) < 12.0) return false;
 
    return true;
@@ -3454,9 +3861,9 @@ bool Subset_10208(double levelPx, int levelIdx, int kLast)
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
    if(streakAbove < cleanStreakAboveMin) return false;
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
    if(diffBelow == "never" || StringToDouble(diffBelow) < 10.0) return false;
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
    if(diffAbove == "never" || StringToDouble(diffAbove) < 12.0) return false;
    // if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
    return true;
@@ -4100,7 +4507,7 @@ bool Subset_20201(double levelPx, int levelIdx, int kLast)
    // highest diff above: 19 pkt ostatnie (var streak 24 + przed streakiem 30 czyli łącznie 54) świece 
 
    const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
-   string diffAbove = GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
    if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
 
    //highest diff below: 11 pkt ostatnie 24 świece (w tym clean streaku) udowadnia że cena była nisko poniżej levela niedawno (i więcej niż nasz target TPSL)
@@ -4109,8 +4516,146 @@ bool Subset_20201(double levelPx, int levelIdx, int kLast)
 
    int diffBelowRange = cleanStreakBelow - 1;
    if(diffBelowRange < 1) diffBelowRange = 1;
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
    if(diffBelow == "never" || StringToDouble(diffBelow) < 9.0) return false;
+
+   return true;
+}
+bool Subset_20210(double levelPx, int levelIdx, int kLast)
+{
+   //clean strik 11 udowadnia że cena było czysto poniżej levela niedawno	
+
+   const int cleanStreakBelowMin = 8;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 9.0) return false;
+
+   return true;
+}
+bool Subset_20220(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+
+   return true;
+}
+bool Subset_20230(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 40;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+
+   return true;
+}
+bool Subset_20240(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 80;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+
+   return true;
+}
+bool Subset_20240(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 80;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+
+   return true;
+}
+bool Subset_20250(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 80;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+
+   return true;
+}
+bool Subset_20260(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 20;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+
+   return true;
+}
+bool Subset_20270(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 20;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+
+   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 8.0) return false;
 
    return true;
 }
@@ -4121,16 +4666,13 @@ bool Subset_20301(double levelPx, int levelIdx, int kLast)
 // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. i screeny pokazują
 // że ślepy short 1st touch jest słaby ale warto i tak potem przetestować taki trade type (nie 03) 
 
-   double levelBelow = GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
    // Check if a level was found (returns 0.0 if none) and perform logic
    if(levelBelow <= 0.0) return false;
 
    const double twoLevelsDiff = levelPx - levelBelow;
    if(twoLevelsDiff < 10.0) return false;
    if(twoLevelsDiff > 35.0) return false;
-
-   // if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
-   // if(kLast < 0 || kLast >= g_barsInDay) return false;
 
    // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
    // b: level never touched today, ale pewnie wystarczy clean streak 120
@@ -4143,8 +4685,163 @@ bool Subset_20301(double levelPx, int levelIdx, int kLast)
    //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
    const int diffBelowRange = 35; //+ X minutes
    const double diffBelowMin = twoLevelsDiff + 11.0;
-   string diffBelow = GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
    if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+
+   return true;
+}
+bool Subset_20310(double levelPx, int levelIdx, int kLast)
+{
+// short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   // Check if a level was found (returns 0.0 if none) and perform logic
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 35; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+
+   return true;
+}
+bool Subset_20320(double levelPx, int levelIdx, int kLast)
+{
+// short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   // Check if a level was found (returns 0.0 if none) and perform logic
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 35; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+
+   return true;
+}
+
+bool Subset_20330(double levelPx, int levelIdx, int kLast)
+{
+// short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   // Check if a level was found (returns 0.0 if none) and perform logic
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 35; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+
+   return true;
+}
+
+bool Subset_20401(double levelPx, int levelIdx, int kLast)
+{
+// short type 4 : 1st ever touch today, ALE na warunkach
+// np level jest > 50 pkt od ONO and RTHO
+
+highest diffy below: 55 w 180, 43 w 137, 34 w 99, 26 w 27
+6684.1 ONO, diff from level is 41,9
+RTHO nie ma jeszcze
+
+overlap candles 0, candles above: 0.  bo to ma być first touch ever
+
+proximity 1.3 o 13:46, gain 19 pkt w 8 minut
+
+level 60 pkt ponad ONO (rule > 50
+level 56 pkt ponad RTHO ( rule > 50?)
+level 15 pkt ponad IBH (rule >10
+contact 18:28 -1.4 pkt
+25 pkt w 10 minut
+easy 8/8 daily RTH
+
+140 pkt od ONO (> 50
+150 pkt od RTHO (> 50)
+96 pkt > IBH 
+contact 20:38, -2.4 pkt
+gain 20 pkt w 3 m
+easy daily and RTH 8/8
+
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   // Check if a level was found (returns 0.0 if none) and perform logic
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 35; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+
+   return true;
+}
+
+bool Subset_20410(double levelPx, int levelIdx, int kLast)
+{
+// short type 4 : 1st ever touch today, with conditions
+currentONO = g_ONopen
+if   (LEVELprice minus currentONO, absolute) is < 50 return false
+
+currentRTHO =  g_todayRTHopen + g_todayRTHopenValid, it requires g_todayRTHopenValid, requires the bar’s time to be at or after the nominal RTH open bar time, then returns g_todayRTHopen
+if currentRTHO is not set yet, proceed
+if currentRTHO is set, and (LEVELprice minus currentRTHO, absolute) is < 50, return false
+
+currentIBH =   g_IBhighAtBar[]  only set g_IBhighAtBar[k].hasValue once the last IB minute has passed (ibComplete):
+if currentIBH not set yet, proceed
+if  set  and (LEVELprice minus currentIBH, absolute) is < 50 return false 
+
+get these like in testinglevelsplus:
+if abovePerc != 'never' or != 0, return false
+if overlapC != 'never' or != 0, return false
 
    return true;
 }
@@ -4222,10 +4919,31 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
    if(subsetHandlerKey == 20141 || subsetHandlerKey == 40141)
       return Subset_20141_parent(levelPx, levelIdx, kLast);
 
-   if(subsetHandlerKey == 20201)
+   if(subsetHandlerKey == 20201 || subsetHandlerKey == 40201)
       return Subset_20201(levelPx, levelIdx, kLast);
-   if(subsetHandlerKey == 20301)
+   if(subsetHandlerKey == 20210 || subsetHandlerKey == 40210)
+      return Subset_20210(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20220 || subsetHandlerKey == 40220)
+      return Subset_20220(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20230 || subsetHandlerKey == 40230)
+      return Subset_20230(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20240 || subsetHandlerKey == 40240)
+      return Subset_20240(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20250 || subsetHandlerKey == 40250)
+      return Subset_20250(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20260 || subsetHandlerKey == 40260)
+      return Subset_20260(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20270 || subsetHandlerKey == 40270)
+      return Subset_20270(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 20301 || subsetHandlerKey == 40301)
       return Subset_20301(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20310 || subsetHandlerKey == 40310)
+      return Subset_20310(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20320 || subsetHandlerKey == 40320)
+      return Subset_20320(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20330 || subsetHandlerKey == 40330)
+      return Subset_20330(levelPx, levelIdx, kLast);
 
    // Explicit 4xxxx variants
    if(subsetHandlerKey == 40192)
@@ -5150,8 +5868,8 @@ void RunTimerPendingNearLevelsPipeline()
    //--- A. Prerequisites
    if(!HasAnyLevelToday() || g_barsInDay <= 0) return;
    const int lastBarIndexToday = g_barsInDay - 1; // index into g_session[], g_m1Rates[], etc. for the current (forming) bar
-   const double nearestLevelBelowBid = GetClosestNonTertiaryLevelBelowPrice(g_liveBid);
-   const double nearestLevelAboveBid = GetClosestNonTertiaryLevelAbovePrice(g_liveBid);
+   const double nearestLevelBelowBid = Rules_GetClosestNonTertiaryLevelBelowPrice(g_liveBid);
+   const double nearestLevelAboveBid = Rules_GetClosestNonTertiaryLevelAbovePrice(g_liveBid);
    if(nearestLevelBelowBid <= 0.0 && nearestLevelAboveBid <= 0.0) return;
 
    //--- B–C. Proximity, then stage-1 gates, per g_trade[] row (single loop)
@@ -6146,8 +6864,8 @@ void OnTimer()
                bool haveRthOpen = GetTodayRTHopenIfValid(rthOpenVal);
                for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
                {
-                  string highestUp   = GetHighestDiffFromLevelInWindowString(lvl, barIdx, HighestDiffRange_Log, true);
-                  string highestDown = GetHighestDiffFromLevelInWindowString(lvl, barIdx, HighestDiffRange_Log, false);
+                  string highestUp   = Rules_GetHighestDiffFromLevelInWindowString(lvl, barIdx, HighestDiffRange_Log, true);
+                  string highestDown = Rules_GetHighestDiffFromLevelInWindowString(lvl, barIdx, HighestDiffRange_Log, false);
                   bool onKnown   = (barIdx > 0);
                   bool rthKnown  = haveRthOpen && (GetSessionForCandleTime(g_levelsExpanded[levelIdx].times[barIdx]) != "ON");
                   string onAboveStr  = GetOpenWasAboveLevelString(onOpen, lvl, onKnown);
