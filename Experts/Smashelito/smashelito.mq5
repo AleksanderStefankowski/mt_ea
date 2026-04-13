@@ -2605,415 +2605,6 @@ int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
 void SyncTradeVariantsFromInputs() // bookmark1tradebegin
 {  
 
-// encoding input magic: 20202130057000505
-g_trade[0].enabled                  = true;
-g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[0].tradeTypeId              = 2;
-g_trade[0].ruleSubsetId             = 2;
-g_trade[0].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
-g_trade[0].tradeSizePct             = 100;
-g_trade[0].tpPoints                 = 5.0;
-g_trade[0].slPoints                 = 5.0;
-g_trade[0].livePriceDiffTrigger     = 3.0;
-g_trade[0].levelOffsetPoints        = 0.5;
-g_trade[0].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[0].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[0].babysit_enabled          = false;
-g_trade[0].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202130057000705
-g_trade[1].enabled                  = true;
-g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[1].tradeTypeId              = 2;
-g_trade[1].ruleSubsetId             = 2;
-g_trade[1].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
-g_trade[1].tradeSizePct             = 100;
-g_trade[1].tpPoints                 = 7.0;
-g_trade[1].slPoints                 = 5.0;
-g_trade[1].livePriceDiffTrigger     = 3.0;
-g_trade[1].levelOffsetPoints        = 0.5;
-g_trade[1].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[1].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[1].babysit_enabled          = false;
-g_trade[1].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202130037000505
-g_trade[2].enabled                  = true;
-g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[2].tradeTypeId              = 2;
-g_trade[2].ruleSubsetId             = 2;
-g_trade[2].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
-g_trade[2].tradeSizePct             = 100;
-g_trade[2].tpPoints                 = 5.0;
-g_trade[2].slPoints                 = 5.0;
-g_trade[2].livePriceDiffTrigger     = 3.0;
-g_trade[2].levelOffsetPoints        = 0.3;
-g_trade[2].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[2].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[2].babysit_enabled          = false;
-g_trade[2].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202130037000705
-g_trade[3].enabled                  = true;
-g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[3].tradeTypeId              = 2;
-g_trade[3].ruleSubsetId             = 2;
-g_trade[3].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
-g_trade[3].tradeSizePct             = 100;
-g_trade[3].tpPoints                 = 7.0;
-g_trade[3].slPoints                 = 5.0;
-g_trade[3].livePriceDiffTrigger     = 3.0;
-g_trade[3].levelOffsetPoints        = 0.3;
-g_trade[3].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[3].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[3].babysit_enabled          = false;
-g_trade[3].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202130157000505
-g_trade[4].enabled                  = true;
-g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[4].tradeTypeId              = 2;
-g_trade[4].ruleSubsetId             = 2;
-g_trade[4].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
-g_trade[4].tradeSizePct             = 100;
-g_trade[4].tpPoints                 = 5.0;
-g_trade[4].slPoints                 = 5.0;
-g_trade[4].livePriceDiffTrigger     = 3.0;
-g_trade[4].levelOffsetPoints        = 1.5;
-g_trade[4].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[4].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[4].babysit_enabled          = false;
-g_trade[4].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202130157000705
-g_trade[5].enabled                  = true;
-g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[5].tradeTypeId              = 2;
-g_trade[5].ruleSubsetId             = 2;
-g_trade[5].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
-g_trade[5].tradeSizePct             = 100;
-g_trade[5].tpPoints                 = 7.0;
-g_trade[5].slPoints                 = 5.0;
-g_trade[5].livePriceDiffTrigger     = 3.0;
-g_trade[5].levelOffsetPoints        = 1.5;
-g_trade[5].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[5].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[5].babysit_enabled          = false;
-g_trade[5].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202230057000505
-g_trade[6].enabled                  = true;
-g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[6].tradeTypeId              = 2;
-g_trade[6].ruleSubsetId             = 2;
-g_trade[6].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-g_trade[6].tradeSizePct             = 100;
-g_trade[6].tpPoints                 = 5.0;
-g_trade[6].slPoints                 = 5.0;
-g_trade[6].livePriceDiffTrigger     = 3.0;
-g_trade[6].levelOffsetPoints        = 0.5;
-g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[6].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[6].babysit_enabled          = false;
-g_trade[6].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202230057000705
-g_trade[7].enabled                  = true;
-g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[7].tradeTypeId              = 2;
-g_trade[7].ruleSubsetId             = 2;
-g_trade[7].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-g_trade[7].tradeSizePct             = 100;
-g_trade[7].tpPoints                 = 7.0;
-g_trade[7].slPoints                 = 5.0;
-g_trade[7].livePriceDiffTrigger     = 3.0;
-g_trade[7].levelOffsetPoints        = 0.5;
-g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[7].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[7].babysit_enabled          = false;
-g_trade[7].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202230037000505
-g_trade[8].enabled                  = true;
-g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[8].tradeTypeId              = 2;
-g_trade[8].ruleSubsetId             = 2;
-g_trade[8].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-g_trade[8].tradeSizePct             = 100;
-g_trade[8].tpPoints                 = 5.0;
-g_trade[8].slPoints                 = 5.0;
-g_trade[8].livePriceDiffTrigger     = 3.0;
-g_trade[8].levelOffsetPoints        = 0.3;
-g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[8].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[8].babysit_enabled          = false;
-g_trade[8].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202230037000705
-g_trade[9].enabled                  = true;
-g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[9].tradeTypeId              = 2;
-g_trade[9].ruleSubsetId             = 2;
-g_trade[9].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-g_trade[9].tradeSizePct             = 100;
-g_trade[9].tpPoints                 = 7.0;
-g_trade[9].slPoints                 = 5.0;
-g_trade[9].livePriceDiffTrigger     = 3.0;
-g_trade[9].levelOffsetPoints        = 0.3;
-g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[9].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[9].babysit_enabled          = false;
-g_trade[9].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202230157000505
-g_trade[10].enabled                  = true;
-g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[10].tradeTypeId              = 2;
-g_trade[10].ruleSubsetId             = 2;
-g_trade[10].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-g_trade[10].tradeSizePct             = 100;
-g_trade[10].tpPoints                 = 5.0;
-g_trade[10].slPoints                 = 5.0;
-g_trade[10].livePriceDiffTrigger     = 3.0;
-g_trade[10].levelOffsetPoints        = 1.5;
-g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[10].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[10].babysit_enabled          = false;
-g_trade[10].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202230157000705
-g_trade[11].enabled                  = true;
-g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[11].tradeTypeId              = 2;
-g_trade[11].ruleSubsetId             = 2;
-g_trade[11].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
-g_trade[11].tradeSizePct             = 100;
-g_trade[11].tpPoints                 = 7.0;
-g_trade[11].slPoints                 = 5.0;
-g_trade[11].livePriceDiffTrigger     = 3.0;
-g_trade[11].levelOffsetPoints        = 1.5;
-g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[11].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[11].babysit_enabled          = false;
-g_trade[11].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202330057000505
-g_trade[12].enabled                  = true;
-g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[12].tradeTypeId              = 2;
-g_trade[12].ruleSubsetId             = 2;
-g_trade[12].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[12].tradeSizePct             = 100;
-g_trade[12].tpPoints                 = 5.0;
-g_trade[12].slPoints                 = 5.0;
-g_trade[12].livePriceDiffTrigger     = 3.0;
-g_trade[12].levelOffsetPoints        = 0.5;
-g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[12].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[12].babysit_enabled          = false;
-g_trade[12].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202330057000705
-g_trade[13].enabled                  = true;
-g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[13].tradeTypeId              = 2;
-g_trade[13].ruleSubsetId             = 2;
-g_trade[13].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[13].tradeSizePct             = 100;
-g_trade[13].tpPoints                 = 7.0;
-g_trade[13].slPoints                 = 5.0;
-g_trade[13].livePriceDiffTrigger     = 3.0;
-g_trade[13].levelOffsetPoints        = 0.5;
-g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[13].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[13].babysit_enabled          = false;
-g_trade[13].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202330037000505
-g_trade[14].enabled                  = true;
-g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[14].tradeTypeId              = 2;
-g_trade[14].ruleSubsetId             = 2;
-g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[14].tradeSizePct             = 100;
-g_trade[14].tpPoints                 = 5.0;
-g_trade[14].slPoints                 = 5.0;
-g_trade[14].livePriceDiffTrigger     = 3.0;
-g_trade[14].levelOffsetPoints        = 0.3;
-g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[14].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[14].babysit_enabled          = false;
-g_trade[14].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202330037000705
-g_trade[15].enabled                  = true;
-g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[15].tradeTypeId              = 2;
-g_trade[15].ruleSubsetId             = 2;
-g_trade[15].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[15].tradeSizePct             = 100;
-g_trade[15].tpPoints                 = 7.0;
-g_trade[15].slPoints                 = 5.0;
-g_trade[15].livePriceDiffTrigger     = 3.0;
-g_trade[15].levelOffsetPoints        = 0.3;
-g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[15].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[15].babysit_enabled          = false;
-g_trade[15].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202330157000505
-g_trade[16].enabled                  = true;
-g_trade[16].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[16].tradeTypeId              = 2;
-g_trade[16].ruleSubsetId             = 2;
-g_trade[16].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[16].tradeSizePct             = 100;
-g_trade[16].tpPoints                 = 5.0;
-g_trade[16].slPoints                 = 5.0;
-g_trade[16].livePriceDiffTrigger     = 3.0;
-g_trade[16].levelOffsetPoints        = 1.5;
-g_trade[16].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[16].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[16].babysit_enabled          = false;
-g_trade[16].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202330157000705
-g_trade[17].enabled                  = true;
-g_trade[17].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[17].tradeTypeId              = 2;
-g_trade[17].ruleSubsetId             = 2;
-g_trade[17].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[17].tradeSizePct             = 100;
-g_trade[17].tpPoints                 = 7.0;
-g_trade[17].slPoints                 = 5.0;
-g_trade[17].livePriceDiffTrigger     = 3.0;
-g_trade[17].levelOffsetPoints        = 1.5;
-g_trade[17].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[17].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[17].babysit_enabled          = false;
-g_trade[17].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202430057000505
-g_trade[18].enabled                  = true;
-g_trade[18].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[18].tradeTypeId              = 2;
-g_trade[18].ruleSubsetId             = 2;
-g_trade[18].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
-g_trade[18].tradeSizePct             = 100;
-g_trade[18].tpPoints                 = 5.0;
-g_trade[18].slPoints                 = 5.0;
-g_trade[18].livePriceDiffTrigger     = 3.0;
-g_trade[18].levelOffsetPoints        = 0.5;
-g_trade[18].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[18].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[18].babysit_enabled          = false;
-g_trade[18].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202430057000705
-g_trade[19].enabled                  = true;
-g_trade[19].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[19].tradeTypeId              = 2;
-g_trade[19].ruleSubsetId             = 2;
-g_trade[19].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
-g_trade[19].tradeSizePct             = 100;
-g_trade[19].tpPoints                 = 7.0;
-g_trade[19].slPoints                 = 5.0;
-g_trade[19].livePriceDiffTrigger     = 3.0;
-g_trade[19].levelOffsetPoints        = 0.5;
-g_trade[19].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[19].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[19].babysit_enabled          = false;
-g_trade[19].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202430037000505
-g_trade[20].enabled                  = true;
-g_trade[20].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[20].tradeTypeId              = 2;
-g_trade[20].ruleSubsetId             = 2;
-g_trade[20].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
-g_trade[20].tradeSizePct             = 100;
-g_trade[20].tpPoints                 = 5.0;
-g_trade[20].slPoints                 = 5.0;
-g_trade[20].livePriceDiffTrigger     = 3.0;
-g_trade[20].levelOffsetPoints        = 0.3;
-g_trade[20].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[20].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[20].babysit_enabled          = false;
-g_trade[20].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202430037000705
-g_trade[21].enabled                  = true;
-g_trade[21].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[21].tradeTypeId              = 2;
-g_trade[21].ruleSubsetId             = 2;
-g_trade[21].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
-g_trade[21].tradeSizePct             = 100;
-g_trade[21].tpPoints                 = 7.0;
-g_trade[21].slPoints                 = 5.0;
-g_trade[21].livePriceDiffTrigger     = 3.0;
-g_trade[21].levelOffsetPoints        = 0.3;
-g_trade[21].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[21].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[21].babysit_enabled          = false;
-g_trade[21].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202430157000505
-g_trade[22].enabled                  = true;
-g_trade[22].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[22].tradeTypeId              = 2;
-g_trade[22].ruleSubsetId             = 2;
-g_trade[22].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
-g_trade[22].tradeSizePct             = 100;
-g_trade[22].tpPoints                 = 5.0;
-g_trade[22].slPoints                 = 5.0;
-g_trade[22].livePriceDiffTrigger     = 3.0;
-g_trade[22].levelOffsetPoints        = 1.5;
-g_trade[22].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[22].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[22].babysit_enabled          = false;
-g_trade[22].babysitStart_minute      = 0;
-
-
-// encoding input magic: 20202430157000705
-g_trade[23].enabled                  = true;
-g_trade[23].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
-g_trade[23].tradeTypeId              = 2;
-g_trade[23].ruleSubsetId             = 2;
-g_trade[23].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
-g_trade[23].tradeSizePct             = 100;
-g_trade[23].tpPoints                 = 7.0;
-g_trade[23].slPoints                 = 5.0;
-g_trade[23].livePriceDiffTrigger     = 3.0;
-g_trade[23].levelOffsetPoints        = 1.5;
-g_trade[23].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
-g_trade[23].bannedRanges = "22,0,23,59;0,0,1,0";
-g_trade[23].babysit_enabled          = false;
-g_trade[23].babysitStart_minute      = 0;
-
-
-
 //tradeDeleter_ends_here. AI never edit this comment
 
 //bookmark2tradeend
@@ -4012,6 +3603,68 @@ bool Gate_Level_AboveONH(const int kLast, const double levelPx)
 }
 
 //+------------------------------------------------------------------+
+//| Gate_Level_neverTouched_ceiling: no overlap bars yet and no clean-above bars so far (same idea as testinglevelsplus: overlapC 0, abovePerc 0). |
+//+------------------------------------------------------------------+
+bool Gate_Level_neverTouched_ceiling(const int levelIdx, const int kLast)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(g_overlapC[levelIdx][kLast] != 0) return false;
+   if(g_abovePerc[levelIdx][kLast] > 0.0) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_AbsDiff_with_ONO: true when |levelPx - g_ONopen| >= minAbsDiffPoints (requires at least one M1 bar for the day). |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbsDiff_with_ONO(const double levelPx, const double minAbsDiffPoints)
+{
+   if(g_barsInDay <= 0) return false;
+   return (MathAbs(levelPx - g_ONopen) >= minAbsDiffPoints);
+}
+
+//+------------------------------------------------------------------+
+//| True when today's RTH open is resolved and bar kLast is at/after nominal RTH open (safe to call Gate_Level_AbsDiff_with_RTHO). |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbsDiff_with_RTHO__guard_RTHO_ready(const int kLast)
+{
+   if(kLast < 0 || kLast >= g_barsInDay || g_m1DayStart == 0) return false;
+   if(!g_todayRTHopenValid) return false;
+   const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   const datetime rthOpenBarTime = g_m1DayStart + GetRthOpenBarOffsetSeconds(dateStr);
+   return (g_m1Rates[kLast].time >= rthOpenBarTime);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_AbsDiff_with_RTHO: |levelPx - RTH open| >= minAbsDiffPoints. Caller MUST only invoke when g_todayRTHopenValid and bar at/after nominal RTH open; else FatalError. |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbsDiff_with_RTHO(const double levelPx, const int kLast, const double minAbsDiffPoints)
+{
+   if(kLast < 0 || kLast >= g_barsInDay || g_m1DayStart == 0)
+      FatalError("Gate_Level_AbsDiff_with_RTHO: invalid kLast or g_m1DayStart (only call when RTHO is set and bar is at/after nominal RTH open)");
+   if(!g_todayRTHopenValid)
+      FatalError("Gate_Level_AbsDiff_with_RTHO: g_todayRTHopenValid is false (only call after today's RTH open is resolved)");
+   const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   const datetime rthOpenBarTime = g_m1DayStart + GetRthOpenBarOffsetSeconds(dateStr);
+   if(g_m1Rates[kLast].time < rthOpenBarTime)
+      FatalError("Gate_Level_AbsDiff_with_RTHO: bar time before nominal RTH open (only call when current bar is at/after RTH open)");
+   return (MathAbs(levelPx - g_todayRTHopen) >= minAbsDiffPoints);
+}
+
+//+------------------------------------------------------------------+
+//| Gate_Level_AbsDiff_with_IBH: |levelPx - IB high| >= minAbsDiffPoints. Caller MUST only invoke when IB is complete at kLast (g_IBhighAtBar[kLast].hasValue); else FatalError. |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbsDiff_with_IBH(const double levelPx, const int kLast, const double minAbsDiffPoints)
+{
+   if(kLast < 0 || kLast >= g_barsInDay)
+      FatalError("Gate_Level_AbsDiff_with_IBH: invalid kLast (only call when IBH is ready at kLast)");
+   double ibh;
+   if(!GetIBhighAtBar(kLast, ibh))
+      FatalError("Gate_Level_AbsDiff_with_IBH: IB high not set at kLast (only call after last IB minute has passed)");
+   return (MathAbs(levelPx - ibh) >= minAbsDiffPoints);
+}
+
+//+------------------------------------------------------------------+
 //| Gate_Level_Above_PriceMidpoint: true when levelPx is strictly above session-range midpoint (day H+L)/2 at kLast. |
 //+------------------------------------------------------------------+
 bool Gate_Level_Above_PriceMidpoint(const int kLast, const double levelPx)
@@ -4591,23 +4244,6 @@ bool Subset_20240(double levelPx, int levelIdx, int kLast)
 
    return true;
 }
-bool Subset_20240(double levelPx, int levelIdx, int kLast)
-{
-   const int cleanStreakBelowMin = 80;
-   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
-   if(cleanStreakBelow < cleanStreakBelowMin) return false;
-
-   const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
-   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
-
-   int diffBelowRange = cleanStreakBelow - 1;
-   if(diffBelowRange < 1) diffBelowRange = 1;
-   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
-   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
-
-   return true;
-}
 bool Subset_20250(double levelPx, int levelIdx, int kLast)
 {
    const int cleanStreakBelowMin = 80;
@@ -4616,12 +4252,12 @@ bool Subset_20250(double levelPx, int levelIdx, int kLast)
 
    const int diffAboveRange = cleanStreakBelowMin + 30;  //+ X minutes
    string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 20.0) return false;
 
    int diffBelowRange = cleanStreakBelow - 1;
    if(diffBelowRange < 1) diffBelowRange = 1;
    string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
-   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 20.0) return false;
 
    return true;
 }
@@ -4776,76 +4412,108 @@ bool Subset_20330(double levelPx, int levelIdx, int kLast)
 bool Subset_20401(double levelPx, int levelIdx, int kLast)
 {
 // short type 4 : 1st ever touch today, ALE na warunkach
-// np level jest > 50 pkt od ONO and RTHO
+// real trade examples:
+// ONO, diff from level is 41.9 | level 60 pkt ponad ONO  | 140 pkt od ONO 
+// RTHO nie ma jeszcze | level 56 pkt ponad RTHO | 150 pkt od RTHO
+// ibh nie ma jeszcze | level 15 pkt ponad IBH | 96 pkt > IBH 
+// proximity 1.3, gain 19  w 8 m | contact -1.4 , 25 pkt w 10 m | contact -2.4, gain 20 pkt w 3 m
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
 
-highest diffy below: 55 w 180, 43 w 137, 34 w 99, 26 w 27
-6684.1 ONO, diff from level is 41,9
-RTHO nie ma jeszcze
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO(levelPx, level_minDiff_with_ONO)) return false;
 
-overlap candles 0, candles above: 0.  bo to ma być first touch ever
+   if(Gate_Level_AbsDiff_with_RTHO__guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO(levelPx, kLast, level_minDiff_with_RTHO)) return false;
 
-proximity 1.3 o 13:46, gain 19 pkt w 8 minut
-
-level 60 pkt ponad ONO (rule > 50
-level 56 pkt ponad RTHO ( rule > 50?)
-level 15 pkt ponad IBH (rule >10
-contact 18:28 -1.4 pkt
-25 pkt w 10 minut
-easy 8/8 daily RTH
-
-140 pkt od ONO (> 50
-150 pkt od RTHO (> 50)
-96 pkt > IBH 
-contact 20:38, -2.4 pkt
-gain 20 pkt w 3 m
-easy daily and RTH 8/8
-
-   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
-   // Check if a level was found (returns 0.0 if none) and perform logic
-   if(levelBelow <= 0.0) return false;
-
-   const double twoLevelsDiff = levelPx - levelBelow;
-   if(twoLevelsDiff < 10.0) return false;
-   if(twoLevelsDiff > 35.0) return false;
-
-   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
-   // b: level never touched today, ale pewnie wystarczy clean streak 120
-
-   const int cleanStreakBelowMin = 300;
-   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
-   if(streakBelow < cleanStreakBelowMin) return false;
-
-   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
-   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
-   const int diffBelowRange = 35; //+ X minutes
-   const double diffBelowMin = twoLevelsDiff + 11.0;
-   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
-   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH(levelPx, kLast, level_minDiff_with_IBH)) return false;
 
    return true;
 }
-
 bool Subset_20410(double levelPx, int levelIdx, int kLast)
 {
-// short type 4 : 1st ever touch today, with conditions
-currentONO = g_ONopen
-if   (LEVELprice minus currentONO, absolute) is < 50 return false
+// short type 4 : 1st ever touch today, ALE na warunkach
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
 
-currentRTHO =  g_todayRTHopen + g_todayRTHopenValid, it requires g_todayRTHopenValid, requires the bar’s time to be at or after the nominal RTH open bar time, then returns g_todayRTHopen
-if currentRTHO is not set yet, proceed
-if currentRTHO is set, and (LEVELprice minus currentRTHO, absolute) is < 50, return false
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO(levelPx, level_minDiff_with_ONO)) return false;
 
-currentIBH =   g_IBhighAtBar[]  only set g_IBhighAtBar[k].hasValue once the last IB minute has passed (ibComplete):
-if currentIBH not set yet, proceed
-if  set  and (LEVELprice minus currentIBH, absolute) is < 50 return false 
+   if(Gate_Level_AbsDiff_with_RTHO__guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO(levelPx, kLast, level_minDiff_with_RTHO)) return false;
 
-get these like in testinglevelsplus:
-if abovePerc != 'never' or != 0, return false
-if overlapC != 'never' or != 0, return false
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH(levelPx, kLast, level_minDiff_with_IBH)) return false;
 
    return true;
 }
+bool Subset_20420(double levelPx, int levelIdx, int kLast)
+{
+// short type 4 : 1st ever touch today, ALE na warunkach
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
 
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO__guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH(levelPx, kLast, level_minDiff_with_IBH)) return false;
+
+   return true;
+}
+bool Subset_20430(double levelPx, int levelIdx, int kLast)
+{
+// short type 4 : 1st ever touch today, ALE na warunkach
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO__guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH(levelPx, kLast, level_minDiff_with_IBH)) return false;
+
+   return true;
+}
+bool Subset_20440(double levelPx, int levelIdx, int kLast)
+{
+// short type 4 : 1st ever touch today, ALE na warunkach
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 30.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO__guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH(levelPx, kLast, level_minDiff_with_IBH)) return false;
+
+   return true;
+}
 // bookmark7 bookmarkSubsetEnd
 
 
@@ -4944,6 +4612,18 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
       return Subset_20320(levelPx, levelIdx, kLast);
    if(subsetHandlerKey == 20330 || subsetHandlerKey == 40330)
       return Subset_20330(levelPx, levelIdx, kLast);
+
+   if(subsetHandlerKey == 20401 || subsetHandlerKey == 40401)
+      return Subset_20401(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20410 || subsetHandlerKey == 40410)
+      return Subset_20410(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20420 || subsetHandlerKey == 40420)
+      return Subset_20420(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20430 || subsetHandlerKey == 40430)
+      return Subset_20430(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 20440 || subsetHandlerKey == 40440)
+      return Subset_20440(levelPx, levelIdx, kLast);
+
 
    // Explicit 4xxxx variants
    if(subsetHandlerKey == 40192)
