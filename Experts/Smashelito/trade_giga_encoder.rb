@@ -28,8 +28,17 @@ ss: ["02", "03", "04", "05", "11"]
 of: ["26"]
 end
 
+=begin output of read smashelito (smash_mql5_reader_Functions_read_subsets_For_GigaEncoder)
+=== GROUPED (last 2 digits) BY FIRST 3 DIGITS ===
+Group 102: ["01", "02", "03", "04", "05", "06", "07", "08"]
+Group 201: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "12", "13", "14", "21", "31", "41"]
+Group 202: ["01"]
+Group 203: ["01"]
+Group 401: ["92", "93", "94", "95", "96", "97", "98", "99"]
+=end
 
-=begin 
+
+=begin tutaj chyba sam napisalem, wiec to do usunięcia pewnie
 === GROUPED (last 2 digits) BY FIRST 3 DIGITS ===
 Group 102: ["01", "02", "03", "04", "05", "06", "07", "08"]
 Group 201: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "12", "13", "14", "21", "31", "41"]

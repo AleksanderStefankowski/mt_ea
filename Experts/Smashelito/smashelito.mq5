@@ -1013,23 +1013,55 @@ string GetPDtrendString()
 }
 
 //+------------------------------------------------------------------+
-//| Find the RTH open candle of current day in g_m1Rates (14:30 on desync dates, else 15:30). FatalError if not found. Returns its open price. |
+//| Resolve RTH open for gap stats: (1) exact 15:30/14:30 bar (2) else latest M1 that day with time < target. Otherwise false (caller FatalError). |
+//| No session lookup needed here; g_m1Rates[0..g_barsInDay) is already that calendar day's slice. |
+//+------------------------------------------------------------------+
+bool TryResolveRTHopenPriceForDay(const string &dateStr, double &outOpen)
+{
+   outOpen = 0.0;
+   if(g_barsInDay <= 0 || g_m1DayStart == 0) return false;
+   datetime targetTime;
+   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
+      targetTime = g_m1DayStart + 14*3600 + 30*60;
+   else
+      targetTime = g_m1DayStart + 15*3600 + 30*60;
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+      if(g_m1Rates[barIdx].time == targetTime)
+      {
+         outOpen = g_m1Rates[barIdx].open;
+         return true;
+      }
+   int bestIdx = -1;
+   datetime bestT = 0;
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      datetime t = g_m1Rates[barIdx].time;
+      if(t < targetTime && (bestIdx < 0 || t > bestT))
+      {
+         bestT = t;
+         bestIdx = barIdx;
+      }
+   }
+   if(bestIdx >= 0)
+   {
+      outOpen = g_m1Rates[bestIdx].open;
+      return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| RTH open for day-stat / gap logic. Short sessions: latest M1 before nominal open; else FatalError. |
 //+------------------------------------------------------------------+
 double GetRTHopenCurrentDay()
 {
    if(g_barsInDay <= 0 || g_m1DayStart == 0)
       FatalError("GetRTHopenCurrentDay: no day data (g_barsInDay=" + IntegerToString(g_barsInDay) + " g_m1DayStart=0)");
    string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
-   datetime targetTime;
-   if(bool_RTHsession_Is_DaylightSavingsDesync(dateStr))
-      targetTime = g_m1DayStart + 14*3600 + 30*60;   // 14:30 bar
-   else
-      targetTime = g_m1DayStart + 15*3600 + 30*60;   // 15:30 bar
-   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
-      if(g_m1Rates[barIdx].time == targetTime)
-         return g_m1Rates[barIdx].open;
-   FatalError("GetRTHopenCurrentDay: RTH open candle not found for " + TimeToString(g_m1DayStart, TIME_DATE));
-   return 0.0;  // unreachable
+   double o;
+   if(!TryResolveRTHopenPriceForDay(dateStr, o))
+      FatalError("GetRTHopenCurrentDay: no exact nominal RTH open bar and no M1 with time before it for " + dateStr);
+   return o;
 }
 
 //+------------------------------------------------------------------+
@@ -1165,16 +1197,11 @@ void AssignTodayRTHopenFromM1Rates(const string &dateStr)
 {
    g_todayRTHopenValid = false;
    if(g_barsInDay <= 0) return;
-   bool useDesync = bool_RTHsession_Is_DaylightSavingsDesync(dateStr);
-   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
-   {
-      MqlDateTime mqlTime;
-      TimeToStruct(g_m1Rates[barIdx].time, mqlTime);
-      if(useDesync && mqlTime.hour == 14 && mqlTime.min == 30)
-         { g_todayRTHopen = g_m1Rates[barIdx].open; g_todayRTHopenValid = true; return; }
-      if(!useDesync && mqlTime.hour == 15 && mqlTime.min == 30)
-         { g_todayRTHopen = g_m1Rates[barIdx].open; g_todayRTHopenValid = true; return; }
-   }
+   double o;
+   if(!TryResolveRTHopenPriceForDay(dateStr, o))
+      FatalError("AssignTodayRTHopenFromM1Rates: no exact nominal RTH open bar and no M1 with time before it for " + dateStr);
+   g_todayRTHopen = o;
+   g_todayRTHopenValid = true;
 }
 
 //+------------------------------------------------------------------+
@@ -1362,6 +1389,16 @@ int GetRthOpenBarOffsetSeconds(const string dateStr)
    else
       offset = 15*3600 + 30*60;
    return offset;
+}
+
+//+------------------------------------------------------------------+
+//| True if server-calendar midnight dayStart is Sunday (MqlDateTime.day_of_week 0 = Sunday). |
+//+------------------------------------------------------------------+
+bool IsCalendarDaySunday(datetime dayStart)
+{
+   MqlDateTime m;
+   TimeToStruct(dayStart, m);
+   return (m.day_of_week == 0);
 }
 
 //+------------------------------------------------------------------+
@@ -1687,9 +1724,15 @@ void UpdateDayM1AndLevelsExpanded()
    g_barsInDay = barsInDay;
    g_m1DayStart = dayStart;
 
-   // Ensure todayRTHopen is in g_levels when we have the RTH open bar (14:30 on desync dates, else 15:30). Use globals as single source for level and pullinghistory.
-   AssignTodayRTHopenFromM1Rates(dateStr);
-   TryAddTodayRTHopenLevel(dateStr);
+   // No cash-style RTH open on calendar Sunday; resolving it can fatal (sparse M1 vs 14:30 desync target).
+   if(IsCalendarDaySunday(dayStart))
+      g_todayRTHopenValid = false;
+   else
+   {
+      // Ensure todayRTHopen is in g_levels when we have the RTH open bar (14:30 on desync dates, else 15:30). Use globals as single source for level and pullinghistory.
+      AssignTodayRTHopenFromM1Rates(dateStr);
+      TryAddTodayRTHopenLevel(dateStr);
+   }
 
    // Add PD RTH Close as a level for today only if static context was pulled for this day and no level is within proximity
    if(g_staticMarketContextPulledForDate == g_m1DayStart && g_staticMarketContext.PDCpreviousDayRTHClose > 0.0)
@@ -5829,6 +5872,8 @@ void ComputeGapFillFreqs(int daysWith, int &counts[], double &pcts[])
 bool TryLogDayStatForCurrentDay()
 {
    if(g_barsInDay <= 0 || g_m1DayStart == 0 || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0 || dayStat_lastLoggedDayStart == g_m1DayStart)
+      return false;
+   if(IsCalendarDaySunday(g_m1DayStart))
       return false;
    double rthOpen = GetRTHopenCurrentDay();
    double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
