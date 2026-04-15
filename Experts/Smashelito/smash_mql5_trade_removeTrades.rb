@@ -3,7 +3,7 @@
 # ============================================================
 
 MQ5_FILE = "./smashelito.mq5"
-DELETE_RANGE = [0, 999]  # inclusive, trade indices to delete
+DELETE_RANGE = [0, 3000]  # inclusive, trade indices to delete
 END_MARKER = "//tradeDeleter_ends_here. AI never edit this comment"
 
 # ============================================================
@@ -36,7 +36,6 @@ lines.each_with_index do |line, idx|
     next_line_index = idx + 1
     index_line = lines[next_line_index] rescue nil
     trade_index = nil
-
     if index_line && index_line.strip =~ /g_trade\[(\d+)\]/
       trade_index = $1.to_i
     end
