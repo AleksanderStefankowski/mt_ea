@@ -11,6 +11,12 @@ END_MARKER = "//tradeDeleter_ends_here. AI never edit this comment"
 
 lines = File.read(MQ5_FILE).lines
 
+unless lines.any? { |l| l.strip.start_with?(END_MARKER) }
+  warn "Abort: sentinel not found in #{MQ5_FILE}"
+  warn "Expected a line starting with: #{END_MARKER}"
+  exit 1
+end
+
 # ============================================================
 # STATE
 # ============================================================
@@ -35,7 +41,7 @@ while i < lines.length
   end
 
   # stop region at sentinel (REMOVE UP TO HERE)
-  if stripped == END_MARKER
+  if stripped.start_with?(END_MARKER)
     new_lines << line   # keep sentinel
     i += 1
 

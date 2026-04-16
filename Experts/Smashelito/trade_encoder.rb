@@ -1,7 +1,7 @@
 # ================== CONFIG (EDIT HERE) ==================
 #               DttSScPPofBBBtpSL
-MAGIC_NUMBER = "40102230267000808"
-TRADE_INDEX  = 35
+MAGIC_NUMBER = "20260330107000604"
+TRADE_INDEX  = 0
 
 
 ENABLED      = true

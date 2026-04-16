@@ -1,5 +1,3 @@
-#                       DttSScPPofBBBtpSL
-# MAGIC_NUMBER example "40102230267000808"
 #!/usr/bin/env ruby
 
 input = <<~DATA
@@ -35,13 +33,19 @@ def transform(s)
   s = s.strip
   return nil if s.empty?
 
-  # 1. change first digit
-  first_map = { '1' => '3', '2' => '4', '4' => '2', '3' => '1' }
+  # 1. first digit replacement
+  first_map = {
+    '1' => '3',
+    '2' => '4',
+    '3' => '1',
+    '4' => '2'
+  }
+
   s[0] = first_map[s[0]] || s[0]
 
-  # 2. swap last 4 digits
+  # 2. last 4-digit swap: ABCD -> CDAB
   last4 = s[-4..-1]
-  swapped = last4[1] + last4[0] + last4[3] + last4[2]
+  swapped = last4[2] + last4[3] + last4[0] + last4[1]
 
   s[0...-4] + swapped
 end
