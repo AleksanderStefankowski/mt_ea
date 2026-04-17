@@ -1,4 +1,10 @@
 ile comb i jaki zakres dat, ile to tygodni, i ile czasu zajeło
+-----------
+1350 combos over 1 week (sunday to sunday) runs in strategy tester only in 4.5 minutes
+czyli 3 miesiące * 4 = 12, i tydzien kwietnia, 13 * 4.5 = 60 m
+zajelo faktyczznie 1h13 czyli OK mozna dobrze estymować 
+
+-----------
 
 puscilem giga encoded kombinacje
 Total final combinations: 2816

@@ -69,9 +69,11 @@ def trade_size_from_pf(pf)
   elsif pf >= 6 # like 6.5, 7.9
     70
   elsif pf >= 4 # like 5.5
-    40
-  else
+    50
+  elsif pf >= 2.5 # like 2.8
     30
+  else
+    20
   end
 end
 

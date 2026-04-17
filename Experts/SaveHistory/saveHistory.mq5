@@ -6,6 +6,10 @@
 #property link      ""
 #property version   "1.00"
 
+//--- Export window (server time; edit before attaching EA). Plain constants here (not EA parameters dialog).
+const string ExportRangeStartStr = "2026.04.17 00:00";
+const string ExportRangeEndStr   = "2026.04.18 00:00";
+
 //--- Output: 49 columns (date + 48), same schema as legacy summary_tradeResults_all_days
 #define OUT_CSV_NAME "summary_tradeResults_all_days.csv"
 
@@ -1332,11 +1336,8 @@ int OnInit()
 
    LoadCalendar();
 
-   // Hardcoded export range (server dates) — keep literals in one place for logs + StringToTime
-   const string exportRangeStartStr = "2026.04.02 00:00";
-   const string exportRangeEndStr   = "2026.04.06 00:00";
-   datetime rangeStart = StringToTime(exportRangeStartStr);
-   datetime rangeEnd   = StringToTime(exportRangeEndStr);
+   datetime rangeStart = StringToTime(ExportRangeStartStr);
+   datetime rangeEnd   = StringToTime(ExportRangeEndStr);
    if(!HistorySelect(rangeStart, rangeEnd + 86400))
       FatalError("saveHistory: HistorySelect failed for export range (enable trading history / check permissions).");
 
@@ -1359,7 +1360,7 @@ int OnInit()
    string csvFullPath = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL5\\Files\\" + OUT_CSV_NAME;
    Print("saveHistory: starting export | symbol=", _Symbol,
          " | chart TF=", EnumToString((ENUM_TIMEFRAMES)_Period),
-         " | date range (inclusive days, server): ", exportRangeStartStr, " .. ", exportRangeEndStr,
+         " | date range (inclusive days, server): ", ExportRangeStartStr, " .. ", ExportRangeEndStr,
          " | output file: ", OUT_CSV_NAME,
          " | full path: ", csvFullPath);
 
@@ -1414,8 +1415,10 @@ int OnInit()
 
    FileClose(fh);
    Print("saveHistory: finished OK | data rows written: ", IntegerToString(totalRowsWritten), " (plus CSV header row) | symbol=", _Symbol);
-   Print("saveHistory: file saved: ", csvFullPath);
-   Print("saveHistory: date range used (inclusive): ", exportRangeStartStr, " .. ", exportRangeEndStr);
+   Print("saveHistory: OUTPUT SAVED — full path: ", csvFullPath);
+   Print("saveHistory: OUTPUT SAVED — folder: ", TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL5\\Files\\");
+   Print("saveHistory: OUTPUT SAVED — file name: ", OUT_CSV_NAME, " (local MQL5 Files, not Common\\Files)");
+   Print("saveHistory: date range used (inclusive): ", ExportRangeStartStr, " .. ", ExportRangeEndStr);
    if(totalRowsWritten == 0)
       FatalError("saveHistory: no trade rows written (check symbol and date range).");
    ExpertRemove();
