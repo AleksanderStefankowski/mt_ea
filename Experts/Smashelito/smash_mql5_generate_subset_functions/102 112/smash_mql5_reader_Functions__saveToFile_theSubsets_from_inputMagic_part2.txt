@@ -1,0 +1,419 @@
+bool Subset_10217(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10218(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10221(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10222(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10233(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, false);
+   if(StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10237(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10238(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10249(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 300, false);
+   if(StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10253(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 300, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10254(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 120;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 300, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10257(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 50.0, false);
+   if(StringToDouble(diffBelow) < 5.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10258(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 50.0, false);
+   if(StringToDouble(diffBelow) < 5.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10261(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 50.0, false);
+   if(StringToDouble(diffBelow) < 10.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10262(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 50.0, false);
+   if(StringToDouble(diffBelow) < 10.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10265(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 50.0, false);
+   if(StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10275(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 5.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 30.0) return false;
+   return true;
+}
+
+bool Subset_10281(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10282(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 25.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10285(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+bool Subset_10286(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100.0, false);
+   if(StringToDouble(diffBelow) < 40.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 12.0) return false;
+   return true;
+}
+
+bool Subset_10291(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 10;
+   const int cleanStreakAboveMax = 240;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, false);
+   if(StringToDouble(diffBelow) < 5.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(StringToDouble(diffAbove) < 30.0) return false;
+   return true;
+}

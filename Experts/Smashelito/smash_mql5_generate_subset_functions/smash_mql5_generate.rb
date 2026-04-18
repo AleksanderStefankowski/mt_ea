@@ -1,12 +1,14 @@
 require 'time'
 
-starting_subset = "13"
+starting_subset = "01"
 max_per_file = 97 - starting_subset.to_i
 
-trade_type      = "102"
+trade_type      = "103"
 
 timestamp = Time.now.strftime("%Y%m%d_%H%M")
 
+##### DONE
+##### 102 czyli long type 02, tu tylko g_cleanStreakAbove
 # blocks = [
   # ["if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;"],
   # [""],
@@ -23,23 +25,52 @@ timestamp = Time.now.strftime("%Y%m%d_%H%M")
   # ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);"],
   # ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "6.0", "12.0", "30.0", "45.0"],
 # ]  
+##### DONE
+##### 102 czyli long type 02, tu tylko zasięg między cleanStreakAboveMin cleanStreakAboveMax
+######## poza tymi dwoma blocks, nie zrobiłem jeszcze "wariant diffabove sprawdzany w polowie streaku" ani "wariant diffabove  + godzina wiecej niz streak"
+# blocks = [
+#   ["if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;"],
+#   [""],
+#   ["if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;"],
+#   ["if(kLast < 0 || kLast >= g_barsInDay) return false;"],
+#   [""],
+#   ["const int cleanStreakAboveMin = VARIABLE;", "10", "21", "40"], # na koniec jeszcze potestować min streak 60, 120, i maks większy. To jeszcze nie było zrobione! 
+#   ["const int cleanStreakAboveMax = VARIABLE;", "59", "120", "240"],
+#   ["int streakAbove = g_cleanStreakAbove[levelIdx][kLast];"],
+#   ["if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;"],
+#   [""],
+#   ["string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, VARIABLE, false);", "50.0","100.0", "200", "300"],
+#   ["if(StringToDouble(diffBelow) < VARIABLE) return false;",  "5.0", "10.0", "25.0", "40.0"],
+#   [""],
+#   ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);"],
+#   ["if(StringToDouble(diffAbove) < VARIABLE) return false;", "6.0", "12.0", "30.0", "45.0"],
+# ]
+
+##### 103 
 blocks = [
-  ["if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;"],
+  # level above must exist
+  ["double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);"],
+  ["if(levelAbove <= 0.0) return false;"],
   [""],
-  ["if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;"],
-  ["if(kLast < 0 || kLast >= g_barsInDay) return false;"],
+  # distance between levels
+  ["const double twoLevelsDiff = levelAbove - levelPx;"],
+  ["if(twoLevelsDiff < VARIABLE) return false;", "15.0"], # default był "10.0"
+  ["if(twoLevelsDiff > VARIABLE) return false;", "35.0", "15.0", "50.0", "70.0"], # default był "35.0"
   [""],
-  ["const int cleanStreakAboveMin = VARIABLE;", "10", "21", "40"], # na koniec jeszcze potestować min streak 60, 120, i maks większy 
-  ["const int cleanStreakAboveMax = VARIABLE;", "59", "120", "240"],
+
+  # clean streak above
+  ["const int cleanStreakAboveMin = VARIABLE;", "90", "60", "140", "200", "300"], # default był "90"
   ["int streakAbove = g_cleanStreakAbove[levelIdx][kLast];"],
-  ["if(streakAbove < cleanStreakAboveMin || streakAbove > cleanStreakAboveMax) return false;"],
+  ["if(streakAbove < cleanStreakAboveMin) return false;"],
   [""],
-  ["string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, VARIABLE, false);", "50.0","100.0", "200", "300"],
-  ["if(StringToDouble(diffBelow) < VARIABLE) return false;",  "5.0", "10.0", "25.0", "40.0"],
-  [""],
-  ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);"],
-  ["if(StringToDouble(diffAbove) < VARIABLE) return false;", "6.0", "12.0", "30.0", "45.0"],
+
+  # diff above condition (main expansion axis)
+  ["const int diffAboveRange = VARIABLE; // optionally + X minutes", "20", "35", "50", "80", "120"],  # default był "35"
+  ["const double diffAboveMin = twoLevelsDiff + 11.0;"], # default był 11.0, to gwarantuje ze diff above nie był zbyt niski (no trade if przebicie drugiego levela było zbyy słabe)
+  ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);"], # true znaczy że patrzy w górę
+  ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < diffAboveMin) return false;"],
 ]
+
 
 def expand_blocks(blocks)
   combos = [[]]

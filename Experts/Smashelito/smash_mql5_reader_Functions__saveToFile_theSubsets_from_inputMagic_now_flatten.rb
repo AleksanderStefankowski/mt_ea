@@ -1,7 +1,7 @@
 INPUT_FILE  = "smash_mql5_reader_Functions__saveToFile_theSubsets_from_inputMagic.txt"
 OUTPUT_FILE = "smash_mql5_reader_Functions__saveToFile_theSubsets_from_inputMagic_now_flattened.txt.txt"
 
-first_3_digits = "112"
+first_3_digits = "103"
 starting_index = "01"
 step = 1
 
