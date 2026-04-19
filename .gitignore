@@ -21,3 +21,5 @@ experts.dat
 # *.log
 # Tester/*.htm
 # Tester/*.csv
+
+**/.DS_Store
