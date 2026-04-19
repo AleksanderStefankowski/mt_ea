@@ -10,7 +10,7 @@ trades = '''
    g_trade[0].livePriceDiffTrigger = 3.0;
    g_trade[0].levelOffsetPoints    = 2.6;
    g_trade[0].levelProximityFocus  = TRADE_LEVEL_FOCUS_BELOW;
-   g_trade[0].bannedRanges         = "22,0,23,59;0,0,1,0";
+   g_trade[0].bannedRanges         = "21,15,23,59;0,0,1,0";
    g_trade[0].babysit_enabled      = true;
    g_trade[0].babysitStart_minute  = 11;
 '''
