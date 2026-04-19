@@ -140,6 +140,9 @@ struct EntryLevelCtx
 // RunTimerPendingNearLevelsPipeline() scratch only — file scope avoids MQL5 ~2 MB *stack* limit on locals and avoids per-tick ArrayResize.
 PendingMaybeCandidate       g_pendingPipelineStage1[TRADE_VARIANT_COUNT];
 PendingMaybeStage2Candidate g_pendingPipelineStage2[TRADE_VARIANT_COUNT];
+//--- RunTimerPendingNearLevelsPipeline: symbol positions + pending orders → distinct magics (refreshed once per tick before Stage-1 loop; avoids N×terminal scans per variant).
+long   g_occupiedMagicsCache[];
+int    g_occupiedMagicsCount = 0;
 //--- Per-variant config (index = g_trade[] row): useLevel/usePrice reserved; bannedRangesStr for time bans.
 struct TradeTypeConfig
 {
@@ -15336,6 +15339,62 @@ bool CanPlaceNewOrderForMagic(long magic)
 }
 
 //+------------------------------------------------------------------+
+//| Single terminal pass: magics with an open position or pending order on _Symbol (unique). Call once per timer tick before Stage-1 variant loop. |
+//+------------------------------------------------------------------+
+void OccupiedMagicsCache_AppendUnique(const long m)
+{
+   for(int i = 0; i < g_occupiedMagicsCount; i++)
+      if(g_occupiedMagicsCache[i] == m)
+         return;
+   const int n = g_occupiedMagicsCount + 1;
+   if(ArraySize(g_occupiedMagicsCache) < n)
+      ArrayResize(g_occupiedMagicsCache, n + 16);
+   g_occupiedMagicsCache[g_occupiedMagicsCount++] = m;
+}
+
+void RefreshOccupiedMagicsCache()
+{
+   g_occupiedMagicsCount = 0;
+   const int posTotal = PositionsTotal();
+   const int ordTotal = OrdersTotal();
+   const int needCap = (posTotal + ordTotal > 0 ? posTotal + ordTotal : 8);
+   if(ArraySize(g_occupiedMagicsCache) < needCap)
+      ArrayResize(g_occupiedMagicsCache, needCap);
+
+   for(int posIdx = posTotal - 1; posIdx >= 0; posIdx--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(posIdx)) continue;
+      if(ExtPositionInfo.Symbol() != _Symbol) continue;
+      OccupiedMagicsCache_AppendUnique(ExtPositionInfo.Magic());
+   }
+   for(int orderIdx = ordTotal - 1; orderIdx >= 0; orderIdx--)
+   {
+      if(!ExtOrderInfo.SelectByIndex(orderIdx)) continue;
+      if(ExtOrderInfo.Symbol() != _Symbol) continue;
+      OccupiedMagicsCache_AppendUnique(ExtOrderInfo.Magic());
+   }
+}
+
+//+------------------------------------------------------------------+
+//| true if magic appears in cache filled by RefreshOccupiedMagicsCache() this tick. |
+//+------------------------------------------------------------------+
+bool IsMagicOccupiedInCache(const long magic)
+{
+   for(int i = 0; i < g_occupiedMagicsCount; i++)
+      if(g_occupiedMagicsCache[i] == magic)
+         return true;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| Same rule as CanPlaceNewOrderForMagic — use after RefreshOccupiedMagicsCache in hot loops. |
+//+------------------------------------------------------------------+
+bool CanPlaceNewOrderForMagic_Cached(const long magic)
+{
+   return !IsMagicOccupiedInCache(magic);
+}
+
+//+------------------------------------------------------------------+
 //| Close any position opened by this EA (IsVariantTradeCompositeMagic) open longer than minutes. Sets trade magic so OUT deal pairs with IN. |
 //+------------------------------------------------------------------+
 void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
@@ -15963,7 +16022,8 @@ void OnDeinit(const int reason)
 
 //+------------------------------------------------------------------+
 //| OnTimer(1s) pending pipeline — maybe stage 1 → maybe stage 2 → place (F):                |
-//|  A. Prerequisites: levels + bars; nearest levels below/above bid.                       |
+//|  A. Prerequisites: levels + bars; nearest levels below/above bid; RefreshOccupiedMagicsCache |
+//|      (one terminal pass / tick for open position + pending magics on _Symbol).          |
 //|  B–C. One loop per row: fullMagic = BuildMagicForVariant(variantIdx) once; proximity +    |
 //|      stage-1 gates use that same fullMagic; store it on maybeStage1Candidates.          |
 //|  D–E. Stage-2 rule disptcher (fullMagic); copy fullMagic → maybeStage2.                  |
@@ -15978,6 +16038,8 @@ void RunTimerPendingNearLevelsPipeline()
    const double nearestLevelAboveBid = Rules_GetClosestNonTertiaryLevelAbovePrice(g_liveBid);
    if(nearestLevelBelowBid <= 0.0 && nearestLevelAboveBid <= 0.0) return;
 
+   RefreshOccupiedMagicsCache();
+
    //--- B–C. Proximity, then stage-1 gates, per g_trade[] row (single loop)
    int maybeStage1Count = 0;
    for(int variantIdx = 0; variantIdx < TRADE_VARIANT_COUNT; variantIdx++)
@@ -15989,7 +16051,7 @@ void RunTimerPendingNearLevelsPipeline()
 
       const long fullMagic = BuildMagicForVariant(variantIdx);
       if(!IsTimeAllowedForTradeType(variantIdx, g_lastTimer1Time)) continue;
-      if(!CanPlaceNewOrderForMagic(fullMagic)) continue;
+      if(!CanPlaceNewOrderForMagic_Cached(fullMagic)) continue;
       if(!MeetsMagicSessionPdEntryGate(fullMagic, lastBarIndexToday)) continue;
       if(!PendingPassesRulesetPolicy(variantIdx)) continue;
 
