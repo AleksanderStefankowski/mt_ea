@@ -5553,5 +5553,61 @@
       "daily"
     ],
     "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.04.22",
+    "end": "2026.04.22",
+    "levelPrice": 7117,
+    "categories": [
+      "daily",
+      "wednesday",
+      "smash"
+    ],
+    "tag": "dailySmash"
+  },
+  {
+    "start": "2026.04.22",
+    "end": "2026.04.22",
+    "levelPrice": 7147,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.04.22",
+    "end": "2026.04.22",
+    "levelPrice": 7175,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.04.22",
+    "end": "2026.04.22",
+    "levelPrice": 7092,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.04.22",
+    "end": "2026.04.22",
+    "levelPrice": 7062,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.04.22",
+    "end": "2026.04.22",
+    "levelPrice": 7043,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown3"
   }
 ]
