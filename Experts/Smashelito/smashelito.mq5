@@ -78,7 +78,7 @@ const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 100000.0; // PLN budget ceiling v
 //    tradeDirectionCategory → slot 1; tradeTypeId → slot 2; ruleSubsetId → slot 3; sessionPdCategory → slot 4; see BuildBetterMagicNumber layout. levelProximityFocus: TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH.
 //    bannedRanges: no '|' inside string.
 // bookmark4 maxvariant
-#define TRADE_VARIANT_COUNT 11
+#define TRADE_VARIANT_COUNT 1
 const bool validate_TRADE_VARIANT_COUNT = true; // if true, OnInit fails when TRADE_VARIANT_COUNT > TRADE_VARIANT_COUNT_MAX_LIMICIK
 #define TRADE_VARIANT_COUNT_MAX_LIMICIK 2077
 
@@ -224,6 +224,10 @@ const double g_pendingTriggerSymmetrySpread = 0.7;
 #define COMPOSITE_MAGIC_LENGTH_TP_POINTS       2
 #define COMPOSITE_MAGIC_INDEX_SL_POINTS        15
 #define COMPOSITE_MAGIC_LENGTH_SL_POINTS       2
+//--- Stage-2 extended subset dispatch (PendingRuleSubsetPassesForFullMagic): when trade-type tens digit (fixed magic index 1) is 4..9, handler key = first 10 decimal digits (indices 0..9).
+#define STAGE2_SUBSET_HANDLER_KEY10_LEN                    10
+#define STAGE2_SUBSET_MAGIC_EXTENDED_TRADE_TENS_MIN         4
+#define STAGE2_SUBSET_MAGIC_EXTENDED_TRADE_TENS_MAX         9
 
 struct TradeKey
 {
@@ -2640,10 +2644,10 @@ void SyncTradeVariantsFromInputs()
 // bookmark1 tradebegin
 
 
-// encoding input magic: 10201340157000606
+// encoding input magic: 19201340157000606
 g_trade[0].enabled                  = true;
 g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[0].tradeTypeId              = 2;
+g_trade[0].tradeTypeId              = 92;
 g_trade[0].ruleSubsetId             = 1;
 g_trade[0].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
 g_trade[0].tradeSizePct             = 100;
@@ -2655,167 +2659,6 @@ g_trade[0].bannedRanges             = "22,0,23,59;0,0,1,0";
 g_trade[0].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
 g_trade[0].babysit_enabled          = false;
 g_trade[0].babysitStart_minute      = 0;
-
-// encoding input magic: 11207340157000606
-g_trade[1].enabled                  = true;
-g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[1].tradeTypeId              = 12;
-g_trade[1].ruleSubsetId             = 7;
-g_trade[1].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[1].tradeSizePct             = 100;
-g_trade[1].tpPoints                 = 6.0;
-g_trade[1].slPoints                 = 6.0;
-g_trade[1].livePriceDiffTrigger     = 4.0;
-g_trade[1].levelOffsetPoints        = 1.5;
-g_trade[1].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[1].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[1].babysit_enabled          = false;
-g_trade[1].babysitStart_minute      = 0;
-
-// encoding input magic: 11229340157000606
-g_trade[2].enabled                  = true;
-g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[2].tradeTypeId              = 12;
-g_trade[2].ruleSubsetId             = 29;
-g_trade[2].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[2].tradeSizePct             = 100;
-g_trade[2].tpPoints                 = 6.0;
-g_trade[2].slPoints                 = 6.0;
-g_trade[2].livePriceDiffTrigger     = 4.0;
-g_trade[2].levelOffsetPoints        = 1.5;
-g_trade[2].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[2].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[2].babysit_enabled          = false;
-g_trade[2].babysitStart_minute      = 0;
-
-// encoding input magic: 11214340057000606
-g_trade[3].enabled                  = true;
-g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[3].tradeTypeId              = 12;
-g_trade[3].ruleSubsetId             = 14;
-g_trade[3].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[3].tradeSizePct             = 100;
-g_trade[3].tpPoints                 = 6.0;
-g_trade[3].slPoints                 = 6.0;
-g_trade[3].livePriceDiffTrigger     = 4.0;
-g_trade[3].levelOffsetPoints        = 0.5;
-g_trade[3].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[3].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[3].babysit_enabled          = false;
-g_trade[3].babysitStart_minute      = 0;
-
-// encoding input magic: 11220340057000606
-g_trade[4].enabled                  = true;
-g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[4].tradeTypeId              = 12;
-g_trade[4].ruleSubsetId             = 20;
-g_trade[4].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[4].tradeSizePct             = 100;
-g_trade[4].tpPoints                 = 6.0;
-g_trade[4].slPoints                 = 6.0;
-g_trade[4].livePriceDiffTrigger     = 4.0;
-g_trade[4].levelOffsetPoints        = 0.5;
-g_trade[4].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[4].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[4].babysit_enabled          = false;
-g_trade[4].babysitStart_minute      = 0;
-
-// encoding input magic: 11220340037000606
-g_trade[5].enabled                  = true;
-g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[5].tradeTypeId              = 12;
-g_trade[5].ruleSubsetId             = 20;
-g_trade[5].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[5].tradeSizePct             = 100;
-g_trade[5].tpPoints                 = 6.0;
-g_trade[5].slPoints                 = 6.0;
-g_trade[5].livePriceDiffTrigger     = 4.0;
-g_trade[5].levelOffsetPoints        = 0.3;
-g_trade[5].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[5].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[5].babysit_enabled          = false;
-g_trade[5].babysitStart_minute      = 0;
-
-// encoding input magic: 10273340157000606
-g_trade[6].enabled                  = true;
-g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[6].tradeTypeId              = 2;
-g_trade[6].ruleSubsetId             = 73;
-g_trade[6].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[6].tradeSizePct             = 100;
-g_trade[6].tpPoints                 = 6.0;
-g_trade[6].slPoints                 = 6.0;
-g_trade[6].livePriceDiffTrigger     = 4.0;
-g_trade[6].levelOffsetPoints        = 1.5;
-g_trade[6].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[6].babysit_enabled          = false;
-g_trade[6].babysitStart_minute      = 0;
-
-// encoding input magic: 11232340057000606
-g_trade[7].enabled                  = true;
-g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[7].tradeTypeId              = 12;
-g_trade[7].ruleSubsetId             = 32;
-g_trade[7].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[7].tradeSizePct             = 100;
-g_trade[7].tpPoints                 = 6.0;
-g_trade[7].slPoints                 = 6.0;
-g_trade[7].livePriceDiffTrigger     = 4.0;
-g_trade[7].levelOffsetPoints        = 0.5;
-g_trade[7].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[7].babysit_enabled          = false;
-g_trade[7].babysitStart_minute      = 0;
-
-// encoding input magic: 10202340107000606
-g_trade[8].enabled                  = true;
-g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[8].tradeTypeId              = 2;
-g_trade[8].ruleSubsetId             = 2;
-g_trade[8].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[8].tradeSizePct             = 100;
-g_trade[8].tpPoints                 = 6.0;
-g_trade[8].slPoints                 = 6.0;
-g_trade[8].livePriceDiffTrigger     = 4.0;
-g_trade[8].levelOffsetPoints        = 1.0;
-g_trade[8].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[8].babysit_enabled          = false;
-g_trade[8].babysitStart_minute      = 0;
-
-// encoding input magic: 11208340107000606
-g_trade[9].enabled                  = true;
-g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[9].tradeTypeId              = 12;
-g_trade[9].ruleSubsetId             = 8;
-g_trade[9].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[9].tradeSizePct             = 100;
-g_trade[9].tpPoints                 = 6.0;
-g_trade[9].slPoints                 = 6.0;
-g_trade[9].livePriceDiffTrigger     = 4.0;
-g_trade[9].levelOffsetPoints        = 1.0;
-g_trade[9].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[9].babysit_enabled          = false;
-g_trade[9].babysitStart_minute      = 0;
-
-// encoding input magic: 11230340107000606
-g_trade[10].enabled                  = true;
-g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_LONG;
-g_trade[10].tradeTypeId              = 12;
-g_trade[10].ruleSubsetId             = 30;
-g_trade[10].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
-g_trade[10].tradeSizePct             = 100;
-g_trade[10].tpPoints                 = 6.0;
-g_trade[10].slPoints                 = 6.0;
-g_trade[10].livePriceDiffTrigger     = 4.0;
-g_trade[10].levelOffsetPoints        = 1.0;
-g_trade[10].bannedRanges             = "22,0,23,59;0,0,1,0";
-g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
-g_trade[10].babysit_enabled          = false;
-g_trade[10].babysitStart_minute      = 0;
-
 //tradeDeleter_ends_here. AI never edit this comment
 //bookmark2tradeend
 }
@@ -3573,7 +3416,10 @@ EntryLevelCtx PendingBuildEntryLevelCtx(int variantIdx, double levelBelow, int i
 
 //+------------------------------------------------------------------+
 //| POLICY — Subset_<subsetHandlerKey> handlers (read before editing any subset): |
-//| subsetHandlerKey = slot1×10000 + slot2×100 + slot3 (composite slots 1,2,3; e.g. 10201). |
+//| Default: subsetHandlerKey = slot1×10000 + slot2×100 + slot3 (composite slots 1,2,3; e.g. 10201). |
+//| Extended: if fixed-width magic decimal char at index 1 (trade-type tens digit) is in 4..9, subsetHandlerKey10 |
+//|   = integer from first STAGE2_SUBSET_HANDLER_KEY10_LEN decimal digits (slots 1–6 partial through level-offset field). |
+//|   Dispatch on subsetHandlerKey10 (e.g. Subset_1777777777 fake); unknown extended keys → FatalError in dispatcher. |
 //| Each implementation must be standalone (no forwarding to another handler). |
 //| If two keys share logic today, duplicate the body. |
 //| Do not spell full 17-digit composite values in // comments (file header rule). |
@@ -3605,17 +3451,44 @@ bool Gate_DayHighSoFar_NoMoreThanX_AboveLevel(const int kLast, const double leve
 //+------------------------------------------------------------------+
 //| True if levelPx is strictly below the day's running high so far at kLast (not an "X points" band). |
 //+------------------------------------------------------------------+
-bool Gate_Level_StrictlyBelowDayHighSoFar(const int kLast, const double levelPx)
+bool Gate_Level_BelowdayHighSoFar(const int kLast, const double levelPx)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    if(!g_dayHighSoFarAtBar[kLast].hasValue) return false;
    return (levelPx < g_dayHighSoFarAtBar[kLast].value);
 }
+//+------------------------------------------------------------------+
+//| True if levelPx is strictly below the day's running low so far at kLast (not an "X points" band). |
+//+------------------------------------------------------------------+
+bool Gate_Level_BelowdayLowSoFar(const int kLast, const double levelPx)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   return (levelPx < g_dayLowSoFarAtBar[kLast].value);
+}
+//+------------------------------------------------------------------+
+//| True if levelPx is strictly above the day's running high so far at kLast (not an "X points" band). |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbovedayHighSoFar(const int kLast, const double levelPx)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!g_dayHighSoFarAtBar[kLast].hasValue) return false;
+   return (levelPx > g_dayHighSoFarAtBar[kLast].value);
+}
+//+------------------------------------------------------------------+
+//| True if levelPx is strictly above the day's running low so far at kLast (not an "X points" band). |
+//+------------------------------------------------------------------+
+bool Gate_Level_AbovedayLowSoFar(const int kLast, const double levelPx)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   return (levelPx > g_dayLowSoFarAtBar[kLast].value);
+}
 
 //+------------------------------------------------------------------+
 //| True if levelPx is strictly below RTH session high so far at kLast (same series as rthHighSoFar logs). |
 //+------------------------------------------------------------------+
-bool Gate_Level_StrictlyBelowRthHighSoFar(const int kLast, const double levelPx)
+bool Gate_Level_BelowRTHH(const int kLast, const double levelPx)
 {
    if(g_m1DayStart == 0) return false;
    const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
@@ -3625,15 +3498,39 @@ bool Gate_Level_StrictlyBelowRthHighSoFar(const int kLast, const double levelPx)
 }
 
 //+------------------------------------------------------------------+
+//| True if levelPx is strictly above RTH session high so far at kLast (same series as rthHighSoFar logs). |
+//+------------------------------------------------------------------+
+bool Gate_Level_AboveRTHH(const int kLast, const double levelPx)
+{
+   if(g_m1DayStart == 0) return false;
+   const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   double rh = 0.0;
+   if(!GetRthHighSoFarAtBar(kLast, g_m1DayStart, dateStr, rh)) return false;
+   return (levelPx > rh);
+}
+
+//+------------------------------------------------------------------+
 //| True if levelPx is strictly above RTH session low so far at kLast (same series as rthLowSoFar / "RTHL"). |
 //+------------------------------------------------------------------+
-bool Gate_Level_StrictlyAboveRthLowSoFar(const int kLast, const double levelPx)
+bool Gate_Level_AboveRTHL(const int kLast, const double levelPx)
 {
    if(g_m1DayStart == 0) return false;
    const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
    double rl = 0.0;
    if(!GetRthLowSoFarAtBar(kLast, g_m1DayStart, dateStr, rl)) return false;
    return (levelPx > rl);
+}
+
+//+------------------------------------------------------------------+
+//| True if levelPx is strictly below RTH session low so far at kLast (same series as rthLowSoFar / "RTHL"). |
+//+------------------------------------------------------------------+
+bool Gate_Level_BelowRTHL(const int kLast, const double levelPx)
+{
+   if(g_m1DayStart == 0) return false;
+   const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   double rl = 0.0;
+   if(!GetRthLowSoFarAtBar(kLast, g_m1DayStart, dateStr, rl)) return false;
+   return (levelPx < rl);
 }
 
 //+------------------------------------------------------------------+
@@ -3787,13 +3684,14 @@ bool Gate_Level_BelowPDL(const double levelPx)
 
 //+------------------------------------------------------------------+
 //| Gate_Level_AboveIBH: in RTH, true only if levelPx > IB high at kLast; false for first hour of RTH (when IB not ready). |
-//| latestCandleOpenTime = that bar's M1 open (e.g. g_m1Rates[kLast].time). Session = GetSessionForCandleTime (ON | RTH | sleep). |
+//| Uses g_m1Rates[kLast].time for session (GetSessionForCandleTime: ON | RTH | sleep). |
 //| If session is not RTH: always returns true (gate passes) so ON/sleep (e.g. overnight) variants are not blocked by this IB-only RTH rule. |
 //+------------------------------------------------------------------+
-bool Gate_Level_AboveIBH(const int kLast, const datetime latestCandleOpenTime, const double levelPx)
+bool Gate_Level_AboveIBH(const int kLast, const double levelPx)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   if(GetSessionForCandleTime(latestCandleOpenTime) != "RTH") return true;
+   const datetime tBar = g_m1Rates[kLast].time;
+   if(GetSessionForCandleTime(tBar) != "RTH") return true;
    double ibh;
    if(!GetIBhighAtBar(kLast, ibh)) return false;
    return (levelPx > ibh);
@@ -3811,13 +3709,14 @@ bool Gate_Level_AboveONH(const int kLast, const double levelPx)
 
 //+------------------------------------------------------------------+
 //| Gate_Level_AboveIBL: in RTH, true only if levelPx > IB low at kLast; false for first hour of RTH (when IB not ready). |
-//| latestCandleOpenTime = that bar's M1 open. Session = GetSessionForCandleTime (ON | RTH | sleep). |
+//| Uses g_m1Rates[kLast].time for session (GetSessionForCandleTime: ON | RTH | sleep). |
 //| If session is not RTH: always returns true (gate passes) so unrelated ON/sleep trades are not filtered by this IB rule. |
 //+------------------------------------------------------------------+
-bool Gate_Level_AboveIBL(const int kLast, const datetime latestCandleOpenTime, const double levelPx)
+bool Gate_Level_AboveIBL(const int kLast, const double levelPx)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   if(GetSessionForCandleTime(latestCandleOpenTime) != "RTH") return true;
+   const datetime tBar = g_m1Rates[kLast].time;
+   if(GetSessionForCandleTime(tBar) != "RTH") return true;
    double ibl;
    if(!GetIBlowAtBar(kLast, ibl)) return false;
    return (levelPx > ibl);
@@ -3835,13 +3734,14 @@ bool Gate_Level_AboveONL(const int kLast, const double levelPx)
 
 //+------------------------------------------------------------------+
 //| Gate_Level_BelowIBH: in RTH, true only if levelPx < IB high at kLast; false for first hour of RTH (when IB not ready). |
-//| latestCandleOpenTime = that bar's M1 open. Session = GetSessionForCandleTime (ON | RTH | sleep). |
+//| Uses g_m1Rates[kLast].time for session (GetSessionForCandleTime: ON | RTH | sleep). |
 //| If session is not RTH: always returns true (gate passes) so unrelated ON/sleep trades are not filtered by this IB rule. |
 //+------------------------------------------------------------------+
-bool Gate_Level_BelowIBH(const int kLast, const datetime latestCandleOpenTime, const double levelPx)
+bool Gate_Level_BelowIBH(const int kLast, const double levelPx)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   if(GetSessionForCandleTime(latestCandleOpenTime) != "RTH") return true;
+   const datetime tBar = g_m1Rates[kLast].time;
+   if(GetSessionForCandleTime(tBar) != "RTH") return true;
    double ibh;
    if(!GetIBhighAtBar(kLast, ibh)) return false;
    return (levelPx < ibh);
@@ -3859,13 +3759,14 @@ bool Gate_Level_BelowONH(const int kLast, const double levelPx)
 
 //+------------------------------------------------------------------+
 //| Gate_Level_BelowIBL: in RTH, true only if levelPx < IB low at kLast; false for first hour of RTH (when IB not ready). |
-//| latestCandleOpenTime = that bar's M1 open. Session = GetSessionForCandleTime (ON | RTH | sleep). |
+//| Uses g_m1Rates[kLast].time for session (GetSessionForCandleTime: ON | RTH | sleep). |
 //| If session is not RTH: always returns true (gate passes) so unrelated ON/sleep trades are not filtered by this IB rule. |
 //+------------------------------------------------------------------+
-bool Gate_Level_BelowIBL(const int kLast, const datetime latestCandleOpenTime, const double levelPx)
+bool Gate_Level_BelowIBL(const int kLast, const double levelPx)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
-   if(GetSessionForCandleTime(latestCandleOpenTime) != "RTH") return true;
+   const datetime tBar = g_m1Rates[kLast].time;
+   if(GetSessionForCandleTime(tBar) != "RTH") return true;
    double ibl;
    if(!GetIBlowAtBar(kLast, ibl)) return false;
    return (levelPx < ibl);
@@ -3944,9 +3845,9 @@ bool Gate_Level_AbsDiff_with_IBH(const double levelPx, const int kLast, const do
 }
 
 //+------------------------------------------------------------------+
-//| Gate_Level_Above_PriceMidpoint: true when levelPx is strictly above session-range midpoint (day H+L)/2 at kLast. |
+//| Gate_Level_Abovemidpoint: true when levelPx is strictly above session-range price midpoint (day H+L)/2 at kLast. |
 //+------------------------------------------------------------------+
-bool Gate_Level_Above_PriceMidpoint(const int kLast, const double levelPx)
+bool Gate_Level_Abovemidpoint(const int kLast, const double levelPx)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    if(!g_sessionRangeMidpointAtBar[kLast].hasValue) return false;
@@ -3955,9 +3856,9 @@ bool Gate_Level_Above_PriceMidpoint(const int kLast, const double levelPx)
 }
 
 //+------------------------------------------------------------------+
-//| Gate_Level_Below_PriceMidpoint: true when levelPx is strictly below session-range midpoint (day H+L)/2 at kLast. |
+//| Gate_Level_Belowmidpoint: true when levelPx is strictly below session-range price midpoint (day H+L)/2 at kLast. |
 //+------------------------------------------------------------------+
-bool Gate_Level_Below_PriceMidpoint(const int kLast, const double levelPx)
+bool Gate_Level_Belowmidpoint(const int kLast, const double levelPx)
 {
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    if(!g_sessionRangeMidpointAtBar[kLast].hasValue) return false;
@@ -4024,9 +3925,16 @@ bool Gate_GapFilled_atBar_TOTEST(const int kLast)
    return (GetGapFillStatus_atBar(kLast) == "filled");
 }
 
+// quantspace2SubsetStart
+bool Subset_1520234015(double levelPx, int levelIdx, int kLast)
+bool Subset_1929834015(double levelPx, int levelIdx, int kLast)
+bool Subset_1839934016(double levelPx, int levelIdx, int kLast)
+bool Subset_1839824716(double levelPx, int levelIdx, int kLast)
+bool Subset_1839724716(double levelPx, int levelIdx, int kLast)
 
 
 
+// quantspace2SubsetEnd
 
 // bookmark6 bookmarkSubsetStart
 
@@ -4048,6 +3956,32 @@ bool Subset_10201(double levelPx, int levelIdx, int kLast)
    if(diffAbove == "never" || StringToDouble(diffAbove) < 6.0) return false;
    return true;
 }
+
+bool Subset_1920134015(double levelPx, int levelIdx, int kLast)
+{
+   if(levelPx >= g_ONhighSoFarAtBar[kLast].value) return false;
+
+   // quant price-betweenH-L IBH ONL -> level below IBH, level above ONL	bbbbbbbbbbbbbbbbbbbbbb
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   // quant
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+
+   const int cleanStreakAboveMin = 20;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 100, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 5.0) return false;
+
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, streakAbove, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 6.0) return false;
+   return true;
+}
+
+
 
 bool Subset_10202(double levelPx, int levelIdx, int kLast)
 {
@@ -9381,7 +9315,7 @@ bool Subset_20102(double levelPx, int levelIdx, int kLast) // 20101230268060808 
 
 bool Subset_20103(double levelPx, int levelIdx, int kLast) // 
 {
-   if(!Gate_Level_AboveIBH(kLast, (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0, levelPx)) return false;
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -9409,7 +9343,7 @@ bool Subset_20104(double levelPx, int levelIdx, int kLast)
 
 bool Subset_20105(double levelPx, int levelIdx, int kLast) 
 {
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -9423,7 +9357,7 @@ bool Subset_20105(double levelPx, int levelIdx, int kLast)
 
 bool Subset_20106(double levelPx, int levelIdx, int kLast) 
 {
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -9437,7 +9371,7 @@ bool Subset_20106(double levelPx, int levelIdx, int kLast)
 
 bool Subset_20107(double levelPx, int levelIdx, int kLast) // Subset_20103+
 {
-   if(!Gate_Level_AboveIBH(kLast, (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0, levelPx)) return false;
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
    if(!Gate_Level_AbovePDC(levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
@@ -9466,7 +9400,7 @@ bool Subset_20108(double levelPx, int levelIdx, int kLast) // Subset_20103+
 
 bool Subset_20109(double levelPx, int levelIdx, int kLast) // Subset_20101+
 {
-   if(!Gate_Level_AboveIBH(kLast, (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0, levelPx)) return false;
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
    if(!Gate_Level_AbovePDO(levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
@@ -9481,7 +9415,7 @@ bool Subset_20109(double levelPx, int levelIdx, int kLast) // Subset_20101+
 
 bool Subset_20110(double levelPx, int levelIdx, int kLast) // Subset_20101+
 {
-   if(!Gate_Level_AboveIBH(kLast, (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0, levelPx)) return false;
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -9543,7 +9477,7 @@ bool Subset_20141_parent(double levelPx, int levelIdx, int kLast)
 
 bool Subset_40192_quant20105(double levelPx, int levelIdx, int kLast)  // Subset_20105+
 {
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
@@ -9558,7 +9492,7 @@ bool Subset_40192_quant20105(double levelPx, int levelIdx, int kLast)  // Subset
 
 bool Subset_20112(double levelPx, int levelIdx, int kLast) // Subset_20101+
 {
-   if(!Gate_Level_AboveIBH(kLast, (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0, levelPx)) return false;
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
    
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -9572,8 +9506,8 @@ bool Subset_20112(double levelPx, int levelIdx, int kLast) // Subset_20101+
 
 bool Subset_40199_quant20101(double levelPx, int levelIdx, int kLast) // Subset_20101+
 {
-   if(!Gate_Level_AboveIBH(kLast, (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0, levelPx)) return false;
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    
    //const double minDayHighOverLevelPoints = 0.77;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
@@ -9613,7 +9547,7 @@ bool Subset_40197_quant40111_20105(double levelPx, int levelIdx, int kLast) // 4
    weekdays[1] = "weekly";
    if(!Gate_LevelData_Categories_have_LevelCats(weekdays, levelCats)) return false;
 
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
 
    //const double minDayHighOverLevelPoints = 0.77;
@@ -10151,7 +10085,7 @@ bool Subset_20211_quant20210(double levelPx, int levelIdx, int kLast)
 
 bool Subset_40191_quant40197(double levelPx, int levelIdx, int kLast)
 {
-   if(!Gate_Level_StrictlyBelowDayHighSoFar(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
    if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
    // --- same as Subset_40197_quant40111_20105 (inlined) ---
    string levelCats;
@@ -10160,7 +10094,7 @@ bool Subset_40191_quant40197(double levelPx, int levelIdx, int kLast)
    weekdays[0] = "wednesday";
    weekdays[1] = "weekly";
    if(!Gate_LevelData_Categories_have_LevelCats(weekdays, levelCats)) return false;
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
    const int cleanStreakBelow_Minimum = 20;
@@ -10178,7 +10112,7 @@ bool Subset_40190_quant40197(double levelPx, int levelIdx, int kLast)
    weekdays[0] = "wednesday";
    weekdays[1] = "weekly";
    if(!Gate_LevelData_Categories_have_LevelCats(weekdays, levelCats)) return false;
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
    const int cleanStreakBelow_Minimum = 20;
@@ -10197,7 +10131,7 @@ bool Subset_40189_quant40197(double levelPx, int levelIdx, int kLast)
    weekdays[0] = "wednesday";
    weekdays[1] = "weekly";
    if(!Gate_LevelData_Categories_have_LevelCats(weekdays, levelCats)) return false;
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
    const int cleanStreakBelow_Minimum = 20;
@@ -10216,7 +10150,7 @@ bool Subset_40188_quant40197(double levelPx, int levelIdx, int kLast)
    weekdays[0] = "wednesday";
    weekdays[1] = "weekly";
    if(!Gate_LevelData_Categories_have_LevelCats(weekdays, levelCats)) return false;
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    if(!Gate_Level_AboveONH(kLast, levelPx)) return false;
    const int exclusiveMaxCandlesLowAboveLevel = 15;
    const int cleanStreakBelow_Minimum = 20;
@@ -10289,8 +10223,7 @@ bool Subset_20202_quant20201(double levelPx, int levelIdx, int kLast)
 
 bool Subset_20203_quant20201(double levelPx, int levelIdx, int kLast)
 {
-   const datetime tBar = (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0;
-   if(!Gate_Level_BelowIBH(kLast, tBar, levelPx)) return false;
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
    if(!Gate_Level_AbovePDO(levelPx)) return false;
    const int cleanStreakBelowMin = 20;
    int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
@@ -10307,9 +10240,8 @@ bool Subset_20203_quant20201(double levelPx, int levelIdx, int kLast)
 
 bool Subset_20204_quant20201(double levelPx, int levelIdx, int kLast)
 {
-   const datetime tBar = (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0;
-   if(!Gate_Level_AboveIBL(kLast, tBar, levelPx)) return false;
-   if(!Gate_Level_Above_PriceMidpoint(kLast, levelPx)) return false;
+   if(!Gate_Level_AboveIBL(kLast, levelPx)) return false;
+   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;
    const int cleanStreakBelowMin = 20;
    int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
    if(cleanStreakBelow < cleanStreakBelowMin) return false;
@@ -10365,7 +10297,7 @@ bool Subset_20115_quant20114(double levelPx, int levelIdx, int kLast)
 bool Subset_20116_quant20114(double levelPx, int levelIdx, int kLast)
 {
    if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
-   if(!Gate_Level_StrictlyAboveRthLowSoFar(kLast, levelPx)) return false;
+   if(!Gate_Level_AboveRTHL(kLast, levelPx)) return false;
    if(!Gate_Day_HasGapUp()) return false;
    string levelCats;
    GetLevelCategories(DoubleToString(levelPx, _Digits), levelCats);
@@ -10386,9 +10318,8 @@ bool Subset_20116_quant20114(double levelPx, int levelIdx, int kLast)
 
 bool Subset_20118_quant20114(double levelPx, int levelIdx, int kLast)
 {
-   const datetime tBar = (kLast >= 0 && kLast < g_barsInDay) ? g_m1Rates[kLast].time : (datetime)0;
-   if(!Gate_Level_StrictlyBelowRthHighSoFar(kLast, levelPx)) return false;
-   if(!Gate_Level_BelowIBH(kLast, tBar, levelPx)) return false;
+   if(!Gate_Level_BelowRTHH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
    if(!Gate_Day_HasGapUp()) return false;
    string levelCats;
    GetLevelCategories(DoubleToString(levelPx, _Digits), levelCats);
@@ -10485,10 +10416,34 @@ bool Subset_20185_quant20113(double levelPx, int levelIdx, int kLast)
 
 
 //+------------------------------------------------------------------+
-//| Stage-2: derive subsetHandlerKey from fullMagic (slots 1–3), dispatch to Subset_<key>. |
+//| Stage-2: subsetHandlerKey from fullMagic — extended (10-digit prefix) or default (slots 1–3) — dispatch to Subset_* . |
 //+------------------------------------------------------------------+
 bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double levelPx, const int levelIdx, const int kLast)
 {
+   const string magicFixed = MagicNumberToFixedWidthString(fullMagic);
+   if(StringLen(magicFixed) >= STAGE2_SUBSET_HANDLER_KEY10_LEN)
+   {
+      const ushort chTradeTens = StringGetCharacter(magicFixed, COMPOSITE_MAGIC_INDEX_TRADE_TYPE);
+      if(chTradeTens >= '0' && chTradeTens <= '9')
+      {
+         const int tradeTypeTensDigit = (int)(chTradeTens - '0');
+         if(tradeTypeTensDigit >= STAGE2_SUBSET_MAGIC_EXTENDED_TRADE_TENS_MIN &&
+            tradeTypeTensDigit <= STAGE2_SUBSET_MAGIC_EXTENDED_TRADE_TENS_MAX)
+         {
+            const long subsetHandlerKey10 = (long)StringToInteger(StringSubstr(magicFixed, 0, STAGE2_SUBSET_HANDLER_KEY10_LEN));
+// quantspace1DispatchStart
+
+            if(subsetHandlerKey10 == xxxxxxxxx)
+               return Subset_xxxxxxxx(levelPx, levelIdx, kLast);
+
+// quantspace1DispatchEnd
+            FatalError(StringFormat(
+               "bookmarkE1 Missing stage-2 rule subset for extended key %s (first %d digits), magic %s. Add branch in PendingRuleSubsetPassesForFullMagic.",
+               IntegerToString(subsetHandlerKey10), STAGE2_SUBSET_HANDLER_KEY10_LEN, IntegerToString(fullMagic)));
+         }
+      }
+   }
+
    const int slot1 = CompositeMagicExtractSlot1TradeDirection(fullMagic);
    const int slot2 = CompositeMagicExtractSlot2TradeTypeId(fullMagic);
    const int slot3 = CompositeMagicExtractSlot3RuleSubsetId(fullMagic);
