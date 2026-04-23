@@ -3926,12 +3926,6 @@ bool Gate_GapFilled_atBar_TOTEST(const int kLast)
 }
 
 // quantspace2SubsetStart
-bool Subset_1520234015(double levelPx, int levelIdx, int kLast)
-bool Subset_1929834015(double levelPx, int levelIdx, int kLast)
-bool Subset_1839934016(double levelPx, int levelIdx, int kLast)
-bool Subset_1839824716(double levelPx, int levelIdx, int kLast)
-bool Subset_1839724716(double levelPx, int levelIdx, int kLast)
-
 
 
 // quantspace2SubsetEnd
@@ -10433,13 +10427,13 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
             const long subsetHandlerKey10 = (long)StringToInteger(StringSubstr(magicFixed, 0, STAGE2_SUBSET_HANDLER_KEY10_LEN));
 // quantspace1DispatchStart
 
-            if(subsetHandlerKey10 == xxxxxxxxx)
-               return Subset_xxxxxxxx(levelPx, levelIdx, kLast);
+            // if(subsetHandlerKey10 == xxxxxxxxx)
+            //    return Subset_xxxxxxxx(levelPx, levelIdx, kLast);
 
 // quantspace1DispatchEnd
-            FatalError(StringFormat(
-               "bookmarkE1 Missing stage-2 rule subset for extended key %s (first %d digits), magic %s. Add branch in PendingRuleSubsetPassesForFullMagic.",
-               IntegerToString(subsetHandlerKey10), STAGE2_SUBSET_HANDLER_KEY10_LEN, IntegerToString(fullMagic)));
+           // FatalError(StringFormat(
+             //  "bookmarkE1 Missing stage-2 rule subset for extended key %s (first %d digits), magic %s. Add branch in PendingRuleSubsetPassesForFullMagic.",
+               //IntegerToString(subsetHandlerKey10), STAGE2_SUBSET_HANDLER_KEY10_LEN, IntegerToString(fullMagic)));
          }
       }
    }
