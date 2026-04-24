@@ -1039,6 +1039,22 @@ string GetPDtrendString()
 }
 
 //+------------------------------------------------------------------+
+//| Gate_PD_green: prior-day trend is PD_green (PDC > PDO). False if unknown or PD_red. |
+//+------------------------------------------------------------------+
+bool Gate_PD_green()
+{
+   return (GetPDtrendString() == "PD_green");
+}
+
+//+------------------------------------------------------------------+
+//| Gate_PD_red: prior-day trend is PD_red (PDC < PDO). False if unknown or PD_green. |
+//+------------------------------------------------------------------+
+bool Gate_PD_red()
+{
+   return (GetPDtrendString() == "PD_red");
+}
+
+//+------------------------------------------------------------------+
 //| Resolve RTH open for gap stats: (1) exact 15:30/14:30 bar (2) else latest M1 that day with time < target. Otherwise false (caller FatalError). |
 //| No session lookup needed here; g_m1Rates[0..g_barsInDay) is already that calendar day's slice. |
 //+------------------------------------------------------------------+
