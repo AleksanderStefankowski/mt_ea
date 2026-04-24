@@ -1,7 +1,7 @@
 file_path = "ZQUANT1_0_read_table_and_build_quantV2_subsets.tsv"
 mq5_path  = "smashelito.mq5"
 
-quant_function_insert_line = 3  # configurable
+quant_function_insert_line = 3
 save_quant_functions_to_file = true
 output_file = "ZQUANT1_0_read_table_and_build_quantV2_subsets_output.txt"
 
@@ -16,13 +16,11 @@ raise "Missing required columns" unless idx_magic && idx_quantFactor
 
 records = []
 seen_magic = {}
-
 lines.each do |line|
   cols = line.split("\t")
 
   magic = cols[idx_magic]
   quant_factor = cols[idx_quantFactor]
-
   raise "Duplicate magic found: #{magic}" if seen_magic[magic]
   seen_magic[magic] = true
 
@@ -30,18 +28,29 @@ lines.each do |line|
 
   records << {
     magic: magic,
-    quantFactor: quant_factor,
-    subset_base_number: subset_base_number
+    quantFactor: quant_factor
   }
 end
 
 # --- STEP 2: LOAD MQ5 FILE ---
 mq5_content = File.read(mq5_path)
 
-def extract_subset_function(content, subset_base_number)
-  pattern = /bool\s+Subset_#{subset_base_number}.*?\{.*?^\}/m
+# --- BASE SUBSET (5 DIGITS) ---
+def base_subset_number(magic)
+  magic[0, 5]
+end
+
+# --- OUTPUT SUBSET (10 DIGITS + SHIFT 2ND DIGIT) ---
+def output_subset_number(magic)
+  base10 = magic[0, 10].chars
+  base10[1] = (base10[1].to_i + 5).to_s
+  base10.join
+end
+
+def extract_subset_function(content, subset_number)
+  pattern = /bool\s+Subset_#{subset_number}.*?\{.*?^\}/m
   match = content.match(pattern)
-  raise "Subset function not found for #{subset_base_number}" unless match
+  raise "Subset function not found for #{subset_number}" unless match
   match[0]
 end
 
@@ -70,41 +79,132 @@ def deconstruct_quant_factor(qf)
       "#{pad}price above #{parts[1]}"
     ]
   else
-    raise "Unknown quantFactor format: #{qf}"
+    ["#{pad}#{qf}"]
   end
 end
 
-# --- STEP 4: BUILD quant_function ---
+# --- STEP 3.5: FULL EXPLICIT MAPPING ---
+def map_to_mq5_condition(line)
+  raw = line.strip
+
+  case raw
+
+  when "PD_trend=PD_green"
+    "   if(!Gate_PD_green()) return false;"
+  when "PD_trend=PD_red"
+    "   if(!Gate_PD_red()) return false;"
+  when "gapFillPc=filled"
+    "   if(!Gate_GapFilled_atBar_TOTEST(kLast)) return false;"
+  when "openGap_info=gapDown_Day"
+    "   if(!Gate_Day_HasGapDown()) return false;"
+  when "openGap_info=gapUp_Day"
+    "   if(!Gate_Day_HasGapUp()) return false;"
+  when "dayBrokePDH=TRUE"
+    "   if(!Gate_Day_DayBrokePDH_is_TRUE(kLast)) return false;"
+  when "dayBrokePDH=FALSE"
+    "   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;"
+  when "dayBrokePDL=TRUE"
+    "   if(!Gate_Day_DayBrokePDL_is_TRUE(kLast)) return false;"
+  when "dayBrokePDL=FALSE"
+    "   if(!Gate_Day_DayBrokePDL_is_FALSE(kLast)) return false;"
+
+  # PRICE RULES (kept minimal here, extend as needed)
+  when "price above IBH"
+    "   if(!Gate_Level_AboveIBH(kLast, levelPx)) return false;"
+  when "price above IBL"
+    "   if(!Gate_Level_AboveIBL(kLast, levelPx)) return false;"
+  when "price above ONH"
+    "   if(!Gate_Level_AboveONH(kLast, levelPx)) return false;"
+  when "price above ONL"
+    "   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;"
+  when "price above PDC"
+    "   if(!Gate_Level_AbovePDC(levelPx)) return false;"
+  when "price above PDH"
+    "   if(Gate_Level_AbovePDH(levelPx)) return false;"
+  when "price above PDL"
+    "   if(!Gate_Level_AbovePDL(levelPx)) return false;"
+  when "price above PDO"
+    "   if(!Gate_Level_AbovePDO(levelPx)) return false;"
+  when "price above midpoint"
+    "   if(!Gate_Level_Abovemidpoint(kLast, levelPx)) return false;"
+  when "price above dayHighSoFar"
+    "   if(!Gate_Level_AbovedayHighSoFar(kLast, levelPx)) return false;"
+  when "price above dayLowSoFar"
+    "   if(!Gate_Level_AbovedayLowSoFar(kLast, levelPx)) return false;"
+  when "price above RTHH"
+    "   if(!Gate_Level_AboveRTHH(kLast, levelPx)) return false;"
+  when "price above RTHL"
+    "   if(!Gate_Level_AboveRTHL(kLast, levelPx)) return false;"
+
+  when "price below IBH"
+    "   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;"
+  when "price below ONH"
+    "   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;"
+  when "price below ONL"
+    "   if(!Gate_Level_BelowONL(kLast, levelPx)) return false;"
+  when "price below PDC"
+    "   if(!Gate_Level_BelowPDC(levelPx)) return false;"
+  when "price below PDH"
+    "   if(Gate_Level_BelowPDH(levelPx)) return false;"
+  when "price below PDL"
+    "   if(!Gate_Level_BelowPDL(levelPx)) return false;"
+  when "price below PDO"
+    "   if(!Gate_Level_BelowPDO(levelPx)) return false;"
+  when "price below midpoint"
+    "   if(!Gate_Level_Belowmidpoint(kLast, levelPx)) return false;"
+  when "price below dayHighSoFar"
+    "   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;"
+  when "price below dayLowSoFar"
+    "   if(!Gate_Level_BelowdayLowSoFar(kLast, levelPx)) return false;"
+  when "price below RTHH"
+    "   if(!Gate_Level_BelowRTHH(kLast, levelPx)) return false;"
+  when "price below RTHL"
+    "   if(!Gate_Level_BelowRTHL(kLast, levelPx)) return false;"
+
+  else
+    raise "No mapping defined for: #{raw}"
+  end
+end
+
+# --- STEP 4: BUILD FUNCTION ---
 def build_quant_function(subset_function, deconstructed_quant, insert_line)
   lines = subset_function.lines
   insert_idx = [insert_line, lines.length].min
 
-  lines.insert(insert_idx, *deconstructed_quant.map { |l| l + "\n" })
+  mapped_lines = deconstructed_quant.map do |l|
+    map_to_mq5_condition(l) + "\n"
+  end
+
+  lines.insert(insert_idx, *mapped_lines)
   lines.join
 end
 
-# --- STEP 5: PROCESS ALL RECORDS ---
+# --- STEP 5: PROCESS ---
 results = []
-
 single_count = 0
 double_count = 0
 value_counts = Hash.new(0)
 
-records.each do |rec|
-  func = extract_subset_function(mq5_content, rec[:subset_base_number])
-  deconstructed = deconstruct_quant_factor(rec[:quantFactor])
-  quant_func = build_quant_function(func, deconstructed, quant_function_insert_line)
 
-  # stats
+records.each do |rec|
+  base = base_subset_number(rec[:magic])              # 5-digit lookup key
+  out  = output_subset_number(rec[:magic])            # 10-digit label
+
+  subset_func = extract_subset_function(mq5_content, base)
+
+  deconstructed = deconstruct_quant_factor(rec[:quantFactor])
+
+  quant_func = build_quant_function(subset_func, deconstructed, quant_function_insert_line)
   single_count += 1 if deconstructed.size == 1
   double_count += 1 if deconstructed.size == 2
 
-  deconstructed.each { |v| value_counts[v] += 1 }
+  # Replace function name to OUTPUT subset (optional but implied by your spec)
+  quant_func = quant_func.gsub(/Subset_#{base}/, "Subset_#{out}")
 
   results << quant_func
 end
 
-# --- STEP 6: PRINT STATS ---
+# --- STEP 6: SAVE ---
 puts "TOTAL COUNT: #{results.size}"
 puts "SINGLE VALUE SETS: #{single_count}"
 puts "DOUBLE VALUE SETS: #{double_count}"
@@ -114,12 +214,11 @@ value_counts.sort.each do |val, count|
   puts "#{val.inspect} => #{count}"
 end
 
-# --- STEP 7: SAVE CLEAN FUNCTIONS ---
 if save_quant_functions_to_file
   File.open(output_file, "w") do |f|
     results.each do |func|
       f.puts func.strip
-      f.puts "\n\n"  # spacing between functions
+      f.puts "\n"
     end
   end
 
