@@ -1,11 +1,16 @@
 require 'time'
 
-starting_subset = "01"
-max_per_file = 97 - starting_subset.to_i
-
-trade_type      = "103"
+# --- CONFIG ---
+first_digit = "1" # 1 long or 2 short
+allowed_2nd_digit = [0, 1, 2, 3, 4]  # quantv2 space, never edit this
+third_digit_trade_type = "1"
 
 timestamp = Time.now.strftime("%Y%m%d_%H%M")
+
+SLOTS_PER_DIGIT = 99 # never edit this
+TOTAL_SLOTS = allowed_2nd_digit.size * SLOTS_PER_DIGIT  # 495
+
+# --- BLOCKS ---
 
 ##### DONE
 ##### 102 czyli long type 02, tu tylko g_cleanStreakAbove
@@ -47,31 +52,41 @@ timestamp = Time.now.strftime("%Y%m%d_%H%M")
 # ]
 
 ##### 103 
+# blocks = [
+#   ["double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);"],
+#   ["if(levelAbove <= 0.0) return false;"],
+#   [""],
+
+#   ["const double twoLevelsDiff = levelAbove - levelPx;"],
+#   ["if(twoLevelsDiff < VARIABLE) return false;", "15.0"],
+#   ["if(twoLevelsDiff > VARIABLE) return false;", "35.0", "15.0", "50.0", "70.0"],
+#   [""],
+
+#   ["const int cleanStreakAboveMin = VARIABLE;", "90", "60", "140", "200", "300"],
+#   ["int streakAbove = g_cleanStreakAbove[levelIdx][kLast];"],
+#   ["if(streakAbove < cleanStreakAboveMin) return false;"],
+#   [""],
+
+#   ["const int diffAboveRange = VARIABLE;", "20", "35", "50", "80", "120"],
+#   ["const double diffAboveMin = twoLevelsDiff + 11.0;"],
+#   ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);"],
+#   ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < diffAboveMin) return false;"],
+# ]
+
+#### 101 
 blocks = [
-  # level above must exist
-  ["double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);"],
-  ["if(levelAbove <= 0.0) return false;"],
+  ["if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;"],
+  ["double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;"],
+  ["if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED"],
   [""],
-  # distance between levels
-  ["const double twoLevelsDiff = levelAbove - levelPx;"],
-  ["if(twoLevelsDiff < VARIABLE) return false;", "15.0"], # default był "10.0"
-  ["if(twoLevelsDiff > VARIABLE) return false;", "35.0", "15.0", "50.0", "70.0"], # default był "35.0"
-  [""],
-
-  # clean streak above
-  ["const int cleanStreakAboveMin = VARIABLE;", "90", "60", "140", "200", "300"], # default był "90"
-  ["int streakAbove = g_cleanStreakAbove[levelIdx][kLast];"],
-  ["if(streakAbove < cleanStreakAboveMin) return false;"],
-  [""],
-
-  # diff above condition (main expansion axis)
-  ["const int diffAboveRange = VARIABLE; // optionally + X minutes", "20", "35", "50", "80", "120"],  # default był "35"
-  ["const double diffAboveMin = twoLevelsDiff + 11.0;"], # default był 11.0, to gwarantuje ze diff above nie był zbyt niski (no trade if przebicie drugiego levela było zbyy słabe)
-  ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);"], # true znaczy że patrzy w górę
-  ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < diffAboveMin) return false;"],
+  ["if (diffWithLowOfDay < VARIABLE) return false; // too far below", "-15.0", "-10.0", "-7.0", "-3.0"],
+  ["const int cleanStreakAbove_Minimum = VARIABLE; // var",  "90", "200", "400"],
+  ["if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;"],
+  ["// also do big VARIABLE for offsset"],
 ]
 
 
+# --- EXPAND ---
 def expand_blocks(blocks)
   combos = [[]]
 
@@ -99,11 +114,10 @@ def expand_blocks(blocks)
   combos
 end
 
-def build_function(subset_id, trade_type, lines)
-  func_name = "Subset_#{trade_type}#{subset_id}"
-
+# --- BUILD FUNCTION ---
+def build_function(full_id, lines)
   out = []
-  out << "bool #{func_name}(double levelPx, int levelIdx, int kLast)"
+  out << "bool Subset_#{full_id}(double levelPx, int levelIdx, int kLast)"
   out << "{"
 
   lines.each do |line|
@@ -121,25 +135,48 @@ def build_function(subset_id, trade_type, lines)
   out.join("\n")
 end
 
+# --- MAIN ---
 all_combos = expand_blocks(blocks)
 
-start_num = starting_subset.to_i
-
 file_index = 1
+slot_index = 0
+output = []
+total_generated = 0
 
-all_combos.each_slice(max_per_file) do |slice|
-  output = []
+all_combos.each do |lines|
 
-  slice.each_with_index do |lines, i|
-    subset_number = (start_num + i).to_s.rjust(2, "0")
-    output << build_function(subset_number, trade_type, lines)
+  # new file if slots exhausted
+  if slot_index >= TOTAL_SLOTS
+    file_name = "generated_subsets_#{timestamp}_part#{file_index}.txt"
+    File.write(file_name, output.join("\n"))
+    puts "Saved #{file_name}"
+
+    file_index += 1
+    slot_index = 0
+    output = []
   end
 
-  file_name = "#{trade_type}generated_subsets_#{timestamp}_part#{file_index}.txt"
-  File.write(file_name, output.join("\n"))
+  # map slot_index → digit + suffix
+  digit_idx = slot_index / SLOTS_PER_DIGIT
+  suffix_idx = slot_index % SLOTS_PER_DIGIT
 
-  file_index += 1
+  second_digit = allowed_2nd_digit[digit_idx]
+  suffix = (suffix_idx + 1).to_s.rjust(2, "0")
+
+  full_id = "#{first_digit}#{second_digit}#{third_digit_trade_type}#{suffix}"
+
+  output << build_function(full_id, lines)
+
+  slot_index += 1
+  total_generated += 1
 end
 
-puts "Generated #{all_combos.size} subset functions"
-puts "Saved into #{file_index - 1} files"
+# save last file
+if output.any?
+  file_name = "generated_subsets_#{timestamp}_part#{file_index}.txt"
+  File.write(file_name, output.join("\n"))
+  puts "Saved #{file_name}"
+end
+
+puts "Generated #{total_generated} subset functions"
+puts "Total files: #{file_index}"
