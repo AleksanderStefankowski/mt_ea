@@ -7,7 +7,7 @@
 #property version   "1.00"
 
 //--- Export window (server time; edit before attaching EA). Plain constants here (not EA parameters dialog).
-const string ExportRangeStartStr = "2026.04.20 00:00";
+const string ExportRangeStartStr = "2026.01.20 00:00";
 const string ExportRangeEndStr   = "2026.04.22 00:00";
 
 //--- Output: 49 columns (date + 48), same schema as legacy summary_tradeResults_all_days
@@ -676,7 +676,8 @@ string GetPDtrendString()
    return "unknown";
 }
 
-void GetReferencePointsAboveBelow(const datetime tradeOpenTime, const double tradePrice, string &outAbove, string &outBelow)
+// Reference points above/below levelPrice at tradeOpenTime's M1 bar (caller supplies strategy level only).
+void GetReferencePointsAboveBelow(const datetime tradeOpenTime, const double levelPrice, string &outAbove, string &outBelow)
 {
    outAbove = "";
    outBelow = "";
@@ -691,76 +692,76 @@ void GetReferencePointsAboveBelow(const datetime tradeOpenTime, const double tra
    if(g_staticMarketContext.PDOpreviousDayRTHOpen > 0.0)
    {
       v = g_staticMarketContext.PDOpreviousDayRTHOpen;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDO";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDO";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDO";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDO";
    }
    if(g_staticMarketContext.PDHpreviousDayHigh > 0.0)
    {
       v = g_staticMarketContext.PDHpreviousDayHigh;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDH";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDH";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDH";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDH";
    }
    if(g_staticMarketContext.PDLpreviousDayLow > 0.0)
    {
       v = g_staticMarketContext.PDLpreviousDayLow;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDL";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDL";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDL";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDL";
    }
    if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0)
    {
       v = g_staticMarketContext.PDCpreviousDayRTHClose;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "PDC";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "PDC";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDC";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDC";
    }
    if(g_ONhighSoFarAtBar[barIdx].hasValue)
    {
       v = g_ONhighSoFarAtBar[barIdx].value;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "ONH";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "ONH";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONH";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONH";
    }
    if(g_ONlowSoFarAtBar[barIdx].hasValue)
    {
       v = g_ONlowSoFarAtBar[barIdx].value;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "ONL";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "ONL";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONL";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONL";
    }
    if(GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, v))
    {
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "RTHH";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "RTHH";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHH";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHH";
    }
    if(GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, v))
    {
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "RTHL";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "RTHL";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHL";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHL";
    }
    if(GetIBlowAtBar(barIdx, v))
    {
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "IBL";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "IBL";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBL";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBL";
    }
    if(GetIBhighAtBar(barIdx, v))
    {
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "IBH";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "IBH";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBH";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBH";
    }
    if(g_dayHighSoFarAtBar[barIdx].hasValue)
    {
       v = g_dayHighSoFarAtBar[barIdx].value;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar";
    }
    if(g_dayLowSoFarAtBar[barIdx].hasValue)
    {
       v = g_dayLowSoFarAtBar[barIdx].value;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar";
    }
    if(g_sessionRangeMidpointAtBar[barIdx].hasValue)
    {
       v = g_sessionRangeMidpointAtBar[barIdx].value;
-      if(v > tradePrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint";
-      else if(v < tradePrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint";
+      if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint";
+      else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint";
    }
 }
 
@@ -1271,7 +1272,9 @@ void WriteOneTradeRow(const int fh, const string &dateStr, const TradeResult &tr
    string dayBrokePDHStr = GetDayBrokePDHAtTradeOpenTime(tradeResult.startTime);
    string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
    string refAbove = "", refBelow = "";
-   GetReferencePointsAboveBelow(tradeResult.startTime, tradeResult.priceStart, refAbove, refBelow);
+   // Legacy / manual deals may have no '$' comment → empty level; still export row with blank ref columns.
+   if(StringLen(tradeResult.level) > 0)
+      GetReferencePointsAboveBelow(tradeResult.startTime, StringToDouble(tradeResult.level), refAbove, refBelow);
    string levelTagStr = "", levelCatsStr = "";
    GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
    string priceBreakStr = GetPriceBreakLevel_c1c2_ForTrade(tradeResult);
