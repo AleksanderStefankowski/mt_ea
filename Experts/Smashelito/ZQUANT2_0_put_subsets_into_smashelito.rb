@@ -43,7 +43,17 @@ subset_content, after = rest.split(END_MARKER, 2)
 subset_content ||= ""
 after ||= ""
 
+# =========================
+# BACKUP STEP (NEW)
+# =========================
+timestamp = Time.now.strftime("%Y%m%d_%H%M")
+backup_file = "ZQUANT2_0_put_subsets_into_smashelito_backup_#{timestamp}.txt"
+
+File.write(backup_file, subset_content.strip)
+
+# =========================
 # Extract
+# =========================
 smashelito_functions = extract_functions(subset_content)
 output_functions     = extract_functions(File.read(OUTPUT_FILE))
 
