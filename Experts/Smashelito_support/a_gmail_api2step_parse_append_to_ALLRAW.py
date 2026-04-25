@@ -181,7 +181,7 @@ if __name__ == "__main__":
     # ========================================================
     # CHANGED INPUT FILE
     # ========================================================
-    email_path = os.path.join(script_dir, "a_gmail_api_output_overwrites.txt")
+    email_path = os.path.join(script_dir, "a_gmail_api_output_overwrites_store_latest_emails.txt")
 
     trading = load_trading_dates(calendar_path)
 
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     # ========================================================
     # CHANGED OUTPUT FILE (APPEND MODE)
     # ========================================================
-    out_path = os.path.join(script_dir, "a_gmail_api2step_levelsinfo_raw.txt")
+    out_path = os.path.join(script_dir, "a_gmail_api2step_parse_append_to_ALLRAW_output.txt")
 
     existing = []
     if os.path.exists(out_path):

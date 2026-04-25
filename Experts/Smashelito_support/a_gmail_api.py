@@ -16,7 +16,7 @@ sent_from = "smashelito@substack.com"
 parse_how_many_latest_emails = 2
 email_body_text_marker = "observe the behavior around"
 save_to_file = True
-save_file_name = "a_gmail_api_output_overwrites.txt"
+save_file_name = "a_gmail_api_output_overwrites_store_latest_emails.txt"
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 

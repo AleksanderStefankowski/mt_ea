@@ -15,7 +15,7 @@ WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", 
 
 
 def load_raw(script_dir):
-    path = os.path.join(script_dir, "a_gmail_levelsinfo_raw.txt")
+    path = os.path.join(script_dir, "a_gmail_api2step_parse_append_to_ALLRAW_output.txt")
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
