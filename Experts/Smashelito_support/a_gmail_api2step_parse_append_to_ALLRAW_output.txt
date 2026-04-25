@@ -5609,5 +5609,135 @@
       "daily"
     ],
     "tag": "dailyDown3"
+  },
+  {
+    "start": "2026.04.23",
+    "end": "2026.04.23",
+    "levelPrice": 7166,
+    "categories": [
+      "daily",
+      "thursday",
+      "smash"
+    ],
+    "tag": "dailySmash"
+  },
+  {
+    "start": "2026.04.23",
+    "end": "2026.04.23",
+    "levelPrice": 7191,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.04.23",
+    "end": "2026.04.23",
+    "levelPrice": 7217,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.04.23",
+    "end": "2026.04.23",
+    "levelPrice": 7233,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp3"
+  },
+  {
+    "start": "2026.04.23",
+    "end": "2026.04.23",
+    "levelPrice": 7146,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.04.23",
+    "end": "2026.04.23",
+    "levelPrice": 7117,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.04.23",
+    "end": "2026.04.23",
+    "levelPrice": 7092,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown3"
+  },
+  {
+    "start": "2026.04.24",
+    "end": "2026.04.24",
+    "levelPrice": 7151,
+    "categories": [
+      "daily",
+      "friday",
+      "smash"
+    ],
+    "tag": "dailySmash"
+  },
+  {
+    "start": "2026.04.24",
+    "end": "2026.04.24",
+    "levelPrice": 7172,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.04.24",
+    "end": "2026.04.24",
+    "levelPrice": 7193,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.04.24",
+    "end": "2026.04.24",
+    "levelPrice": 7215,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp3"
+  },
+  {
+    "start": "2026.04.24",
+    "end": "2026.04.24",
+    "levelPrice": 7127,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.04.24",
+    "end": "2026.04.24",
+    "levelPrice": 7092,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.04.24",
+    "end": "2026.04.24",
+    "levelPrice": 7062,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown3"
   }
 ]
