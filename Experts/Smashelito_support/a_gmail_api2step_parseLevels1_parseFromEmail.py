@@ -193,7 +193,7 @@ if __name__ == "__main__":
     # ========================================================
     # CHANGED OUTPUT FILE (APPEND MODE)
     # ========================================================
-    out_path = os.path.join(script_dir, "a_gmail_levelsinfo_raw.txt")
+    out_path = os.path.join(script_dir, "a_gmail_api2step_levelsinfo_raw.txt")
 
     existing = []
     if os.path.exists(out_path):
