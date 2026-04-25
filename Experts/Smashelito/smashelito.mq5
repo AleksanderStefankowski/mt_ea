@@ -5272,6 +5272,25 @@ bool Gate_DayHighSoFar_NoMoreThanX_AboveLevel(const int kLast, const double leve
    if(!g_dayHighSoFarAtBar[kLast].hasValue) return false;
    return (g_dayHighSoFarAtBar[kLast].value <= levelPx + x);
 }
+//+------------------------------------------------------------------+
+//| Gate_DayLowSoFar_AtLeastX_BelowLevel: day low so far ≤ levelPx - x (price units; x = e.g. 2.0). |
+//+------------------------------------------------------------------+
+bool Gate_DayLowSoFar_AtLeastX_BelowLevel(const int kLast, const double levelPx, const double x)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   return (g_dayLowSoFarAtBar[kLast].value <= levelPx - x);
+}
+//+------------------------------------------------------------------+
+//| Gate_DayLowSoFar_NoMoreThanX_BelowLevel:                         |
+//| day low so far ≥ levelPx - x (price units; x = e.g. 2.0).        |
+//+------------------------------------------------------------------+
+bool Gate_DayLowSoFar_NoMoreThanX_BelowLevel(const int kLast, const double levelPx, const double x)
+{
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   return (g_dayLowSoFarAtBar[kLast].value >= levelPx - x);
+}
 
 //+------------------------------------------------------------------+
 //| True if levelPx is strictly below the day's running high so far at kLast (not an "X points" band). |
@@ -5426,6 +5445,16 @@ bool Gate_CleanStreak_NoMoreThanX_BelowLevel(const int levelIdx, const int kLast
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
    if(kLast < 0 || kLast >= g_barsInDay) return false;
    return (g_cleanStreakBelow[levelIdx][kLast] <= x);
+}
+//+------------------------------------------------------------------+
+//| Gate_CleanStreak_NoMoreThanX_AboveLevel:                          |
+//| OHLC clean streak above level ≤ x bars (g_cleanStreakAbove).      |
+//+------------------------------------------------------------------+
+bool Gate_CleanStreak_NoMoreThanX_AboveLevel(const int levelIdx, const int kLast, const int x)
+{
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   return (g_cleanStreakAbove[levelIdx][kLast] <= x);
 }
 //+------------------------------------------------------------------+
 //| Gate_Level_AbovePDO: level price strictly above previous day RTH open (PDO). |
@@ -13525,65 +13554,6 @@ bool Subset_20101(double levelPx, int levelIdx, int kLast)
    if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
    return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 bool Subset_20102(double levelPx, int levelIdx, int kLast) // 20101230268060808 -> 20102230268060808
 {
