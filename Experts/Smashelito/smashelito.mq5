@@ -2660,9 +2660,6 @@ int BuildStage2SubsetHandlerKeyFromFullMagic(const long fullMagic)
 void SyncTradeVariantsFromInputs() 
 {  
 // bookmark1 tradebegin
-//tradeDeleter_ends_here. AI never edit this comment
-//bookmark2tradeend
-}
 // encoding input magic: 10101170037000606
 g_trade[0].enabled                  = true;
 g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;
@@ -8374,6 +8371,11 @@ g_trade[335].bannedRanges = "21,15,23,59;0,0,1,0";
 g_trade[335].babysit_enabled          = false;
 g_trade[335].babysitStart_minute      = 0;
 
+
+
+//tradeDeleter_ends_here. AI never edit this comment
+//bookmark2tradeend
+}
 
 //+------------------------------------------------------------------+
 //| Composite magic as long must print with exactly COMPOSITE_MAGIC_STRING_LEN decimal digits. |
@@ -23136,8 +23138,7 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
       return Subset_10111(levelPx, levelIdx, kLast);
    if(subsetHandlerKey == 10112 || subsetHandlerKey == 30112)
       return Subset_10112(levelPx, levelIdx, kLast);
-
-
+      
    // If an enabled variant passes stage 1 but has no stage-2 rule subset function, it's a config error.
    FatalError(StringFormat("bookmarkE1 Missing stage-2 rule subset function for subset key %d (slots %d, %d, %d), magic %s. Check PendingRuleSubsetPassesForFullMagic",
       subsetHandlerKey, slot1, slot2, slot3, IntegerToString(fullMagic)));
