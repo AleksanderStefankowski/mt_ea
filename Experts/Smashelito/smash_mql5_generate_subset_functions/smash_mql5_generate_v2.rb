@@ -3,13 +3,12 @@ require 'time'
 # --- CONFIG ---
 first_digit = "1" # 1 long or 2 short
 allowed_2nd_digit = [0, 1, 2, 3, 4]  # quantv2 space, never edit this
-third_digit_trade_type = "1"
+third_digit_trade_type = "4"
 
 timestamp = Time.now.strftime("%Y%m%d_%H%M")
 
 SLOTS_PER_DIGIT = 99 # never edit this
 TOTAL_SLOTS = allowed_2nd_digit.size * SLOTS_PER_DIGIT  # 495
-
 # --- BLOCKS ---
 
 ##### DONE
@@ -73,18 +72,67 @@ TOTAL_SLOTS = allowed_2nd_digit.size * SLOTS_PER_DIGIT  # 495
 #   ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < diffAboveMin) return false;"],
 # ]
 
-#### 101 
+#### 101 wyniki miało super słabe, ale to pewnie dlatego że niskie trade count i jednocześnie niedużo VARIABLES
+# blocks = [
+#   ["if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;"],
+#   ["double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;"],
+#   ["if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED"],
+#   [""],
+#   ["if (diffWithLowOfDay < VARIABLE) return false; // too far below", "-15.0", "-10.0", "-7.0", "-3.0"],
+#   ["const int cleanStreakAbove_Minimum = VARIABLE; // var",  "90", "200", "400"],
+#   ["if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;"],
+#   ["// also do big VARIABLE for offsset"],
+# ]
+########### template for AI to rewrite a function. empty lines are [""], no return true ############################
+# blocks = [ 
+#   ["if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;"],
+#   ["double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;"],
+#   ["if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED"],
+#   [""],
+#   ["if (diffWithLowOfDay < -15.0) return false; // too far below"],
+#   ["const int cleanStreakAbove_Minimum = 200; // var"],
+#   ["if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;"],
+# ]
+################################################################################################################
+######### 104
+# 
+# // real trade examples:
+# // ONO, diff from level is 41.9 | level 60 pkt ponizej ONO  | 140 pkt od ONO 
+# // RTHO nie ma jeszcze | level 56 pkt ponizej RTHO | 150 pkt od RTHO
+# // ibh nie ma jeszcze | level 15 pkt ponizej IBH | 96 pkt < IBH 
+# // proximity 1.3, gain 19  w 8 m | contact -1.4 , 25 pkt w 10 m | contact -2.4, gain 20 pkt w 3 m
+	# //"highgest diff ponad trade level to 25 wyżej, last 56 min, co jest wyżej niż level up o 3.7 pkt, niezużo ale to overnigh i early hours of ON)"
+	# //"highgest diff ponad trade level to 40 wyżej, last 46 min"
 blocks = [
-  ["if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;"],
-  ["double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;"],
-  ["if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED"],
+  ["const double level_minDiff_with_ONO = VARIABLE;", "10.0", "20.0", "35.0", "50.0"],
+  ["const double level_minDiff_with_RTHO = VARIABLE; // but skipped check if not set yet", "10.0", "20.0", "35.0", "50.0"],
+  ["const double level_minDiff_with_IBH = VARIABLE; // but skipped check if not set yet", "10.0", "20.0"],
   [""],
-  ["if (diffWithLowOfDay < VARIABLE) return false; // too far below", "-15.0", "-10.0", "-7.0", "-3.0"],
-  ["const int cleanStreakAbove_Minimum = VARIABLE; // var",  "90", "200", "400"],
-  ["if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;"],
-  ["// also do big VARIABLE for offsset"],
+  ["if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;"],
+  ["if(kLast < 0 || kLast >= g_barsInDay) return false;"],
+  ["if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;"],
+  ["if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;"],
+  [""],
+  ["if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))"],
+  ["   if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;"],
+  ["if(g_IBhighAtBar[kLast].hasValue)"],
+  ["   if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;"],
+  ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, VARIABLE, true);", "45", "90", "200", "20"],
+  ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "10.0", "15.0", "25.0", "40.0", "60.0"],
 ]
 
+# --- VALIDATION ---
+def validate_blocks!(blocks)
+  blocks.each_with_index do |block, idx|
+    next if block.length <= 1
+
+    template = block[0]
+
+    unless template.include?("VARIABLE")
+      raise "Validation error in block ##{idx}: template must contain 'VARIABLE'\nBlock: #{block.inspect}"
+    end
+  end
+end
 
 # --- EXPAND ---
 def expand_blocks(blocks)
@@ -136,6 +184,8 @@ def build_function(full_id, lines)
 end
 
 # --- MAIN ---
+validate_blocks!(blocks)
+
 all_combos = expand_blocks(blocks)
 
 file_index = 1
