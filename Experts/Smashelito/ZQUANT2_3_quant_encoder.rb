@@ -4,6 +4,8 @@ SUBSET_START = "// quantspace2SubsetStart"
 SUBSET_END   = "// quantspace2SubsetEnd"
 
 babysit = "700"
+# tp = ["06", "08", "12"].uniq # "08"
+# sl = ["06", "04"].uniq
 tp = ["06"].uniq # "08"
 sl = ["06"].uniq
 

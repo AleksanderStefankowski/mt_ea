@@ -13,24 +13,38 @@ header = lines.shift.split("\t")
 
 idx_magic       = header.index("magic")
 idx_quantFactor = header.index("quantFactor")
+idx_quantProfitFactor = header.index("quantProfitFactor")
 
-raise "Missing required columns" unless idx_magic && idx_quantFactor
+raise "Missing required columns" unless idx_magic && idx_quantFactor && idx_quantProfitFactor
+
 
 records = []
 seen_magic = {}
-lines.each do |line|
-  cols = line.split("\t")
+lines.each_with_index do |line, i|
+  next if line.strip.empty?
 
-  magic = cols[idx_magic]
-  quant_factor = cols[idx_quantFactor]
+  cols = line.split("\t", -1)
+  file_line = i + 2 # +1 header, +0-based i
+  magic = cols[idx_magic]&.strip
+  quant_factor = cols[idx_quantFactor]&.strip
+  quant_profit_factor = cols[idx_quantProfitFactor]
+
+  if magic.nil? || magic.empty?
+    raise "Line #{file_line}: missing or empty 'magic' (#{cols.size} fields; need column index #{idx_magic} for magic). Preview: #{line[0, 160].inspect}"
+  end
+  if quant_factor.nil? || quant_factor.empty?
+    raise "Line #{file_line}: missing or empty 'quantFactor' for magic #{magic}"
+  end
+  if quant_profit_factor.nil? || quant_profit_factor.to_s.strip.empty?
+    raise "Line #{file_line}: missing or empty 'quantProfitFactor' for magic #{magic}"
+  end
   raise "Duplicate magic found: #{magic}" if seen_magic[magic]
   seen_magic[magic] = true
 
-  subset_base_number = magic[0, 5]
-
   records << {
     magic: magic,
-    quantFactor: quant_factor
+    quantFactor: quant_factor,
+    quantProfitFactor: quant_profit_factor
   }
 end
 
@@ -39,12 +53,20 @@ mq5_content = File.read(mq5_path)
 
 # --- BASE SUBSET (5 DIGITS) ---
 def base_subset_number(magic)
-  magic[0, 5]
+  s = magic.to_s
+  raise "magic is empty" if s.empty?
+  raise "magic must be at least 5 characters for Subset_ lookup, got: #{s.inspect}" if s.size < 5
+  s[0, 5]
 end
 
 # --- OUTPUT SUBSET (10 DIGITS + SHIFT 2ND DIGIT) ---
-def output_subset_number(magic)
-  base10 = magic[0, 10].chars
+def output_subset_number(magic, quant_profit_factor)
+  s = magic.to_s
+  raise "magic must be at least 10 characters for output subset, got: #{s.inspect} (#{s.size} chars)" if s.size < 10
+  base10 = s[0, 10].chars
+  if quant_profit_factor.to_f < 1.0
+    base10[0] = (base10[0].to_i + 2).to_s
+  end
   base10[1] = (base10[1].to_i + 5).to_s
   base10.join
 end
@@ -140,6 +162,8 @@ def map_to_mq5_condition(line)
 
   when "price below IBH"
     "   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;"
+  when "price below IBL"
+    "   if(!Gate_Level_BelowIBL(kLast, levelPx)) return false;"
   when "price below ONH"
     "   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;"
   when "price below ONL"
@@ -190,7 +214,7 @@ value_counts = Hash.new(0)
 
 records.each do |rec|
   base = base_subset_number(rec[:magic])              # 5-digit lookup key
-  out  = output_subset_number(rec[:magic])            # 10-digit label
+  out  = output_subset_number(rec[:magic], rec[:quantProfitFactor]) # 10-digit label
 
   subset_func = extract_subset_function(mq5_content, base)
 

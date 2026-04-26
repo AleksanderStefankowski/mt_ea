@@ -71,6 +71,7 @@ puts
 puts "=== GROUPED (last 2 digits) BY FIRST 3 DIGITS ==="
 subset_groups_sorted.sort.each do |prefix, suffixes|
   puts "Group #{prefix}: #{suffixes.inspect}"
+  puts "\n"
 end
 
 puts

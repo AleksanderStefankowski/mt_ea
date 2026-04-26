@@ -2,6 +2,17 @@
 # DttSScPPofBBBtpSL
 # 20141435257000606
 
+=begin
+kazdy jeden unquant magic number bedzie mial swoj jeden quant,  bez bb tp sl, i mozna gigatestować bb i tpsl, ale nie trzeba nawet		
+4	->	9
+3	->	8
+2	->	7
+1	->	6
+0	->	5
+i jeśli w giga encoded na podstawie existing functions jest quanted, to usuwany jest jego wariant unquanted jeśli istnieje w wygenerowanym secie, easily		
+bo to jest easy mapping serio 		
+=end
+
 =begin trade_db_reader.rb :
 =end
 
@@ -30,27 +41,35 @@ Group 401: ["88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "9
 # Group 112: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77"]
 # TEXT
 text = <<~TEXT
-Group 201: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "12", "13", "14", "15", "16", "18", "19", "21", "31", "32", "41", "85", "86", "87"]
-Group 202: ["01", "02", "03", "04", "10", "11", "20", "30", "40", "50", "60", "61", "62", "70"]
-Group 203: ["01", "10", "20", "30"]
-Group 204: ["01", "10", "20", "30", "40"]
+Group 104: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
+Group 114: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
+Group 124: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
+Group 134: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
+Group 144: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "70", "71", "72", "73", "74", "75", "76", "77", "78", "79", "80", "81", "82", "83", "84", "85", "86", "87", "88", "89", "90", "91", "92", "93", "94", "95", "96", "97", "98", "99"]
 TEXT
-
+# Group 201: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "12", "13", "14", "15", "16", "18", "19", "21", "31", "32", "41", "85", "86", "87"]
+# Group 202: ["01", "02", "03", "04", "10", "11", "20", "30", "40", "50", "60", "61", "62", "70"]
+# Group 203: ["01", "10", "20", "30"]
+# Group 204: ["01", "10", "20", "30", "40"]
 
 TRADE_INDEX_START = 0
 ENABLED    = true
 TRADE_SIZE = 100
+MAX_TRADES_PER_BATCH = 2078 # excess combinations go to trade_giga_encoder2_output_part2, part3, ...; each part indexes g_trade from TRADE_INDEX_START again
 
 c   = ["1", "2", "3", "4"].uniq
 pp  = "40"
 
 ### kolejność działań:
+### 1. quantowanie zmniejsza ilość trejdów by zwiększyć profit ratio. start z high traade ecount po quantowaniu i zmniejszeniu trade count zawsze będzie lepszy niż unquanted!
+
+
 ### 1. offsety różne wpływają na ilość trejdów (czy złapało na proximity) oraz pośrednio na profit ratio
 ### 2. TP SL owanie zwiększa profit ratio
-### 3. quantowanie zmniejsza ilość trejdów by zwiększyć profit ratio. Bardzo często nie będzie wcale quantowania, bo może być od razu high PF i mały trade count więc nie byłoby z czego quantować w dół
 
 # of  = ["03", "15"] 
-of  = ["03", "05", "10", "15"] # "05", "10" usunąłem do gentest by przyspieszyć sim! na koniec potem znowu simnąć!!!!!!!           # shorts should be tight? let's see result
+of  = ["03", "10"] #  "30" "45",  "05", "10" usunąłem do gentest by przyspieszyć sim! na koniec potem znowu simnąć!!!!!!!           # shorts should be tight? let's see result
+# of  = ["03", "05", "10", "15", "21", "30", "45"] #  dla 101 testy offset
 
 bbb = "700"
 
@@ -91,8 +110,6 @@ MAGIC_NUMBERS = all_combinations.uniq
 
 puts "\nTotal final combinations: #{MAGIC_NUMBERS.size}"
 
-OUTPUT_FILE = File.join(__dir__, "trade_giga_encoder2_output.txt")
-
 # -------------------------------
 # ENUM HELPERS
 # -------------------------------
@@ -125,53 +142,61 @@ def level_focus(direction)
 end
 
 # -------------------------------
-# BUILD OUTPUT
+# BUILD OUTPUT (batched files: ..._part1, ..._part2, ...)
 # -------------------------------
-output_lines = []
+written = []
+first_example = nil
 
-MAGIC_NUMBERS.each_with_index do |magic, i|
-  idx = TRADE_INDEX_START + i
+MAGIC_NUMBERS.each_slice(MAX_TRADES_PER_BATCH).with_index(1) do |batch, part_num|
+  output_lines = []
 
-  direction    = magic[0].to_i
-  type_id      = magic[1..2].to_i
-  subset_id    = magic[3..4].to_i
-  session      = magic[5].to_i
-  price_prox   = magic[6..7].to_i / 10.0
-  level_offset = magic[8..9].to_i / 10.0
-  bbb_val      = magic[10..12]
-  tp_val       = magic[13..14].to_i.to_f
-  sl_val       = magic[15..16].to_i.to_f
+  batch.each_with_index do |magic, i|
+    idx = TRADE_INDEX_START + i
 
-  babysit_enabled = (bbb_val[0] == "8")
-  babysit_minute  = bbb_val[1..2].to_i
+    direction    = magic[0].to_i
+    type_id      = magic[1..2].to_i
+    subset_id    = magic[3..4].to_i
+    session      = magic[5].to_i
+    price_prox   = magic[6..7].to_i / 10.0
+    level_offset = magic[8..9].to_i / 10.0
+    bbb_val      = magic[10..12]
+    tp_val       = magic[13..14].to_i.to_f
+    sl_val       = magic[15..16].to_i.to_f
 
-  block = []
-  block << "// encoding input magic: #{magic}"
-  block << "g_trade[#{idx}].enabled                  = #{ENABLED};"
-  block << "g_trade[#{idx}].tradeDirectionCategory   = #{direction_to_enum(direction)};"
-  block << "g_trade[#{idx}].tradeTypeId              = #{type_id};"
-  block << "g_trade[#{idx}].ruleSubsetId             = #{subset_id};"
-  block << "g_trade[#{idx}].sessionPdCategory        = #{session_to_enum(session)};"
-  block << "g_trade[#{idx}].tradeSizePct             = #{TRADE_SIZE};"
-  block << "g_trade[#{idx}].tpPoints                 = #{tp_val};"
-  block << "g_trade[#{idx}].slPoints                 = #{sl_val};"
-  block << "g_trade[#{idx}].livePriceDiffTrigger     = #{price_prox};"
-  block << "g_trade[#{idx}].levelOffsetPoints        = #{level_offset};"
-  block << "g_trade[#{idx}].levelProximityFocus      = #{level_focus(direction)};"
-  block << 'g_trade[' + idx.to_s + '].bannedRanges = "21,15,23,59;0,0,1,0";'
-  block << "g_trade[#{idx}].babysit_enabled          = #{babysit_enabled};"
-  block << "g_trade[#{idx}].babysitStart_minute      = #{babysit_minute};"
-  block << "\n"
+    babysit_enabled = (bbb_val[0] == "8")
+    babysit_minute  = bbb_val[1..2].to_i
 
-  output_lines << block.join("\n")
+    block = []
+    block << "// encoding input magic: #{magic}"
+    block << "g_trade[#{idx}].enabled                  = #{ENABLED};"
+    block << "g_trade[#{idx}].tradeDirectionCategory   = #{direction_to_enum(direction)};"
+    block << "g_trade[#{idx}].tradeTypeId              = #{type_id};"
+    block << "g_trade[#{idx}].ruleSubsetId             = #{subset_id};"
+    block << "g_trade[#{idx}].sessionPdCategory        = #{session_to_enum(session)};"
+    block << "g_trade[#{idx}].tradeSizePct             = #{TRADE_SIZE};"
+    block << "g_trade[#{idx}].tpPoints                 = #{tp_val};"
+    block << "g_trade[#{idx}].slPoints                 = #{sl_val};"
+    block << "g_trade[#{idx}].livePriceDiffTrigger     = #{price_prox};"
+    block << "g_trade[#{idx}].levelOffsetPoints        = #{level_offset};"
+    block << "g_trade[#{idx}].levelProximityFocus      = #{level_focus(direction)};"
+    block << 'g_trade[' + idx.to_s + '].bannedRanges = "21,15,23,59;0,0,1,0";'
+    block << "g_trade[#{idx}].babysit_enabled          = #{babysit_enabled};"
+    block << "g_trade[#{idx}].babysitStart_minute      = #{babysit_minute};"
+    block << "\n"
+
+    joined = block.join("\n")
+    first_example ||= joined if part_num == 1 && i == 0
+    output_lines << joined
+  end
+
+  basename = "trade_giga_encoder2_output_part#{part_num}.txt"
+  path = File.join(__dir__, basename)
+  File.write(path, output_lines.join("\n"))
+  written << { path: path, basename: basename, count: output_lines.size }
 end
 
-# -------------------------------
-# WRITE FILE
-# -------------------------------
-File.write(OUTPUT_FILE, output_lines.join("\n"))
-
 puts "\n--- Example output (first config only) ---"
-puts output_lines.first
+puts first_example if first_example
 
-puts "\nAll #{output_lines.size} configs saved to #{File.basename(OUTPUT_FILE)}"
+puts "\nWrote #{written.sum { |w| w[:count] }} configs across #{written.size} file(s):"
+written.each { |w| puts "  #{w[:basename]}  (#{w[:count]} configs)" }

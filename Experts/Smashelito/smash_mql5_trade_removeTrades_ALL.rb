@@ -42,6 +42,11 @@ while i < lines.length
 
   # stop region at sentinel (REMOVE UP TO HERE)
   if stripped.start_with?(END_MARKER)
+    # ensure exactly 2 empty lines before sentinel
+    new_lines.pop while new_lines.last&.strip == ""   # remove existing trailing blanks
+    new_lines << "\n"
+    new_lines << "\n"
+
     new_lines << line   # keep sentinel
     i += 1
 
