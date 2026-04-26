@@ -1,6 +1,6 @@
 # key concepts in the script: magic, quantFactor: "price below IBH", subset_base_number: "10204"
 # subset_function , deconstructed_quant: ["   price below IBH"], quant_function
-file_path = "ZQUANT1_0_read_table_and_build_quantV2_subsets.tsv"
+file_path = "ZQUANT1_0_rubysplitter_quantANDLEVELS_b_ALL_QUANTED_likeconsole.tsv"
 mq5_path  = "smashelito.mq5"
 
 quant_function_insert_line = 3

@@ -153,7 +153,7 @@ all_output += blocks
 
 # ================== WRITE OUTPUT ==================
 
-File.write("ZQUANT2_3_quant_encoder_output.txt", all_output.join("\n"))
+File.write("ZQUANT2_3_quant_encoder_quantspace_output.txt", all_output.join("\n"))
 
 # ================== CONSOLE ==================
 
@@ -163,4 +163,4 @@ puts blocks.first
 puts "\n=== PREVIEW (LAST BLOCK) ==="
 puts blocks.last
 puts "\nTotal trade blocks generated: #{blocks.size}"
-puts "\n(full output saved to ZQUANT2_3_quant_encoder_output.txt)"
+puts "\n(full output saved to ZQUANT2_3_quant_encoder_quantspace_output.txt)"

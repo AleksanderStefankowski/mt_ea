@@ -49,6 +49,9 @@ bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSumma
 bool     finalLog_SummaryTrades1line  = false;  // summary_tradesSummary1line.csv
 bool     finalLog_SummaryTradesPerTrade = false;  // summary_tradesSummary_perTrade.csv (one row per magic)
 bool     dailyEODlog_TradeResultsCsv  = true;  // summaryZ_tradeResults_ALL_Day + summary_tradeResults_all_days
+// Trade-results CSV columns referencePointsAbove / referencePointsBelow (GetReferencePointsAboveBelow):
+bool     tradeResult_referencePoints_excludeTooClose = true;  // if true: omit a ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel; if false, no distance filter (min may be 0.0)
+double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; only used when tradeResult_referencePoints_excludeTooClose is true
 bool     dailyEODlog_TestinglevelsPlus = true;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
@@ -78,7 +81,7 @@ const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 5000000.0; // PLN budget ceiling 
 //    tradeDirectionCategory → slot 1; tradeTypeId → slot 2; ruleSubsetId → slot 3; sessionPdCategory → slot 4; see BuildBetterMagicNumber layout. levelProximityFocus: TRADE_LEVEL_FOCUS_BELOW | ABOVE | BOTH.
 //    bannedRanges: no '|' inside string.
 // bookmark4 maxvariant
-#define TRADE_VARIANT_COUNT 864
+#define TRADE_VARIANT_COUNT 125
 const bool validate_TRADE_VARIANT_COUNT = true; // if true, OnInit fails when TRADE_VARIANT_COUNT > TRADE_VARIANT_COUNT_MAX_LIMICIK
 #define TRADE_VARIANT_COUNT_MAX_LIMICIK 2078
 
@@ -1215,7 +1218,7 @@ bool GetGapFillSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, 
 }
 
 //+------------------------------------------------------------------+
-//| Reference points above/below the trade level price at trade open time (M1 bar at tradeOpenTime). Skips refs that are "unknown". Fills outAbove and outBelow with semicolon-separated ref names. |
+//| Reference points above/below the trade level price at trade open time (M1 bar at tradeOpenTime). Skips refs that are "unknown". When tradeResult_referencePoints_excludeTooClose: omit ref if |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel. Fills outAbove and outBelow with semicolon-separated ref names. |
 //+------------------------------------------------------------------+
 void GetReferencePointsAboveBelow(datetime tradeOpenTime, double levelPrice, string &outAbove, string &outBelow)
 {
@@ -1229,20 +1232,22 @@ void GetReferencePointsAboveBelow(datetime tradeOpenTime, double levelPrice, str
    datetime dayStart = g_m1DayStart;
    string dateStr = TimeToString(dayStart, TIME_DATE);
 
+   const bool rp_excludeTooClose = tradeResult_referencePoints_excludeTooClose;
+   const double rp_minAbs = tradeResult_referencePointMinAbsDiffFromLevel;
    double v = 0.0;
-   if(g_staticMarketContext.PDOpreviousDayRTHOpen > 0.0) { v = g_staticMarketContext.PDOpreviousDayRTHOpen; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDO"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDO"; }
-   if(g_staticMarketContext.PDHpreviousDayHigh > 0.0) { v = g_staticMarketContext.PDHpreviousDayHigh; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDH"; }
-   if(g_staticMarketContext.PDLpreviousDayLow > 0.0) { v = g_staticMarketContext.PDLpreviousDayLow; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDL"; }
-   if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0) { v = g_staticMarketContext.PDCpreviousDayRTHClose; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDC"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDC"; }
-   if(g_ONhighSoFarAtBar[barIdx].hasValue) { v = g_ONhighSoFarAtBar[barIdx].value; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONH"; }
-   if(g_ONlowSoFarAtBar[barIdx].hasValue) { v = g_ONlowSoFarAtBar[barIdx].value; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONL"; }
-   if(GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHH"; }
-   if(GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHL"; }
-   if(GetIBlowAtBar(barIdx, v)) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBL"; }
-   if(GetIBhighAtBar(barIdx, v)) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBH"; }
-   if(g_dayHighSoFarAtBar[barIdx].hasValue) { v = g_dayHighSoFarAtBar[barIdx].value; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar"; }
-   if(g_dayLowSoFarAtBar[barIdx].hasValue) { v = g_dayLowSoFarAtBar[barIdx].value; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar"; }
-   if(g_sessionRangeMidpointAtBar[barIdx].hasValue) { v = g_sessionRangeMidpointAtBar[barIdx].value; if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint"; }
+   if(g_staticMarketContext.PDOpreviousDayRTHOpen > 0.0) { v = g_staticMarketContext.PDOpreviousDayRTHOpen; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDO"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDO"; } }
+   if(g_staticMarketContext.PDHpreviousDayHigh > 0.0) { v = g_staticMarketContext.PDHpreviousDayHigh; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDH"; } }
+   if(g_staticMarketContext.PDLpreviousDayLow > 0.0) { v = g_staticMarketContext.PDLpreviousDayLow; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDL"; } }
+   if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0) { v = g_staticMarketContext.PDCpreviousDayRTHClose; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDC"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDC"; } }
+   if(g_ONhighSoFarAtBar[barIdx].hasValue) { v = g_ONhighSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONH"; } }
+   if(g_ONlowSoFarAtBar[barIdx].hasValue) { v = g_ONlowSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONL"; } }
+   if(GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHH"; } }
+   if(GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHL"; } }
+   if(GetIBlowAtBar(barIdx, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBL"; } }
+   if(GetIBhighAtBar(barIdx, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBH"; } }
+   if(g_dayHighSoFarAtBar[barIdx].hasValue) { v = g_dayHighSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar"; } }
+   if(g_dayLowSoFarAtBar[barIdx].hasValue) { v = g_dayLowSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar"; } }
+   if(g_sessionRangeMidpointAtBar[barIdx].hasValue) { v = g_sessionRangeMidpointAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint"; } }
 }
 
 //+------------------------------------------------------------------+
@@ -2662,6 +2667,2005 @@ void SyncTradeVariantsFromInputs()
 // bookmark1 tradebegin
 
 
+// encoding input magic: 16210340157000606
+g_trade[0].enabled                  = true;
+g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[0].tradeTypeId              = 62;
+g_trade[0].ruleSubsetId             = 10;
+g_trade[0].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[0].tradeSizePct             = 100;
+g_trade[0].tpPoints                 = 6.0;
+g_trade[0].slPoints                 = 6.0;
+g_trade[0].livePriceDiffTrigger     = 4.0;
+g_trade[0].levelOffsetPoints        = 1.5;
+g_trade[0].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[0].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[0].babysit_enabled          = false;
+g_trade[0].babysitStart_minute      = 0;
+
+// encoding input magic: 16232340157000606
+g_trade[1].enabled                  = true;
+g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[1].tradeTypeId              = 62;
+g_trade[1].ruleSubsetId             = 32;
+g_trade[1].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[1].tradeSizePct             = 100;
+g_trade[1].tpPoints                 = 6.0;
+g_trade[1].slPoints                 = 6.0;
+g_trade[1].livePriceDiffTrigger     = 4.0;
+g_trade[1].levelOffsetPoints        = 1.5;
+g_trade[1].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[1].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[1].babysit_enabled          = false;
+g_trade[1].babysitStart_minute      = 0;
+
+// encoding input magic: 15203340157000606
+g_trade[2].enabled                  = true;
+g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[2].tradeTypeId              = 52;
+g_trade[2].ruleSubsetId             = 3;
+g_trade[2].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[2].tradeSizePct             = 100;
+g_trade[2].tpPoints                 = 6.0;
+g_trade[2].slPoints                 = 6.0;
+g_trade[2].livePriceDiffTrigger     = 4.0;
+g_trade[2].levelOffsetPoints        = 1.5;
+g_trade[2].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[2].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[2].babysit_enabled          = false;
+g_trade[2].babysitStart_minute      = 0;
+
+// encoding input magic: 15103370157001206
+g_trade[3].enabled                  = true;
+g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[3].tradeTypeId              = 51;
+g_trade[3].ruleSubsetId             = 3;
+g_trade[3].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[3].tradeSizePct             = 100;
+g_trade[3].tpPoints                 = 12.0;
+g_trade[3].slPoints                 = 6.0;
+g_trade[3].livePriceDiffTrigger     = 7.0;
+g_trade[3].levelOffsetPoints        = 1.5;
+g_trade[3].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[3].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[3].babysit_enabled          = false;
+g_trade[3].babysitStart_minute      = 0;
+
+// encoding input magic: 15106370157001206
+g_trade[4].enabled                  = true;
+g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[4].tradeTypeId              = 51;
+g_trade[4].ruleSubsetId             = 6;
+g_trade[4].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[4].tradeSizePct             = 100;
+g_trade[4].tpPoints                 = 12.0;
+g_trade[4].slPoints                 = 6.0;
+g_trade[4].livePriceDiffTrigger     = 7.0;
+g_trade[4].levelOffsetPoints        = 1.5;
+g_trade[4].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[4].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[4].babysit_enabled          = false;
+g_trade[4].babysitStart_minute      = 0;
+
+// encoding input magic: 15109370157001206
+g_trade[5].enabled                  = true;
+g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[5].tradeTypeId              = 51;
+g_trade[5].ruleSubsetId             = 9;
+g_trade[5].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[5].tradeSizePct             = 100;
+g_trade[5].tpPoints                 = 12.0;
+g_trade[5].slPoints                 = 6.0;
+g_trade[5].livePriceDiffTrigger     = 7.0;
+g_trade[5].levelOffsetPoints        = 1.5;
+g_trade[5].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[5].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[5].babysit_enabled          = false;
+g_trade[5].babysitStart_minute      = 0;
+
+// encoding input magic: 15112370157001206
+g_trade[6].enabled                  = true;
+g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[6].tradeTypeId              = 51;
+g_trade[6].ruleSubsetId             = 12;
+g_trade[6].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[6].tradeSizePct             = 100;
+g_trade[6].tpPoints                 = 12.0;
+g_trade[6].slPoints                 = 6.0;
+g_trade[6].livePriceDiffTrigger     = 7.0;
+g_trade[6].levelOffsetPoints        = 1.5;
+g_trade[6].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[6].babysit_enabled          = false;
+g_trade[6].babysitStart_minute      = 0;
+
+// encoding input magic: 15202340107000606
+g_trade[7].enabled                  = true;
+g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[7].tradeTypeId              = 52;
+g_trade[7].ruleSubsetId             = 2;
+g_trade[7].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[7].tradeSizePct             = 100;
+g_trade[7].tpPoints                 = 6.0;
+g_trade[7].slPoints                 = 6.0;
+g_trade[7].livePriceDiffTrigger     = 4.0;
+g_trade[7].levelOffsetPoints        = 1.0;
+g_trade[7].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[7].babysit_enabled          = false;
+g_trade[7].babysitStart_minute      = 0;
+
+// encoding input magic: 16208340107000606
+g_trade[8].enabled                  = true;
+g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[8].tradeTypeId              = 62;
+g_trade[8].ruleSubsetId             = 8;
+g_trade[8].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[8].tradeSizePct             = 100;
+g_trade[8].tpPoints                 = 6.0;
+g_trade[8].slPoints                 = 6.0;
+g_trade[8].livePriceDiffTrigger     = 4.0;
+g_trade[8].levelOffsetPoints        = 1.0;
+g_trade[8].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[8].babysit_enabled          = false;
+g_trade[8].babysitStart_minute      = 0;
+
+// encoding input magic: 16230340107000606
+g_trade[9].enabled                  = true;
+g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[9].tradeTypeId              = 62;
+g_trade[9].ruleSubsetId             = 30;
+g_trade[9].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[9].tradeSizePct             = 100;
+g_trade[9].tpPoints                 = 6.0;
+g_trade[9].slPoints                 = 6.0;
+g_trade[9].livePriceDiffTrigger     = 4.0;
+g_trade[9].levelOffsetPoints        = 1.0;
+g_trade[9].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[9].babysit_enabled          = false;
+g_trade[9].babysitStart_minute      = 0;
+
+// encoding input magic: 15437240107000606
+g_trade[10].enabled                  = true;
+g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[10].tradeTypeId              = 54;
+g_trade[10].ruleSubsetId             = 37;
+g_trade[10].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[10].tradeSizePct             = 100;
+g_trade[10].tpPoints                 = 6.0;
+g_trade[10].slPoints                 = 6.0;
+g_trade[10].livePriceDiffTrigger     = 4.0;
+g_trade[10].levelOffsetPoints        = 1.0;
+g_trade[10].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[10].babysit_enabled          = false;
+g_trade[10].babysitStart_minute      = 0;
+
+// encoding input magic: 15442240107000606
+g_trade[11].enabled                  = true;
+g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[11].tradeTypeId              = 54;
+g_trade[11].ruleSubsetId             = 42;
+g_trade[11].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[11].tradeSizePct             = 100;
+g_trade[11].tpPoints                 = 6.0;
+g_trade[11].slPoints                 = 6.0;
+g_trade[11].livePriceDiffTrigger     = 4.0;
+g_trade[11].levelOffsetPoints        = 1.0;
+g_trade[11].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[11].babysit_enabled          = false;
+g_trade[11].babysitStart_minute      = 0;
+
+// encoding input magic: 16207340157000606
+g_trade[12].enabled                  = true;
+g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[12].tradeTypeId              = 62;
+g_trade[12].ruleSubsetId             = 7;
+g_trade[12].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[12].tradeSizePct             = 100;
+g_trade[12].tpPoints                 = 6.0;
+g_trade[12].slPoints                 = 6.0;
+g_trade[12].livePriceDiffTrigger     = 4.0;
+g_trade[12].levelOffsetPoints        = 1.5;
+g_trade[12].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[12].babysit_enabled          = false;
+g_trade[12].babysitStart_minute      = 0;
+
+// encoding input magic: 16229340157000606
+g_trade[13].enabled                  = true;
+g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[13].tradeTypeId              = 62;
+g_trade[13].ruleSubsetId             = 29;
+g_trade[13].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[13].tradeSizePct             = 100;
+g_trade[13].tpPoints                 = 6.0;
+g_trade[13].slPoints                 = 6.0;
+g_trade[13].livePriceDiffTrigger     = 4.0;
+g_trade[13].levelOffsetPoints        = 1.5;
+g_trade[13].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[13].babysit_enabled          = false;
+g_trade[13].babysitStart_minute      = 0;
+
+// encoding input magic: 16215340157000606
+g_trade[14].enabled                  = true;
+g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[14].tradeTypeId              = 62;
+g_trade[14].ruleSubsetId             = 15;
+g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[14].tradeSizePct             = 100;
+g_trade[14].tpPoints                 = 6.0;
+g_trade[14].slPoints                 = 6.0;
+g_trade[14].livePriceDiffTrigger     = 4.0;
+g_trade[14].levelOffsetPoints        = 1.5;
+g_trade[14].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[14].babysit_enabled          = false;
+g_trade[14].babysitStart_minute      = 0;
+
+// encoding input magic: 16221340157000606
+g_trade[15].enabled                  = true;
+g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[15].tradeTypeId              = 62;
+g_trade[15].ruleSubsetId             = 21;
+g_trade[15].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[15].tradeSizePct             = 100;
+g_trade[15].tpPoints                 = 6.0;
+g_trade[15].slPoints                 = 6.0;
+g_trade[15].livePriceDiffTrigger     = 4.0;
+g_trade[15].levelOffsetPoints        = 1.5;
+g_trade[15].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[15].babysit_enabled          = false;
+g_trade[15].babysitStart_minute      = 0;
+
+// encoding input magic: 16222340157000606
+g_trade[16].enabled                  = true;
+g_trade[16].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[16].tradeTypeId              = 62;
+g_trade[16].ruleSubsetId             = 22;
+g_trade[16].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[16].tradeSizePct             = 100;
+g_trade[16].tpPoints                 = 6.0;
+g_trade[16].slPoints                 = 6.0;
+g_trade[16].livePriceDiffTrigger     = 4.0;
+g_trade[16].levelOffsetPoints        = 1.5;
+g_trade[16].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[16].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[16].babysit_enabled          = false;
+g_trade[16].babysitStart_minute      = 0;
+
+// encoding input magic: 15201340157000606
+g_trade[17].enabled                  = true;
+g_trade[17].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[17].tradeTypeId              = 52;
+g_trade[17].ruleSubsetId             = 1;
+g_trade[17].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[17].tradeSizePct             = 100;
+g_trade[17].tpPoints                 = 6.0;
+g_trade[17].slPoints                 = 6.0;
+g_trade[17].livePriceDiffTrigger     = 4.0;
+g_trade[17].levelOffsetPoints        = 1.5;
+g_trade[17].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[17].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[17].babysit_enabled          = false;
+g_trade[17].babysitStart_minute      = 0;
+
+// encoding input magic: 16216340157000606
+g_trade[18].enabled                  = true;
+g_trade[18].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[18].tradeTypeId              = 62;
+g_trade[18].ruleSubsetId             = 16;
+g_trade[18].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[18].tradeSizePct             = 100;
+g_trade[18].tpPoints                 = 6.0;
+g_trade[18].slPoints                 = 6.0;
+g_trade[18].livePriceDiffTrigger     = 4.0;
+g_trade[18].levelOffsetPoints        = 1.5;
+g_trade[18].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[18].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[18].babysit_enabled          = false;
+g_trade[18].babysitStart_minute      = 0;
+
+// encoding input magic: 15218340057000606
+g_trade[19].enabled                  = true;
+g_trade[19].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[19].tradeTypeId              = 52;
+g_trade[19].ruleSubsetId             = 18;
+g_trade[19].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[19].tradeSizePct             = 100;
+g_trade[19].tpPoints                 = 6.0;
+g_trade[19].slPoints                 = 6.0;
+g_trade[19].livePriceDiffTrigger     = 4.0;
+g_trade[19].levelOffsetPoints        = 0.5;
+g_trade[19].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[19].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[19].babysit_enabled          = false;
+g_trade[19].babysitStart_minute      = 0;
+
+// encoding input magic: 15245240107000606
+g_trade[20].enabled                  = true;
+g_trade[20].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[20].tradeTypeId              = 52;
+g_trade[20].ruleSubsetId             = 45;
+g_trade[20].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[20].tradeSizePct             = 100;
+g_trade[20].tpPoints                 = 6.0;
+g_trade[20].slPoints                 = 6.0;
+g_trade[20].livePriceDiffTrigger     = 4.0;
+g_trade[20].levelOffsetPoints        = 1.0;
+g_trade[20].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[20].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[20].babysit_enabled          = false;
+g_trade[20].babysitStart_minute      = 0;
+
+// encoding input magic: 15266240107000606
+g_trade[21].enabled                  = true;
+g_trade[21].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[21].tradeTypeId              = 52;
+g_trade[21].ruleSubsetId             = 66;
+g_trade[21].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[21].tradeSizePct             = 100;
+g_trade[21].tpPoints                 = 6.0;
+g_trade[21].slPoints                 = 6.0;
+g_trade[21].livePriceDiffTrigger     = 4.0;
+g_trade[21].levelOffsetPoints        = 1.0;
+g_trade[21].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[21].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[21].babysit_enabled          = false;
+g_trade[21].babysitStart_minute      = 0;
+
+// encoding input magic: 15218340037000606
+g_trade[22].enabled                  = true;
+g_trade[22].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[22].tradeTypeId              = 52;
+g_trade[22].ruleSubsetId             = 18;
+g_trade[22].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[22].tradeSizePct             = 100;
+g_trade[22].tpPoints                 = 6.0;
+g_trade[22].slPoints                 = 6.0;
+g_trade[22].livePriceDiffTrigger     = 4.0;
+g_trade[22].levelOffsetPoints        = 0.3;
+g_trade[22].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[22].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[22].babysit_enabled          = false;
+g_trade[22].babysitStart_minute      = 0;
+
+// encoding input magic: 15223240157000606
+g_trade[23].enabled                  = true;
+g_trade[23].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[23].tradeTypeId              = 52;
+g_trade[23].ruleSubsetId             = 23;
+g_trade[23].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[23].tradeSizePct             = 100;
+g_trade[23].tpPoints                 = 6.0;
+g_trade[23].slPoints                 = 6.0;
+g_trade[23].livePriceDiffTrigger     = 4.0;
+g_trade[23].levelOffsetPoints        = 1.5;
+g_trade[23].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[23].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[23].babysit_enabled          = false;
+g_trade[23].babysitStart_minute      = 0;
+
+// encoding input magic: 15224240157000606
+g_trade[24].enabled                  = true;
+g_trade[24].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[24].tradeTypeId              = 52;
+g_trade[24].ruleSubsetId             = 24;
+g_trade[24].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[24].tradeSizePct             = 100;
+g_trade[24].tpPoints                 = 6.0;
+g_trade[24].slPoints                 = 6.0;
+g_trade[24].livePriceDiffTrigger     = 4.0;
+g_trade[24].levelOffsetPoints        = 1.5;
+g_trade[24].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[24].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[24].babysit_enabled          = false;
+g_trade[24].babysitStart_minute      = 0;
+
+// encoding input magic: 15228240157000606
+g_trade[25].enabled                  = true;
+g_trade[25].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[25].tradeTypeId              = 52;
+g_trade[25].ruleSubsetId             = 28;
+g_trade[25].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[25].tradeSizePct             = 100;
+g_trade[25].tpPoints                 = 6.0;
+g_trade[25].slPoints                 = 6.0;
+g_trade[25].livePriceDiffTrigger     = 4.0;
+g_trade[25].levelOffsetPoints        = 1.5;
+g_trade[25].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[25].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[25].babysit_enabled          = false;
+g_trade[25].babysitStart_minute      = 0;
+
+// encoding input magic: 15229240157000606
+g_trade[26].enabled                  = true;
+g_trade[26].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[26].tradeTypeId              = 52;
+g_trade[26].ruleSubsetId             = 29;
+g_trade[26].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[26].tradeSizePct             = 100;
+g_trade[26].tpPoints                 = 6.0;
+g_trade[26].slPoints                 = 6.0;
+g_trade[26].livePriceDiffTrigger     = 4.0;
+g_trade[26].levelOffsetPoints        = 1.5;
+g_trade[26].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[26].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[26].babysit_enabled          = false;
+g_trade[26].babysitStart_minute      = 0;
+
+// encoding input magic: 16257440107000606
+g_trade[27].enabled                  = true;
+g_trade[27].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[27].tradeTypeId              = 62;
+g_trade[27].ruleSubsetId             = 57;
+g_trade[27].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[27].tradeSizePct             = 100;
+g_trade[27].tpPoints                 = 6.0;
+g_trade[27].slPoints                 = 6.0;
+g_trade[27].livePriceDiffTrigger     = 4.0;
+g_trade[27].levelOffsetPoints        = 1.0;
+g_trade[27].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[27].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[27].babysit_enabled          = false;
+g_trade[27].babysitStart_minute      = 0;
+
+// encoding input magic: 15204340107000606
+g_trade[28].enabled                  = true;
+g_trade[28].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[28].tradeTypeId              = 52;
+g_trade[28].ruleSubsetId             = 4;
+g_trade[28].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[28].tradeSizePct             = 100;
+g_trade[28].tpPoints                 = 6.0;
+g_trade[28].slPoints                 = 6.0;
+g_trade[28].livePriceDiffTrigger     = 4.0;
+g_trade[28].levelOffsetPoints        = 1.0;
+g_trade[28].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[28].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[28].babysit_enabled          = false;
+g_trade[28].babysitStart_minute      = 0;
+
+// encoding input magic: 16211340107000606
+g_trade[29].enabled                  = true;
+g_trade[29].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[29].tradeTypeId              = 62;
+g_trade[29].ruleSubsetId             = 11;
+g_trade[29].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[29].tradeSizePct             = 100;
+g_trade[29].tpPoints                 = 6.0;
+g_trade[29].slPoints                 = 6.0;
+g_trade[29].livePriceDiffTrigger     = 4.0;
+g_trade[29].levelOffsetPoints        = 1.0;
+g_trade[29].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[29].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[29].babysit_enabled          = false;
+g_trade[29].babysitStart_minute      = 0;
+
+// encoding input magic: 15224340037000606
+g_trade[30].enabled                  = true;
+g_trade[30].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[30].tradeTypeId              = 52;
+g_trade[30].ruleSubsetId             = 24;
+g_trade[30].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[30].tradeSizePct             = 100;
+g_trade[30].tpPoints                 = 6.0;
+g_trade[30].slPoints                 = 6.0;
+g_trade[30].livePriceDiffTrigger     = 4.0;
+g_trade[30].levelOffsetPoints        = 0.3;
+g_trade[30].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[30].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[30].babysit_enabled          = false;
+g_trade[30].babysitStart_minute      = 0;
+
+// encoding input magic: 15275340107000606
+g_trade[31].enabled                  = true;
+g_trade[31].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[31].tradeTypeId              = 52;
+g_trade[31].ruleSubsetId             = 75;
+g_trade[31].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[31].tradeSizePct             = 100;
+g_trade[31].tpPoints                 = 6.0;
+g_trade[31].slPoints                 = 6.0;
+g_trade[31].livePriceDiffTrigger     = 4.0;
+g_trade[31].levelOffsetPoints        = 1.0;
+g_trade[31].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[31].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[31].babysit_enabled          = false;
+g_trade[31].babysitStart_minute      = 0;
+
+// encoding input magic: 15241240157000606
+g_trade[32].enabled                  = true;
+g_trade[32].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[32].tradeTypeId              = 52;
+g_trade[32].ruleSubsetId             = 41;
+g_trade[32].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[32].tradeSizePct             = 100;
+g_trade[32].tpPoints                 = 6.0;
+g_trade[32].slPoints                 = 6.0;
+g_trade[32].livePriceDiffTrigger     = 4.0;
+g_trade[32].levelOffsetPoints        = 1.5;
+g_trade[32].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[32].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[32].babysit_enabled          = false;
+g_trade[32].babysitStart_minute      = 0;
+
+// encoding input magic: 15258240157000606
+g_trade[33].enabled                  = true;
+g_trade[33].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[33].tradeTypeId              = 52;
+g_trade[33].ruleSubsetId             = 58;
+g_trade[33].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[33].tradeSizePct             = 100;
+g_trade[33].tpPoints                 = 6.0;
+g_trade[33].slPoints                 = 6.0;
+g_trade[33].livePriceDiffTrigger     = 4.0;
+g_trade[33].levelOffsetPoints        = 1.5;
+g_trade[33].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[33].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[33].babysit_enabled          = false;
+g_trade[33].babysitStart_minute      = 0;
+
+// encoding input magic: 15203340107000606
+g_trade[34].enabled                  = true;
+g_trade[34].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[34].tradeTypeId              = 52;
+g_trade[34].ruleSubsetId             = 3;
+g_trade[34].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[34].tradeSizePct             = 100;
+g_trade[34].tpPoints                 = 6.0;
+g_trade[34].slPoints                 = 6.0;
+g_trade[34].livePriceDiffTrigger     = 4.0;
+g_trade[34].levelOffsetPoints        = 1.0;
+g_trade[34].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[34].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[34].babysit_enabled          = false;
+g_trade[34].babysitStart_minute      = 0;
+
+// encoding input magic: 16210340107000606
+g_trade[35].enabled                  = true;
+g_trade[35].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[35].tradeTypeId              = 62;
+g_trade[35].ruleSubsetId             = 10;
+g_trade[35].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[35].tradeSizePct             = 100;
+g_trade[35].tpPoints                 = 6.0;
+g_trade[35].slPoints                 = 6.0;
+g_trade[35].livePriceDiffTrigger     = 4.0;
+g_trade[35].levelOffsetPoints        = 1.0;
+g_trade[35].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[35].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[35].babysit_enabled          = false;
+g_trade[35].babysitStart_minute      = 0;
+
+// encoding input magic: 16232340107000606
+g_trade[36].enabled                  = true;
+g_trade[36].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[36].tradeTypeId              = 62;
+g_trade[36].ruleSubsetId             = 32;
+g_trade[36].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[36].tradeSizePct             = 100;
+g_trade[36].tpPoints                 = 6.0;
+g_trade[36].slPoints                 = 6.0;
+g_trade[36].livePriceDiffTrigger     = 4.0;
+g_trade[36].levelOffsetPoints        = 1.0;
+g_trade[36].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[36].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[36].babysit_enabled          = false;
+g_trade[36].babysitStart_minute      = 0;
+
+// encoding input magic: 15219240157000606
+g_trade[37].enabled                  = true;
+g_trade[37].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[37].tradeTypeId              = 52;
+g_trade[37].ruleSubsetId             = 19;
+g_trade[37].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[37].tradeSizePct             = 100;
+g_trade[37].tpPoints                 = 6.0;
+g_trade[37].slPoints                 = 6.0;
+g_trade[37].livePriceDiffTrigger     = 4.0;
+g_trade[37].levelOffsetPoints        = 1.5;
+g_trade[37].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[37].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[37].babysit_enabled          = false;
+g_trade[37].babysitStart_minute      = 0;
+
+// encoding input magic: 15237240157000606
+g_trade[38].enabled                  = true;
+g_trade[38].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[38].tradeTypeId              = 52;
+g_trade[38].ruleSubsetId             = 37;
+g_trade[38].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[38].tradeSizePct             = 100;
+g_trade[38].tpPoints                 = 6.0;
+g_trade[38].slPoints                 = 6.0;
+g_trade[38].livePriceDiffTrigger     = 4.0;
+g_trade[38].levelOffsetPoints        = 1.5;
+g_trade[38].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[38].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[38].babysit_enabled          = false;
+g_trade[38].babysitStart_minute      = 0;
+
+// encoding input magic: 15253240157000606
+g_trade[39].enabled                  = true;
+g_trade[39].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[39].tradeTypeId              = 52;
+g_trade[39].ruleSubsetId             = 53;
+g_trade[39].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[39].tradeSizePct             = 100;
+g_trade[39].tpPoints                 = 6.0;
+g_trade[39].slPoints                 = 6.0;
+g_trade[39].livePriceDiffTrigger     = 4.0;
+g_trade[39].levelOffsetPoints        = 1.5;
+g_trade[39].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[39].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[39].babysit_enabled          = false;
+g_trade[39].babysitStart_minute      = 0;
+
+// encoding input magic: 16216340107000606
+g_trade[40].enabled                  = true;
+g_trade[40].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[40].tradeTypeId              = 62;
+g_trade[40].ruleSubsetId             = 16;
+g_trade[40].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[40].tradeSizePct             = 100;
+g_trade[40].tpPoints                 = 6.0;
+g_trade[40].slPoints                 = 6.0;
+g_trade[40].livePriceDiffTrigger     = 4.0;
+g_trade[40].levelOffsetPoints        = 1.0;
+g_trade[40].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[40].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[40].babysit_enabled          = false;
+g_trade[40].babysitStart_minute      = 0;
+
+// encoding input magic: 15352370307000606
+g_trade[41].enabled                  = true;
+g_trade[41].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[41].tradeTypeId              = 53;
+g_trade[41].ruleSubsetId             = 52;
+g_trade[41].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[41].tradeSizePct             = 100;
+g_trade[41].tpPoints                 = 6.0;
+g_trade[41].slPoints                 = 6.0;
+g_trade[41].livePriceDiffTrigger     = 7.0;
+g_trade[41].levelOffsetPoints        = 3.0;
+g_trade[41].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[41].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[41].babysit_enabled          = false;
+g_trade[41].babysitStart_minute      = 0;
+
+// encoding input magic: 15357370307000606
+g_trade[42].enabled                  = true;
+g_trade[42].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[42].tradeTypeId              = 53;
+g_trade[42].ruleSubsetId             = 57;
+g_trade[42].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[42].tradeSizePct             = 100;
+g_trade[42].tpPoints                 = 6.0;
+g_trade[42].slPoints                 = 6.0;
+g_trade[42].livePriceDiffTrigger     = 7.0;
+g_trade[42].levelOffsetPoints        = 3.0;
+g_trade[42].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[42].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[42].babysit_enabled          = false;
+g_trade[42].babysitStart_minute      = 0;
+
+// encoding input magic: 15377370307000606
+g_trade[43].enabled                  = true;
+g_trade[43].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[43].tradeTypeId              = 53;
+g_trade[43].ruleSubsetId             = 77;
+g_trade[43].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[43].tradeSizePct             = 100;
+g_trade[43].tpPoints                 = 6.0;
+g_trade[43].slPoints                 = 6.0;
+g_trade[43].livePriceDiffTrigger     = 7.0;
+g_trade[43].levelOffsetPoints        = 3.0;
+g_trade[43].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[43].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[43].babysit_enabled          = false;
+g_trade[43].babysitStart_minute      = 0;
+
+// encoding input magic: 15382370307000606
+g_trade[44].enabled                  = true;
+g_trade[44].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[44].tradeTypeId              = 53;
+g_trade[44].ruleSubsetId             = 82;
+g_trade[44].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[44].tradeSizePct             = 100;
+g_trade[44].tpPoints                 = 6.0;
+g_trade[44].slPoints                 = 6.0;
+g_trade[44].livePriceDiffTrigger     = 7.0;
+g_trade[44].levelOffsetPoints        = 3.0;
+g_trade[44].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[44].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[44].babysit_enabled          = false;
+g_trade[44].babysitStart_minute      = 0;
+
+// encoding input magic: 15275340157000606
+g_trade[45].enabled                  = true;
+g_trade[45].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[45].tradeTypeId              = 52;
+g_trade[45].ruleSubsetId             = 75;
+g_trade[45].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[45].tradeSizePct             = 100;
+g_trade[45].tpPoints                 = 6.0;
+g_trade[45].slPoints                 = 6.0;
+g_trade[45].livePriceDiffTrigger     = 4.0;
+g_trade[45].levelOffsetPoints        = 1.5;
+g_trade[45].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[45].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[45].babysit_enabled          = false;
+g_trade[45].babysitStart_minute      = 0;
+
+// encoding input magic: 15270340157000606
+g_trade[46].enabled                  = true;
+g_trade[46].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[46].tradeTypeId              = 52;
+g_trade[46].ruleSubsetId             = 70;
+g_trade[46].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[46].tradeSizePct             = 100;
+g_trade[46].tpPoints                 = 6.0;
+g_trade[46].slPoints                 = 6.0;
+g_trade[46].livePriceDiffTrigger     = 4.0;
+g_trade[46].levelOffsetPoints        = 1.5;
+g_trade[46].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[46].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[46].babysit_enabled          = false;
+g_trade[46].babysitStart_minute      = 0;
+
+// encoding input magic: 16204340157000606
+g_trade[47].enabled                  = true;
+g_trade[47].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[47].tradeTypeId              = 62;
+g_trade[47].ruleSubsetId             = 4;
+g_trade[47].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[47].tradeSizePct             = 100;
+g_trade[47].tpPoints                 = 6.0;
+g_trade[47].slPoints                 = 6.0;
+g_trade[47].livePriceDiffTrigger     = 4.0;
+g_trade[47].levelOffsetPoints        = 1.5;
+g_trade[47].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[47].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[47].babysit_enabled          = false;
+g_trade[47].babysitStart_minute      = 0;
+
+// encoding input magic: 15218240107000606
+g_trade[48].enabled                  = true;
+g_trade[48].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[48].tradeTypeId              = 52;
+g_trade[48].ruleSubsetId             = 18;
+g_trade[48].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[48].tradeSizePct             = 100;
+g_trade[48].tpPoints                 = 6.0;
+g_trade[48].slPoints                 = 6.0;
+g_trade[48].livePriceDiffTrigger     = 4.0;
+g_trade[48].levelOffsetPoints        = 1.0;
+g_trade[48].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[48].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[48].babysit_enabled          = false;
+g_trade[48].babysitStart_minute      = 0;
+
+// encoding input magic: 15263240107000606
+g_trade[49].enabled                  = true;
+g_trade[49].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[49].tradeTypeId              = 52;
+g_trade[49].ruleSubsetId             = 63;
+g_trade[49].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[49].tradeSizePct             = 100;
+g_trade[49].tpPoints                 = 6.0;
+g_trade[49].slPoints                 = 6.0;
+g_trade[49].livePriceDiffTrigger     = 4.0;
+g_trade[49].levelOffsetPoints        = 1.0;
+g_trade[49].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[49].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[49].babysit_enabled          = false;
+g_trade[49].babysitStart_minute      = 0;
+
+// encoding input magic: 15224340057000606
+g_trade[50].enabled                  = true;
+g_trade[50].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[50].tradeTypeId              = 52;
+g_trade[50].ruleSubsetId             = 24;
+g_trade[50].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[50].tradeSizePct             = 100;
+g_trade[50].tpPoints                 = 6.0;
+g_trade[50].slPoints                 = 6.0;
+g_trade[50].livePriceDiffTrigger     = 4.0;
+g_trade[50].levelOffsetPoints        = 0.5;
+g_trade[50].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[50].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[50].babysit_enabled          = false;
+g_trade[50].babysitStart_minute      = 0;
+
+// encoding input magic: 15202340157000606
+g_trade[51].enabled                  = true;
+g_trade[51].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[51].tradeTypeId              = 52;
+g_trade[51].ruleSubsetId             = 2;
+g_trade[51].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[51].tradeSizePct             = 100;
+g_trade[51].tpPoints                 = 6.0;
+g_trade[51].slPoints                 = 6.0;
+g_trade[51].livePriceDiffTrigger     = 4.0;
+g_trade[51].levelOffsetPoints        = 1.5;
+g_trade[51].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[51].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[51].babysit_enabled          = false;
+g_trade[51].babysitStart_minute      = 0;
+
+// encoding input magic: 16208340157000606
+g_trade[52].enabled                  = true;
+g_trade[52].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[52].tradeTypeId              = 62;
+g_trade[52].ruleSubsetId             = 8;
+g_trade[52].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[52].tradeSizePct             = 100;
+g_trade[52].tpPoints                 = 6.0;
+g_trade[52].slPoints                 = 6.0;
+g_trade[52].livePriceDiffTrigger     = 4.0;
+g_trade[52].levelOffsetPoints        = 1.5;
+g_trade[52].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[52].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[52].babysit_enabled          = false;
+g_trade[52].babysitStart_minute      = 0;
+
+// encoding input magic: 16230340157000606
+g_trade[53].enabled                  = true;
+g_trade[53].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[53].tradeTypeId              = 62;
+g_trade[53].ruleSubsetId             = 30;
+g_trade[53].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[53].tradeSizePct             = 100;
+g_trade[53].tpPoints                 = 6.0;
+g_trade[53].slPoints                 = 6.0;
+g_trade[53].livePriceDiffTrigger     = 4.0;
+g_trade[53].levelOffsetPoints        = 1.5;
+g_trade[53].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[53].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[53].babysit_enabled          = false;
+g_trade[53].babysitStart_minute      = 0;
+
+// encoding input magic: 15280340157000606
+g_trade[54].enabled                  = true;
+g_trade[54].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[54].tradeTypeId              = 52;
+g_trade[54].ruleSubsetId             = 80;
+g_trade[54].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[54].tradeSizePct             = 100;
+g_trade[54].tpPoints                 = 6.0;
+g_trade[54].slPoints                 = 6.0;
+g_trade[54].livePriceDiffTrigger     = 4.0;
+g_trade[54].levelOffsetPoints        = 1.5;
+g_trade[54].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[54].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[54].babysit_enabled          = false;
+g_trade[54].babysitStart_minute      = 0;
+
+// encoding input magic: 15288340157000606
+g_trade[55].enabled                  = true;
+g_trade[55].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[55].tradeTypeId              = 52;
+g_trade[55].ruleSubsetId             = 88;
+g_trade[55].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[55].tradeSizePct             = 100;
+g_trade[55].tpPoints                 = 6.0;
+g_trade[55].slPoints                 = 6.0;
+g_trade[55].livePriceDiffTrigger     = 4.0;
+g_trade[55].levelOffsetPoints        = 1.5;
+g_trade[55].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[55].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[55].babysit_enabled          = false;
+g_trade[55].babysitStart_minute      = 0;
+
+// encoding input magic: 15290340157000606
+g_trade[56].enabled                  = true;
+g_trade[56].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[56].tradeTypeId              = 52;
+g_trade[56].ruleSubsetId             = 90;
+g_trade[56].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[56].tradeSizePct             = 100;
+g_trade[56].tpPoints                 = 6.0;
+g_trade[56].slPoints                 = 6.0;
+g_trade[56].livePriceDiffTrigger     = 4.0;
+g_trade[56].levelOffsetPoints        = 1.5;
+g_trade[56].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[56].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[56].babysit_enabled          = false;
+g_trade[56].babysitStart_minute      = 0;
+
+// encoding input magic: 15276340037000606
+g_trade[57].enabled                  = true;
+g_trade[57].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[57].tradeTypeId              = 52;
+g_trade[57].ruleSubsetId             = 76;
+g_trade[57].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[57].tradeSizePct             = 100;
+g_trade[57].tpPoints                 = 6.0;
+g_trade[57].slPoints                 = 6.0;
+g_trade[57].livePriceDiffTrigger     = 4.0;
+g_trade[57].levelOffsetPoints        = 0.3;
+g_trade[57].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[57].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[57].babysit_enabled          = false;
+g_trade[57].babysitStart_minute      = 0;
+
+// encoding input magic: 16220340037000606
+g_trade[58].enabled                  = true;
+g_trade[58].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[58].tradeTypeId              = 62;
+g_trade[58].ruleSubsetId             = 20;
+g_trade[58].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[58].tradeSizePct             = 100;
+g_trade[58].tpPoints                 = 6.0;
+g_trade[58].slPoints                 = 6.0;
+g_trade[58].livePriceDiffTrigger     = 4.0;
+g_trade[58].levelOffsetPoints        = 0.3;
+g_trade[58].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[58].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[58].babysit_enabled          = false;
+g_trade[58].babysitStart_minute      = 0;
+
+// encoding input magic: 15223340037000606
+g_trade[59].enabled                  = true;
+g_trade[59].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[59].tradeTypeId              = 52;
+g_trade[59].ruleSubsetId             = 23;
+g_trade[59].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[59].tradeSizePct             = 100;
+g_trade[59].tpPoints                 = 6.0;
+g_trade[59].slPoints                 = 6.0;
+g_trade[59].livePriceDiffTrigger     = 4.0;
+g_trade[59].levelOffsetPoints        = 0.3;
+g_trade[59].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[59].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[59].babysit_enabled          = false;
+g_trade[59].babysitStart_minute      = 0;
+
+// encoding input magic: 15228340037000606
+g_trade[60].enabled                  = true;
+g_trade[60].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[60].tradeTypeId              = 52;
+g_trade[60].ruleSubsetId             = 28;
+g_trade[60].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[60].tradeSizePct             = 100;
+g_trade[60].tpPoints                 = 6.0;
+g_trade[60].slPoints                 = 6.0;
+g_trade[60].livePriceDiffTrigger     = 4.0;
+g_trade[60].levelOffsetPoints        = 0.3;
+g_trade[60].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[60].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[60].babysit_enabled          = false;
+g_trade[60].babysitStart_minute      = 0;
+
+// encoding input magic: 15229340037000606
+g_trade[61].enabled                  = true;
+g_trade[61].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[61].tradeTypeId              = 52;
+g_trade[61].ruleSubsetId             = 29;
+g_trade[61].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[61].tradeSizePct             = 100;
+g_trade[61].tpPoints                 = 6.0;
+g_trade[61].slPoints                 = 6.0;
+g_trade[61].livePriceDiffTrigger     = 4.0;
+g_trade[61].levelOffsetPoints        = 0.3;
+g_trade[61].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[61].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[61].babysit_enabled          = false;
+g_trade[61].babysitStart_minute      = 0;
+
+// encoding input magic: 15230240107000606
+g_trade[62].enabled                  = true;
+g_trade[62].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[62].tradeTypeId              = 52;
+g_trade[62].ruleSubsetId             = 30;
+g_trade[62].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[62].tradeSizePct             = 100;
+g_trade[62].tpPoints                 = 6.0;
+g_trade[62].slPoints                 = 6.0;
+g_trade[62].livePriceDiffTrigger     = 4.0;
+g_trade[62].levelOffsetPoints        = 1.0;
+g_trade[62].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[62].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[62].babysit_enabled          = false;
+g_trade[62].babysitStart_minute      = 0;
+
+// encoding input magic: 16211340037000606
+g_trade[63].enabled                  = true;
+g_trade[63].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[63].tradeTypeId              = 62;
+g_trade[63].ruleSubsetId             = 11;
+g_trade[63].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[63].tradeSizePct             = 100;
+g_trade[63].tpPoints                 = 6.0;
+g_trade[63].slPoints                 = 6.0;
+g_trade[63].livePriceDiffTrigger     = 4.0;
+g_trade[63].levelOffsetPoints        = 0.3;
+g_trade[63].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[63].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[63].babysit_enabled          = false;
+g_trade[63].babysitStart_minute      = 0;
+
+// encoding input magic: 15244240107000606
+g_trade[64].enabled                  = true;
+g_trade[64].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[64].tradeTypeId              = 52;
+g_trade[64].ruleSubsetId             = 44;
+g_trade[64].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[64].tradeSizePct             = 100;
+g_trade[64].tpPoints                 = 6.0;
+g_trade[64].slPoints                 = 6.0;
+g_trade[64].livePriceDiffTrigger     = 4.0;
+g_trade[64].levelOffsetPoints        = 1.0;
+g_trade[64].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[64].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[64].babysit_enabled          = false;
+g_trade[64].babysitStart_minute      = 0;
+
+// encoding input magic: 15232240157000606
+g_trade[65].enabled                  = true;
+g_trade[65].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[65].tradeTypeId              = 52;
+g_trade[65].ruleSubsetId             = 32;
+g_trade[65].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[65].tradeSizePct             = 100;
+g_trade[65].tpPoints                 = 6.0;
+g_trade[65].slPoints                 = 6.0;
+g_trade[65].livePriceDiffTrigger     = 4.0;
+g_trade[65].levelOffsetPoints        = 1.5;
+g_trade[65].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[65].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[65].babysit_enabled          = false;
+g_trade[65].babysitStart_minute      = 0;
+
+// encoding input magic: 15245240157000606
+g_trade[66].enabled                  = true;
+g_trade[66].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[66].tradeTypeId              = 52;
+g_trade[66].ruleSubsetId             = 45;
+g_trade[66].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[66].tradeSizePct             = 100;
+g_trade[66].tpPoints                 = 6.0;
+g_trade[66].slPoints                 = 6.0;
+g_trade[66].livePriceDiffTrigger     = 4.0;
+g_trade[66].levelOffsetPoints        = 1.5;
+g_trade[66].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[66].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[66].babysit_enabled          = false;
+g_trade[66].babysitStart_minute      = 0;
+
+// encoding input magic: 15266240157000606
+g_trade[67].enabled                  = true;
+g_trade[67].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[67].tradeTypeId              = 52;
+g_trade[67].ruleSubsetId             = 66;
+g_trade[67].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[67].tradeSizePct             = 100;
+g_trade[67].tpPoints                 = 6.0;
+g_trade[67].slPoints                 = 6.0;
+g_trade[67].livePriceDiffTrigger     = 4.0;
+g_trade[67].levelOffsetPoints        = 1.5;
+g_trade[67].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[67].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[67].babysit_enabled          = false;
+g_trade[67].babysitStart_minute      = 0;
+
+// encoding input magic: 15446240107000606
+g_trade[68].enabled                  = true;
+g_trade[68].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[68].tradeTypeId              = 54;
+g_trade[68].ruleSubsetId             = 46;
+g_trade[68].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[68].tradeSizePct             = 100;
+g_trade[68].tpPoints                 = 6.0;
+g_trade[68].slPoints                 = 6.0;
+g_trade[68].livePriceDiffTrigger     = 4.0;
+g_trade[68].levelOffsetPoints        = 1.0;
+g_trade[68].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[68].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[68].babysit_enabled          = false;
+g_trade[68].babysitStart_minute      = 0;
+
+// encoding input magic: 16403240107000606
+g_trade[69].enabled                  = true;
+g_trade[69].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[69].tradeTypeId              = 64;
+g_trade[69].ruleSubsetId             = 3;
+g_trade[69].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[69].tradeSizePct             = 100;
+g_trade[69].tpPoints                 = 6.0;
+g_trade[69].slPoints                 = 6.0;
+g_trade[69].livePriceDiffTrigger     = 4.0;
+g_trade[69].levelOffsetPoints        = 1.0;
+g_trade[69].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[69].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[69].babysit_enabled          = false;
+g_trade[69].babysitStart_minute      = 0;
+
+// encoding input magic: 16407240107000606
+g_trade[70].enabled                  = true;
+g_trade[70].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[70].tradeTypeId              = 64;
+g_trade[70].ruleSubsetId             = 7;
+g_trade[70].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[70].tradeSizePct             = 100;
+g_trade[70].tpPoints                 = 6.0;
+g_trade[70].slPoints                 = 6.0;
+g_trade[70].livePriceDiffTrigger     = 4.0;
+g_trade[70].levelOffsetPoints        = 1.0;
+g_trade[70].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[70].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[70].babysit_enabled          = false;
+g_trade[70].babysitStart_minute      = 0;
+
+// encoding input magic: 16215340107000606
+g_trade[71].enabled                  = true;
+g_trade[71].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[71].tradeTypeId              = 62;
+g_trade[71].ruleSubsetId             = 15;
+g_trade[71].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[71].tradeSizePct             = 100;
+g_trade[71].tpPoints                 = 6.0;
+g_trade[71].slPoints                 = 6.0;
+g_trade[71].livePriceDiffTrigger     = 4.0;
+g_trade[71].levelOffsetPoints        = 1.0;
+g_trade[71].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[71].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[71].babysit_enabled          = false;
+g_trade[71].babysitStart_minute      = 0;
+
+// encoding input magic: 16221340107000606
+g_trade[72].enabled                  = true;
+g_trade[72].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[72].tradeTypeId              = 62;
+g_trade[72].ruleSubsetId             = 21;
+g_trade[72].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[72].tradeSizePct             = 100;
+g_trade[72].tpPoints                 = 6.0;
+g_trade[72].slPoints                 = 6.0;
+g_trade[72].livePriceDiffTrigger     = 4.0;
+g_trade[72].levelOffsetPoints        = 1.0;
+g_trade[72].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[72].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[72].babysit_enabled          = false;
+g_trade[72].babysitStart_minute      = 0;
+
+// encoding input magic: 16222340107000606
+g_trade[73].enabled                  = true;
+g_trade[73].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[73].tradeTypeId              = 62;
+g_trade[73].ruleSubsetId             = 22;
+g_trade[73].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[73].tradeSizePct             = 100;
+g_trade[73].tpPoints                 = 6.0;
+g_trade[73].slPoints                 = 6.0;
+g_trade[73].livePriceDiffTrigger     = 4.0;
+g_trade[73].levelOffsetPoints        = 1.0;
+g_trade[73].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[73].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[73].babysit_enabled          = false;
+g_trade[73].babysitStart_minute      = 0;
+
+// encoding input magic: 15273340107000606
+g_trade[74].enabled                  = true;
+g_trade[74].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[74].tradeTypeId              = 52;
+g_trade[74].ruleSubsetId             = 73;
+g_trade[74].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[74].tradeSizePct             = 100;
+g_trade[74].tpPoints                 = 6.0;
+g_trade[74].slPoints                 = 6.0;
+g_trade[74].livePriceDiffTrigger     = 4.0;
+g_trade[74].levelOffsetPoints        = 1.0;
+g_trade[74].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[74].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[74].babysit_enabled          = false;
+g_trade[74].babysitStart_minute      = 0;
+
+// encoding input magic: 15282340157000606
+g_trade[75].enabled                  = true;
+g_trade[75].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[75].tradeTypeId              = 52;
+g_trade[75].ruleSubsetId             = 82;
+g_trade[75].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[75].tradeSizePct             = 100;
+g_trade[75].tpPoints                 = 6.0;
+g_trade[75].slPoints                 = 6.0;
+g_trade[75].livePriceDiffTrigger     = 4.0;
+g_trade[75].levelOffsetPoints        = 1.5;
+g_trade[75].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[75].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[75].babysit_enabled          = false;
+g_trade[75].babysitStart_minute      = 0;
+
+// encoding input magic: 15223340057000606
+g_trade[76].enabled                  = true;
+g_trade[76].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[76].tradeTypeId              = 52;
+g_trade[76].ruleSubsetId             = 23;
+g_trade[76].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[76].tradeSizePct             = 100;
+g_trade[76].tpPoints                 = 6.0;
+g_trade[76].slPoints                 = 6.0;
+g_trade[76].livePriceDiffTrigger     = 4.0;
+g_trade[76].levelOffsetPoints        = 0.5;
+g_trade[76].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[76].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[76].babysit_enabled          = false;
+g_trade[76].babysitStart_minute      = 0;
+
+// encoding input magic: 15228340057000606
+g_trade[77].enabled                  = true;
+g_trade[77].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[77].tradeTypeId              = 52;
+g_trade[77].ruleSubsetId             = 28;
+g_trade[77].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[77].tradeSizePct             = 100;
+g_trade[77].tpPoints                 = 6.0;
+g_trade[77].slPoints                 = 6.0;
+g_trade[77].livePriceDiffTrigger     = 4.0;
+g_trade[77].levelOffsetPoints        = 0.5;
+g_trade[77].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[77].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[77].babysit_enabled          = false;
+g_trade[77].babysitStart_minute      = 0;
+
+// encoding input magic: 15229340057000606
+g_trade[78].enabled                  = true;
+g_trade[78].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[78].tradeTypeId              = 52;
+g_trade[78].ruleSubsetId             = 29;
+g_trade[78].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[78].tradeSizePct             = 100;
+g_trade[78].tpPoints                 = 6.0;
+g_trade[78].slPoints                 = 6.0;
+g_trade[78].livePriceDiffTrigger     = 4.0;
+g_trade[78].levelOffsetPoints        = 0.5;
+g_trade[78].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[78].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[78].babysit_enabled          = false;
+g_trade[78].babysitStart_minute      = 0;
+
+// encoding input magic: 15263240157000606
+g_trade[79].enabled                  = true;
+g_trade[79].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[79].tradeTypeId              = 52;
+g_trade[79].ruleSubsetId             = 63;
+g_trade[79].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[79].tradeSizePct             = 100;
+g_trade[79].tpPoints                 = 6.0;
+g_trade[79].slPoints                 = 6.0;
+g_trade[79].livePriceDiffTrigger     = 4.0;
+g_trade[79].levelOffsetPoints        = 1.5;
+g_trade[79].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[79].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[79].babysit_enabled          = false;
+g_trade[79].babysitStart_minute      = 0;
+
+// encoding input magic: 15274340037000606
+g_trade[80].enabled                  = true;
+g_trade[80].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[80].tradeTypeId              = 52;
+g_trade[80].ruleSubsetId             = 74;
+g_trade[80].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[80].tradeSizePct             = 100;
+g_trade[80].tpPoints                 = 6.0;
+g_trade[80].slPoints                 = 6.0;
+g_trade[80].livePriceDiffTrigger     = 4.0;
+g_trade[80].levelOffsetPoints        = 0.3;
+g_trade[80].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[80].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[80].babysit_enabled          = false;
+g_trade[80].babysitStart_minute      = 0;
+
+// encoding input magic: 16256340057000606
+g_trade[81].enabled                  = true;
+g_trade[81].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[81].tradeTypeId              = 62;
+g_trade[81].ruleSubsetId             = 56;
+g_trade[81].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[81].tradeSizePct             = 100;
+g_trade[81].tpPoints                 = 6.0;
+g_trade[81].slPoints                 = 6.0;
+g_trade[81].livePriceDiffTrigger     = 4.0;
+g_trade[81].levelOffsetPoints        = 0.5;
+g_trade[81].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[81].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[81].babysit_enabled          = false;
+g_trade[81].babysitStart_minute      = 0;
+
+// encoding input magic: 16271340057000606
+g_trade[82].enabled                  = true;
+g_trade[82].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[82].tradeTypeId              = 62;
+g_trade[82].ruleSubsetId             = 71;
+g_trade[82].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[82].tradeSizePct             = 100;
+g_trade[82].tpPoints                 = 6.0;
+g_trade[82].slPoints                 = 6.0;
+g_trade[82].livePriceDiffTrigger     = 4.0;
+g_trade[82].levelOffsetPoints        = 0.5;
+g_trade[82].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[82].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[82].babysit_enabled          = false;
+g_trade[82].babysitStart_minute      = 0;
+
+// encoding input magic: 16208340057000606
+g_trade[83].enabled                  = true;
+g_trade[83].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[83].tradeTypeId              = 62;
+g_trade[83].ruleSubsetId             = 8;
+g_trade[83].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[83].tradeSizePct             = 100;
+g_trade[83].tpPoints                 = 6.0;
+g_trade[83].slPoints                 = 6.0;
+g_trade[83].livePriceDiffTrigger     = 4.0;
+g_trade[83].levelOffsetPoints        = 0.5;
+g_trade[83].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[83].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[83].babysit_enabled          = false;
+g_trade[83].babysitStart_minute      = 0;
+
+// encoding input magic: 16230340057000606
+g_trade[84].enabled                  = true;
+g_trade[84].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[84].tradeTypeId              = 62;
+g_trade[84].ruleSubsetId             = 30;
+g_trade[84].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[84].tradeSizePct             = 100;
+g_trade[84].tpPoints                 = 6.0;
+g_trade[84].slPoints                 = 6.0;
+g_trade[84].livePriceDiffTrigger     = 4.0;
+g_trade[84].levelOffsetPoints        = 0.5;
+g_trade[84].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[84].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[84].babysit_enabled          = false;
+g_trade[84].babysitStart_minute      = 0;
+
+// encoding input magic: 15276340057000606
+g_trade[85].enabled                  = true;
+g_trade[85].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[85].tradeTypeId              = 52;
+g_trade[85].ruleSubsetId             = 76;
+g_trade[85].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[85].tradeSizePct             = 100;
+g_trade[85].tpPoints                 = 6.0;
+g_trade[85].slPoints                 = 6.0;
+g_trade[85].livePriceDiffTrigger     = 4.0;
+g_trade[85].levelOffsetPoints        = 0.5;
+g_trade[85].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[85].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[85].babysit_enabled          = false;
+g_trade[85].babysitStart_minute      = 0;
+
+// encoding input magic: 15230240157000606
+g_trade[86].enabled                  = true;
+g_trade[86].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[86].tradeTypeId              = 52;
+g_trade[86].ruleSubsetId             = 30;
+g_trade[86].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[86].tradeSizePct             = 100;
+g_trade[86].tpPoints                 = 6.0;
+g_trade[86].slPoints                 = 6.0;
+g_trade[86].livePriceDiffTrigger     = 4.0;
+g_trade[86].levelOffsetPoints        = 1.5;
+g_trade[86].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[86].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[86].babysit_enabled          = false;
+g_trade[86].babysitStart_minute      = 0;
+
+// encoding input magic: 16211340057000606
+g_trade[87].enabled                  = true;
+g_trade[87].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[87].tradeTypeId              = 62;
+g_trade[87].ruleSubsetId             = 11;
+g_trade[87].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[87].tradeSizePct             = 100;
+g_trade[87].tpPoints                 = 6.0;
+g_trade[87].slPoints                 = 6.0;
+g_trade[87].livePriceDiffTrigger     = 4.0;
+g_trade[87].levelOffsetPoints        = 0.5;
+g_trade[87].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[87].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[87].babysit_enabled          = false;
+g_trade[87].babysitStart_minute      = 0;
+
+// encoding input magic: 15244240157000606
+g_trade[88].enabled                  = true;
+g_trade[88].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[88].tradeTypeId              = 52;
+g_trade[88].ruleSubsetId             = 44;
+g_trade[88].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[88].tradeSizePct             = 100;
+g_trade[88].tpPoints                 = 6.0;
+g_trade[88].slPoints                 = 6.0;
+g_trade[88].livePriceDiffTrigger     = 4.0;
+g_trade[88].levelOffsetPoints        = 1.5;
+g_trade[88].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[88].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[88].babysit_enabled          = false;
+g_trade[88].babysitStart_minute      = 0;
+
+// encoding input magic: 15201340107000606
+g_trade[89].enabled                  = true;
+g_trade[89].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[89].tradeTypeId              = 52;
+g_trade[89].ruleSubsetId             = 1;
+g_trade[89].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[89].tradeSizePct             = 100;
+g_trade[89].tpPoints                 = 6.0;
+g_trade[89].slPoints                 = 6.0;
+g_trade[89].livePriceDiffTrigger     = 4.0;
+g_trade[89].levelOffsetPoints        = 1.0;
+g_trade[89].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[89].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[89].babysit_enabled          = false;
+g_trade[89].babysitStart_minute      = 0;
+
+// encoding input magic: 16207340107000606
+g_trade[90].enabled                  = true;
+g_trade[90].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[90].tradeTypeId              = 62;
+g_trade[90].ruleSubsetId             = 7;
+g_trade[90].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[90].tradeSizePct             = 100;
+g_trade[90].tpPoints                 = 6.0;
+g_trade[90].slPoints                 = 6.0;
+g_trade[90].livePriceDiffTrigger     = 4.0;
+g_trade[90].levelOffsetPoints        = 1.0;
+g_trade[90].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[90].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[90].babysit_enabled          = false;
+g_trade[90].babysitStart_minute      = 0;
+
+// encoding input magic: 16229340107000606
+g_trade[91].enabled                  = true;
+g_trade[91].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[91].tradeTypeId              = 62;
+g_trade[91].ruleSubsetId             = 29;
+g_trade[91].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[91].tradeSizePct             = 100;
+g_trade[91].tpPoints                 = 6.0;
+g_trade[91].slPoints                 = 6.0;
+g_trade[91].livePriceDiffTrigger     = 4.0;
+g_trade[91].levelOffsetPoints        = 1.0;
+g_trade[91].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[91].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[91].babysit_enabled          = false;
+g_trade[91].babysitStart_minute      = 0;
+
+// encoding input magic: 15280340037000606
+g_trade[92].enabled                  = true;
+g_trade[92].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[92].tradeTypeId              = 52;
+g_trade[92].ruleSubsetId             = 80;
+g_trade[92].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[92].tradeSizePct             = 100;
+g_trade[92].tpPoints                 = 6.0;
+g_trade[92].slPoints                 = 6.0;
+g_trade[92].livePriceDiffTrigger     = 4.0;
+g_trade[92].levelOffsetPoints        = 0.3;
+g_trade[92].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[92].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[92].babysit_enabled          = false;
+g_trade[92].babysitStart_minute      = 0;
+
+// encoding input magic: 15288340037000606
+g_trade[93].enabled                  = true;
+g_trade[93].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[93].tradeTypeId              = 52;
+g_trade[93].ruleSubsetId             = 88;
+g_trade[93].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[93].tradeSizePct             = 100;
+g_trade[93].tpPoints                 = 6.0;
+g_trade[93].slPoints                 = 6.0;
+g_trade[93].livePriceDiffTrigger     = 4.0;
+g_trade[93].levelOffsetPoints        = 0.3;
+g_trade[93].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[93].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[93].babysit_enabled          = false;
+g_trade[93].babysitStart_minute      = 0;
+
+// encoding input magic: 15290340037000606
+g_trade[94].enabled                  = true;
+g_trade[94].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[94].tradeTypeId              = 52;
+g_trade[94].ruleSubsetId             = 90;
+g_trade[94].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[94].tradeSizePct             = 100;
+g_trade[94].tpPoints                 = 6.0;
+g_trade[94].slPoints                 = 6.0;
+g_trade[94].livePriceDiffTrigger     = 4.0;
+g_trade[94].levelOffsetPoints        = 0.3;
+g_trade[94].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[94].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[94].babysit_enabled          = false;
+g_trade[94].babysitStart_minute      = 0;
+
+// encoding input magic: 15202340037000606
+g_trade[95].enabled                  = true;
+g_trade[95].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[95].tradeTypeId              = 52;
+g_trade[95].ruleSubsetId             = 2;
+g_trade[95].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[95].tradeSizePct             = 100;
+g_trade[95].tpPoints                 = 6.0;
+g_trade[95].slPoints                 = 6.0;
+g_trade[95].livePriceDiffTrigger     = 4.0;
+g_trade[95].levelOffsetPoints        = 0.3;
+g_trade[95].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[95].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[95].babysit_enabled          = false;
+g_trade[95].babysitStart_minute      = 0;
+
+// encoding input magic: 16208340037000606
+g_trade[96].enabled                  = true;
+g_trade[96].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[96].tradeTypeId              = 62;
+g_trade[96].ruleSubsetId             = 8;
+g_trade[96].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[96].tradeSizePct             = 100;
+g_trade[96].tpPoints                 = 6.0;
+g_trade[96].slPoints                 = 6.0;
+g_trade[96].livePriceDiffTrigger     = 4.0;
+g_trade[96].levelOffsetPoints        = 0.3;
+g_trade[96].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[96].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[96].babysit_enabled          = false;
+g_trade[96].babysitStart_minute      = 0;
+
+// encoding input magic: 16230340037000606
+g_trade[97].enabled                  = true;
+g_trade[97].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[97].tradeTypeId              = 62;
+g_trade[97].ruleSubsetId             = 30;
+g_trade[97].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[97].tradeSizePct             = 100;
+g_trade[97].tpPoints                 = 6.0;
+g_trade[97].slPoints                 = 6.0;
+g_trade[97].livePriceDiffTrigger     = 4.0;
+g_trade[97].levelOffsetPoints        = 0.3;
+g_trade[97].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[97].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[97].babysit_enabled          = false;
+g_trade[97].babysitStart_minute      = 0;
+
+// encoding input magic: 16256340107000606
+g_trade[98].enabled                  = true;
+g_trade[98].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[98].tradeTypeId              = 62;
+g_trade[98].ruleSubsetId             = 56;
+g_trade[98].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[98].tradeSizePct             = 100;
+g_trade[98].tpPoints                 = 6.0;
+g_trade[98].slPoints                 = 6.0;
+g_trade[98].livePriceDiffTrigger     = 4.0;
+g_trade[98].levelOffsetPoints        = 1.0;
+g_trade[98].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[98].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[98].babysit_enabled          = false;
+g_trade[98].babysitStart_minute      = 0;
+
+// encoding input magic: 16271340107000606
+g_trade[99].enabled                  = true;
+g_trade[99].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[99].tradeTypeId              = 62;
+g_trade[99].ruleSubsetId             = 71;
+g_trade[99].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[99].tradeSizePct             = 100;
+g_trade[99].tpPoints                 = 6.0;
+g_trade[99].slPoints                 = 6.0;
+g_trade[99].livePriceDiffTrigger     = 4.0;
+g_trade[99].levelOffsetPoints        = 1.0;
+g_trade[99].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[99].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[99].babysit_enabled          = false;
+g_trade[99].babysitStart_minute      = 0;
+
+// encoding input magic: 16232340057000606
+g_trade[100].enabled                  = true;
+g_trade[100].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[100].tradeTypeId              = 62;
+g_trade[100].ruleSubsetId             = 32;
+g_trade[100].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[100].tradeSizePct             = 100;
+g_trade[100].tpPoints                 = 6.0;
+g_trade[100].slPoints                 = 6.0;
+g_trade[100].livePriceDiffTrigger     = 4.0;
+g_trade[100].levelOffsetPoints        = 0.5;
+g_trade[100].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[100].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[100].babysit_enabled          = false;
+g_trade[100].babysitStart_minute      = 0;
+
+// encoding input magic: 16216340057000606
+g_trade[101].enabled                  = true;
+g_trade[101].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[101].tradeTypeId              = 62;
+g_trade[101].ruleSubsetId             = 16;
+g_trade[101].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[101].tradeSizePct             = 100;
+g_trade[101].tpPoints                 = 6.0;
+g_trade[101].slPoints                 = 6.0;
+g_trade[101].livePriceDiffTrigger     = 4.0;
+g_trade[101].levelOffsetPoints        = 0.5;
+g_trade[101].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[101].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[101].babysit_enabled          = false;
+g_trade[101].babysitStart_minute      = 0;
+
+// encoding input magic: 16214340057000606
+g_trade[102].enabled                  = true;
+g_trade[102].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[102].tradeTypeId              = 62;
+g_trade[102].ruleSubsetId             = 14;
+g_trade[102].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[102].tradeSizePct             = 100;
+g_trade[102].tpPoints                 = 6.0;
+g_trade[102].slPoints                 = 6.0;
+g_trade[102].livePriceDiffTrigger     = 4.0;
+g_trade[102].levelOffsetPoints        = 0.5;
+g_trade[102].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[102].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[102].babysit_enabled          = false;
+g_trade[102].babysitStart_minute      = 0;
+
+// encoding input magic: 16220340057000606
+g_trade[103].enabled                  = true;
+g_trade[103].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[103].tradeTypeId              = 62;
+g_trade[103].ruleSubsetId             = 20;
+g_trade[103].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[103].tradeSizePct             = 100;
+g_trade[103].tpPoints                 = 6.0;
+g_trade[103].slPoints                 = 6.0;
+g_trade[103].livePriceDiffTrigger     = 4.0;
+g_trade[103].levelOffsetPoints        = 0.5;
+g_trade[103].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[103].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[103].babysit_enabled          = false;
+g_trade[103].babysitStart_minute      = 0;
+
+// encoding input magic: 16256440057000606
+g_trade[104].enabled                  = true;
+g_trade[104].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[104].tradeTypeId              = 62;
+g_trade[104].ruleSubsetId             = 56;
+g_trade[104].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[104].tradeSizePct             = 100;
+g_trade[104].tpPoints                 = 6.0;
+g_trade[104].slPoints                 = 6.0;
+g_trade[104].livePriceDiffTrigger     = 4.0;
+g_trade[104].levelOffsetPoints        = 0.5;
+g_trade[104].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[104].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[104].babysit_enabled          = false;
+g_trade[104].babysitStart_minute      = 0;
+
+// encoding input magic: 15273340157000606
+g_trade[105].enabled                  = true;
+g_trade[105].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[105].tradeTypeId              = 52;
+g_trade[105].ruleSubsetId             = 73;
+g_trade[105].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[105].tradeSizePct             = 100;
+g_trade[105].tpPoints                 = 6.0;
+g_trade[105].slPoints                 = 6.0;
+g_trade[105].livePriceDiffTrigger     = 4.0;
+g_trade[105].levelOffsetPoints        = 1.5;
+g_trade[105].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[105].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[105].babysit_enabled          = false;
+g_trade[105].babysitStart_minute      = 0;
+
+// encoding input magic: 16256440037000606
+g_trade[106].enabled                  = true;
+g_trade[106].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[106].tradeTypeId              = 62;
+g_trade[106].ruleSubsetId             = 56;
+g_trade[106].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[106].tradeSizePct             = 100;
+g_trade[106].tpPoints                 = 6.0;
+g_trade[106].slPoints                 = 6.0;
+g_trade[106].livePriceDiffTrigger     = 4.0;
+g_trade[106].levelOffsetPoints        = 0.3;
+g_trade[106].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[106].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[106].babysit_enabled          = false;
+g_trade[106].babysitStart_minute      = 0;
+
+// encoding input magic: 16215340057000606
+g_trade[107].enabled                  = true;
+g_trade[107].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[107].tradeTypeId              = 62;
+g_trade[107].ruleSubsetId             = 15;
+g_trade[107].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[107].tradeSizePct             = 100;
+g_trade[107].tpPoints                 = 6.0;
+g_trade[107].slPoints                 = 6.0;
+g_trade[107].livePriceDiffTrigger     = 4.0;
+g_trade[107].levelOffsetPoints        = 0.5;
+g_trade[107].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[107].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[107].babysit_enabled          = false;
+g_trade[107].babysitStart_minute      = 0;
+
+// encoding input magic: 16221340057000606
+g_trade[108].enabled                  = true;
+g_trade[108].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[108].tradeTypeId              = 62;
+g_trade[108].ruleSubsetId             = 21;
+g_trade[108].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[108].tradeSizePct             = 100;
+g_trade[108].tpPoints                 = 6.0;
+g_trade[108].slPoints                 = 6.0;
+g_trade[108].livePriceDiffTrigger     = 4.0;
+g_trade[108].levelOffsetPoints        = 0.5;
+g_trade[108].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[108].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[108].babysit_enabled          = false;
+g_trade[108].babysitStart_minute      = 0;
+
+// encoding input magic: 16222340057000606
+g_trade[109].enabled                  = true;
+g_trade[109].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[109].tradeTypeId              = 62;
+g_trade[109].ruleSubsetId             = 22;
+g_trade[109].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[109].tradeSizePct             = 100;
+g_trade[109].tpPoints                 = 6.0;
+g_trade[109].slPoints                 = 6.0;
+g_trade[109].livePriceDiffTrigger     = 4.0;
+g_trade[109].levelOffsetPoints        = 0.5;
+g_trade[109].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[109].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[109].babysit_enabled          = false;
+g_trade[109].babysitStart_minute      = 0;
+
+// encoding input magic: 16229340037000606
+g_trade[110].enabled                  = true;
+g_trade[110].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[110].tradeTypeId              = 62;
+g_trade[110].ruleSubsetId             = 29;
+g_trade[110].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[110].tradeSizePct             = 100;
+g_trade[110].tpPoints                 = 6.0;
+g_trade[110].slPoints                 = 6.0;
+g_trade[110].livePriceDiffTrigger     = 4.0;
+g_trade[110].levelOffsetPoints        = 0.3;
+g_trade[110].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[110].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[110].babysit_enabled          = false;
+g_trade[110].babysitStart_minute      = 0;
+
+// encoding input magic: 16215340037000606
+g_trade[111].enabled                  = true;
+g_trade[111].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[111].tradeTypeId              = 62;
+g_trade[111].ruleSubsetId             = 15;
+g_trade[111].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[111].tradeSizePct             = 100;
+g_trade[111].tpPoints                 = 6.0;
+g_trade[111].slPoints                 = 6.0;
+g_trade[111].livePriceDiffTrigger     = 4.0;
+g_trade[111].levelOffsetPoints        = 0.3;
+g_trade[111].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[111].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[111].babysit_enabled          = false;
+g_trade[111].babysitStart_minute      = 0;
+
+// encoding input magic: 16221340037000606
+g_trade[112].enabled                  = true;
+g_trade[112].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[112].tradeTypeId              = 62;
+g_trade[112].ruleSubsetId             = 21;
+g_trade[112].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[112].tradeSizePct             = 100;
+g_trade[112].tpPoints                 = 6.0;
+g_trade[112].slPoints                 = 6.0;
+g_trade[112].livePriceDiffTrigger     = 4.0;
+g_trade[112].levelOffsetPoints        = 0.3;
+g_trade[112].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[112].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[112].babysit_enabled          = false;
+g_trade[112].babysitStart_minute      = 0;
+
+// encoding input magic: 16222340037000606
+g_trade[113].enabled                  = true;
+g_trade[113].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[113].tradeTypeId              = 62;
+g_trade[113].ruleSubsetId             = 22;
+g_trade[113].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[113].tradeSizePct             = 100;
+g_trade[113].tpPoints                 = 6.0;
+g_trade[113].slPoints                 = 6.0;
+g_trade[113].livePriceDiffTrigger     = 4.0;
+g_trade[113].levelOffsetPoints        = 0.3;
+g_trade[113].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[113].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[113].babysit_enabled          = false;
+g_trade[113].babysitStart_minute      = 0;
+
+// encoding input magic: 15201340057000606
+g_trade[114].enabled                  = true;
+g_trade[114].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[114].tradeTypeId              = 52;
+g_trade[114].ruleSubsetId             = 1;
+g_trade[114].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[114].tradeSizePct             = 100;
+g_trade[114].tpPoints                 = 6.0;
+g_trade[114].slPoints                 = 6.0;
+g_trade[114].livePriceDiffTrigger     = 4.0;
+g_trade[114].levelOffsetPoints        = 0.5;
+g_trade[114].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[114].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[114].babysit_enabled          = false;
+g_trade[114].babysitStart_minute      = 0;
+
+// encoding input magic: 16229340057000606
+g_trade[115].enabled                  = true;
+g_trade[115].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[115].tradeTypeId              = 62;
+g_trade[115].ruleSubsetId             = 29;
+g_trade[115].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[115].tradeSizePct             = 100;
+g_trade[115].tpPoints                 = 6.0;
+g_trade[115].slPoints                 = 6.0;
+g_trade[115].livePriceDiffTrigger     = 4.0;
+g_trade[115].levelOffsetPoints        = 0.5;
+g_trade[115].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[115].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[115].babysit_enabled          = false;
+g_trade[115].babysitStart_minute      = 0;
+
+// encoding input magic: 16208440037000606
+g_trade[116].enabled                  = true;
+g_trade[116].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[116].tradeTypeId              = 62;
+g_trade[116].ruleSubsetId             = 8;
+g_trade[116].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[116].tradeSizePct             = 100;
+g_trade[116].tpPoints                 = 6.0;
+g_trade[116].slPoints                 = 6.0;
+g_trade[116].livePriceDiffTrigger     = 4.0;
+g_trade[116].levelOffsetPoints        = 0.3;
+g_trade[116].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[116].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[116].babysit_enabled          = false;
+g_trade[116].babysitStart_minute      = 0;
+
+// encoding input magic: 16230440037000606
+g_trade[117].enabled                  = true;
+g_trade[117].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[117].tradeTypeId              = 62;
+g_trade[117].ruleSubsetId             = 30;
+g_trade[117].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[117].tradeSizePct             = 100;
+g_trade[117].tpPoints                 = 6.0;
+g_trade[117].slPoints                 = 6.0;
+g_trade[117].livePriceDiffTrigger     = 4.0;
+g_trade[117].levelOffsetPoints        = 0.3;
+g_trade[117].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[117].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[117].babysit_enabled          = false;
+g_trade[117].babysitStart_minute      = 0;
+
+// encoding input magic: 16208440057000606
+g_trade[118].enabled                  = true;
+g_trade[118].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[118].tradeTypeId              = 62;
+g_trade[118].ruleSubsetId             = 8;
+g_trade[118].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[118].tradeSizePct             = 100;
+g_trade[118].tpPoints                 = 6.0;
+g_trade[118].slPoints                 = 6.0;
+g_trade[118].livePriceDiffTrigger     = 4.0;
+g_trade[118].levelOffsetPoints        = 0.5;
+g_trade[118].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[118].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[118].babysit_enabled          = false;
+g_trade[118].babysitStart_minute      = 0;
+
+// encoding input magic: 16230440057000606
+g_trade[119].enabled                  = true;
+g_trade[119].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[119].tradeTypeId              = 62;
+g_trade[119].ruleSubsetId             = 30;
+g_trade[119].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[119].tradeSizePct             = 100;
+g_trade[119].tpPoints                 = 6.0;
+g_trade[119].slPoints                 = 6.0;
+g_trade[119].livePriceDiffTrigger     = 4.0;
+g_trade[119].levelOffsetPoints        = 0.5;
+g_trade[119].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[119].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[119].babysit_enabled          = false;
+g_trade[119].babysitStart_minute      = 0;
+
+// encoding input magic: 16257440037000606
+g_trade[120].enabled                  = true;
+g_trade[120].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[120].tradeTypeId              = 62;
+g_trade[120].ruleSubsetId             = 57;
+g_trade[120].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[120].tradeSizePct             = 100;
+g_trade[120].tpPoints                 = 6.0;
+g_trade[120].slPoints                 = 6.0;
+g_trade[120].livePriceDiffTrigger     = 4.0;
+g_trade[120].levelOffsetPoints        = 0.3;
+g_trade[120].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[120].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[120].babysit_enabled          = false;
+g_trade[120].babysitStart_minute      = 0;
+
+// encoding input magic: 16257440057000606
+g_trade[121].enabled                  = true;
+g_trade[121].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[121].tradeTypeId              = 62;
+g_trade[121].ruleSubsetId             = 57;
+g_trade[121].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[121].tradeSizePct             = 100;
+g_trade[121].tpPoints                 = 6.0;
+g_trade[121].slPoints                 = 6.0;
+g_trade[121].livePriceDiffTrigger     = 4.0;
+g_trade[121].levelOffsetPoints        = 0.5;
+g_trade[121].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[121].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[121].babysit_enabled          = false;
+g_trade[121].babysitStart_minute      = 0;
+
+// encoding input magic: 15274340157000606
+g_trade[122].enabled                  = true;
+g_trade[122].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[122].tradeTypeId              = 52;
+g_trade[122].ruleSubsetId             = 74;
+g_trade[122].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[122].tradeSizePct             = 100;
+g_trade[122].tpPoints                 = 6.0;
+g_trade[122].slPoints                 = 6.0;
+g_trade[122].livePriceDiffTrigger     = 4.0;
+g_trade[122].levelOffsetPoints        = 1.5;
+g_trade[122].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[122].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[122].babysit_enabled          = false;
+g_trade[122].babysitStart_minute      = 0;
+
+// encoding input magic: 16262240157000606
+g_trade[123].enabled                  = true;
+g_trade[123].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[123].tradeTypeId              = 62;
+g_trade[123].ruleSubsetId             = 62;
+g_trade[123].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[123].tradeSizePct             = 100;
+g_trade[123].tpPoints                 = 6.0;
+g_trade[123].slPoints                 = 6.0;
+g_trade[123].livePriceDiffTrigger     = 4.0;
+g_trade[123].levelOffsetPoints        = 1.5;
+g_trade[123].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[123].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[123].babysit_enabled          = false;
+g_trade[123].babysitStart_minute      = 0;
+
+// encoding input magic: 15274340057000606
+g_trade[124].enabled                  = true;
+g_trade[124].tradeDirectionCategory   = MAGIC_TRADE_LONG;
+g_trade[124].tradeTypeId              = 52;
+g_trade[124].ruleSubsetId             = 74;
+g_trade[124].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[124].tradeSizePct             = 100;
+g_trade[124].tpPoints                 = 6.0;
+g_trade[124].slPoints                 = 6.0;
+g_trade[124].livePriceDiffTrigger     = 4.0;
+g_trade[124].levelOffsetPoints        = 0.5;
+g_trade[124].bannedRanges             = "22,0,23,59;0,0,1,0";
+g_trade[124].levelProximityFocus      = TRADE_LEVEL_FOCUS_BELOW;
+g_trade[124].babysit_enabled          = false;
+g_trade[124].babysitStart_minute      = 0;
 //tradeDeleter_ends_here. AI never edit this comment
 //bookmark2tradeend
 }
@@ -6873,9 +8877,210 @@ bool Subset_1511237015(double levelPx, int levelIdx, int kLast)
    // also do big VARIABLE for offsset
    return true;
 }
+
+
 // quantspace2SubsetStart
 
 // quantspace2SubsetEnd
+bool Subset_1540134010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDL(levelPx)) return false;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_1540334010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDL(levelPx)) return false;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_1540834010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDL(levelPx)) return false;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_1541734010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDL(levelPx)) return false;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_1543724010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_1544224010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_1544624010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_1640324010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_1640724010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+
 
 
 bool Subset_1530237030(double levelPx, int levelIdx, int kLast)
@@ -12540,8 +14745,2167 @@ bool Subset_11301(double levelPx, int levelIdx, int kLast)
    return true;
 }
 
-// bookmark99 SubsetGentest start
-// bookmark99 SubsetGentest end
+// bookmark99 Subset Gentest start
+bool Subset_10401(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10402(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10403(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10404(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10405(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10406(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10407(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10408(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10409(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10410(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10411(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10412(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10413(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10414(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10415(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10416(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10417(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10418(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10419(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10420(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10421(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10422(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10423(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10424(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10425(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10426(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10427(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10428(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10429(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10430(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10431(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10432(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10433(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10434(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10435(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10436(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10437(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10438(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10439(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10440(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10441(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10442(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10443(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10444(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
+   return true;
+}
+
+bool Subset_10445(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10446(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10447(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10448(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10449(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10450(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10451(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10452(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10453(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10454(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10455(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10456(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10457(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10458(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10459(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10460(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10461(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10462(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10463(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10464(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10465(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10466(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10467(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10468(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10469(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10470(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10471(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10472(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10473(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10474(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10475(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10476(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10477(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10478(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10479(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10480(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10481(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10482(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10483(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10484(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10485(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10486(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10487(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10488(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10489(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10490(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10491(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_10492(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10493(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10494(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10495(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10496(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10497(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_10498(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_10499(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_11401(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_11402(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_11403(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_11404(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_11405(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_11406(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_11407(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   return true;
+}
+
+bool Subset_11408(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_11409(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+// bookmark99 Subset Gentest end
 
 
 
@@ -14165,8 +18529,27 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
                
 // quantspace1DispatchStart
 
-
 // quantspace1DispatchEnd
+
+            if(subsetHandlerKey10 == 1540134010)
+               return Subset_1540134010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1540334010)
+               return Subset_1540334010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1540834010)
+               return Subset_1540834010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1541734010)
+               return Subset_1541734010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1543724010)
+               return Subset_1543724010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1544224010)
+               return Subset_1544224010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1544624010)
+               return Subset_1544624010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1640324010)
+               return Subset_1640324010(levelPx, levelIdx, kLast);
+            if(subsetHandlerKey10 == 1640724010)
+               return Subset_1640724010(levelPx, levelIdx, kLast);
+
             FatalError(StringFormat(
                "bookmarkE1 Missing stage-2 rule subset for extended key %s (first %d digits), magic %s. Add branch in PendingRuleSubsetPassesForFullMagic.",
                IntegerToString(subsetHandlerKey10), STAGE2_SUBSET_HANDLER_KEY10_LEN, IntegerToString(fullMagic)));
@@ -14180,6 +18563,222 @@ bool PendingRuleSubsetPassesForFullMagic(const long fullMagic, const double leve
    const int subsetHandlerKey = slot1 * 10000 + slot2 * 100 + slot3;
 
 // gentest dispatch start
+   if(subsetHandlerKey == 10401 || subsetHandlerKey == 30401)
+      return Subset_10401(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10402 || subsetHandlerKey == 30402)
+      return Subset_10402(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10403 || subsetHandlerKey == 30403)
+      return Subset_10403(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10404 || subsetHandlerKey == 30404)
+      return Subset_10404(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10405 || subsetHandlerKey == 30405)
+      return Subset_10405(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10406 || subsetHandlerKey == 30406)
+      return Subset_10406(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10407 || subsetHandlerKey == 30407)
+      return Subset_10407(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10408 || subsetHandlerKey == 30408)
+      return Subset_10408(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10409 || subsetHandlerKey == 30409)
+      return Subset_10409(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10410 || subsetHandlerKey == 30410)
+      return Subset_10410(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10411 || subsetHandlerKey == 30411)
+      return Subset_10411(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10412 || subsetHandlerKey == 30412)
+      return Subset_10412(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10413 || subsetHandlerKey == 30413)
+      return Subset_10413(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10414 || subsetHandlerKey == 30414)
+      return Subset_10414(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10415 || subsetHandlerKey == 30415)
+      return Subset_10415(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10416 || subsetHandlerKey == 30416)
+      return Subset_10416(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10417 || subsetHandlerKey == 30417)
+      return Subset_10417(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10418 || subsetHandlerKey == 30418)
+      return Subset_10418(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10419 || subsetHandlerKey == 30419)
+      return Subset_10419(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10420 || subsetHandlerKey == 30420)
+      return Subset_10420(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10421 || subsetHandlerKey == 30421)
+      return Subset_10421(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10422 || subsetHandlerKey == 30422)
+      return Subset_10422(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10423 || subsetHandlerKey == 30423)
+      return Subset_10423(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10424 || subsetHandlerKey == 30424)
+      return Subset_10424(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10425 || subsetHandlerKey == 30425)
+      return Subset_10425(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10426 || subsetHandlerKey == 30426)
+      return Subset_10426(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10427 || subsetHandlerKey == 30427)
+      return Subset_10427(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10428 || subsetHandlerKey == 30428)
+      return Subset_10428(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10429 || subsetHandlerKey == 30429)
+      return Subset_10429(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10430 || subsetHandlerKey == 30430)
+      return Subset_10430(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10431 || subsetHandlerKey == 30431)
+      return Subset_10431(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10432 || subsetHandlerKey == 30432)
+      return Subset_10432(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10433 || subsetHandlerKey == 30433)
+      return Subset_10433(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10434 || subsetHandlerKey == 30434)
+      return Subset_10434(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10435 || subsetHandlerKey == 30435)
+      return Subset_10435(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10436 || subsetHandlerKey == 30436)
+      return Subset_10436(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10437 || subsetHandlerKey == 30437)
+      return Subset_10437(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10438 || subsetHandlerKey == 30438)
+      return Subset_10438(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10439 || subsetHandlerKey == 30439)
+      return Subset_10439(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10440 || subsetHandlerKey == 30440)
+      return Subset_10440(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10441 || subsetHandlerKey == 30441)
+      return Subset_10441(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10442 || subsetHandlerKey == 30442)
+      return Subset_10442(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10443 || subsetHandlerKey == 30443)
+      return Subset_10443(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10444 || subsetHandlerKey == 30444)
+      return Subset_10444(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10445 || subsetHandlerKey == 30445)
+      return Subset_10445(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10446 || subsetHandlerKey == 30446)
+      return Subset_10446(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10447 || subsetHandlerKey == 30447)
+      return Subset_10447(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10448 || subsetHandlerKey == 30448)
+      return Subset_10448(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10449 || subsetHandlerKey == 30449)
+      return Subset_10449(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10450 || subsetHandlerKey == 30450)
+      return Subset_10450(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10451 || subsetHandlerKey == 30451)
+      return Subset_10451(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10452 || subsetHandlerKey == 30452)
+      return Subset_10452(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10453 || subsetHandlerKey == 30453)
+      return Subset_10453(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10454 || subsetHandlerKey == 30454)
+      return Subset_10454(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10455 || subsetHandlerKey == 30455)
+      return Subset_10455(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10456 || subsetHandlerKey == 30456)
+      return Subset_10456(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10457 || subsetHandlerKey == 30457)
+      return Subset_10457(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10458 || subsetHandlerKey == 30458)
+      return Subset_10458(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10459 || subsetHandlerKey == 30459)
+      return Subset_10459(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10460 || subsetHandlerKey == 30460)
+      return Subset_10460(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10461 || subsetHandlerKey == 30461)
+      return Subset_10461(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10462 || subsetHandlerKey == 30462)
+      return Subset_10462(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10463 || subsetHandlerKey == 30463)
+      return Subset_10463(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10464 || subsetHandlerKey == 30464)
+      return Subset_10464(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10465 || subsetHandlerKey == 30465)
+      return Subset_10465(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10466 || subsetHandlerKey == 30466)
+      return Subset_10466(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10467 || subsetHandlerKey == 30467)
+      return Subset_10467(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10468 || subsetHandlerKey == 30468)
+      return Subset_10468(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10469 || subsetHandlerKey == 30469)
+      return Subset_10469(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10470 || subsetHandlerKey == 30470)
+      return Subset_10470(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10471 || subsetHandlerKey == 30471)
+      return Subset_10471(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10472 || subsetHandlerKey == 30472)
+      return Subset_10472(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10473 || subsetHandlerKey == 30473)
+      return Subset_10473(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10474 || subsetHandlerKey == 30474)
+      return Subset_10474(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10475 || subsetHandlerKey == 30475)
+      return Subset_10475(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10476 || subsetHandlerKey == 30476)
+      return Subset_10476(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10477 || subsetHandlerKey == 30477)
+      return Subset_10477(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10478 || subsetHandlerKey == 30478)
+      return Subset_10478(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10479 || subsetHandlerKey == 30479)
+      return Subset_10479(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10480 || subsetHandlerKey == 30480)
+      return Subset_10480(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10481 || subsetHandlerKey == 30481)
+      return Subset_10481(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10482 || subsetHandlerKey == 30482)
+      return Subset_10482(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10483 || subsetHandlerKey == 30483)
+      return Subset_10483(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10484 || subsetHandlerKey == 30484)
+      return Subset_10484(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10485 || subsetHandlerKey == 30485)
+      return Subset_10485(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10486 || subsetHandlerKey == 30486)
+      return Subset_10486(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10487 || subsetHandlerKey == 30487)
+      return Subset_10487(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10488 || subsetHandlerKey == 30488)
+      return Subset_10488(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10489 || subsetHandlerKey == 30489)
+      return Subset_10489(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10490 || subsetHandlerKey == 30490)
+      return Subset_10490(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10491 || subsetHandlerKey == 30491)
+      return Subset_10491(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10492 || subsetHandlerKey == 30492)
+      return Subset_10492(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10493 || subsetHandlerKey == 30493)
+      return Subset_10493(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10494 || subsetHandlerKey == 30494)
+      return Subset_10494(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10495 || subsetHandlerKey == 30495)
+      return Subset_10495(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10496 || subsetHandlerKey == 30496)
+      return Subset_10496(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10497 || subsetHandlerKey == 30497)
+      return Subset_10497(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10498 || subsetHandlerKey == 30498)
+      return Subset_10498(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 10499 || subsetHandlerKey == 30499)
+      return Subset_10499(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11401 || subsetHandlerKey == 31401)
+      return Subset_11401(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11402 || subsetHandlerKey == 31402)
+      return Subset_11402(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11403 || subsetHandlerKey == 31403)
+      return Subset_11403(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11404 || subsetHandlerKey == 31404)
+      return Subset_11404(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11405 || subsetHandlerKey == 31405)
+      return Subset_11405(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11406 || subsetHandlerKey == 31406)
+      return Subset_11406(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11407 || subsetHandlerKey == 31407)
+      return Subset_11407(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11408 || subsetHandlerKey == 31408)
+      return Subset_11408(levelPx, levelIdx, kLast);
+   if(subsetHandlerKey == 11409 || subsetHandlerKey == 31409)
+      return Subset_11409(levelPx, levelIdx, kLast);
 // gentest dispatch end 
 
 

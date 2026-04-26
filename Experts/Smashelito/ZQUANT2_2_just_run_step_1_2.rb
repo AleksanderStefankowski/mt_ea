@@ -11,5 +11,3 @@ sleep 2
 # Run third script
 system("ruby ZQUANT2_1_put_dispatches_into_smashelito.rb")
 sleep 1
-system("ruby ZQUANT2_3_quant_encoder.rb")
-sleep 1
