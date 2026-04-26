@@ -66,14 +66,16 @@ string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
+// OnTimer (1s): FatalError if (used margin / equity)×100 exceeds this (terminal-style deposit load as % of equity locked in margin). 0 = disabled.
+double   DepositLoadFatalThresholdPct = 85.0;
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 // base lot; 100% trade type = this full size; 50% = half, for example 0.1, tradesize 10 is 0.01, size 30 is 0.03
 // for example, 0.5, and specific trade is 30%, would mean position 0.15, 60% = 0.30
 // for example, 1.2, and specific trade is 30%, would mean position 0.36, 50% = 0.60
 // profit factor danego trade jest stały przy jego różnych trade size, ale profit factor całego runu zmieni się bo zmieniają się proporcje absolutnego zysku
-double   g_global_base_trade_size = 0.1; // bookmark9 basetradesize
-const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 5000000.0; // PLN budget ceiling vs ValidateBaseTradeSizeVsAccountBudgetOnInit()
+double   g_global_base_trade_size = 0.01; // bookmark9 basetradesize
+const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000.0; //  5000000.0/ PLN budget ceiling vs ValidateBaseTradeSizeVsAccountBudgetOnInit()
 
 //--- Composite magic digit 1 (pending order kind) is per row: g_trade[i].tradeDirectionCategory (MAGIC_TRADE_*). Other digits: see VariantTrade.
 
@@ -251,6 +253,23 @@ CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
 CPositionInfo ExtPositionInfo;
 CDealInfo ExtDealInfo;
+
+
+//+------------------------------------------------------------------+
+//| OnTimer: stop EA if used margin exceeds threshold % of equity (same idea as MT5 deposit load; not margin/freeMargin×100). |
+//| DepositLoadFatalThresholdPct ≤ 0 disables the check. |
+//+------------------------------------------------------------------+
+void CheckDepositLoadFatalIfExceeded()
+{
+   if(DepositLoadFatalThresholdPct <= 0.0) return;
+   const double equity = AccountInfoDouble(ACCOUNT_EQUITY);
+   const double marginUsed = AccountInfoDouble(ACCOUNT_MARGIN);
+   if(equity <= 0.0) return;
+   const double loadPct = 100.0 * marginUsed / equity;
+   if(loadPct > DepositLoadFatalThresholdPct)
+      FatalError(StringFormat("Deposit load %.2f%% (margin/equity×100) exceeds %.2f%% — equity=%.2f margin=%.2f freeMargin=%.2f symbol=%s",
+         loadPct, DepositLoadFatalThresholdPct, equity, marginUsed, AccountInfoDouble(ACCOUNT_MARGIN_FREE), _Symbol));
+}
 
 //--- Timer-based candle tracking
 datetime current_candle_time = 0;
@@ -20103,7 +20122,7 @@ int OnInit()
             TRADE_VARIANT_COUNT, TRADE_VARIANT_COUNT_MAX_LIMICIK));
    }
 
-   ValidateBaseTradeSizeVsAccountBudgetOnInit();
+   //ValidateBaseTradeSizeVsAccountBudgetOnInit();
 
    FileDelete("summary_tradeResults_all_days.tsv");
 
@@ -21137,6 +21156,8 @@ void OnTimer()
       if(dayStat_spreadLowestSeen == 0.0 || spread < dayStat_spreadLowestSeen)
          dayStat_spreadLowestSeen = spread;
    }
+
+   CheckDepositLoadFatalIfExceeded();
 
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
