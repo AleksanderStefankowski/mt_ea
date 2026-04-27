@@ -52,7 +52,7 @@ bool     dailyEODlog_TradeResultsCsv  = true;  // summaryZ_tradeResults_ALL_Day 
 // Trade-results CSV columns referencePointsAbove / referencePointsBelow (GetReferencePointsAboveBelow):
 bool     tradeResult_referencePoints_excludeTooClose = true;  // if true: omit a ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel; if false, no distance filter (min may be 0.0)
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; only used when tradeResult_referencePoints_excludeTooClose is true
-bool     dailyEODlog_TestinglevelsPlus = true;  // (date)_testinglevelsplus_(level)_(tag).csv per level
+bool     dailyEODlog_TestinglevelsPlus =      false;     // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
@@ -66,16 +66,19 @@ string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
-// OnTimer (1s): FatalError if (used margin / equity)×100 exceeds this (terminal-style deposit load as % of equity locked in margin). 0 = disabled.
-double   DepositLoadFatalThresholdPct = 85.0;
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 // base lot; 100% trade type = this full size; 50% = half, for example 0.1, tradesize 10 is 0.01, size 30 is 0.03
 // for example, 0.5, and specific trade is 30%, would mean position 0.15, 60% = 0.30
 // for example, 1.2, and specific trade is 30%, would mean position 0.36, 50% = 0.60
 // profit factor danego trade jest stały przy jego różnych trade size, ale profit factor całego runu zmieni się bo zmieniają się proporcje absolutnego zysku
+
 double   g_global_base_trade_size = 0.01; // bookmark9 basetradesize
-const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000.0; //  5000000.0/ PLN budget ceiling vs ValidateBaseTradeSizeVsAccountBudgetOnInit()
+const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000000.0; //  5000000.0/ PLN budget ceiling vs ValidateBaseTradeSizeVsAccountBudgetOnInit()
+
+// OnTimer (1s): FatalError if (used margin / equity)×100 exceeds this (terminal-style deposit load as % of equity locked in margin). 0 = disabled.
+double   DepositLoadFatalThresholdPct = 0.0; // ≤ 0 disables the check
+
 
 //--- Composite magic digit 1 (pending order kind) is per row: g_trade[i].tradeDirectionCategory (MAGIC_TRADE_*). Other digits: see VariantTrade.
 
