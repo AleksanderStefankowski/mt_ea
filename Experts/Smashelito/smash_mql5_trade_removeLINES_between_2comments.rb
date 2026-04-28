@@ -2,6 +2,9 @@ MQ5_FILE = "./smashelito.mq5"
 START_MARKER = "// bookmark99 SubsetGentest start"
 END_MARKER   = "// bookmark99 SubsetGentest end"
 
+# START_MARKER = "// gentest dispatch start"
+# END_MARKER   = "// gentest dispatch end"
+
 lines = File.read(MQ5_FILE).lines
 
 start_idx = lines.find_index { |l| l.strip.start_with?(START_MARKER) }

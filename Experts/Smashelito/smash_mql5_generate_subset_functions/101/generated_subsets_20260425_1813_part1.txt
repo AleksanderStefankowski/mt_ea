@@ -1,0 +1,155 @@
+bool Subset_10101(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -15.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 90; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10102(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -15.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 200; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10103(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -15.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 400; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10104(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -10.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 90; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10105(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -10.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 200; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10106(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -10.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 400; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10107(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -7.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 90; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10108(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -7.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 200; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10109(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -7.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 400; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10110(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -3.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 90; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10111(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -3.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 200; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}
+
+bool Subset_10112(double levelPx, int levelIdx, int kLast)
+{
+   if (!g_dayLowSoFarAtBar[kLast].hasValue) return false;
+   double diffWithLowOfDay = g_dayLowSoFarAtBar[kLast].value - levelPx;
+   if (diffWithLowOfDay >  15.0) return false; // too far above // HARDCODED
+
+   if (diffWithLowOfDay < -3.0) return false; // too far below
+   const int cleanStreakAbove_Minimum = 400; // var
+   if(!Gate_CleanStreak_AtLeastX_AboveLevel(levelIdx, kLast, cleanStreakAbove_Minimum)) return false;
+   // also do big VARIABLE for offsset
+   return true;
+}

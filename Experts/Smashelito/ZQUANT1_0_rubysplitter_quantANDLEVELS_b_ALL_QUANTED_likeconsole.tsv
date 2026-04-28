@@ -1,0 +1,10 @@
+magic	QuantedV2_reserved_subset	unquantedTradeCount	unquantedProfitRatio	unquantedWinrate	unquantedPointsAvg	edgeKind	quantProfitFactor	quantWinratePct	quantTrades	quantPtsAvg	quantAvgProfit	quantNetProfit	quantFactor
+10401340107000606	1540134010	26	0.96	46.2	-0.07	quant	3.85	72.7	11	3.43	61.61	677.71	price-betweenH-L IBH PDL
+10408340107000606	1540834010	26	0.96	46.2	-0.07	quant	3.85	72.7	11	3.43	61.61	677.71	price-betweenH-L IBH PDL
+10403340107000606	1540334010	25	0.88	44.0	-0.33	quant	3.39	70.0	10	3.14	56.72	567.19	price-betweenH-L IBH PDL
+10417340107000606	1541734010	24	0.96	45.8	-0.08	quant	3.39	70.0	10	3.14	56.72	567.19	price-betweenH-L IBH PDL
+10437240107000606	1543724010	13	4.14	69.2	3.25	quant	4.14	69.2	13	3.25	58.32	758.2	price-below ONH dayHighSoFar
+10442240107000606	1544224010	13	4.14	69.2	3.25	quant	4.14	69.2	13	3.25	58.32	758.2	price-below ONH dayHighSoFar
+10446240107000606	1544624010	9	6.81	77.8	4.11	quant	6.81	77.8	9	4.11	73.58	662.21	price-below ONH dayHighSoFar
+11403240107000606	1640324010	9	6.81	77.8	4.11	quant	6.81	77.8	9	4.11	73.58	662.21	price-below ONH dayHighSoFar
+11407240107000606	1640724010	9	6.81	77.8	4.11	quant	6.81	77.8	9	4.11	73.58	662.21	price-below ONH dayHighSoFar

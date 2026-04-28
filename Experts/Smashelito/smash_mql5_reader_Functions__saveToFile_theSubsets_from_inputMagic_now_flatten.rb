@@ -1,34 +1,56 @@
+require "set"
+
 INPUT_FILE  = "smash_mql5_reader_Functions__saveToFile_theSubsets_from_inputMagic.txt"
-OUTPUT_FILE = "smash_mql5_reader_Functions__saveToFile_theSubsets_from_inputMagic_now_flattened.txt.txt"
+OUTPUT_FILE = "smash_mql5_reader_Functions__saveToFile_theSubsets_from_inputMagic_now_flatten.txt"
 
-first_3_digits = "103"
-starting_index = "01"
-step = 1
+# ================== CONFIG ==================
 
-# ================== READ ==================
+first_digit = "1"
+second_digits_allowed = [0, 1, 2, 3, 4]
+third_digit = "4"
+
+starting_index_digits4th5th = "01"
+
+SLOTS_PER_SECOND_DIGIT = 99
+TOTAL_SLOTS = second_digits_allowed.size * SLOTS_PER_SECOND_DIGIT
+
+# ================== LOAD ==================
 
 content = File.read(INPUT_FILE)
 
 # ================== EXTRACT BLOCKS ==================
 
 blocks = content.scan(/bool\s+Subset_\d{5}.*?\{.*?\n\}/m)
-
 raise "No blocks found!" if blocks.empty?
 
-# ================== BUILD NEW INDICES ==================
+if blocks.size > TOTAL_SLOTS
+  raise "Too many blocks (#{blocks.size}) for available slots (#{TOTAL_SLOTS})"
+end
 
-start = starting_index.to_i
+# ================== BUILD IDS ==================
 
-new_indices = []
+start_suffix = starting_index_digits4th5th.to_i
+raise "Invalid starting_index_digits4th5th" if start_suffix < 1 || start_suffix > 99
+
+current_slot = start_suffix - 1
+
+new_ids = []
 
 blocks.size.times do |i|
-  val = start + i * step
+  slot = current_slot + i
 
-  if val > 99
-    raise "ERROR: step progression exceeded 99 (got #{val}) — too many blocks"
+  digit_idx = slot / SLOTS_PER_SECOND_DIGIT
+  suffix_idx = slot % SLOTS_PER_SECOND_DIGIT
+
+  if digit_idx >= second_digits_allowed.size
+    raise "ERROR: exceeded allowed second digits at block #{i}"
   end
 
-  new_indices << format("%02d", val)
+  second_digit = second_digits_allowed[digit_idx]
+  suffix = format("%02d", suffix_idx + 1)
+
+  full_id = "#{first_digit}#{second_digit}#{third_digit}#{suffix}"
+  new_ids << full_id
 end
 
 # ================== TRANSFORM BLOCKS ==================
@@ -36,31 +58,23 @@ end
 transformed_blocks = []
 
 blocks.each_with_index do |block, i|
-  new_suffix = new_indices[i]
+  new_id = new_ids[i]
 
-  # force prefix + new suffix (e.g., Subset_11201)
-  new_block = block.sub(/Subset_\d{5}/) do
-    "Subset_#{first_3_digits}#{new_suffix}"
-  end
-
+  new_block = block.sub(/Subset_\d{5}/, "Subset_#{new_id}")
   transformed_blocks << new_block
 end
 
 # ================== OUTPUT ==================
 
-# extract full new names like 11201, 11202 etc
-final_names = transformed_blocks.map do |b|
-  b[/Subset_(\d{5})/, 1]
-end
-
 puts "\n=== CONFIG ==="
-puts "first_3_digits: #{first_3_digits}"
-puts "starting_index: #{starting_index}"
-puts "step: #{step}"
+puts "first_digit: #{first_digit}"
+puts "second_digits_allowed: #{second_digits_allowed.inspect}"
+puts "third_digit: #{third_digit}"
+puts "start_suffix: #{starting_index_digits4th5th}"
 puts "total blocks: #{blocks.size}"
 
 puts "\n=== FINAL GENERATED SUBSET IDS ==="
-puts final_names.join(" ")
+puts new_ids.join(" ")
 
 # ================== SAVE ==================
 

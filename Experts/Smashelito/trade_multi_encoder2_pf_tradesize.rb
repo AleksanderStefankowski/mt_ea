@@ -178,7 +178,7 @@ final_magics.each_with_index do |magic, i|
   puts "g_trade[#{idx}].livePriceDiffTrigger     = #{data[:price_prox]};"
   puts "g_trade[#{idx}].levelOffsetPoints        = #{data[:level_offset]};"
   puts "g_trade[#{idx}].levelProximityFocus      = #{level_focus(data[:direction])};"
-  puts 'g_trade[' + idx.to_s + '].bannedRanges = "22,0,23,59;0,0,1,0";'
+  puts 'g_trade[' + idx.to_s + '].bannedRanges = "21,15,23,59;0,0,1,0";'
   puts "g_trade[#{idx}].babysit_enabled          = #{babysit_enabled};"
   puts "g_trade[#{idx}].babysitStart_minute      = #{babysit_minute};"
   puts "\n"

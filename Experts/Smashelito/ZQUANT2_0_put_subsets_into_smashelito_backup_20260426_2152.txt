@@ -42,29 +42,7 @@ bool Subset_1540334010(double levelPx, int levelIdx, int kLast)
    return true;
 }
 
-bool Subset_1540834010(double levelPx, int levelIdx, int kLast)
-{
-   const double level_minDiff_with_ONO = 10.0;
-   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
-   if(!Gate_Level_AbovePDL(levelPx)) return false;
-   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
-   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
-
-   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
-   if(kLast < 0 || kLast >= g_barsInDay) return false;
-   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
-   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
-
-   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
-      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
-   if(g_IBhighAtBar[kLast].hasValue)
-      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
-   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
-   return true;
-}
-
-bool Subset_1541734010(double levelPx, int levelIdx, int kLast)
+bool Subset_1541634010(double levelPx, int levelIdx, int kLast)
 {
    const double level_minDiff_with_ONO = 10.0;
    if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
@@ -82,17 +60,105 @@ bool Subset_1541734010(double levelPx, int levelIdx, int kLast)
    if(g_IBhighAtBar[kLast].hasValue)
       if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
    string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_1542534010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDL(levelPx)) return false;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
+   return true;
+}
+
+bool Subset_1541734010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayLowSoFar(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 90, true);
    if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
    return true;
 }
 
-bool Subset_1543724010(double levelPx, int levelIdx, int kLast)
+bool Subset_1541314003(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_AbovePDO(levelPx)) return false;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_1543614003(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 10.0;
+   if(!Gate_Level_AbovePDO(levelPx)) return false;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_1543824010(double levelPx, int levelIdx, int kLast)
 {
    const double level_minDiff_with_ONO = 35.0;
    if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
    if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
    const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
-   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
 
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
    if(kLast < 0 || kLast >= g_barsInDay) return false;
@@ -108,34 +174,34 @@ bool Subset_1543724010(double levelPx, int levelIdx, int kLast)
    return true;
 }
 
-bool Subset_1544224010(double levelPx, int levelIdx, int kLast)
+bool Subset_1547524010(double levelPx, int levelIdx, int kLast)
 {
-   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_ONO = 50.0;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
+   const double level_minDiff_with_RTHO = 20.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   return true;
+}
+
+bool Subset_1548424010(double levelPx, int levelIdx, int kLast)
+{
+   const double level_minDiff_with_ONO = 50.0;
    if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
    if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
    const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
-   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
-
-   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
-   if(kLast < 0 || kLast >= g_barsInDay) return false;
-   if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;
-   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
-
-   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
-      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
-   if(g_IBhighAtBar[kLast].hasValue)
-      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
-   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 40.0) return false;
-   return true;
-}
-
-bool Subset_1544624010(double levelPx, int levelIdx, int kLast)
-{
-   const double level_minDiff_with_ONO = 50.0;
-   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
-   if(!Gate_Level_BelowdayHighSoFar(kLast, levelPx)) return false;
-   const double level_minDiff_with_RTHO = 10.0; // but skipped check if not set yet
    const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
 
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
@@ -147,12 +213,12 @@ bool Subset_1544624010(double levelPx, int levelIdx, int kLast)
       if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
    if(g_IBhighAtBar[kLast].hasValue)
       if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
-   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
    return true;
 }
 
-bool Subset_1640324010(double levelPx, int levelIdx, int kLast)
+bool Subset_1640224010(double levelPx, int levelIdx, int kLast)
 {
    const double level_minDiff_with_ONO = 50.0;
    if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
@@ -170,11 +236,11 @@ bool Subset_1640324010(double levelPx, int levelIdx, int kLast)
    if(g_IBhighAtBar[kLast].hasValue)
       if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
    string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 45, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
    return true;
 }
 
-bool Subset_1640724010(double levelPx, int levelIdx, int kLast)
+bool Subset_1640924010(double levelPx, int levelIdx, int kLast)
 {
    const double level_minDiff_with_ONO = 50.0;
    if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
@@ -191,7 +257,7 @@ bool Subset_1640724010(double levelPx, int levelIdx, int kLast)
       if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
    if(g_IBhighAtBar[kLast].hasValue)
       if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
-   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 200, true);
-   if(diffAbove == "never" || StringToDouble(diffAbove) < 15.0) return false;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, 20, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 10.0) return false;
    return true;
 }
