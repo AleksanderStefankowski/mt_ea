@@ -33,18 +33,27 @@ def get_service():
             creds = pickle.load(f)
 
     if not creds or not creds.valid:
+        from google.auth.exceptions import RefreshError
+
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except RefreshError:
+                print("Refresh token expired/revoked. Re-authenticating...")
+                creds = None
+
+        if not creds:
             flow = InstalledAppFlow.from_client_secrets_file(
                 'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = flow.run_local_server(
+                port=0,
+                prompt='consent'   # 🔑 ensures new refresh token
+            )
 
         with open('token.pickle', 'wb') as f:
             pickle.dump(creds, f)
 
     return build('gmail', 'v1', credentials=creds)
-
 
 # ============================================================
 # HELPERS

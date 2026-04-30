@@ -5951,5 +5951,117 @@
       "daily"
     ],
     "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.04.29",
+    "end": "2026.04.29",
+    "levelPrice": 7156,
+    "categories": [
+      "daily",
+      "wednesday",
+      "smash"
+    ],
+    "tag": "dailySmash"
+  },
+  {
+    "start": "2026.04.29",
+    "end": "2026.04.29",
+    "levelPrice": 7180,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.04.29",
+    "end": "2026.04.29",
+    "levelPrice": 7208,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.04.29",
+    "end": "2026.04.29",
+    "levelPrice": 7230,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp3"
+  },
+  {
+    "start": "2026.04.29",
+    "end": "2026.04.29",
+    "levelPrice": 7126,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.04.29",
+    "end": "2026.04.29",
+    "levelPrice": 7092,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.04.30",
+    "end": "2026.04.30",
+    "levelPrice": 7150,
+    "categories": [
+      "daily",
+      "thursday",
+      "smash"
+    ],
+    "tag": "dailySmash"
+  },
+  {
+    "start": "2026.04.30",
+    "end": "2026.04.30",
+    "levelPrice": 7180,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.04.30",
+    "end": "2026.04.30",
+    "levelPrice": 7208,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.04.30",
+    "end": "2026.04.30",
+    "levelPrice": 7230,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp3"
+  },
+  {
+    "start": "2026.04.30",
+    "end": "2026.04.30",
+    "levelPrice": 7126,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.04.30",
+    "end": "2026.04.30",
+    "levelPrice": 7092,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
   }
 ]
