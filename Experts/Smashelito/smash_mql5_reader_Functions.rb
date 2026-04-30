@@ -66,7 +66,7 @@ gate_set.keys.sort.each { |k| puts k }
 
 puts
 puts "=== Subset_ VARIABLES (all) ==="
-# subset_set.to_a.sort.each { |s| puts s }
+subset_set.to_a.sort.each { |s| puts s }
 puts "commented out the print"
 
 puts
