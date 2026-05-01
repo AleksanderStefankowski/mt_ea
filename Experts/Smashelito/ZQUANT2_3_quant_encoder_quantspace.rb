@@ -122,7 +122,11 @@ end
 
 # ================== BUILD OUTPUT ==================
 
-final_magics = MAGIC_NUMBERS
+filtered_magic_numbers = MAGIC_NUMBERS.reject do |magic|
+  excluded_combinations_last_4_digits.include?(magic[-4..-1])
+end
+
+final_magics = filtered_magic_numbers
 
 all_output = []
 blocks = []

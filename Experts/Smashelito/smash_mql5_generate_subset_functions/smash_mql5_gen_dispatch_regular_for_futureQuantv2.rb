@@ -2,9 +2,9 @@
 
 OUTPUT_FILE = "smash_mql5_gen_dispatch_regular_for_futureQuantv2.txt"
 
-left_subset_id_start  = 20101
-right_subset_id_start = 40101 # nil allowed
-subset_id_end         = 20176 # 13355  21146
+left_subset_id_start  = 20201
+right_subset_id_start = 40201 # nil allowed
+subset_id_end         = 23223 # 13355  21146
 
 SLOTS_PER_GROUP = 99
 

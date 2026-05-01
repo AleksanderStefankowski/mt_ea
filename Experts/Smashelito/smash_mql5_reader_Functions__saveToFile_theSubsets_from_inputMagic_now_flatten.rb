@@ -5,9 +5,9 @@ OUTPUT_FILE = "smash_mql5_reader_Functions__saveToFile_theSubsets_from_inputMagi
 
 # ================== CONFIG ==================
 
-first_digit = "1"
+first_digit = "2"
 second_digits_allowed = [0, 1, 2, 3, 4]
-third_digit = "4"
+third_digit = "1"
 
 starting_index_digits4th5th = "01"
 

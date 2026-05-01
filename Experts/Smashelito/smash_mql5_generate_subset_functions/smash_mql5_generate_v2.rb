@@ -3,7 +3,7 @@ require 'time'
 # --- CONFIG ---
 first_digit = "2" # 1 long or 2 short
 allowed_2nd_digit = [0, 1, 2, 3, 4]  # quantv2 space, never edit this
-third_digit_trade_type = "1"
+third_digit_trade_type = "2"
 
 timestamp = Time.now.strftime("%Y%m%d_%H%M")
 
@@ -121,19 +121,31 @@ TOTAL_SLOTS = allowed_2nd_digit.size * SLOTS_PER_DIGIT  # 495
 #   ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "10.0", "15.0", "25.0", "40.0", "60.0"],
 # ]
 ######## 201
+# blocks = [
+#   ["const double minDayHighOverLevelPoints = VARIABLE;", "0.77", "2.0"],
+#   ["const double maxDayHighOverLevelPoints = VARIABLE;", "15.0", "10.0", "3.0", "25.0", "1.0"], # ["15.0", "10.0", "3.0", "25.0", "1.0"]
+#   ["const int exclusiveMaxCandlesLowAboveLevel = VARIABLE;", "0" , "15", "45", "900"], # to do sprawdzenia tez, 0, 45, 
+#   ["if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;"],
+#   ["const int cleanStreakBelow_Minimum = VARIABLE;", "3", "10", "15", "25"], # ["3", "10", "15", "25"]
+#   ["const int cleanStreakBelow_max = VARIABLE;", "45", "60", "300", "900"], # ["45", "60", "300", "900"]  # There are 1440 minutes in a day
+#   ["if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;"],
+#   ["if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;"],
+#   ["if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;"],
+#   ["if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;"]
+# ]
+####### 202
 blocks = [
-  ["const double minDayHighOverLevelPoints = VARIABLE;", "0.77", "2.0"],
-  ["const double maxDayHighOverLevelPoints = VARIABLE;", "15.0", "10.0", "3.0", "25.0", "1.0"], # ["15.0", "10.0", "3.0", "25.0", "1.0"]
-  ["const int exclusiveMaxCandlesLowAboveLevel = VARIABLE;", "0" , "15", "45", "900"], # to do sprawdzenia tez, 0, 45, 
-  ["if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;"],
-  ["const int cleanStreakBelow_Minimum = VARIABLE;", "3", "10", "15", "25"], # ["3", "10", "15", "25"]
-  ["const int cleanStreakBelow_max = VARIABLE;", "45", "60", "300", "900"], # ["45", "60", "300", "900"]  # There are 1440 minutes in a day
-  ["if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;"],
-  ["if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;"],
-  ["if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;"],
-  ["if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;"]
+  ["const int cleanStreakBelowMin = VARIABLE;", "8", "20", "40", "80", "200"],
+  ["int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];"],
+  ["if(cleanStreakBelow < cleanStreakBelowMin) return false;"],
+  ["const int diffAboveRange = cleanStreakBelowMin + VARIABLE;  //+ X minutes", "1", "30", "60", "180"], 
+  ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);"],
+  ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "8.0", "16.0", "25.0", "45.0"],
+  ["int diffBelowRange = cleanStreakBelow - 1;"],
+  ["if(diffBelowRange < 1) diffBelowRange = 1;"],
+  ["string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);"],
+  ["if(diffBelow == \"never\" || StringToDouble(diffBelow) < VARIABLE) return false;", "8.0", "16.0", "25.0", "45.0"],
 ]
-
 
 
 # --- VALIDATION ---

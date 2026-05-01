@@ -15,6 +15,9 @@ idx_magic       = header.index("magic")
 idx_quantFactor = header.index("quantFactor")
 idx_quantProfitFactor = header.index("quantProfitFactor")
 
+QUANT_SPACE_2NDDIGIT_OFFSET = 5 # standardowy pattern quant to +5 na digit 2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 raise "Missing required columns" unless idx_magic && idx_quantFactor && idx_quantProfitFactor
 
 
@@ -67,7 +70,7 @@ def output_subset_number(magic, quant_profit_factor)
   if quant_profit_factor.to_f < 1.0
     base10[0] = (base10[0].to_i + 2).to_s
   end
-  base10[1] = (base10[1].to_i + 5).to_s
+  base10[1] = (base10[1].to_i + QUANT_SPACE_2NDDIGIT_OFFSET).to_s
   base10.join
 end
 
@@ -110,6 +113,8 @@ end
 # --- STEP 3.5: FULL EXPLICIT MAPPING ---
 def map_to_mq5_condition(line)
   raw = line.strip
+  # TSV / upstream may use "=true"/"=false"; when-keys use "=TRUE"/"=FALSE"
+  raw = raw.sub(/=true\z/i, "=TRUE").sub(/=false\z/i, "=FALSE")
 
   case raw
 
@@ -123,14 +128,22 @@ def map_to_mq5_condition(line)
     "   if(!Gate_Day_HasGapDown()) return false;"
   when "openGap_info=gapUp_Day"
     "   if(!Gate_Day_HasGapUp()) return false;"
+  when "dayBrokePDH=true"
+    "   if(!Gate_Day_DayBrokePDH_is_TRUE(kLast)) return false;"
   when "dayBrokePDH=TRUE"
     "   if(!Gate_Day_DayBrokePDH_is_TRUE(kLast)) return false;"
+  when "dayBrokePDH=false"
+    "   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;"
   when "dayBrokePDH=FALSE"
     "   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;"
+  when "dayBrokePDL=true"
+    "   if(!Gate_Day_DayBrokePDL_is_TRUE(kLast)) return false;"
   when "dayBrokePDL=TRUE"
     "   if(!Gate_Day_DayBrokePDL_is_TRUE(kLast)) return false;"
-  when "dayBrokePDL=FALSE"
+  when "dayBrokePDL=false"
     "   if(!Gate_Day_DayBrokePDL_is_FALSE(kLast)) return false;"
+  when "dayBrokePDL=FALSE"
+    "   if(!Gate_Day_DayBrokePDL_is_FALSE(kLast)) return false;"    
 
   # PRICE RULES (kept minimal here, extend as needed)
   when "price above IBH"
@@ -159,7 +172,6 @@ def map_to_mq5_condition(line)
     "   if(!Gate_Level_AboveRTHH(kLast, levelPx)) return false;"
   when "price above RTHL"
     "   if(!Gate_Level_AboveRTHL(kLast, levelPx)) return false;"
-
   when "price below IBH"
     "   if(!Gate_Level_BelowIBH(kLast, levelPx)) return false;"
   when "price below IBL"
