@@ -1,5 +1,5 @@
 MQ5_FILE = "./smashelito.mq5"
-subsets_to_search = "Subset_202"
+subsets_to_search = "Subset_203"
 
 content = File.read(MQ5_FILE)
 
