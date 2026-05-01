@@ -141,6 +141,7 @@ TEXT
 # Arrays for TP and SL values
 tp = ["06", "08", "10", "12", "14"].uniq   # Possible TP values
 sl = ["06","04", "10"].uniq # "08"  #   # Possible SL values
+excluded_combinations_last_4_digits = ["1404", "1204"] # exclude the ones too extreme IMO
 
 # Indexing constants
 TRADE_INDEX_START = 0
@@ -214,7 +215,13 @@ end
 
 # ================== BUILD OUTPUT ==================
 
-final_magics = MAGIC_NUMBERS
+filtered_magic_numbers = MAGIC_NUMBERS.reject do |magic|
+  excluded_combinations_last_4_digits.include?(magic[-4..-1])
+end
+
+
+# final_magics = MAGIC_NUMBERS
+final_magics = filtered_magic_numbers
 
 all_output = []
 blocks = []

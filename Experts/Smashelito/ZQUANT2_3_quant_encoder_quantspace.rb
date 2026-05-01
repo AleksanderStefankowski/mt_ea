@@ -4,13 +4,16 @@ SUBSET_START = "// quantspace2SubsetStart"
 SUBSET_END   = "// quantspace2SubsetEnd"
 
 babysit = "700"
-# tp = ["06", "08", "12"].uniq # "08"
-# sl = ["06", "04"].uniq
-tp = ["06"].uniq # "08"
-sl = ["06"].uniq
+
+
+# Arrays for TP and SL values
+# tp = ["06"].uniq
+# sl = ["06"].uniq
+tp = ["06", "08", "10", "12", "14"].uniq   # Possible TP values
+sl = ["06","04", "10"].uniq # "08"  #   # Possible SL values
+excluded_combinations_last_4_digits = ["1404", "1204"] # exclude the ones too extreme IMO
 
 TRADE_INDEX_START = 0
-
 ENABLED    = true
 TRADE_SIZE = 100
 

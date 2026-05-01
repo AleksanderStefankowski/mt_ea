@@ -1,9 +1,9 @@
 require 'time'
 
 # --- CONFIG ---
-first_digit = "1" # 1 long or 2 short
+first_digit = "2" # 1 long or 2 short
 allowed_2nd_digit = [0, 1, 2, 3, 4]  # quantv2 space, never edit this
-third_digit_trade_type = "4"
+third_digit_trade_type = "1"
 
 timestamp = Time.now.strftime("%Y%m%d_%H%M")
 
@@ -103,23 +103,38 @@ TOTAL_SLOTS = allowed_2nd_digit.size * SLOTS_PER_DIGIT  # 495
 # // proximity 1.3, gain 19  w 8 m | contact -1.4 , 25 pkt w 10 m | contact -2.4, gain 20 pkt w 3 m
 	# //"highgest diff ponad trade level to 25 wyżej, last 56 min, co jest wyżej niż level up o 3.7 pkt, niezużo ale to overnigh i early hours of ON)"
 	# //"highgest diff ponad trade level to 40 wyżej, last 46 min"
+# blocks = [
+#   ["const double level_minDiff_with_ONO = VARIABLE;", "10.0", "20.0", "35.0", "50.0"],
+#   ["const double level_minDiff_with_RTHO = VARIABLE; // but skipped check if not set yet", "10.0", "20.0", "35.0", "50.0"],
+#   ["const double level_minDiff_with_IBH = VARIABLE; // but skipped check if not set yet", "10.0", "20.0"],
+#   [""],
+#   ["if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;"],
+#   ["if(kLast < 0 || kLast >= g_barsInDay) return false;"],
+#   ["if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;"],
+#   ["if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;"],
+#   [""],
+#   ["if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))"],
+#   ["   if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;"],
+#   ["if(g_IBhighAtBar[kLast].hasValue)"],
+#   ["   if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;"],
+#   ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, VARIABLE, true);", "45", "90", "200", "20"],
+#   ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "10.0", "15.0", "25.0", "40.0", "60.0"],
+# ]
+######## 201
 blocks = [
-  ["const double level_minDiff_with_ONO = VARIABLE;", "10.0", "20.0", "35.0", "50.0"],
-  ["const double level_minDiff_with_RTHO = VARIABLE; // but skipped check if not set yet", "10.0", "20.0", "35.0", "50.0"],
-  ["const double level_minDiff_with_IBH = VARIABLE; // but skipped check if not set yet", "10.0", "20.0"],
-  [""],
-  ["if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;"],
-  ["if(kLast < 0 || kLast >= g_barsInDay) return false;"],
-  ["if(!Gate_Level_neverTouched_floor(levelIdx, kLast)) return false;"],
-  ["if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;"],
-  [""],
-  ["if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))"],
-  ["   if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;"],
-  ["if(g_IBhighAtBar[kLast].hasValue)"],
-  ["   if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;"],
-  ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, VARIABLE, true);", "45", "90", "200", "20"],
-  ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "10.0", "15.0", "25.0", "40.0", "60.0"],
+  ["const double minDayHighOverLevelPoints = VARIABLE;", "0.77", "2.0"],
+  ["const double maxDayHighOverLevelPoints = VARIABLE;", "15.0", "10.0", "3.0", "25.0", "1.0"], # ["15.0", "10.0", "3.0", "25.0", "1.0"]
+  ["const int exclusiveMaxCandlesLowAboveLevel = VARIABLE;", "0" , "15", "45", "900"], # to do sprawdzenia tez, 0, 45, 
+  ["if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;"],
+  ["const int cleanStreakBelow_Minimum = VARIABLE;", "3", "10", "15", "25"], # ["3", "10", "15", "25"]
+  ["const int cleanStreakBelow_max = VARIABLE;", "45", "60", "300", "900"], # ["45", "60", "300", "900"]  # There are 1440 minutes in a day
+  ["if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;"],
+  ["if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;"],
+  ["if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;"],
+  ["if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;"]
 ]
+
+
 
 # --- VALIDATION ---
 def validate_blocks!(blocks)
