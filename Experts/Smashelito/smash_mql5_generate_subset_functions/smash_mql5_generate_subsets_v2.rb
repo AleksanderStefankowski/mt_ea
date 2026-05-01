@@ -3,7 +3,7 @@ require 'time'
 # --- CONFIG ---
 first_digit = "2" # 1 long or 2 short
 allowed_2nd_digit = [0, 1, 2, 3, 4]  # quantv2 space, never edit this
-third_digit_trade_type = "2"
+third_digit_trade_type = "4"
 
 timestamp = Time.now.strftime("%Y%m%d_%H%M")
 
@@ -134,20 +134,59 @@ TOTAL_SLOTS = allowed_2nd_digit.size * SLOTS_PER_DIGIT  # 495
 #   ["if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;"]
 # ]
 ####### 202
+# blocks = [
+#   ["const int cleanStreakBelowMin = VARIABLE;", "8", "20", "40", "80", "200"],
+#   ["int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];"],
+#   ["if(cleanStreakBelow < cleanStreakBelowMin) return false;"],
+#   ["const int diffAboveRange = cleanStreakBelowMin + VARIABLE;  //+ X minutes", "1", "30", "60", "180"], 
+#   ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);"],
+#   ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "8.0", "16.0", "25.0", "45.0"],
+#   ["int diffBelowRange = cleanStreakBelow - 1;"],
+#   ["if(diffBelowRange < 1) diffBelowRange = 1;"],
+#   ["string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);"],
+#   ["if(diffBelow == \"never\" || StringToDouble(diffBelow) < VARIABLE) return false;", "8.0", "16.0", "25.0", "45.0"],
+# ]
+####### 203
+# blocks = [
+#   ["// short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. "],
+#   ["double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);"],
+#   ["if(levelBelow <= 0.0) return false;"],
+#   [""],
+#   ["const double twoLevelsDiff = levelPx - levelBelow;"],
+#   ["if(twoLevelsDiff < VARIABLE) return false;", "6.0", "10.0", "15.0"], # maybe try 6.0
+#   ["if(twoLevelsDiff > VARIABLE) return false;", "18.0", "25.0", "31.0"],
+#   [""],
+#   ["// a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65"],
+#   ["// b: level never touched today, ale pewnie wystarczy clean streak 120"],
+#   [""],
+#   ["const int cleanStreakBelowMin = VARIABLE;", "30", "60", "90", "300", "500"], 
+#   ["int streakBelow = g_cleanStreakBelow[levelIdx][kLast];"],
+#   ["if(streakBelow < cleanStreakBelowMin) return false;"],
+#   [""],
+#   ["//a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13"],
+#   ["//b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)"],
+#   ["const int diffBelowRange = VARIABLE; //+ X minutes", "1", "30", "60", "180"],
+#   ["const double diffBelowMin = twoLevelsDiff + VARIABLE;", "11.0", "22.0", "30.0"], 
+#   ["string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);"],
+#   ["if(diffBelow == \"never\" || StringToDouble(diffBelow) < diffBelowMin) return false;"]
+# ]
+####### 204
 blocks = [
-  ["const int cleanStreakBelowMin = VARIABLE;", "8", "20", "40", "80", "200"],
-  ["int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];"],
-  ["if(cleanStreakBelow < cleanStreakBelowMin) return false;"],
-  ["const int diffAboveRange = cleanStreakBelowMin + VARIABLE;  //+ X minutes", "1", "30", "60", "180"], 
-  ["string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);"],
-  ["if(diffAbove == \"never\" || StringToDouble(diffAbove) < VARIABLE) return false;", "8.0", "16.0", "25.0", "45.0"],
-  ["int diffBelowRange = cleanStreakBelow - 1;"],
-  ["if(diffBelowRange < 1) diffBelowRange = 1;"],
-  ["string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);"],
-  ["if(diffBelow == \"never\" || StringToDouble(diffBelow) < VARIABLE) return false;", "8.0", "16.0", "25.0", "45.0"],
+  ["const double level_minDiff_with_ONO = VARIABLE;", "5.0", "20.0", "35.0", "60.0", "100.0", "140.0"],
+  ["const double level_minDiff_with_RTHO = VARIABLE; // but skipped check if not set yet", "5.0", "15.0", "35.0", "50.0", "75.0", "95.0"],
+  ["const double level_minDiff_with_IBH = VARIABLE; // but skipped check if not set yet", "10.0", "20.0", "30.0", "55.0", "80.0", "105.0"],
+  [""],
+  ["if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;"],
+  ["if(kLast < 0 || kLast >= g_barsInDay) return false;"],
+  ["if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;"],
+  ["if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;"],
+  [""],
+  ["if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))"],
+  ["   if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;"],
+  [""],
+  ["if(g_IBhighAtBar[kLast].hasValue)"],
+  ["   if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;"]
 ]
-
-
 # --- VALIDATION ---
 def validate_blocks!(blocks)
   blocks.each_with_index do |block, idx|
@@ -224,7 +263,7 @@ all_combos.each do |lines|
 
   # new file if slots exhausted
   if slot_index >= TOTAL_SLOTS
-    file_name = "generated_subsets_#{timestamp}_part#{file_index}.txt"
+    file_name = "smash_mql5_generate_subsets_v2__#{timestamp}_part#{file_index}.txt"
     File.write(file_name, output.join("\n"))
     puts "Saved #{file_name}"
 
@@ -250,7 +289,7 @@ end
 
 # save last file
 if output.any?
-  file_name = "generated_subsets_#{timestamp}_part#{file_index}.txt"
+  file_name = "smash_mql5_generate_subsets_v2__#{timestamp}_part#{file_index}.txt"
   File.write(file_name, output.join("\n"))
   puts "Saved #{file_name}"
 end

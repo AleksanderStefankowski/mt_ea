@@ -124,6 +124,8 @@ def map_to_mq5_condition(line)
     "   if(!Gate_PD_red()) return false;"
   when "gapFillPc=filled"
     "   if(!Gate_GapFilled_atBar_TOTEST(kLast)) return false;"
+  when "gapFillPc=unfilled"
+    "   if(!Gate_GapUnfilled_atBar_TOTEST(kLast)) return false;"
   when "openGap_info=gapDown_Day"
     "   if(!Gate_Day_HasGapDown()) return false;"
   when "openGap_info=gapUp_Day"
