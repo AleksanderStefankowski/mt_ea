@@ -1,9 +1,9 @@
 MQ5_FILE = "./smashelito.mq5"
 
-# START_MARKER = "// bookmark99 Subset Gentest start"
-# END_MARKER   = "// bookmark99 Subset Gentest end"
-START_MARKER = "// gentest dispatch start"
-END_MARKER   = "// gentest dispatch end"
+START_MARKER = "// bookmark99 Subset Gentest start"
+END_MARKER   = "// bookmark99 Subset Gentest end"
+# START_MARKER = "// gentest dispatch start"
+# END_MARKER   = "// gentest dispatch end"
 
 lines = File.read(MQ5_FILE).lines
 
