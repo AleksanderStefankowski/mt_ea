@@ -7,8 +7,8 @@
 #property version   "1.00"
 
 //--- Export window (server time; edit before attaching EA). Plain constants here (not EA parameters dialog).
-const string ExportRangeStartStr = "2026.01.20 00:00";
-const string ExportRangeEndStr   = "2026.04.22 00:00";
+const string ExportRangeStartStr = "2026.05.03 00:00";
+const string ExportRangeEndStr   = "2026.09.28 00:00";
 
 //--- Output: 49 columns (date + 48), same schema as legacy summary_tradeResults_all_days
 #define OUT_CSV_NAME "summary_tradeResults_all_days.csv"
