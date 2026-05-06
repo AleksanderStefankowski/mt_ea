@@ -1293,7 +1293,7 @@ void WriteOneTradeRow(const int fh, const string &dateStr, const TradeResult &tr
       profitStr,
       typeStr,
       reasonStr,
-      DoubleToString(tradeResult.volume, 2),
+      tradeResult.volume,
       tradeResult.bothComments,
       tradeResult.level,
       tradeResult.tp,

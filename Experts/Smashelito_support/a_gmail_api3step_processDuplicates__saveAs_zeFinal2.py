@@ -119,7 +119,7 @@ def main():
     ensure_daily_weekdays(levels)
     week_prices = build_weekly_prices_by_week(levels)
     process_duplicates(levels, week_prices)
-    out_path = os.path.join(script_dir, "levelsinfo_zeFinal2.csv")
+    out_path = os.path.join(script_dir, "levelsinfo_zeFinal.csv")
     written, skipped_daily_stacked = write_csv(levels, out_path)
     cats_strs = ["_".join(lev["categories"]) for lev in levels]
     n_daily_stacked = sum(1 for s in cats_strs if "daily" in s and "stacked" in s)
