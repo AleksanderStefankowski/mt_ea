@@ -537,8 +537,8 @@ start,end,levelPrice,categories,tag
 2026.05.01,2026.05.01,7180,daily_friday,dailyDown2
 2026.05.04,2026.05.08,7251,weekly_smash_stacked_monday_wednesday,weeklySmash
 2026.05.04,2026.05.08,7296,weekly_stacked_monday_tuesday,weeklyUp1
-2026.05.04,2026.05.08,7375,weekly,weeklyUp2
-2026.05.04,2026.05.08,7405,weekly,weeklyUp3
+2026.05.04,2026.05.08,7375,weekly_stacked_thursday,weeklyUp2
+2026.05.04,2026.05.08,7405,weekly_stacked_thursday,weeklyUp3
 2026.05.04,2026.05.08,7445,weekly,weeklyUp4
 2026.05.04,2026.05.08,7490,weekly,weeklyUp5
 2026.05.04,2026.05.08,7208,weekly_stacked_monday,weeklyDown1
@@ -559,3 +559,8 @@ start,end,levelPrice,categories,tag
 2026.05.06,2026.05.06,7352,daily_wednesday,dailyUp3
 2026.05.06,2026.05.06,7242,daily_wednesday,dailyDown2
 2026.05.06,2026.05.06,7212,daily_wednesday,dailyDown3
+2026.05.07,2026.05.07,7390,daily_thursday_smash,dailySmash
+2026.05.07,2026.05.07,7427,daily_thursday,dailyUp2
+2026.05.07,2026.05.07,7455,daily_thursday,dailyUp3
+2026.05.07,2026.05.07,7355,daily_thursday,dailyDown2
+2026.05.07,2026.05.07,7327,daily_thursday,dailyDown3
