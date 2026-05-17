@@ -37,30 +37,28 @@ input int      BounceCandlesRequired = 1; // for bounce count logic
 // false: skip per-bar UpdateTradeResultsForDay (no HistorySelect each M1); g_tradeResults cleared each bar — EOD block still calls UpdateTradeResultsForDay once before trade-results CSV (and after EOD closes). Intraday pullinghistory/dayProgress rows stay deal-empty until that EOD refresh.
 input bool     InpLoadTradeResultsFromHistory = true;
 int      Max_OrdersPerMagic = 1; // max open positions + pending orders with this magic (same full magic number)
-double   InpLotSize           = 0.01; // lot size for rulesets
-int      HourForDailySummary   = 21;   // hour (server time) when daily summary is written (timer/server time)
-int      MinuteForDailySummary = 30;   // minute of the hour for summary trigger
 bool     InpEODLogging = true;  // if true: at 21:58-22:00 write EOD logs (summaryZ_tradeResults, summary_tradeResults_all_days, pullinghistory, levels, etc.)
 //--- Log to file: set false to disable that log (optimization)
 //    finalLog_ = one file across whole run; dailyEODlog_ = daily once at EOD; dailySpamLog_ = daily and frequent
 bool     dailyEODlog_PullingHistory   = true;  // (date)_testing_pullinghistory.csv
-bool     dailyEODlog_DailySummary     = false;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
+bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
 bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSummary1line.csv
-bool     finalLog_SummaryTrades1line  = false;  // summary_tradesSummary1line.csv
-bool     finalLog_SummaryTradesPerTrade = false;  // summary_tradesSummary_perTrade.csv (one row per magic)
+bool     finalLog_SummaryTrades1line  = true;  // summary_tradesSummary1line.csv
+bool     finalLog_SummaryTradesPerTrade = true;  // summary_tradesSummary_perTrade.csv (one row per magic)
 bool     dailyEODlog_TradeResultsCsv  = true;  // summaryZ_tradeResults_ALL_Day + summary_tradeResults_all_days
 // Trade-results CSV columns referencePointsAbove / referencePointsBelow (GetReferencePointsAboveBelow):
 bool     tradeResult_referencePoints_excludeTooClose = true;  // if true: omit a ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel; if false, no distance filter (min may be 0.0)
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; only used when tradeResult_referencePoints_excludeTooClose is true
-bool     dailyEODlog_TestinglevelsPlus =      false;     // (date)_testinglevelsplus_(level)_(tag).csv per level
+bool     dailyEODlog_TestinglevelsPlus =      true;     // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
+bool     dailyLog_Algo1WeekPerspective = true;  // (date)_algo1_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
-bool     finalLog_TradeLog            = false; // B_TradeLog_<composite per variant>.csv (WriteTradeLog)
+bool     finalLog_TradeLog            = true; // B_TradeLog_<composite per variant>.csv (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
-bool     dailySpamLog_Arawevents      = false; // Arawevents CSV + level logRawEv (FinalizeCurrentCandle)
+bool     dailySpamLog_Arawevents      = true; // Arawevents CSV + level logRawEv (FinalizeCurrentCandle)
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
@@ -432,6 +430,26 @@ int      dayStat_daysWithGapDown_75fill = 0;   // gap-down days with percentage_
 int      dayStat_daysWithGapDown_90fill = 0;   // gap-down days with percentage_gap_filled >= 90
 int      dayStat_daysWithGapDown_100fill = 0;  // gap-down days with percentage_gap_filled >= 100
 datetime dayStat_lastLoggedDayStart = 0;  // avoid logging same day twice
+
+//--- algo1_weekPerspective: active weekly levels vs current-week M1 (rebuilt OnInit + each new day)
+struct Algo1WeekPerspectiveRow
+{
+   double levelPrice;
+   string tag;
+   string categories;
+   double maxPriceAbove;       // max(high - level) when high > level
+   double maxPriceBelow;       // max(level - low) when low < level
+   int    touchedProx_09_C;    // bars with |close - level| <= 0.9
+   bool   brokenBool;          // price traversed level this week: level between min ONO & max other high, or between min other low & max ONO
+   int    countONO_too_close_10p; // days in week where |level - that day's ONO| < 10 (ONO = first M1 open, same as g_ONopen)
+   int    candle_overlap_1m_C; // bars with low <= level <= high
+};
+#define MAX_ALGO1_WEEK_LEVELS 25   // ~20 weekly levels per week + small headroom
+#define ALGO1_WEEK_PROX_TOUCH_POINTS 0.9
+#define ALGO1_WEEK_ON_TOO_CLOSE_POINTS 10.0
+Algo1WeekPerspectiveRow g_algo1WeekPerspective[MAX_ALGO1_WEEK_LEVELS];
+int      g_algo1WeekPerspectiveCount = 0;
+string   g_algo1WeekPerspectiveEvaluatedForDate = "";  // YYYY.MM.DD last (re)evaluated
 
 //--- Gap-up mirror (RTH open > PD RTH close)
 double   dayStat_openGapUp_percentageFill = 0.0;
@@ -1785,6 +1803,7 @@ void UpdateDayM1AndLevelsExpanded()
          return;  // file open failed; keep previous levels
       g_levelsLoadedForDate = dateStr;
       BuildLevelsFromCSV();
+      RefreshAlgo1WeekPerspective(g_lastTimer1Time);
       dayStat_spreadHighestSeen = 0.0;  // reset for new day
       dayStat_spreadLowestSeen = 0.0;
    }
@@ -3500,6 +3519,235 @@ bool IsLivePriceNearLevel(double levelPrice, double maxDistPoints)
 bool LevelIsWeekly(const string &categoriesOrTags)
 {
    return (StringFind(categoriesOrTags, "weekly") >= 0);
+}
+
+//+------------------------------------------------------------------+
+//| Monday 00:00 server time of the calendar week containing t.       |
+//+------------------------------------------------------------------+
+datetime GetWeekMondayStart(datetime t)
+{
+   datetime dayStart = t - (t % 86400);
+   MqlDateTime mt;
+   TimeToStruct(dayStart, mt);
+   int daysSinceMonday = (mt.day_of_week == 0) ? 6 : (mt.day_of_week - 1);
+   return dayStart - (datetime)daysSinceMonday * 86400;
+}
+
+//+------------------------------------------------------------------+
+//| True if t falls on Monday (server time).                          |
+//+------------------------------------------------------------------+
+bool IsMondayDatetime(datetime t)
+{
+   MqlDateTime mt;
+   TimeToStruct(t, mt);
+   return (mt.day_of_week == 1);
+}
+
+//+------------------------------------------------------------------+
+//| Fill g_algo1WeekPerspective[] with today's active weekly levels (zeroed stats). |
+//+------------------------------------------------------------------+
+void CollectActiveWeeklyLevelsForAlgo1(const string dateStr)
+{
+   g_algo1WeekPerspectiveCount = 0;
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount && g_algo1WeekPerspectiveCount < MAX_ALGO1_WEEK_LEVELS; levelIdx++)
+   {
+      if(!LevelIsWeekly(g_levels[levelIdx].categories)) continue;
+      if(g_levels[levelIdx].startStr > dateStr || dateStr > g_levels[levelIdx].endStr) continue;
+      int rowIdx = g_algo1WeekPerspectiveCount++;
+      g_algo1WeekPerspective[rowIdx].levelPrice = g_levels[levelIdx].levelPrice;
+      g_algo1WeekPerspective[rowIdx].tag = g_levels[levelIdx].tag;
+      g_algo1WeekPerspective[rowIdx].categories = g_levels[levelIdx].categories;
+      g_algo1WeekPerspective[rowIdx].maxPriceAbove = 0.0;
+      g_algo1WeekPerspective[rowIdx].maxPriceBelow = 0.0;
+      g_algo1WeekPerspective[rowIdx].touchedProx_09_C = 0;
+      g_algo1WeekPerspective[rowIdx].brokenBool = false;
+      g_algo1WeekPerspective[rowIdx].countONO_too_close_10p = 0;
+      g_algo1WeekPerspective[rowIdx].candle_overlap_1m_C = 0;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Scan current-week M1 for one weekly level; update g_algo1WeekPerspective[rowIdx]. |
+//+------------------------------------------------------------------+
+void Algo1WeekPerspectiveAccumulateLevel(int rowIdx, const MqlRates &weekRates[], int barCount, datetime weekStart)
+{
+   if(rowIdx < 0 || rowIdx >= g_algo1WeekPerspectiveCount) return;
+   double lvl = g_algo1WeekPerspective[rowIdx].levelPrice;
+   for(int barIdx = 0; barIdx < barCount; barIdx++)
+   {
+      if(weekRates[barIdx].time < weekStart) continue;
+      double hi = weekRates[barIdx].high;
+      double lo = weekRates[barIdx].low;
+      double cl = weekRates[barIdx].close;
+      if(hi > lvl)
+         g_algo1WeekPerspective[rowIdx].maxPriceAbove = MathMax(g_algo1WeekPerspective[rowIdx].maxPriceAbove, hi - lvl);
+      if(lo < lvl)
+         g_algo1WeekPerspective[rowIdx].maxPriceBelow = MathMax(g_algo1WeekPerspective[rowIdx].maxPriceBelow, lvl - lo);
+      if(MathAbs(cl - lvl) <= ALGO1_WEEK_PROX_TOUCH_POINTS)
+         g_algo1WeekPerspective[rowIdx].touchedProx_09_C++;
+      if(lo <= lvl && lvl <= hi)
+         g_algo1WeekPerspective[rowIdx].candle_overlap_1m_C++;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Per calendar day in weekRates: ONO = open of first M1 bar (like g_ONopen). Count days per level where |level - ONO| < threshold. |
+//+------------------------------------------------------------------+
+void Algo1WeekPerspectiveEvalONOtooClose(const MqlRates &weekRates[], int barCount, datetime weekStart)
+{
+   datetime dayStarts[7];
+   double   dayONO[7];
+   int dayCount = 0;
+   for(int barIdx = 0; barIdx < barCount; barIdx++)
+   {
+      if(weekRates[barIdx].time < weekStart) continue;
+      datetime barDay = weekRates[barIdx].time - (weekRates[barIdx].time % 86400);
+      bool dayKnown = false;
+      for(int dayIdx = 0; dayIdx < dayCount; dayIdx++)
+      {
+         if(dayStarts[dayIdx] == barDay) { dayKnown = true; break; }
+      }
+      if(!dayKnown && dayCount < 7)
+      {
+         dayStarts[dayCount] = barDay;
+         dayONO[dayCount] = weekRates[barIdx].open;
+         dayCount++;
+      }
+   }
+   for(int rowIdx = 0; rowIdx < g_algo1WeekPerspectiveCount; rowIdx++)
+   {
+      double lvl = g_algo1WeekPerspective[rowIdx].levelPrice;
+      g_algo1WeekPerspective[rowIdx].countONO_too_close_10p = 0;
+      for(int dayIdx = 0; dayIdx < dayCount; dayIdx++)
+      {
+         if(MathAbs(lvl - dayONO[dayIdx]) < ALGO1_WEEK_ON_TOO_CLOSE_POINTS)
+            g_algo1WeekPerspective[rowIdx].countONO_too_close_10p++;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| brokenBool: level strictly between week min ONO and max high of non-ONO M1 bars, or between min low of non-ONO bars and max ONO. |
+//+------------------------------------------------------------------+
+void Algo1WeekPerspectiveEvalBrokenBool(const MqlRates &weekRates[], int barCount, datetime weekStart)
+{
+   double minONO = 1e300, maxONO = -1e300;
+   double maxOtherHigh = -1e300, minOtherLow = 1e300;
+   bool hasONO = false, hasOther = false;
+   datetime prevBarDay = 0;
+   for(int barIdx = 0; barIdx < barCount; barIdx++)
+   {
+      if(weekRates[barIdx].time < weekStart) continue;
+      datetime barDay = weekRates[barIdx].time - (weekRates[barIdx].time % 86400);
+      bool isONOBar = (barDay != prevBarDay);
+      prevBarDay = barDay;
+      if(isONOBar)
+      {
+         hasONO = true;
+         double ono = weekRates[barIdx].open;
+         if(ono < minONO) minONO = ono;
+         if(ono > maxONO) maxONO = ono;
+      }
+      else
+      {
+         hasOther = true;
+         if(weekRates[barIdx].high > maxOtherHigh) maxOtherHigh = weekRates[barIdx].high;
+         if(weekRates[barIdx].low < minOtherLow) minOtherLow = weekRates[barIdx].low;
+      }
+   }
+   for(int rowIdx = 0; rowIdx < g_algo1WeekPerspectiveCount; rowIdx++)
+   {
+      double lvl = g_algo1WeekPerspective[rowIdx].levelPrice;
+      g_algo1WeekPerspective[rowIdx].brokenBool = false;
+      if(!hasONO || !hasOther) continue;
+      if(minONO < lvl && lvl < maxOtherHigh)
+         g_algo1WeekPerspective[rowIdx].brokenBool = true;
+      if(minOtherLow < lvl && lvl < maxONO)
+         g_algo1WeekPerspective[rowIdx].brokenBool = true;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Sort g_algo1WeekPerspective[] by levelPrice descending (highest first). |
+//+------------------------------------------------------------------+
+void Algo1WeekPerspectiveSortByLevelPriceDesc()
+{
+   for(int sortIdx = 0; sortIdx < g_algo1WeekPerspectiveCount - 1; sortIdx++)
+      for(int innerIdx = sortIdx + 1; innerIdx < g_algo1WeekPerspectiveCount; innerIdx++)
+         if(g_algo1WeekPerspective[innerIdx].levelPrice > g_algo1WeekPerspective[sortIdx].levelPrice)
+         {
+            Algo1WeekPerspectiveRow swapTmp = g_algo1WeekPerspective[sortIdx];
+            g_algo1WeekPerspective[sortIdx] = g_algo1WeekPerspective[innerIdx];
+            g_algo1WeekPerspective[innerIdx] = swapTmp;
+         }
+}
+
+//+------------------------------------------------------------------+
+//| Write (date)_algo1_weekPerspective.csv from globals.             |
+//+------------------------------------------------------------------+
+void WriteAlgo1WeekPerspectiveLog(const string dateStr, datetime weekMondayStart)
+{
+   if(!dailyLog_Algo1WeekPerspective) return;
+   Algo1WeekPerspectiveSortByLevelPriceDesc();
+   string logName = dateStr + "_algo1_weekPerspective.csv";
+   int fileHandle = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fileHandle == INVALID_HANDLE)
+   {
+      Print("WriteAlgo1WeekPerspectiveLog: could not open ", logName);
+      return;
+   }
+   FileWrite(fileHandle, "date", "weekMondayStart", "levelPrice", "tag", "categories",
+             "maxPriceAbove", "maxPriceBelow", "touchedProxBool_09_C", "brokenBool", "countONO_too_close_10p", "1mCandle_overlapC");
+   string weekStartStr = TimeToString(weekMondayStart, TIME_DATE);
+   for(int rowIdx = 0; rowIdx < g_algo1WeekPerspectiveCount; rowIdx++)
+   {
+      FileWrite(fileHandle, dateStr, weekStartStr,
+                DoubleToString(g_algo1WeekPerspective[rowIdx].levelPrice, _Digits),
+                g_algo1WeekPerspective[rowIdx].tag,
+                g_algo1WeekPerspective[rowIdx].categories,
+                DoubleToString(g_algo1WeekPerspective[rowIdx].maxPriceAbove, _Digits),
+                DoubleToString(g_algo1WeekPerspective[rowIdx].maxPriceBelow, _Digits),
+                IntegerToString(g_algo1WeekPerspective[rowIdx].touchedProx_09_C),
+                (g_algo1WeekPerspective[rowIdx].brokenBool ? "true" : "false"),
+                IntegerToString(g_algo1WeekPerspective[rowIdx].countONO_too_close_10p),
+                IntegerToString(g_algo1WeekPerspective[rowIdx].candle_overlap_1m_C));
+   }
+   FileClose(fileHandle);
+}
+
+//+------------------------------------------------------------------+
+//| Rebuild algo1_weekPerspective memory + log (OnInit and each new day). Monday: log only, no week M1 scan. |
+//+------------------------------------------------------------------+
+void RefreshAlgo1WeekPerspective(datetime refTime)
+{
+   if(refTime == 0)
+      refTime = TimeCurrent();
+   datetime dayStart = refTime - (refTime % 86400);
+   string dateStr = TimeToString(dayStart, TIME_DATE);
+   if(dateStr == g_algo1WeekPerspectiveEvaluatedForDate)
+      return;
+
+   CollectActiveWeeklyLevelsForAlgo1(dateStr);
+   datetime weekMondayStart = GetWeekMondayStart(refTime);
+   bool mondaySkipped = IsMondayDatetime(refTime);
+
+   if(!mondaySkipped && g_algo1WeekPerspectiveCount > 0)
+   {
+      MqlRates weekRates[];
+      int copied = CopyRates(_Symbol, PERIOD_M1, weekMondayStart, refTime, weekRates);
+      if(copied > 0)
+      {
+         for(int rowIdx = 0; rowIdx < g_algo1WeekPerspectiveCount; rowIdx++)
+            Algo1WeekPerspectiveAccumulateLevel(rowIdx, weekRates, copied, weekMondayStart);
+         Algo1WeekPerspectiveEvalONOtooClose(weekRates, copied, weekMondayStart);
+         Algo1WeekPerspectiveEvalBrokenBool(weekRates, copied, weekMondayStart);
+      }
+      else
+         Print("RefreshAlgo1WeekPerspective: CopyRates returned ", copied, " for week starting ", TimeToString(weekMondayStart, TIME_DATE));
+   }
+
+   WriteAlgo1WeekPerspectiveLog(dateStr, weekMondayStart);
+   g_algo1WeekPerspectiveEvaluatedForDate = dateStr;
 }
 
 //+------------------------------------------------------------------+
@@ -25636,6 +25884,7 @@ int OnInit()
    g_levelsLoadedForDate = todayStrInit;
    Print("Levels loaded for ", todayStrInit, ": ", g_levelsTotalCount, " rows from ", InpLevelsFile);
    BuildLevelsFromCSV();
+   RefreshAlgo1WeekPerspective(TimeCurrent());
 
    return(INIT_SUCCEEDED);
 }
