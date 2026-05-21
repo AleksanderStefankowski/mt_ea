@@ -398,13 +398,13 @@ int Falgo5GetRecentCeilingCountForClosestWeeklyLevel(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-//| Gates CSV column names for recent bounce/ceiling windows (log only; not placement gates yet). |
+//| Gates CSV column names for recent bounce/ceiling windows (long2 uses bounce recent window). |
 //+------------------------------------------------------------------+
 string Falgo5GatesColRecentBounceCount()
 {
-   if(g_falgo5Profile.recentBounceCountToday_Minutes <= 0)
+   if(g_falgo5Profile.long2_recentBounceCountToday_Minutes <= 0)
       return "recentBounceCount0";
-   return StringFormat("recentBounceCount%d", g_falgo5Profile.recentBounceCountToday_Minutes);
+   return StringFormat("recentBounceCount%d", g_falgo5Profile.long2_recentBounceCountToday_Minutes);
 }
 
 //+------------------------------------------------------------------+
@@ -529,13 +529,46 @@ bool Falgo5RulesetPassesCommon(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5RulesetPassesForLong(const int barIdx)
+//| Long direction rules (no common gates): long1 OR long2 when each enabled. |
+//+------------------------------------------------------------------+
+bool Falgo5RulesetPassesForLong1(const int barIdx)
+{
+   if(!g_falgo5Profile.long1_enabled)
+      return false;
+   if(Falgo5GetBounceCountForClosestWeeklyLevel(barIdx) > g_falgo5Profile.long1_bounceMaxAllowed_today)
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5RulesetPassesForLong2(const int barIdx)
+{
+   if(!g_falgo5Profile.long2_enabled)
+      return false;
+   const int bounce = Falgo5GetBounceCountForClosestWeeklyLevel(barIdx);
+   if(bounce < g_falgo5Profile.long2_min_bounceCount)
+      return false;
+   if(Falgo5GetRecentBounceCountForClosestWeeklyLevel(barIdx) >= g_falgo5Profile.long2_recentBounceCount_max_allowed)
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5LongDirectionRulesetPasses(const int barIdx)
+{
+   if(Falgo5RulesetPassesForLong1(barIdx))
+      return true;
+   if(Falgo5RulesetPassesForLong2(barIdx))
+      return true;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5RulesetPassesForLongPlacement(const int barIdx)
 {
    if(!Falgo5RulesetPassesCommon(barIdx))
       return false;
-   if(Falgo5GetBounceCountForClosestWeeklyLevel(barIdx) > g_falgo5Profile.bounceMaxAllowed_today)
-      return false;
-   return true;
+   return Falgo5LongDirectionRulesetPasses(barIdx);
 }
 
 //+------------------------------------------------------------------+
@@ -603,7 +636,7 @@ void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
       outCloseVsLevel = "above";
       outDirection = "long";
       outProxOK = (prox <= g_falgo5Profile.priceProximityLongs);
-      outBounceOK = (bounce <= g_falgo5Profile.bounceMaxAllowed_today);
+      outBounceOK = Falgo5LongDirectionRulesetPasses(barIdx);
       outCeilingOK = true;
       outRulesetDir = outRulesetCommon && outBounceOK;
    }
@@ -839,7 +872,15 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    else if(!weeklyOK) firstFail = "tradesWeeklyLevelsOff";
    else if(!anchorOK) firstFail = "anchorNotEligible";
    else if(direction == "long" && !bounceOK)
-      firstFail = StringFormat("bounceCount>%d", g_falgo5Profile.bounceMaxAllowed_today);
+   {
+      if(g_falgo5Profile.long2_enabled && !Falgo5RulesetPassesForLong2(barIdx))
+         firstFail = StringFormat("long2(bounce<%d|recentBounce>=%d)",
+            g_falgo5Profile.long2_min_bounceCount, g_falgo5Profile.long2_recentBounceCount_max_allowed);
+      else if(g_falgo5Profile.long1_enabled && !Falgo5RulesetPassesForLong1(barIdx))
+         firstFail = StringFormat("long1(bounceCount>%d)", g_falgo5Profile.long1_bounceMaxAllowed_today);
+      else
+         firstFail = "longRulesetDisabled";
+   }
    else if(direction == "short" && !ceilingOK)
       firstFail = StringFormat("ceilingCount>%d", g_falgo5Profile.ceilingMaxAllowed_today);
    else if(!magicFree) firstFail = "magicOccupied";
@@ -1047,7 +1088,7 @@ bool Falgo5TryPlaceOneOrderThisTick(const int barIdx)
       proximityLimit = g_falgo5Profile.priceProximityLongs;
       if(prox > proximityLimit)
          return false;
-      if(!Falgo5RulesetPassesForLong(barIdx))
+      if(!Falgo5RulesetPassesForLongPlacement(barIdx))
          return false;
    }
    else if(c < anchorLevel)

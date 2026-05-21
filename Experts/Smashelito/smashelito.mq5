@@ -502,9 +502,13 @@ struct Falgo5Profile
    string tradesDays;              // e.g. "12345" = Mon..Fri
    double priceProximityLongs;
    double priceProximityShorts;
-   int    bounceMaxAllowed_today;   // long: allow when closest-weekly bounce count <= this
+   bool   long1_enabled;
+   int    long1_bounceMaxAllowed_today;     // long1: bounceCount_today on closest weekly <= this
+   bool   long2_enabled;
+   int    long2_min_bounceCount;            // long2: bounceCount_today on closest weekly >= this
+   int    long2_recentBounceCountToday_Minutes;       // long2 recent window + gates CSV recentBounceCount{N}
+   int    long2_recentBounceCount_max_allowed;        // long2: recent bounce count must be < this
    int    ceilingMaxAllowed_today;  // short: allow when closest-weekly ceiling count <= this
-   int    recentBounceCountToday_Minutes;   // log-only lookback (gates CSV); placement still uses bounceCount_today
    int    recentCeilingCountToday_Minutes;  // log-only lookback (gates CSV); placement still uses ceilingCount_today
    double levelOffset_longs;
    double levelOffset_shorts;
@@ -2085,7 +2089,7 @@ void UpdatePullingHistoryAlgo5PerBarStats()
          g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_CeilingCount_today = states[closestTrackIdx].ceilingCount_today;
          g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_BounceCount_recent =
             Algo5CountEventTimesInLookbackMinutes(states[closestTrackIdx].bounceEventTimes, states[closestTrackIdx].bounceEventCount,
-               barTime, g_falgo5Profile.recentBounceCountToday_Minutes);
+               barTime, g_falgo5Profile.long2_recentBounceCountToday_Minutes);
          g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_CeilingCount_recent =
             Algo5CountEventTimesInLookbackMinutes(states[closestTrackIdx].ceilingEventTimes, states[closestTrackIdx].ceilingEventCount,
                barTime, g_falgo5Profile.recentCeilingCountToday_Minutes);
@@ -3188,13 +3192,17 @@ g_trade[0].babysitStart_minute      = 0;
 //| falgo5 profile defaults (separate from legacy g_trade[]).          |
 //+------------------------------------------------------------------+
 void SyncFalgo5ProfileFromInputs()
-{
+{  // algo5bookmark1
    //=== falgo5 TUNE BLOCK (edit values below) ===
    g_falgo5Profile.levelOffset_longs                              = -0.3;
    g_falgo5Profile.levelOffset_shorts                             =  1.5;
-   g_falgo5Profile.bounceMaxAllowed_today                         =  3;
+   g_falgo5Profile.long1_enabled                                   = true;
+   g_falgo5Profile.long1_bounceMaxAllowed_today                   =  3;
+   g_falgo5Profile.long2_enabled                                   = true;
+   g_falgo5Profile.long2_min_bounceCount                          =  2;
+   g_falgo5Profile.long2_recentBounceCountToday_Minutes             = 600;
+   g_falgo5Profile.long2_recentBounceCount_max_allowed              =  1;
    g_falgo5Profile.ceilingMaxAllowed_today                        =  2;
-   g_falgo5Profile.recentBounceCountToday_Minutes                 = 200;  // log only (gates CSV); not used in placement yet
    g_falgo5Profile.recentCeilingCountToday_Minutes                = 300;  // log only (gates CSV); not used in placement yet
    g_falgo5Profile.stop_trading_today_if_losing_trades_count      =  2;
    g_falgo5Profile.stop_trading_today_if_winning_trades_count     =  4;
@@ -27624,7 +27632,7 @@ void OnTimer()
                      "ClosestWeeklyLevel_anchorAbove_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorAbove_time",
                      "ClosestWeeklyLevel_anchorBelow_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorBelow_time",
                      "ClosestWeeklyLevel_BounceCount_today",
-                     StringFormat("recentBounceCount%d", g_falgo5Profile.recentBounceCountToday_Minutes),
+                     StringFormat("recentBounceCount%d", g_falgo5Profile.long2_recentBounceCountToday_Minutes),
                      "ClosestWeeklyLevel_CeilingCount_today",
                      StringFormat("recentCeilingCount%d", g_falgo5Profile.recentCeilingCountToday_Minutes),
                      "ClosestWeeklyLevel_contactCount_today",
