@@ -504,8 +504,8 @@ struct Falgo5Profile
    double priceProximityShorts;
    int    bounceMaxAllowed_today;   // long: allow when closest-weekly bounce count <= this
    int    ceilingMaxAllowed_today;  // short: allow when closest-weekly ceiling count <= this
-   int    recentBounceCountToday_Minutes;   // lookback for recent bounce count (0 = use full day only)
-   int    recentCeilingCountToday_Minutes;  // lookback for recent ceiling count (0 = use full day only)
+   int    recentBounceCountToday_Minutes;   // log-only lookback (gates CSV); placement still uses bounceCount_today
+   int    recentCeilingCountToday_Minutes;  // log-only lookback (gates CSV); placement still uses ceilingCount_today
    double levelOffset_longs;
    double levelOffset_shorts;
    bool   secretTPSL;
@@ -3194,8 +3194,8 @@ void SyncFalgo5ProfileFromInputs()
    g_falgo5Profile.levelOffset_shorts                             =  1.5;
    g_falgo5Profile.bounceMaxAllowed_today                         =  3;
    g_falgo5Profile.ceilingMaxAllowed_today                        =  2;
-   g_falgo5Profile.recentBounceCountToday_Minutes                 = 200;
-   g_falgo5Profile.recentCeilingCountToday_Minutes                = 300;
+   g_falgo5Profile.recentBounceCountToday_Minutes                 = 200;  // log only (gates CSV); not used in placement yet
+   g_falgo5Profile.recentCeilingCountToday_Minutes                = 300;  // log only (gates CSV); not used in placement yet
    g_falgo5Profile.stop_trading_today_if_losing_trades_count      =  2;
    g_falgo5Profile.stop_trading_today_if_winning_trades_count     =  4;
    g_falgo5Profile.babysit_enabled                                = true;

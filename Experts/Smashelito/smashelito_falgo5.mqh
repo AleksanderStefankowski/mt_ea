@@ -398,23 +398,7 @@ int Falgo5GetRecentCeilingCountForClosestWeeklyLevel(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-//| Placement gate: recent window when recent*Bounce*Minutes > 0, else full day. |
-//+------------------------------------------------------------------+
-int Falgo5GetBounceCountForGate(const int barIdx)
-{
-   if(g_falgo5Profile.recentBounceCountToday_Minutes > 0)
-      return Falgo5GetRecentBounceCountForClosestWeeklyLevel(barIdx);
-   return Falgo5GetBounceCountForClosestWeeklyLevel(barIdx);
-}
-
-//+------------------------------------------------------------------+
-int Falgo5GetCeilingCountForGate(const int barIdx)
-{
-   if(g_falgo5Profile.recentCeilingCountToday_Minutes > 0)
-      return Falgo5GetRecentCeilingCountForClosestWeeklyLevel(barIdx);
-   return Falgo5GetCeilingCountForClosestWeeklyLevel(barIdx);
-}
-
+//| Gates CSV column names for recent bounce/ceiling windows (log only; not placement gates yet). |
 //+------------------------------------------------------------------+
 string Falgo5GatesColRecentBounceCount()
 {
@@ -549,7 +533,7 @@ bool Falgo5RulesetPassesForLong(const int barIdx)
 {
    if(!Falgo5RulesetPassesCommon(barIdx))
       return false;
-   if(Falgo5GetBounceCountForGate(barIdx) > g_falgo5Profile.bounceMaxAllowed_today)
+   if(Falgo5GetBounceCountForClosestWeeklyLevel(barIdx) > g_falgo5Profile.bounceMaxAllowed_today)
       return false;
    return true;
 }
@@ -559,7 +543,7 @@ bool Falgo5RulesetPassesForShort(const int barIdx)
 {
    if(!Falgo5RulesetPassesCommon(barIdx))
       return false;
-   if(Falgo5GetCeilingCountForGate(barIdx) > g_falgo5Profile.ceilingMaxAllowed_today)
+   if(Falgo5GetCeilingCountForClosestWeeklyLevel(barIdx) > g_falgo5Profile.ceilingMaxAllowed_today)
       return false;
    return true;
 }
@@ -599,8 +583,8 @@ void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
    const double anchor = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevelToCClose;
    const double prox = g_pullingHistoryAlgo5AtBar[barIdx].closestPriceProximity;
    const double c = g_m1Rates[barIdx].close;
-   const int bounce = Falgo5GetBounceCountForGate(barIdx);
-   const int ceiling = Falgo5GetCeilingCountForGate(barIdx);
+   const int bounce = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_BounceCount_today;
+   const int ceiling = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_CeilingCount_today;
 
    if(g_falgo5Profile.stop_trading_today_if_losing_trades_count > 0)
       outUnderLossStop = (g_falgo5DayLosses < g_falgo5Profile.stop_trading_today_if_losing_trades_count);
@@ -855,19 +839,9 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    else if(!weeklyOK) firstFail = "tradesWeeklyLevelsOff";
    else if(!anchorOK) firstFail = "anchorNotEligible";
    else if(direction == "long" && !bounceOK)
-   {
-      if(g_falgo5Profile.recentBounceCountToday_Minutes > 0)
-         firstFail = StringFormat("%s>%d", Falgo5GatesColRecentBounceCount(), g_falgo5Profile.bounceMaxAllowed_today);
-      else
-         firstFail = StringFormat("bounceCount>%d", g_falgo5Profile.bounceMaxAllowed_today);
-   }
+      firstFail = StringFormat("bounceCount>%d", g_falgo5Profile.bounceMaxAllowed_today);
    else if(direction == "short" && !ceilingOK)
-   {
-      if(g_falgo5Profile.recentCeilingCountToday_Minutes > 0)
-         firstFail = StringFormat("%s>%d", Falgo5GatesColRecentCeilingCount(), g_falgo5Profile.ceilingMaxAllowed_today);
-      else
-         firstFail = StringFormat("ceilingCount>%d", g_falgo5Profile.ceilingMaxAllowed_today);
-   }
+      firstFail = StringFormat("ceilingCount>%d", g_falgo5Profile.ceilingMaxAllowed_today);
    else if(!magicFree) firstFail = "magicOccupied";
    else if(!proxOK) firstFail = "proximity";
    else if(rulesDir && magicFree) firstFail = "";
