@@ -51,6 +51,71 @@ datetime g_falgo5GatesLastLoggedBarTime = 0;
 datetime g_falgo5GatesLogDayStart = 0;
 bool g_falgo5OrderPlacedLastPipeline = false;
 
+#define FALGO5_TELEMETRY_PROFIT_RING_MAX   130
+#define FALGO5_CLOSED_TELEMETRY_MAX        64
+
+struct Falgo5OpenTradeTelemetry
+{
+   bool     active;
+   ulong    positionTicket;
+   long     magic;
+   datetime tradeStartTime;
+   int      tradeAgeSeconds;
+   int      secondsGreen;
+   int      secondsRed;
+   int      consecutiveGreen;
+   int      consecutiveRed;
+   double   openProfitPts;
+   double   peakProfitPts;
+   double   troughProfitPts;
+   int      timeToReachSavingTpSeconds;
+   double   avgProfitVelocity;
+   int      avgVelocitySampleCount;
+   double   profitRing[FALGO5_TELEMETRY_PROFIT_RING_MAX];
+   datetime timeRing[FALGO5_TELEMETRY_PROFIT_RING_MAX];
+   int      ringCount;
+   int      ringWriteIdx;
+   int      lastBarIdx;
+};
+
+struct Falgo5TelemetryBarSnap
+{
+   bool     valid;
+   int      tradeAgeSeconds;
+   double   openProfitPts;
+   int      secondsGreen;
+   int      secondsRed;
+   double   greenRatio;
+   int      consecutiveGreen;
+   int      consecutiveRed;
+   double   profitVelocity;
+   double   peakProfitPts;
+   double   troughProfitPts;
+   double   profitFromPeak;
+   bool     tradeClosedOnThisBar;
+};
+
+struct Falgo5ClosedTradeTelemetrySummary
+{
+   long     magic;
+   datetime startTime;
+   int      secondsGreen;
+   int      secondsRed;
+   double   greenRatioAtClose;
+   double   avgProfitVelocity;
+   double   peakProfitPts;
+   double   troughProfitPts;
+   int      timeToReachSavingTpSeconds;
+};
+
+Falgo5OpenTradeTelemetry g_falgo5OpenTelemetry;
+Falgo5TelemetryBarSnap g_falgo5TelemetryAtBar[MAX_BARS_IN_DAY];
+Falgo5ClosedTradeTelemetrySummary g_falgo5ClosedTelemetry[FALGO5_CLOSED_TELEMETRY_MAX];
+int g_falgo5ClosedTelemetryCount = 0;
+datetime g_falgo5TelemetryLastUpdateTime = 0;
+datetime g_falgo5TelemetryDayStart = 0;
+int g_falgo5LastTradeClosedBarIdx = -1;
+
 bool PlacePendingFromFalgo5Magic(long magic, double anchorLevel, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot);
 void WriteTradeLogPendingOrderFalgo5(double levelPrice, double offsetPoints, double slPoints, double tpPoints, long magic, int expirationMin);
 
@@ -370,6 +435,15 @@ bool Falgo5HasPendingOrderOnSymbol()
 }
 
 //+------------------------------------------------------------------+
+double Falgo5OpenPositionProfitPoints()
+{
+   const double openPrice = ExtPositionInfo.PriceOpen();
+   if(ExtPositionInfo.PositionType() == POSITION_TYPE_BUY)
+      return SymbolInfoDouble(_Symbol, SYMBOL_BID) - openPrice;
+   return openPrice - SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+}
+
+//+------------------------------------------------------------------+
 int Falgo5GetBounceCountForClosestWeeklyLevel(const int barIdx)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return 0;
@@ -395,6 +469,471 @@ int Falgo5GetRecentCeilingCountForClosestWeeklyLevel(const int barIdx)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return 0;
    return g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_CeilingCount_recent;
+}
+
+//+------------------------------------------------------------------+
+//| Open falgo5 trade telemetry (1s OnTimer): green/red time, velocity, peak profit. |
+//+------------------------------------------------------------------+
+void Falgo5TelemetryClearOpenState()
+{
+   g_falgo5OpenTelemetry.active = false;
+   g_falgo5OpenTelemetry.positionTicket = 0;
+   g_falgo5OpenTelemetry.magic = 0;
+   g_falgo5OpenTelemetry.tradeStartTime = 0;
+   g_falgo5OpenTelemetry.tradeAgeSeconds = 0;
+   g_falgo5OpenTelemetry.secondsGreen = 0;
+   g_falgo5OpenTelemetry.secondsRed = 0;
+   g_falgo5OpenTelemetry.consecutiveGreen = 0;
+   g_falgo5OpenTelemetry.consecutiveRed = 0;
+   g_falgo5OpenTelemetry.openProfitPts = 0.0;
+   g_falgo5OpenTelemetry.peakProfitPts = 0.0;
+   g_falgo5OpenTelemetry.troughProfitPts = 0.0;
+   g_falgo5OpenTelemetry.timeToReachSavingTpSeconds = -1;
+   g_falgo5OpenTelemetry.avgProfitVelocity = 0.0;
+   g_falgo5OpenTelemetry.avgVelocitySampleCount = 0;
+   g_falgo5OpenTelemetry.ringCount = 0;
+   g_falgo5OpenTelemetry.ringWriteIdx = 0;
+   g_falgo5OpenTelemetry.lastBarIdx = -1;
+   ArrayInitialize(g_falgo5OpenTelemetry.profitRing, 0.0);
+   ArrayInitialize(g_falgo5OpenTelemetry.timeRing, 0);
+}
+
+//+------------------------------------------------------------------+
+void Falgo5ClearTelemetryBarSnaps()
+{
+   for(int barIdx = 0; barIdx < MAX_BARS_IN_DAY; barIdx++)
+   {
+      g_falgo5TelemetryAtBar[barIdx].valid = false;
+      g_falgo5TelemetryAtBar[barIdx].tradeClosedOnThisBar = false;
+   }
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5BarIsDedicatedToTradeClose(const int barIdx)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay)
+      return false;
+   return (g_falgo5TelemetryAtBar[barIdx].valid && g_falgo5TelemetryAtBar[barIdx].tradeClosedOnThisBar);
+}
+
+//+------------------------------------------------------------------+
+void Falgo5CancelAllPendingFalgo5OrdersOnSymbol()
+{
+   for(int orderIdx = OrdersTotal() - 1; orderIdx >= 0; orderIdx--)
+   {
+      if(!ExtOrderInfo.SelectByIndex(orderIdx))
+         continue;
+      if(ExtOrderInfo.Symbol() != _Symbol)
+         continue;
+      if(!IsFalgo5CompositeMagicSlot1(ExtOrderInfo.Magic()))
+         continue;
+      ExtTrade.SetExpertMagicNumber((ulong)ExtOrderInfo.Magic());
+      ExtTrade.OrderDelete(ExtOrderInfo.Ticket());
+      ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   }
+}
+
+//+------------------------------------------------------------------+
+void Falgo5OnFalgo5TradeClosedThisBar()
+{
+   Falgo5TelemetrySnapOpenStateToLastBar(true);
+   g_falgo5LastTradeClosedBarIdx = g_falgo5OpenTelemetry.lastBarIdx;
+   if(g_falgo5LastTradeClosedBarIdx < 0)
+      g_falgo5LastTradeClosedBarIdx = Falgo5BarIdxForDayTime(g_lastTimer1Time);
+   Falgo5CancelAllPendingFalgo5OrdersOnSymbol();
+}
+
+//+------------------------------------------------------------------+
+int Falgo5BarIdxForDayTime(const datetime t)
+{
+   if(g_barsInDay <= 0)
+      return -1;
+   const datetime barOpen = t - (t % 60);
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      if(g_m1Rates[barIdx].time == barOpen)
+         return barIdx;
+   }
+   return -1;
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TelemetrySnapOpenStateToBar(const int barIdx, const bool tradeClosedOnThisBar = false)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay || !g_falgo5OpenTelemetry.active)
+      return;
+   Falgo5TelemetryBarSnap snap;
+   snap.valid = true;
+   snap.tradeAgeSeconds = g_falgo5OpenTelemetry.tradeAgeSeconds;
+   snap.openProfitPts = g_falgo5OpenTelemetry.openProfitPts;
+   snap.secondsGreen = g_falgo5OpenTelemetry.secondsGreen;
+   snap.secondsRed = g_falgo5OpenTelemetry.secondsRed;
+   snap.greenRatio = Falgo5TelemetryGreenRatioFromOpen();
+   snap.consecutiveGreen = g_falgo5OpenTelemetry.consecutiveGreen;
+   snap.consecutiveRed = g_falgo5OpenTelemetry.consecutiveRed;
+   snap.profitVelocity = Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_velocity_window_seconds);
+   snap.peakProfitPts = g_falgo5OpenTelemetry.peakProfitPts;
+   snap.troughProfitPts = g_falgo5OpenTelemetry.troughProfitPts;
+   snap.profitFromPeak = g_falgo5OpenTelemetry.openProfitPts - g_falgo5OpenTelemetry.peakProfitPts;
+   snap.tradeClosedOnThisBar = tradeClosedOnThisBar;
+   g_falgo5TelemetryAtBar[barIdx] = snap;
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TelemetrySnapOpenStateToLastBar(const bool tradeClosedOnThisBar = false)
+{
+   if(g_falgo5OpenTelemetry.lastBarIdx >= 0)
+      Falgo5TelemetrySnapOpenStateToBar(g_falgo5OpenTelemetry.lastBarIdx, tradeClosedOnThisBar);
+   else
+   {
+      const int barIdx = Falgo5BarIdxForDayTime(g_lastTimer1Time);
+      if(barIdx >= 0)
+         Falgo5TelemetrySnapOpenStateToBar(barIdx, tradeClosedOnThisBar);
+   }
+}
+
+//+------------------------------------------------------------------+
+void Falgo5GatesTelemetryStringsFromBarSnap(const Falgo5TelemetryBarSnap &snap,
+   string &outTradeAge, string &outOpenProfit, string &outSecGreen, string &outSecRed, string &outGreenRatio,
+   string &outConsecGreen, string &outConsecRed, string &outProfitVelocity, string &outPeakProfit, string &outProfitFromPeak)
+{
+   outTradeAge = IntegerToString(snap.tradeAgeSeconds);
+   outOpenProfit = DoubleToString(snap.openProfitPts, 1);
+   outSecGreen = IntegerToString(snap.secondsGreen);
+   outSecRed = IntegerToString(snap.secondsRed);
+   outGreenRatio = DoubleToString(snap.greenRatio, 4);
+   outConsecGreen = IntegerToString(snap.consecutiveGreen);
+   outConsecRed = IntegerToString(snap.consecutiveRed);
+   outProfitVelocity = DoubleToString(snap.profitVelocity, 4);
+   outPeakProfit = DoubleToString(snap.peakProfitPts, 1);
+   outProfitFromPeak = DoubleToString(snap.profitFromPeak, 1);
+}
+
+//+------------------------------------------------------------------+
+void Falgo5ResetTelemetryIfNewDay(const datetime dayStart)
+{
+   if(dayStart == 0)
+      return;
+   if(g_falgo5TelemetryDayStart == dayStart)
+      return;
+   g_falgo5TelemetryDayStart = dayStart;
+   g_falgo5ClosedTelemetryCount = 0;
+   g_falgo5TelemetryLastUpdateTime = 0;
+   g_falgo5LastTradeClosedBarIdx = -1;
+   Falgo5ClearTelemetryBarSnaps();
+   Falgo5TelemetryClearOpenState();
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5SelectFirstOpenFalgo5PositionOnSymbol()
+{
+   for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(positionIdx))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      if(!IsFalgo5CompositeMagicSlot1(ExtPositionInfo.Magic()))
+         continue;
+      return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+double Falgo5TelemetryGreenRatioFromOpen()
+{
+   if(!g_falgo5OpenTelemetry.active || g_falgo5OpenTelemetry.tradeAgeSeconds <= 0)
+      return 0.0;
+   return (double)g_falgo5OpenTelemetry.secondsGreen / (double)g_falgo5OpenTelemetry.tradeAgeSeconds;
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TelemetryPushProfitSample(const datetime sampleTime, const double profitPts)
+{
+   const int cap = FALGO5_TELEMETRY_PROFIT_RING_MAX;
+   g_falgo5OpenTelemetry.profitRing[g_falgo5OpenTelemetry.ringWriteIdx] = profitPts;
+   g_falgo5OpenTelemetry.timeRing[g_falgo5OpenTelemetry.ringWriteIdx] = sampleTime;
+   g_falgo5OpenTelemetry.ringWriteIdx = (g_falgo5OpenTelemetry.ringWriteIdx + 1) % cap;
+   if(g_falgo5OpenTelemetry.ringCount < cap)
+      g_falgo5OpenTelemetry.ringCount++;
+}
+
+//+------------------------------------------------------------------+
+double Falgo5TelemetryProfitVelocityWindowSeconds(const int windowSec)
+{
+   if(!g_falgo5OpenTelemetry.active || windowSec <= 0 || g_falgo5OpenTelemetry.tradeAgeSeconds <= 0)
+      return 0.0;
+   const int cap = FALGO5_TELEMETRY_PROFIT_RING_MAX;
+   const datetime targetTime = g_lastTimer1Time - windowSec;
+   double oldProfit = g_falgo5OpenTelemetry.openProfitPts;
+   bool found = false;
+   for(int age = 0; age < g_falgo5OpenTelemetry.ringCount; age++)
+   {
+      const int idx = (g_falgo5OpenTelemetry.ringWriteIdx - 1 - age + cap) % cap;
+      if(g_falgo5OpenTelemetry.timeRing[idx] <= targetTime)
+      {
+         oldProfit = g_falgo5OpenTelemetry.profitRing[idx];
+         found = true;
+         break;
+      }
+   }
+   if(!found && g_falgo5OpenTelemetry.ringCount > 0)
+   {
+      const int oldestIdx = (g_falgo5OpenTelemetry.ringWriteIdx - g_falgo5OpenTelemetry.ringCount + cap) % cap;
+      oldProfit = g_falgo5OpenTelemetry.profitRing[oldestIdx];
+   }
+   int deltaSec = windowSec;
+   if(g_falgo5OpenTelemetry.tradeAgeSeconds < deltaSec)
+      deltaSec = g_falgo5OpenTelemetry.tradeAgeSeconds;
+   if(deltaSec <= 0)
+      return 0.0;
+   return (g_falgo5OpenTelemetry.openProfitPts - oldProfit) / (double)deltaSec;
+}
+
+//+------------------------------------------------------------------+
+string Falgo5GatesColProfitVelocity()
+{
+   if(g_falgo5Profile.telemetry_velocity_window_seconds <= 0)
+      return "profitVelocity_0";
+   return StringFormat("profitVelocity_%d", g_falgo5Profile.telemetry_velocity_window_seconds);
+}
+
+//+------------------------------------------------------------------+
+string Falgo5GatesColAvgProfitVelocity()
+{
+   if(g_falgo5Profile.telemetry_avg_velocity_window_seconds <= 0)
+      return "avg_profitVelocity_0";
+   return StringFormat("avg_profitVelocity_%d", g_falgo5Profile.telemetry_avg_velocity_window_seconds);
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5IsTimeInPerSecondDebugWindow(const datetime t)
+{
+   if(!g_falgo5Profile.persecond_debug_enabled)
+      return false;
+   MqlDateTime dt;
+   TimeToStruct(t, dt);
+   const int minuteOfDay = dt.hour * 60 + dt.min;
+   const int startMin = g_falgo5Profile.persecond_debug_start_hour * 60 + g_falgo5Profile.persecond_debug_start_minute;
+   const int endMin = g_falgo5Profile.persecond_debug_end_hour * 60 + g_falgo5Profile.persecond_debug_end_minute;
+   if(startMin <= endMin)
+      return (minuteOfDay >= startMin && minuteOfDay <= endMin);
+   return (minuteOfDay >= startMin || minuteOfDay <= endMin);
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TelemetryInitFromSelectedPosition()
+{
+   Falgo5TelemetryClearOpenState();
+   g_falgo5OpenTelemetry.active = true;
+   g_falgo5OpenTelemetry.positionTicket = ExtPositionInfo.Ticket();
+   g_falgo5OpenTelemetry.magic = ExtPositionInfo.Magic();
+   g_falgo5OpenTelemetry.tradeStartTime = ExtPositionInfo.Time();
+   const double profitPts = Falgo5OpenPositionProfitPoints();
+   g_falgo5OpenTelemetry.openProfitPts = profitPts;
+   g_falgo5OpenTelemetry.peakProfitPts = profitPts;
+   g_falgo5OpenTelemetry.troughProfitPts = profitPts;
+   g_falgo5OpenTelemetry.lastBarIdx = Falgo5BarIdxForDayTime(g_lastTimer1Time);
+   Falgo5TelemetryPushProfitSample(g_lastTimer1Time, profitPts);
+   if(g_falgo5OpenTelemetry.lastBarIdx >= 0)
+      Falgo5TelemetrySnapOpenStateToBar(g_falgo5OpenTelemetry.lastBarIdx);
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TelemetryFillSummaryFromOpen(Falgo5ClosedTradeTelemetrySummary &outSummary)
+{
+   outSummary.magic = g_falgo5OpenTelemetry.magic;
+   outSummary.startTime = g_falgo5OpenTelemetry.tradeStartTime;
+   outSummary.secondsGreen = g_falgo5OpenTelemetry.secondsGreen;
+   outSummary.secondsRed = g_falgo5OpenTelemetry.secondsRed;
+   outSummary.greenRatioAtClose = Falgo5TelemetryGreenRatioFromOpen();
+   outSummary.avgProfitVelocity = g_falgo5OpenTelemetry.avgProfitVelocity;
+   outSummary.peakProfitPts = g_falgo5OpenTelemetry.peakProfitPts;
+   outSummary.troughProfitPts = g_falgo5OpenTelemetry.troughProfitPts;
+   outSummary.timeToReachSavingTpSeconds = g_falgo5OpenTelemetry.timeToReachSavingTpSeconds;
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TelemetryPushClosedSummaryFromOpen()
+{
+   if(!g_falgo5OpenTelemetry.active)
+      return;
+   if(g_falgo5ClosedTelemetryCount >= FALGO5_CLOSED_TELEMETRY_MAX)
+      return;
+   Falgo5ClosedTradeTelemetrySummary summary;
+   Falgo5TelemetryFillSummaryFromOpen(summary);
+   for(int i = 0; i < g_falgo5ClosedTelemetryCount; i++)
+   {
+      if(g_falgo5ClosedTelemetry[i].magic == summary.magic && g_falgo5ClosedTelemetry[i].startTime == summary.startTime)
+         return;
+   }
+   g_falgo5ClosedTelemetry[g_falgo5ClosedTelemetryCount] = summary;
+   g_falgo5ClosedTelemetryCount++;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5FindClosedTelemetrySummary(const long magic, const datetime startTime, Falgo5ClosedTradeTelemetrySummary &outSummary)
+{
+   for(int i = 0; i < g_falgo5ClosedTelemetryCount; i++)
+   {
+      if(g_falgo5ClosedTelemetry[i].magic == magic && g_falgo5ClosedTelemetry[i].startTime == startTime)
+      {
+         outSummary = g_falgo5ClosedTelemetry[i];
+         return true;
+      }
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5GetTelemetrySummaryForTrade(const long magic, const datetime startTime, Falgo5ClosedTradeTelemetrySummary &outSummary)
+{
+   if(Falgo5FindClosedTelemetrySummary(magic, startTime, outSummary))
+      return true;
+   if(g_falgo5OpenTelemetry.active &&
+      g_falgo5OpenTelemetry.magic == magic &&
+      g_falgo5OpenTelemetry.tradeStartTime == startTime)
+   {
+      Falgo5TelemetryFillSummaryFromOpen(outSummary);
+      return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TryLogTelemetryPerSecond()
+{
+   if(!dailySpamLog_Algo5TradeTelemetryPerSecond)
+      return;
+   if(!g_falgo5OpenTelemetry.active)
+      return;
+   if(!Falgo5IsTimeInPerSecondDebugWindow(g_lastTimer1Time))
+      return;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   const string dateStr = TimeToString(dayStart, TIME_DATE);
+   const string fname = dateStr + "_algo5_trade_telemetry_per_second.csv";
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) == 0)
+   {
+      FileWrite(fh,
+         "time", "magic", "positionTicket", "openProfitPts", "tradeAgeSeconds",
+         "secondsGreen", "secondsRed", "greenRatio", "consecutiveGreen", "consecutiveRed",
+         Falgo5GatesColProfitVelocity(), Falgo5GatesColAvgProfitVelocity(),
+         "peakProfitPts", "profitFromPeak", "timeToReachSavingTpSeconds");
+   }
+   const double profitVelocity = Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_velocity_window_seconds);
+   const double profitFromPeak = g_falgo5OpenTelemetry.openProfitPts - g_falgo5OpenTelemetry.peakProfitPts;
+   FileWrite(fh,
+      TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS),
+      IntegerToString(g_falgo5OpenTelemetry.magic),
+      IntegerToString((long)g_falgo5OpenTelemetry.positionTicket),
+      DoubleToString(g_falgo5OpenTelemetry.openProfitPts, 1),
+      IntegerToString(g_falgo5OpenTelemetry.tradeAgeSeconds),
+      IntegerToString(g_falgo5OpenTelemetry.secondsGreen),
+      IntegerToString(g_falgo5OpenTelemetry.secondsRed),
+      DoubleToString(Falgo5TelemetryGreenRatioFromOpen(), 4),
+      IntegerToString(g_falgo5OpenTelemetry.consecutiveGreen),
+      IntegerToString(g_falgo5OpenTelemetry.consecutiveRed),
+      DoubleToString(profitVelocity, 4),
+      DoubleToString(g_falgo5OpenTelemetry.avgProfitVelocity, 4),
+      DoubleToString(g_falgo5OpenTelemetry.peakProfitPts, 1),
+      DoubleToString(profitFromPeak, 1),
+      (g_falgo5OpenTelemetry.timeToReachSavingTpSeconds >= 0
+         ? IntegerToString(g_falgo5OpenTelemetry.timeToReachSavingTpSeconds) : ""));
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void Falgo5TelemetryUpdateOneSecondFromSelectedPosition()
+{
+   const double profitPts = Falgo5OpenPositionProfitPoints();
+   g_falgo5OpenTelemetry.tradeAgeSeconds++;
+   if(profitPts > 0.0)
+   {
+      g_falgo5OpenTelemetry.secondsGreen++;
+      g_falgo5OpenTelemetry.consecutiveGreen++;
+      g_falgo5OpenTelemetry.consecutiveRed = 0;
+   }
+   else if(profitPts < 0.0)
+   {
+      g_falgo5OpenTelemetry.secondsRed++;
+      g_falgo5OpenTelemetry.consecutiveRed++;
+      g_falgo5OpenTelemetry.consecutiveGreen = 0;
+   }
+   g_falgo5OpenTelemetry.openProfitPts = profitPts;
+   if(profitPts > g_falgo5OpenTelemetry.peakProfitPts)
+      g_falgo5OpenTelemetry.peakProfitPts = profitPts;
+   if(profitPts < g_falgo5OpenTelemetry.troughProfitPts)
+      g_falgo5OpenTelemetry.troughProfitPts = profitPts;
+   if(g_falgo5OpenTelemetry.timeToReachSavingTpSeconds < 0 &&
+      g_falgo5Profile.saving_trade_TP > 0.0 &&
+      profitPts >= PointSized(g_falgo5Profile.saving_trade_TP))
+   {
+      g_falgo5OpenTelemetry.timeToReachSavingTpSeconds = g_falgo5OpenTelemetry.tradeAgeSeconds;
+   }
+   Falgo5TelemetryPushProfitSample(g_lastTimer1Time, profitPts);
+   const double velAvgWindow = Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_avg_velocity_window_seconds);
+   g_falgo5OpenTelemetry.avgVelocitySampleCount++;
+   if(g_falgo5OpenTelemetry.avgVelocitySampleCount == 1)
+      g_falgo5OpenTelemetry.avgProfitVelocity = velAvgWindow;
+   else
+   {
+      g_falgo5OpenTelemetry.avgProfitVelocity =
+         ((g_falgo5OpenTelemetry.avgProfitVelocity * (g_falgo5OpenTelemetry.avgVelocitySampleCount - 1)) + velAvgWindow)
+         / (double)g_falgo5OpenTelemetry.avgVelocitySampleCount;
+   }
+   g_falgo5OpenTelemetry.lastBarIdx = Falgo5BarIdxForDayTime(g_lastTimer1Time);
+   if(g_falgo5OpenTelemetry.lastBarIdx >= 0)
+      Falgo5TelemetrySnapOpenStateToBar(g_falgo5OpenTelemetry.lastBarIdx);
+   Falgo5TryLogTelemetryPerSecond();
+}
+
+//+------------------------------------------------------------------+
+void Falgo5UpdateOpenTradeTelemetryEachSecond()
+{
+   if(g_lastTimer1Time == 0)
+      return;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   Falgo5ResetTelemetryIfNewDay(dayStart);
+   if(g_falgo5TelemetryLastUpdateTime == g_lastTimer1Time)
+      return;
+   g_falgo5TelemetryLastUpdateTime = g_lastTimer1Time;
+
+   if(!Falgo5SelectFirstOpenFalgo5PositionOnSymbol())
+   {
+      if(g_falgo5OpenTelemetry.active)
+      {
+         Falgo5OnFalgo5TradeClosedThisBar();
+         Falgo5TelemetryPushClosedSummaryFromOpen();
+         Falgo5TelemetryClearOpenState();
+      }
+      return;
+   }
+
+   const ulong ticket = ExtPositionInfo.Ticket();
+   const long magic = ExtPositionInfo.Magic();
+   const datetime startTime = ExtPositionInfo.Time();
+   if(!g_falgo5OpenTelemetry.active ||
+      g_falgo5OpenTelemetry.positionTicket != ticket ||
+      g_falgo5OpenTelemetry.magic != magic ||
+      g_falgo5OpenTelemetry.tradeStartTime != startTime)
+   {
+      if(g_falgo5OpenTelemetry.active)
+      {
+         Falgo5OnFalgo5TradeClosedThisBar();
+         Falgo5TelemetryPushClosedSummaryFromOpen();
+      }
+      Falgo5TelemetryInitFromSelectedPosition();
+      return;
+   }
+
+   Falgo5TelemetryUpdateOneSecondFromSelectedPosition();
 }
 
 //+------------------------------------------------------------------+
@@ -525,6 +1064,8 @@ bool Falgo5RulesetPassesCommon(const int barIdx)
       return false;
    if(Falgo5HasPendingOrderOnSymbol())
       return false;
+   if(barIdx >= 0 && g_falgo5LastTradeClosedBarIdx >= 0 && barIdx == g_falgo5LastTradeClosedBarIdx)
+      return false;
    return true;
 }
 
@@ -624,7 +1165,8 @@ void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
    if(g_falgo5Profile.stop_trading_today_if_winning_trades_count > 0)
       outUnderWinStop = (g_falgo5DayWins < g_falgo5Profile.stop_trading_today_if_winning_trades_count);
 
-   outRulesetCommon = outUnderLossStop && outUnderWinStop && outNoOpenPos && outNoPending;
+   const bool tradeCloseDedicatedBar = Falgo5BarIsDedicatedToTradeClose(barIdx);
+   outRulesetCommon = outUnderLossStop && outUnderWinStop && outNoOpenPos && outNoPending && !tradeCloseDedicatedBar;
 
    if(anchor <= 0.0)
       return;
@@ -796,24 +1338,133 @@ bool Falgo5FindOpenFalgo5TradeAsOfCloseTime(const datetime candleCloseTime, Trad
 }
 
 //+------------------------------------------------------------------+
-//| MFE/MAE in points from entry through candle close (g_tradeResults + day M1). |
-//| Caller must pass only when live terminal has an open falgo5 position (noOpen=false); |
-//| g_tradeResults may still list the trade open until UpdateTradeResultsForDay runs later on the timer. |
+//| Live falgo5 position when g_tradeResults lag (gates log runs before UpdateTradeResultsForDay). |
 //+------------------------------------------------------------------+
-void Falgo5GatesMfeMaePointsAsOfClose(const datetime candleCloseTime, string &outMfePts, string &outMaePts)
+bool Falgo5TryBuildTradeResultFromLiveOpenFalgo5Position(const datetime candleCloseTime, TradeResult &outTr)
+{
+   if(!Falgo5SelectFirstOpenFalgo5PositionOnSymbol())
+      return false;
+   const datetime startTime = ExtPositionInfo.Time();
+   if(startTime >= candleCloseTime)
+      return false;
+   outTr.symbol = _Symbol;
+   outTr.startTime = startTime;
+   outTr.endTime = candleCloseTime;
+   outTr.magic = ExtPositionInfo.Magic();
+   outTr.priceStart = ExtPositionInfo.PriceOpen();
+   outTr.priceEnd = 0.0;
+   outTr.type = (ExtPositionInfo.PositionType() == POSITION_TYPE_BUY) ? (long)DEAL_TYPE_BUY : (long)DEAL_TYPE_SELL;
+   outTr.foundOut = false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5FindFalgo5TradeForGatesBar(const int barIdx, const datetime evalTime, TradeResult &outTr)
+{
+   if(Falgo5FindOpenFalgo5TradeAsOfCloseTime(evalTime, outTr))
+      return true;
+   if(Falgo5TryBuildTradeResultFromLiveOpenFalgo5Position(evalTime, outTr))
+      return true;
+   if(barIdx < 0 || barIdx >= g_barsInDay)
+      return false;
+   const datetime barOpen = g_m1Rates[barIdx].time;
+   bool found = false;
+   datetime bestStart = 0;
+   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+   {
+      TradeResult tr = g_tradeResults[trIdx];
+      if(!IsFalgo5CompositeMagicSlot1(tr.magic))
+         continue;
+      if(tr.startTime >= evalTime)
+         continue;
+      if(!tr.foundOut || tr.endTime < barOpen || tr.endTime > evalTime)
+         continue;
+      if(!found || tr.startTime > bestStart)
+      {
+         outTr = tr;
+         bestStart = tr.startTime;
+         found = true;
+      }
+   }
+   if(!found)
+      return false;
+   outTr.endTime = evalTime;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+//| Gates MFE/MAE = lifetime peak/trough floating P/L (points) for the trade, not per-candle. |
+//+------------------------------------------------------------------+
+bool Falgo5GatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int throughBarIdx,
+   string &outMfePts, string &outMaePts)
+{
+   const int entryBarIdx = Falgo5BarIdxForDayTime(startTime);
+   if(entryBarIdx < 0 || throughBarIdx < entryBarIdx)
+      return false;
+   double peak = 0.0;
+   double trough = 0.0;
+   bool found = false;
+   for(int b = entryBarIdx; b <= throughBarIdx && b < g_barsInDay; b++)
+   {
+      if(!g_falgo5TelemetryAtBar[b].valid)
+         continue;
+      if(!found)
+      {
+         peak = g_falgo5TelemetryAtBar[b].peakProfitPts;
+         trough = g_falgo5TelemetryAtBar[b].troughProfitPts;
+         found = true;
+      }
+      else
+      {
+         if(g_falgo5TelemetryAtBar[b].peakProfitPts > peak)
+            peak = g_falgo5TelemetryAtBar[b].peakProfitPts;
+         if(g_falgo5TelemetryAtBar[b].troughProfitPts < trough)
+            trough = g_falgo5TelemetryAtBar[b].troughProfitPts;
+      }
+   }
+   if(!found)
+      return false;
+   outMfePts = DoubleToString(peak, 1);
+   outMaePts = DoubleToString(trough, 1);
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5GatesMfeMaeLifetimeForTrade(const TradeResult &tr, const int throughBarIdx,
+   string &outMfePts, string &outMaePts)
+{
+   if(g_falgo5OpenTelemetry.active && g_falgo5OpenTelemetry.tradeStartTime == tr.startTime)
+   {
+      outMfePts = DoubleToString(g_falgo5OpenTelemetry.peakProfitPts, 1);
+      outMaePts = DoubleToString(g_falgo5OpenTelemetry.troughProfitPts, 1);
+      return true;
+   }
+   Falgo5ClosedTradeTelemetrySummary closedSum;
+   if(Falgo5FindClosedTelemetrySummary(tr.magic, tr.startTime, closedSum))
+   {
+      outMfePts = DoubleToString(closedSum.peakProfitPts, 1);
+      outMaePts = DoubleToString(closedSum.troughProfitPts, 1);
+      return true;
+   }
+   return Falgo5GatesMfeMaeLifetimeFromBarSnaps(tr.startTime, throughBarIdx, outMfePts, outMaePts);
+}
+
+//+------------------------------------------------------------------+
+//| MFE/MAE in points for one gates row (lifetime telemetry while trade was open). |
+//+------------------------------------------------------------------+
+void Falgo5GatesMfeMaePointsForBar(const int barIdx, string &outMfePts, string &outMaePts)
 {
    outMfePts = "";
    outMaePts = "";
-   TradeResult tr;
-   if(!Falgo5FindOpenFalgo5TradeAsOfCloseTime(candleCloseTime, tr))
+   if(barIdx < 0 || barIdx >= g_barsInDay)
       return;
-   double mfePx = 0.0, maePx = 0.0;
-   int mfeCandle = 0, maeCandle = 0;
-   GetMFEandMAEForTrade(tr, mfePx, maePx, mfeCandle, maeCandle);
-   double mfePts = 0.0, maePts = 0.0;
-   GetMFEpAndMAEpForTrade(tr, mfePx, maePx, mfePts, maePts);
-   outMfePts = DoubleToString(mfePts, 1);
-   outMaePts = DoubleToString(maePts, 1);
+   const datetime barOpen = g_m1Rates[barIdx].time;
+   const datetime evalTime = barOpen + 60;
+   TradeResult tr;
+   if(!Falgo5FindFalgo5TradeForGatesBar(barIdx, evalTime, tr))
+      return;
+   Falgo5GatesMfeMaeLifetimeForTrade(tr, barIdx, outMfePts, outMaePts);
 }
 
 //+------------------------------------------------------------------+
@@ -825,6 +1476,8 @@ void Falgo5WriteGatesLogHeaderIfNeeded(const int fh)
    FileWrite(fh,
       "barTime", "O", "H", "L", "C",
       "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "MFE", "MAE",
+      "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
+      "consecutiveGreen", "consecutiveRed", Falgo5GatesColProfitVelocity(), "peakProfitPts", "profitFromPeak",
       "closestProximity", "bounceCount_today", Falgo5GatesColRecentBounceCount(), "ceilingCount_today", Falgo5GatesColRecentCeilingCount(),
       "closeVsLevel", "direction", "levelTier", "proximityOK", "bounceOK", "ceilingOK",
       "tradesWeeklyLevels", "anchorInExpanded",
@@ -860,6 +1513,7 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    const bool tradingDay = Falgo5IsTradingDayAllowedAtTime(evalTime);
    const bool tradingTime = Falgo5IsTradingTimeAllowed(evalTime);
    const bool profileAllows = Falgo5ProfileAllowsNewOrdersAtTime(evalTime);
+   const bool tradeCloseDedicatedBar = Falgo5BarIsDedicatedToTradeClose(barIdx);
 
    string firstFail = "";
    if(!profileEnabled) firstFail = "profileDisabled";
@@ -868,6 +1522,7 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    else if(!underLoss) firstFail = "lossStopDayLimit";
    else if(!underWin) firstFail = "winStopDayLimit";
    else if(!noOpen) firstFail = "openFalgo5Position";
+   else if(tradeCloseDedicatedBar) firstFail = "tradeClosedThisBar";
    else if(!noPending) firstFail = "pendingFalgo5Order";
    else if(g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevelToCClose <= 0.0) firstFail = "noClosestWeeklyLevel";
    else if(closeVs == "flat") firstFail = "closeFlatOnLevel";
@@ -890,8 +1545,32 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    else if(rulesDir && magicFree) firstFail = "";
 
    string mfePts = "", maePts = "";
-   if(!noOpen)
-      Falgo5GatesMfeMaePointsAsOfClose(evalTime, mfePts, maePts);
+   const bool telBarSnapValid = (barIdx >= 0 && barIdx < g_barsInDay && g_falgo5TelemetryAtBar[barIdx].valid);
+   if(!noOpen || telBarSnapValid || tradeCloseDedicatedBar)
+      Falgo5GatesMfeMaePointsForBar(barIdx, mfePts, maePts);
+
+   string telTradeAge = "", telOpenProfit = "", telSecGreen = "", telSecRed = "", telGreenRatio = "";
+   string telConsecGreen = "", telConsecRed = "", telProfitVelocity = "", telPeakProfit = "", telProfitFromPeak = "";
+   if(telBarSnapValid)
+   {
+      Falgo5GatesTelemetryStringsFromBarSnap(g_falgo5TelemetryAtBar[barIdx],
+         telTradeAge, telOpenProfit, telSecGreen, telSecRed, telGreenRatio,
+         telConsecGreen, telConsecRed, telProfitVelocity, telPeakProfit, telProfitFromPeak);
+   }
+   else if(!noOpen && g_falgo5OpenTelemetry.active)
+   {
+      telTradeAge = IntegerToString(g_falgo5OpenTelemetry.tradeAgeSeconds);
+      telOpenProfit = DoubleToString(g_falgo5OpenTelemetry.openProfitPts, 1);
+      telSecGreen = IntegerToString(g_falgo5OpenTelemetry.secondsGreen);
+      telSecRed = IntegerToString(g_falgo5OpenTelemetry.secondsRed);
+      telGreenRatio = DoubleToString(Falgo5TelemetryGreenRatioFromOpen(), 4);
+      telConsecGreen = IntegerToString(g_falgo5OpenTelemetry.consecutiveGreen);
+      telConsecRed = IntegerToString(g_falgo5OpenTelemetry.consecutiveRed);
+      telProfitVelocity = DoubleToString(
+         Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_velocity_window_seconds), 4);
+      telPeakProfit = DoubleToString(g_falgo5OpenTelemetry.peakProfitPts, 1);
+      telProfitFromPeak = DoubleToString(g_falgo5OpenTelemetry.openProfitPts - g_falgo5OpenTelemetry.peakProfitPts, 1);
+   }
 
    const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
    const string fname = dateStr + "_algo5_gates_per_minute.csv";
@@ -913,6 +1592,16 @@ void Falgo5AppendGatesLogRow(const int barIdx)
       firstFail,
       mfePts,
       maePts,
+      telTradeAge,
+      telOpenProfit,
+      telSecGreen,
+      telSecRed,
+      telGreenRatio,
+      telConsecGreen,
+      telConsecRed,
+      telProfitVelocity,
+      telPeakProfit,
+      telProfitFromPeak,
       DoubleToString(g_pullingHistoryAlgo5AtBar[barIdx].closestPriceProximity, _Digits),
       IntegerToString(g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_BounceCount_today),
       IntegerToString(g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_BounceCount_recent),
@@ -959,15 +1648,6 @@ void Falgo5TryLogGatesForClosedMinute()
 double GetTradeLotForFalgo5()
 {
    return g_global_base_trade_size * ((double)g_falgo5Profile.tradeSizePct / 100.0);
-}
-
-//+------------------------------------------------------------------+
-double Falgo5OpenPositionProfitPoints()
-{
-   const double openPrice = ExtPositionInfo.PriceOpen();
-   if(ExtPositionInfo.PositionType() == POSITION_TYPE_BUY)
-      return SymbolInfoDouble(_Symbol, SYMBOL_BID) - openPrice;
-   return openPrice - SymbolInfoDouble(_Symbol, SYMBOL_ASK);
 }
 
 //+------------------------------------------------------------------+
@@ -1161,8 +1841,8 @@ void RunFalgo5TradePipeline()
 }
 
 //+------------------------------------------------------------------+
-#define FALGO5_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl"
-#define FALGO5_ALLDAYS_COLS     21
+#define FALGO5_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,peakProfitPts,troughProfitPts,secondsGreen,secondsRed,time_to_reach_saving_TP"
+#define FALGO5_ALLDAYS_COLS     28
 
 //+------------------------------------------------------------------+
 void Falgo5AppendTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
@@ -1192,6 +1872,28 @@ void Falgo5AppendTradeResultCells(string &cells[], const string dateStr, const T
    cells[base + 18] = Falgo5OffsetPointsStrForMagic(tr.magic);
    cells[base + 19] = tr.tp;
    cells[base + 20] = tr.sl;
+   Falgo5ClosedTradeTelemetrySummary telSummary;
+   if(Falgo5GetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary))
+   {
+      cells[base + 21] = DoubleToString(telSummary.greenRatioAtClose, 4);
+      cells[base + 22] = DoubleToString(telSummary.avgProfitVelocity, 4);
+      cells[base + 23] = DoubleToString(telSummary.peakProfitPts, 1);
+      cells[base + 24] = DoubleToString(telSummary.troughProfitPts, 1);
+      cells[base + 25] = IntegerToString(telSummary.secondsGreen);
+      cells[base + 26] = IntegerToString(telSummary.secondsRed);
+      cells[base + 27] = (telSummary.timeToReachSavingTpSeconds >= 0
+         ? IntegerToString(telSummary.timeToReachSavingTpSeconds) : "");
+   }
+   else
+   {
+      cells[base + 21] = "";
+      cells[base + 22] = "";
+      cells[base + 23] = "";
+      cells[base + 24] = "";
+      cells[base + 25] = "";
+      cells[base + 26] = "";
+      cells[base + 27] = "";
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -1216,11 +1918,17 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
    if(!dailyEODlog_TradeResultsCsvFalgo5 || falgo5OutCount <= 0)
       return;
 
+   if(g_falgo5OpenTelemetry.active)
+   {
+      Falgo5TelemetryPushClosedSummaryFromOpen();
+      Falgo5TelemetryClearOpenState();
+   }
+
    const string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day_algo5.csv";
    int fhDay = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fhDay != INVALID_HANDLE)
    {
-      FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl");
+      FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl", "greenRatio_at_close", Falgo5GatesColAvgProfitVelocity(), "peakProfitPts", "troughProfitPts", "secondsGreen", "secondsRed", "time_to_reach_saving_TP");
       for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
       {
          TradeResult tr = g_tradeResults[trIdx];
@@ -1228,6 +1936,8 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
             continue;
          int planNum = 0, levelNum = 0;
          Falgo5PlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
+         Falgo5ClosedTradeTelemetrySummary telSummary;
+         const bool hasTel = Falgo5GetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
          FileWrite(fhDay, tr.symbol,
             TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS),
             TimeToString(tr.endTime, TIME_DATE|TIME_SECONDS),
@@ -1241,7 +1951,15 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
             EnumToString((ENUM_DEAL_REASON)tr.reason),
             tr.volume, tr.bothComments, tr.level, Falgo5LevelTagUneditedForTradeResult(tr),
             IntegerToString(planNum), IntegerToString(levelNum),
-            Falgo5OffsetPointsStrForMagic(tr.magic), tr.tp, tr.sl);
+            Falgo5OffsetPointsStrForMagic(tr.magic), tr.tp, tr.sl,
+            (hasTel ? DoubleToString(telSummary.greenRatioAtClose, 4) : ""),
+            (hasTel ? DoubleToString(telSummary.avgProfitVelocity, 4) : ""),
+            (hasTel ? DoubleToString(telSummary.peakProfitPts, 1) : ""),
+            (hasTel ? DoubleToString(telSummary.troughProfitPts, 1) : ""),
+            (hasTel ? IntegerToString(telSummary.secondsGreen) : ""),
+            (hasTel ? IntegerToString(telSummary.secondsRed) : ""),
+            (hasTel && telSummary.timeToReachSavingTpSeconds >= 0
+               ? IntegerToString(telSummary.timeToReachSavingTpSeconds) : ""));
       }
       FileClose(fhDay);
    }
@@ -1287,7 +2005,7 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
    int fhAll = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fhAll != INVALID_HANDLE)
    {
-      FileWrite(fhAll, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl");
+      FileWrite(fhAll, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl", "greenRatio_at_close", Falgo5GatesColAvgProfitVelocity(), "peakProfitPts", "troughProfitPts", "secondsGreen", "secondsRed", "time_to_reach_saving_TP");
       for(int ri = 0; ri < existingRowCount; ri++)
       {
          const int base = ri * FALGO5_ALLDAYS_COLS;
@@ -1296,7 +2014,9 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
             allDaysCells[base + 5], allDaysCells[base + 6], allDaysCells[base + 7], allDaysCells[base + 8], allDaysCells[base + 9],
             allDaysCells[base + 10], allDaysCells[base + 11], allDaysCells[base + 12], allDaysCells[base + 13], allDaysCells[base + 14],
             allDaysCells[base + 15], allDaysCells[base + 16], allDaysCells[base + 17], allDaysCells[base + 18],
-            allDaysCells[base + 19], allDaysCells[base + 20]);
+            allDaysCells[base + 19], allDaysCells[base + 20], allDaysCells[base + 21], allDaysCells[base + 22],
+            allDaysCells[base + 23], allDaysCells[base + 24], allDaysCells[base + 25], allDaysCells[base + 26],
+            allDaysCells[base + 27]);
       }
       FileClose(fhAll);
    }

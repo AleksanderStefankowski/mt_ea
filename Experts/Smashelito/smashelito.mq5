@@ -57,6 +57,7 @@ bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 2
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
 bool     dailyLog_Algo5WeekPerspective = true;  // (date)_algo5_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
 bool     dailySpamLog_Algo5GatesPerMinute = true;  // (date)_algo5_gates_per_minute.csv — falgo5 gate snapshot each closed M1 bar
+bool     dailySpamLog_Algo5TradeTelemetryPerSecond = true;  // (date)_algo5_trade_telemetry_per_second.csv — falgo5 open-trade telemetry each 1s in debug window
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
 bool     finalLog_TradeLog            = true; // B_TradeLog_<composite per variant>.csv (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
@@ -517,6 +518,14 @@ struct Falgo5Profile
    double initialTP;
    double initialSL;
    double saving_trade_TP;
+   double strong_trade_TP;
+   int    telemetry_velocity_window_seconds;       // gates CSV profitVelocity_{N}
+   int    telemetry_avg_velocity_window_seconds;     // EOD avg_profitVelocity_{N}
+   bool   persecond_debug_enabled;
+   int    persecond_debug_start_hour;
+   int    persecond_debug_start_minute;
+   int    persecond_debug_end_hour;
+   int    persecond_debug_end_minute;
    int    revenge_long_allowed_perdayCount;
    int    revenge_short_allowed_perdayCount;
    double revenge_initialTP;
@@ -3209,6 +3218,14 @@ void SyncFalgo5ProfileFromInputs()
    g_falgo5Profile.babysit_enabled                                = true;
    g_falgo5Profile.babysitStart_minute                            =  0;
    g_falgo5Profile.saving_trade_TP                                =  2.1;
+   g_falgo5Profile.strong_trade_TP                                =  4.2;
+   g_falgo5Profile.telemetry_velocity_window_seconds              = 120;
+   g_falgo5Profile.telemetry_avg_velocity_window_seconds          =   5;
+   g_falgo5Profile.persecond_debug_enabled                        = true;
+   g_falgo5Profile.persecond_debug_start_hour                     =   1;
+   g_falgo5Profile.persecond_debug_start_minute                   =  29;
+   g_falgo5Profile.persecond_debug_end_hour                       =   2;
+   g_falgo5Profile.persecond_debug_end_minute                     =  19;
    g_falgo5Profile.secretTPSL                                     = true;
    g_falgo5Profile.secretTPSL_percent                             = 50;
    //=== end falgo5 TUNE BLOCK ===
@@ -27436,6 +27453,8 @@ void OnTimer()
 
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
+
+   Falgo5UpdateOpenTradeTelemetryEachSecond();
 
    // per open position, if variant has babysit_enabled run BabysitTryTightenStops after babysitStart_minute
    //if(babysit_global_flipper)
