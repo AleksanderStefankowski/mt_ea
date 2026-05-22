@@ -796,7 +796,9 @@ bool Falgo5FindOpenFalgo5TradeAsOfCloseTime(const datetime candleCloseTime, Trad
 }
 
 //+------------------------------------------------------------------+
-//| MFE/MAE in points from entry; empty strings if no open falgo5 trade at evalTime. |
+//| MFE/MAE in points from entry through candle close (g_tradeResults + day M1). |
+//| Caller must pass only when live terminal has an open falgo5 position (noOpen=false); |
+//| g_tradeResults may still list the trade open until UpdateTradeResultsForDay runs later on the timer. |
 //+------------------------------------------------------------------+
 void Falgo5GatesMfeMaePointsAsOfClose(const datetime candleCloseTime, string &outMfePts, string &outMaePts)
 {
@@ -888,7 +890,8 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    else if(rulesDir && magicFree) firstFail = "";
 
    string mfePts = "", maePts = "";
-   Falgo5GatesMfeMaePointsAsOfClose(evalTime, mfePts, maePts);
+   if(!noOpen)
+      Falgo5GatesMfeMaePointsAsOfClose(evalTime, mfePts, maePts);
 
    const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
    const string fname = dateStr + "_algo5_gates_per_minute.csv";
