@@ -509,16 +509,28 @@ struct Falgo5Profile
    int    long2_min_bounceCount;            // long2: bounceCount_today on closest weekly >= this
    int    long2_recentBounceCountToday_Minutes;       // long2 recent window + gates CSV recentBounceCount{N}
    int    long2_recentBounceCount_max_allowed;        // long2: recent bounce count must be < this
-   int    ceilingMaxAllowed_today;  // short: allow when closest-weekly ceiling count <= this
-   int    recentCeilingCountToday_Minutes;  // log-only lookback (gates CSV); placement still uses ceilingCount_today
-   double levelOffset_longs;
-   double levelOffset_shorts;
+   bool   short1_enabled;
+   int    short1_ceilingMaxAllowed_today;   // short1: ceilingCount_today on closest weekly <= this
+   int    short1_max_allowed_shorts_perLevel_perDay;  // short1: filled+pending falgo5 shorts at weekly tier today; 0 = no limit
+   int    recentCeilingCountToday_Minutes;  // log-only lookback (gates CSV); not used in placement yet
+   double levelOffset_longs;   // signed PointSized points from closestWeeklyLevel: long buy limit = level + PointSized(offset)
+   double levelOffset_shorts;  // signed PointSized points from closestWeeklyLevel: short sell limit = level − PointSized(offset)
    bool   secretTPSL;
    int    secretTPSL_percent;
    double initialTP;
    double initialSL;
    double saving_trade_TP;
    double strong_trade_TP;
+   bool   strong_momentum_enabled;
+   double strong_momentum_eval_min_profit_pts;
+   double strong_momentum_min_velocity;
+   double strong_momentum_min_green_ratio;
+   int    strong_momentum_min_consecutive_green;
+   int    strong_momentum_velocity_window_seconds;
+   double strong_momentum_stall_velocity_max;
+   double strong_momentum_stall_giveback_pts;
+   int    strong_momentum_stall_consecutive_red;
+   double strong_momentum_stall_min_close_profit_pts;
    int    telemetry_velocity_window_seconds;       // gates CSV profitVelocity_{N}
    int    telemetry_avg_velocity_window_seconds;     // EOD avg_profitVelocity_{N}
    bool   persecond_debug_enabled;
@@ -3203,15 +3215,17 @@ g_trade[0].babysitStart_minute      = 0;
 void SyncFalgo5ProfileFromInputs()
 {  // algo5bookmark1
    //=== falgo5 TUNE BLOCK (edit values below) ===
-   g_falgo5Profile.levelOffset_longs                              = -0.3;
-   g_falgo5Profile.levelOffset_shorts                             =  1.5;
+   g_falgo5Profile.levelOffset_longs                              = 0.4;
+   g_falgo5Profile.levelOffset_shorts                             =  1.4;
    g_falgo5Profile.long1_enabled                                   = true;
    g_falgo5Profile.long1_bounceMaxAllowed_today                   =  3;
    g_falgo5Profile.long2_enabled                                   = true;
    g_falgo5Profile.long2_min_bounceCount                          =  2;
    g_falgo5Profile.long2_recentBounceCountToday_Minutes             = 600;
    g_falgo5Profile.long2_recentBounceCount_max_allowed              =  1;
-   g_falgo5Profile.ceilingMaxAllowed_today                        =  2;
+   g_falgo5Profile.short1_enabled                                  = true;
+   g_falgo5Profile.short1_ceilingMaxAllowed_today                  =  2;
+   g_falgo5Profile.short1_max_allowed_shorts_perLevel_perDay       =  1;
    g_falgo5Profile.recentCeilingCountToday_Minutes                = 300;  // log only (gates CSV); not used in placement yet
    g_falgo5Profile.stop_trading_today_if_losing_trades_count      =  2;
    g_falgo5Profile.stop_trading_today_if_winning_trades_count     =  4;
@@ -3219,13 +3233,25 @@ void SyncFalgo5ProfileFromInputs()
    g_falgo5Profile.babysitStart_minute                            =  0;
    g_falgo5Profile.saving_trade_TP                                =  2.1;
    g_falgo5Profile.strong_trade_TP                                =  4.2;
-   g_falgo5Profile.telemetry_velocity_window_seconds              = 120;
-   g_falgo5Profile.telemetry_avg_velocity_window_seconds          =   5;
+   // algo5bookmark3 — strong-momentum babysit: skip saving TP when accelerating; exit on stall or at strong_trade_TP
+   g_falgo5Profile.strong_momentum_enabled                        = true;
+   g_falgo5Profile.strong_momentum_eval_min_profit_pts             =  1.8;
+   g_falgo5Profile.strong_momentum_min_velocity                     = 0.04;
+   g_falgo5Profile.strong_momentum_min_green_ratio                  = 0.05;
+   g_falgo5Profile.strong_momentum_min_consecutive_green            =    5;
+   g_falgo5Profile.strong_momentum_velocity_window_seconds          =   10;  // 0 = use telemetry_velocity_window_seconds
+   g_falgo5Profile.strong_momentum_stall_velocity_max               = 0.01;
+   g_falgo5Profile.strong_momentum_stall_giveback_pts               =  0.4;
+   g_falgo5Profile.strong_momentum_stall_consecutive_red            =    5;
+   g_falgo5Profile.strong_momentum_stall_min_close_profit_pts       =  2.0;
+   g_falgo5Profile.telemetry_velocity_window_seconds              = 10;
+   g_falgo5Profile.telemetry_avg_velocity_window_seconds          =   10;
+   // algo5bookmark2 — (date)_algo5_trade_telemetry_per_second.csv window (server time, while falgo5 position open)
    g_falgo5Profile.persecond_debug_enabled                        = true;
-   g_falgo5Profile.persecond_debug_start_hour                     =   1;
-   g_falgo5Profile.persecond_debug_start_minute                   =  29;
+   g_falgo5Profile.persecond_debug_start_hour                     =   0;
+   g_falgo5Profile.persecond_debug_start_minute                   =  20;
    g_falgo5Profile.persecond_debug_end_hour                       =   2;
-   g_falgo5Profile.persecond_debug_end_minute                     =  19;
+   g_falgo5Profile.persecond_debug_end_minute                     =  59;
    g_falgo5Profile.secretTPSL                                     = true;
    g_falgo5Profile.secretTPSL_percent                             = 50;
    //=== end falgo5 TUNE BLOCK ===
@@ -25629,21 +25655,37 @@ bool PlacePendingFromMagic(long magic, double anchorLevel, double offsetPoints, 
 
 //+------------------------------------------------------------------+
 //| Falgo5 pending: direction 1=buy limit, 2=sell limit (magic slot 2). |
+//| Limit price = closestWeeklyLevel + PointSized(signed levelOffset) (Falgo5PendingOrderPricesForDirection). |
 //+------------------------------------------------------------------+
 bool PlacePendingFromFalgo5Magic(long magic, double anchorLevel, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot)
 {
    if(!IsFalgo5CompositeMagicSlot1(magic))
       return false;
    Falgo5MagicKey fk = ParseFalgo5Magic(magic);
+   double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
+   Falgo5PendingOrderPricesForDirection(fk.direction, anchorLevel, offsetPoints, slPoints, tpPoints,
+      orderPrice, stopLossVal, takeProfitVal);
+   if(PlacePending_ShouldSkip_BidTooCloseToOrderPrice(orderPrice, 1.0))
+      return false;
+   datetime expiration = TimeCurrent() + expirationMin * 60;
+   const string comment = "falgo5_placeholder";
+   ExtTrade.SetExpertMagicNumber(magic);
+   bool ok = false;
    switch(fk.direction)
    {
       case FALGO5_DIRECTION_LONG_LIMIT:
-         return PlaceBuyLimitAtLevel(anchorLevel, offsetPoints, slPoints, tpPoints, expirationMin, lot, magic, "falgo5_placeholder");
+         LogPreOrderContext(magic, anchorLevel, orderPrice, "BuyLimit", expirationMin);
+         ok = ExtTrade.BuyLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
+         break;
       case FALGO5_DIRECTION_SHORT_LIMIT:
-         return PlaceSellLimitAtLevel(anchorLevel, offsetPoints, slPoints, tpPoints, expirationMin, lot, magic, "falgo5_placeholder");
+         LogPreOrderContext(magic, anchorLevel, orderPrice, "SellLimit", expirationMin);
+         ok = ExtTrade.SellLimit(lot, orderPrice, _Symbol, stopLossVal, takeProfitVal, ORDER_TIME_SPECIFIED, expiration, comment);
+         break;
       default:
-         return false;
+         ok = false;
    }
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   return ok;
 }
 
 //+------------------------------------------------------------------+
@@ -25658,16 +25700,13 @@ void WriteTradeLogPendingOrderFalgo5(double levelPrice, double offsetPoints, dou
       eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
    Falgo5MagicKey fk = ParseFalgo5Magic(magic);
    string orderKind;
-   int dirForPrices = 0;
    switch(fk.direction)
    {
       case FALGO5_DIRECTION_LONG_LIMIT:
          orderKind = "buy_limit";
-         dirForPrices = MAGIC_TRADE_LONG;
          break;
       case FALGO5_DIRECTION_SHORT_LIMIT:
          orderKind = "sell_limit";
-         dirForPrices = MAGIC_TRADE_SHORT;
          break;
       default:
          FatalError(StringFormat("WriteTradeLogPendingOrderFalgo5: unsupported direction %d magic %s", fk.direction, IntegerToString(magic)));
@@ -25675,7 +25714,8 @@ void WriteTradeLogPendingOrderFalgo5(double levelPrice, double offsetPoints, dou
    double orderPrice = 0.0;
    double stopLossVal = 0.0;
    double takeProfitVal = 0.0;
-   PendingOrderPricesForDirection(dirForPrices, levelPrice, offsetPoints, slPoints, tpPoints, orderPrice, stopLossVal, takeProfitVal);
+   Falgo5PendingOrderPricesForDirection(fk.direction, levelPrice, offsetPoints, slPoints, tpPoints,
+      orderPrice, stopLossVal, takeProfitVal);
    const string orderComment = "falgo5_placeholder";
    WriteTradeLog(magicStrForLogFilename, "pending_created", eventTime, orderKind, orderPrice, stopLossVal, takeProfitVal, expirationMin, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, orderComment, magic);
 }
