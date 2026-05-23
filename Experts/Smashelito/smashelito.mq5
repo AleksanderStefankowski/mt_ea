@@ -382,21 +382,21 @@ struct AlgoPerAlgoTune
    bool   strong_trade_mode_enabled;
    bool   badtrade_mode_enabled;
    bool   terribletrade_mode_enabled;
-   double strong_momentum_eval_min_profit_pts;
-   double strong_momentum_min_velocity;
-   double strong_momentum_min_green_ratio;
-   int    strong_momentum_min_consecutive_green;
-   int    strong_momentum_velocity_window_seconds;
-   double strong_momentum_stall_velocity_max;
-   double strong_momentum_stall_giveback_pts;
-   double strong_momentum_stall_min_close_profit_pts;
+   double strong_trade_eval_min_profit_pts;
+   double strong_trade_min_velocity_trigger;
+   int    strong_trade_velocity_window_seconds;
+   double strong_trade_stall_velocity_max_trigger;
+   double strong_trade_stall_giveback_pts_trigger;
+   double strong_trade_stall_min_close_profit_pts;
    int    telemetry_velocity_window_seconds;
    int    telemetry_avg_velocity_window_seconds;
    bool   trade_telemetry_per_second_enabled;  // (date)_algoN_trade_telemetry_per_second.csv during persecond_debug window
    double badtrade_profit_trigger;             // negative mae latch depth when badtrade_mode_enabled
+   int    badtrade_totalRedSeconds_minTrigger; // min total red seconds required to latch bad trade
    double badtrade_try_save_TP;                // signed; 0=breakeven; close when profit >= target
    double terribletrade_profit_trigger;        // negative mae latch depth when terribletrade_mode_enabled
    int    terribletrade_consecutiveRedSeconds_minTrigger;  // min consecutive red seconds required to latch terrible trade
+   double terribletrade_avgProfitVelocity10_trigger;       // avg profit velocity (10s window) must be < this to latch
    double terribletrade_try_smaller_loss_TP;   // signed; 0=breakeven; close when profit >= target
 };
 
@@ -4075,8 +4075,8 @@ bool FalgoGetTelemetrySummaryForTrade(const long magic, const datetime startTime
 //+------------------------------------------------------------------+
 int FalgoStrongMomentumVelocityWindowSeconds(const AlgoPerAlgoTune &tune)
 {
-   if(tune.strong_momentum_velocity_window_seconds > 0)
-      return tune.strong_momentum_velocity_window_seconds;
+   if(tune.strong_trade_velocity_window_seconds > 0)
+      return tune.strong_trade_velocity_window_seconds;
    if(tune.telemetry_velocity_window_seconds > 0)
       return tune.telemetry_velocity_window_seconds;
    return 5;
@@ -4085,19 +4085,37 @@ int FalgoStrongMomentumVelocityWindowSeconds(const AlgoPerAlgoTune &tune)
 //+------------------------------------------------------------------+
 bool FalgoStrongMomentumDetectPower(const double profitPts, const AlgoPerAlgoTune &tune)
 {
-   if(profitPts < PointSized(tune.strong_momentum_eval_min_profit_pts))
+   if(profitPts < PointSized(tune.strong_trade_eval_min_profit_pts))
       return false;
    const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
-   if(vel < tune.strong_momentum_min_velocity)
-      return false;
-   if(FalgoTelemetryGreenRatioFromOpen() < tune.strong_momentum_min_green_ratio)
-      return false;
-   if(g_falgoOpenTelemetry.consecutiveGreen < tune.strong_momentum_min_consecutive_green)
+   if(vel < tune.strong_trade_min_velocity_trigger)
       return false;
    return true;
 }
 
 //+------------------------------------------------------------------+
+double FalgoTerribleTradeAvgProfitVelocity10(const AlgoPerAlgoTune &tune)
+{
+   if(tune.telemetry_avg_velocity_window_seconds == 10)
+      return g_falgoOpenTelemetry.avgProfitVelocity;
+   return FalgoTelemetryProfitVelocityWindowSeconds(10);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoBadTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
+{
+   if(!tune.badtrade_mode_enabled)
+      return false;
+   if(tune.badtrade_profit_trigger >= 0.0)
+      return false;
+   if(g_falgoOpenTelemetry.maePts > PointSized(tune.badtrade_profit_trigger))
+      return false;
+   if(tune.badtrade_totalRedSeconds_minTrigger > 0 &&
+      g_falgoOpenTelemetry.secondsRed < tune.badtrade_totalRedSeconds_minTrigger)
+      return false;
+   return true;
+}
+
 //+------------------------------------------------------------------+
 bool FalgoTerribleTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
 {
@@ -4110,6 +4128,9 @@ bool FalgoTerribleTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
    if(tune.terribletrade_consecutiveRedSeconds_minTrigger > 0 &&
       g_falgoOpenTelemetry.consecutiveRed < tune.terribletrade_consecutiveRedSeconds_minTrigger)
       return false;
+   if(tune.terribletrade_avgProfitVelocity10_trigger > 0.0 &&
+      FalgoTerribleTradeAvgProfitVelocity10(tune) >= tune.terribletrade_avgProfitVelocity10_trigger)
+      return false;
    return true;
 }
 
@@ -4118,9 +4139,7 @@ void FalgoTryLatchTradeRecoveryModes(const AlgoPerAlgoTune &tune)
 {
    if(FalgoTerribleTradeLatchConditionsMet(tune))
       g_falgoOpenTelemetry.terribleTradeMode = true;
-   if(tune.badtrade_mode_enabled &&
-      tune.badtrade_profit_trigger < 0.0 &&
-      g_falgoOpenTelemetry.maePts <= PointSized(tune.badtrade_profit_trigger))
+   if(FalgoBadTradeLatchConditionsMet(tune))
       g_falgoOpenTelemetry.badTradeMode = true;
 }
 
@@ -4131,7 +4150,7 @@ void FalgoTryLatchStrongMomentumIfNeeded(const AlgoPerAlgoTune &tune, const doub
       return;
    const double nearNeutral = (MathAbs(tune.neutral_trade_TP) > 0.0)
       ? PointSized(MathAbs(tune.neutral_trade_TP)) * 0.85
-      : PointSized(tune.strong_momentum_eval_min_profit_pts);
+      : PointSized(tune.strong_trade_eval_min_profit_pts);
    if(profitPts >= nearNeutral && FalgoStrongMomentumDetectPower(profitPts, tune))
       g_falgoOpenTelemetry.aimStrongTp = true;
 }
@@ -4191,20 +4210,19 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
    if(FileTell(fh) == 0)
    {
       FileWrite(fh,
-         "time", "magic", "positionTicket", "openProfitPts", "MFE", "MAE", "tradeAgeSeconds",
+         "time", "openProfitPts", "MFE", "MAE", "tradeAgeSeconds",
          "secondsGreen", "secondsRed", "greenRatio", "consecutiveGreen", "consecutiveRed",
          AlgoGatesColProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetry.magic)),
          AlgoGatesColAvgProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetry.magic)),
          "profitFromPeak", "timeToReachNeutralTpSeconds",
          "exit_mode", "exit_mode_prev", "exit_mode_changed",
-         "event_type", "close_reason", "close_detail");
+         "event_type", "close_reason", "close_detail",
+         "magic", "positionTicket");
    }
    const double profitVelocity = FalgoTelemetryProfitVelocityWindowSeconds(telTune.telemetry_velocity_window_seconds);
    const double profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.mfePts;
    FileWrite(fh,
       TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS),
-      IntegerToString(g_falgoOpenTelemetry.magic),
-      IntegerToString((long)g_falgoOpenTelemetry.positionTicket),
       DoubleToString(g_falgoOpenTelemetry.openProfitPts, 1),
       DoubleToString(g_falgoOpenTelemetry.mfePts, 1),
       DoubleToString(g_falgoOpenTelemetry.maePts, 1),
@@ -4224,7 +4242,9 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
       (g_falgoOpenTelemetry.exitModeChanged ? "true" : "false"),
       eventType,
       FalgoSanitizeCsvCell(closeReason),
-      FalgoSanitizeCsvCell(closeDetail));
+      FalgoSanitizeCsvCell(closeDetail),
+      IntegerToString(g_falgoOpenTelemetry.magic),
+      IntegerToString((long)g_falgoOpenTelemetry.positionTicket));
    FileClose(fh);
 }
 
@@ -5091,7 +5111,7 @@ bool FalgoGatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int th
    if(entryBarIdx < 0 || throughBarIdx < entryBarIdx)
       return false;
    double peak = 0.0;
-   double trough = 0.0;
+   double mae = 0.0;
    bool found = false;
    for(int b = entryBarIdx; b <= throughBarIdx && b < g_barsInDay; b++)
    {
@@ -5100,21 +5120,21 @@ bool FalgoGatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int th
       if(!found)
       {
          peak = g_falgoTelemetryAtBar[b].mfePts;
-         trough = g_falgoTelemetryAtBar[b].maePts;
+         mae = g_falgoTelemetryAtBar[b].maePts;
          found = true;
       }
       else
       {
          if(g_falgoTelemetryAtBar[b].mfePts > peak)
             peak = g_falgoTelemetryAtBar[b].mfePts;
-         if(g_falgoTelemetryAtBar[b].maePts < trough)
-            trough = g_falgoTelemetryAtBar[b].maePts;
+         if(g_falgoTelemetryAtBar[b].maePts < mae)
+            mae = g_falgoTelemetryAtBar[b].maePts;
       }
    }
    if(!found)
       return false;
    outMfePts = DoubleToString(peak, 1);
-   outMaePts = DoubleToString(trough, 1);
+   outMaePts = DoubleToString(mae, 1);
    return true;
 }
 
@@ -5419,10 +5439,10 @@ void FalgoStrongMomentumStallFlags(const AlgoPerAlgoTune &tune,
    const double profitPts = g_falgoOpenTelemetry.openProfitPts;
    const double giveback = profitPts - g_falgoOpenTelemetry.mfePts;
    const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
-   if(vel <= tune.strong_momentum_stall_velocity_max)
+   if(vel <= tune.strong_trade_stall_velocity_max_trigger)
       outVelocityStall = true;
-   if(tune.strong_momentum_stall_giveback_pts > 0.0 &&
-      giveback <= -PointSized(tune.strong_momentum_stall_giveback_pts))
+   if(tune.strong_trade_stall_giveback_pts_trigger > 0.0 &&
+      giveback <= -PointSized(tune.strong_trade_stall_giveback_pts_trigger))
       outGivebackStall = true;
 }
 
@@ -5451,8 +5471,8 @@ string FalgoStrongMomentumStallReasonDetail(const AlgoPerAlgoTune &tune)
    const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
    return StringFormat("%s|vel=%.3f|velMax=%.3f|giveback=%.1f|givebackMax=%.1f",
       reasons,
-      vel, tune.strong_momentum_stall_velocity_max,
-      giveback, PointSized(tune.strong_momentum_stall_giveback_pts));
+      vel, tune.strong_trade_stall_velocity_max_trigger,
+      giveback, PointSized(tune.strong_trade_stall_giveback_pts_trigger));
 }
 
 //+------------------------------------------------------------------+
@@ -5470,7 +5490,7 @@ bool Babysitf_falgo_runStrongMomentumBabysit(const long posMagic, bool &outSkipN
       return false;
 
    const double profitPts = FalgoOpenPositionProfitPoints();
-   const double stallMinClosePts = PointSized(tune.strong_momentum_stall_min_close_profit_pts);
+   const double stallMinClosePts = PointSized(tune.strong_trade_stall_min_close_profit_pts);
 
    if(!g_falgoOpenTelemetry.aimStrongTp)
    {
@@ -5540,7 +5560,7 @@ bool Babysitf_falgo_closeIfProfitTargetTune(const long positionMagic, const doub
 }
 
 //+------------------------------------------------------------------+
-//| terribleTrade: latch when mae depth + consecutive red seconds both met; |
+//| terribleTrade: latch when mae depth + consecutive red seconds + avgProfitVelocity10 all met; |
 //| close when open profit >= terribletrade_try_smaller_loss_TP. |
 //+------------------------------------------------------------------+
 bool Babysitf_falgo_runTerribleTradeBabysit(const long posMagic)
@@ -5560,12 +5580,12 @@ bool Babysitf_falgo_runTerribleTradeBabysit(const long posMagic)
    const double targetPts = PointSized(tune.terribletrade_try_smaller_loss_TP);
    return Babysitf_falgo_closeIfProfitTargetTune(posMagic, tune.terribletrade_try_smaller_loss_TP,
       "terribletrade_try_smaller_loss_TP",
-      StringFormat("profit=%.1f|target=%.1f|trough=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
+      StringFormat("profit=%.1f|target=%.1f|MAE=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
          g_falgoOpenTelemetry.maePts));
 }
 
 //+------------------------------------------------------------------+
-//| badTrade: latch when maePts hits badtrade_profit_trigger; |
+//| badTrade: latch when mae depth + total red seconds both met; |
 //| close when open profit >= badtrade_try_save_TP. |
 //+------------------------------------------------------------------+
 bool Babysitf_falgo_runBadTradeBabysit(const long posMagic)
@@ -5584,7 +5604,7 @@ bool Babysitf_falgo_runBadTradeBabysit(const long posMagic)
 
    const double targetPts = PointSized(tune.badtrade_try_save_TP);
    return Babysitf_falgo_closeIfProfitTargetTune(posMagic, tune.badtrade_try_save_TP, "badtrade_try_save_TP",
-      StringFormat("profit=%.1f|target=%.1f|trough=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
+      StringFormat("profit=%.1f|target=%.1f|MAE=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
          g_falgoOpenTelemetry.maePts));
 }
 
@@ -6260,25 +6280,25 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo10.tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
    g_algoProfile.algo10.tune.babysitStart_minute                                     =  0;
    g_algoProfile.algo10.tune.neutral_trade_TP                                         =  2.1;
-   g_algoProfile.algo10.tune.strong_trade_TP                                         =  4.2;
+   g_algoProfile.algo10.tune.strong_trade_TP                                         =  3.8;
    g_algoProfile.algo10.tune.strong_trade_mode_enabled                               = true;
    g_algoProfile.algo10.tune.badtrade_mode_enabled                                    = true;
    g_algoProfile.algo10.tune.terribletrade_mode_enabled                               = true;
-   g_algoProfile.algo10.tune.strong_momentum_eval_min_profit_pts                      =  1.8;
-   g_algoProfile.algo10.tune.strong_momentum_min_velocity                             = 0.4;
-   g_algoProfile.algo10.tune.strong_momentum_min_green_ratio                          = 0.05;
-   g_algoProfile.algo10.tune.strong_momentum_min_consecutive_green                    =    5;
-   g_algoProfile.algo10.tune.strong_momentum_velocity_window_seconds                  =   10;
-   g_algoProfile.algo10.tune.strong_momentum_stall_velocity_max                       = 0.1;
-   g_algoProfile.algo10.tune.strong_momentum_stall_giveback_pts                       =  0.4;
-   g_algoProfile.algo10.tune.strong_momentum_stall_min_close_profit_pts               =  2.0;
+   g_algoProfile.algo10.tune.strong_trade_eval_min_profit_pts                      =  1.8;
+   g_algoProfile.algo10.tune.strong_trade_min_velocity_trigger                             = 0.4;
+   g_algoProfile.algo10.tune.strong_trade_velocity_window_seconds                  =   10;
+   g_algoProfile.algo10.tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
+   g_algoProfile.algo10.tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
+   g_algoProfile.algo10.tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algoProfile.algo10.tune.telemetry_velocity_window_seconds                        = 10;
    g_algoProfile.algo10.tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algoProfile.algo10.tune.trade_telemetry_per_second_enabled                       = true;
-   g_algoProfile.algo10.tune.badtrade_profit_trigger                                  =  -3.0;
+   g_algoProfile.algo10.tune.badtrade_profit_trigger                                  =  -4.0;
+   g_algoProfile.algo10.tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algoProfile.algo10.tune.badtrade_try_save_TP                                      =   1.0;
    g_algoProfile.algo10.tune.terribletrade_profit_trigger                             =  -5.5;
    g_algoProfile.algo10.tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algoProfile.algo10.tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algoProfile.algo10.tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
    g_algoProfile.algo10.bounceMaxAllowed_today                          =  3;
    g_algoProfile.algo10.min_anchorAbove_cleanStreak                     =  3.2;
@@ -6293,25 +6313,25 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo11.tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
    g_algoProfile.algo11.tune.babysitStart_minute                                     =  0;
    g_algoProfile.algo11.tune.neutral_trade_TP                                         =  2.1;
-   g_algoProfile.algo11.tune.strong_trade_TP                                         =  4.2;
+   g_algoProfile.algo11.tune.strong_trade_TP                                         =  3.8;
    g_algoProfile.algo11.tune.strong_trade_mode_enabled                               = true;
    g_algoProfile.algo11.tune.badtrade_mode_enabled                                    = true;
    g_algoProfile.algo11.tune.terribletrade_mode_enabled                               = true;
-   g_algoProfile.algo11.tune.strong_momentum_eval_min_profit_pts                      =  1.8;
-   g_algoProfile.algo11.tune.strong_momentum_min_velocity                             = 0.4;
-   g_algoProfile.algo11.tune.strong_momentum_min_green_ratio                          = 0.05;
-   g_algoProfile.algo11.tune.strong_momentum_min_consecutive_green                    =    5;
-   g_algoProfile.algo11.tune.strong_momentum_velocity_window_seconds                  =   10;
-   g_algoProfile.algo11.tune.strong_momentum_stall_velocity_max                       = -1.5;
-   g_algoProfile.algo11.tune.strong_momentum_stall_giveback_pts                       =  99; // 0.4. 99 disables 
-   g_algoProfile.algo11.tune.strong_momentum_stall_min_close_profit_pts               =  2.0;
+   g_algoProfile.algo11.tune.strong_trade_eval_min_profit_pts                      =  1.8;
+   g_algoProfile.algo11.tune.strong_trade_min_velocity_trigger                             = 0.4;
+   g_algoProfile.algo11.tune.strong_trade_velocity_window_seconds                  =   10;
+   g_algoProfile.algo11.tune.strong_trade_stall_velocity_max_trigger                       = -1.5;
+   g_algoProfile.algo11.tune.strong_trade_stall_giveback_pts_trigger                       =  99.0; // 0.4. 99 disables 
+   g_algoProfile.algo11.tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algoProfile.algo11.tune.telemetry_velocity_window_seconds                        = 10;
    g_algoProfile.algo11.tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algoProfile.algo11.tune.trade_telemetry_per_second_enabled                       = true;
    g_algoProfile.algo11.tune.badtrade_profit_trigger                                  =  -3.0;
+   g_algoProfile.algo11.tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algoProfile.algo11.tune.badtrade_try_save_TP                                     =   1.0;
    g_algoProfile.algo11.tune.terribletrade_profit_trigger                             =  -5.5;
    g_algoProfile.algo11.tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algoProfile.algo11.tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algoProfile.algo11.tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
    g_algoProfile.algo11.min_bounceCount                                 =  2;
    g_algoProfile.algo11.recentBounceCountToday_Minutes                   = 600;
@@ -6328,25 +6348,25 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo12.tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
    g_algoProfile.algo12.tune.babysitStart_minute                                     =  0;
    g_algoProfile.algo12.tune.neutral_trade_TP                                         =  2.1;
-   g_algoProfile.algo12.tune.strong_trade_TP                                         =  4.2;
+   g_algoProfile.algo12.tune.strong_trade_TP                                         =  3.8;
    g_algoProfile.algo12.tune.strong_trade_mode_enabled                               = true;
    g_algoProfile.algo12.tune.badtrade_mode_enabled                                    = true;
    g_algoProfile.algo12.tune.terribletrade_mode_enabled                               = true;
-   g_algoProfile.algo12.tune.strong_momentum_eval_min_profit_pts                      =  1.8;
-   g_algoProfile.algo12.tune.strong_momentum_min_velocity                             = 0.4;
-   g_algoProfile.algo12.tune.strong_momentum_min_green_ratio                          = 0.05;
-   g_algoProfile.algo12.tune.strong_momentum_min_consecutive_green                    =    5;
-   g_algoProfile.algo12.tune.strong_momentum_velocity_window_seconds                  =   10;
-   g_algoProfile.algo12.tune.strong_momentum_stall_velocity_max                       = 0.1;
-   g_algoProfile.algo12.tune.strong_momentum_stall_giveback_pts                       =  0.4;
-   g_algoProfile.algo12.tune.strong_momentum_stall_min_close_profit_pts               =  2.0;
+   g_algoProfile.algo12.tune.strong_trade_eval_min_profit_pts                      =  1.8;
+   g_algoProfile.algo12.tune.strong_trade_min_velocity_trigger                             = 0.4;
+   g_algoProfile.algo12.tune.strong_trade_velocity_window_seconds                  =   10;
+   g_algoProfile.algo12.tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
+   g_algoProfile.algo12.tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
+   g_algoProfile.algo12.tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algoProfile.algo12.tune.telemetry_velocity_window_seconds                        = 10;
    g_algoProfile.algo12.tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algoProfile.algo12.tune.trade_telemetry_per_second_enabled                       = true;
    g_algoProfile.algo12.tune.badtrade_profit_trigger                                  =  -3.0;
+   g_algoProfile.algo12.tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algoProfile.algo12.tune.badtrade_try_save_TP                                     =   1.0;
    g_algoProfile.algo12.tune.terribletrade_profit_trigger                             =  -5.5;
    g_algoProfile.algo12.tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algoProfile.algo12.tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algoProfile.algo12.tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
    g_algoProfile.algo12.ceilingMaxAllowed_today                         =  2;
    g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay                =  1;
