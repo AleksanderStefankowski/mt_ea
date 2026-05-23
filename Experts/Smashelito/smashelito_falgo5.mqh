@@ -1,9 +1,11 @@
 //+------------------------------------------------------------------+
-//| smashelito_falgo5.mqh — algo5 (falgo5) profile, magic, ruleset, pipeline |
+//| smashelito_falgo5.mqh — algo family 5/6/7 (long1/long2/short1), shared pipeline |
 //| Included from smashelito.mq5 after globals (g_tradeResults, g_m1Rates, …). |
 //+------------------------------------------------------------------+
 #ifndef SMASHELITO_FALGO5_MQH
 #define SMASHELITO_FALGO5_MQH
+
+#include "smashelito_algo_shared.mqh"
 
 //--- falgo5 magic layout (17 decimal digits; index 0 = digit 1)
 #define FALGO5_MAGIC_INDEX_SLOT1           0   // 5
@@ -45,9 +47,82 @@
 BannedRangeMinutes g_falgo5BannedRanges[FALGO5_BANNED_RANGES_MAX];
 int g_falgo5BannedRangeCount = 0;
 datetime g_falgo5PlanCountersDayStart = 0;
-int g_falgo5PlanTradeNumToday = 0;           // falgo5 fills today (IN deals); next magic plan # = count+1; expired pendings do not count
-int g_falgo5LevelTradeNumByTier[FALGO5_LEVEL_TIER_MAX + 1];  // fills today per weekly tier (from magic)
-datetime g_falgo5GatesLastLoggedBarTime = 0;
+int g_algoPlanTradeNumToday[ALGO_FAMILY_SLOT_COUNT];  // per algo slot (5..9); next plan # = count+1
+int g_algoLevelTradeNumByTier[ALGO_FAMILY_SLOT_COUNT][FALGO5_LEVEL_TIER_MAX + 1];
+
+//+------------------------------------------------------------------+
+bool AlgoFamilyAnyEnabled()
+{
+   return (g_algoProfile.algo5.enabled || g_algoProfile.algo6.enabled || g_algoProfile.algo7.enabled);
+}
+
+//+------------------------------------------------------------------+
+bool AlgoSlotEnabled(const int algoSlot1)
+{
+   if(algoSlot1 == MAGIC_ALGO5_SLOT1)
+      return g_algoProfile.algo5.enabled;
+   if(algoSlot1 == MAGIC_ALGO6_SLOT1)
+      return g_algoProfile.algo6.enabled;
+   if(algoSlot1 == MAGIC_ALGO7_SLOT1)
+      return g_algoProfile.algo7.enabled;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoDailySpamLogGatesEnabled(const int algoSlot1)
+{
+   if(algoSlot1 == MAGIC_ALGO5_SLOT1)
+      return dailySpamLog_Algo5GatesPerMinute;
+   if(algoSlot1 == MAGIC_ALGO6_SLOT1)
+      return dailySpamLog_Algo6GatesPerMinute;
+   if(algoSlot1 == MAGIC_ALGO7_SLOT1)
+      return dailySpamLog_Algo7GatesPerMinute;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoEodTradeResultsLoggingEnabled(const int algoSlot1)
+{
+   if(algoSlot1 == MAGIC_ALGO5_SLOT1)
+      return dailyEODlog_TradeResultsCsvFalgo5;
+   if(algoSlot1 == MAGIC_ALGO6_SLOT1)
+      return dailyEODlog_TradeResultsCsvAlgo6;
+   if(algoSlot1 == MAGIC_ALGO7_SLOT1)
+      return dailyEODlog_TradeResultsCsvAlgo7;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoProfileBlocksOnFamilyOpenOrPending(const int algoSlot1)
+{
+   if(algoSlot1 == MAGIC_ALGO5_SLOT1)
+      return g_algoProfile.algo5.blockPlacementIfFamilyOpenOrPending;
+   if(algoSlot1 == MAGIC_ALGO6_SLOT1)
+      return g_algoProfile.algo6.blockPlacementIfFamilyOpenOrPending;
+   if(algoSlot1 == MAGIC_ALGO7_SLOT1)
+      return g_algoProfile.algo7.blockPlacementIfFamilyOpenOrPending;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+int AlgoPlanTradeNumToday(const int algoSlot1)
+{
+   const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
+   if(idx < 0)
+      return 0;
+   return g_algoPlanTradeNumToday[idx];
+}
+
+//+------------------------------------------------------------------+
+int AlgoLevelTradeNumTodayAtTier(const int algoSlot1, const int tier)
+{
+   const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
+   if(idx < 0 || tier < 0 || tier > FALGO5_LEVEL_TIER_MAX)
+      return 0;
+   return g_algoLevelTradeNumByTier[idx][tier];
+}
+
+datetime g_algoGatesLastLoggedBarTime[ALGO_FAMILY_SLOT_COUNT];
 datetime g_falgo5GatesLogDayStart = 0;
 bool g_falgo5OrderPlacedLastPipeline = false;
 
@@ -142,20 +217,6 @@ int Falgo5Clamp0_8(const int v) { return (v < 0) ? 0 : ((v > 8) ? 8 : v); }
 int Falgo5Clamp0_9(const int v) { return (v < 0) ? 0 : ((v > 9) ? 9 : v); }
 
 //+------------------------------------------------------------------+
-bool IsFalgo5CompositeMagicSlot1(const long magic)
-{
-   string s = IntegerToString(magic);
-   if(StringLen(s) < 1) return false;
-   if(StringLen(s) >= COMPOSITE_MAGIC_STRING_LEN)
-      s = MagicNumberToFixedWidthString(magic);
-   int slot1 = (int)StringToInteger(StringSubstr(s, 0, 1));
-   return (slot1 == MAGIC_ALGO5_SLOT1);
-}
-
-//+------------------------------------------------------------------+
-bool IsAlgo5CompositeMagicSlot1(const long magic) { return IsFalgo5CompositeMagicSlot1(magic); }
-
-//+------------------------------------------------------------------+
 int Falgo5CapWholeTpSlForMagic(const double points)
 {
    int w = (int)MathRound(points);
@@ -165,10 +226,10 @@ int Falgo5CapWholeTpSlForMagic(const double points)
 }
 
 //+------------------------------------------------------------------+
-long BuildFalgo5MagicNumber(const Falgo5MagicKey &k)
+long BuildAlgoMagicNumber(const int algoSlot1, const Falgo5MagicKey &k)
 {
    string s = StringFormat("%d%d%d%d%d%d%02d%d%d%d%d%d%02d%02d",
-      MAGIC_ALGO5_SLOT1,
+      algoSlot1,
       k.direction,
       k.dayOfWeek,
       k.levelTier,
@@ -183,9 +244,12 @@ long BuildFalgo5MagicNumber(const Falgo5MagicKey &k)
       k.tpWhole,
       k.slWhole);
    if(StringLen(s) != COMPOSITE_MAGIC_STRING_LEN)
-      FatalError(StringFormat("BuildFalgo5MagicNumber: len %d != %d", StringLen(s), COMPOSITE_MAGIC_STRING_LEN));
+      FatalError(StringFormat("BuildAlgoMagicNumber: algo%d len %d != %d", algoSlot1, StringLen(s), COMPOSITE_MAGIC_STRING_LEN));
    return (long)StringToInteger(s);
 }
+
+//+------------------------------------------------------------------+
+long BuildFalgo5MagicNumber(const Falgo5MagicKey &k) { return BuildAlgoMagicNumber(MAGIC_ALGO5_SLOT1, k); }
 
 //+------------------------------------------------------------------+
 Falgo5MagicKey ParseFalgo5Magic(const long magic)
@@ -204,7 +268,7 @@ Falgo5MagicKey ParseFalgo5Magic(const long magic)
    emptyKey.subsetB = 0;
    emptyKey.tpWhole = 0;
    emptyKey.slWhole = 0;
-   if(!IsFalgo5CompositeMagicSlot1(magic))
+   if(!IsAnyAlgoFamilyCompositeMagic(magic))
       return emptyKey;
    string s = MagicNumberToFixedWidthString(magic);
    Falgo5MagicKey k;
@@ -228,7 +292,7 @@ Falgo5MagicKey ParseFalgo5Magic(const long magic)
 void RebuildFalgo5BannedRangesCache()
 {
    g_falgo5BannedRangeCount = 0;
-   ParseBannedRanges(g_falgo5Profile.bannedRanges);
+   ParseBannedRanges(g_algoProfile.shared.bannedRanges);
    // Use g_bannedRangesCount (rows), not ArraySize — on 2D arrays ArraySize is total elements (rows×4).
    for(int i = 0; i < g_bannedRangesCount && i < FALGO5_BANNED_RANGES_MAX; i++)
    {
@@ -294,7 +358,7 @@ bool Falgo5LevelEligibleForClosestAnchor(const int expandedLevelIdx)
 {
    if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
       return false;
-   if(g_falgo5Profile.tradesDailyLevels)
+   if(g_algoProfile.shared.tradesDailyLevels)
       return true;
    return LevelIsWeekly(g_levelsExpanded[expandedLevelIdx].categories);
 }
@@ -305,9 +369,12 @@ void Falgo5ResetPlanCountersIfNewDay(const datetime dayStart)
    if(g_falgo5PlanCountersDayStart == dayStart)
       return;
    g_falgo5PlanCountersDayStart = dayStart;
-   g_falgo5PlanTradeNumToday = 0;
-   for(int tier = 0; tier <= FALGO5_LEVEL_TIER_MAX; tier++)
-      g_falgo5LevelTradeNumByTier[tier] = 0;
+   for(int ai = 0; ai < ALGO_FAMILY_SLOT_COUNT; ai++)
+   {
+      g_algoPlanTradeNumToday[ai] = 0;
+      for(int tier = 0; tier <= FALGO5_LEVEL_TIER_MAX; tier++)
+         g_algoLevelTradeNumByTier[ai][tier] = 0;
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -316,7 +383,7 @@ bool Falgo5IsTradingDayAllowed(const datetime t)
    int slot = Falgo5DayOfWeekSlotFromTimeOrInvalid(t);
    if(slot < 1)
       return false;
-   string days = g_falgo5Profile.tradesDays;
+   string days = g_algoProfile.shared.tradesDays;
    if(StringLen(days) < 1)
       return true;
    return (StringFind(days, IntegerToString(slot)) >= 0);
@@ -334,7 +401,7 @@ bool Falgo5IsTradingDayAllowedAtTime(const datetime t)
 //+------------------------------------------------------------------+
 bool Falgo5ProfileAllowsNewOrdersAtTime(const datetime t)
 {
-   if(!g_falgo5Profile.enabled)
+   if(!AlgoFamilyAnyEnabled())
       return false;
    if(!Falgo5IsTradingDayAllowedAtTime(t))
       return false;
@@ -357,7 +424,7 @@ void Falgo5LegacyDayTotalsBeforeBarClose(const datetime candleCloseTime,
    {
       if(!g_tradeResults[i].foundOut)
          continue;
-      if(IsFalgo5CompositeMagicSlot1(g_tradeResults[i].magic))
+      if(IsAnyAlgoFamilyCompositeMagic(g_tradeResults[i].magic))
          continue;
       if(g_tradeResults[i].endTime >= candleCloseTime)
          continue;
@@ -374,17 +441,23 @@ void Falgo5LegacyDayTotalsBeforeBarClose(const datetime candleCloseTime,
 //+------------------------------------------------------------------+
 void SyncFalgo5PlanCountersFromTradeResults()
 {
-   g_falgo5PlanTradeNumToday = 0;
-   for(int tier = 0; tier <= FALGO5_LEVEL_TIER_MAX; tier++)
-      g_falgo5LevelTradeNumByTier[tier] = 0;
+   for(int ai = 0; ai < ALGO_FAMILY_SLOT_COUNT; ai++)
+   {
+      g_algoPlanTradeNumToday[ai] = 0;
+      for(int tier = 0; tier <= FALGO5_LEVEL_TIER_MAX; tier++)
+         g_algoLevelTradeNumByTier[ai][tier] = 0;
+   }
    for(int i = 0; i < g_tradeResultsCount; i++)
    {
-      if(!IsFalgo5CompositeMagicSlot1(g_tradeResults[i].magic))
+      if(!IsAnyAlgoFamilyCompositeMagic(g_tradeResults[i].magic))
          continue;
-      g_falgo5PlanTradeNumToday++;
+      const int algoIdx = AlgoFamilySlotArrayIndex(AlgoFamilyMagicSlot1(g_tradeResults[i].magic));
+      if(algoIdx < 0)
+         continue;
+      g_algoPlanTradeNumToday[algoIdx]++;
       Falgo5MagicKey fk = ParseFalgo5Magic(g_tradeResults[i].magic);
       if(fk.levelTier >= 1 && fk.levelTier <= FALGO5_LEVEL_TIER_MAX)
-         g_falgo5LevelTradeNumByTier[fk.levelTier]++;
+         g_algoLevelTradeNumByTier[algoIdx][fk.levelTier]++;
    }
 }
 
@@ -399,7 +472,7 @@ void UpdateFalgo5DayTradeCounts()
    {
       if(!g_tradeResults[i].foundOut)
          continue;
-      if(!IsFalgo5CompositeMagicSlot1(g_tradeResults[i].magic))
+      if(!IsAnyAlgoFamilyCompositeMagic(g_tradeResults[i].magic))
          continue;
       g_falgo5DayClosedCount++;
       if(g_tradeResults[i].profit > 0.0)
@@ -416,7 +489,7 @@ bool Falgo5HasOpenPositionOnSymbol()
    {
       if(!ExtPositionInfo.SelectByIndex(i)) continue;
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
-      if(IsFalgo5CompositeMagicSlot1(ExtPositionInfo.Magic()))
+      if(IsAnyAlgoFamilyCompositeMagic(ExtPositionInfo.Magic()))
          return true;
    }
    return false;
@@ -429,7 +502,7 @@ bool Falgo5HasPendingOrderOnSymbol()
    {
       if(!ExtOrderInfo.SelectByIndex(i)) continue;
       if(ExtOrderInfo.Symbol() != _Symbol) continue;
-      if(IsFalgo5CompositeMagicSlot1(ExtOrderInfo.Magic()))
+      if(IsAnyAlgoFamilyCompositeMagic(ExtOrderInfo.Magic()))
          return true;
    }
    return false;
@@ -527,7 +600,7 @@ void Falgo5CancelAllPendingFalgo5OrdersOnSymbol()
          continue;
       if(ExtOrderInfo.Symbol() != _Symbol)
          continue;
-      if(!IsFalgo5CompositeMagicSlot1(ExtOrderInfo.Magic()))
+      if(!IsAnyAlgoFamilyCompositeMagic(ExtOrderInfo.Magic()))
          continue;
       ExtTrade.SetExpertMagicNumber((ulong)ExtOrderInfo.Magic());
       ExtTrade.OrderDelete(ExtOrderInfo.Ticket());
@@ -573,7 +646,7 @@ void Falgo5TelemetrySnapOpenStateToBar(const int barIdx, const bool tradeClosedO
    snap.greenRatio = Falgo5TelemetryGreenRatioFromOpen();
    snap.consecutiveGreen = g_falgo5OpenTelemetry.consecutiveGreen;
    snap.consecutiveRed = g_falgo5OpenTelemetry.consecutiveRed;
-   snap.profitVelocity = Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_velocity_window_seconds);
+   snap.profitVelocity = Falgo5TelemetryProfitVelocityWindowSeconds(g_algoProfile.shared.telemetry_velocity_window_seconds);
    snap.peakProfitPts = g_falgo5OpenTelemetry.peakProfitPts;
    snap.troughProfitPts = g_falgo5OpenTelemetry.troughProfitPts;
    snap.profitFromPeak = g_falgo5OpenTelemetry.openProfitPts - g_falgo5OpenTelemetry.peakProfitPts;
@@ -635,7 +708,7 @@ bool Falgo5SelectFirstOpenFalgo5PositionOnSymbol()
          continue;
       if(ExtPositionInfo.Symbol() != _Symbol)
          continue;
-      if(!IsFalgo5CompositeMagicSlot1(ExtPositionInfo.Magic()))
+      if(!IsAnyAlgoFamilyCompositeMagic(ExtPositionInfo.Magic()))
          continue;
       return true;
    }
@@ -696,29 +769,29 @@ double Falgo5TelemetryProfitVelocityWindowSeconds(const int windowSec)
 //+------------------------------------------------------------------+
 string Falgo5GatesColProfitVelocity()
 {
-   if(g_falgo5Profile.telemetry_velocity_window_seconds <= 0)
+   if(g_algoProfile.shared.telemetry_velocity_window_seconds <= 0)
       return "profitVelocity_0";
-   return StringFormat("profitVelocity_%d", g_falgo5Profile.telemetry_velocity_window_seconds);
+   return StringFormat("profitVelocity_%d", g_algoProfile.shared.telemetry_velocity_window_seconds);
 }
 
 //+------------------------------------------------------------------+
 string Falgo5GatesColAvgProfitVelocity()
 {
-   if(g_falgo5Profile.telemetry_avg_velocity_window_seconds <= 0)
+   if(g_algoProfile.shared.telemetry_avg_velocity_window_seconds <= 0)
       return "avg_profitVelocity_0";
-   return StringFormat("avg_profitVelocity_%d", g_falgo5Profile.telemetry_avg_velocity_window_seconds);
+   return StringFormat("avg_profitVelocity_%d", g_algoProfile.shared.telemetry_avg_velocity_window_seconds);
 }
 
 //+------------------------------------------------------------------+
 bool Falgo5IsTimeInPerSecondDebugWindow(const datetime t)
 {
-   if(!g_falgo5Profile.persecond_debug_enabled)
+   if(!g_algoProfile.shared.persecond_debug_enabled)
       return false;
    MqlDateTime dt;
    TimeToStruct(t, dt);
    const int minuteOfDay = dt.hour * 60 + dt.min;
-   const int startMin = g_falgo5Profile.persecond_debug_start_hour * 60 + g_falgo5Profile.persecond_debug_start_minute;
-   const int endMin = g_falgo5Profile.persecond_debug_end_hour * 60 + g_falgo5Profile.persecond_debug_end_minute;
+   const int startMin = g_algoProfile.shared.persecond_debug_start_hour * 60 + g_algoProfile.shared.persecond_debug_start_minute;
+   const int endMin = g_algoProfile.shared.persecond_debug_end_hour * 60 + g_algoProfile.shared.persecond_debug_end_minute;
    if(startMin <= endMin)
       return (minuteOfDay >= startMin && minuteOfDay <= endMin);
    return (minuteOfDay >= startMin || minuteOfDay <= endMin);
@@ -814,7 +887,7 @@ void Falgo5TryLogTelemetryPerSecond()
       return;
    const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    const string dateStr = TimeToString(dayStart, TIME_DATE);
-   const string fname = dateStr + "_algo5_trade_telemetry_per_second.csv";
+   const string fname = AlgoFamilyCsvFileName(dateStr, AlgoFamilyMagicSlot1(g_falgo5OpenTelemetry.magic), "trade_telemetry_per_second");
    int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
@@ -829,7 +902,7 @@ void Falgo5TryLogTelemetryPerSecond()
          Falgo5GatesColProfitVelocity(), Falgo5GatesColAvgProfitVelocity(),
          "peakProfitPts", "profitFromPeak", "timeToReachSavingTpSeconds");
    }
-   const double profitVelocity = Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_velocity_window_seconds);
+   const double profitVelocity = Falgo5TelemetryProfitVelocityWindowSeconds(g_algoProfile.shared.telemetry_velocity_window_seconds);
    const double profitFromPeak = g_falgo5OpenTelemetry.openProfitPts - g_falgo5OpenTelemetry.peakProfitPts;
    FileWrite(fh,
       TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS),
@@ -874,13 +947,13 @@ void Falgo5TelemetryUpdateOneSecondFromSelectedPosition()
    if(profitPts < g_falgo5OpenTelemetry.troughProfitPts)
       g_falgo5OpenTelemetry.troughProfitPts = profitPts;
    if(g_falgo5OpenTelemetry.timeToReachSavingTpSeconds < 0 &&
-      g_falgo5Profile.saving_trade_TP > 0.0 &&
-      profitPts >= PointSized(g_falgo5Profile.saving_trade_TP))
+      g_algoProfile.shared.saving_trade_TP > 0.0 &&
+      profitPts >= PointSized(g_algoProfile.shared.saving_trade_TP))
    {
       g_falgo5OpenTelemetry.timeToReachSavingTpSeconds = g_falgo5OpenTelemetry.tradeAgeSeconds;
    }
    Falgo5TelemetryPushProfitSample(g_lastTimer1Time, profitPts);
-   const double velAvgWindow = Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_avg_velocity_window_seconds);
+   const double velAvgWindow = Falgo5TelemetryProfitVelocityWindowSeconds(g_algoProfile.shared.telemetry_avg_velocity_window_seconds);
    g_falgo5OpenTelemetry.avgVelocitySampleCount++;
    if(g_falgo5OpenTelemetry.avgVelocitySampleCount == 1)
       g_falgo5OpenTelemetry.avgProfitVelocity = velAvgWindow;
@@ -943,17 +1016,17 @@ void Falgo5UpdateOpenTradeTelemetryEachSecond()
 //+------------------------------------------------------------------+
 string Falgo5GatesColRecentBounceCount()
 {
-   if(g_falgo5Profile.long2_recentBounceCountToday_Minutes <= 0)
+   if(g_algoProfile.algo6.recentBounceCountToday_Minutes <= 0)
       return "recentBounceCount0";
-   return StringFormat("recentBounceCount%d", g_falgo5Profile.long2_recentBounceCountToday_Minutes);
+   return StringFormat("recentBounceCount%d", g_algoProfile.algo6.recentBounceCountToday_Minutes);
 }
 
 //+------------------------------------------------------------------+
 string Falgo5GatesColRecentCeilingCount()
 {
-   if(g_falgo5Profile.recentCeilingCountToday_Minutes <= 0)
+   if(g_algoProfile.algo7.recentCeilingCountToday_Minutes <= 0)
       return "recentCeilingCount0";
-   return StringFormat("recentCeilingCount%d", g_falgo5Profile.recentCeilingCountToday_Minutes);
+   return StringFormat("recentCeilingCount%d", g_algoProfile.algo7.recentCeilingCountToday_Minutes);
 }
 
 //+------------------------------------------------------------------+
@@ -1019,9 +1092,9 @@ void Falgo5EffectiveTpSlPointsFromMagicKey(const Falgo5MagicKey &k, double &outT
 {
    outTpPoints = (double)k.tpWhole;
    outSlPoints = (double)k.slWhole;
-   if(g_falgo5Profile.secretTPSL && g_falgo5Profile.secretTPSL_percent > 0)
+   if(g_algoProfile.shared.secretTPSL && g_algoProfile.shared.secretTPSL_percent > 0)
    {
-      const double frac = (double)g_falgo5Profile.secretTPSL_percent / 100.0;
+      const double frac = (double)g_algoProfile.shared.secretTPSL_percent / 100.0;
       outTpPoints *= frac;
       outSlPoints *= frac;
    }
@@ -1030,7 +1103,7 @@ void Falgo5EffectiveTpSlPointsFromMagicKey(const Falgo5MagicKey &k, double &outT
 //+------------------------------------------------------------------+
 void Falgo5EnrichTradeResultLevelTpSl(TradeResult &tr)
 {
-   if(!IsFalgo5CompositeMagicSlot1(tr.magic))
+   if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
       return;
    Falgo5MagicKey fk = ParseFalgo5Magic(tr.magic);
    if(fk.levelTier < 1 || fk.levelTier > FALGO5_LEVEL_TIER_MAX)
@@ -1054,17 +1127,13 @@ void Falgo5EnrichAllTradeResultsLevelTpSl()
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5RulesetPassesCommon(const int barIdx)
+bool Falgo5RulesetPassesCommonShared(const int barIdx)
 {
-   if(g_falgo5Profile.stop_trading_today_if_losing_trades_count > 0 &&
-      g_falgo5DayLosses >= g_falgo5Profile.stop_trading_today_if_losing_trades_count)
+   if(g_algoProfile.shared.stop_trading_today_if_losing_trades_count > 0 &&
+      g_falgo5DayLosses >= g_algoProfile.shared.stop_trading_today_if_losing_trades_count)
       return false;
-   if(g_falgo5Profile.stop_trading_today_if_winning_trades_count > 0 &&
-      g_falgo5DayWins >= g_falgo5Profile.stop_trading_today_if_winning_trades_count)
-      return false;
-   if(Falgo5HasOpenPositionOnSymbol())
-      return false;
-   if(Falgo5HasPendingOrderOnSymbol())
+   if(g_algoProfile.shared.stop_trading_today_if_winning_trades_count > 0 &&
+      g_falgo5DayWins >= g_algoProfile.shared.stop_trading_today_if_winning_trades_count)
       return false;
    if(barIdx >= 0 && g_falgo5LastTradeClosedBarIdx >= 0 && barIdx == g_falgo5LastTradeClosedBarIdx)
       return false;
@@ -1072,46 +1141,71 @@ bool Falgo5RulesetPassesCommon(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
+bool AlgoRulesetPassesCommonForPlacement(const int algoSlot1, const int barIdx)
+{
+   if(!Falgo5RulesetPassesCommonShared(barIdx))
+      return false;
+   if(AlgoProfileBlocksOnFamilyOpenOrPending(algoSlot1))
+   {
+      if(Falgo5HasOpenPositionOnSymbol())
+         return false;
+      if(Falgo5HasPendingOrderOnSymbol())
+         return false;
+   }
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool Falgo5RulesetPassesCommon(const int barIdx)
+{
+   if(!Falgo5RulesetPassesCommonShared(barIdx))
+      return false;
+   if(Falgo5HasOpenPositionOnSymbol())
+      return false;
+   if(Falgo5HasPendingOrderOnSymbol())
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
 //| Long direction rules (no common gates): long1 OR long2 when each enabled. |
 //+------------------------------------------------------------------+
-bool Falgo5RulesetPassesForLong1(const int barIdx)
+bool Algo5RulesetPasses(const int barIdx)
 {
-   if(!g_falgo5Profile.long1_enabled)
+   if(!g_algoProfile.algo5.enabled)
       return false;
-   if(Falgo5GetBounceCountForClosestWeeklyLevel(barIdx) > g_falgo5Profile.long1_bounceMaxAllowed_today)
+   if(Falgo5GetBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo5.bounceMaxAllowed_today)
       return false;
    return true;
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5RulesetPassesForLong2(const int barIdx)
+bool Algo6RulesetPasses(const int barIdx)
 {
-   if(!g_falgo5Profile.long2_enabled)
+   if(!g_algoProfile.algo6.enabled)
       return false;
    const int bounce = Falgo5GetBounceCountForClosestWeeklyLevel(barIdx);
-   if(bounce < g_falgo5Profile.long2_min_bounceCount)
+   if(bounce < g_algoProfile.algo6.min_bounceCount)
       return false;
-   if(Falgo5GetRecentBounceCountForClosestWeeklyLevel(barIdx) >= g_falgo5Profile.long2_recentBounceCount_max_allowed)
+   if(Falgo5GetRecentBounceCountForClosestWeeklyLevel(barIdx) >= g_algoProfile.algo6.recentBounceCount_max_allowed)
       return false;
    return true;
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5LongDirectionRulesetPasses(const int barIdx)
+bool Algo5RulesetPassesForPlacement(const int barIdx)
 {
-   if(Falgo5RulesetPassesForLong1(barIdx))
-      return true;
-   if(Falgo5RulesetPassesForLong2(barIdx))
-      return true;
-   return false;
+   if(!AlgoRulesetPassesCommonForPlacement(MAGIC_ALGO5_SLOT1, barIdx))
+      return false;
+   return Algo5RulesetPasses(barIdx);
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5RulesetPassesForLongPlacement(const int barIdx)
+bool Algo6RulesetPassesForPlacement(const int barIdx)
 {
-   if(!Falgo5RulesetPassesCommon(barIdx))
+   if(!AlgoRulesetPassesCommonForPlacement(MAGIC_ALGO6_SLOT1, barIdx))
       return false;
-   return Falgo5LongDirectionRulesetPasses(barIdx);
+   return Algo6RulesetPasses(barIdx);
 }
 
 //+------------------------------------------------------------------+
@@ -1142,7 +1236,7 @@ int Falgo5ShortTradeCountTodayAtTier(const int tier)
    int count = 0;
    for(int i = 0; i < g_tradeResultsCount; i++)
    {
-      if(!IsFalgo5CompositeMagicSlot1(g_tradeResults[i].magic))
+      if(!IsAlgo7CompositeMagicSlot1(g_tradeResults[i].magic))
          continue;
       const Falgo5MagicKey fk = ParseFalgo5Magic(g_tradeResults[i].magic);
       if(fk.levelTier != tier || !Falgo5MagicKeyIsShortDirection(fk))
@@ -1156,7 +1250,7 @@ int Falgo5ShortTradeCountTodayAtTier(const int tier)
       if(ExtOrderInfo.Symbol() != _Symbol)
          continue;
       const long magic = ExtOrderInfo.Magic();
-      if(!IsFalgo5CompositeMagicSlot1(magic))
+      if(!IsAlgo7CompositeMagicSlot1(magic))
          continue;
       const Falgo5MagicKey fk = ParseFalgo5Magic(magic);
       if(fk.levelTier != tier || !Falgo5MagicKeyIsShortDirection(fk))
@@ -1167,36 +1261,28 @@ int Falgo5ShortTradeCountTodayAtTier(const int tier)
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5RulesetPassesForShort1(const int barIdx)
+bool Algo7RulesetPasses(const int barIdx)
 {
-   if(!g_falgo5Profile.short1_enabled)
+   if(!g_algoProfile.algo7.enabled)
       return false;
-   if(Falgo5GetCeilingCountForClosestWeeklyLevel(barIdx) > g_falgo5Profile.short1_ceilingMaxAllowed_today)
+   if(Falgo5GetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo7.ceilingMaxAllowed_today)
       return false;
-   if(g_falgo5Profile.short1_max_allowed_shorts_perLevel_perDay > 0)
+   if(g_algoProfile.algo7.max_allowed_shorts_perLevel_perDay > 0)
    {
       const int tier = Falgo5ClosestWeeklyLevelTierAtBar(barIdx);
       if(tier >= 1 &&
-         Falgo5ShortTradeCountTodayAtTier(tier) >= g_falgo5Profile.short1_max_allowed_shorts_perLevel_perDay)
+         Falgo5ShortTradeCountTodayAtTier(tier) >= g_algoProfile.algo7.max_allowed_shorts_perLevel_perDay)
          return false;
    }
    return true;
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5ShortDirectionRulesetPasses(const int barIdx)
+bool Algo7RulesetPassesForPlacement(const int barIdx)
 {
-   if(Falgo5RulesetPassesForShort1(barIdx))
-      return true;
-   return false;
-}
-
-//+------------------------------------------------------------------+
-bool Falgo5RulesetPassesForShortPlacement(const int barIdx)
-{
-   if(!Falgo5RulesetPassesCommon(barIdx))
+   if(!AlgoRulesetPassesCommonForPlacement(MAGIC_ALGO7_SLOT1, barIdx))
       return false;
-   return Falgo5ShortDirectionRulesetPasses(barIdx);
+   return Algo7RulesetPasses(barIdx);
 }
 
 //+------------------------------------------------------------------+
@@ -1206,7 +1292,7 @@ bool Falgo5ProfileAllowsNewOrdersNow()
 }
 
 //+------------------------------------------------------------------+
-void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
+void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const datetime evalTime,
    string &outCloseVsLevel, string &outDirection, int &outTier,
    bool &outProxOK, bool &outBounceOK, bool &outCeilingOK, bool &outWeeklyOK, bool &outAnchorOK,
    bool &outMagicFree, bool &outUnderLossStop, bool &outUnderWinStop,
@@ -1218,7 +1304,7 @@ void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
    outProxOK = false;
    outBounceOK = false;
    outCeilingOK = false;
-   outWeeklyOK = g_falgo5Profile.tradesWeeklyLevels;
+   outWeeklyOK = g_algoProfile.shared.tradesWeeklyLevels;
    outAnchorOK = false;
    outMagicFree = false;
    outUnderLossStop = true;
@@ -1234,39 +1320,56 @@ void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
    const double anchor = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevelToCClose;
    const double prox = g_pullingHistoryAlgo5AtBar[barIdx].closestPriceProximity;
    const double c = g_m1Rates[barIdx].close;
-   const int bounce = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_BounceCount_today;
-   const int ceiling = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_CeilingCount_today;
 
-   if(g_falgo5Profile.stop_trading_today_if_losing_trades_count > 0)
-      outUnderLossStop = (g_falgo5DayLosses < g_falgo5Profile.stop_trading_today_if_losing_trades_count);
-   if(g_falgo5Profile.stop_trading_today_if_winning_trades_count > 0)
-      outUnderWinStop = (g_falgo5DayWins < g_falgo5Profile.stop_trading_today_if_winning_trades_count);
+   if(g_algoProfile.shared.stop_trading_today_if_losing_trades_count > 0)
+      outUnderLossStop = (g_falgo5DayLosses < g_algoProfile.shared.stop_trading_today_if_losing_trades_count);
+   if(g_algoProfile.shared.stop_trading_today_if_winning_trades_count > 0)
+      outUnderWinStop = (g_falgo5DayWins < g_algoProfile.shared.stop_trading_today_if_winning_trades_count);
 
    const bool tradeCloseDedicatedBar = Falgo5BarIsDedicatedToTradeClose(barIdx);
-   outRulesetCommon = outUnderLossStop && outUnderWinStop && outNoOpenPos && outNoPending && !tradeCloseDedicatedBar;
+   outRulesetCommon = outUnderLossStop && outUnderWinStop && !tradeCloseDedicatedBar;
+   if(AlgoProfileBlocksOnFamilyOpenOrPending(algoSlot1))
+      outRulesetCommon = outRulesetCommon && outNoOpenPos && outNoPending;
 
    if(anchor <= 0.0)
       return;
 
+   const bool isShortAlgo = (algoSlot1 == MAGIC_ALGO7_SLOT1);
+
    if(MathAbs(c - anchor) < 1e-12)
       outCloseVsLevel = "flat";
    else if(c > anchor)
-   {
       outCloseVsLevel = "above";
-      outDirection = "long";
-      outProxOK = (prox <= g_falgo5Profile.priceProximityLongs);
-      outBounceOK = Falgo5LongDirectionRulesetPasses(barIdx);
-      outCeilingOK = true;
-      outRulesetDir = outRulesetCommon && outBounceOK;
+   else
+      outCloseVsLevel = "below";
+
+   if(isShortAlgo)
+   {
+      if(outCloseVsLevel != "below")
+         return;
+      outDirection = "short";
+      outProxOK = (prox <= g_algoProfile.algo7.priceProximityShorts);
+      outBounceOK = true;
+      outCeilingOK = Algo7RulesetPasses(barIdx);
+      outRulesetDir = outRulesetCommon && outCeilingOK;
    }
    else
    {
-      outCloseVsLevel = "below";
-      outDirection = "short";
-      outProxOK = (prox <= g_falgo5Profile.priceProximityShorts);
-      outBounceOK = true;
-      outCeilingOK = Falgo5ShortDirectionRulesetPasses(barIdx);
-      outRulesetDir = outRulesetCommon && outCeilingOK;
+      if(outCloseVsLevel != "above")
+         return;
+      outDirection = "long";
+      if(algoSlot1 == MAGIC_ALGO5_SLOT1)
+      {
+         outProxOK = (prox <= g_algoProfile.algo5.priceProximityLongs);
+         outBounceOK = Algo5RulesetPasses(barIdx);
+      }
+      else
+      {
+         outProxOK = (prox <= g_algoProfile.algo6.priceProximityLongs);
+         outBounceOK = Algo6RulesetPasses(barIdx);
+      }
+      outCeilingOK = true;
+      outRulesetDir = outRulesetCommon && outBounceOK;
    }
 
    if(!outWeeklyOK || !outProxOK)
@@ -1286,22 +1389,24 @@ void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
    if(outDirection == "long")
    {
       dirCode = FALGO5_DIRECTION_LONG_LIMIT;
-      offPts = g_falgo5Profile.levelOffset_longs;
+      offPts = (algoSlot1 == MAGIC_ALGO6_SLOT1)
+         ? g_algoProfile.algo6.levelOffset_longs
+         : g_algoProfile.algo5.levelOffset_longs;
    }
    else if(outDirection == "short")
    {
       dirCode = FALGO5_DIRECTION_SHORT_LIMIT;
-      offPts = g_falgo5Profile.levelOffset_shorts;
+      offPts = g_algoProfile.algo7.levelOffset_shorts;
    }
    else
       return;
 
    Falgo5MagicKey planKey;
-   if(!Falgo5BuildMagicKeyForPlacement(barIdx, dirCode, anchor, levelIdx, offPts, planKey))
+   if(!Falgo5BuildMagicKeyForPlacement(algoSlot1, barIdx, dirCode, anchor, levelIdx, offPts, planKey))
       return;
 
    RefreshOccupiedMagicsCache();
-   const long magic = BuildFalgo5MagicNumber(planKey);
+   const long magic = BuildAlgoMagicNumber(algoSlot1, planKey);
    outMagicFree = CanPlaceNewOrderForMagic_Cached(magic);
 }
 
@@ -1309,10 +1414,19 @@ void Falgo5EvaluateGatesAtBar(const int barIdx, const datetime evalTime,
 double Falgo5ProfileOffsetPointsForDirection(const int direction)
 {
    if(direction == FALGO5_DIRECTION_LONG_LIMIT)
-      return g_falgo5Profile.levelOffset_longs;
+      return g_algoProfile.algo5.levelOffset_longs;
    if(direction == FALGO5_DIRECTION_SHORT_LIMIT)
-      return g_falgo5Profile.levelOffset_shorts;
+      return g_algoProfile.algo7.levelOffset_shorts;
    return 0.0;
+}
+
+//+------------------------------------------------------------------+
+double Falgo5ProfileOffsetPointsForMagic(const long magic)
+{
+   const int slot = AlgoFamilyMagicSlot1(magic);
+   if(slot == MAGIC_ALGO6_SLOT1)
+      return g_algoProfile.algo6.levelOffset_longs;
+   return Falgo5ProfileOffsetPointsForDirection(ParseFalgo5Magic(magic).direction);
 }
 
 //+------------------------------------------------------------------+
@@ -1352,7 +1466,7 @@ double Falgo5ProfileOffsetPointsFromPriceDelta(const double priceDelta)
 }
 
 //+------------------------------------------------------------------+
-string Falgo5PlannedTradePriceForGates(const int barIdx, const string &closeVsLevel)
+string Falgo5PlannedTradePriceForGates(const int barIdx, const string &closeVsLevel, const int algoSlot1)
 {
    const double anchor = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevelToCClose;
    if(anchor <= 0.0)
@@ -1361,13 +1475,19 @@ string Falgo5PlannedTradePriceForGates(const int barIdx, const string &closeVsLe
    double offsetPoints = 0.0;
    if(closeVsLevel == "above")
    {
+      if(algoSlot1 == MAGIC_ALGO7_SLOT1)
+         return "";
       falgo5Dir = FALGO5_DIRECTION_LONG_LIMIT;
-      offsetPoints = g_falgo5Profile.levelOffset_longs;
+      offsetPoints = (algoSlot1 == MAGIC_ALGO6_SLOT1)
+         ? g_algoProfile.algo6.levelOffset_longs
+         : g_algoProfile.algo5.levelOffset_longs;
    }
    else if(closeVsLevel == "below")
    {
+      if(algoSlot1 != MAGIC_ALGO7_SLOT1)
+         return "";
       falgo5Dir = FALGO5_DIRECTION_SHORT_LIMIT;
-      offsetPoints = g_falgo5Profile.levelOffset_shorts;
+      offsetPoints = g_algoProfile.algo7.levelOffset_shorts;
    }
    else
       return "";
@@ -1380,7 +1500,7 @@ string Falgo5PlannedTradePriceForGates(const int barIdx, const string &closeVsLe
 string Falgo5OffsetPointsStrForMagic(const long magic)
 {
    Falgo5MagicKey fk = ParseFalgo5Magic(magic);
-   const double off = Falgo5ProfileOffsetPointsForDirection(fk.direction);
+   const double off = Falgo5ProfileOffsetPointsForMagic(magic);
    if(fk.direction != FALGO5_DIRECTION_LONG_LIMIT && fk.direction != FALGO5_DIRECTION_SHORT_LIMIT)
       return "";
    return DoubleToString(off, 1);
@@ -1444,7 +1564,7 @@ bool Falgo5FindOpenFalgo5TradeAsOfCloseTime(const datetime candleCloseTime, Trad
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
       TradeResult tr = g_tradeResults[trIdx];
-      if(!IsFalgo5CompositeMagicSlot1(tr.magic))
+      if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
          continue;
       if(tr.startTime >= candleCloseTime)
          continue;
@@ -1500,7 +1620,7 @@ bool Falgo5FindFalgo5TradeForGatesBar(const int barIdx, const datetime evalTime,
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
       TradeResult tr = g_tradeResults[trIdx];
-      if(!IsFalgo5CompositeMagicSlot1(tr.magic))
+      if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
          continue;
       if(tr.startTime >= evalTime)
          continue;
@@ -1616,7 +1736,7 @@ void Falgo5WriteGatesLogHeaderIfNeeded(const int fh)
 }
 
 //+------------------------------------------------------------------+
-void Falgo5AppendGatesLogRow(const int barIdx)
+void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay || g_m1DayStart == 0)
       return;
@@ -1629,18 +1749,20 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    bool magicFree = false;
    bool underLoss = false, underWin = false, noOpen = false, noPending = false;
    bool rulesCommon = false, rulesDir = false;
-   Falgo5EvaluateGatesAtBar(barIdx, evalTime, closeVs, direction, tier,
+   AlgoEvaluateGatesAtBarForAlgo(algoSlot1, barIdx, evalTime, closeVs, direction, tier,
       proxOK, bounceOK, ceilingOK, weeklyOK, anchorOK, magicFree,
       underLoss, underWin, noOpen, noPending, rulesCommon, rulesDir);
 
-   const int plannedTradeNumber = g_falgo5PlanTradeNumToday + 1;
-   const string plannedTradePrice = Falgo5PlannedTradePriceForGates(barIdx, closeVs);
+   const int plannedTradeNumber = AlgoPlanTradeNumToday(algoSlot1) + 1;
+   const string plannedTradePrice = Falgo5PlannedTradePriceForGates(barIdx, closeVs, algoSlot1);
 
-   const bool profileEnabled = g_falgo5Profile.enabled;
+   const bool profileEnabled = AlgoSlotEnabled(algoSlot1);
    const bool tradingDay = Falgo5IsTradingDayAllowedAtTime(evalTime);
    const bool tradingTime = Falgo5IsTradingTimeAllowed(evalTime);
    const bool profileAllows = Falgo5ProfileAllowsNewOrdersAtTime(evalTime);
    const bool tradeCloseDedicatedBar = Falgo5BarIsDedicatedToTradeClose(barIdx);
+   const bool familyBlock = AlgoProfileBlocksOnFamilyOpenOrPending(algoSlot1);
+   const bool isShortAlgo = (algoSlot1 == MAGIC_ALGO7_SLOT1);
 
    string firstFail = "";
    if(!profileEnabled) firstFail = "profileDisabled";
@@ -1648,41 +1770,41 @@ void Falgo5AppendGatesLogRow(const int barIdx)
    else if(!tradingTime) firstFail = "tradingTimeBanned";
    else if(!underLoss) firstFail = "lossStopDayLimit";
    else if(!underWin) firstFail = "winStopDayLimit";
-   else if(!noOpen) firstFail = "openFalgo5Position";
+   else if(familyBlock && !noOpen) firstFail = "openFalgo5Position";
    else if(tradeCloseDedicatedBar) firstFail = "tradeClosedThisBar";
-   else if(!noPending) firstFail = "pendingFalgo5Order";
+   else if(familyBlock && !noPending) firstFail = "pendingFalgo5Order";
    else if(g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevelToCClose <= 0.0) firstFail = "noClosestWeeklyLevel";
    else if(closeVs == "flat") firstFail = "closeFlatOnLevel";
+   else if(!isShortAlgo && closeVs == "below") firstFail = "longOnly_closeBelowLevel";
+   else if(isShortAlgo && closeVs == "above") firstFail = "shortOnly_closeAboveLevel";
    else if(!weeklyOK) firstFail = "tradesWeeklyLevelsOff";
    else if(!anchorOK) firstFail = "anchorNotEligible";
    else if(direction == "long" && !bounceOK)
    {
-      if(g_falgo5Profile.long2_enabled && !Falgo5RulesetPassesForLong2(barIdx))
-         firstFail = StringFormat("long2(bounce<%d|recentBounce>=%d)",
-            g_falgo5Profile.long2_min_bounceCount, g_falgo5Profile.long2_recentBounceCount_max_allowed);
-      else if(g_falgo5Profile.long1_enabled && !Falgo5RulesetPassesForLong1(barIdx))
-         firstFail = StringFormat("long1(bounceCount>%d)", g_falgo5Profile.long1_bounceMaxAllowed_today);
+      if(algoSlot1 == MAGIC_ALGO6_SLOT1)
+         firstFail = StringFormat("algo6(bounce<%d|recentBounce>=%d)",
+            g_algoProfile.algo6.min_bounceCount, g_algoProfile.algo6.recentBounceCount_max_allowed);
       else
-         firstFail = "longRulesetDisabled";
+         firstFail = StringFormat("algo5(bounceCount>%d)", g_algoProfile.algo5.bounceMaxAllowed_today);
    }
    else if(direction == "short" && !ceilingOK)
    {
-      if(!g_falgo5Profile.short1_enabled)
-         firstFail = "shortRulesetDisabled";
-      else if(Falgo5GetCeilingCountForClosestWeeklyLevel(barIdx) > g_falgo5Profile.short1_ceilingMaxAllowed_today)
-         firstFail = StringFormat("short1(ceilingCount>%d)", g_falgo5Profile.short1_ceilingMaxAllowed_today);
-      else if(g_falgo5Profile.short1_max_allowed_shorts_perLevel_perDay > 0)
+      if(!g_algoProfile.algo7.enabled)
+         firstFail = "algo7Disabled";
+      else if(Falgo5GetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo7.ceilingMaxAllowed_today)
+         firstFail = StringFormat("algo7(ceilingCount>%d)", g_algoProfile.algo7.ceilingMaxAllowed_today);
+      else if(g_algoProfile.algo7.max_allowed_shorts_perLevel_perDay > 0)
       {
          const int tierAtBar = Falgo5ClosestWeeklyLevelTierAtBar(barIdx);
          if(tierAtBar >= 1 &&
-            Falgo5ShortTradeCountTodayAtTier(tierAtBar) >= g_falgo5Profile.short1_max_allowed_shorts_perLevel_perDay)
-            firstFail = StringFormat("short1(shortsAtLevel>=%d)",
-               g_falgo5Profile.short1_max_allowed_shorts_perLevel_perDay);
+            Falgo5ShortTradeCountTodayAtTier(tierAtBar) >= g_algoProfile.algo7.max_allowed_shorts_perLevel_perDay)
+            firstFail = StringFormat("algo7(shortsAtLevel>=%d)",
+               g_algoProfile.algo7.max_allowed_shorts_perLevel_perDay);
          else
-            firstFail = "shortRulesetDisabled";
+            firstFail = "algo7RulesetDisabled";
       }
       else
-         firstFail = "shortRulesetDisabled";
+         firstFail = "algo7RulesetDisabled";
    }
    else if(!magicFree) firstFail = "magicOccupied";
    else if(!proxOK) firstFail = "proximity";
@@ -1711,13 +1833,13 @@ void Falgo5AppendGatesLogRow(const int barIdx)
       telConsecGreen = IntegerToString(g_falgo5OpenTelemetry.consecutiveGreen);
       telConsecRed = IntegerToString(g_falgo5OpenTelemetry.consecutiveRed);
       telProfitVelocity = DoubleToString(
-         Falgo5TelemetryProfitVelocityWindowSeconds(g_falgo5Profile.telemetry_velocity_window_seconds), 4);
+         Falgo5TelemetryProfitVelocityWindowSeconds(g_algoProfile.shared.telemetry_velocity_window_seconds), 4);
       telPeakProfit = DoubleToString(g_falgo5OpenTelemetry.peakProfitPts, 1);
       telProfitFromPeak = DoubleToString(g_falgo5OpenTelemetry.openProfitPts - g_falgo5OpenTelemetry.peakProfitPts, 1);
    }
 
    const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
-   const string fname = dateStr + "_algo5_gates_per_minute.csv";
+   const string fname = AlgoFamilyCsvFileName(dateStr, algoSlot1, "gates_per_minute");
    int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
@@ -1769,29 +1891,38 @@ void Falgo5AppendGatesLogRow(const int barIdx)
 //+------------------------------------------------------------------+
 void Falgo5TryLogGatesForClosedMinute()
 {
-   if(!dailySpamLog_Algo5GatesPerMinute)
-      return;
    if(g_barsInDay < 1 || g_m1DayStart == 0)
       return;
    if(g_falgo5GatesLogDayStart != g_m1DayStart)
    {
       g_falgo5GatesLogDayStart = g_m1DayStart;
-      g_falgo5GatesLastLoggedBarTime = 0;
+      for(int gi = 0; gi < ALGO_FAMILY_SLOT_COUNT; gi++)
+         g_algoGatesLastLoggedBarTime[gi] = 0;
    }
    int barIdx = g_barsInDay - 2;
    if(g_barsInDay < 2)
       return;
    const datetime barTime = g_m1Rates[barIdx].time;
-   if(barTime == g_falgo5GatesLastLoggedBarTime)
-      return;
-   g_falgo5GatesLastLoggedBarTime = barTime;
-   Falgo5AppendGatesLogRow(barIdx);
+   const int gateSlots[3] = {MAGIC_ALGO5_SLOT1, MAGIC_ALGO6_SLOT1, MAGIC_ALGO7_SLOT1};
+   for(int si = 0; si < 3; si++)
+   {
+      const int algoSlot1 = gateSlots[si];
+      if(!AlgoDailySpamLogGatesEnabled(algoSlot1))
+         continue;
+      const int slotIdx = AlgoFamilySlotArrayIndex(algoSlot1);
+      if(slotIdx < 0)
+         continue;
+      if(barTime == g_algoGatesLastLoggedBarTime[slotIdx])
+         continue;
+      g_algoGatesLastLoggedBarTime[slotIdx] = barTime;
+      AlgoAppendGatesLogRow(barIdx, algoSlot1);
+   }
 }
 
 //+------------------------------------------------------------------+
 double GetTradeLotForFalgo5()
 {
-   return g_global_base_trade_size * ((double)g_falgo5Profile.tradeSizePct / 100.0);
+   return g_global_base_trade_size * ((double)g_algoProfile.shared.tradeSizePct / 100.0);
 }
 
 //+------------------------------------------------------------------+
@@ -1810,24 +1941,24 @@ bool Falgo5BabysitPositionMatchesOpenTelemetry()
 //+------------------------------------------------------------------+
 int Falgo5StrongMomentumVelocityWindowSeconds()
 {
-   if(g_falgo5Profile.strong_momentum_velocity_window_seconds > 0)
-      return g_falgo5Profile.strong_momentum_velocity_window_seconds;
-   if(g_falgo5Profile.telemetry_velocity_window_seconds > 0)
-      return g_falgo5Profile.telemetry_velocity_window_seconds;
+   if(g_algoProfile.shared.strong_momentum_velocity_window_seconds > 0)
+      return g_algoProfile.shared.strong_momentum_velocity_window_seconds;
+   if(g_algoProfile.shared.telemetry_velocity_window_seconds > 0)
+      return g_algoProfile.shared.telemetry_velocity_window_seconds;
    return 5;
 }
 
 //+------------------------------------------------------------------+
 bool Falgo5StrongMomentumDetectPower(const double profitPts)
 {
-   if(profitPts < PointSized(g_falgo5Profile.strong_momentum_eval_min_profit_pts))
+   if(profitPts < PointSized(g_algoProfile.shared.strong_momentum_eval_min_profit_pts))
       return false;
    const double vel = Falgo5TelemetryProfitVelocityWindowSeconds(Falgo5StrongMomentumVelocityWindowSeconds());
-   if(vel < g_falgo5Profile.strong_momentum_min_velocity)
+   if(vel < g_algoProfile.shared.strong_momentum_min_velocity)
       return false;
-   if(Falgo5TelemetryGreenRatioFromOpen() < g_falgo5Profile.strong_momentum_min_green_ratio)
+   if(Falgo5TelemetryGreenRatioFromOpen() < g_algoProfile.shared.strong_momentum_min_green_ratio)
       return false;
-   if(g_falgo5OpenTelemetry.consecutiveGreen < g_falgo5Profile.strong_momentum_min_consecutive_green)
+   if(g_falgo5OpenTelemetry.consecutiveGreen < g_algoProfile.shared.strong_momentum_min_consecutive_green)
       return false;
    return true;
 }
@@ -1838,13 +1969,13 @@ bool Falgo5StrongMomentumDetectStall()
    const double profitPts = g_falgo5OpenTelemetry.openProfitPts;
    const double giveback = profitPts - g_falgo5OpenTelemetry.peakProfitPts;
    const double vel = Falgo5TelemetryProfitVelocityWindowSeconds(Falgo5StrongMomentumVelocityWindowSeconds());
-   if(vel <= g_falgo5Profile.strong_momentum_stall_velocity_max)
+   if(vel <= g_algoProfile.shared.strong_momentum_stall_velocity_max)
       return true;
-   if(g_falgo5Profile.strong_momentum_stall_giveback_pts > 0.0 &&
-      giveback <= -PointSized(g_falgo5Profile.strong_momentum_stall_giveback_pts))
+   if(g_algoProfile.shared.strong_momentum_stall_giveback_pts > 0.0 &&
+      giveback <= -PointSized(g_algoProfile.shared.strong_momentum_stall_giveback_pts))
       return true;
-   if(g_falgo5Profile.strong_momentum_stall_consecutive_red > 0 &&
-      g_falgo5OpenTelemetry.consecutiveRed >= g_falgo5Profile.strong_momentum_stall_consecutive_red)
+   if(g_algoProfile.shared.strong_momentum_stall_consecutive_red > 0 &&
+      g_falgo5OpenTelemetry.consecutiveRed >= g_algoProfile.shared.strong_momentum_stall_consecutive_red)
       return true;
    return false;
 }
@@ -1857,17 +1988,17 @@ bool Falgo5StrongMomentumDetectStall()
 bool Babysitf_falgo5_runStrongMomentumBabysit(const long posMagic, bool &outSkipSavingTp)
 {
    outSkipSavingTp = false;
-   if(!g_falgo5Profile.strong_momentum_enabled || !Falgo5BabysitPositionMatchesOpenTelemetry())
+   if(!g_algoProfile.shared.strong_momentum_enabled || !Falgo5BabysitPositionMatchesOpenTelemetry())
       return false;
 
    const double profitPts = Falgo5OpenPositionProfitPoints();
-   const double savingTpPts = (g_falgo5Profile.saving_trade_TP > 0.0) ? PointSized(g_falgo5Profile.saving_trade_TP) : 0.0;
-   const double strongTpPts = (g_falgo5Profile.strong_trade_TP > 0.0) ? PointSized(g_falgo5Profile.strong_trade_TP) : 0.0;
-   const double stallMinClosePts = PointSized(g_falgo5Profile.strong_momentum_stall_min_close_profit_pts);
+   const double savingTpPts = (g_algoProfile.shared.saving_trade_TP > 0.0) ? PointSized(g_algoProfile.shared.saving_trade_TP) : 0.0;
+   const double strongTpPts = (g_algoProfile.shared.strong_trade_TP > 0.0) ? PointSized(g_algoProfile.shared.strong_trade_TP) : 0.0;
+   const double stallMinClosePts = PointSized(g_algoProfile.shared.strong_momentum_stall_min_close_profit_pts);
 
    if(!g_falgo5OpenTelemetry.aimStrongTp)
    {
-      const double nearSaving = (savingTpPts > 0.0) ? savingTpPts * 0.85 : PointSized(g_falgo5Profile.strong_momentum_eval_min_profit_pts);
+      const double nearSaving = (savingTpPts > 0.0) ? savingTpPts * 0.85 : PointSized(g_algoProfile.shared.strong_momentum_eval_min_profit_pts);
       if(profitPts >= nearSaving && Falgo5StrongMomentumDetectPower(profitPts))
          g_falgo5OpenTelemetry.aimStrongTp = true;
    }
@@ -1923,9 +2054,9 @@ void Babysitf_RunAllOpenFalgo5PositionsForSymbol()
       if(ExtPositionInfo.Symbol() != _Symbol)
          continue;
       const long posMagic = ExtPositionInfo.Magic();
-      if(!IsFalgo5CompositeMagicSlot1(posMagic))
+      if(!IsAnyAlgoFamilyCompositeMagic(posMagic))
          continue;
-      if(!g_falgo5Profile.babysit_enabled)
+      if(!g_algoProfile.shared.babysit_enabled)
          continue;
       Falgo5MagicKey fk = ParseFalgo5Magic(posMagic);
       const int babysitStartMin = fk.babysitMinute;
@@ -1935,14 +2066,14 @@ void Babysitf_RunAllOpenFalgo5PositionsForSymbol()
       bool skipSavingTp = false;
       if(Babysitf_falgo5_runStrongMomentumBabysit(posMagic, skipSavingTp))
          continue;
-      if(!skipSavingTp && g_falgo5Profile.saving_trade_TP > 0.0)
+      if(!skipSavingTp && g_algoProfile.shared.saving_trade_TP > 0.0)
       {
-         if(Babysitf_falgo5_closeIfProfitPointsAtLeast(posMagic, PointSized(g_falgo5Profile.saving_trade_TP)))
+         if(Babysitf_falgo5_closeIfProfitPointsAtLeast(posMagic, PointSized(g_algoProfile.shared.saving_trade_TP)))
             continue;
       }
-      if(g_falgo5Profile.secretTPSL && g_falgo5Profile.secretTPSL_percent > 0)
+      if(g_algoProfile.shared.secretTPSL && g_algoProfile.shared.secretTPSL_percent > 0)
       {
-         const double secretFrac = (double)g_falgo5Profile.secretTPSL_percent / 100.0;
+         const double secretFrac = (double)g_algoProfile.shared.secretTPSL_percent / 100.0;
          if(fk.tpWhole > 0)
          {
             const double secretTpPts = PointSized((double)fk.tpWhole) * secretFrac;
@@ -1960,7 +2091,7 @@ void Babysitf_RunAllOpenFalgo5PositionsForSymbol()
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5BuildMagicKeyForPlacement(const int barIdx, const int direction, const double anchorLevel,
+bool Falgo5BuildMagicKeyForPlacement(const int algoSlot1, const int barIdx, const int direction, const double anchorLevel,
    const int levelExpandedIdx, const double offsetPoints, Falgo5MagicKey &outKey)
 {
    if(direction != FALGO5_DIRECTION_LONG_LIMIT && direction != FALGO5_DIRECTION_SHORT_LIMIT)
@@ -1968,7 +2099,7 @@ bool Falgo5BuildMagicKeyForPlacement(const int barIdx, const int direction, cons
    const int tier = Falgo5LevelTierFromLevelIdx(levelExpandedIdx);
    if(tier < 1 || tier > FALGO5_LEVEL_TIER_MAX)
       FatalError(StringFormat("Falgo5BuildMagicKeyForPlacement: tier %d out of range", tier));
-   const int nextLevelTradeNum = g_falgo5LevelTradeNumByTier[tier] + 1;
+   const int nextLevelTradeNum = AlgoLevelTradeNumTodayAtTier(algoSlot1, tier) + 1;
 
    outKey.direction = direction;
    outKey.dayOfWeek = Falgo5DayOfWeekSlotFromTime(g_lastTimer1Time);
@@ -1976,19 +2107,26 @@ bool Falgo5BuildMagicKeyForPlacement(const int barIdx, const int direction, cons
    outKey.bounceCount = Falgo5Clamp0_8(Falgo5GetBounceCountForClosestWeeklyLevel(barIdx));
    outKey.ceilingCount = Falgo5Clamp0_8(Falgo5GetCeilingCountForClosestWeeklyLevel(barIdx));
    outKey.offset_tenths = EncodeMagicTwoDigitTenths(MathAbs(offsetPoints));
-   outKey.planTradeNum = Falgo5Clamp0_8(g_falgo5PlanTradeNumToday + 1);
+   outKey.planTradeNum = Falgo5Clamp0_8(AlgoPlanTradeNumToday(algoSlot1) + 1);
    outKey.levelTradeNum = Falgo5Clamp0_8(nextLevelTradeNum);
-   outKey.babysitMinute = Falgo5Clamp0_9(g_falgo5Profile.babysitStart_minute);
+   outKey.babysitMinute = Falgo5Clamp0_9(g_algoProfile.shared.babysitStart_minute);
    outKey.subsetA = 0;
    outKey.subsetB = 0;
-   outKey.tpWhole = Falgo5CapWholeTpSlForMagic(g_falgo5Profile.initialTP);
-   outKey.slWhole = Falgo5CapWholeTpSlForMagic(g_falgo5Profile.initialSL);
+   outKey.tpWhole = Falgo5CapWholeTpSlForMagic(g_algoProfile.shared.initialTP);
+   outKey.slWhole = Falgo5CapWholeTpSlForMagic(g_algoProfile.shared.initialSL);
    return true;
 }
 
 //+------------------------------------------------------------------+
-bool Falgo5TryPlaceOneOrderThisTick(const int barIdx)
+bool AlgoTryPlaceOrderThisTick(const int algoSlot1, const int barIdx)
 {
+   if(algoSlot1 == MAGIC_ALGO5_SLOT1 && !g_algoProfile.algo5.enabled)
+      return false;
+   if(algoSlot1 == MAGIC_ALGO6_SLOT1 && !g_algoProfile.algo6.enabled)
+      return false;
+   if(algoSlot1 == MAGIC_ALGO7_SLOT1 && !g_algoProfile.algo7.enabled)
+      return false;
+
    const double anchorLevel = g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevelToCClose;
    if(anchorLevel <= 0.0)
       return false;
@@ -2000,59 +2138,98 @@ bool Falgo5TryPlaceOneOrderThisTick(const int barIdx)
    int direction = 0;
    double offsetPoints = 0.0;
    double proximityLimit = 0.0;
+   int expirationMin = 0;
    if(c > anchorLevel)
    {
+      if(algoSlot1 != MAGIC_ALGO5_SLOT1 && algoSlot1 != MAGIC_ALGO6_SLOT1)
+         return false;
       direction = FALGO5_DIRECTION_LONG_LIMIT;
-      offsetPoints = g_falgo5Profile.levelOffset_longs;
-      proximityLimit = g_falgo5Profile.priceProximityLongs;
-      if(prox > proximityLimit)
-         return false;
-      if(!Falgo5RulesetPassesForLongPlacement(barIdx))
-         return false;
+      if(algoSlot1 == MAGIC_ALGO5_SLOT1)
+      {
+         offsetPoints = g_algoProfile.algo5.levelOffset_longs;
+         proximityLimit = g_algoProfile.algo5.priceProximityLongs;
+         expirationMin = g_algoProfile.algo5.long_expiry_minutes;
+         if(!Algo5RulesetPassesForPlacement(barIdx))
+            return false;
+      }
+      else
+      {
+         offsetPoints = g_algoProfile.algo6.levelOffset_longs;
+         proximityLimit = g_algoProfile.algo6.priceProximityLongs;
+         expirationMin = g_algoProfile.algo6.long_expiry_minutes;
+         if(!Algo6RulesetPassesForPlacement(barIdx))
+            return false;
+      }
    }
    else if(c < anchorLevel)
    {
+      if(algoSlot1 != MAGIC_ALGO7_SLOT1)
+         return false;
       direction = FALGO5_DIRECTION_SHORT_LIMIT;
-      offsetPoints = g_falgo5Profile.levelOffset_shorts;
-      proximityLimit = g_falgo5Profile.priceProximityShorts;
+      offsetPoints = g_algoProfile.algo7.levelOffset_shorts;
+      proximityLimit = g_algoProfile.algo7.priceProximityShorts;
+      expirationMin = g_algoProfile.algo7.short_expiry_minutes;
       if(prox > proximityLimit)
          return false;
-      if(!Falgo5RulesetPassesForShortPlacement(barIdx))
+      if(!Algo7RulesetPassesForPlacement(barIdx))
          return false;
    }
    else
       return false;
 
-   if(!g_falgo5Profile.tradesWeeklyLevels)
+   if(prox > proximityLimit)
+      return false;
+
+   if(!g_algoProfile.shared.tradesWeeklyLevels)
       return false;
 
    const int levelExpandedIdx = FindExpandedLevelIndexByPrice(anchorLevel);
    if(levelExpandedIdx < 0)
-      FatalError(StringFormat("Falgo5TryPlaceOneOrderThisTick: anchor level %s not in g_levelsExpanded today", DoubleToString(anchorLevel, _Digits)));
+      FatalError(StringFormat("AlgoTryPlaceOrderThisTick algo%d: anchor level %s not in g_levelsExpanded today",
+         algoSlot1, DoubleToString(anchorLevel, _Digits)));
    if(!Falgo5LevelEligibleForClosestAnchor(levelExpandedIdx))
       return false;
 
    Falgo5MagicKey planKey;
-   if(!Falgo5BuildMagicKeyForPlacement(barIdx, direction, anchorLevel, levelExpandedIdx, offsetPoints, planKey))
+   if(!Falgo5BuildMagicKeyForPlacement(algoSlot1, barIdx, direction, anchorLevel, levelExpandedIdx, offsetPoints, planKey))
       return false;
 
-   const long magic = BuildFalgo5MagicNumber(planKey);
+   const long magic = BuildAlgoMagicNumber(algoSlot1, planKey);
    if(!CanPlaceNewOrderForMagic_Cached(magic))
       return false;
 
-   const int expirationMin = (direction == FALGO5_DIRECTION_LONG_LIMIT) ?
-      g_falgo5Profile.long_expiry_minutes : g_falgo5Profile.short_expiry_minutes;
    const double lot = GetTradeLotForFalgo5();
-   if(!PlacePendingFromFalgo5Magic(magic, anchorLevel, offsetPoints, g_falgo5Profile.initialTP, g_falgo5Profile.initialSL, expirationMin, lot))
+   if(!PlacePendingFromFalgo5Magic(magic, anchorLevel, offsetPoints, g_algoProfile.shared.initialTP, g_algoProfile.shared.initialSL, expirationMin, lot))
       return false;
 
    g_falgo5OrderPlacedLastPipeline = true;
-   WriteTradeLogPendingOrderFalgo5(anchorLevel, offsetPoints, g_falgo5Profile.initialTP, g_falgo5Profile.initialSL, magic, expirationMin);
+   WriteTradeLogPendingOrderFalgo5(anchorLevel, offsetPoints, g_algoProfile.shared.initialTP, g_algoProfile.shared.initialSL, magic, expirationMin);
    return true;
 }
 
 //+------------------------------------------------------------------+
-//| One falgo5 placement attempt per tick (closest weekly level vs close). |
+void RunAlgo5TradePipeline(const int barIdx)
+{
+   if(g_algoProfile.algo5.enabled)
+      AlgoTryPlaceOrderThisTick(MAGIC_ALGO5_SLOT1, barIdx);
+}
+
+//+------------------------------------------------------------------+
+void RunAlgo6TradePipeline(const int barIdx)
+{
+   if(g_algoProfile.algo6.enabled)
+      AlgoTryPlaceOrderThisTick(MAGIC_ALGO6_SLOT1, barIdx);
+}
+
+//+------------------------------------------------------------------+
+void RunAlgo7TradePipeline(const int barIdx)
+{
+   if(g_algoProfile.algo7.enabled)
+      AlgoTryPlaceOrderThisTick(MAGIC_ALGO7_SLOT1, barIdx);
+}
+
+//+------------------------------------------------------------------+
+//| algo5/6/7 placement (long1 / long2 / short1) — one attempt per algo per tick. |
 //+------------------------------------------------------------------+
 void RunFalgo5TradePipeline()
 {
@@ -2069,11 +2246,15 @@ void RunFalgo5TradePipeline()
       Falgo5ResetPlanCountersIfNewDay(g_m1DayStart);
 
    const int barIdx = g_barsInDay - 1;
-   if(!Falgo5RulesetPassesCommon(barIdx))
+   if(!Falgo5RulesetPassesCommonShared(barIdx))
       return;
 
    RefreshOccupiedMagicsCache();
-   Falgo5TryPlaceOneOrderThisTick(barIdx);
+   RunAlgo5TradePipeline(barIdx);
+   if(!g_falgo5OrderPlacedLastPipeline)
+      RunAlgo6TradePipeline(barIdx);
+   if(!g_falgo5OrderPlacedLastPipeline)
+      RunAlgo7TradePipeline(barIdx);
 }
 
 //+------------------------------------------------------------------+
@@ -2147,20 +2328,14 @@ bool Falgo5AllDaysRowsContainTrade(const string &cells[], const int rowCount, co
 }
 
 //+------------------------------------------------------------------+
-//| EOD: per-day algo5 CSV (rewrite) + all-days TSV (read/merge/append today's falgo5 only). |
+//| EOD: per-day algoN CSV (rewrite) + all-days TSV (read/merge/append today's rows for that algo only). |
 //+------------------------------------------------------------------+
-void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falgo5OutCount)
+void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSlot1, const int algoOutCount)
 {
-   if(!dailyEODlog_TradeResultsCsvFalgo5 || falgo5OutCount <= 0)
+   if(!AlgoEodTradeResultsLoggingEnabled(algoSlot1) || algoOutCount <= 0)
       return;
 
-   if(g_falgo5OpenTelemetry.active)
-   {
-      Falgo5TelemetryPushClosedSummaryFromOpen();
-      Falgo5TelemetryClearOpenState();
-   }
-
-   const string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day_algo5.csv";
+   const string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day_algo" + IntegerToString(algoSlot1) + ".csv";
    int fhDay = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fhDay != INVALID_HANDLE)
    {
@@ -2168,7 +2343,7 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
       for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
       {
          TradeResult tr = g_tradeResults[trIdx];
-         if(!tr.foundOut || !IsFalgo5CompositeMagicSlot1(tr.magic))
+         if(!tr.foundOut || !IsAlgoCompositeMagicSlot1(tr.magic, algoSlot1))
             continue;
          int planNum = 0, levelNum = 0;
          Falgo5PlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
@@ -2200,11 +2375,11 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
       FileClose(fhDay);
    }
 
-   const string summaryAllName = "summary_tradeResults_all_days_algo5.tsv";
+   const string summaryAllName = "summary_tradeResults_all_days_algo" + IntegerToString(algoSlot1) + ".tsv";
    string headerParts[];
    const int schemaCols = StringSplit(FALGO5_ALLDAYS_HEADER, ',', headerParts);
    if(schemaCols != FALGO5_ALLDAYS_COLS)
-      FatalError(StringFormat("WriteFalgo5EodTradeResultsCsvsIfNeeded: schemaCols %d != FALGO5_ALLDAYS_COLS %d", schemaCols, FALGO5_ALLDAYS_COLS));
+      FatalError(StringFormat("WriteAlgoEodTradeResultsCsvsIfNeeded: schemaCols %d != FALGO5_ALLDAYS_COLS %d", schemaCols, FALGO5_ALLDAYS_COLS));
 
    string allDaysCells[];
    int existingRowCount = 0;
@@ -2230,7 +2405,7 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
       TradeResult tr = g_tradeResults[trIdx];
-      if(!tr.foundOut || !IsFalgo5CompositeMagicSlot1(tr.magic))
+      if(!tr.foundOut || !IsAlgoCompositeMagicSlot1(tr.magic, algoSlot1))
          continue;
       if(Falgo5AllDaysRowsContainTrade(allDaysCells, existingRowCount, tr.magic, tr.startTime))
          continue;
@@ -2255,6 +2430,31 @@ void WriteFalgo5EodTradeResultsCsvsIfNeeded(const string dateStr, const int falg
             allDaysCells[base + 27]);
       }
       FileClose(fhAll);
+   }
+}
+
+//+------------------------------------------------------------------+
+void WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(const string dateStr)
+{
+   if(g_falgo5OpenTelemetry.active)
+   {
+      Falgo5TelemetryPushClosedSummaryFromOpen();
+      Falgo5TelemetryClearOpenState();
+   }
+
+   const int eodSlots[3] = {MAGIC_ALGO5_SLOT1, MAGIC_ALGO6_SLOT1, MAGIC_ALGO7_SLOT1};
+   for(int si = 0; si < 3; si++)
+   {
+      const int algoSlot1 = eodSlots[si];
+      int algoOutCount = 0;
+      for(int trScan = 0; trScan < g_tradeResultsCount; trScan++)
+      {
+         if(!g_tradeResults[trScan].foundOut)
+            continue;
+         if(IsAlgoCompositeMagicSlot1(g_tradeResults[trScan].magic, algoSlot1))
+            algoOutCount++;
+      }
+      WriteAlgoEodTradeResultsCsvsIfNeeded(dateStr, algoSlot1, algoOutCount);
    }
 }
 

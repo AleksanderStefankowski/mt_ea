@@ -48,6 +48,8 @@ bool     finalLog_SummaryTrades1line  = true;  // summary_tradesSummary1line.csv
 bool     finalLog_SummaryTradesPerTrade = true;  // summary_tradesSummary_perTrade.csv (one row per magic)
 bool     dailyEODlog_TradeResultsCsv  = true;  // summaryZ_tradeResults_ALL_Day + summary_tradeResults_all_days (legacy magics only)
 bool     dailyEODlog_TradeResultsCsvFalgo5 = true;  // summaryZ_tradeResults_ALL_Day_algo5 + summary_tradeResults_all_days_algo5.tsv
+bool     dailyEODlog_TradeResultsCsvAlgo6 = true;  // summaryZ_tradeResults_ALL_Day_algo6 + summary_tradeResults_all_days_algo6.tsv
+bool     dailyEODlog_TradeResultsCsvAlgo7 = true;  // summaryZ_tradeResults_ALL_Day_algo7 + summary_tradeResults_all_days_algo7.tsv
 // Trade-results CSV columns referencePointsAbove / referencePointsBelow (GetReferencePointsAboveBelow):
 bool     tradeResult_referencePoints_excludeTooClose = true;  // if true: omit a ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel; if false, no distance filter (min may be 0.0)
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; only used when tradeResult_referencePoints_excludeTooClose is true
@@ -56,7 +58,9 @@ bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summ
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
 bool     dailyLog_Algo5WeekPerspective = true;  // (date)_algo5_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
-bool     dailySpamLog_Algo5GatesPerMinute = true;  // (date)_algo5_gates_per_minute.csv — falgo5 gate snapshot each closed M1 bar
+bool     dailySpamLog_Algo5GatesPerMinute = true;  // (date)_algo5_gates_per_minute.csv — algo5 gate snapshot each closed M1 bar
+bool     dailySpamLog_Algo6GatesPerMinute = true;  // (date)_algo6_gates_per_minute.csv — algo6 gate snapshot each closed M1 bar
+bool     dailySpamLog_Algo7GatesPerMinute = true;  // (date)_algo7_gates_per_minute.csv — algo7 gate snapshot each closed M1 bar
 bool     dailySpamLog_Algo5TradeTelemetryPerSecond = true;  // (date)_algo5_trade_telemetry_per_second.csv — falgo5 open-trade telemetry each 1s in debug window
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
 bool     finalLog_TradeLog            = true; // B_TradeLog_<composite per variant>.csv (WriteTradeLog)
@@ -214,8 +218,7 @@ const double g_pendingTriggerSymmetrySpread = 0.7;
 #define MAGIC_TRADE_SHORT           2   // sell limit
 #define MAGIC_TRADE_LONG_REVERSED   3   // sell stop at (level+off)−s — pairs buy limit Ask fill; see PlaceSellStopAtLevel
 #define MAGIC_TRADE_SHORT_REVERSED  4   // buy stop at (level−off)+s — pairs sell limit Bid fill; see PlaceBuyStopAtLevel
-#define MAGIC_ALGO5_SLOT1           5   // composite magic digit 1 for algo5 family (IsAlgo5CompositeMagicSlot1)
-// Slot 1 digit 5 = algo5 magics (separate path; not IsLegacyCompositeMagicSlot1); digits 6..9 reserved.
+// Algo family magic slots 5..9: see smashelito_algo_shared.mqh (algo5=long1, algo6=long2, algo7=short1).
 // MAGIC_IS_*: session (ON vs RTH) + prior-day colour — encoded in composite slot 4 (see BuildBetterMagicNumber banner).
 #define MAGIC_IS_ON_AND_PD_GREEN   1
 #define MAGIC_IS_ON_AND_PD_RED     2
@@ -490,10 +493,9 @@ struct PullingHistoryAlgo5BarSnap
 };
 PullingHistoryAlgo5BarSnap g_pullingHistoryAlgo5AtBar[MAX_BARS_IN_DAY];
 
-//--- falgo5 profile + day counters (separate from legacy g_trade[] / variant pipeline)
-struct Falgo5Profile
+//--- algo family: shared profile + per-algo rules (algo5=long1, algo6=long2, algo7=short1)
+struct AlgoSharedProfile
 {
-   bool   enabled;
    int    tradeSizePct;
    string bannedRanges;
    bool   babysit_enabled;
@@ -501,20 +503,6 @@ struct Falgo5Profile
    bool   tradesWeeklyLevels;
    bool   tradesDailyLevels;
    string tradesDays;              // e.g. "12345" = Mon..Fri
-   double priceProximityLongs;
-   double priceProximityShorts;
-   bool   long1_enabled;
-   int    long1_bounceMaxAllowed_today;     // long1: bounceCount_today on closest weekly <= this
-   bool   long2_enabled;
-   int    long2_min_bounceCount;            // long2: bounceCount_today on closest weekly >= this
-   int    long2_recentBounceCountToday_Minutes;       // long2 recent window + gates CSV recentBounceCount{N}
-   int    long2_recentBounceCount_max_allowed;        // long2: recent bounce count must be < this
-   bool   short1_enabled;
-   int    short1_ceilingMaxAllowed_today;   // short1: ceilingCount_today on closest weekly <= this
-   int    short1_max_allowed_shorts_perLevel_perDay;  // short1: filled+pending falgo5 shorts at weekly tier today; 0 = no limit
-   int    recentCeilingCountToday_Minutes;  // log-only lookback (gates CSV); not used in placement yet
-   double levelOffset_longs;   // signed PointSized points from closestWeeklyLevel: long buy limit = level + PointSized(offset)
-   double levelOffset_shorts;  // signed PointSized points from closestWeeklyLevel: short sell limit = level − PointSized(offset)
    bool   secretTPSL;
    int    secretTPSL_percent;
    double initialTP;
@@ -531,8 +519,8 @@ struct Falgo5Profile
    double strong_momentum_stall_giveback_pts;
    int    strong_momentum_stall_consecutive_red;
    double strong_momentum_stall_min_close_profit_pts;
-   int    telemetry_velocity_window_seconds;       // gates CSV profitVelocity_{N}
-   int    telemetry_avg_velocity_window_seconds;     // EOD avg_profitVelocity_{N}
+   int    telemetry_velocity_window_seconds;
+   int    telemetry_avg_velocity_window_seconds;
    bool   persecond_debug_enabled;
    int    persecond_debug_start_hour;
    int    persecond_debug_start_minute;
@@ -544,10 +532,51 @@ struct Falgo5Profile
    double revenge_initialSL;
    int    stop_trading_today_if_losing_trades_count;
    int    stop_trading_today_if_winning_trades_count;
+};
+
+struct Algo5Profile
+{
+   bool   enabled;
+   bool   blockPlacementIfFamilyOpenOrPending;  // when true: no new pending if any algo5/6/7 open or pending on symbol
+   int    bounceMaxAllowed_today;
+   double levelOffset_longs;
+   double priceProximityLongs;
    int    long_expiry_minutes;
+};
+
+struct Algo6Profile
+{
+   bool   enabled;
+   bool   blockPlacementIfFamilyOpenOrPending;
+   int    min_bounceCount;
+   int    recentBounceCountToday_Minutes;
+   int    recentBounceCount_max_allowed;
+   double levelOffset_longs;
+   double priceProximityLongs;
+   int    long_expiry_minutes;
+};
+
+struct Algo7Profile
+{
+   bool   enabled;
+   bool   blockPlacementIfFamilyOpenOrPending;
+   int    ceilingMaxAllowed_today;
+   int    max_allowed_shorts_perLevel_perDay;
+   int    recentCeilingCountToday_Minutes;
+   double levelOffset_shorts;
+   double priceProximityShorts;
    int    short_expiry_minutes;
 };
-Falgo5Profile g_falgo5Profile;
+
+struct AlgoFamilyProfile
+{
+   AlgoSharedProfile shared;
+   Algo5Profile      algo5;
+   Algo6Profile      algo6;
+   Algo7Profile      algo7;
+};
+AlgoFamilyProfile g_algoProfile;
+#define g_falgo5Profile g_algoProfile
 int g_falgo5DayWins = 0;
 int g_falgo5DayLosses = 0;
 int g_falgo5DayClosedCount = 0;
@@ -1911,7 +1940,7 @@ bool Algo5LevelEligibleForClosestAnchorLocal(const int expandedLevelIdx)
 {
    if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
       return false;
-   if(g_falgo5Profile.tradesDailyLevels)
+   if(g_algoProfile.shared.tradesDailyLevels)
       return true;
    return LevelIsWeekly(g_levelsExpanded[expandedLevelIdx].categories);
 }
@@ -2110,10 +2139,10 @@ void UpdatePullingHistoryAlgo5PerBarStats()
          g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_CeilingCount_today = states[closestTrackIdx].ceilingCount_today;
          g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_BounceCount_recent =
             Algo5CountEventTimesInLookbackMinutes(states[closestTrackIdx].bounceEventTimes, states[closestTrackIdx].bounceEventCount,
-               barTime, g_falgo5Profile.long2_recentBounceCountToday_Minutes);
+               barTime, g_algoProfile.algo6.recentBounceCountToday_Minutes);
          g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_CeilingCount_recent =
             Algo5CountEventTimesInLookbackMinutes(states[closestTrackIdx].ceilingEventTimes, states[closestTrackIdx].ceilingEventCount,
-               barTime, g_falgo5Profile.recentCeilingCountToday_Minutes);
+               barTime, g_algoProfile.algo7.recentCeilingCountToday_Minutes);
          g_pullingHistoryAlgo5AtBar[barIdx].closestWeeklyLevel_contactCount_today = states[closestTrackIdx].contactCount_today;
       }
    }
@@ -3213,65 +3242,73 @@ g_trade[0].babysitStart_minute      = 0;
 //| falgo5 profile defaults (separate from legacy g_trade[]).          |
 //+------------------------------------------------------------------+
 void SyncFalgo5ProfileFromInputs()
-{  // algo5bookmark1
-   //=== falgo5 TUNE BLOCK (edit values below) ===
-   g_falgo5Profile.levelOffset_longs                              = 0.4;
-   g_falgo5Profile.levelOffset_shorts                             =  1.4;
-   g_falgo5Profile.long1_enabled                                   = true;
-   g_falgo5Profile.long1_bounceMaxAllowed_today                   =  3;
-   g_falgo5Profile.long2_enabled                                   = true;
-   g_falgo5Profile.long2_min_bounceCount                          =  2;
-   g_falgo5Profile.long2_recentBounceCountToday_Minutes             = 600;
-   g_falgo5Profile.long2_recentBounceCount_max_allowed              =  1;
-   g_falgo5Profile.short1_enabled                                  = true;
-   g_falgo5Profile.short1_ceilingMaxAllowed_today                  =  2;
-   g_falgo5Profile.short1_max_allowed_shorts_perLevel_perDay       =  1;
-   g_falgo5Profile.recentCeilingCountToday_Minutes                = 300;  // log only (gates CSV); not used in placement yet
-   g_falgo5Profile.stop_trading_today_if_losing_trades_count      =  2;
-   g_falgo5Profile.stop_trading_today_if_winning_trades_count     =  4;
-   g_falgo5Profile.babysit_enabled                                = true;
-   g_falgo5Profile.babysitStart_minute                            =  0;
-   g_falgo5Profile.saving_trade_TP                                =  2.1;
-   g_falgo5Profile.strong_trade_TP                                =  4.2;
-   // algo5bookmark3 — strong-momentum babysit: skip saving TP when accelerating; exit on stall or at strong_trade_TP
-   g_falgo5Profile.strong_momentum_enabled                        = true;
-   g_falgo5Profile.strong_momentum_eval_min_profit_pts             =  1.8;
-   g_falgo5Profile.strong_momentum_min_velocity                     = 0.04;
-   g_falgo5Profile.strong_momentum_min_green_ratio                  = 0.05;
-   g_falgo5Profile.strong_momentum_min_consecutive_green            =    5;
-   g_falgo5Profile.strong_momentum_velocity_window_seconds          =   10;  // 0 = use telemetry_velocity_window_seconds
-   g_falgo5Profile.strong_momentum_stall_velocity_max               = 0.01;
-   g_falgo5Profile.strong_momentum_stall_giveback_pts               =  0.4;
-   g_falgo5Profile.strong_momentum_stall_consecutive_red            =    5;
-   g_falgo5Profile.strong_momentum_stall_min_close_profit_pts       =  2.0;
-   g_falgo5Profile.telemetry_velocity_window_seconds              = 10;
-   g_falgo5Profile.telemetry_avg_velocity_window_seconds          =   10;
-   // algo5bookmark2 — (date)_algo5_trade_telemetry_per_second.csv window (server time, while falgo5 position open)
-   g_falgo5Profile.persecond_debug_enabled                        = true;
-   g_falgo5Profile.persecond_debug_start_hour                     =   0;
-   g_falgo5Profile.persecond_debug_start_minute                   =  20;
-   g_falgo5Profile.persecond_debug_end_hour                       =   2;
-   g_falgo5Profile.persecond_debug_end_minute                     =  59;
-   g_falgo5Profile.secretTPSL                                     = true;
-   g_falgo5Profile.secretTPSL_percent                             = 50;
-   //=== end falgo5 TUNE BLOCK ===
+{  // algo5bookmark1 — shared + algo5/6/7 tune blocks
+   //=== SHARED TUNE BLOCK (algo5/6/7) ===
+   g_algoProfile.shared.stop_trading_today_if_losing_trades_count      =  2;
+   g_algoProfile.shared.stop_trading_today_if_winning_trades_count     =  4;
+   g_algoProfile.shared.babysit_enabled                                = true;
+   g_algoProfile.shared.babysitStart_minute                            =  0;
+   g_algoProfile.shared.saving_trade_TP                                =  2.1;
+   g_algoProfile.shared.strong_trade_TP                                =  4.2;
+   // algo5bookmark3 — strong-momentum babysit (shared across algo5/6/7)
+   g_algoProfile.shared.strong_momentum_enabled                        = true;
+   g_algoProfile.shared.strong_momentum_eval_min_profit_pts             =  1.8;
+   g_algoProfile.shared.strong_momentum_min_velocity                     = 0.04;
+   g_algoProfile.shared.strong_momentum_min_green_ratio                  = 0.05;
+   g_algoProfile.shared.strong_momentum_min_consecutive_green            =    5;
+   g_algoProfile.shared.strong_momentum_velocity_window_seconds          =   10;
+   g_algoProfile.shared.strong_momentum_stall_velocity_max               = 0.01;
+   g_algoProfile.shared.strong_momentum_stall_giveback_pts               =  0.4;
+   g_algoProfile.shared.strong_momentum_stall_consecutive_red            =    5;
+   g_algoProfile.shared.strong_momentum_stall_min_close_profit_pts       =  2.0;
+   g_algoProfile.shared.telemetry_velocity_window_seconds              = 10;
+   g_algoProfile.shared.telemetry_avg_velocity_window_seconds          =   10;
+   // algo5bookmark2 — per-algo (date)_algoN_trade_telemetry_per_second.csv window
+   g_algoProfile.shared.persecond_debug_enabled                        = true;
+   g_algoProfile.shared.persecond_debug_start_hour                     =   0;
+   g_algoProfile.shared.persecond_debug_start_minute                   =  20;
+   g_algoProfile.shared.persecond_debug_end_hour                       =   2;
+   g_algoProfile.shared.persecond_debug_end_minute                     =  59;
+   g_algoProfile.shared.secretTPSL                                     = true;
+   g_algoProfile.shared.secretTPSL_percent                             = 50;
+   //=== algo5 TUNE BLOCK (long1) ===
+   g_algoProfile.algo5.enabled                                         = true;
+   g_algoProfile.algo5.blockPlacementIfFamilyOpenOrPending             = true;
+   g_algoProfile.algo5.bounceMaxAllowed_today                          =  3;
+   g_algoProfile.algo5.levelOffset_longs                               = 0.4;
+   g_algoProfile.algo5.priceProximityLongs                             =  4.0;
+   g_algoProfile.algo5.long_expiry_minutes                              =  5;
+   //=== algo6 TUNE BLOCK (long2) ===
+   g_algoProfile.algo6.enabled                                         = true;
+   g_algoProfile.algo6.blockPlacementIfFamilyOpenOrPending             = true;
+   g_algoProfile.algo6.min_bounceCount                                 =  2;
+   g_algoProfile.algo6.recentBounceCountToday_Minutes                   = 600;
+   g_algoProfile.algo6.recentBounceCount_max_allowed                   =  1;
+   g_algoProfile.algo6.levelOffset_longs                               = 0.4;
+   g_algoProfile.algo6.priceProximityLongs                             =  4.0;
+   g_algoProfile.algo6.long_expiry_minutes                              =  5;
+   //=== algo7 TUNE BLOCK (short1) ===
+   g_algoProfile.algo7.enabled                                         = true;
+   g_algoProfile.algo7.blockPlacementIfFamilyOpenOrPending             = true;
+   g_algoProfile.algo7.ceilingMaxAllowed_today                         =  2;
+   g_algoProfile.algo7.max_allowed_shorts_perLevel_perDay                =  1;
+   g_algoProfile.algo7.recentCeilingCountToday_Minutes                 = 300;
+   g_algoProfile.algo7.levelOffset_shorts                              =  1.4;
+   g_algoProfile.algo7.priceProximityShorts                            =  5.0;
+   g_algoProfile.algo7.short_expiry_minutes                              =  8;
+   //=== end tune blocks ===
 
-   g_falgo5Profile.enabled = true;
-   g_falgo5Profile.tradeSizePct = 100;
-   g_falgo5Profile.bannedRanges = "21,35,23,59;0,0,1,0";
-   g_falgo5Profile.tradesWeeklyLevels = true;
-   g_falgo5Profile.tradesDailyLevels = false;
-   g_falgo5Profile.tradesDays = "12345";
-   g_falgo5Profile.priceProximityLongs = 4.0;
-   g_falgo5Profile.priceProximityShorts = 5.0;
-   g_falgo5Profile.initialTP = 22.0;
-   g_falgo5Profile.initialSL = 22.0;
-   g_falgo5Profile.revenge_long_allowed_perdayCount = 1;
-   g_falgo5Profile.revenge_short_allowed_perdayCount = 1;
-   g_falgo5Profile.revenge_initialTP = 24.0;
-   g_falgo5Profile.revenge_initialSL = 24.0;
-   g_falgo5Profile.long_expiry_minutes = 5;
-   g_falgo5Profile.short_expiry_minutes = 8;
+   g_algoProfile.shared.tradeSizePct = 100;
+   g_algoProfile.shared.bannedRanges = "21,35,23,59;0,0,1,0";
+   g_algoProfile.shared.tradesWeeklyLevels = true;
+   g_algoProfile.shared.tradesDailyLevels = false;
+   g_algoProfile.shared.tradesDays = "12345";
+   g_algoProfile.shared.initialTP = 22.0;
+   g_algoProfile.shared.initialSL = 22.0;
+   g_algoProfile.shared.revenge_long_allowed_perdayCount = 1;
+   g_algoProfile.shared.revenge_short_allowed_perdayCount = 1;
+   g_algoProfile.shared.revenge_initialTP = 24.0;
+   g_algoProfile.shared.revenge_initialSL = 24.0;
    RebuildFalgo5BannedRangesCache();
 }
 
@@ -3363,8 +3400,8 @@ void ValidateMagicCompositionOnInit()
    int requiredVariantCount = 0;
    if(lastUsed < 0)
    {
-      if(!g_falgo5Profile.enabled)
-         FatalError("g_trade: no rows with tradeTypeId != 0 — add a legacy variant or set g_falgo5Profile.enabled for falgo5-only.");
+      if(!AlgoFamilyAnyEnabled())
+         FatalError("g_trade: no rows with tradeTypeId != 0 — add a legacy variant or enable algo5/algo6/algo7.");
       for(int i = 0; i < TRADE_VARIANT_COUNT; i++)
       {
          if(g_trade[i].tradeTypeId != 0)
@@ -25659,7 +25696,7 @@ bool PlacePendingFromMagic(long magic, double anchorLevel, double offsetPoints, 
 //+------------------------------------------------------------------+
 bool PlacePendingFromFalgo5Magic(long magic, double anchorLevel, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot)
 {
-   if(!IsFalgo5CompositeMagicSlot1(magic))
+   if(!IsAnyAlgoFamilyCompositeMagic(magic))
       return false;
    Falgo5MagicKey fk = ParseFalgo5Magic(magic);
    double orderPrice = 0.0, stopLossVal = 0.0, takeProfitVal = 0.0;
@@ -25691,7 +25728,7 @@ bool PlacePendingFromFalgo5Magic(long magic, double anchorLevel, double offsetPo
 //+------------------------------------------------------------------+
 void WriteTradeLogPendingOrderFalgo5(double levelPrice, double offsetPoints, double slPoints, double tpPoints, long magic, int expirationMin)
 {
-   if(!IsFalgo5CompositeMagicSlot1(magic))
+   if(!IsAnyAlgoFamilyCompositeMagic(magic))
       return;
    string magicStrForLogFilename = MagicNumberToFixedWidthString(magic);
    ulong orderTicket = ExtTrade.ResultOrder();
@@ -27691,9 +27728,9 @@ void OnTimer()
                      "ClosestWeeklyLevel_anchorAbove_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorAbove_time",
                      "ClosestWeeklyLevel_anchorBelow_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorBelow_time",
                      "ClosestWeeklyLevel_BounceCount_today",
-                     StringFormat("recentBounceCount%d", g_falgo5Profile.long2_recentBounceCountToday_Minutes),
+                     StringFormat("recentBounceCount%d", g_algoProfile.algo6.recentBounceCountToday_Minutes),
                      "ClosestWeeklyLevel_CeilingCount_today",
-                     StringFormat("recentCeilingCount%d", g_falgo5Profile.recentCeilingCountToday_Minutes),
+                     StringFormat("recentCeilingCount%d", g_algoProfile.algo7.recentCeilingCountToday_Minutes),
                      "ClosestWeeklyLevel_contactCount_today",
                      "accOpenTradeNowBool", "accOpenTradeTime", "accLastClosedTradeTime",
                      "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum");
@@ -27760,7 +27797,7 @@ void OnTimer()
             for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
             {
                TradeResult tradeResult = g_tradeResults[trIdx];
-               if(!tradeResult.foundOut || IsFalgo5CompositeMagicSlot1(tradeResult.magic))
+               if(!tradeResult.foundOut || IsAnyAlgoFamilyCompositeMagic(tradeResult.magic))
                   continue;
                if(tradeResult.endTime >= summaryBarClose)
                   continue;
@@ -27785,7 +27822,7 @@ void OnTimer()
             {
                TradeResult tradeResult = g_tradeResults[trIdx];
                if(!tradeResult.foundOut) continue;
-               if(IsFalgo5CompositeMagicSlot1(tradeResult.magic)) continue;
+               if(IsAnyAlgoFamilyCompositeMagic(tradeResult.magic)) continue;
                int idx = FindOrAddPerTradeMagic(tradeResult.magic);
                if(idx < 0) continue;
                if(StringFind(g_perTradeSummaries[idx].datesList, dateStr) < 0)
@@ -27861,10 +27898,6 @@ void OnTimer()
          string summaryAllName = "summary_tradeResults_all_days.tsv";
          bool needDailyTradeCsv = !FileIsExist(csvName);
          bool needAllDaysSummary = needDailyTradeCsv || !FileIsExist(summaryAllName);
-         int falgo5TradeResultsOutCount = 0;
-         for(int trScan = 0; trScan < g_tradeResultsCount; trScan++)
-            if(g_tradeResults[trScan].foundOut && IsFalgo5CompositeMagicSlot1(g_tradeResults[trScan].magic))
-               falgo5TradeResultsOutCount++;
 
          if(dailyEODlog_TradeResultsCsv && g_tradeResultsCount > 0 && needAllDaysSummary)
          {
@@ -27878,7 +27911,7 @@ void OnTimer()
                for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
                {
                   TradeResult tradeResult = g_tradeResults[trIdx];
-                  if(IsFalgo5CompositeMagicSlot1(tradeResult.magic))
+                  if(IsAnyAlgoFamilyCompositeMagic(tradeResult.magic))
                      continue;
                   double mfe = 0.0, mae = 0.0;
                   int mfeCandle = 0, maeCandle = 0;
@@ -27987,14 +28020,14 @@ void OnTimer()
             int newBase = existingRowCount * cols;
             int legacyRowsToAppend = 0;
             for(int ti = 0; ti < g_tradeResultsCount; ti++)
-               if(g_tradeResults[orderTr[ti]].foundOut && !IsFalgo5CompositeMagicSlot1(g_tradeResults[orderTr[ti]].magic))
+               if(g_tradeResults[orderTr[ti]].foundOut && !IsAnyAlgoFamilyCompositeMagic(g_tradeResults[orderTr[ti]].magic))
                   legacyRowsToAppend++;
             ArrayResize(allDaysRows, newBase + legacyRowsToAppend * schemaCols);
             for(int ti = 0; ti < g_tradeResultsCount; ti++)
             {
                int trIdx = orderTr[ti];
                TradeResult tradeResult = g_tradeResults[trIdx];
-               if(IsFalgo5CompositeMagicSlot1(tradeResult.magic))
+               if(IsAnyAlgoFamilyCompositeMagic(tradeResult.magic))
                   continue;
                double mfe = 0.0, mae = 0.0;
                int mfeCandle = 0, maeCandle = 0;
@@ -28121,7 +28154,7 @@ void OnTimer()
             }
          }
 
-         WriteFalgo5EodTradeResultsCsvsIfNeeded(dateStr, falgo5TradeResultsOutCount);
+         WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(dateStr);
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
          const int HighestDiffRange_Log = 15;  // window in bars for both HighestDiffUp and HighestDiffDown in logs
