@@ -391,7 +391,7 @@ struct AlgoPerAlgoTune
    int    telemetry_velocity_window_seconds;
    int    telemetry_avg_velocity_window_seconds;
    bool   trade_telemetry_per_second_enabled;  // (date)_algoN_trade_telemetry_per_second.csv during persecond_debug window
-   double reduceLoss_mode_trigger_pts;  // 0=off; latch reduceLoss when troughProfitPts <= -this (points)
+   double reduceLoss_mode_trigger_pts;  // 0=off; latch reduceLoss when maePts <= -this (points)
    double reduceLoss_mode_SL_pts;       // in reduceLoss mode: close when openProfitPts >= -this (points)
 };
 
@@ -3254,8 +3254,10 @@ struct FalgoOpenTradeTelemetry
    int      consecutiveGreen;
    int      consecutiveRed;
    double   openProfitPts;
-   double   peakProfitPts;
-   double   troughProfitPts;
+   double   mfePts;
+   double   maePts;
+   int      mfeCandle1Based;
+   int      maeCandle1Based;
    int      timeToReachSavingTpSeconds;
    double   avgProfitVelocity;
    int      avgVelocitySampleCount;
@@ -3285,8 +3287,8 @@ struct FalgoTelemetryBarSnap
    int      consecutiveGreen;
    int      consecutiveRed;
    double   profitVelocity;
-   double   peakProfitPts;
-   double   troughProfitPts;
+   double   mfePts;
+   double   maePts;
    double   profitFromPeak;
    bool     tradeClosedOnThisBar;
 };
@@ -3299,8 +3301,10 @@ struct FalgoClosedTradeTelemetrySummary
    int      secondsRed;
    double   greenRatioAtClose;
    double   avgProfitVelocity;
-   double   peakProfitPts;
-   double   troughProfitPts;
+   double   mfePts;
+   double   maePts;
+   int      mfeCandle1Based;
+   int      maeCandle1Based;
    int      timeToReachSavingTpSeconds;
    string   closeDecision;
    string   closeDetail;
@@ -3667,8 +3671,10 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetry.consecutiveGreen = 0;
    g_falgoOpenTelemetry.consecutiveRed = 0;
    g_falgoOpenTelemetry.openProfitPts = 0.0;
-   g_falgoOpenTelemetry.peakProfitPts = 0.0;
-   g_falgoOpenTelemetry.troughProfitPts = 0.0;
+   g_falgoOpenTelemetry.mfePts = 0.0;
+   g_falgoOpenTelemetry.maePts = 0.0;
+   g_falgoOpenTelemetry.mfeCandle1Based = 0;
+   g_falgoOpenTelemetry.maeCandle1Based = 0;
    g_falgoOpenTelemetry.timeToReachSavingTpSeconds = -1;
    g_falgoOpenTelemetry.avgProfitVelocity = 0.0;
    g_falgoOpenTelemetry.avgVelocitySampleCount = 0;
@@ -3747,6 +3753,18 @@ int FalgoBarIdxForDayTime(const datetime t)
 }
 
 //+------------------------------------------------------------------+
+//| 1-based M1 minute index from trade open bar through atTime (per-second telemetry). |
+//+------------------------------------------------------------------+
+int FalgoTradeMinuteCandle1BasedFromStart(const datetime tradeStartTime, const datetime atTime)
+{
+   if(tradeStartTime <= 0 || atTime < tradeStartTime)
+      return 0;
+   const datetime startBarOpen = tradeStartTime - (tradeStartTime % 60);
+   const datetime atBarOpen = atTime - (atTime % 60);
+   return (int)((atBarOpen - startBarOpen) / 60) + 1;
+}
+
+//+------------------------------------------------------------------+
 void FalgoTelemetrySnapOpenStateToBar(const int barIdx, const bool tradeClosedOnThisBar = false)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay || !g_falgoOpenTelemetry.active)
@@ -3765,9 +3783,9 @@ void FalgoTelemetrySnapOpenStateToBar(const int barIdx, const bool tradeClosedOn
       snap.profitVelocity = FalgoTelemetryProfitVelocityWindowSeconds(telTune.telemetry_velocity_window_seconds);
    else
       snap.profitVelocity = 0.0;
-   snap.peakProfitPts = g_falgoOpenTelemetry.peakProfitPts;
-   snap.troughProfitPts = g_falgoOpenTelemetry.troughProfitPts;
-   snap.profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.peakProfitPts;
+   snap.mfePts = g_falgoOpenTelemetry.mfePts;
+   snap.maePts = g_falgoOpenTelemetry.maePts;
+   snap.profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.mfePts;
    snap.tradeClosedOnThisBar = tradeClosedOnThisBar;
    g_falgoTelemetryAtBar[barIdx] = snap;
 }
@@ -3798,7 +3816,7 @@ void FalgoGatesTelemetryStringsFromBarSnap(const FalgoTelemetryBarSnap &snap,
    outConsecGreen = IntegerToString(snap.consecutiveGreen);
    outConsecRed = IntegerToString(snap.consecutiveRed);
    outProfitVelocity = DoubleToString(snap.profitVelocity, 3);
-   outPeakProfit = DoubleToString(snap.peakProfitPts, 1);
+   outPeakProfit = DoubleToString(snap.mfePts, 1);
    outProfitFromPeak = DoubleToString(snap.profitFromPeak, 1);
 }
 
@@ -3965,8 +3983,10 @@ void FalgoTelemetryInitFromSelectedPosition()
    g_falgoOpenTelemetry.tradeStartTime = ExtPositionInfo.Time();
    const double profitPts = FalgoOpenPositionProfitPoints();
    g_falgoOpenTelemetry.openProfitPts = profitPts;
-   g_falgoOpenTelemetry.peakProfitPts = profitPts;
-   g_falgoOpenTelemetry.troughProfitPts = profitPts;
+   g_falgoOpenTelemetry.mfePts = profitPts;
+   g_falgoOpenTelemetry.maePts = profitPts;
+   g_falgoOpenTelemetry.mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetry.tradeStartTime, g_lastTimer1Time);
+   g_falgoOpenTelemetry.maeCandle1Based = g_falgoOpenTelemetry.mfeCandle1Based;
    g_falgoOpenTelemetry.lastBarIdx = FalgoBarIdxForDayTime(g_lastTimer1Time);
    FalgoTelemetryPushProfitSample(g_lastTimer1Time, profitPts);
    if(g_falgoOpenTelemetry.lastBarIdx >= 0)
@@ -3982,8 +4002,10 @@ void FalgoTelemetryFillSummaryFromOpen(FalgoClosedTradeTelemetrySummary &outSumm
    outSummary.secondsRed = g_falgoOpenTelemetry.secondsRed;
    outSummary.greenRatioAtClose = FalgoTelemetryGreenRatioFromOpen();
    outSummary.avgProfitVelocity = g_falgoOpenTelemetry.avgProfitVelocity;
-   outSummary.peakProfitPts = g_falgoOpenTelemetry.peakProfitPts;
-   outSummary.troughProfitPts = g_falgoOpenTelemetry.troughProfitPts;
+   outSummary.mfePts = g_falgoOpenTelemetry.mfePts;
+   outSummary.maePts = g_falgoOpenTelemetry.maePts;
+   outSummary.mfeCandle1Based = g_falgoOpenTelemetry.mfeCandle1Based;
+   outSummary.maeCandle1Based = g_falgoOpenTelemetry.maeCandle1Based;
    outSummary.timeToReachSavingTpSeconds = g_falgoOpenTelemetry.timeToReachSavingTpSeconds;
    outSummary.closeDecision = g_falgoOpenTelemetry.closeDecisionReason;
    outSummary.closeDetail = g_falgoOpenTelemetry.closeDecisionDetail;
@@ -4127,21 +4149,23 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
    if(FileTell(fh) == 0)
    {
       FileWrite(fh,
-         "time", "magic", "positionTicket", "openProfitPts", "tradeAgeSeconds",
+         "time", "magic", "positionTicket", "openProfitPts", "MFE", "MAE", "tradeAgeSeconds",
          "secondsGreen", "secondsRed", "greenRatio", "consecutiveGreen", "consecutiveRed",
          AlgoGatesColProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetry.magic)),
          AlgoGatesColAvgProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetry.magic)),
-         "peakProfitPts", "profitFromPeak", "timeToReachSavingTpSeconds",
+         "profitFromPeak", "timeToReachSavingTpSeconds",
          "exit_mode", "exit_mode_prev", "exit_mode_changed",
          "event_type", "close_reason", "close_detail");
    }
    const double profitVelocity = FalgoTelemetryProfitVelocityWindowSeconds(telTune.telemetry_velocity_window_seconds);
-   const double profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.peakProfitPts;
+   const double profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.mfePts;
    FileWrite(fh,
       TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS),
       IntegerToString(g_falgoOpenTelemetry.magic),
       IntegerToString((long)g_falgoOpenTelemetry.positionTicket),
       DoubleToString(g_falgoOpenTelemetry.openProfitPts, 1),
+      DoubleToString(g_falgoOpenTelemetry.mfePts, 1),
+      DoubleToString(g_falgoOpenTelemetry.maePts, 1),
       IntegerToString(g_falgoOpenTelemetry.tradeAgeSeconds),
       IntegerToString(g_falgoOpenTelemetry.secondsGreen),
       IntegerToString(g_falgoOpenTelemetry.secondsRed),
@@ -4150,7 +4174,6 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
       IntegerToString(g_falgoOpenTelemetry.consecutiveRed),
       DoubleToString(profitVelocity, 3),
       DoubleToString(g_falgoOpenTelemetry.avgProfitVelocity, 3),
-      DoubleToString(g_falgoOpenTelemetry.peakProfitPts, 1),
       DoubleToString(profitFromPeak, 1),
       (g_falgoOpenTelemetry.timeToReachSavingTpSeconds >= 0
          ? IntegerToString(g_falgoOpenTelemetry.timeToReachSavingTpSeconds) : ""),
@@ -4172,7 +4195,7 @@ void FalgoTryLogTelemetryPerSecond()
 //+------------------------------------------------------------------+
 string FalgoVelocityParamTestHeaderLine()
 {
-   string hdr = "time,magic,positionTicket,openProfitPts,tradeAgeSeconds,peakProfitPts,profitFromPeak";
+   string hdr = "time,magic,positionTicket,openProfitPts,MFE,MAE,tradeAgeSeconds,profitFromPeak";
    for(int pi = 0; pi < FALGO_VELOCITY_PARAM_TEST_COUNT; pi++)
    {
       const string w = IntegerToString(g_velocityParameterTestedSec[pi]);
@@ -4185,14 +4208,15 @@ string FalgoVelocityParamTestHeaderLine()
 //+------------------------------------------------------------------+
 string FalgoVelocityParamTestDataLine()
 {
-   const double profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.peakProfitPts;
-   string row = StringFormat("%s,%s,%s,%.1f,%d,%.1f,%.1f",
+   const double profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.mfePts;
+   string row = StringFormat("%s,%s,%s,%.1f,%.1f,%.1f,%d,%.1f",
       TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS),
       IntegerToString(g_falgoOpenTelemetry.magic),
       IntegerToString((long)g_falgoOpenTelemetry.positionTicket),
       g_falgoOpenTelemetry.openProfitPts,
+      g_falgoOpenTelemetry.mfePts,
+      g_falgoOpenTelemetry.maePts,
       g_falgoOpenTelemetry.tradeAgeSeconds,
-      g_falgoOpenTelemetry.peakProfitPts,
       profitFromPeak);
    for(int pi = 0; pi < FALGO_VELOCITY_PARAM_TEST_COUNT; pi++)
    {
@@ -4270,12 +4294,18 @@ void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
       g_falgoOpenTelemetry.consecutiveGreen = 0;
    }
    g_falgoOpenTelemetry.openProfitPts = profitPts;
-   if(profitPts > g_falgoOpenTelemetry.peakProfitPts)
-      g_falgoOpenTelemetry.peakProfitPts = profitPts;
-   if(profitPts < g_falgoOpenTelemetry.troughProfitPts)
-      g_falgoOpenTelemetry.troughProfitPts = profitPts;
+   if(profitPts > g_falgoOpenTelemetry.mfePts)
+   {
+      g_falgoOpenTelemetry.mfePts = profitPts;
+      g_falgoOpenTelemetry.mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetry.tradeStartTime, g_lastTimer1Time);
+   }
+   if(profitPts < g_falgoOpenTelemetry.maePts)
+   {
+      g_falgoOpenTelemetry.maePts = profitPts;
+      g_falgoOpenTelemetry.maeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetry.tradeStartTime, g_lastTimer1Time);
+   }
    if(telTune.reduceLoss_mode_trigger_pts > 0.0 &&
-      g_falgoOpenTelemetry.troughProfitPts <= -PointSized(telTune.reduceLoss_mode_trigger_pts))
+      g_falgoOpenTelemetry.maePts <= -PointSized(telTune.reduceLoss_mode_trigger_pts))
       g_falgoOpenTelemetry.reduceLossMode = true;
    if(g_falgoOpenTelemetry.timeToReachSavingTpSeconds < 0 &&
       telTune.saving_trade_TP > 0.0 &&
@@ -4498,7 +4528,7 @@ bool FalgoRulesetPassesCommon(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-//| Per-algo direction rules (no common gates). |
+//| Per-algo direction rules (no common gates). | bookmark rulesets
 //+------------------------------------------------------------------+
 bool AlgoRulesetPassesAlgo10(const int barIdx)
 {
@@ -4525,9 +4555,26 @@ bool AlgoRulesetPassesAlgo11(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
+bool AlgoRulesetPassesAlgo12(const int barIdx)
+{
+   if(!g_algoProfile.algo12.enabled)
+      return false;
+   if(FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo12.ceilingMaxAllowed_today)
+      return false;
+   if(g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay > 0)
+   {
+      const int tier = FalgoClosestWeeklyLevelTierAtBar(barIdx);
+      if(tier >= 1 &&
+         FalgoShortTradeCountTodayAtTier(tier) >= g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay)
+         return false;
+   }
+   return true;
+}
+
+
+//+------------------------------------------------------------------+
 bool FalgoMagicKeyIsShortDirection(const FalgoMagicKey &k)
 {
-   // “Too many ceilings today, or already 1 short at this level tier
    return (k.direction == FALGO_DIRECTION_SHORT_LIMIT || k.direction == FALGO_DIRECTION_SHORT_ALT);
 }
 
@@ -4577,22 +4624,6 @@ int FalgoShortTradeCountTodayAtTier(const int tier)
    return count;
 }
 
-//+------------------------------------------------------------------+
-bool AlgoRulesetPassesAlgo12(const int barIdx)
-{
-   if(!g_algoProfile.algo12.enabled)
-      return false;
-   if(FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo12.ceilingMaxAllowed_today)
-      return false;
-   if(g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay > 0)
-   {
-      const int tier = FalgoClosestWeeklyLevelTierAtBar(barIdx);
-      if(tier >= 1 &&
-         FalgoShortTradeCountTodayAtTier(tier) >= g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay)
-         return false;
-   }
-   return true;
-}
 
 //+------------------------------------------------------------------+
 bool AlgoRulesetPassesForAlgo(const int algoNumber, const int barIdx)
@@ -4979,7 +5010,7 @@ bool FalgoFindFalgoTradeForGatesBar(const int barIdx, const datetime evalTime, T
 
 //+------------------------------------------------------------------+
 //+------------------------------------------------------------------+
-//| Gates MFE/MAE = lifetime peak/trough floating P/L (points) for the trade, not per-candle. |
+//| Gates MFE/MAE = lifetime best/worst floating P/L (pts) from per-second telemetry. |
 //+------------------------------------------------------------------+
 bool FalgoGatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int throughBarIdx,
    string &outMfePts, string &outMaePts)
@@ -4996,16 +5027,16 @@ bool FalgoGatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int th
          continue;
       if(!found)
       {
-         peak = g_falgoTelemetryAtBar[b].peakProfitPts;
-         trough = g_falgoTelemetryAtBar[b].troughProfitPts;
+         peak = g_falgoTelemetryAtBar[b].mfePts;
+         trough = g_falgoTelemetryAtBar[b].maePts;
          found = true;
       }
       else
       {
-         if(g_falgoTelemetryAtBar[b].peakProfitPts > peak)
-            peak = g_falgoTelemetryAtBar[b].peakProfitPts;
-         if(g_falgoTelemetryAtBar[b].troughProfitPts < trough)
-            trough = g_falgoTelemetryAtBar[b].troughProfitPts;
+         if(g_falgoTelemetryAtBar[b].mfePts > peak)
+            peak = g_falgoTelemetryAtBar[b].mfePts;
+         if(g_falgoTelemetryAtBar[b].maePts < trough)
+            trough = g_falgoTelemetryAtBar[b].maePts;
       }
    }
    if(!found)
@@ -5021,15 +5052,15 @@ bool FalgoGatesMfeMaeLifetimeForTrade(const TradeResult &tr, const int throughBa
 {
    if(g_falgoOpenTelemetry.active && g_falgoOpenTelemetry.tradeStartTime == tr.startTime)
    {
-      outMfePts = DoubleToString(g_falgoOpenTelemetry.peakProfitPts, 1);
-      outMaePts = DoubleToString(g_falgoOpenTelemetry.troughProfitPts, 1);
+      outMfePts = DoubleToString(g_falgoOpenTelemetry.mfePts, 1);
+      outMaePts = DoubleToString(g_falgoOpenTelemetry.maePts, 1);
       return true;
    }
    FalgoClosedTradeTelemetrySummary closedSum;
    if(FalgoFindClosedTelemetrySummary(tr.magic, tr.startTime, closedSum))
    {
-      outMfePts = DoubleToString(closedSum.peakProfitPts, 1);
-      outMaePts = DoubleToString(closedSum.troughProfitPts, 1);
+      outMfePts = DoubleToString(closedSum.mfePts, 1);
+      outMaePts = DoubleToString(closedSum.maePts, 1);
       return true;
    }
    return FalgoGatesMfeMaeLifetimeFromBarSnaps(tr.startTime, throughBarIdx, outMfePts, outMaePts);
@@ -5062,7 +5093,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
       "barTime", "O", "H", "L", "C",
       "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "MFE", "MAE",
       "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
-      "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "peakProfitPts", "profitFromPeak",
+      "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
       "closestProximity", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", FalgoGatesColRecentCeilingCount(),
       "closeVsLevel", "direction", "levelTier", "proximityOK", "bounceOK", "ceilingOK",
       "tradesWeeklyLevels", "anchorInExpanded",
@@ -5154,12 +5185,13 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
       FalgoGatesMfeMaePointsForBar(barIdx, mfePts, maePts);
 
    string telTradeAge = "", telOpenProfit = "", telSecGreen = "", telSecRed = "", telGreenRatio = "";
-   string telConsecGreen = "", telConsecRed = "", telProfitVelocity = "", telPeakProfit = "", telProfitFromPeak = "";
+   string telConsecGreen = "", telConsecRed = "", telProfitVelocity = "", telProfitFromPeak = "";
    if(telBarSnapValid)
    {
+      string telMfeDummy = "";
       FalgoGatesTelemetryStringsFromBarSnap(g_falgoTelemetryAtBar[barIdx],
          telTradeAge, telOpenProfit, telSecGreen, telSecRed, telGreenRatio,
-         telConsecGreen, telConsecRed, telProfitVelocity, telPeakProfit, telProfitFromPeak);
+         telConsecGreen, telConsecRed, telProfitVelocity, telMfeDummy, telProfitFromPeak);
    }
    else if(!noOpen && g_falgoOpenTelemetry.active)
    {
@@ -5175,8 +5207,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
          telConsecRed = IntegerToString(g_falgoOpenTelemetry.consecutiveRed);
          telProfitVelocity = DoubleToString(
             FalgoTelemetryProfitVelocityWindowSeconds(rowTelTune.telemetry_velocity_window_seconds), 3);
-         telPeakProfit = DoubleToString(g_falgoOpenTelemetry.peakProfitPts, 1);
-         telProfitFromPeak = DoubleToString(g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.peakProfitPts, 1);
+         telProfitFromPeak = DoubleToString(g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.mfePts, 1);
       }
    }
 
@@ -5208,7 +5239,6 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
       telConsecGreen,
       telConsecRed,
       telProfitVelocity,
-      telPeakProfit,
       telProfitFromPeak,
       DoubleToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity, _Digits),
       IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_today),
@@ -5296,7 +5326,7 @@ void FalgoStrongMomentumStallFlags(const AlgoPerAlgoTune &tune,
    outVelocityStall = false;
    outGivebackStall = false;
    const double profitPts = g_falgoOpenTelemetry.openProfitPts;
-   const double giveback = profitPts - g_falgoOpenTelemetry.peakProfitPts;
+   const double giveback = profitPts - g_falgoOpenTelemetry.mfePts;
    const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
    if(vel <= tune.strong_momentum_stall_velocity_max)
       outVelocityStall = true;
@@ -5326,7 +5356,7 @@ string FalgoStrongMomentumStallReasonDetail(const AlgoPerAlgoTune &tune)
    if(givebackStall)
       reasons = (reasons == "" ? "stall_giveback" : reasons + "|stall_giveback");
    const double profitPts = g_falgoOpenTelemetry.openProfitPts;
-   const double giveback = profitPts - g_falgoOpenTelemetry.peakProfitPts;
+   const double giveback = profitPts - g_falgoOpenTelemetry.mfePts;
    const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
    return StringFormat("%s|vel=%.3f|velMax=%.3f|giveback=%.1f|givebackMax=%.1f",
       reasons,
@@ -5409,7 +5439,7 @@ bool Babysitf_falgo_closeIfProfitPointsAtOrAbove(const long positionMagic, const
 }
 
 //+------------------------------------------------------------------+
-//| reduceLoss: latch when per-second troughProfitPts hits trigger depth; |
+//| reduceLoss: latch when per-second maePts hits trigger depth; |
 //| close on recovery when open profit >= -reduceLoss_mode_SL_pts. |
 //+------------------------------------------------------------------+
 bool Babysitf_falgo_runReduceLossBabysit(const long posMagic)
@@ -5422,7 +5452,7 @@ bool Babysitf_falgo_runReduceLossBabysit(const long posMagic)
    if(!FalgoBabysitPositionMatchesOpenTelemetry())
       return false;
 
-   if(g_falgoOpenTelemetry.troughProfitPts <= -PointSized(tune.reduceLoss_mode_trigger_pts))
+   if(g_falgoOpenTelemetry.maePts <= -PointSized(tune.reduceLoss_mode_trigger_pts))
       g_falgoOpenTelemetry.reduceLossMode = true;
    if(!g_falgoOpenTelemetry.reduceLossMode)
       return false;
@@ -5430,7 +5460,7 @@ bool Babysitf_falgo_runReduceLossBabysit(const long posMagic)
    const double slPts = PointSized(tune.reduceLoss_mode_SL_pts);
    return Babysitf_falgo_closeIfProfitPointsAtOrAbove(posMagic, -slPts, "reduce_loss_recovery",
       StringFormat("profit=%.1f|recoveryThreshold=-%.1f|trough=%.1f", FalgoOpenPositionProfitPoints(), slPts,
-         g_falgoOpenTelemetry.troughProfitPts));
+         g_falgoOpenTelemetry.maePts));
 }
 
 //+------------------------------------------------------------------+
@@ -5694,13 +5724,13 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
    out.refBelow = "";
    out.levelCats = "";
 
-   double mfe = 0.0, mae = 0.0;
-   int mfeCandle = 0, maeCandle = 0;
-   GetMFEandMAEForTrade(tr, mfe, mae, mfeCandle, maeCandle);
-   if(mfeCandle > 0 || maeCandle > 0)
+   FalgoClosedTradeTelemetrySummary telSummary;
+   if(FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary))
    {
-      out.mfeCandle = IntegerToString(mfeCandle);
-      out.maeCandle = IntegerToString(maeCandle);
+      if(telSummary.mfeCandle1Based > 0)
+         out.mfeCandle = IntegerToString(telSummary.mfeCandle1Based);
+      if(telSummary.maeCandle1Based > 0)
+         out.maeCandle = IntegerToString(telSummary.maeCandle1Based);
    }
 
    const int breakevenC = Get3c30cLevelBreakevenCForTrade(tr);
@@ -5724,7 +5754,7 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,close_decision,close_detail,greenRatio_at_close,avg_profitVelocity_5,peakProfitPts,troughProfitPts,secondsGreen,secondsRed,time_to_reach_saving_TP,mfeCandle,maeCandle,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats"
+#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,time_to_reach_saving_TP,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats"
 #define FALGO_ALLDAYS_COLS     41
 
 //+------------------------------------------------------------------+
@@ -5804,49 +5834,49 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    cells[base + 8]  = DoubleToString(tr.priceDiff, _Digits);
    cells[base + 9]  = DoubleToString(tr.profit, 2);
    cells[base + 10] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
-   cells[base + 11] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 12] = (string)tr.volume;
-   cells[base + 13] = FalgoSanitizeCsvCell(tr.bothComments);
-   int planNum = 0, levelNum = 0;
-   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
-   cells[base + 14] = FalgoSanitizeCsvCell(tr.level);
-   cells[base + 15] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
-   cells[base + 16] = IntegerToString(planNum);
-   cells[base + 17] = IntegerToString(levelNum);
-   cells[base + 18] = FalgoOffsetPriceUnitsStrForTrade(tr);
-   cells[base + 19] = FalgoSanitizeCsvCell(tr.tp);
-   cells[base + 20] = FalgoSanitizeCsvCell(tr.sl);
    FalgoClosedTradeTelemetrySummary telSummary;
-   if(FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary))
+   const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
+   FalgoTradeLegacyContextCols legacyCtx;
+   FalgoFillTradeLegacyContextCols(tr, legacyCtx);
+   if(hasTel)
    {
-      cells[base + 21] = FalgoSanitizeCsvCell(telSummary.closeDecision);
-      cells[base + 22] = FalgoSanitizeCsvCell(telSummary.closeDetail);
-      cells[base + 23] = DoubleToString(telSummary.greenRatioAtClose, 4);
-      cells[base + 24] = DoubleToString(telSummary.avgProfitVelocity, 3);
-      cells[base + 25] = DoubleToString(telSummary.peakProfitPts, 1);
-      cells[base + 26] = DoubleToString(telSummary.troughProfitPts, 1);
-      cells[base + 27] = IntegerToString(telSummary.secondsGreen);
-      cells[base + 28] = IntegerToString(telSummary.secondsRed);
-      cells[base + 29] = (telSummary.timeToReachSavingTpSeconds >= 0
+      cells[base + 11] = DoubleToString(telSummary.mfePts, 1);
+      cells[base + 12] = DoubleToString(telSummary.maePts, 1);
+      cells[base + 15] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 16] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 27] = DoubleToString(telSummary.greenRatioAtClose, 4);
+      cells[base + 28] = DoubleToString(telSummary.avgProfitVelocity, 3);
+      cells[base + 29] = IntegerToString(telSummary.secondsGreen);
+      cells[base + 30] = IntegerToString(telSummary.secondsRed);
+      cells[base + 31] = (telSummary.timeToReachSavingTpSeconds >= 0
          ? IntegerToString(telSummary.timeToReachSavingTpSeconds) : "");
    }
    else
    {
-      cells[base + 21] = "";
-      cells[base + 22] = "";
-      cells[base + 23] = "";
-      cells[base + 24] = "";
-      cells[base + 25] = "";
-      cells[base + 26] = "";
+      cells[base + 11] = "";
+      cells[base + 12] = "";
+      cells[base + 15] = "";
+      cells[base + 16] = "";
       cells[base + 27] = "";
       cells[base + 28] = "";
       cells[base + 29] = "";
+      cells[base + 30] = "";
+      cells[base + 31] = "";
    }
-
-   FalgoTradeLegacyContextCols legacyCtx;
-   FalgoFillTradeLegacyContextCols(tr, legacyCtx);
-   cells[base + 30] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
-   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 13] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 14] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 17] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 18] = (string)tr.volume;
+   cells[base + 19] = FalgoSanitizeCsvCell(tr.bothComments);
+   int planNum = 0, levelNum = 0;
+   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
+   cells[base + 20] = FalgoSanitizeCsvCell(tr.level);
+   cells[base + 21] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
+   cells[base + 22] = IntegerToString(planNum);
+   cells[base + 23] = IntegerToString(levelNum);
+   cells[base + 24] = FalgoOffsetPriceUnitsStrForTrade(tr);
+   cells[base + 25] = FalgoSanitizeCsvCell(tr.tp);
+   cells[base + 26] = FalgoSanitizeCsvCell(tr.sl);
    cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
    cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
    cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
@@ -5936,7 +5966,12 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    int fhDay = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fhDay != INVALID_HANDLE)
    {
-      FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl", "close_decision", "close_detail", "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "peakProfitPts", "troughProfitPts", "secondsGreen", "secondsRed", "time_to_reach_saving_TP", "mfeCandle", "maeCandle", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelCats");
+      FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type",
+         "MFE", "MAE", "mfeCandle", "maeCandle", "close_decision", "close_detail",
+         "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
+         "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed", "time_to_reach_saving_TP",
+         "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL",
+         "referencePointsAbove", "referencePointsBelow", "levelCats");
       for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
       {
          TradeResult tr = g_tradeResults[trIdx];
@@ -5958,21 +5993,22 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             DoubleToString(tr.priceDiff, _Digits),
             DoubleToString(tr.profit, 2),
             EnumToString((ENUM_DEAL_TYPE)tr.type),
+            (hasTel ? DoubleToString(telSummary.mfePts, 1) : ""),
+            (hasTel ? DoubleToString(telSummary.maePts, 1) : ""),
+            legacyCtx.mfeCandle, legacyCtx.maeCandle,
+            (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDecision) : ""),
+            (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDetail) : ""),
             EnumToString((ENUM_DEAL_REASON)tr.reason),
             tr.volume, tr.bothComments, tr.level, FalgoLevelTagUneditedForTradeResult(tr),
             IntegerToString(planNum), IntegerToString(levelNum),
             FalgoOffsetPriceUnitsStrForTrade(tr), FalgoSanitizeCsvCell(tr.tp), FalgoSanitizeCsvCell(tr.sl),
-            (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDecision) : ""),
-            (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDetail) : ""),
             (hasTel ? DoubleToString(telSummary.greenRatioAtClose, 4) : ""),
             (hasTel ? DoubleToString(telSummary.avgProfitVelocity, 3) : ""),
-            (hasTel ? DoubleToString(telSummary.peakProfitPts, 1) : ""),
-            (hasTel ? DoubleToString(telSummary.troughProfitPts, 1) : ""),
             (hasTel ? IntegerToString(telSummary.secondsGreen) : ""),
             (hasTel ? IntegerToString(telSummary.secondsRed) : ""),
             (hasTel && telSummary.timeToReachSavingTpSeconds >= 0
                ? IntegerToString(telSummary.timeToReachSavingTpSeconds) : ""),
-            legacyCtx.mfeCandle, legacyCtx.maeCandle, legacyCtx.breakevenC,
+            legacyCtx.breakevenC,
             legacyCtx.gapFillPc, legacyCtx.openGapInfo, legacyCtx.pdTrend,
             legacyCtx.dayBrokePDH, legacyCtx.dayBrokePDL,
             legacyCtx.refAbove, legacyCtx.refBelow, legacyCtx.levelCats);
