@@ -58,6 +58,7 @@ bool     dailyLog_algoFamilyWeekPerspective = true;  // (date)_algofamily_weekPe
 bool     dailySpamLog_Algo10GatesPerMinute = true;  // (date)_algo10_gates_per_minute.csv — algo10 gate snapshot each closed M1 bar
 bool     dailySpamLog_Algo11GatesPerMinute = true;  // (date)_algo11_gates_per_minute.csv — algo11 gate snapshot each closed M1 bar
 bool     dailySpamLog_Algo12GatesPerMinute = true;  // (date)_algo12_gates_per_minute.csv — algo12 gate snapshot each closed M1 bar
+bool     velocity_parameter_testing = true;  // (date)_algoN_velocity_parameter_testing.csv — profitVelocity + avg per tested window (open trade, persecond_debug)
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
 bool     finalLog_TradeLog            = true; // B_TradeLog_<composite per algo>.csv (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
@@ -386,7 +387,6 @@ struct AlgoPerAlgoTune
    int    strong_momentum_velocity_window_seconds;
    double strong_momentum_stall_velocity_max;
    double strong_momentum_stall_giveback_pts;
-   int    strong_momentum_stall_consecutive_red;
    double strong_momentum_stall_min_close_profit_pts;
    int    telemetry_velocity_window_seconds;
    int    telemetry_avg_velocity_window_seconds;
@@ -3232,10 +3232,15 @@ bool g_falgoOrderPlacedLastPipeline = false;
 
 #define FALGO_TELEMETRY_PROFIT_RING_MAX   130
 #define FALGO_CLOSED_TELEMETRY_MAX        64
+#define FALGO_VELOCITY_PARAM_TEST_COUNT   11
+#define FALGO_VELOCITY_LOG_SCALE 10.0  // native velocity unit: pts per 10 sec (profitVelocity, tune thresholds, all comparisons)
+int g_velocityParameterTestedSec[FALGO_VELOCITY_PARAM_TEST_COUNT] = {3, 5, 8, 10, 15, 20, 30, 45, 60, 90, 120}; // bookmark
 #define FALGO_EXIT_MODE_NEUTRAL           "neutral"
 #define FALGO_EXIT_MODE_SAVING_TP         "saving_TP"
 #define FALGO_EXIT_MODE_GOOD_MOMENTUM     "good_momentum"
 #define FALGO_EXIT_MODE_REDUCE_LOSS       "reduce_loss"
+#define FALGO_TELEMETRY_EVENT_TICK        "telemetry"
+#define FALGO_TELEMETRY_EVENT_CLOSE       "close_decision"
 
 struct FalgoOpenTradeTelemetry
 {
@@ -3254,6 +3259,7 @@ struct FalgoOpenTradeTelemetry
    int      timeToReachSavingTpSeconds;
    double   avgProfitVelocity;
    int      avgVelocitySampleCount;
+   double   avgProfitVelocityParamTest[FALGO_VELOCITY_PARAM_TEST_COUNT];
    double   profitRing[FALGO_TELEMETRY_PROFIT_RING_MAX];
    datetime timeRing[FALGO_TELEMETRY_PROFIT_RING_MAX];
    int      ringCount;
@@ -3264,6 +3270,8 @@ struct FalgoOpenTradeTelemetry
    string   exitMode;
    string   exitModePrev;
    bool     exitModeChanged;
+   string   closeDecisionReason;  // set when babysit decides to close; copied to trade-results CSV
+   string   closeDecisionDetail;
 };
 
 struct FalgoTelemetryBarSnap
@@ -3294,6 +3302,8 @@ struct FalgoClosedTradeTelemetrySummary
    double   peakProfitPts;
    double   troughProfitPts;
    int      timeToReachSavingTpSeconds;
+   string   closeDecision;
+   string   closeDetail;
 };
 
 FalgoOpenTradeTelemetry g_falgoOpenTelemetry;
@@ -3662,6 +3672,7 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetry.timeToReachSavingTpSeconds = -1;
    g_falgoOpenTelemetry.avgProfitVelocity = 0.0;
    g_falgoOpenTelemetry.avgVelocitySampleCount = 0;
+   ArrayInitialize(g_falgoOpenTelemetry.avgProfitVelocityParamTest, 0.0);
    g_falgoOpenTelemetry.ringCount = 0;
    g_falgoOpenTelemetry.ringWriteIdx = 0;
    g_falgoOpenTelemetry.lastBarIdx = -1;
@@ -3670,6 +3681,8 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetry.exitMode = FALGO_EXIT_MODE_NEUTRAL;
    g_falgoOpenTelemetry.exitModePrev = "";
    g_falgoOpenTelemetry.exitModeChanged = false;
+   g_falgoOpenTelemetry.closeDecisionReason = "";
+   g_falgoOpenTelemetry.closeDecisionDetail = "";
    ArrayInitialize(g_falgoOpenTelemetry.profitRing, 0.0);
    ArrayInitialize(g_falgoOpenTelemetry.timeRing, 0);
 }
@@ -3784,7 +3797,7 @@ void FalgoGatesTelemetryStringsFromBarSnap(const FalgoTelemetryBarSnap &snap,
    outGreenRatio = DoubleToString(snap.greenRatio, 4);
    outConsecGreen = IntegerToString(snap.consecutiveGreen);
    outConsecRed = IntegerToString(snap.consecutiveRed);
-   outProfitVelocity = DoubleToString(snap.profitVelocity, 4);
+   outProfitVelocity = DoubleToString(snap.profitVelocity, 3);
    outPeakProfit = DoubleToString(snap.peakProfitPts, 1);
    outProfitFromPeak = DoubleToString(snap.profitFromPeak, 1);
 }
@@ -3868,7 +3881,21 @@ double FalgoTelemetryProfitVelocityWindowSeconds(const int windowSec)
       deltaSec = g_falgoOpenTelemetry.tradeAgeSeconds;
    if(deltaSec <= 0)
       return 0.0;
-   return (g_falgoOpenTelemetry.openProfitPts - oldProfit) / (double)deltaSec;
+   return (g_falgoOpenTelemetry.openProfitPts - oldProfit) / (double)deltaSec * FALGO_VELOCITY_LOG_SCALE;
+}
+
+//+------------------------------------------------------------------+
+//| FILE_CSV treats comma as column break — strip/replace in free-text fields. |
+//+------------------------------------------------------------------+
+string FalgoSanitizeCsvCell(const string s)
+{
+   if(s == "")
+      return s;
+   string out = s;
+   StringReplace(out, ",", ";");
+   StringReplace(out, "\r", " ");
+   StringReplace(out, "\n", " ");
+   return out;
 }
 
 //+------------------------------------------------------------------+
@@ -3877,7 +3904,7 @@ string AlgoGatesColProfitVelocity(const int algoSlot1)
    AlgoPerAlgoTune tune;
    if(!AlgoLoadPerAlgoTune(algoSlot1, tune) || tune.telemetry_velocity_window_seconds <= 0)
       return "profitVelocity_0";
-   return StringFormat("profitVelocity_%d", tune.telemetry_velocity_window_seconds);
+   return StringFormat("profitVelocity_%d_x10", tune.telemetry_velocity_window_seconds);
 }
 
 //+------------------------------------------------------------------+
@@ -3886,7 +3913,7 @@ string AlgoGatesColAvgProfitVelocity(const int algoSlot1)
    AlgoPerAlgoTune tune;
    if(!AlgoLoadPerAlgoTune(algoSlot1, tune) || tune.telemetry_avg_velocity_window_seconds <= 0)
       return "avg_profitVelocity_0";
-   return StringFormat("avg_profitVelocity_%d", tune.telemetry_avg_velocity_window_seconds);
+   return StringFormat("avg_profitVelocity_%d_x10", tune.telemetry_avg_velocity_window_seconds);
 }
 
 //+------------------------------------------------------------------+
@@ -3958,6 +3985,8 @@ void FalgoTelemetryFillSummaryFromOpen(FalgoClosedTradeTelemetrySummary &outSumm
    outSummary.peakProfitPts = g_falgoOpenTelemetry.peakProfitPts;
    outSummary.troughProfitPts = g_falgoOpenTelemetry.troughProfitPts;
    outSummary.timeToReachSavingTpSeconds = g_falgoOpenTelemetry.timeToReachSavingTpSeconds;
+   outSummary.closeDecision = g_falgoOpenTelemetry.closeDecisionReason;
+   outSummary.closeDetail = g_falgoOpenTelemetry.closeDecisionDetail;
 }
 
 //+------------------------------------------------------------------+
@@ -4075,7 +4104,7 @@ void FalgoUpdateExitModeEachSecond(const AlgoPerAlgoTune &tune)
 }
 
 //+------------------------------------------------------------------+
-void FalgoTryLogTelemetryPerSecond()
+void FalgoAppendTelemetryPerSecondRow(const string eventType, const string closeReason, const string closeDetail)
 {
    if(!g_falgoOpenTelemetry.active)
       return;
@@ -4103,7 +4132,8 @@ void FalgoTryLogTelemetryPerSecond()
          AlgoGatesColProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetry.magic)),
          AlgoGatesColAvgProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetry.magic)),
          "peakProfitPts", "profitFromPeak", "timeToReachSavingTpSeconds",
-         "exit_mode", "exit_mode_prev", "exit_mode_changed");
+         "exit_mode", "exit_mode_prev", "exit_mode_changed",
+         "event_type", "close_reason", "close_detail");
    }
    const double profitVelocity = FalgoTelemetryProfitVelocityWindowSeconds(telTune.telemetry_velocity_window_seconds);
    const double profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.peakProfitPts;
@@ -4118,15 +4148,104 @@ void FalgoTryLogTelemetryPerSecond()
       DoubleToString(FalgoTelemetryGreenRatioFromOpen(), 4),
       IntegerToString(g_falgoOpenTelemetry.consecutiveGreen),
       IntegerToString(g_falgoOpenTelemetry.consecutiveRed),
-      DoubleToString(profitVelocity, 4),
-      DoubleToString(g_falgoOpenTelemetry.avgProfitVelocity, 4),
+      DoubleToString(profitVelocity, 3),
+      DoubleToString(g_falgoOpenTelemetry.avgProfitVelocity, 3),
       DoubleToString(g_falgoOpenTelemetry.peakProfitPts, 1),
       DoubleToString(profitFromPeak, 1),
       (g_falgoOpenTelemetry.timeToReachSavingTpSeconds >= 0
          ? IntegerToString(g_falgoOpenTelemetry.timeToReachSavingTpSeconds) : ""),
       g_falgoOpenTelemetry.exitMode,
       g_falgoOpenTelemetry.exitModePrev,
-      (g_falgoOpenTelemetry.exitModeChanged ? "true" : "false"));
+      (g_falgoOpenTelemetry.exitModeChanged ? "true" : "false"),
+      eventType,
+      FalgoSanitizeCsvCell(closeReason),
+      FalgoSanitizeCsvCell(closeDetail));
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void FalgoTryLogTelemetryPerSecond()
+{
+   FalgoAppendTelemetryPerSecondRow(FALGO_TELEMETRY_EVENT_TICK, "", "");
+}
+
+//+------------------------------------------------------------------+
+string FalgoVelocityParamTestHeaderLine()
+{
+   string hdr = "time,magic,positionTicket,openProfitPts,tradeAgeSeconds,peakProfitPts,profitFromPeak";
+   for(int pi = 0; pi < FALGO_VELOCITY_PARAM_TEST_COUNT; pi++)
+   {
+      const string w = IntegerToString(g_velocityParameterTestedSec[pi]);
+      hdr += ",profitVelocity_" + w + "_x10";
+      hdr += ",avg_profitVelocity_" + w + "_x10";
+   }
+   return hdr;
+}
+
+//+------------------------------------------------------------------+
+string FalgoVelocityParamTestDataLine()
+{
+   const double profitFromPeak = g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.peakProfitPts;
+   string row = StringFormat("%s,%s,%s,%.1f,%d,%.1f,%.1f",
+      TimeToString(g_lastTimer1Time, TIME_DATE|TIME_SECONDS),
+      IntegerToString(g_falgoOpenTelemetry.magic),
+      IntegerToString((long)g_falgoOpenTelemetry.positionTicket),
+      g_falgoOpenTelemetry.openProfitPts,
+      g_falgoOpenTelemetry.tradeAgeSeconds,
+      g_falgoOpenTelemetry.peakProfitPts,
+      profitFromPeak);
+   for(int pi = 0; pi < FALGO_VELOCITY_PARAM_TEST_COUNT; pi++)
+   {
+      const int windowSec = g_velocityParameterTestedSec[pi];
+      const double profitVel = FalgoTelemetryProfitVelocityWindowSeconds(windowSec);
+      const double avgVel = g_falgoOpenTelemetry.avgProfitVelocityParamTest[pi];
+      row += StringFormat(",%.3f,%.3f", profitVel, avgVel);
+   }
+   return row;
+}
+
+//+------------------------------------------------------------------+
+void FalgoUpdateVelocityParamTestAverages()
+{
+   if(!velocity_parameter_testing || !g_falgoOpenTelemetry.active)
+      return;
+   const int sampleCount = g_falgoOpenTelemetry.avgVelocitySampleCount;
+   if(sampleCount <= 0)
+      return;
+   for(int pi = 0; pi < FALGO_VELOCITY_PARAM_TEST_COUNT; pi++)
+   {
+      const double velW = FalgoTelemetryProfitVelocityWindowSeconds(g_velocityParameterTestedSec[pi]);
+      if(sampleCount == 1)
+         g_falgoOpenTelemetry.avgProfitVelocityParamTest[pi] = velW;
+      else
+      {
+         g_falgoOpenTelemetry.avgProfitVelocityParamTest[pi] =
+            ((g_falgoOpenTelemetry.avgProfitVelocityParamTest[pi] * (sampleCount - 1)) + velW)
+            / (double)sampleCount;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoTryLogVelocityParameterTesting()
+{
+   if(!velocity_parameter_testing || !g_falgoOpenTelemetry.active)
+      return;
+   if(!FalgoIsTimeInPerSecondDebugWindow(g_lastTimer1Time))
+      return;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   const string dateStr = TimeToString(dayStart, TIME_DATE);
+   const string fname = AlgoFamilyCsvFileName(dateStr, AlgoFamilyMagicNumber(g_falgoOpenTelemetry.magic),
+      "velocity_parameter_testing");
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) == 0)
+      FileWriteString(fh, FalgoVelocityParamTestHeaderLine() + "\r\n");
+   FileWriteString(fh, FalgoVelocityParamTestDataLine() + "\r\n");
    FileClose(fh);
 }
 
@@ -4179,7 +4298,9 @@ void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
    if(g_falgoOpenTelemetry.lastBarIdx >= 0)
       FalgoTelemetrySnapOpenStateToBar(g_falgoOpenTelemetry.lastBarIdx);
    FalgoUpdateExitModeEachSecond(telTune);
+   FalgoUpdateVelocityParamTestAverages();
    FalgoTryLogTelemetryPerSecond();
+   FalgoTryLogVelocityParameterTesting();
 }
 
 //+------------------------------------------------------------------+
@@ -5053,7 +5174,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
          telConsecGreen = IntegerToString(g_falgoOpenTelemetry.consecutiveGreen);
          telConsecRed = IntegerToString(g_falgoOpenTelemetry.consecutiveRed);
          telProfitVelocity = DoubleToString(
-            FalgoTelemetryProfitVelocityWindowSeconds(rowTelTune.telemetry_velocity_window_seconds), 4);
+            FalgoTelemetryProfitVelocityWindowSeconds(rowTelTune.telemetry_velocity_window_seconds), 3);
          telPeakProfit = DoubleToString(g_falgoOpenTelemetry.peakProfitPts, 1);
          telProfitFromPeak = DoubleToString(g_falgoOpenTelemetry.openProfitPts - g_falgoOpenTelemetry.peakProfitPts, 1);
       }
@@ -5156,20 +5277,61 @@ bool FalgoBabysitPositionMatchesOpenTelemetry()
 }
 
 //+------------------------------------------------------------------+
-bool FalgoStrongMomentumDetectStall(const AlgoPerAlgoTune &tune)
+void FalgoTryLogTelemetryCloseDecision(const string closeReason, const string closeDetail)
 {
+   if(closeReason == "")
+      return;
+   if(!FalgoBabysitPositionMatchesOpenTelemetry())
+      return;
+   g_falgoOpenTelemetry.openProfitPts = FalgoOpenPositionProfitPoints();
+   g_falgoOpenTelemetry.closeDecisionReason = closeReason;
+   g_falgoOpenTelemetry.closeDecisionDetail = closeDetail;
+   FalgoAppendTelemetryPerSecondRow(FALGO_TELEMETRY_EVENT_CLOSE, closeReason, closeDetail);
+}
+
+//+------------------------------------------------------------------+
+void FalgoStrongMomentumStallFlags(const AlgoPerAlgoTune &tune,
+   bool &outVelocityStall, bool &outGivebackStall)
+{
+   outVelocityStall = false;
+   outGivebackStall = false;
    const double profitPts = g_falgoOpenTelemetry.openProfitPts;
    const double giveback = profitPts - g_falgoOpenTelemetry.peakProfitPts;
    const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
    if(vel <= tune.strong_momentum_stall_velocity_max)
-      return true;
+      outVelocityStall = true;
    if(tune.strong_momentum_stall_giveback_pts > 0.0 &&
       giveback <= -PointSized(tune.strong_momentum_stall_giveback_pts))
-      return true;
-   if(tune.strong_momentum_stall_consecutive_red > 0 &&
-      g_falgoOpenTelemetry.consecutiveRed >= tune.strong_momentum_stall_consecutive_red)
-      return true;
-   return false;
+      outGivebackStall = true;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoStrongMomentumDetectStall(const AlgoPerAlgoTune &tune)
+{
+   bool velocityStall = false;
+   bool givebackStall = false;
+   FalgoStrongMomentumStallFlags(tune, velocityStall, givebackStall);
+   return velocityStall || givebackStall;
+}
+
+//+------------------------------------------------------------------+
+string FalgoStrongMomentumStallReasonDetail(const AlgoPerAlgoTune &tune)
+{
+   bool velocityStall = false;
+   bool givebackStall = false;
+   FalgoStrongMomentumStallFlags(tune, velocityStall, givebackStall);
+   string reasons = "";
+   if(velocityStall)
+      reasons = (reasons == "" ? "stall_velocity" : reasons + "|stall_velocity");
+   if(givebackStall)
+      reasons = (reasons == "" ? "stall_giveback" : reasons + "|stall_giveback");
+   const double profitPts = g_falgoOpenTelemetry.openProfitPts;
+   const double giveback = profitPts - g_falgoOpenTelemetry.peakProfitPts;
+   const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
+   return StringFormat("%s|vel=%.3f|velMax=%.3f|giveback=%.1f|givebackMax=%.1f",
+      reasons,
+      vel, tune.strong_momentum_stall_velocity_max,
+      giveback, PointSized(tune.strong_momentum_stall_giveback_pts));
 }
 
 //+------------------------------------------------------------------+
@@ -5201,20 +5363,30 @@ bool Babysitf_falgo_runStrongMomentumBabysit(const long posMagic, bool &outSkipS
 
    outSkipSavingTp = true;
    if(strongTpPts > 0.0 && profitPts >= strongTpPts)
-      return Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, strongTpPts);
+   {
+      return Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, strongTpPts, "strong_momentum_strong_tp",
+         StringFormat("profit=%.1f|threshold=%.1f", profitPts, strongTpPts));
+   }
    if(FalgoStrongMomentumDetectStall(tune) && profitPts >= stallMinClosePts)
-      return Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, stallMinClosePts);
+   {
+      return Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, stallMinClosePts, "strong_momentum_stall",
+         StringFormat("profit=%.1f|stallMinClose=%.1f|%s", profitPts, stallMinClosePts,
+            FalgoStrongMomentumStallReasonDetail(tune)));
+   }
    return false;
 }
 
 //+------------------------------------------------------------------+
-bool Babysitf_falgo_closeIfProfitPointsAtLeast(const long positionMagic, const double minProfitPoints)
+bool Babysitf_falgo_closeIfProfitPointsAtLeast(const long positionMagic, const double minProfitPoints,
+   const string closeReason = "", const string closeDetail = "")
 {
    if(minProfitPoints <= 0.0)
       return false;
    const double profitPts = FalgoOpenPositionProfitPoints();
    if(profitPts < minProfitPoints)
       return false;
+   FalgoTryLogTelemetryCloseDecision(closeReason,
+      (closeDetail == "" ? StringFormat("profit=%.1f|threshold=%.1f", profitPts, minProfitPoints) : closeDetail));
    ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
    const bool closed = ExtTrade.PositionClose(ExtPositionInfo.Ticket());
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -5222,11 +5394,14 @@ bool Babysitf_falgo_closeIfProfitPointsAtLeast(const long positionMagic, const d
 }
 
 //+------------------------------------------------------------------+
-bool Babysitf_falgo_closeIfProfitPointsAtOrAbove(const long positionMagic, const double minProfitPointsThreshold)
+bool Babysitf_falgo_closeIfProfitPointsAtOrAbove(const long positionMagic, const double minProfitPointsThreshold,
+   const string closeReason = "", const string closeDetail = "")
 {
    const double profitPts = FalgoOpenPositionProfitPoints();
    if(profitPts < minProfitPointsThreshold)
       return false;
+   FalgoTryLogTelemetryCloseDecision(closeReason,
+      (closeDetail == "" ? StringFormat("profit=%.1f|threshold=%.1f", profitPts, minProfitPointsThreshold) : closeDetail));
    ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
    const bool closed = ExtTrade.PositionClose(ExtPositionInfo.Ticket());
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -5252,19 +5427,25 @@ bool Babysitf_falgo_runReduceLossBabysit(const long posMagic)
    if(!g_falgoOpenTelemetry.reduceLossMode)
       return false;
 
-   return Babysitf_falgo_closeIfProfitPointsAtOrAbove(posMagic, -PointSized(tune.reduceLoss_mode_SL_pts));
+   const double slPts = PointSized(tune.reduceLoss_mode_SL_pts);
+   return Babysitf_falgo_closeIfProfitPointsAtOrAbove(posMagic, -slPts, "reduce_loss_recovery",
+      StringFormat("profit=%.1f|recoveryThreshold=-%.1f|trough=%.1f", FalgoOpenPositionProfitPoints(), slPts,
+         g_falgoOpenTelemetry.troughProfitPts));
 }
 
 //+------------------------------------------------------------------+
 //| secretTPSL SL leg: close when floating loss >= minLossPoints (mirror of TP profit rule). |
 //+------------------------------------------------------------------+
-bool Babysitf_falgo_closeIfLossPointsAtLeast(const long positionMagic, const double minLossPoints)
+bool Babysitf_falgo_closeIfLossPointsAtLeast(const long positionMagic, const double minLossPoints,
+   const string closeReason = "", const string closeDetail = "")
 {
    if(minLossPoints <= 0.0)
       return false;
    const double profitPts = FalgoOpenPositionProfitPoints();
    if(profitPts > -minLossPoints)
       return false;
+   FalgoTryLogTelemetryCloseDecision(closeReason,
+      (closeDetail == "" ? StringFormat("profit=%.1f|lossThreshold=-%.1f", profitPts, minLossPoints) : closeDetail));
    ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
    const bool closed = ExtTrade.PositionClose(ExtPositionInfo.Ticket());
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
@@ -5300,7 +5481,9 @@ void Babysitf_RunAllOpenFalgoPositionsForSymbol()
          continue;
       if(!skipSavingTp && posTune.saving_trade_TP > 0.0)
       {
-         if(Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, PointSized(posTune.saving_trade_TP)))
+         const double savingTpPts = PointSized(posTune.saving_trade_TP);
+         if(Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, savingTpPts, "saving_trade_TP",
+            StringFormat("profit=%.1f|threshold=%.1f", FalgoOpenPositionProfitPoints(), savingTpPts)))
             continue;
       }
       if(g_algoProfile.shared.secretTPSL && g_algoProfile.shared.secretTPSL_percent > 0)
@@ -5309,13 +5492,17 @@ void Babysitf_RunAllOpenFalgoPositionsForSymbol()
          if(fk.tpWhole > 0)
          {
             const double secretTpPts = PointSized((double)fk.tpWhole) * secretFrac;
-            if(Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, secretTpPts))
+            if(Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, secretTpPts, "secretTPSL_tp",
+               StringFormat("profit=%.1f|threshold=%.1f|tpWhole=%d|pct=%d", FalgoOpenPositionProfitPoints(),
+                  secretTpPts, fk.tpWhole, g_algoProfile.shared.secretTPSL_percent)))
                continue;
          }
          if(fk.slWhole > 0)
          {
             const double secretSlPts = PointSized((double)fk.slWhole) * secretFrac;
-            if(Babysitf_falgo_closeIfLossPointsAtLeast(posMagic, secretSlPts))
+            if(Babysitf_falgo_closeIfLossPointsAtLeast(posMagic, secretSlPts, "secretTPSL_sl",
+               StringFormat("profit=%.1f|lossThreshold=-%.1f|slWhole=%d|pct=%d", FalgoOpenPositionProfitPoints(),
+                  secretSlPts, fk.slWhole, g_algoProfile.shared.secretTPSL_percent)))
                continue;
          }
       }
@@ -5537,23 +5724,69 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
 }
 
 //+------------------------------------------------------------------+
-void FalgoFileWriteAllDaysRowFromCells(const int fh, const string &cells[], const int base)
+#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,close_decision,close_detail,greenRatio_at_close,avg_profitVelocity_5,peakProfitPts,troughProfitPts,secondsGreen,secondsRed,time_to_reach_saving_TP,mfeCandle,maeCandle,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats"
+#define FALGO_ALLDAYS_COLS     41
+
+//+------------------------------------------------------------------+
+void FalgoFileWriteAllDaysHeader(const int fh)
 {
-   FileWrite(fh,
-      cells[base + 0], cells[base + 1], cells[base + 2], cells[base + 3], cells[base + 4],
-      cells[base + 5], cells[base + 6], cells[base + 7], cells[base + 8], cells[base + 9],
-      cells[base + 10], cells[base + 11], cells[base + 12], cells[base + 13], cells[base + 14],
-      cells[base + 15], cells[base + 16], cells[base + 17], cells[base + 18],
-      cells[base + 19], cells[base + 20], cells[base + 21], cells[base + 22],
-      cells[base + 23], cells[base + 24], cells[base + 25], cells[base + 26],
-      cells[base + 27], cells[base + 28], cells[base + 29], cells[base + 30],
-      cells[base + 31], cells[base + 32], cells[base + 33], cells[base + 34],
-      cells[base + 35], cells[base + 36], cells[base + 37], cells[base + 38]);
+   FileWriteString(fh, FALGO_ALLDAYS_HEADER + "\r\n");
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,peakProfitPts,troughProfitPts,secondsGreen,secondsRed,time_to_reach_saving_TP,mfeCandle,maeCandle,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats"
-#define FALGO_ALLDAYS_COLS     39
+void FalgoFileWriteAllDaysRowFromCells(const int fh, const string &cells[], const int base)
+{
+   string row = FalgoSanitizeCsvCell(cells[base + 0]);
+   for(int c = 1; c < FALGO_ALLDAYS_COLS; c++)
+      row += "," + FalgoSanitizeCsvCell(cells[base + c]);
+   FileWriteString(fh, row + "\r\n");
+}
+
+//+------------------------------------------------------------------+
+//| Read all-days trade-results file: one line = one row; exact FALGO_ALLDAYS_COLS only. |
+//+------------------------------------------------------------------+
+void FalgoReadAllDaysTradeResultsFromFile(const string fileName, string &outCells[], int &outRowCount)
+{
+   outRowCount = 0;
+   ArrayResize(outCells, 0);
+   int fh = FileOpen(fileName, FILE_READ | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   bool headerSkipped = false;
+   while(!FileIsEnding(fh))
+   {
+      string line = FileReadString(fh);
+      if(StringLen(line) == 0)
+         continue;
+      if(!headerSkipped)
+      {
+         headerSkipped = true;
+         if(StringFind(line, "date,") == 0)
+            continue;
+      }
+      string parts[];
+      if(StringSplit(line, ',', parts) != FALGO_ALLDAYS_COLS)
+         continue;
+      const int base = ArraySize(outCells);
+      ArrayResize(outCells, base + FALGO_ALLDAYS_COLS);
+      for(int c = 0; c < FALGO_ALLDAYS_COLS; c++)
+         outCells[base + c] = parts[c];
+      outRowCount++;
+   }
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void FalgoWriteAllDaysTradeResultsToFile(const string fileName, const string &cells[], const int rowCount)
+{
+   int fh = FileOpen(fileName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FalgoFileWriteAllDaysHeader(fh);
+   for(int ri = 0; ri < rowCount; ri++)
+      FalgoFileWriteAllDaysRowFromCells(fh, cells, ri * FALGO_ALLDAYS_COLS);
+   FileClose(fh);
+}
 
 //+------------------------------------------------------------------+
 void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
@@ -5564,35 +5797,37 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    cells[base + 1]  = tr.symbol;
    cells[base + 2]  = TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS);
    cells[base + 3]  = TimeToString(tr.endTime, TIME_DATE|TIME_SECONDS);
-   cells[base + 4]  = tr.session;
+   cells[base + 4]  = FalgoSanitizeCsvCell(tr.session);
    cells[base + 5]  = IntegerToString((long)tr.magic);
    cells[base + 6]  = DoubleToString(tr.priceStart, _Digits);
    cells[base + 7]  = DoubleToString(tr.priceEnd, _Digits);
    cells[base + 8]  = DoubleToString(tr.priceDiff, _Digits);
    cells[base + 9]  = DoubleToString(tr.profit, 2);
-   cells[base + 10] = EnumToString((ENUM_DEAL_TYPE)tr.type);
-   cells[base + 11] = EnumToString((ENUM_DEAL_REASON)tr.reason);
+   cells[base + 10] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
+   cells[base + 11] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
    cells[base + 12] = (string)tr.volume;
-   cells[base + 13] = tr.bothComments;
+   cells[base + 13] = FalgoSanitizeCsvCell(tr.bothComments);
    int planNum = 0, levelNum = 0;
    FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
-   cells[base + 14] = tr.level;
-   cells[base + 15] = FalgoLevelTagUneditedForTradeResult(tr);
+   cells[base + 14] = FalgoSanitizeCsvCell(tr.level);
+   cells[base + 15] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
    cells[base + 16] = IntegerToString(planNum);
    cells[base + 17] = IntegerToString(levelNum);
    cells[base + 18] = FalgoOffsetPriceUnitsStrForTrade(tr);
-   cells[base + 19] = tr.tp;
-   cells[base + 20] = tr.sl;
+   cells[base + 19] = FalgoSanitizeCsvCell(tr.tp);
+   cells[base + 20] = FalgoSanitizeCsvCell(tr.sl);
    FalgoClosedTradeTelemetrySummary telSummary;
    if(FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary))
    {
-      cells[base + 21] = DoubleToString(telSummary.greenRatioAtClose, 4);
-      cells[base + 22] = DoubleToString(telSummary.avgProfitVelocity, 4);
-      cells[base + 23] = DoubleToString(telSummary.peakProfitPts, 1);
-      cells[base + 24] = DoubleToString(telSummary.troughProfitPts, 1);
-      cells[base + 25] = IntegerToString(telSummary.secondsGreen);
-      cells[base + 26] = IntegerToString(telSummary.secondsRed);
-      cells[base + 27] = (telSummary.timeToReachSavingTpSeconds >= 0
+      cells[base + 21] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 22] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 23] = DoubleToString(telSummary.greenRatioAtClose, 4);
+      cells[base + 24] = DoubleToString(telSummary.avgProfitVelocity, 3);
+      cells[base + 25] = DoubleToString(telSummary.peakProfitPts, 1);
+      cells[base + 26] = DoubleToString(telSummary.troughProfitPts, 1);
+      cells[base + 27] = IntegerToString(telSummary.secondsGreen);
+      cells[base + 28] = IntegerToString(telSummary.secondsRed);
+      cells[base + 29] = (telSummary.timeToReachSavingTpSeconds >= 0
          ? IntegerToString(telSummary.timeToReachSavingTpSeconds) : "");
    }
    else
@@ -5604,21 +5839,23 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
       cells[base + 25] = "";
       cells[base + 26] = "";
       cells[base + 27] = "";
+      cells[base + 28] = "";
+      cells[base + 29] = "";
    }
 
    FalgoTradeLegacyContextCols legacyCtx;
    FalgoFillTradeLegacyContextCols(tr, legacyCtx);
-   cells[base + 28] = legacyCtx.mfeCandle;
-   cells[base + 29] = legacyCtx.maeCandle;
-   cells[base + 30] = legacyCtx.breakevenC;
-   cells[base + 31] = legacyCtx.gapFillPc;
-   cells[base + 32] = legacyCtx.openGapInfo;
-   cells[base + 33] = legacyCtx.pdTrend;
-   cells[base + 34] = legacyCtx.dayBrokePDH;
-   cells[base + 35] = legacyCtx.dayBrokePDL;
-   cells[base + 36] = legacyCtx.refAbove;
-   cells[base + 37] = legacyCtx.refBelow;
-   cells[base + 38] = legacyCtx.levelCats;
+   cells[base + 30] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
 }
 
 //+------------------------------------------------------------------+
@@ -5699,7 +5936,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    int fhDay = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fhDay != INVALID_HANDLE)
    {
-      FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl", "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "peakProfitPts", "troughProfitPts", "secondsGreen", "secondsRed", "time_to_reach_saving_TP", "mfeCandle", "maeCandle", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelCats");
+      FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl", "close_decision", "close_detail", "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "peakProfitPts", "troughProfitPts", "secondsGreen", "secondsRed", "time_to_reach_saving_TP", "mfeCandle", "maeCandle", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelCats");
       for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
       {
          TradeResult tr = g_tradeResults[trIdx];
@@ -5724,9 +5961,11 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             EnumToString((ENUM_DEAL_REASON)tr.reason),
             tr.volume, tr.bothComments, tr.level, FalgoLevelTagUneditedForTradeResult(tr),
             IntegerToString(planNum), IntegerToString(levelNum),
-            FalgoOffsetPriceUnitsStrForTrade(tr), tr.tp, tr.sl,
+            FalgoOffsetPriceUnitsStrForTrade(tr), FalgoSanitizeCsvCell(tr.tp), FalgoSanitizeCsvCell(tr.sl),
+            (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDecision) : ""),
+            (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDetail) : ""),
             (hasTel ? DoubleToString(telSummary.greenRatioAtClose, 4) : ""),
-            (hasTel ? DoubleToString(telSummary.avgProfitVelocity, 4) : ""),
+            (hasTel ? DoubleToString(telSummary.avgProfitVelocity, 3) : ""),
             (hasTel ? DoubleToString(telSummary.peakProfitPts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.troughProfitPts, 1) : ""),
             (hasTel ? IntegerToString(telSummary.secondsGreen) : ""),
@@ -5749,24 +5988,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
 
    string allDaysCells[];
    int existingRowCount = 0;
-   int fhRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fhRead != INVALID_HANDLE)
-   {
-      for(int h = 0; h < schemaCols && !FileIsEnding(fhRead); h++)
-         FileReadString(fhRead);
-      while(!FileIsEnding(fhRead))
-      {
-         const int base = ArraySize(allDaysCells);
-         ArrayResize(allDaysCells, base + schemaCols);
-         int c = 0;
-         for(; c < schemaCols && !FileIsEnding(fhRead); c++)
-            allDaysCells[base + c] = FileReadString(fhRead);
-         for(; c < schemaCols; c++)
-            allDaysCells[base + c] = "";
-         existingRowCount++;
-      }
-      FileClose(fhRead);
-   }
+   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount);
 
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
@@ -5779,14 +6001,8 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
       existingRowCount++;
    }
 
-   int fhAll = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fhAll != INVALID_HANDLE)
-   {
-      FileWrite(fhAll, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl", "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "peakProfitPts", "troughProfitPts", "secondsGreen", "secondsRed", "time_to_reach_saving_TP", "mfeCandle", "maeCandle", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelCats");
-      for(int ri = 0; ri < existingRowCount; ri++)
-         FalgoFileWriteAllDaysRowFromCells(fhAll, allDaysCells, ri * FALGO_ALLDAYS_COLS);
-      FileClose(fhAll);
-   }
+   FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount);
+   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount);
 }
 
 //+------------------------------------------------------------------+
@@ -5816,24 +6032,7 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
 
    string allDaysCells[];
    int existingRowCount = 0;
-   int fhRead = FileOpen(summaryAllName, FILE_READ | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fhRead != INVALID_HANDLE)
-   {
-      for(int h = 0; h < schemaCols && !FileIsEnding(fhRead); h++)
-         FileReadString(fhRead);
-      while(!FileIsEnding(fhRead))
-      {
-         const int base = ArraySize(allDaysCells);
-         ArrayResize(allDaysCells, base + schemaCols);
-         int c = 0;
-         for(; c < schemaCols && !FileIsEnding(fhRead); c++)
-            allDaysCells[base + c] = FileReadString(fhRead);
-         for(; c < schemaCols; c++)
-            allDaysCells[base + c] = "";
-         existingRowCount++;
-      }
-      FileClose(fhRead);
-   }
+   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount);
 
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
@@ -5847,18 +6046,7 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
    }
 
    FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount);
-
-   const string avgVelCol = (g_algoSlotCount > 0)
-      ? AlgoGatesColAvgProfitVelocity(g_algoSlots[0].algo_id)
-      : "avg_profitVelocity_0";
-   int fhAll = FileOpen(summaryAllName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fhAll != INVALID_HANDLE)
-   {
-      FileWrite(fhAll, "date", "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl", "greenRatio_at_close", avgVelCol, "peakProfitPts", "troughProfitPts", "secondsGreen", "secondsRed", "time_to_reach_saving_TP", "mfeCandle", "maeCandle", "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelCats");
-      for(int ri = 0; ri < existingRowCount; ri++)
-         FalgoFileWriteAllDaysRowFromCells(fhAll, allDaysCells, ri * FALGO_ALLDAYS_COLS);
-      FileClose(fhAll);
-   }
+   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount);
 }
 
 //+------------------------------------------------------------------+
@@ -5914,19 +6102,18 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo10.tune.strong_trade_TP                                         =  4.2;
    g_algoProfile.algo10.tune.strong_momentum_enabled                                 = true;
    g_algoProfile.algo10.tune.strong_momentum_eval_min_profit_pts                      =  1.8;
-   g_algoProfile.algo10.tune.strong_momentum_min_velocity                             = 0.04;
+   g_algoProfile.algo10.tune.strong_momentum_min_velocity                             = 0.4;
    g_algoProfile.algo10.tune.strong_momentum_min_green_ratio                          = 0.05;
    g_algoProfile.algo10.tune.strong_momentum_min_consecutive_green                    =    5;
    g_algoProfile.algo10.tune.strong_momentum_velocity_window_seconds                  =   10;
-   g_algoProfile.algo10.tune.strong_momentum_stall_velocity_max                       = 0.01;
+   g_algoProfile.algo10.tune.strong_momentum_stall_velocity_max                       = 0.1;
    g_algoProfile.algo10.tune.strong_momentum_stall_giveback_pts                       =  0.4;
-   g_algoProfile.algo10.tune.strong_momentum_stall_consecutive_red                    =    5;
    g_algoProfile.algo10.tune.strong_momentum_stall_min_close_profit_pts               =  2.0;
    g_algoProfile.algo10.tune.telemetry_velocity_window_seconds                        = 10;
    g_algoProfile.algo10.tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algoProfile.algo10.tune.trade_telemetry_per_second_enabled                       = true;
-   g_algoProfile.algo10.tune.reduceLoss_mode_trigger_pts       =  0; // 0 to disable
-   g_algoProfile.algo10.tune.reduceLoss_mode_SL_pts            =  1.4;
+   g_algoProfile.algo10.tune.reduceLoss_mode_trigger_pts                              =  0;  // 0 = off; latch when trough <= -this
+   g_algoProfile.algo10.tune.reduceLoss_mode_SL_pts                                    =  1.4;  // recovery close when profit >= -this
    g_algoProfile.algo10.bounceMaxAllowed_today                          =  3;
    g_algoProfile.algo10.levelOffset_longs                               = 0.4;
    g_algoProfile.algo10.priceProximityLongs                             =  4.0;
@@ -5941,17 +6128,18 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo11.tune.strong_trade_TP                                         =  4.2;
    g_algoProfile.algo11.tune.strong_momentum_enabled                                 = true;
    g_algoProfile.algo11.tune.strong_momentum_eval_min_profit_pts                      =  1.8;
-   g_algoProfile.algo11.tune.strong_momentum_min_velocity                             = 0.04;
+   g_algoProfile.algo11.tune.strong_momentum_min_velocity                             = 0.4;
    g_algoProfile.algo11.tune.strong_momentum_min_green_ratio                          = 0.05;
    g_algoProfile.algo11.tune.strong_momentum_min_consecutive_green                    =    5;
    g_algoProfile.algo11.tune.strong_momentum_velocity_window_seconds                  =   10;
-   g_algoProfile.algo11.tune.strong_momentum_stall_velocity_max                       = 0.01;
-   g_algoProfile.algo11.tune.strong_momentum_stall_giveback_pts                       =  0.4;
-   g_algoProfile.algo11.tune.strong_momentum_stall_consecutive_red                    =    5;
+   g_algoProfile.algo11.tune.strong_momentum_stall_velocity_max                       = -1.5;
+   g_algoProfile.algo11.tune.strong_momentum_stall_giveback_pts                       =  99; // 0.4. 99 disables 
    g_algoProfile.algo11.tune.strong_momentum_stall_min_close_profit_pts               =  2.0;
    g_algoProfile.algo11.tune.telemetry_velocity_window_seconds                        = 10;
    g_algoProfile.algo11.tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algoProfile.algo11.tune.trade_telemetry_per_second_enabled                       = true;
+   g_algoProfile.algo11.tune.reduceLoss_mode_trigger_pts                              =  0;  // 0 = off
+   g_algoProfile.algo11.tune.reduceLoss_mode_SL_pts                                    =  0;
    g_algoProfile.algo11.min_bounceCount                                 =  2;
    g_algoProfile.algo11.recentBounceCountToday_Minutes                   = 600;
    g_algoProfile.algo11.recentBounceCount_max_allowed                   =  1;
@@ -5968,17 +6156,18 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo12.tune.strong_trade_TP                                         =  4.2;
    g_algoProfile.algo12.tune.strong_momentum_enabled                                 = true;
    g_algoProfile.algo12.tune.strong_momentum_eval_min_profit_pts                      =  1.8;
-   g_algoProfile.algo12.tune.strong_momentum_min_velocity                             = 0.04;
+   g_algoProfile.algo12.tune.strong_momentum_min_velocity                             = 0.4;
    g_algoProfile.algo12.tune.strong_momentum_min_green_ratio                          = 0.05;
    g_algoProfile.algo12.tune.strong_momentum_min_consecutive_green                    =    5;
    g_algoProfile.algo12.tune.strong_momentum_velocity_window_seconds                  =   10;
-   g_algoProfile.algo12.tune.strong_momentum_stall_velocity_max                       = 0.01;
+   g_algoProfile.algo12.tune.strong_momentum_stall_velocity_max                       = 0.1;
    g_algoProfile.algo12.tune.strong_momentum_stall_giveback_pts                       =  0.4;
-   g_algoProfile.algo12.tune.strong_momentum_stall_consecutive_red                    =    5;
    g_algoProfile.algo12.tune.strong_momentum_stall_min_close_profit_pts               =  2.0;
    g_algoProfile.algo12.tune.telemetry_velocity_window_seconds                        = 10;
    g_algoProfile.algo12.tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algoProfile.algo12.tune.trade_telemetry_per_second_enabled                       = true;
+   g_algoProfile.algo12.tune.reduceLoss_mode_trigger_pts                              =  0;  // 0 = off
+   g_algoProfile.algo12.tune.reduceLoss_mode_SL_pts                                    =  0;
    g_algoProfile.algo12.ceilingMaxAllowed_today                         =  2;
    g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay                =  1;
    g_algoProfile.algo12.recentCeilingCountToday_Minutes                 = 300;
