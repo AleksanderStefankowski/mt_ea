@@ -401,6 +401,8 @@ struct Algo10Profile
    bool   blockPlacementIfFamilyOpenOrPending;  // when true: no new pending if any algo10/11/12 open or pending on symbol
    AlgoPerAlgoTune tune;
    int    bounceMaxAllowed_today;
+   double min_anchorAbove_cleanStreak;   // closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak must be >
+   int    min_cleanOHLC_streak_count;    // cleanOHLC_streak_count on closest level must be >
    double levelOffset_longs;
    double priceProximityLongs;
    int    long_expiry_minutes;
@@ -414,6 +416,8 @@ struct Algo11Profile
    int    min_bounceCount;
    int    recentBounceCountToday_Minutes;
    int    recentBounceCount_max_allowed;
+   double min_anchorAbove_cleanStreak;
+   int    min_cleanOHLC_streak_count;
    double levelOffset_longs;
    double priceProximityLongs;
    int    long_expiry_minutes;
@@ -427,6 +431,8 @@ struct Algo12Profile
    int    ceilingMaxAllowed_today;
    int    max_allowed_shorts_perLevel_perDay;
    int    recentCeilingCountToday_Minutes;
+   double min_anchorBelow_cleanStreak;   // closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak must be >
+   int    min_cleanOHLC_streak_count;
    double levelOffset_shorts;
    double priceProximityShorts;
    int    short_expiry_minutes;
@@ -4528,12 +4534,39 @@ bool FalgoRulesetPassesCommon(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
+bool AlgoLongCleanStreakRulesPassAtBar(const int barIdx, const double minAnchorAbove, const int minStreakCount)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay)
+      return false;
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <= minAnchorAbove)
+      return false;
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= minStreakCount)
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoShortCleanStreakRulesPassAtBar(const int barIdx, const double minAnchorBelow, const int minStreakCount)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay)
+      return false;
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak <= minAnchorBelow)
+      return false;
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= minStreakCount)
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
 //| Per-algo direction rules (no common gates). | bookmark rulesets
 //+------------------------------------------------------------------+
 bool AlgoRulesetPassesAlgo10(const int barIdx)
 {
    // “Too many bounces today at this level” → no trade
    if(!g_algoProfile.algo10.enabled)
+      return false;
+   if(!AlgoLongCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo10.min_anchorAbove_cleanStreak,
+         g_algoProfile.algo10.min_cleanOHLC_streak_count))
       return false;
    if(FalgoGetBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo10.bounceMaxAllowed_today)
       return false;
@@ -4545,6 +4578,9 @@ bool AlgoRulesetPassesAlgo11(const int barIdx)
 {
    // “Need at least 2 bounces, but not more than 1 recent bounce in the window
    if(!g_algoProfile.algo11.enabled)
+      return false;
+   if(!AlgoLongCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo11.min_anchorAbove_cleanStreak,
+         g_algoProfile.algo11.min_cleanOHLC_streak_count))
       return false;
    const int bounce = FalgoGetBounceCountForClosestWeeklyLevel(barIdx);
    if(bounce < g_algoProfile.algo11.min_bounceCount)
@@ -4558,6 +4594,9 @@ bool AlgoRulesetPassesAlgo11(const int barIdx)
 bool AlgoRulesetPassesAlgo12(const int barIdx)
 {
    if(!g_algoProfile.algo12.enabled)
+      return false;
+   if(!AlgoShortCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo12.min_anchorBelow_cleanStreak,
+         g_algoProfile.algo12.min_cleanOHLC_streak_count))
       return false;
    if(FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo12.ceilingMaxAllowed_today)
       return false;
@@ -5100,8 +5139,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
       "plannedTradeNumber", "magicNotOccupied", "dayWins", "dayLosses",
       "underLossStopLimit", "underWinStopLimit", "noOpenFalgoPos", "noPendingFalgoOrder",
       "rulesetCommonOK", "rulesetDirectionOK",
-      "profileEnabled", "tradingDayAllowed", "tradingTimeAllowed", "profileAllowsNewOrders",
-      "orderPlacedThisBar");
+      "tradingDayAllowed", "tradingTimeAllowed", "profileAllowsNewOrders");
 }
 
 //+------------------------------------------------------------------+
@@ -5148,6 +5186,20 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
    else if(isShortAlgo && closeVs == "above") firstFail = "shortOnly_closeAboveLevel";
    else if(!weeklyOK) firstFail = "tradesWeeklyLevelsOff";
    else if(!anchorOK) firstFail = "anchorNotEligible";
+   else if(direction == "long" && algoSlot1 == MAGIC_ALGO10 &&
+      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <=
+         g_algoProfile.algo10.min_anchorAbove_cleanStreak)
+      firstFail = "anchorAboveTooLow";
+   else if(direction == "long" && algoSlot1 == MAGIC_ALGO10 &&
+      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo10.min_cleanOHLC_streak_count)
+      firstFail = "cleanOHLC_streakTooShort";
+   else if(direction == "long" && algoSlot1 == MAGIC_ALGO11 &&
+      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <=
+         g_algoProfile.algo11.min_anchorAbove_cleanStreak)
+      firstFail = "anchorAboveTooLow";
+   else if(direction == "long" && algoSlot1 == MAGIC_ALGO11 &&
+      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo11.min_cleanOHLC_streak_count)
+      firstFail = "cleanOHLC_streakTooShort";
    else if(direction == "long" && !bounceOK)
    {
       if(algoSlot1 == MAGIC_ALGO11)
@@ -5156,6 +5208,13 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
       else
          firstFail = StringFormat("algo%d(bounceCount>%d)", algoSlot1, g_algoProfile.algo10.bounceMaxAllowed_today);
    }
+   else if(direction == "short" && algoSlot1 == MAGIC_ALGO12 &&
+      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak <=
+         g_algoProfile.algo12.min_anchorBelow_cleanStreak)
+      firstFail = "anchorBelowTooLow";
+   else if(direction == "short" && algoSlot1 == MAGIC_ALGO12 &&
+      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo12.min_cleanOHLC_streak_count)
+      firstFail = "cleanOHLC_streakTooShort";
    else if(direction == "short" && !ceilingOK)
    {
       if(!g_algoProfile.algo12.enabled)
@@ -5254,9 +5313,8 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
       FalgoBoolCsv(underLoss), FalgoBoolCsv(underWin),
       FalgoBoolCsv(noOpen), FalgoBoolCsv(noPending),
       FalgoBoolCsv(rulesCommon), FalgoBoolCsv(rulesDir),
-      FalgoBoolCsv(profileEnabled), FalgoBoolCsv(tradingDay), FalgoBoolCsv(tradingTime),
-      FalgoBoolCsv(profileAllows),
-      FalgoBoolCsv(g_falgoOrderPlacedLastPipeline));
+      FalgoBoolCsv(tradingDay), FalgoBoolCsv(tradingTime),
+      FalgoBoolCsv(profileAllows));
    FileClose(fh);
 }
 
@@ -6120,7 +6178,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.shared.stop_trading_today_if_AllAlgos_losing_trades_count  = 999;
    g_algoProfile.shared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
    g_algoProfile.shared.babysit_enabled                                = true;
-   // algo10bookmark2 — per-algo (date)_algoN_trade_telemetry_per_second.csv window
+   // per-algo (date)_algoN_trade_telemetry_per_second.csv window
    g_algoProfile.shared.persecond_debug_enabled                        = true;
    g_algoProfile.shared.persecond_debug_start_hour                     =   0;
    g_algoProfile.shared.persecond_debug_start_minute                   =  20;
@@ -6148,9 +6206,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo10.tune.telemetry_velocity_window_seconds                        = 10;
    g_algoProfile.algo10.tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algoProfile.algo10.tune.trade_telemetry_per_second_enabled                       = true;
-   g_algoProfile.algo10.tune.reduceLoss_mode_trigger_pts                              =  0;  // 0 = off; latch when trough <= -this
-   g_algoProfile.algo10.tune.reduceLoss_mode_SL_pts                                    =  1.4;  // recovery close when profit >= -this
+   g_algoProfile.algo10.tune.reduceLoss_mode_trigger_pts                              =  -3.0;  // 0 = off; latch when trough <= -this
+   g_algoProfile.algo10.tune.reduceLoss_mode_SL_pts         =  0.5;  // recovery close when profit >= -this
    g_algoProfile.algo10.bounceMaxAllowed_today                          =  3;
+   g_algoProfile.algo10.min_anchorAbove_cleanStreak                     =  3.2;
+   g_algoProfile.algo10.min_cleanOHLC_streak_count                      =    6;
    g_algoProfile.algo10.levelOffset_longs                               = 0.4;
    g_algoProfile.algo10.priceProximityLongs                             =  4.0;
    g_algoProfile.algo10.long_expiry_minutes                              =  5;
@@ -6179,6 +6239,8 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo11.min_bounceCount                                 =  2;
    g_algoProfile.algo11.recentBounceCountToday_Minutes                   = 600;
    g_algoProfile.algo11.recentBounceCount_max_allowed                   =  1;
+   g_algoProfile.algo11.min_anchorAbove_cleanStreak                     =  8.0;
+   g_algoProfile.algo11.min_cleanOHLC_streak_count                      =    6;
    g_algoProfile.algo11.levelOffset_longs                               = 0.4;
    g_algoProfile.algo11.priceProximityLongs                             =  4.0;
    g_algoProfile.algo11.long_expiry_minutes                              =  5;
@@ -6207,6 +6269,8 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo12.ceilingMaxAllowed_today                         =  2;
    g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay                =  1;
    g_algoProfile.algo12.recentCeilingCountToday_Minutes                 = 300;
+   g_algoProfile.algo12.min_anchorBelow_cleanStreak                     = 11.0;
+   g_algoProfile.algo12.min_cleanOHLC_streak_count                      =    2;
    g_algoProfile.algo12.levelOffset_shorts                              =  1.4;
    g_algoProfile.algo12.priceProximityShorts                            =  5.0;
    g_algoProfile.algo12.short_expiry_minutes                              =  8;
