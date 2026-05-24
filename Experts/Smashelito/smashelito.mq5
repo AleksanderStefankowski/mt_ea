@@ -33,7 +33,6 @@ string   InpAllCandleFile     = "AllCandlesLog_Timer1";
 double   ProximityThreshold   = 1.0;
 double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to count as broken
 input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for RecoverCount
-input int      BounceCandlesRequired = 1; // for bounce count logic
 // false: skip per-bar UpdateTradeResultsForDay (no HistorySelect each M1); g_tradeResults cleared each bar — EOD block still calls UpdateTradeResultsForDay once before trade-results CSV (and after EOD closes). Intraday pullinghistory/dayProgress rows stay deal-empty until that EOD refresh.
 input bool     InpLoadTradeResultsFromHistory = true;
 bool     InpEODLogging = true;  // if true: at 21:58-22:00 write EOD logs (pullinghistory_algofamily, algo trade results, levels, etc.)
@@ -94,14 +93,11 @@ bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but
 double   g_global_base_trade_size = 0.001; //  0.001 min. bookmark9 basetradesize basesize defaultsize globalsize
 #define TRADE_VARIANT_COUNT_MAX_LOTSIZE 4.0
 const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000000.0; //  5000000.0/ PLN budget ceiling vs ValidateBaseTradeSizeVsAccountBudgetOnInit()
-#define EXPIRATION_MIN 10 // bookmark4 expiry
 
 // OnTimer (1s): FatalError if (used margin / equity)×100 exceeds this (terminal-style deposit load as % of equity locked in margin). 0 = disabled.
 double   DepositLoadFatalThresholdPct = 0.0; // ≤ 0 disables the check
 
-//--- Algo family pipeline: symbol positions + pending orders (refreshed once per tick).
-long   g_occupiedMagicsCache[];
-int    g_occupiedMagicsCount = 0;
+//--- Algo family pipeline: per-algo open/pending on _Symbol (refreshed once per tick via RefreshOccupiedMagicsCache).
 bool   g_occupiedAlgoFamilySlots[100];  // index = algo number 10..99: open position or pending on _Symbol
 #define MAX_BANNED_RANGES 20
 int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges
@@ -529,7 +525,6 @@ struct AlgoFamilyProfile
    Algo16Profile      algo16;
 };
 AlgoFamilyProfile g_algoProfile;
-int g_algoFamilyDayClosedCount = 0;
 
 struct AlgoSlotDef
 {
@@ -3870,14 +3865,12 @@ void UpdateFalgoDayTradeCounts()
    }
    g_algoFamilyDayWins = 0;
    g_algoFamilyDayLosses = 0;
-   g_algoFamilyDayClosedCount = 0;
    for(int i = 0; i < g_tradeResultsCount; i++)
    {
       if(!g_tradeResults[i].foundOut)
          continue;
       if(!IsAnyAlgoFamilyCompositeMagic(g_tradeResults[i].magic))
          continue;
-      g_algoFamilyDayClosedCount++;
       const int algoIdx = AlgoFamilySlotArrayIndex(AlgoFamilyMagicNumber(g_tradeResults[i].magic));
       if(g_tradeResults[i].profit > 0.0)
       {
@@ -8861,96 +8854,33 @@ int OpenOrCreateForAppend(string path)
 }
 
 //+------------------------------------------------------------------+
-//| Count open positions + pending orders with this exact magic (trading: limit per magic, not per level) |
+//| One terminal pass: mark algo slots 10..99 with open position or pending on _Symbol. Call once per timer tick before placement. |
 //+------------------------------------------------------------------+
-int CountOrdersAndPositionsForMagic(long magic)
+void RefreshOccupiedMagicsCache()
 {
-   int count = 0;
+   for(int a = MAGIC_ALGO_FAMILY_SLOT_MIN; a <= MAGIC_ALGO_FAMILY_SLOT_MAX; a++)
+      g_occupiedAlgoFamilySlots[a] = false;
+
    for(int posIdx = PositionsTotal() - 1; posIdx >= 0; posIdx--)
    {
       if(!ExtPositionInfo.SelectByIndex(posIdx)) continue;
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
-      if(ExtPositionInfo.Magic() == magic) count++;
+      const long m = ExtPositionInfo.Magic();
+      if(!IsAnyAlgoFamilyCompositeMagic(m)) continue;
+      const int algoNumber = AlgoFamilyMagicNumber(m);
+      if(algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= MAGIC_ALGO_FAMILY_SLOT_MAX)
+         g_occupiedAlgoFamilySlots[algoNumber] = true;
    }
    for(int orderIdx = OrdersTotal() - 1; orderIdx >= 0; orderIdx--)
    {
       if(!ExtOrderInfo.SelectByIndex(orderIdx)) continue;
       if(ExtOrderInfo.Symbol() != _Symbol) continue;
-      if(ExtOrderInfo.Magic() == magic) count++;
-   }
-   return count;
-}
-
-//+------------------------------------------------------------------+
-//| Basic rule: true when no open position or pending order with this magic (allows placing new order). |
-//+------------------------------------------------------------------+
-bool CanPlaceNewOrderForMagic(long magic)
-{
-   return (CountOrdersAndPositionsForMagic(magic) == 0);
-}
-
-//+------------------------------------------------------------------+
-//| Single terminal pass: magics with an open position or pending order on _Symbol (unique). Call once per timer tick before Stage-1 variant loop. |
-//+------------------------------------------------------------------+
-void OccupiedMagicsCache_AppendUnique(const long m)
-{
-   for(int i = 0; i < g_occupiedMagicsCount; i++)
-      if(g_occupiedMagicsCache[i] == m)
-         return;
-   const int n = g_occupiedMagicsCount + 1;
-   if(ArraySize(g_occupiedMagicsCache) < n)
-      ArrayResize(g_occupiedMagicsCache, n + 16);
-   g_occupiedMagicsCache[g_occupiedMagicsCount++] = m;
-   if(IsAnyAlgoFamilyCompositeMagic(m))
-   {
+      const long m = ExtOrderInfo.Magic();
+      if(!IsAnyAlgoFamilyCompositeMagic(m)) continue;
       const int algoNumber = AlgoFamilyMagicNumber(m);
       if(algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= MAGIC_ALGO_FAMILY_SLOT_MAX)
          g_occupiedAlgoFamilySlots[algoNumber] = true;
    }
-}
-
-void RefreshOccupiedMagicsCache()
-{
-   g_occupiedMagicsCount = 0;
-   for(int a = MAGIC_ALGO_FAMILY_SLOT_MIN; a <= MAGIC_ALGO_FAMILY_SLOT_MAX; a++)
-      g_occupiedAlgoFamilySlots[a] = false;
-   const int posTotal = PositionsTotal();
-   const int ordTotal = OrdersTotal();
-   const int needCap = (posTotal + ordTotal > 0 ? posTotal + ordTotal : 8);
-   if(ArraySize(g_occupiedMagicsCache) < needCap)
-      ArrayResize(g_occupiedMagicsCache, needCap);
-
-   for(int posIdx = posTotal - 1; posIdx >= 0; posIdx--)
-   {
-      if(!ExtPositionInfo.SelectByIndex(posIdx)) continue;
-      if(ExtPositionInfo.Symbol() != _Symbol) continue;
-      OccupiedMagicsCache_AppendUnique(ExtPositionInfo.Magic());
-   }
-   for(int orderIdx = ordTotal - 1; orderIdx >= 0; orderIdx--)
-   {
-      if(!ExtOrderInfo.SelectByIndex(orderIdx)) continue;
-      if(ExtOrderInfo.Symbol() != _Symbol) continue;
-      OccupiedMagicsCache_AppendUnique(ExtOrderInfo.Magic());
-   }
-}
-
-//+------------------------------------------------------------------+
-//| true if magic appears in cache filled by RefreshOccupiedMagicsCache() this tick. |
-//+------------------------------------------------------------------+
-bool IsMagicOccupiedInCache(const long magic)
-{
-   for(int i = 0; i < g_occupiedMagicsCount; i++)
-      if(g_occupiedMagicsCache[i] == magic)
-         return true;
-   return false;
-}
-
-//+------------------------------------------------------------------+
-//| Same rule as CanPlaceNewOrderForMagic — use after RefreshOccupiedMagicsCache in hot loops. |
-//+------------------------------------------------------------------+
-bool CanPlaceNewOrderForMagic_Cached(const long magic)
-{
-   return !IsMagicOccupiedInCache(magic);
 }
 
 //+------------------------------------------------------------------+
