@@ -20,6 +20,43 @@ TOP_RESULTS_TO_PRINT = 300
 SAVE_CSV_TO_FILE = true
 SAVE_CSV_OUTPUT = 'analyze_output.csv'
 
+# Only these booleans may appear as =false gates in output/rules.
+BOOLEAN_GATE_VARIABLES = %i[dayBrokePDH dayBrokePDL].freeze
+
+# IBL/IBH/RTHH/RTHL reference gates only meaningful after IB hour (not ON or RTH-IB at open).
+RTH_IB_REFERENCE_NAMES = %w[IBL IBH RTHH RTHL].freeze
+
+# summary_tradeResults_all_days session column (legacy rows may still say "RTH").
+RTH_SESSION_VALUES = %w[RTH RTH-IB RTH-afterIB].freeze
+
+ANALYSIS_SETS = [
+  {
+    name: 'full',
+    session_filter: nil,
+    exclude_rth_ib_vars: true
+  },
+  {
+    name: 'ON',
+    session_filter: 'ON',
+    exclude_rth_ib_vars: true
+  },
+  {
+    name: 'RTH',
+    session_filter: RTH_SESSION_VALUES,
+    exclude_rth_ib_vars: false
+  },
+  {
+    name: 'RTH-IB',
+    session_filter: 'RTH-IB',
+    exclude_rth_ib_vars: true
+  },
+  {
+    name: 'RTH-afterIB',
+    session_filter: 'RTH-afterIB',
+    exclude_rth_ib_vars: false
+  }
+].freeze
+
 # =========================================================
 # HELPERS
 # =========================================================
@@ -54,12 +91,6 @@ def net_profit(trades)
   trades.sum { |t| t[:profit].to_f }
 end
 
-def avg_trade(trades)
-  return 0 if trades.empty?
-
-  net_profit(trades) / trades.size.to_f
-end
-
 def winrate(trades)
   return 0 if trades.empty?
 
@@ -69,10 +100,94 @@ def winrate(trades)
   (wins.to_f / trades.size) * 100.0
 end
 
+def unique_trade_days(trades)
+  trades
+    .map { |t| t[:date] }
+    .reject(&:empty?)
+    .uniq
+end
+
+def trade_rate(trades, total_trading_days)
+  return 0.0 if total_trading_days.zero?
+
+  (unique_trade_days(trades).size.to_f / total_trading_days) * 100.0
+end
+
+def sample_start_times(trades, max_samples = 5)
+  trades
+    .map { |t| t[:start_time] }
+    .reject(&:empty?)
+    .sort
+    .first(max_samples)
+    .join('; ')
+end
+
 def stringify_group(group_hash)
-  group_hash.map do |k, v|
-    "#{k}=#{v}"
+  group_hash.filter_map do |k, v|
+    if ref_variable?(k)
+      next unless v == true
+
+      "#{k}=true"
+    else
+      "#{k}=#{v}"
+    end
   end.join(' | ')
+end
+
+def ref_variable?(sym)
+  s = sym.to_s
+  s.start_with?('below_') || s.start_with?('above_')
+end
+
+def rth_ib_ref_variable?(sym)
+  return false unless ref_variable?(sym)
+
+  ref_name = sym.to_s.sub(/\A(below_|above_)/, '')
+  RTH_IB_REFERENCE_NAMES.include?(ref_name)
+end
+
+def boolean_gate_variable?(sym)
+  BOOLEAN_GATE_VARIABLES.include?(sym)
+end
+
+def group_key_for_trade(trade, vars)
+  vars.map do |v|
+    if ref_variable?(v)
+      return nil unless trade.key?(v) && trade[v] == true
+
+      [v, true]
+    elsif boolean_gate_variable?(v)
+      [v, trade[v].to_s.downcase == 'true']
+    else
+      [v, trade[v].to_s]
+    end
+  end
+end
+
+def variables_for_analysis_set(all_variables, analysis_set)
+  vars = all_variables
+
+  if analysis_set[:exclude_rth_ib_vars]
+    vars = vars.reject { |v| rth_ib_ref_variable?(v) }
+  end
+
+  # full pools all sessions; session-specific sets have a constant session — never group by it.
+  vars = vars.reject { |v| v == :session }
+
+  vars
+end
+
+def trades_for_analysis_set(trades, analysis_set)
+  session_filter = analysis_set[:session_filter]
+  return trades if session_filter.nil?
+
+  allowed =
+    case session_filter
+    when Array then session_filter
+    else [session_filter]
+    end
+
+  trades.select { |t| allowed.include?(t[:session]) }
 end
 
 # =========================================================
@@ -157,6 +272,12 @@ csv.each do |row|
   trade[:profit] =
     row['profit'].to_f
 
+  trade[:date] =
+    row['date'].to_s.strip
+
+  trade[:start_time] =
+    row['startTime'].to_s.strip
+
   # =======================================================
   # REFERENCE POINTS
   # =======================================================
@@ -167,18 +288,25 @@ csv.each do |row|
   refs_below =
     safe_split(row['referencePointsBelow'])
 
+  # referencePointsAbove = ref price above trade level → level is below ref
+  # referencePointsBelow = ref price below trade level → level is above ref
   refs_above.each do |ref|
-    trade["above_#{ref}".to_sym] = true
+    trade["below_#{ref}".to_sym] = true
   end
 
   refs_below.each do |ref|
-    trade["below_#{ref}".to_sym] = true
+    trade["above_#{ref}".to_sym] = true
   end
 
   rows << trade
 end
 
 puts "Loaded trades: #{rows.size}"
+
+all_trading_day_count =
+  unique_trade_days(rows).size
+
+puts "Days with any trade: #{all_trading_day_count}"
 
 if rows.empty?
   puts
@@ -211,8 +339,8 @@ dynamic_variables =
 
       s = k.to_s
 
-      s.start_with?('above_') ||
-      s.start_with?('below_')
+      s.start_with?('below_') ||
+      s.start_with?('above_')
     end
 
 all_variables =
@@ -245,56 +373,70 @@ results = []
 puts
 puts "Starting analysis..."
 
-magic_groups.each do |magic_prefix, trades|
+ANALYSIS_SETS.each do |analysis_set|
 
   puts
-  puts "=" * 80
-  puts "MAGIC PREFIX #{magic_prefix}"
-  puts "Trades: #{trades.size}"
-  puts "=" * 80
+  puts "#" * 80
+  puts "ANALYSIS SET: #{analysis_set[:name]}"
+  puts "#" * 80
 
-  (1..MAX_COMBINATION_SIZE).each do |combo_size|
+  set_variables =
+    variables_for_analysis_set(all_variables, analysis_set)
+
+  puts "Variables in set: #{set_variables.size}"
+
+  magic_groups.each do |magic_prefix, prefix_trades|
+
+    trades =
+      trades_for_analysis_set(prefix_trades, analysis_set)
+
+    next if trades.empty?
 
     puts
-    puts "Combination size #{combo_size}"
+    puts "=" * 80
+    puts "MAGIC PREFIX #{magic_prefix} [#{analysis_set[:name]}]"
+    puts "Trades: #{trades.size}"
+    puts "=" * 80
 
-    all_variables
-      .combination(combo_size)
-      .each do |vars|
+    (1..MAX_COMBINATION_SIZE).each do |combo_size|
 
-      grouped =
-        trades.group_by do |trade|
+      puts
+      puts "Combination size #{combo_size}"
 
-          vars.map do |v|
+      set_variables
+        .combination(combo_size)
+        .each do |vars|
 
-            value =
-              trade.key?(v) ? trade[v] : false
-
-            [v, value]
+        grouped =
+          trades.group_by do |trade|
+            group_key_for_trade(trade, vars)
           end
 
+        grouped.each do |group_key, grouped_trades|
+
+          next if group_key.nil?
+
+          next if grouped_trades.size <
+                  MINIMUM_TRADES_IN_GROUPING
+
+          pf =
+            profit_factor(grouped_trades)
+
+          next if pf < MINIMUM_PROFITFACTOR
+
+          results << {
+            analysis_set: analysis_set[:name],
+            magic_prefix: magic_prefix,
+            vars: vars,
+            values: group_key.to_h,
+            trades: grouped_trades.size,
+            pf: pf,
+            net_profit: net_profit(grouped_trades),
+            winrate: winrate(grouped_trades),
+            group_trade_rate: trade_rate(grouped_trades, all_trading_day_count),
+            grouping_sampledates: sample_start_times(grouped_trades)
+          }
         end
-
-      grouped.each do |group_key, grouped_trades|
-
-        next if grouped_trades.size <
-                MINIMUM_TRADES_IN_GROUPING
-
-        pf =
-          profit_factor(grouped_trades)
-
-        next if pf < MINIMUM_PROFITFACTOR
-
-        results << {
-          magic_prefix: magic_prefix,
-          vars: vars,
-          values: group_key.to_h,
-          trades: grouped_trades.size,
-          pf: pf,
-          net_profit: net_profit(grouped_trades),
-          avg_trade: avg_trade(grouped_trades),
-          winrate: winrate(grouped_trades)
-        }
       end
     end
   end
@@ -330,6 +472,7 @@ puts
 grouped_results =
   results.group_by do |r|
     [
+      r[:analysis_set],
       r[:magic_prefix],
       r[:trades]
     ]
@@ -339,71 +482,91 @@ grouped_results =
 # PRINT
 # ---------------------------------------------------------
 
-magic_prefixes =
+analysis_set_names =
   grouped_results.keys
                  .map(&:first)
                  .uniq
                  .sort
 
-magic_prefixes.each do |magic_prefix|
+analysis_set_names.each do |analysis_set_name|
 
-  ungrouped_trades = magic_groups[magic_prefix] || []
-  ungrouped_pf = profit_factor(ungrouped_trades)
+  analysis_set_config =
+    ANALYSIS_SETS.find { |s| s[:name] == analysis_set_name }
 
-  puts
-  puts format(
-    "MAGIC PREFIX %s (ungrouped it has %d trades, %.2f profit factor)",
-    magic_prefix,
-    ungrouped_trades.size,
-    ungrouped_pf
-  )
-  puts
-
-  trade_counts =
+  magic_prefixes =
     grouped_results.keys
-                   .select { |k| k[0] == magic_prefix }
-                   .map(&:last)
+                   .select { |k| k[0] == analysis_set_name }
+                   .map { |k| k[1] }
                    .uniq
                    .sort
 
-  trade_counts.each do |trade_count|
+  magic_prefixes.each do |magic_prefix|
 
-    subset =
-      grouped_results[
-        [magic_prefix, trade_count]
-      ]
+    prefix_trades = magic_groups[magic_prefix] || []
+    ungrouped_trades =
+      trades_for_analysis_set(prefix_trades, analysis_set_config)
+    ungrouped_pf = profit_factor(ungrouped_trades)
+    ungrouped_trade_rate =
+      trade_rate(ungrouped_trades, all_trading_day_count)
 
-    next if subset.nil? || subset.empty?
-
-    sorted_subset =
-      subset.sort_by do |r|
-        [
-          -r[:pf],
-          -r[:net_profit]
-        ]
-      end
-
-    top_results =
-      sorted_subset.first(3)
-
-    puts "TOP RESULTS WITH #{trade_count} TRADES"
+    puts
+    puts format(
+      "MAGIC PREFIX %s [%s] (ungrouped it has %d trades, %.2f profit factor, %.2f%% trade rate)",
+      magic_prefix,
+      analysis_set_name,
+      ungrouped_trades.size,
+      ungrouped_pf,
+      ungrouped_trade_rate
+    )
     puts
 
-    top_results.each_with_index do |r, idx|
+    trade_counts =
+      grouped_results.keys
+                     .select { |k| k[0] == analysis_set_name && k[1] == magic_prefix }
+                     .map(&:last)
+                     .uniq
+                     .sort
 
-      puts "##{idx + 1}"
+    trade_counts.each do |trade_count|
 
-      puts format(
-        "PF: %.2f | WR: %.2f%% | NET: %.2f | AVG: %.2f",
-        r[:pf],
-        r[:winrate],
-        r[:net_profit],
-        r[:avg_trade]
-      )
+      subset =
+        grouped_results[
+          [analysis_set_name, magic_prefix, trade_count]
+        ]
 
-      puts stringify_group(r[:values])
+      next if subset.nil? || subset.empty?
 
+      sorted_subset =
+        subset.sort_by do |r|
+          [
+            -r[:pf],
+            -r[:net_profit]
+          ]
+        end
+
+      top_results =
+        sorted_subset.first(3)
+
+      puts "TOP RESULTS WITH #{trade_count} TRADES"
       puts
+
+      top_results.each_with_index do |r, idx|
+
+        puts "##{idx + 1}"
+
+        puts format(
+          "PF: %.2f | WR: %.2f%% | NET: %.2f | TR: %.2f%%",
+          r[:pf],
+          r[:winrate],
+          r[:net_profit],
+          r[:group_trade_rate]
+        )
+
+        puts stringify_group(r[:values])
+        puts "Sample start times: #{r[:grouping_sampledates]}"
+
+        puts
+      end
     end
   end
 end
@@ -413,44 +576,57 @@ puts "TOTAL VALID GROUPINGS: #{results.size}"
 
 if SAVE_CSV_TO_FILE
 
-  magic_prefix_stats =
-    magic_groups.transform_values do |trades|
-      {
-        trade_count: trades.size,
-        pf: profit_factor(trades)
+  prefix_stats_by_set = {}
+  ANALYSIS_SETS.each do |analysis_set|
+    magic_groups.each do |magic_prefix, prefix_trades|
+      set_trades =
+        trades_for_analysis_set(prefix_trades, analysis_set)
+      key = [analysis_set[:name], magic_prefix]
+      prefix_stats_by_set[key] = {
+        trade_count: set_trades.size,
+        pf: profit_factor(set_trades),
+        trade_rate: trade_rate(set_trades, all_trading_day_count)
       }
     end
+  end
 
   csv_rows =
     results.map do |r|
       prefix_stats =
-        magic_prefix_stats[r[:magic_prefix]] || { trade_count: 0, pf: 0.0 }
+        prefix_stats_by_set[[r[:analysis_set], r[:magic_prefix]]] ||
+        { trade_count: 0, pf: 0.0, trade_rate: 0.0 }
 
       {
+        analysis_set: r[:analysis_set],
         magic_prefix: r[:magic_prefix],
         magic_prefix_trades: prefix_stats[:trade_count],
         magic_prefix_pf: prefix_stats[:pf].round(2),
-        group_trades: r[:trades],
-        group_pf: r[:pf].round(2),
-        group_winrate: r[:winrate].round(2),
-        group_net_profit: r[:net_profit].round(2),
-        group_avg_trade: r[:avg_trade].round(2),
+        magic_prefix_trade_rate: prefix_stats[:trade_rate].round(2),
+        grp_trades: r[:trades],
+        grp_pf: r[:pf].round(2),
+        grp_traderate: r[:group_trade_rate].round(2),
+        grp_winrate: r[:winrate].round(2),
+        grp_net_profit: r[:net_profit].round(2),
         variable_count: r[:vars].size,
-        variables: stringify_group(r[:values])
+        variables: stringify_group(r[:values]),
+        grouping_sampledates: r[:grouping_sampledates]
       }
     end
 
   csv_headers = [
+    :analysis_set,
     :magic_prefix,
     :magic_prefix_trades,
     :magic_prefix_pf,
-    :group_trades,
-    :group_pf,
-    :group_winrate,
-    :group_net_profit,
-    :group_avg_trade,
+    :magic_prefix_trade_rate,
+    :grp_trades,
+    :grp_pf,
+    :grp_traderate,
+    :grp_winrate,
+    :grp_net_profit,
     :variable_count,
-    :variables
+    :variables,
+    :grouping_sampledates
   ]
 
   CSV.open(SAVE_CSV_OUTPUT, 'w', write_headers: true, headers: csv_headers) do |out|
