@@ -48,10 +48,10 @@ bool     dailyEODlog_TradeResultsCsvAlgo12 = true;  // summaryZ_tradeResults_ALL
 bool     dailyEODlog_TradeResultsCsvAlgo13 = true;  // summaryZ_tradeResults_ALL_Day_algo13 + summary_tradeResults_all_days_algo13.tsv
 bool     dailyEODlog_TradeResultsCsvAlgo14 = true;  // summaryZ_tradeResults_ALL_Day_algo14 + summary_tradeResults_all_days_algo14.tsv
 bool     dailyEODlog_TradeResultsCsvAlgo15 = true;  // summaryZ_tradeResults_ALL_Day_algo15 + summary_tradeResults_all_days_algo15.tsv
+bool     dailyEODlog_TradeResultsCsvAlgo16 = true;  // summaryZ_tradeResults_ALL_Day_algo16 + summary_tradeResults_all_days_algo16.tsv
 bool     dailyEODlog_TradeResultsCsvAlgoFamily = true;  // summary_tradeResults_all_days.tsv (all algo family trades)
-// Trade-results CSV columns referencePointsAbove / referencePointsBelow (GetReferencePointsAboveBelow):
-bool     tradeResult_referencePoints_excludeTooClose = true;  // if true: omit a ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel; if false, no distance filter (min may be 0.0)
-double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; only used when tradeResult_referencePoints_excludeTooClose is true
+// Trade-results CSV referencePointsAbove/Below: min distance when bigflipper_tradeResult_referencePoints_excludeTooClose is true (see bigflipper block).
+double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; omit ref when |ref - level| < this and exclusion bigflipper is on
 bool     dailyEODlog_TestinglevelsPlus =      true;     // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
@@ -64,6 +64,7 @@ bool     dailySpamLog_Algo12GatesPerMinute = true;  // (date)_algo12_gates_per_m
 bool     dailySpamLog_Algo13GatesPerMinute = true;  // (date)_algo13_gates_per_minute.csv — algo13 gate snapshot each closed M1 bar
 bool     dailySpamLog_Algo14GatesPerMinute = true;  // (date)_algo14_gates_per_minute.csv — algo14 gate snapshot each closed M1 bar
 bool     dailySpamLog_Algo15GatesPerMinute = true;  // (date)_algo15_gates_per_minute.csv — algo15 gate snapshot each closed M1 bar
+bool     dailySpamLog_Algo16GatesPerMinute = true;  // (date)_algo16_gates_per_minute.csv — algo16 gate snapshot each closed M1 bar
 bool     velocity_parameter_testing = true;  // (date)_algoN_velocity_parameter_testing.csv — profitVelocity + avg per tested window (open trade, persecond_debug)
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
 bool     finalLog_TradeLog            = true; // B_TradeLog_<composite per algo>.csv (WriteTradeLog)
@@ -79,6 +80,7 @@ bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_al
 bool     bigflipper_log_B_TradeLog                         = true;  // (date)_B_TradeLog_<magic>.csv
 bool     bigflipper_log_algo_velocity_parameter_testing    = false;  // (date)_algoN_velocity_parameter_testing.csv
 bool     bigflipper_log_algo__trade_telemetry_per_second   = false;  // (date)_algoN_trade_telemetry_per_second.csv
+bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit any ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
 
@@ -500,6 +502,21 @@ struct Algo15Profile
    int    long_expiry_minutes;
 };
 
+struct Algo16Profile
+{
+   bool   enabled;
+   bool   blockPlacementIfFamilyOpenOrPending;
+   AlgoPerAlgoTune tune;
+   int    ceilingMaxAllowed_today;
+   int    max_allowed_shorts_perLevel_perDay_forThisAlgo;
+   int    recentCeilingCountToday_Minutes;
+   double min_anchorBelow_cleanStreak;
+   int    min_cleanOHLC_streak_count;
+   double levelOffset_shorts;
+   double priceProximityShorts;
+   int    short_expiry_minutes;
+};
+
 struct AlgoFamilyProfile
 {
    AlgoSharedProfile shared;
@@ -509,6 +526,7 @@ struct AlgoFamilyProfile
    Algo13Profile      algo13;
    Algo14Profile      algo14;
    Algo15Profile      algo15;
+   Algo16Profile      algo16;
 };
 AlgoFamilyProfile g_algoProfile;
 int g_algoFamilyDayClosedCount = 0;
@@ -1329,7 +1347,7 @@ bool GetGapFillSoFarAtBar(int barIdx, datetime dayStart, const string &dateStr, 
 }
 
 //+------------------------------------------------------------------+
-//| Reference points above/below the trade level price at trade open time (M1 bar at tradeOpenTime). Skips refs that are "unknown". When tradeResult_referencePoints_excludeTooClose: omit ref if |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel. Fills outAbove and outBelow with semicolon-separated ref names. |
+//| Reference points above/below the trade level price at trade open time (M1 bar at tradeOpenTime). Skips refs that are "unknown". When bigflipper_tradeResult_referencePoints_excludeTooClose: omit ref if |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel. Tie at level → above. |
 //+------------------------------------------------------------------+
 void GetReferencePointsAboveBelow(datetime tradeOpenTime, double levelPrice, string &outAbove, string &outBelow)
 {
@@ -1343,22 +1361,22 @@ void GetReferencePointsAboveBelow(datetime tradeOpenTime, double levelPrice, str
    datetime dayStart = g_m1DayStart;
    string dateStr = TimeToString(dayStart, TIME_DATE);
 
-   const bool rp_excludeTooClose = tradeResult_referencePoints_excludeTooClose;
+   const bool rp_excludeTooClose = bigflipper_tradeResult_referencePoints_excludeTooClose;
    const double rp_minAbs = tradeResult_referencePointMinAbsDiffFromLevel;
    double v = 0.0;
-   if(g_staticMarketContext.PDOpreviousDayRTHOpen > 0.0) { v = g_staticMarketContext.PDOpreviousDayRTHOpen; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDO"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDO"; } }
-   if(g_staticMarketContext.PDHpreviousDayHigh > 0.0) { v = g_staticMarketContext.PDHpreviousDayHigh; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDH"; } }
-   if(g_staticMarketContext.PDLpreviousDayLow > 0.0) { v = g_staticMarketContext.PDLpreviousDayLow; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDL"; } }
-   if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0) { v = g_staticMarketContext.PDCpreviousDayRTHClose; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDC"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "PDC"; } }
-   if(g_ONhighSoFarAtBar[barIdx].hasValue) { v = g_ONhighSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONH"; } }
-   if(g_ONlowSoFarAtBar[barIdx].hasValue) { v = g_ONlowSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "ONL"; } }
-   if(GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHH"; } }
-   if(GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "RTHL"; } }
-   if(GetIBlowAtBar(barIdx, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBL"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBL"; } }
-   if(GetIBhighAtBar(barIdx, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBH"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "IBH"; } }
-   if(g_dayHighSoFarAtBar[barIdx].hasValue) { v = g_dayHighSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar"; } }
-   if(g_dayLowSoFarAtBar[barIdx].hasValue) { v = g_dayLowSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar"; } }
-   if(g_sessionRangeMidpointAtBar[barIdx].hasValue) { v = g_sessionRangeMidpointAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v > levelPrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint"; else if(v < levelPrice) outBelow += (outBelow != "" ? ";" : "") + "midpoint"; } }
+   if(g_staticMarketContext.PDOpreviousDayRTHOpen > 0.0) { v = g_staticMarketContext.PDOpreviousDayRTHOpen; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDO"; else outBelow += (outBelow != "" ? ";" : "") + "PDO"; } }
+   if(g_staticMarketContext.PDHpreviousDayHigh > 0.0) { v = g_staticMarketContext.PDHpreviousDayHigh; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDH"; else outBelow += (outBelow != "" ? ";" : "") + "PDH"; } }
+   if(g_staticMarketContext.PDLpreviousDayLow > 0.0) { v = g_staticMarketContext.PDLpreviousDayLow; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDL"; else outBelow += (outBelow != "" ? ";" : "") + "PDL"; } }
+   if(g_staticMarketContext.PDCpreviousDayRTHClose > 0.0) { v = g_staticMarketContext.PDCpreviousDayRTHClose; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "PDC"; else outBelow += (outBelow != "" ? ";" : "") + "PDC"; } }
+   if(g_ONhighSoFarAtBar[barIdx].hasValue) { v = g_ONhighSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONH"; else outBelow += (outBelow != "" ? ";" : "") + "ONH"; } }
+   if(g_ONlowSoFarAtBar[barIdx].hasValue) { v = g_ONlowSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "ONL"; else outBelow += (outBelow != "" ? ";" : "") + "ONL"; } }
+   if(GetRthHighSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHH"; else outBelow += (outBelow != "" ? ";" : "") + "RTHH"; } }
+   if(GetRthLowSoFarAtBar(barIdx, dayStart, dateStr, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "RTHL"; else outBelow += (outBelow != "" ? ";" : "") + "RTHL"; } }
+   if(GetIBlowAtBar(barIdx, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBL"; else outBelow += (outBelow != "" ? ";" : "") + "IBL"; } }
+   if(GetIBhighAtBar(barIdx, v)) { if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "IBH"; else outBelow += (outBelow != "" ? ";" : "") + "IBH"; } }
+   if(g_dayHighSoFarAtBar[barIdx].hasValue) { v = g_dayHighSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayHighSoFar"; else outBelow += (outBelow != "" ? ";" : "") + "dayHighSoFar"; } }
+   if(g_dayLowSoFarAtBar[barIdx].hasValue) { v = g_dayLowSoFarAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "dayLowSoFar"; else outBelow += (outBelow != "" ? ";" : "") + "dayLowSoFar"; } }
+   if(g_sessionRangeMidpointAtBar[barIdx].hasValue) { v = g_sessionRangeMidpointAtBar[barIdx].value; if(!rp_excludeTooClose || MathAbs(v - levelPrice) >= rp_minAbs) { if(v >= levelPrice) outAbove += (outAbove != "" ? ";" : "") + "midpoint"; else outBelow += (outBelow != "" ? ";" : "") + "midpoint"; } }
 }
 
 //+------------------------------------------------------------------+
@@ -3038,6 +3056,7 @@ string MagicNumberToFixedWidthString(long magic)
 #define MAGIC_ALGO13                13
 #define MAGIC_ALGO14                14
 #define MAGIC_ALGO15                15
+#define MAGIC_ALGO16                16
 #define MAGIC_ALGO_FAMILY_SLOT_MIN  10
 #define MAGIC_ALGO_FAMILY_SLOT_MAX  99
 
@@ -3076,6 +3095,11 @@ void RebuildAlgoSlotsRegistry()
    g_algoSlots[g_algoSlotCount].trades_short = false;
    g_algoSlotLog_gatesPerMinute[g_algoSlotCount] = dailySpamLog_Algo15GatesPerMinute;
    g_algoSlotLog_eodTradeResults[g_algoSlotCount] = dailyEODlog_TradeResultsCsvAlgo15;
+   g_algoSlotCount++;
+   g_algoSlots[g_algoSlotCount].algo_id = MAGIC_ALGO16;
+   g_algoSlots[g_algoSlotCount].trades_short = true;
+   g_algoSlotLog_gatesPerMinute[g_algoSlotCount] = dailySpamLog_Algo16GatesPerMinute;
+   g_algoSlotLog_eodTradeResults[g_algoSlotCount] = dailyEODlog_TradeResultsCsvAlgo16;
    g_algoSlotCount++;
 }
 
@@ -3120,6 +3144,8 @@ bool AlgoProfileEnabled(const int algoNumber)
       return g_algoProfile.algo14.enabled;
    if(algoNumber == MAGIC_ALGO15)
       return g_algoProfile.algo15.enabled;
+   if(algoNumber == MAGIC_ALGO16)
+      return g_algoProfile.algo16.enabled;
    return false;
 }
 
@@ -3138,6 +3164,8 @@ bool AlgoProfileBlocksOnFamilyOpenOrPendingForAlgo(const int algoNumber)
       return g_algoProfile.algo14.blockPlacementIfFamilyOpenOrPending;
    if(algoNumber == MAGIC_ALGO15)
       return g_algoProfile.algo15.blockPlacementIfFamilyOpenOrPending;
+   if(algoNumber == MAGIC_ALGO16)
+      return g_algoProfile.algo16.blockPlacementIfFamilyOpenOrPending;
    return true;
 }
 
@@ -3172,6 +3200,11 @@ bool AlgoLoadTuneForAlgo(const int algoNumber, AlgoPerAlgoTune &outTune)
    if(algoNumber == MAGIC_ALGO15)
    {
       outTune = g_algoProfile.algo15.tune;
+      return true;
+   }
+   if(algoNumber == MAGIC_ALGO16)
+   {
+      outTune = g_algoProfile.algo16.tune;
       return true;
    }
    return false;
@@ -3220,6 +3253,13 @@ bool AlgoPlacementParamsForAlgo(const int algoNumber, double &offsetPoints, doub
       offsetPoints = g_algoProfile.algo15.levelOffset_longs;
       proximityLimit = g_algoProfile.algo15.priceProximityLongs;
       expirationMin = g_algoProfile.algo15.long_expiry_minutes;
+      return true;
+   }
+   if(algoNumber == MAGIC_ALGO16)
+   {
+      offsetPoints = g_algoProfile.algo16.levelOffset_shorts;
+      proximityLimit = g_algoProfile.algo16.priceProximityShorts;
+      expirationMin = g_algoProfile.algo16.short_expiry_minutes;
       return true;
    }
    return false;
@@ -5034,11 +5074,120 @@ bool AlgoShortCleanStreakRulesPassAtBar(const int barIdx, const double minAnchor
 //+------------------------------------------------------------------+
 //| algobookmark2 rulesets |  Per-algo direction rules (no common gates). 
 //+------------------------------------------------------------------+
+string AlgoCleanStreakGateFirstFail(const int algoNumber, const int barIdx)
+{
+   if(algoNumber == MAGIC_ALGO10)
+      return GateFail_CleanStreak_Long(barIdx, g_algoProfile.algo10.min_anchorAbove_cleanStreak, g_algoProfile.algo10.min_cleanOHLC_streak_count);
+   if(algoNumber == MAGIC_ALGO11)
+      return GateFail_CleanStreak_Long(barIdx, g_algoProfile.algo11.min_anchorAbove_cleanStreak, g_algoProfile.algo11.min_cleanOHLC_streak_count);
+   if(algoNumber == MAGIC_ALGO12)
+      return GateFail_CleanStreak_Short(barIdx, g_algoProfile.algo12.min_anchorBelow_cleanStreak, g_algoProfile.algo12.min_cleanOHLC_streak_count);
+   if(algoNumber == MAGIC_ALGO13)
+      return GateFail_CleanStreak_Long(barIdx, g_algoProfile.algo13.min_anchorAbove_cleanStreak, g_algoProfile.algo13.min_cleanOHLC_streak_count);
+   if(algoNumber == MAGIC_ALGO14)
+      return GateFail_CleanStreak_Short(barIdx, g_algoProfile.algo14.min_anchorBelow_cleanStreak, g_algoProfile.algo14.min_cleanOHLC_streak_count);
+   if(algoNumber == MAGIC_ALGO15)
+      return GateFail_CleanStreak_Long(barIdx, g_algoProfile.algo15.min_anchorAbove_cleanStreak, g_algoProfile.algo15.min_cleanOHLC_streak_count);
+   if(algoNumber == MAGIC_ALGO16)
+      return GateFail_CleanStreak_Short(barIdx, g_algoProfile.algo16.min_anchorBelow_cleanStreak, g_algoProfile.algo16.min_cleanOHLC_streak_count);
+   return "";
+}
+
+//+------------------------------------------------------------------+
+//| Per-algo ordered GateFail_* chain for gates_per_minute firstFail (no gate logic here). |
+//+------------------------------------------------------------------+
+string AlgoRulesetContextGateFirstFail(const int algoNumber, const int barIdx)
+{
+   const double tradeLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
+   string f = "";
+
+   if(algoNumber == MAGIC_ALGO10)
+      return GateFail_BounceCount_TooHigh(barIdx, g_algoProfile.algo10.bounceMaxAllowed_today, "bounceCountTooHigh");
+
+   if(algoNumber == MAGIC_ALGO11)
+   {
+      f = GateFail_BounceCount_TooLow(barIdx, g_algoProfile.algo11.min_bounceCount);
+      if(f != "") return f;
+      return GateFail_RecentBounceCount_TooHigh(barIdx, g_algoProfile.algo11.recentBounceCount_max_allowed);
+   }
+
+   if(algoNumber == MAGIC_ALGO12)
+   {
+      f = GateFail_CeilingCount_TooHigh(barIdx, g_algoProfile.algo12.ceilingMaxAllowed_today, "ceilingCountTooHigh");
+      if(f != "") return f;
+      return GateFail_ShortsAtLevel_Limit(barIdx, MAGIC_ALGO12, g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay_forThisAlgo);
+   }
+
+   if(algoNumber == MAGIC_ALGO13)
+   {
+      f = GateFail_ClosestWeeklyLevel_Missing(barIdx);
+      if(f != "") return f;
+      f = GateFail_BounceCount_TooHigh(barIdx, g_algoProfile.algo13.bounceMaxAllowed_today, "dailyBounceCountTooHigh");
+      if(f != "") return f;
+      f = GateFail_WeekBounceCount_TooHigh(barIdx, g_algoProfile.algo13.max_weekly_bounce_allowed);
+      if(f != "") return f;
+      return GateFail_LevelOnoAbsDiff_TooLow(tradeLevel, g_algoProfile.algo13.min_levelOnoAbsDiff);
+   }
+
+   if(algoNumber == MAGIC_ALGO14)
+   {
+      f = GateFail_ClosestWeeklyLevel_Missing(barIdx);
+      if(f != "") return f;
+      f = GateFail_CeilingCount_TooHigh(barIdx, g_algoProfile.algo14.ceilingMaxAllowed_today, "dailyCeilingCountTooHigh");
+      if(f != "") return f;
+      f = GateFail_WeekCeilingCount_TooHigh(barIdx, g_algoProfile.algo14.max_weekly_ceiling_allowed);
+      if(f != "") return f;
+      f = GateFail_LevelOnoAbsDiff_TooLow(tradeLevel, g_algoProfile.algo14.min_levelOnoAbsDiff);
+      if(f != "") return f;
+      return GateFail_ShortsAtLevel_Limit(barIdx, MAGIC_ALGO14, g_algoProfile.algo14.max_allowed_shorts_perLevel_perDay_forThisAlgo);
+   }
+
+   if(algoNumber == MAGIC_ALGO15)
+   {
+      f = GateFail_BounceCount_TooHigh(barIdx, g_algoProfile.algo15.bounceMaxAllowed_today, "bounceCountTooHigh");
+      if(f != "") return f;
+      f = GateFail_ClosestWeeklyLevel_Missing(barIdx);
+      if(f != "") return f;
+      f = GateFail_PD_red();
+      if(f != "") return f;
+      f = GateFail_Day_DayBrokePDL(barIdx);
+      if(f != "") return f;
+      f = GateFail_Level_AboveONL(barIdx, tradeLevel);
+      if(f != "") return f;
+      return GateFail_Level_BelowdayHighSoFar(barIdx, tradeLevel);
+   }
+
+   if(algoNumber == MAGIC_ALGO16)
+   {
+      f = GateFail_CeilingCount_TooHigh(barIdx, g_algoProfile.algo16.ceilingMaxAllowed_today, "ceilingCountTooHigh");
+      if(f != "") return f;
+      f = GateFail_ShortsAtLevel_Limit(barIdx, MAGIC_ALGO16, g_algoProfile.algo16.max_allowed_shorts_perLevel_perDay_forThisAlgo);
+      if(f != "") return f;
+      f = GateFail_ClosestWeeklyLevel_Missing(barIdx);
+      if(f != "") return f;
+      f = GateFail_Day_DayBrokePDH(barIdx);
+      if(f != "") return f;
+      f = GateFail_Level_BelowPDH(tradeLevel);
+      if(f != "") return f;
+      return GateFail_Level_AbovedayLowSoFar(barIdx, tradeLevel);
+   }
+
+   return "";
+}
+
+//+------------------------------------------------------------------+
+void AlgoRulesetContextGateFirstFailOrRulesetDisabled(const int algoNumber, const int barIdx, string &firstFail)
+{
+   const string ctxFail = AlgoRulesetContextGateFirstFail(algoNumber, barIdx);
+   firstFail = (ctxFail != "" ? ctxFail : "rulesetDisabled");
+}
+
+//+------------------------------------------------------------------+
 bool AlgoRulesetPassesAlgo10(const int barIdx)
 {
    if(!g_algoProfile.algo10.enabled) return false;
    if(!AlgoLongCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo10.min_anchorAbove_cleanStreak, g_algoProfile.algo10.min_cleanOHLC_streak_count)) return false;
-   if(FalgoGetBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo10.bounceMaxAllowed_today) return false;
+   if(!Gate_BounceCount_NoMoreThanX(barIdx, g_algoProfile.algo10.bounceMaxAllowed_today)) return false;
    return true;
 }
 
@@ -5048,9 +5197,9 @@ bool AlgoRulesetPassesAlgo15(const int barIdx)
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
    if(!g_algoProfile.algo15.enabled) return false;
    if(!AlgoLongCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo15.min_anchorAbove_cleanStreak, g_algoProfile.algo15.min_cleanOHLC_streak_count)) return false;
-   if(FalgoGetBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo15.bounceMaxAllowed_today) return false;
    const double tradeLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
-   if(tradeLevel <= 0.0) return false;
+   if(!Gate_BounceCount_NoMoreThanX(barIdx, g_algoProfile.algo15.bounceMaxAllowed_today)) return false;
+   if(!Gate_ClosestWeeklyLevel_HasValue(barIdx)) return false;
    if(!Gate_PD_red()) return false;
    if(!Gate_Day_DayBrokePDL_is_FALSE(barIdx)) return false;
    if(!Gate_Level_AboveONL(barIdx, tradeLevel)) return false;
@@ -5064,9 +5213,8 @@ bool AlgoRulesetPassesAlgo11(const int barIdx)
    // Need at least 2 bounces, but not more than 1 recent bounce in the window
    if(!g_algoProfile.algo11.enabled) return false;
    if(!AlgoLongCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo11.min_anchorAbove_cleanStreak, g_algoProfile.algo11.min_cleanOHLC_streak_count)) return false;
-   const int bounce = FalgoGetBounceCountForClosestWeeklyLevel(barIdx);
-   if(bounce < g_algoProfile.algo11.min_bounceCount) return false;
-   if(FalgoGetRecentBounceCountForClosestWeeklyLevel(barIdx) >= g_algoProfile.algo11.recentBounceCount_max_allowed) return false;
+   if(!Gate_BounceCount_AtLeastX(barIdx, g_algoProfile.algo11.min_bounceCount)) return false;
+   if(!Gate_RecentBounceCount_NoMoreThanX(barIdx, g_algoProfile.algo11.recentBounceCount_max_allowed)) return false;
    return true;
 }
 
@@ -5075,10 +5223,24 @@ bool AlgoRulesetPassesAlgo12(const int barIdx)
 {
    if(!g_algoProfile.algo12.enabled) return false;
    if(!AlgoShortCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo12.min_anchorBelow_cleanStreak, g_algoProfile.algo12.min_cleanOHLC_streak_count)) return false;
-   if(FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo12.ceilingMaxAllowed_today) return false;
-   const int tier = FalgoClosestWeeklyLevelTierAtBar(barIdx);
-   if(g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay_forThisAlgo > 0 && tier >= 1 &&
-      FalgoShortTradeCountTodayAtTierForThisAlgo(MAGIC_ALGO12, tier) >= g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay_forThisAlgo) return false;
+   if(!Gate_CeilingCount_NoMoreThanX(barIdx, g_algoProfile.algo12.ceilingMaxAllowed_today)) return false;
+   if(!Gate_ShortsAtLevel_UnderDailyLimit(barIdx, MAGIC_ALGO12, g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay_forThisAlgo)) return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoRulesetPassesAlgo16(const int barIdx)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   if(!g_algoProfile.algo16.enabled) return false;
+   const double tradeLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
+   if(!AlgoShortCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo16.min_anchorBelow_cleanStreak, g_algoProfile.algo16.min_cleanOHLC_streak_count)) return false;
+   if(!Gate_CeilingCount_NoMoreThanX(barIdx, g_algoProfile.algo16.ceilingMaxAllowed_today)) return false;
+   if(!Gate_ShortsAtLevel_UnderDailyLimit(barIdx, MAGIC_ALGO16, g_algoProfile.algo16.max_allowed_shorts_perLevel_perDay_forThisAlgo)) return false;
+   if(!Gate_ClosestWeeklyLevel_HasValue(barIdx)) return false;
+   if(!Gate_Day_DayBrokePDH_is_FALSE(barIdx)) return false;
+   if(!Gate_Level_BelowPDH(tradeLevel)) return false;
+   if(!Gate_Level_AbovedayLowSoFar(barIdx, tradeLevel)) return false;
    return true;
 }
 
@@ -5088,10 +5250,10 @@ bool AlgoRulesetPassesAlgo13(const int barIdx)
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
    if(!g_algoProfile.algo13.enabled) return false;
    const double tradeLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
-   if(tradeLevel <= 0.0) return false;
    if(!AlgoLongCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo13.min_anchorAbove_cleanStreak, g_algoProfile.algo13.min_cleanOHLC_streak_count)) return false;
-   if(FalgoGetBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo13.bounceMaxAllowed_today) return false;
-   if(FalgoGetWeekBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo13.max_weekly_bounce_allowed) return false;
+   if(!Gate_ClosestWeeklyLevel_HasValue(barIdx)) return false;
+   if(!Gate_BounceCount_NoMoreThanX(barIdx, g_algoProfile.algo13.bounceMaxAllowed_today)) return false;
+   if(!Gate_WeekBounceCount_NoMoreThanX(barIdx, g_algoProfile.algo13.max_weekly_bounce_allowed)) return false;
    if(!Gate_Level_AbsDiff_with_ONO_atLeastX(tradeLevel, g_algoProfile.algo13.min_levelOnoAbsDiff)) return false;
    return true;
 }
@@ -5102,14 +5264,12 @@ bool AlgoRulesetPassesAlgo14(const int barIdx)
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
    if(!g_algoProfile.algo14.enabled) return false;
    const double tradeLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
-   if(tradeLevel <= 0.0) return false;
    if(!AlgoShortCleanStreakRulesPassAtBar(barIdx, g_algoProfile.algo14.min_anchorBelow_cleanStreak, g_algoProfile.algo14.min_cleanOHLC_streak_count)) return false;
-   if(FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo14.ceilingMaxAllowed_today) return false;
-   if(FalgoGetWeekCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo14.max_weekly_ceiling_allowed) return false;
+   if(!Gate_ClosestWeeklyLevel_HasValue(barIdx)) return false;
+   if(!Gate_CeilingCount_NoMoreThanX(barIdx, g_algoProfile.algo14.ceilingMaxAllowed_today)) return false;
+   if(!Gate_WeekCeilingCount_NoMoreThanX(barIdx, g_algoProfile.algo14.max_weekly_ceiling_allowed)) return false;
    if(!Gate_Level_AbsDiff_with_ONO_atLeastX(tradeLevel, g_algoProfile.algo14.min_levelOnoAbsDiff)) return false;
-   const int tier = FalgoClosestWeeklyLevelTierAtBar(barIdx);
-   if(g_algoProfile.algo14.max_allowed_shorts_perLevel_perDay_forThisAlgo > 0 && tier >= 1 &&
-      FalgoShortTradeCountTodayAtTierForThisAlgo(MAGIC_ALGO14, tier) >= g_algoProfile.algo14.max_allowed_shorts_perLevel_perDay_forThisAlgo) return false;
+   if(!Gate_ShortsAtLevel_UnderDailyLimit(barIdx, MAGIC_ALGO14, g_algoProfile.algo14.max_allowed_shorts_perLevel_perDay_forThisAlgo)) return false;
    return true;
 }
 
@@ -5182,6 +5342,8 @@ bool AlgoRulesetPassesForAlgo(const int algoNumber, const int barIdx)
       return AlgoRulesetPassesAlgo14(barIdx);
    if(algoNumber == MAGIC_ALGO15)
       return AlgoRulesetPassesAlgo15(barIdx);
+   if(algoNumber == MAGIC_ALGO16)
+      return AlgoRulesetPassesAlgo16(barIdx);
    return false;
 }
 
@@ -5688,135 +5850,21 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
    else if(isShortAlgo && closeVs == "above") firstFail = "shortOnly_closeAboveLevel";
    else if(!weeklyOK) firstFail = "tradesWeeklyLevelsOff";
    else if(!anchorOK) firstFail = "anchorNotEligible";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO10 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <=
-         g_algoProfile.algo10.min_anchorAbove_cleanStreak)
-      firstFail = "anchorAboveTooLow";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO10 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo10.min_cleanOHLC_streak_count)
-      firstFail = "cleanOHLC_streakTooShort";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO11 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <=
-         g_algoProfile.algo11.min_anchorAbove_cleanStreak)
-      firstFail = "anchorAboveTooLow";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO11 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo11.min_cleanOHLC_streak_count)
-      firstFail = "cleanOHLC_streakTooShort";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO13 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <=
-         g_algoProfile.algo13.min_anchorAbove_cleanStreak)
-      firstFail = "anchorAboveTooLow";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO13 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo13.min_cleanOHLC_streak_count)
-      firstFail = "cleanOHLC_streakTooShort";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO15 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <=
-         g_algoProfile.algo15.min_anchorAbove_cleanStreak)
-      firstFail = "anchorAboveTooLow";
-   else if(direction == "long" && algoSlot1 == MAGIC_ALGO15 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo15.min_cleanOHLC_streak_count)
-      firstFail = "cleanOHLC_streakTooShort";
-   else if(direction == "long" && !bounceOK)
+   else if(direction == "long")
    {
-      if(algoSlot1 == MAGIC_ALGO11)
-      {
-         if(FalgoGetBounceCountForClosestWeeklyLevel(barIdx) < g_algoProfile.algo11.min_bounceCount)
-            firstFail = "bounceTooLow";
-         else
-            firstFail = "recentBounceTooHigh";
-      }
-      else if(algoSlot1 == MAGIC_ALGO13)
-      {
-         const double anchorLvl = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
-         if(FalgoGetBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo13.bounceMaxAllowed_today)
-            firstFail = "dailyBounceCountTooHigh";
-         else if(FalgoGetWeekBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo13.max_weekly_bounce_allowed)
-            firstFail = "weeklyBounceCountTooHigh";
-         else if(!Gate_Level_AbsDiff_with_ONO_atLeastX(anchorLvl, g_algoProfile.algo13.min_levelOnoAbsDiff))
-            firstFail = "levelOnoAbsDiffTooLow";
-         else
-            firstFail = "rulesetDisabled";
-      }
-      else if(algoSlot1 == MAGIC_ALGO10)
-         firstFail = "bounceCountTooHigh";
-      else if(algoSlot1 == MAGIC_ALGO15)
-      {
-         const double tradeLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
-         if(FalgoGetBounceCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo15.bounceMaxAllowed_today)
-            firstFail = "bounceCountTooHigh";
-         else if(tradeLevel <= 0.0)
-            firstFail = "noClosestWeeklyLevel";
-         else if(!Gate_PD_red())
-            firstFail = "PD_red";
-         else if(!Gate_Day_DayBrokePDL_is_FALSE(barIdx))
-            firstFail = "dayBrokePDL";
-         else if(!Gate_Level_AboveONL(barIdx, tradeLevel))
-            firstFail = "aboveONL";
-         else if(!Gate_Level_BelowdayHighSoFar(barIdx, tradeLevel))
-            firstFail = "belowDayHighSoFar";
-         else
-            firstFail = "rulesetDisabled";
-      }
-      else
-         firstFail = "rulesetDisabled";
+      const string streakFail = AlgoCleanStreakGateFirstFail(algoSlot1, barIdx);
+      if(streakFail != "")
+         firstFail = streakFail;
+      else if(!bounceOK)
+         AlgoRulesetContextGateFirstFailOrRulesetDisabled(algoSlot1, barIdx, firstFail);
    }
-   else if(direction == "short" && algoSlot1 == MAGIC_ALGO12 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak <=
-         g_algoProfile.algo12.min_anchorBelow_cleanStreak)
-      firstFail = "anchorBelowTooLow";
-   else if(direction == "short" && algoSlot1 == MAGIC_ALGO12 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo12.min_cleanOHLC_streak_count)
-      firstFail = "cleanOHLC_streakTooShort";
-   else if(direction == "short" && algoSlot1 == MAGIC_ALGO14 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak <=
-         g_algoProfile.algo14.min_anchorBelow_cleanStreak)
-      firstFail = "anchorBelowTooLow";
-   else if(direction == "short" && algoSlot1 == MAGIC_ALGO14 &&
-      g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= g_algoProfile.algo14.min_cleanOHLC_streak_count)
-      firstFail = "cleanOHLC_streakTooShort";
-   else if(direction == "short" && !ceilingOK)
+   else if(direction == "short")
    {
-      if(algoSlot1 == MAGIC_ALGO12)
-      {
-         if(!g_algoProfile.algo12.enabled)
-            firstFail = "rulesetDisabled";
-         else if(FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo12.ceilingMaxAllowed_today)
-            firstFail = "ceilingCountTooHigh";
-         else if(g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay_forThisAlgo > 0)
-         {
-            const int tierAtBar = FalgoClosestWeeklyLevelTierAtBar(barIdx);
-            if(tierAtBar >= 1 &&
-               FalgoShortTradeCountTodayAtTierForThisAlgo(MAGIC_ALGO12, tierAtBar) >= g_algoProfile.algo12.max_allowed_shorts_perLevel_perDay_forThisAlgo)
-               firstFail = "shortsAtLevelLimit";
-            else
-               firstFail = "rulesetDisabled";
-         }
-         else
-            firstFail = "rulesetDisabled";
-      }
-      else if(algoSlot1 == MAGIC_ALGO14)
-      {
-         const double anchorLvl = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
-         if(FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo14.ceilingMaxAllowed_today)
-            firstFail = "dailyCeilingCountTooHigh";
-         else if(FalgoGetWeekCeilingCountForClosestWeeklyLevel(barIdx) > g_algoProfile.algo14.max_weekly_ceiling_allowed)
-            firstFail = "weeklyCeilingCountTooHigh";
-         else if(!Gate_Level_AbsDiff_with_ONO_atLeastX(anchorLvl, g_algoProfile.algo14.min_levelOnoAbsDiff))
-            firstFail = "levelOnoAbsDiffTooLow";
-         else if(g_algoProfile.algo14.max_allowed_shorts_perLevel_perDay_forThisAlgo > 0)
-         {
-            const int tierAtBar = FalgoClosestWeeklyLevelTierAtBar(barIdx);
-            if(tierAtBar >= 1 &&
-               FalgoShortTradeCountTodayAtTierForThisAlgo(MAGIC_ALGO14, tierAtBar) >= g_algoProfile.algo14.max_allowed_shorts_perLevel_perDay_forThisAlgo)
-               firstFail = "shortsAtLevelLimit";
-            else
-               firstFail = "rulesetDisabled";
-         }
-         else
-            firstFail = "rulesetDisabled";
-      }
-      else
-         firstFail = "rulesetDisabled";
+      const string streakFail = AlgoCleanStreakGateFirstFail(algoSlot1, barIdx);
+      if(streakFail != "")
+         firstFail = streakFail;
+      else if(!ceilingOK)
+         AlgoRulesetContextGateFirstFailOrRulesetDisabled(algoSlot1, barIdx, firstFail);
    }
    else if(!magicFree) firstFail = "algoOccupied";
    else if(!proxOK) firstFail = "proximity";
@@ -7084,7 +7132,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo14.priceProximityShorts                            =  5.0;
    g_algoProfile.algo14.short_expiry_minutes                              =  8;
    //=== algo15 TUNE BLOCK (long; PD_red / dayBrokePDL=false / aboveONL / belowDayHighSoFar gates) ===
-   g_algoProfile.algo15.enabled                                         = false;
+   g_algoProfile.algo15.enabled                                         = true;
    g_algoProfile.algo15.blockPlacementIfFamilyOpenOrPending             = false;
    g_algoProfile.algo15.tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
    g_algoProfile.algo15.tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
@@ -7116,7 +7164,42 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoProfile.algo15.levelOffset_longs                               = 0.4;
    g_algoProfile.algo15.priceProximityLongs                             =  4.0;
    g_algoProfile.algo15.long_expiry_minutes                              =  5;
-   //=== end tune blocks ===
+   //=== algo16 TUNE BLOCK (algo12-like short + dayBrokePDH=false | belowPDH | aboveDayLowSoFar) ===
+   g_algoProfile.algo16.enabled                                         = true;
+   g_algoProfile.algo16.blockPlacementIfFamilyOpenOrPending             = false;
+   g_algoProfile.algo16.tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
+   g_algoProfile.algo16.tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
+   g_algoProfile.algo16.tune.babysitStart_minute                                     =  0;
+   g_algoProfile.algo16.tune.neutral_trade_TP                                         =  2.1;
+   g_algoProfile.algo16.tune.strong_trade_TP                                         =  3.8;
+   g_algoProfile.algo16.tune.strong_trade_mode_enabled                               = true;
+   g_algoProfile.algo16.tune.badtrade_mode_enabled                                    = true;
+   g_algoProfile.algo16.tune.terribletrade_mode_enabled                               = true;
+   g_algoProfile.algo16.tune.strong_trade_eval_min_profit_pts                      =  1.8;
+   g_algoProfile.algo16.tune.strong_trade_min_velocity_trigger                             = 0.4;
+   g_algoProfile.algo16.tune.strong_trade_velocity_window_seconds                  =   10;
+   g_algoProfile.algo16.tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
+   g_algoProfile.algo16.tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
+   g_algoProfile.algo16.tune.strong_trade_stall_min_close_profit_pts               =  2.5;
+   g_algoProfile.algo16.tune.telemetry_velocity_window_seconds                        = 10;
+   g_algoProfile.algo16.tune.telemetry_avg_velocity_window_seconds                    =   10;
+   g_algoProfile.algo16.tune.trade_telemetry_per_second_enabled                       = true;
+   g_algoProfile.algo16.tune.badtrade_profit_trigger                                  =  -3.0;
+   g_algoProfile.algo16.tune.badtrade_totalRedSeconds_minTrigger                      =   90;
+   g_algoProfile.algo16.tune.badtrade_try_save_TP                                     =   1.0;
+   g_algoProfile.algo16.tune.terribletrade_profit_trigger                             =  -5.5;
+   g_algoProfile.algo16.tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algoProfile.algo16.tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
+   g_algoProfile.algo16.tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
+   g_algoProfile.algo16.ceilingMaxAllowed_today                         =  2;
+   g_algoProfile.algo16.max_allowed_shorts_perLevel_perDay_forThisAlgo                =  1;
+   g_algoProfile.algo16.recentCeilingCountToday_Minutes                 = 300;
+   g_algoProfile.algo16.min_anchorBelow_cleanStreak                     = 11.0;
+   g_algoProfile.algo16.min_cleanOHLC_streak_count                      =    2;
+   g_algoProfile.algo16.levelOffset_shorts                              =  1.4;
+   g_algoProfile.algo16.priceProximityShorts                            =  5.0;
+   g_algoProfile.algo16.short_expiry_minutes                              =  8;
+   //=== algobookmark3 end tune blocks ===
 
    g_algoProfile.shared.tradeSizePct = 100;
    g_algoProfile.shared.bannedRanges = "21,35,23,59;0,0,1,0";
@@ -8283,6 +8366,178 @@ bool Gate_Level_AbsDiff_with_ONO_atLeastX(const double levelPx, const double min
 }
 
 //+------------------------------------------------------------------+
+//| Closest-weekly-level bounce/ceiling gates (reusable; not tied to a single algo). |
+//+------------------------------------------------------------------+
+bool Gate_ClosestWeeklyLevel_HasValue(const int barIdx)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose > 0.0);
+}
+
+bool Gate_BounceCount_AtLeastX(const int barIdx, const int minCount)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (FalgoGetBounceCountForClosestWeeklyLevel(barIdx) >= minCount);
+}
+
+bool Gate_BounceCount_NoMoreThanX(const int barIdx, const int maxAllowed)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (FalgoGetBounceCountForClosestWeeklyLevel(barIdx) <= maxAllowed);
+}
+
+bool Gate_RecentBounceCount_NoMoreThanX(const int barIdx, const int maxAllowed)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (FalgoGetRecentBounceCountForClosestWeeklyLevel(barIdx) < maxAllowed);
+}
+
+bool Gate_WeekBounceCount_NoMoreThanX(const int barIdx, const int maxAllowed)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (FalgoGetWeekBounceCountForClosestWeeklyLevel(barIdx) <= maxAllowed);
+}
+
+bool Gate_CeilingCount_NoMoreThanX(const int barIdx, const int maxAllowed)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (FalgoGetCeilingCountForClosestWeeklyLevel(barIdx) <= maxAllowed);
+}
+
+bool Gate_WeekCeilingCount_NoMoreThanX(const int barIdx, const int maxAllowed)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (FalgoGetWeekCeilingCountForClosestWeeklyLevel(barIdx) <= maxAllowed);
+}
+
+bool Gate_ShortsAtLevel_UnderDailyLimit(const int barIdx, const int algoNumber, const int maxShortsPerLevel)
+{
+   if(maxShortsPerLevel <= 0) return true;
+   const int tier = FalgoClosestWeeklyLevelTierAtBar(barIdx);
+   if(tier < 1) return true;
+   return (FalgoShortTradeCountTodayAtTierForThisAlgo(algoNumber, tier) < maxShortsPerLevel);
+}
+
+//+------------------------------------------------------------------+
+//| analyze-style firstFail labels for gates above ("" = pass). |
+//+------------------------------------------------------------------+
+string GateFail_ClosestWeeklyLevel_Missing(const int barIdx)
+{
+   if(!Gate_ClosestWeeklyLevel_HasValue(barIdx)) return "noClosestWeeklyLevel";
+   return "";
+}
+
+string GateFail_BounceCount_TooLow(const int barIdx, const int minCount)
+{
+   if(!Gate_BounceCount_AtLeastX(barIdx, minCount)) return "bounceTooLow";
+   return "";
+}
+
+string GateFail_BounceCount_TooHigh(const int barIdx, const int maxAllowed, const string failLabel)
+{
+   if(!Gate_BounceCount_NoMoreThanX(barIdx, maxAllowed)) return failLabel;
+   return "";
+}
+
+string GateFail_RecentBounceCount_TooHigh(const int barIdx, const int maxAllowed)
+{
+   if(!Gate_RecentBounceCount_NoMoreThanX(barIdx, maxAllowed)) return "recentBounceTooHigh";
+   return "";
+}
+
+string GateFail_WeekBounceCount_TooHigh(const int barIdx, const int maxAllowed)
+{
+   if(!Gate_WeekBounceCount_NoMoreThanX(barIdx, maxAllowed)) return "weeklyBounceCountTooHigh";
+   return "";
+}
+
+string GateFail_CeilingCount_TooHigh(const int barIdx, const int maxAllowed, const string failLabel)
+{
+   if(!Gate_CeilingCount_NoMoreThanX(barIdx, maxAllowed)) return failLabel;
+   return "";
+}
+
+string GateFail_WeekCeilingCount_TooHigh(const int barIdx, const int maxAllowed)
+{
+   if(!Gate_WeekCeilingCount_NoMoreThanX(barIdx, maxAllowed)) return "weeklyCeilingCountTooHigh";
+   return "";
+}
+
+string GateFail_LevelOnoAbsDiff_TooLow(const double levelPx, const double minAbsDiffPoints)
+{
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, minAbsDiffPoints)) return "levelOnoAbsDiffTooLow";
+   return "";
+}
+
+string GateFail_ShortsAtLevel_Limit(const int barIdx, const int algoNumber, const int maxShortsPerLevel)
+{
+   if(!Gate_ShortsAtLevel_UnderDailyLimit(barIdx, algoNumber, maxShortsPerLevel)) return "shortsAtLevelLimit";
+   return "";
+}
+
+string GateFail_PD_red()
+{
+   if(!Gate_PD_red()) return "PD_red";
+   return "";
+}
+
+string GateFail_Day_DayBrokePDL(const int barIdx)
+{
+   if(!Gate_Day_DayBrokePDL_is_FALSE(barIdx)) return "dayBrokePDL";
+   return "";
+}
+
+string GateFail_Day_DayBrokePDH(const int barIdx)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(barIdx)) return "dayBrokePDH";
+   return "";
+}
+
+string GateFail_Level_BelowPDH(const double levelPx)
+{
+   if(!Gate_Level_BelowPDH(levelPx)) return "belowPDH";
+   return "";
+}
+
+string GateFail_Level_AbovedayLowSoFar(const int barIdx, const double levelPx)
+{
+   if(!Gate_Level_AbovedayLowSoFar(barIdx, levelPx)) return "aboveDayLowSoFar";
+   return "";
+}
+
+string GateFail_Level_AboveONL(const int barIdx, const double levelPx)
+{
+   if(!Gate_Level_AboveONL(barIdx, levelPx)) return "aboveONL";
+   return "";
+}
+
+string GateFail_Level_BelowdayHighSoFar(const int barIdx, const double levelPx)
+{
+   if(!Gate_Level_BelowdayHighSoFar(barIdx, levelPx)) return "belowDayHighSoFar";
+   return "";
+}
+
+string GateFail_CleanStreak_Long(const int barIdx, const double minAnchorAbove, const int minStreakCount)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return "";
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak <= minAnchorAbove)
+      return "anchorAboveTooLow";
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= minStreakCount)
+      return "cleanOHLC_streakTooShort";
+   return "";
+}
+
+string GateFail_CleanStreak_Short(const int barIdx, const double minAnchorBelow, const int minStreakCount)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return "";
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak <= minAnchorBelow)
+      return "anchorBelowTooLow";
+   if(g_pullingHistoryAlgoFamilyAtBar[barIdx].cleanOHLC_streak_count <= minStreakCount)
+      return "cleanOHLC_streakTooShort";
+   return "";
+}
+
+//+------------------------------------------------------------------+
 //| True when today's RTH open is resolved and bar kLast is at/after nominal RTH open (safe to call Gate_Level_AbsDiff_with_RTHO_atLeastX). |
 //+------------------------------------------------------------------+
 bool Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(const int kLast)
@@ -8370,7 +8625,7 @@ bool Gate_Day_DayBrokePDH_is_TRUE(const int kLast)
 }
 bool Gate_Day_DayBrokePDH_is_FALSE(const int kLast)
 {
-   return g_dayBrokePDHAtBar[kLast];
+   return !g_dayBrokePDHAtBar[kLast];
 }
 
 bool Gate_Day_DayBrokePDL_is_TRUE(const int kLast)
