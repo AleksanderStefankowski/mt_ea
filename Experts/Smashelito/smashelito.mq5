@@ -2984,13 +2984,12 @@ string MagicNumberToFixedWidthString(long magic)
 #define MAGIC_ALGO13                13
 #define MAGIC_ALGO14                14
 #define MAGIC_ALGO15                15
-#define MAGIC_ALGO16                16
 // algobookmark0 above and below
 // wired algo magic prefixes — add MAGIC_ALGO* define + id here + tune block in Sync
 int g_algoRegistryIds[] =
 {
    MAGIC_ALGO10, MAGIC_ALGO11, MAGIC_ALGO12, MAGIC_ALGO13,
-   MAGIC_ALGO14, MAGIC_ALGO15, MAGIC_ALGO16
+   MAGIC_ALGO14, MAGIC_ALGO15
 };
 
 //+------------------------------------------------------------------+
@@ -3384,6 +3383,7 @@ struct FalgoOpenTradeTelemetry
 struct FalgoTelemetryBarSnap
 {
    bool     valid;
+   long     magic;              // composite magic of trade that produced this bar snap
    int      tradeAgeSeconds;
    double   openProfitPts;
    int      secondsGreen;
@@ -3417,12 +3417,13 @@ struct FalgoClosedTradeTelemetrySummary
 
 FalgoOpenTradeTelemetry g_falgoOpenTelemetrySlots[FALGO_OPEN_TELEMETRY_MAX];
 int g_falgoOpenTelemetryCtx = -1;
-FalgoTelemetryBarSnap g_falgoTelemetryAtBar[MAX_BARS_IN_DAY];
+// Per registry slot (algo 10..15): one bar snap per M1 bar — no cross-algo overwrite.
+FalgoTelemetryBarSnap g_falgoTelemetryAtBar[MAX_BARS_IN_DAY][ALGO_FAMILY_REGISTRY_MAX];
 FalgoClosedTradeTelemetrySummary g_falgoClosedTelemetry[FALGO_CLOSED_TELEMETRY_MAX];
 int g_falgoClosedTelemetryCount = 0;
 datetime g_falgoTelemetryLastUpdateTime = 0;
 datetime g_falgoTelemetryDayStart = 0;
-int g_falgoLastTradeClosedBarIdx = -1;
+int g_falgoLastTradeClosedBarIdx[ALGO_FAMILY_REGISTRY_MAX];
 
 bool PlacePendingFromFalgoMagic(long magic, double anchorLevel, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot);
 void WriteTradeLogPendingOrderFalgo(double levelPrice, double offsetPoints, double slPoints, double tpPoints, long magic, int expirationMin);
@@ -3945,48 +3946,73 @@ void FalgoTelemetryClearAllOpenSlots()
 }
 
 //+------------------------------------------------------------------+
+void FalgoInitPerAlgoTelemetryDayState()
+{
+   for(int ri = 0; ri < ALGO_FAMILY_REGISTRY_MAX; ri++)
+      g_falgoLastTradeClosedBarIdx[ri] = -1;
+   FalgoClearTelemetryBarSnaps();
+}
+
+//+------------------------------------------------------------------+
 void FalgoClearTelemetryBarSnaps()
 {
    for(int barIdx = 0; barIdx < MAX_BARS_IN_DAY; barIdx++)
    {
-      g_falgoTelemetryAtBar[barIdx].valid = false;
-      g_falgoTelemetryAtBar[barIdx].tradeClosedOnThisBar = false;
+      for(int ri = 0; ri < ALGO_FAMILY_REGISTRY_MAX; ri++)
+      {
+         g_falgoTelemetryAtBar[barIdx][ri].valid = false;
+         g_falgoTelemetryAtBar[barIdx][ri].tradeClosedOnThisBar = false;
+      }
    }
 }
 
 //+------------------------------------------------------------------+
-bool FalgoBarIsDedicatedToTradeClose(const int barIdx)
+int FalgoRegistrySlotForAlgoNumber(const int algoNumber)
 {
-   if(barIdx < 0 || barIdx >= g_barsInDay)
+   return AlgoSlotIndexByAlgoId(algoNumber);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoTelemetryBarSnapMatchesAlgo(const int barIdx, const int algoSlot1)
+{
+   const int ri = FalgoRegistrySlotForAlgoNumber(algoSlot1);
+   if(ri < 0 || barIdx < 0 || barIdx >= g_barsInDay)
       return false;
-   return (g_falgoTelemetryAtBar[barIdx].valid && g_falgoTelemetryAtBar[barIdx].tradeClosedOnThisBar);
+   if(!g_falgoTelemetryAtBar[barIdx][ri].valid)
+      return false;
+   return IsAlgoCompositeMagic(g_falgoTelemetryAtBar[barIdx][ri].magic, algoSlot1);
 }
 
 //+------------------------------------------------------------------+
-void FalgoCancelAllPendingFalgoOrdersOnSymbol()
+bool FalgoBarIsDedicatedToTradeCloseForAlgo(const int barIdx, const int algoSlot1)
 {
-   for(int orderIdx = OrdersTotal() - 1; orderIdx >= 0; orderIdx--)
-   {
-      if(!ExtOrderInfo.SelectByIndex(orderIdx))
-         continue;
-      if(ExtOrderInfo.Symbol() != _Symbol)
-         continue;
-      if(!IsAnyAlgoFamilyCompositeMagic(ExtOrderInfo.Magic()))
-         continue;
-      ExtTrade.SetExpertMagicNumber((ulong)ExtOrderInfo.Magic());
-      ExtTrade.OrderDelete(ExtOrderInfo.Ticket());
-      ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
-   }
+   const int ri = FalgoRegistrySlotForAlgoNumber(algoSlot1);
+   if(ri < 0 || barIdx < 0 || barIdx >= g_barsInDay)
+      return false;
+   if(barIdx >= 0 && g_falgoLastTradeClosedBarIdx[ri] >= 0 && barIdx == g_falgoLastTradeClosedBarIdx[ri])
+      return true;
+   if(!g_falgoTelemetryAtBar[barIdx][ri].valid)
+      return false;
+   return g_falgoTelemetryAtBar[barIdx][ri].tradeClosedOnThisBar;
 }
 
+//+------------------------------------------------------------------+
+//| Trade closed: telemetry snap + per-algo close-bar gate only (no OrderDelete). |
 //+------------------------------------------------------------------+
 void FalgoOnFalgoTradeClosedThisBar()
 {
+   if(g_falgoOpenTelemetryCtx < 0 || g_falgoOpenTelemetryCtx >= FALGO_OPEN_TELEMETRY_MAX)
+      return;
+   const int algoNumber = AlgoFamilyMagicNumber(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic);
+   const int ri = FalgoRegistrySlotForAlgoNumber(algoNumber);
    FalgoTelemetrySnapOpenStateToLastBar(true);
-   g_falgoLastTradeClosedBarIdx = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx;
-   if(g_falgoLastTradeClosedBarIdx < 0)
-      g_falgoLastTradeClosedBarIdx = FalgoBarIdxForDayTime(g_lastTimer1Time);
-   FalgoCancelAllPendingFalgoOrdersOnSymbol();
+   if(ri >= 0)
+   {
+      int closedBarIdx = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx;
+      if(closedBarIdx < 0)
+         closedBarIdx = FalgoBarIdxForDayTime(g_lastTimer1Time);
+      g_falgoLastTradeClosedBarIdx[ri] = closedBarIdx;
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -4024,6 +4050,7 @@ void FalgoTelemetrySnapOpenStateToBar(const int barIdx, const bool tradeClosedOn
       return;
    FalgoTelemetryBarSnap snap;
    snap.valid = true;
+   snap.magic = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic;
    snap.tradeAgeSeconds = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds;
    snap.openProfitPts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts;
    snap.secondsGreen = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].secondsGreen;
@@ -4040,7 +4067,10 @@ void FalgoTelemetrySnapOpenStateToBar(const int barIdx, const bool tradeClosedOn
    snap.maePts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts;
    snap.profitFromPeak = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts - g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts;
    snap.tradeClosedOnThisBar = tradeClosedOnThisBar;
-   g_falgoTelemetryAtBar[barIdx] = snap;
+   const int regSlot = FalgoRegistrySlotForAlgoNumber(AlgoFamilyMagicNumber(snap.magic));
+   if(regSlot < 0)
+      return;
+   g_falgoTelemetryAtBar[barIdx][regSlot] = snap;
 }
 
 //+------------------------------------------------------------------+
@@ -4083,25 +4113,8 @@ void FalgoResetTelemetryIfNewDay(const datetime dayStart)
    g_falgoTelemetryDayStart = dayStart;
    g_falgoClosedTelemetryCount = 0;
    g_falgoTelemetryLastUpdateTime = 0;
-   g_falgoLastTradeClosedBarIdx = -1;
-   FalgoClearTelemetryBarSnaps();
+   FalgoInitPerAlgoTelemetryDayState();
    FalgoTelemetryClearAllOpenSlots();
-}
-
-//+------------------------------------------------------------------+
-bool FalgoSelectFirstOpenFalgoPositionOnSymbol()
-{
-   for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
-   {
-      if(!ExtPositionInfo.SelectByIndex(positionIdx))
-         continue;
-      if(ExtPositionInfo.Symbol() != _Symbol)
-         continue;
-      if(!IsAnyAlgoFamilyCompositeMagic(ExtPositionInfo.Magic()))
-         continue;
-      return true;
-   }
-   return false;
 }
 
 //+------------------------------------------------------------------+
@@ -4814,17 +4827,15 @@ void FalgoEnrichAllTradeResultsLevelTpSl()
 }
 
 //+------------------------------------------------------------------+
-bool FalgoRulesetPassesCommonShared(const int barIdx)
+bool FalgoRulesetPassesCloseBarForAlgo(const int algoSlot1, const int barIdx)
 {
-   if(barIdx >= 0 && g_falgoLastTradeClosedBarIdx >= 0 && barIdx == g_falgoLastTradeClosedBarIdx)
-      return false;
-   return true;
+   return !FalgoBarIsDedicatedToTradeCloseForAlgo(barIdx, algoSlot1);
 }
 
 //+------------------------------------------------------------------+
 bool AlgoRulesetPassesCommonForPlacement(const int algoSlot1, const int barIdx)
 {
-   if(!FalgoRulesetPassesCommonShared(barIdx))
+   if(!FalgoRulesetPassesCloseBarForAlgo(algoSlot1, barIdx))
       return false;
    if(!AlgoRulesetPassesDayStops(algoSlot1))
       return false;
@@ -4841,9 +4852,9 @@ bool AlgoRulesetPassesCommonForPlacement(const int algoSlot1, const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-bool FalgoRulesetPassesCommon(const int barIdx)
+bool FalgoRulesetPassesCommonForAlgo(const int algoSlot1, const int barIdx)
 {
-   if(!FalgoRulesetPassesCommonShared(barIdx))
+   if(!FalgoRulesetPassesCloseBarForAlgo(algoSlot1, barIdx))
       return false;
    if(FalgoHasOpenPositionOnSymbol())
       return false;
@@ -4985,7 +4996,7 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
    outUnderLossStop = underThisAlgoLoss && underAllAlgosLoss;
    outUnderWinStop = underThisAlgoWin && underAllAlgosWin;
 
-   const bool tradeCloseDedicatedBar = FalgoBarIsDedicatedToTradeClose(barIdx);
+   const bool tradeCloseDedicatedBar = FalgoBarIsDedicatedToTradeCloseForAlgo(barIdx, algoSlot1);
    outRulesetCommon = outUnderLossStop && outUnderWinStop && !tradeCloseDedicatedBar && outNoOpenPos && outNoPending;
    if(AlgoProfileBlocksOnFamilyOpenOrPending(algoSlot1))
       outRulesetCommon = outRulesetCommon && !FalgoHasOpenPositionOnSymbol() && !FalgoHasPendingOrderOnSymbol();
@@ -5203,14 +5214,14 @@ void FalgoPlanAndLevelTradeNumsFromMagic(const long magic, int &outPlanTradeNumT
 //+------------------------------------------------------------------+
 //| Falgo trade still open at candle close (from g_tradeResults day snapshot). |
 //+------------------------------------------------------------------+
-bool FalgoFindOpenFalgoTradeAsOfCloseTime(const datetime candleCloseTime, TradeResult &outTr)
+bool FalgoFindOpenFalgoTradeAsOfCloseTimeForAlgo(const datetime candleCloseTime, const int algoSlot1, TradeResult &outTr)
 {
    bool found = false;
    datetime bestStart = 0;
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
       TradeResult tr = g_tradeResults[trIdx];
-      if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
+      if(!IsAlgoCompositeMagic(tr.magic, algoSlot1))
          continue;
       if(tr.startTime >= candleCloseTime)
          continue;
@@ -5233,30 +5244,38 @@ bool FalgoFindOpenFalgoTradeAsOfCloseTime(const datetime candleCloseTime, TradeR
 //+------------------------------------------------------------------+
 //| Live Falgo position when g_tradeResults lag (gates log runs before UpdateTradeResultsForDay). |
 //+------------------------------------------------------------------+
-bool FalgoTryBuildTradeResultFromLiveOpenFalgoPosition(const datetime candleCloseTime, TradeResult &outTr)
+bool FalgoTryBuildTradeResultFromLiveOpenFalgoPositionForAlgo(const datetime candleCloseTime, const int algoSlot1, TradeResult &outTr)
 {
-   if(!FalgoSelectFirstOpenFalgoPositionOnSymbol())
-      return false;
-   const datetime startTime = ExtPositionInfo.Time();
-   if(startTime >= candleCloseTime)
-      return false;
-   outTr.symbol = _Symbol;
-   outTr.startTime = startTime;
-   outTr.endTime = candleCloseTime;
-   outTr.magic = ExtPositionInfo.Magic();
-   outTr.priceStart = ExtPositionInfo.PriceOpen();
-   outTr.priceEnd = 0.0;
-   outTr.type = (ExtPositionInfo.PositionType() == POSITION_TYPE_BUY) ? (long)DEAL_TYPE_BUY : (long)DEAL_TYPE_SELL;
-   outTr.foundOut = false;
-   return true;
+   for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(positionIdx))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      if(!IsAlgoCompositeMagic(ExtPositionInfo.Magic(), algoSlot1))
+         continue;
+      const datetime startTime = ExtPositionInfo.Time();
+      if(startTime >= candleCloseTime)
+         return false;
+      outTr.symbol = _Symbol;
+      outTr.startTime = startTime;
+      outTr.endTime = candleCloseTime;
+      outTr.magic = ExtPositionInfo.Magic();
+      outTr.priceStart = ExtPositionInfo.PriceOpen();
+      outTr.priceEnd = 0.0;
+      outTr.type = (ExtPositionInfo.PositionType() == POSITION_TYPE_BUY) ? (long)DEAL_TYPE_BUY : (long)DEAL_TYPE_SELL;
+      outTr.foundOut = false;
+      return true;
+   }
+   return false;
 }
 
 //+------------------------------------------------------------------+
-bool FalgoFindFalgoTradeForGatesBar(const int barIdx, const datetime evalTime, TradeResult &outTr)
+bool FalgoFindFalgoTradeForGatesBarForAlgo(const int barIdx, const datetime evalTime, const int algoSlot1, TradeResult &outTr)
 {
-   if(FalgoFindOpenFalgoTradeAsOfCloseTime(evalTime, outTr))
+   if(FalgoFindOpenFalgoTradeAsOfCloseTimeForAlgo(evalTime, algoSlot1, outTr))
       return true;
-   if(FalgoTryBuildTradeResultFromLiveOpenFalgoPosition(evalTime, outTr))
+   if(FalgoTryBuildTradeResultFromLiveOpenFalgoPositionForAlgo(evalTime, algoSlot1, outTr))
       return true;
    if(barIdx < 0 || barIdx >= g_barsInDay)
       return false;
@@ -5266,7 +5285,7 @@ bool FalgoFindFalgoTradeForGatesBar(const int barIdx, const datetime evalTime, T
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
       TradeResult tr = g_tradeResults[trIdx];
-      if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
+      if(!IsAlgoCompositeMagic(tr.magic, algoSlot1))
          continue;
       if(tr.startTime >= evalTime)
          continue;
@@ -5289,9 +5308,12 @@ bool FalgoFindFalgoTradeForGatesBar(const int barIdx, const datetime evalTime, T
 //+------------------------------------------------------------------+
 //| Gates MFE/MAE = lifetime best/worst floating P/L (pts) from per-second telemetry. |
 //+------------------------------------------------------------------+
-bool FalgoGatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int throughBarIdx,
+bool FalgoGatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int throughBarIdx, const long magic,
    string &outMfePts, string &outMaePts)
 {
+   const int ri = FalgoRegistrySlotForAlgoNumber(AlgoFamilyMagicNumber(magic));
+   if(ri < 0)
+      return false;
    const int entryBarIdx = FalgoBarIdxForDayTime(startTime);
    if(entryBarIdx < 0 || throughBarIdx < entryBarIdx)
       return false;
@@ -5300,20 +5322,22 @@ bool FalgoGatesMfeMaeLifetimeFromBarSnaps(const datetime startTime, const int th
    bool found = false;
    for(int b = entryBarIdx; b <= throughBarIdx && b < g_barsInDay; b++)
    {
-      if(!g_falgoTelemetryAtBar[b].valid)
+      if(!g_falgoTelemetryAtBar[b][ri].valid)
+         continue;
+      if(!IsAlgoCompositeMagic(g_falgoTelemetryAtBar[b][ri].magic, AlgoFamilyMagicNumber(magic)))
          continue;
       if(!found)
       {
-         peak = g_falgoTelemetryAtBar[b].mfePts;
-         mae = g_falgoTelemetryAtBar[b].maePts;
+         peak = g_falgoTelemetryAtBar[b][ri].mfePts;
+         mae = g_falgoTelemetryAtBar[b][ri].maePts;
          found = true;
       }
       else
       {
-         if(g_falgoTelemetryAtBar[b].mfePts > peak)
-            peak = g_falgoTelemetryAtBar[b].mfePts;
-         if(g_falgoTelemetryAtBar[b].maePts < mae)
-            mae = g_falgoTelemetryAtBar[b].maePts;
+         if(g_falgoTelemetryAtBar[b][ri].mfePts > peak)
+            peak = g_falgoTelemetryAtBar[b][ri].mfePts;
+         if(g_falgoTelemetryAtBar[b][ri].maePts < mae)
+            mae = g_falgoTelemetryAtBar[b][ri].maePts;
       }
    }
    if(!found)
@@ -5341,13 +5365,13 @@ bool FalgoGatesMfeMaeLifetimeForTrade(const TradeResult &tr, const int throughBa
       outMaePts = DoubleToString(closedSum.maePts, 1);
       return true;
    }
-   return FalgoGatesMfeMaeLifetimeFromBarSnaps(tr.startTime, throughBarIdx, outMfePts, outMaePts);
+   return FalgoGatesMfeMaeLifetimeFromBarSnaps(tr.startTime, throughBarIdx, tr.magic, outMfePts, outMaePts);
 }
 
 //+------------------------------------------------------------------+
 //| MFE/MAE in points for one gates row (lifetime telemetry while trade was open). |
 //+------------------------------------------------------------------+
-void FalgoGatesMfeMaePointsForBar(const int barIdx, string &outMfePts, string &outMaePts)
+void FalgoGatesMfeMaePointsForBar(const int barIdx, const int algoSlot1, string &outMfePts, string &outMaePts)
 {
    outMfePts = "";
    outMaePts = "";
@@ -5356,7 +5380,7 @@ void FalgoGatesMfeMaePointsForBar(const int barIdx, string &outMfePts, string &o
    const datetime barOpen = g_m1Rates[barIdx].time;
    const datetime evalTime = barOpen + 60;
    TradeResult tr;
-   if(!FalgoFindFalgoTradeForGatesBar(barIdx, evalTime, tr))
+   if(!FalgoFindFalgoTradeForGatesBarForAlgo(barIdx, evalTime, algoSlot1, tr))
       return;
    FalgoGatesMfeMaeLifetimeForTrade(tr, barIdx, outMfePts, outMaePts);
 }
@@ -5424,7 +5448,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
    const bool tradingDay = FalgoIsTradingDayAllowedAtTime(evalTime);
    const bool tradingTime = FalgoIsTradingTimeAllowed(evalTime);
    const bool profileAllows = FalgoProfileAllowsNewOrdersAtTime(evalTime);
-   const bool tradeCloseDedicatedBar = FalgoBarIsDedicatedToTradeClose(barIdx);
+   const bool tradeCloseDedicatedBar = FalgoBarIsDedicatedToTradeCloseForAlgo(barIdx, algoSlot1);
    const bool familyBlock = AlgoProfileBlocksOnFamilyOpenOrPending(algoSlot1);
    const bool isShortAlgo = AlgoSlotTradesShort(algoSlot1);
 
@@ -5460,25 +5484,27 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
    else if(rulesDir && magicFree) firstFail = "";
 
    string mfePts = "", maePts = "";
-   const bool telBarSnapValid = (barIdx >= 0 && barIdx < g_barsInDay && g_falgoTelemetryAtBar[barIdx].valid);
-   if(!noOpen || telBarSnapValid || tradeCloseDedicatedBar)
-      FalgoGatesMfeMaePointsForBar(barIdx, mfePts, maePts);
+   const bool telBarSnapForAlgo = FalgoTelemetryBarSnapMatchesAlgo(barIdx, algoSlot1);
+   const bool algoHasOpenPos = !noOpen;
+   if(algoHasOpenPos || telBarSnapForAlgo || tradeCloseDedicatedBar)
+      FalgoGatesMfeMaePointsForBar(barIdx, algoSlot1, mfePts, maePts);
 
    string telTradeAge = "", telOpenProfit = "", telSecGreen = "", telSecRed = "", telGreenRatio = "";
    string telConsecGreen = "", telConsecRed = "", telProfitVelocity = "", telProfitFromPeak = "";
-   if(telBarSnapValid)
+   if(telBarSnapForAlgo)
    {
+      const int telRi = FalgoRegistrySlotForAlgoNumber(algoSlot1);
       string telMfeDummy = "";
-      FalgoGatesTelemetryStringsFromBarSnap(g_falgoTelemetryAtBar[barIdx],
-         telTradeAge, telOpenProfit, telSecGreen, telSecRed, telGreenRatio,
-         telConsecGreen, telConsecRed, telProfitVelocity, telMfeDummy, telProfitFromPeak);
+      if(telRi >= 0)
+         FalgoGatesTelemetryStringsFromBarSnap(g_falgoTelemetryAtBar[barIdx][telRi],
+            telTradeAge, telOpenProfit, telSecGreen, telSecRed, telGreenRatio,
+            telConsecGreen, telConsecRed, telProfitVelocity, telMfeDummy, telProfitFromPeak);
    }
-   else if(!noOpen)
+   else if(algoHasOpenPos)
    {
       int telSlotIdx = -1;
       TradeResult gatesTr;
-      if(FalgoFindFalgoTradeForGatesBar(barIdx, evalTime, gatesTr) &&
-         IsAlgoCompositeMagic(gatesTr.magic, algoSlot1))
+      if(FalgoFindFalgoTradeForGatesBarForAlgo(barIdx, evalTime, algoSlot1, gatesTr))
          telSlotIdx = FalgoOpenTelemetryFindSlotByMagicStart(gatesTr.magic, gatesTr.startTime);
       if(telSlotIdx < 0)
       {
@@ -6040,9 +6066,6 @@ void RunFalgoTradePipeline()
       FalgoResetPlanCountersIfNewDay(g_m1DayStart);
 
    const int barIdx = g_barsInDay - 1;
-   if(!FalgoRulesetPassesCommonShared(barIdx))
-      return;
-
    RefreshOccupiedMagicsCache();
    for(int si = 0; si < g_algoCount; si++)
    {
@@ -6758,42 +6781,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].levelOffset                               = 0.4;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].priceProximity                             =  4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].expiry_minutes                              =  5;
-   //=== algo16 TUNE BLOCK (algo12-like short + dayBrokePDH=false | belowPDH | aboveDayLowSoFar) ===
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].enabled                                         = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].blockPlacementIfFamilyOpenOrPending             = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_profit_trigger                                  =  -3.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_try_save_TP                                     =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_profit_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].ceilingMaxAllowed_today                         =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].max_allowed_shorts_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].recentCeilingCountToday_Minutes                 = 300;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].min_anchorBelow_cleanStreak                     = 11.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].min_cleanOHLC_streak_count                      =    2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].levelOffset                              =  1.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].priceProximity                            =  5.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].expiry_minutes                              =  8;
    //=== algobookmark3 end tune blocks ===
 
    g_algoShared.tradeSizePct = 100;
@@ -8272,15 +8259,6 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_ONL);
          AlgoRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
          break;
-      case MAGIC_ALGO16:
-         AlgoRuleChainAdd(slotIdx, RULE_CLEAN_STREAK_SHORT, a.min_cleanOHLC_streak_count, 0, a.min_anchorBelow_cleanStreak);
-         AlgoRuleChainAdd(slotIdx, RULE_CEILING_COUNT_TOO_HIGH, a.ceilingMaxAllowed_today, 0, 0, 0, "ceilingCountTooHigh");
-         AlgoRuleChainAdd(slotIdx, RULE_SHORTS_AT_LEVEL_LIMIT, a.max_allowed_shorts_perLevel_perDay_forThisAlgo);
-         AlgoRuleChainAdd(slotIdx, RULE_CLOSEST_WEEKLY_LEVEL_MISSING);
-         AlgoRuleChainAdd(slotIdx, RULE_DAY_BROKE_PDH);
-         AlgoRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
-         AlgoRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_DAY_LOW);
-         break;
       default:
          break;
    }
@@ -8963,6 +8941,7 @@ int OnInit()
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
 
    ValidateMagicCompositionOnInit();
+   FalgoInitPerAlgoTelemetryDayState();
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
