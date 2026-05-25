@@ -65,6 +65,11 @@ bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo 
 bool     bigflipper_log_B_TradeLog                         = true;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_algo_velocity_parameter_testing    = false;  // (date)_algoN_velocity_parameter_testing.csv
 bool     bigflipper_log_algo__trade_telemetry_per_second   = true;  // (date)_algoN_trade_telemetry_per_second.csv
+bool     bigflipper_log_algofamily_per_second = true; // (date)_testing_algofamily_per_second.csv + (date)_algoN_gates_per_second.csv
+int      pullinghistory_per_second_start_hour              = 13;  // inclusive window start (server time)
+int      pullinghistory_per_second_start_minute            =  8;
+int      pullinghistory_per_second_end_hour                = 13;  // inclusive window end (server time)
+int      pullinghistory_per_second_end_minute              = 10;
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit any ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
@@ -376,6 +381,8 @@ struct AlgoSharedProfile
    int    stop_trading_today_if_AllAlgos_losing_trades_count;
    int    stop_trading_today_if_AllAlgos_winning_trades_count;
    bool   blockPlacementIfFamilyOpenOrPending;  // whole algo family: block any algo placement when any family open/pending on _Symbol
+   int    stop_trading_if_day_has_X_wins_0_losses;       // family: stop all algos today when wins>=X and losses==0 (infinity PF cap)
+   double stop_trading_if_day_has_profit_factor_above;   // family: stop all algos today when PF>this and at least 1 loss today
 };
 
 struct AlgoPerAlgoTune
@@ -399,10 +406,11 @@ struct AlgoPerAlgoTune
    int    telemetry_velocity_window_seconds;
    int    telemetry_avg_velocity_window_seconds;
    bool   trade_telemetry_per_second_enabled;  // (date)_algoN_trade_telemetry_per_second.csv during persecond_debug window
-   double badtrade_profit_trigger;             // negative mae latch depth when badtrade_mode_enabled
+   int    start_mae_care_after_x_seconds;      // MAE_post_xx: 0 until this trade age; then track min profit from that second
+   double badtrade_MaePostX_trigger;           // negative MAE_post_xx latch depth when badtrade_mode_enabled
    int    badtrade_totalRedSeconds_minTrigger; // min total red seconds required to latch bad trade
    double badtrade_try_save_TP;                // signed; 0=breakeven; close when profit >= target
-   double terribletrade_profit_trigger;        // negative mae latch depth when terribletrade_mode_enabled
+   double terribletrade_MaePostX_trigger;      // negative MAE_post_xx latch depth when terribletrade_mode_enabled
    int    terribletrade_consecutiveRedSeconds_minTrigger;  // min consecutive red seconds required to latch terrible trade
    double terribletrade_avgProfitVelocity10_trigger;       // avg profit velocity (10s window) must be < this to latch
    double terribletrade_try_smaller_loss_TP;   // signed; 0=breakeven; close when profit >= target
@@ -1796,6 +1804,31 @@ double GetBarClosestPriceProximityToLevel(double h, double l, double level)
    if(l <= level && level <= h) return 0.0;
    if(l > level) return l - level;
    return level - h;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoBarIsFormingM1Bar(const int barIdx)
+{
+   if(barIdx < 0 || g_barsInDay <= 0 || barIdx != g_barsInDay - 1)
+      return false;
+   return (g_m1Rates[barIdx].time == g_lastTimer1Time - (g_lastTimer1Time % 60));
+}
+
+//+------------------------------------------------------------------+
+void AlgoLiveOhlcAndProximityAtBar(const int barIdx, double &o, double &h, double &l, double &c, double &prox)
+{
+   o = g_m1Rates[barIdx].open;
+   h = g_m1Rates[barIdx].high;
+   l = g_m1Rates[barIdx].low;
+   c = g_m1Rates[barIdx].close;
+   if(AlgoBarIsFormingM1Bar(barIdx))
+   {
+      h = MathMax(h, g_liveBid);
+      l = MathMin(l, g_liveBid);
+      c = g_liveBid;
+   }
+   const double anchor = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
+   prox = (anchor > 0.0) ? GetBarClosestPriceProximityToLevel(h, l, anchor) : 0.0;
 }
 
 //+------------------------------------------------------------------+
@@ -3251,6 +3284,8 @@ int g_algoDayWins[ALGO_FAMILY_REGISTRY_MAX];
 int g_algoDayLosses[ALGO_FAMILY_REGISTRY_MAX];
 int g_algoFamilyDayWins = 0;
 int g_algoFamilyDayLosses = 0;
+double g_algoFamilyDayGrossProfit = 0.0;
+double g_algoFamilyDayGrossLossAbs = 0.0;
 
 //+------------------------------------------------------------------+
 bool AlgoFamilyAnyEnabled()
@@ -3328,6 +3363,42 @@ int AlgoDayLossesForSlot(const int algoSlot1)
 }
 
 //+------------------------------------------------------------------+
+double AlgoFamilyDayProfitFactorToday()
+{
+   return ProfitFactorFromGross(g_algoFamilyDayGrossProfit, g_algoFamilyDayGrossLossAbs);
+}
+
+//+------------------------------------------------------------------+
+string AlgoFamilyDayStopFirstFailLabel()
+{
+   if(g_algoShared.stop_trading_if_day_has_X_wins_0_losses > 0 &&
+      g_algoFamilyDayLosses == 0 &&
+      g_algoFamilyDayWins >= g_algoShared.stop_trading_if_day_has_X_wins_0_losses)
+   {
+      return StringFormat("familyWinStop(%d wins 0 losses vs %d)",
+         g_algoFamilyDayWins, g_algoShared.stop_trading_if_day_has_X_wins_0_losses);
+   }
+   if(g_algoShared.stop_trading_if_day_has_profit_factor_above > 0.0 &&
+      g_algoFamilyDayLosses >= 1)
+   {
+      const double pf = AlgoFamilyDayProfitFactorToday();
+      if(pf > g_algoShared.stop_trading_if_day_has_profit_factor_above)
+      {
+         return StringFormat("familyProfitFactorStop(%s vs %s)",
+            FormatDayProfitFactorForCsv(pf),
+            DoubleToString(g_algoShared.stop_trading_if_day_has_profit_factor_above, 1));
+      }
+   }
+   return "";
+}
+
+//+------------------------------------------------------------------+
+bool AlgoFamilyDayAllowsNewTrades()
+{
+   return (AlgoFamilyDayStopFirstFailLabel() == "");
+}
+
+//+------------------------------------------------------------------+
 bool AlgoRulesetPassesDayStops(const int algoSlot1)
 {
    AlgoPerAlgoTune tune;
@@ -3348,6 +3419,8 @@ bool AlgoRulesetPassesDayStops(const int algoSlot1)
       return false;
    if(g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count > 0 &&
       g_algoFamilyDayWins >= g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count)
+      return false;
+   if(!AlgoFamilyDayAllowsNewTrades())
       return false;
    return true;
 }
@@ -3405,6 +3478,7 @@ int AlgoLevelTradeNumTodayAtTier(const int algoSlot1, const int tier)
 }
 
 datetime g_algoGatesLastLoggedBarTime[ALGO_FAMILY_REGISTRY_MAX];
+datetime g_algoGatesPerSecondLastLoggedTime[ALGO_FAMILY_REGISTRY_MAX];
 datetime g_falgoGatesLogDayStart = 0;
 bool g_falgoOrderPlacedLastPipeline = false;
 
@@ -3436,6 +3510,7 @@ struct FalgoOpenTradeTelemetry
    double   openProfitPts;
    double   mfePts;
    double   maePts;
+   double   maePostXPts;
    int      mfeCandle1Based;
    int      maeCandle1Based;
    int      timeToReachNeutralTpSeconds;
@@ -3707,6 +3782,22 @@ int FalgoLevelCleanOHLCStreakAtBar(const int barIdx)
    return 0;
 }
 
+//+------------------------------------------------------------------+
+double FalgoLevelAnchorValueInStreakAtBar(const int barIdx)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay)
+      return 0.0;
+   const double levelPx = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
+   if(levelPx <= 0.0)
+      return 0.0;
+   const double closePx = g_m1Rates[barIdx].close;
+   if(closePx > levelPx)
+      return g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak;
+   if(closePx < levelPx)
+      return g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak;
+   return 0.0;
+}
+
 string AlgoClosestLevelGateFailLabelForIdx(const int expandedLevelIdx)
 {
    if(!FalgoLevelEligibleForClosestAnchor(expandedLevelIdx))
@@ -3758,6 +3849,8 @@ bool FalgoProfileAllowsNewOrdersAtTime(const datetime t)
       return false;
    if(!FalgoIsTradingTimeAllowed(t))
       return false;
+   if(!AlgoFamilyDayAllowsNewTrades())
+      return false;
    return true;
 }
 
@@ -3797,6 +3890,8 @@ void UpdateFalgoDayTradeCounts()
    }
    g_algoFamilyDayWins = 0;
    g_algoFamilyDayLosses = 0;
+   g_algoFamilyDayGrossProfit = 0.0;
+   g_algoFamilyDayGrossLossAbs = 0.0;
    for(int i = 0; i < g_tradeResultsCount; i++)
    {
       if(!g_tradeResults[i].foundOut)
@@ -3807,12 +3902,14 @@ void UpdateFalgoDayTradeCounts()
       if(g_tradeResults[i].profit > 0.0)
       {
          g_algoFamilyDayWins++;
+         g_algoFamilyDayGrossProfit += g_tradeResults[i].profit;
          if(algoIdx >= 0)
             g_algoDayWins[algoIdx]++;
       }
       else if(g_tradeResults[i].profit < 0.0)
       {
          g_algoFamilyDayLosses++;
+         g_algoFamilyDayGrossLossAbs += -g_tradeResults[i].profit;
          if(algoIdx >= 0)
             g_algoDayLosses[algoIdx]++;
       }
@@ -4041,6 +4138,7 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = 0.0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = 0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = 0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds = -1;
@@ -4156,6 +4254,158 @@ int FalgoBarIdxForDayTime(const datetime t)
          return barIdx;
    }
    return -1;
+}
+
+//+------------------------------------------------------------------+
+int FalgoSnapBarIdxAsOfTime(const datetime t)
+{
+   if(g_barsInDay <= 0)
+      return -1;
+   int best = -1;
+   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   {
+      if(g_m1Rates[barIdx].time + 60 <= t)
+         best = barIdx;
+      else
+         break;
+   }
+   return best;
+}
+
+//+------------------------------------------------------------------+
+void PullingHistoryAlgoFamilyOhlcAsOfTime(const datetime t, double &o, double &h, double &l, double &c)
+{
+   o = 0.0;
+   h = 0.0;
+   l = 0.0;
+   c = 0.0;
+   const int formingIdx = FalgoBarIdxForDayTime(t);
+   if(formingIdx >= 0 && g_m1Rates[formingIdx].time == t - (t % 60))
+   {
+      o = g_m1Rates[formingIdx].open;
+      h = MathMax(g_m1Rates[formingIdx].high, g_liveBid);
+      l = MathMin(g_m1Rates[formingIdx].low, g_liveBid);
+      c = g_liveBid;
+      return;
+   }
+   const int snapIdx = FalgoSnapBarIdxAsOfTime(t);
+   if(snapIdx >= 0)
+   {
+      o = g_m1Rates[snapIdx].open;
+      h = g_m1Rates[snapIdx].high;
+      l = g_m1Rates[snapIdx].low;
+      c = g_m1Rates[snapIdx].close;
+   }
+}
+
+//+------------------------------------------------------------------+
+void PullingHistoryAlgoFamilyWriteCsvHeader(const int fh)
+{
+   FileWrite(fh, "time", "O", "H", "L", "C",
+            "ClosestWeeklyLevelToCClose",
+            "closestPriceProximity",
+            "sessionRangeMidpoint",
+            "currentCandle_AvgOf_OHLCnumbers",
+            "cleanOHLC_streak_startTime", "cleanOHLC_streak_count", "cleanOHLC_streak_avgOfOHLC",
+            "ClosestWeeklyLevel_anchorAbove_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorAbove_time",
+            "ClosestWeeklyLevel_anchorBelow_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorBelow_time",
+            "ClosestWeeklyLevel_BounceCount_today",
+            StringFormat("recentBounceCount%d", AlgoFamilyRecentBounceLookbackMinutes()),
+            "ClosestWeeklyLevel_CeilingCount_today",
+            "ClosestWeeklyLevel_CeilingProximityCandles_today",
+            StringFormat("recentCeilingCount%d", AlgoFamilyRecentCeilingLookbackMinutes()),
+            "ClosestWeeklyLevel_contactCount_today",
+            "accOpenTradeNowBool", "accOpenTradeTime", "accLastClosedTradeTime",
+            "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "dayProfitFactor");
+}
+
+//+------------------------------------------------------------------+
+void PullingHistoryAlgoFamilyWriteCsvRow(const int fh, const datetime rowTime, const int snapBarIdx,
+   const double o, const double h, const double l, const double c, const int timeFormat)
+{
+   if(snapBarIdx < 0 || snapBarIdx >= g_barsInDay)
+      return;
+   PullingHistoryAlgoFamilyBarSnap snap = g_pullingHistoryAlgoFamilyAtBar[snapBarIdx];
+   string streakStartStr = (snap.cleanOHLC_streak_count > 0) ?
+      TimeToString(snap.cleanOHLC_streak_startTime, TIME_DATE|TIME_MINUTES) : "";
+   string anchorAboveTimeStr = (snap.closestWeeklyLevel_anchorAbove_time > 0) ?
+      TimeToString(snap.closestWeeklyLevel_anchorAbove_time, TIME_DATE|TIME_MINUTES) : "";
+   string anchorBelowTimeStr = (snap.closestWeeklyLevel_anchorBelow_time > 0) ?
+      TimeToString(snap.closestWeeklyLevel_anchorBelow_time, TIME_DATE|TIME_MINUTES) : "";
+   string accOpenTimeStr = (snap.accOpenTradeTime > 0) ?
+      TimeToString(snap.accOpenTradeTime, TIME_DATE|TIME_MINUTES) : "";
+   string accLastClosedStr = (snap.accLastClosedTradeTime > 0) ?
+      TimeToString(snap.accLastClosedTradeTime, TIME_DATE|TIME_MINUTES) : "";
+   FileWrite(fh, TimeToString(rowTime, timeFormat),
+            DoubleToString(o, _Digits), DoubleToString(h, _Digits), DoubleToString(l, _Digits), DoubleToString(c, _Digits),
+            DoubleToString(snap.closestWeeklyLevelToCClose, _Digits),
+            DoubleToString(snap.closestPriceProximity, _Digits),
+            (g_sessionRangeMidpointAtBar[snapBarIdx].hasValue ? DoubleToString(g_sessionRangeMidpointAtBar[snapBarIdx].value, 2) : "unknown"),
+            DoubleToString(snap.currentCandle_AvgOf_OHLCnumbers, _Digits),
+            streakStartStr, IntegerToString(snap.cleanOHLC_streak_count), DoubleToString(snap.cleanOHLC_streak_avgOfOHLC, _Digits),
+            DoubleToString(snap.closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak, _Digits), anchorAboveTimeStr,
+            DoubleToString(snap.closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak, _Digits), anchorBelowTimeStr,
+            IntegerToString(snap.closestWeeklyLevel_BounceCount_today),
+            IntegerToString(snap.closestWeeklyLevel_BounceCount_recent),
+            IntegerToString(snap.closestWeeklyLevel_CeilingCount_today),
+            IntegerToString(snap.closestWeeklyLevel_CeilingProximityCandles_today),
+            IntegerToString(snap.closestWeeklyLevel_CeilingCount_recent),
+            IntegerToString(snap.closestWeeklyLevel_contactCount_today),
+            (snap.accOpenTradeNowBool ? "true" : "false"), accOpenTimeStr, accLastClosedStr,
+            DoubleToString(snap.dayWinRate * 100.0, 0), IntegerToString(snap.dayTradesCount),
+            DoubleToString(snap.dayPointsSum, _Digits), DoubleToString(snap.dayProfitSum, 2),
+            FormatDayProfitFactorForCsv(snap.dayProfitFactor));
+}
+
+//+------------------------------------------------------------------+
+bool FalgoIsTimeInAlgoFamilyPerSecondWindow(const datetime t)
+{
+   if(!bigflipper_log_algofamily_per_second)
+      return false;
+   MqlDateTime dt;
+   TimeToStruct(t, dt);
+   const int minuteOfDay = dt.hour * 60 + dt.min;
+   const int startMin = pullinghistory_per_second_start_hour * 60 + pullinghistory_per_second_start_minute;
+   const int endMin = pullinghistory_per_second_end_hour * 60 + pullinghistory_per_second_end_minute;
+   if(startMin <= endMin)
+      return (minuteOfDay >= startMin && minuteOfDay <= endMin);
+   return (minuteOfDay >= startMin || minuteOfDay <= endMin);
+}
+
+//+------------------------------------------------------------------+
+void FalgoTryLogAlgoFamilyPerSecond()
+{
+   if(!FalgoIsTimeInAlgoFamilyPerSecondWindow(g_lastTimer1Time))
+      return;
+   if(g_barsInDay <= 0 || g_m1DayStart == 0)
+      return;
+   const int snapBarIdx = FalgoSnapBarIdxAsOfTime(g_lastTimer1Time);
+   if(snapBarIdx < 0)
+      return;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   const string dateStr = TimeToString(dayStart, TIME_DATE);
+   const string fname = dateStr + "_testing_algofamily_per_second.csv";
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh != INVALID_HANDLE)
+   {
+      FileSeek(fh, 0, SEEK_END);
+      if(FileTell(fh) == 0)
+         PullingHistoryAlgoFamilyWriteCsvHeader(fh);
+      double o = 0.0, h = 0.0, l = 0.0, c = 0.0;
+      PullingHistoryAlgoFamilyOhlcAsOfTime(g_lastTimer1Time, o, h, l, c);
+      PullingHistoryAlgoFamilyWriteCsvRow(fh, g_lastTimer1Time, snapBarIdx, o, h, l, c, TIME_DATE|TIME_SECONDS);
+      FileClose(fh);
+   }
+   const int placementBarIdx = g_barsInDay - 1;
+   for(int si = 0; si < g_algoCount; si++)
+   {
+      const int algoNumber = g_algos[si].algo_id;
+      if(!AlgoSlotEnabled(algoNumber))
+         continue;
+      AlgoAppendGatesLogRow(placementBarIdx, algoNumber, true);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -4334,6 +4584,15 @@ string AlgoGatesColAvgProfitVelocity(const int algoSlot1)
 }
 
 //+------------------------------------------------------------------+
+string AlgoGatesColMaePostX(const int algoSlot1)
+{
+   AlgoPerAlgoTune tune;
+   if(!AlgoLoadPerAlgoTune(algoSlot1, tune) || tune.start_mae_care_after_x_seconds <= 0)
+      return "MAE_post_0";
+   return StringFormat("MAE_post_%d", tune.start_mae_care_after_x_seconds);
+}
+
+//+------------------------------------------------------------------+
 string FalgoGatesColProfitVelocity()
 {
    if(!g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].active)
@@ -4384,6 +4643,7 @@ void FalgoTelemetryInitFromSelectedPosition()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = profitPts;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime, g_lastTimer1Time);
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx = FalgoBarIdxForDayTime(g_lastTimer1Time);
@@ -4489,9 +4749,12 @@ bool FalgoBadTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
 {
    if(!tune.badtrade_mode_enabled)
       return false;
-   if(tune.badtrade_profit_trigger >= 0.0)
+   if(tune.badtrade_MaePostX_trigger >= 0.0)
       return false;
-   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts > PointSized(tune.badtrade_profit_trigger))
+   if(tune.start_mae_care_after_x_seconds > 0 &&
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds < tune.start_mae_care_after_x_seconds)
+      return false;
+   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts > PointSized(tune.badtrade_MaePostX_trigger))
       return false;
    if(tune.badtrade_totalRedSeconds_minTrigger > 0 &&
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].secondsRed < tune.badtrade_totalRedSeconds_minTrigger)
@@ -4504,9 +4767,12 @@ bool FalgoTerribleTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
 {
    if(!tune.terribletrade_mode_enabled)
       return false;
-   if(tune.terribletrade_profit_trigger >= 0.0)
+   if(tune.terribletrade_MaePostX_trigger >= 0.0)
       return false;
-   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts > PointSized(tune.terribletrade_profit_trigger))
+   if(tune.start_mae_care_after_x_seconds > 0 &&
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds < tune.start_mae_care_after_x_seconds)
+      return false;
+   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts > PointSized(tune.terribletrade_MaePostX_trigger))
       return false;
    if(tune.terribletrade_consecutiveRedSeconds_minTrigger > 0 &&
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].consecutiveRed < tune.terribletrade_consecutiveRedSeconds_minTrigger)
@@ -4610,13 +4876,14 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
    FileSeek(fh, 0, SEEK_END);
    if(FileTell(fh) == 0)
    {
+      const int algoNum = AlgoFamilyMagicNumber(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic);
       FileWrite(fh,
-         "time", "openProfitPts", "MFE", "MAE", "tradeAgeSeconds",
+         "time", "openProfitPts", "MFE", "MAE", AlgoGatesColMaePostX(algoNum), "tradeAgeSeconds",
          "secondsGreen", "secondsRed", "greenRatio", "consecutiveGreen", "consecutiveRed",
-         AlgoGatesColProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic)),
-         AlgoGatesColAvgProfitVelocity(AlgoFamilyMagicNumber(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic)),
-         "profitFromPeak", "timeToReachNeutralTpSeconds",
-         "exit_mode", "exit_mode_prev", "exit_mode_changed",
+         AlgoGatesColProfitVelocity(algoNum),
+         AlgoGatesColAvgProfitVelocity(algoNum),
+         "profitFromPeak",
+         "exit_mode", "exit_mode_prev",
          "event_type", "close_reason", "close_detail",
          "magic", "positionTicket");
    }
@@ -4627,6 +4894,7 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
       DoubleToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts, 1),
       DoubleToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts, 1),
       DoubleToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts, 1),
+      DoubleToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts, 1),
       IntegerToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds),
       IntegerToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].secondsGreen),
       IntegerToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].secondsRed),
@@ -4636,11 +4904,8 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
       DoubleToString(profitVelocity, 3),
       DoubleToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].avgProfitVelocity, 3),
       DoubleToString(profitFromPeak, 1),
-      (g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds >= 0
-         ? IntegerToString(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds) : ""),
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].exitMode,
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].exitModePrev,
-      (g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].exitModeChanged ? "true" : "false"),
       eventType,
       FalgoSanitizeCsvCell(closeReason),
       FalgoSanitizeCsvCell(closeDetail),
@@ -4737,6 +5002,22 @@ void FalgoTryLogVelocityParameterTesting()
 }
 
 //+------------------------------------------------------------------+
+void FalgoOpenTelemetryUpdateMaePostX(const AlgoPerAlgoTune &tune, const double profitPts)
+{
+   const int age = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds;
+   const int startSec = tune.start_mae_care_after_x_seconds;
+   if(startSec <= 0 || age < startSec)
+   {
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = 0.0;
+      return;
+   }
+   if(age == startSec)
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = profitPts;
+   else if(profitPts < g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts)
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = profitPts;
+}
+
+//+------------------------------------------------------------------+
 void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
 {
    AlgoPerAlgoTune telTune;
@@ -4767,6 +5048,7 @@ void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = profitPts;
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime, g_lastTimer1Time);
    }
+   FalgoOpenTelemetryUpdateMaePostX(telTune, profitPts);
    FalgoTryLatchTradeRecoveryModes(telTune);
    if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds < 0 &&
       profitPts >= PointSized(telTune.neutral_trade_TP))
@@ -5106,7 +5388,8 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
    bool &outProxOK, bool &outBounceOK, bool &outCeilingOK, bool &outWeeklyOK,
    bool &outClosestLevelCategoryOK, bool &outClosestLevelPlacementOK,
    bool &outMagicFree, bool &outUnderLossStop, bool &outUnderWinStop,
-   bool &outNoOpenPos, bool &outNoPending, bool &outRulesetCommon, bool &outRulesetDir)
+   bool &outNoOpenPos, bool &outNoPending, bool &outRulesetCommon, bool &outRulesetDir,
+   const bool useLiveCloseAndProx = false)
 {
    outCloseVsLevel = "no_level";
    outDirection = "none";
@@ -5129,8 +5412,13 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
       return;
 
    const double anchor = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
-   const double prox = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity;
-   const double c = g_m1Rates[barIdx].close;
+   double prox = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity;
+   double c = g_m1Rates[barIdx].close;
+   if(useLiveCloseAndProx)
+   {
+      double oLive = 0.0, hLive = 0.0, lLive = 0.0;
+      AlgoLiveOhlcAndProximityAtBar(barIdx, oLive, hLive, lLive, c, prox);
+   }
 
    bool underThisAlgoLoss = true, underAllAlgosLoss = true;
    bool underThisAlgoWin = true, underAllAlgosWin = true;
@@ -5537,11 +5825,14 @@ string AlgoGatesComputeFirstFail(const int algoSlot1, const int barIdx, const in
    const bool tradeCloseDedicatedBar, const bool familyBlock, const bool isShortAlgo,
    const string closeVs, const string direction,
    const bool weeklyOK, const bool closestLevelCategoryOK, const bool proxOK,
-   const bool bounceOK, const bool ceilingOK, const bool magicFree)
+   const bool bounceOK, const bool ceilingOK, const bool magicFree,
+   const double proxForLabel = -1.0)
 {
    if(!profileEnabled) return "profileDisabled";
    if(!tradingDay) return "tradingDayBanned";
    if(!tradingTime) return "tradingTimeBanned";
+   const string familyDayStop = AlgoFamilyDayStopFirstFailLabel();
+   if(familyDayStop != "") return familyDayStop;
    if(!underLoss) return "lossStopDayLimit";
    if(!underWin) return "winStopDayLimit";
    if(!noOpen) return "openFalgoPositionThis";
@@ -5559,8 +5850,11 @@ string AlgoGatesComputeFirstFail(const int algoSlot1, const int barIdx, const in
       double proxLimit = 0.0, offsetDummy = 0.0;
       int expDummy = 0;
       AlgoPlacementParamsForAlgo(algoSlot1, offsetDummy, proxLimit, expDummy);
+      const double proxVal = (proxForLabel >= 0.0)
+         ? proxForLabel
+         : g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity;
       return StringFormat("proximity(%s vs %s)",
-         DoubleToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity, _Digits),
+         DoubleToString(proxVal, _Digits),
          DoubleToString(proxLimit, _Digits));
    }
    if(!closestLevelCategoryOK) return AlgoClosestLevelGateFailLabelForIdx(closestLevelExpandedIdx);
@@ -5594,7 +5888,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
          "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "failGateCount", "MFE", "MAE",
          "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
          "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
-         "closestProximity", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
+         "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
          "closeVsLevel", "direction", "levelTier",
          "plannedTradeNumber", "dayWins", "dayLosses");
       return;
@@ -5604,20 +5898,56 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
       "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "failGateCount", "MFE", "MAE",
       "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
       "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
-      "closestProximity", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
+      "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
       "closeVsLevel", "direction", "levelTier",
       "plannedTradeNumber", "dayWins", "dayLosses");
 }
 
 //+------------------------------------------------------------------+
-void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
+void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool perSecond = false)
 {
-   if(!bigflipper_log_algo_gates_per_minute)
-      return;
+   if(!perSecond)
+   {
+      if(!bigflipper_log_algo_gates_per_minute)
+         return;
+   }
    if(barIdx < 0 || barIdx >= g_barsInDay || g_m1DayStart == 0)
       return;
-   const datetime barTime = g_m1Rates[barIdx].time;
-   const datetime evalTime = barTime + 60;
+
+   const datetime rowTime = perSecond ? g_lastTimer1Time : g_m1Rates[barIdx].time;
+   if(perSecond)
+   {
+      if(g_falgoGatesLogDayStart != g_m1DayStart)
+      {
+         g_falgoGatesLogDayStart = g_m1DayStart;
+         for(int gi = 0; gi < ALGO_FAMILY_REGISTRY_MAX; gi++)
+         {
+            g_algoGatesLastLoggedBarTime[gi] = 0;
+            g_algoGatesPerSecondLastLoggedTime[gi] = 0;
+         }
+      }
+      const int algoIdx = AlgoFamilySlotArrayIndex(algoSlot1);
+      if(algoIdx >= 0 && rowTime == g_algoGatesPerSecondLastLoggedTime[algoIdx])
+         return;
+      if(algoIdx >= 0)
+         g_algoGatesPerSecondLastLoggedTime[algoIdx] = rowTime;
+   }
+
+   const datetime evalTime = perSecond ? g_lastTimer1Time : (rowTime + 60);
+   const int dataBarIdx = barIdx;
+
+   double rowO = 0.0, rowH = 0.0, rowL = 0.0, rowC = 0.0, liveProx = -1.0;
+   if(perSecond)
+   {
+      AlgoLiveOhlcAndProximityAtBar(dataBarIdx, rowO, rowH, rowL, rowC, liveProx);
+   }
+   else
+   {
+      rowO = g_m1Rates[barIdx].open;
+      rowH = g_m1Rates[barIdx].high;
+      rowL = g_m1Rates[barIdx].low;
+      rowC = g_m1Rates[barIdx].close;
+   }
 
    string closeVs = "", direction = "";
    int tier = 0;
@@ -5626,39 +5956,49 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
    bool magicFree = false;
    bool underLoss = false, underWin = false, noOpen = false, noPending = false;
    bool rulesCommon = false, rulesDir = false;
-   AlgoEvaluateGatesAtBarForAlgo(algoSlot1, barIdx, evalTime, closeVs, direction, tier,
+   AlgoEvaluateGatesAtBarForAlgo(algoSlot1, dataBarIdx, evalTime, closeVs, direction, tier,
       proxOK, bounceOK, ceilingOK, weeklyOK, closestLevelCategoryOK, closestLevelPlacementOK, magicFree,
-      underLoss, underWin, noOpen, noPending, rulesCommon, rulesDir);
-   const int closestLevelExpandedIdx = FalgoClosestExpandedLevelIdxAtBar(barIdx);
+      underLoss, underWin, noOpen, noPending, rulesCommon, rulesDir, perSecond);
+   const int closestLevelExpandedIdx = FalgoClosestExpandedLevelIdxAtBar(dataBarIdx);
 
    const int plannedTradeNumber = AlgoPlanTradeNumToday(algoSlot1) + 1;
-   const string plannedTradePrice = FalgoPlannedTradePriceForGates(barIdx, closeVs, algoSlot1);
+   const string plannedTradePrice = FalgoPlannedTradePriceForGates(dataBarIdx, closeVs, algoSlot1);
 
    const bool profileEnabled = AlgoSlotEnabled(algoSlot1);
    const bool tradingDay = FalgoIsTradingDayAllowedAtTime(evalTime);
    const bool tradingTime = FalgoIsTradingTimeAllowed(evalTime);
-   const bool tradeCloseDedicatedBar = FalgoBarIsDedicatedToTradeCloseForAlgo(barIdx, algoSlot1);
+   const bool tradeCloseDedicatedBar = FalgoBarIsDedicatedToTradeCloseForAlgo(dataBarIdx, algoSlot1);
    const bool familyBlock = AlgoFamilyBlocksPlacementOnOpenOrPending();
    const bool isShortAlgo = AlgoSlotTradesShort(algoSlot1);
 
-   const string firstFail = AlgoGatesComputeFirstFail(algoSlot1, barIdx, closestLevelExpandedIdx,
+   const double proxForLabel = (perSecond && liveProx >= 0.0) ? liveProx : -1.0;
+   string firstFail = AlgoGatesComputeFirstFail(algoSlot1, dataBarIdx, closestLevelExpandedIdx,
       profileEnabled, tradingDay, tradingTime, underLoss, underWin, noOpen, noPending,
       tradeCloseDedicatedBar, familyBlock, isShortAlgo, closeVs, direction,
-      weeklyOK, closestLevelCategoryOK, proxOK, bounceOK, ceilingOK, magicFree);
+      weeklyOK, closestLevelCategoryOK, proxOK, bounceOK, ceilingOK, magicFree, proxForLabel);
+
+   if(perSecond && firstFail == "")
+   {
+      const string placementBlock = AlgoPlacementBlockReasonFirstFail(algoSlot1, dataBarIdx);
+      if(placementBlock != "")
+         firstFail = placementBlock;
+   }
 
    int failGateCount = 0;
    if(firstFail != "")
-      failGateCount = AlgoGatesPlacementFailCount(algoSlot1, barIdx,
+      failGateCount = AlgoGatesPlacementFailCount(algoSlot1, dataBarIdx,
          profileEnabled, tradingDay, tradingTime, underLoss, underWin,
          noOpen, tradeCloseDedicatedBar, noPending, familyBlock, isShortAlgo,
          closeVs, direction, weeklyOK, closestLevelCategoryOK, proxOK,
          bounceOK, ceilingOK, magicFree);
+   if(perSecond && firstFail != "" && failGateCount == 0)
+      failGateCount = 1;
 
    string mfePts = "", maePts = "";
-   const bool telBarSnapForAlgo = FalgoTelemetryBarSnapMatchesAlgo(barIdx, algoSlot1);
+   const bool telBarSnapForAlgo = FalgoTelemetryBarSnapMatchesAlgo(dataBarIdx, algoSlot1);
    const bool algoHasOpenPos = !noOpen;
    if(algoHasOpenPos || telBarSnapForAlgo || tradeCloseDedicatedBar)
-      FalgoGatesMfeMaePointsForBar(barIdx, algoSlot1, mfePts, maePts);
+      FalgoGatesMfeMaePointsForBar(dataBarIdx, algoSlot1, mfePts, maePts);
 
    string telTradeAge = "", telOpenProfit = "", telSecGreen = "", telSecRed = "", telGreenRatio = "";
    string telConsecGreen = "", telConsecRed = "", telProfitVelocity = "", telProfitFromPeak = "";
@@ -5667,7 +6007,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
       const int telRi = FalgoRegistrySlotForAlgoNumber(algoSlot1);
       string telMfeDummy = "";
       if(telRi >= 0)
-         FalgoGatesTelemetryStringsFromBarSnap(g_falgoTelemetryAtBar[barIdx][telRi],
+         FalgoGatesTelemetryStringsFromBarSnap(g_falgoTelemetryAtBar[dataBarIdx][telRi],
             telTradeAge, telOpenProfit, telSecGreen, telSecRed, telGreenRatio,
             telConsecGreen, telConsecRed, telProfitVelocity, telMfeDummy, telProfitFromPeak);
    }
@@ -5675,7 +6015,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
    {
       int telSlotIdx = -1;
       TradeResult gatesTr;
-      if(FalgoFindFalgoTradeForGatesBarForAlgo(barIdx, evalTime, algoSlot1, gatesTr))
+      if(FalgoFindFalgoTradeForGatesBarForAlgo(dataBarIdx, evalTime, algoSlot1, gatesTr))
          telSlotIdx = FalgoOpenTelemetryFindSlotByMagicStart(gatesTr.magic, gatesTr.startTime);
       if(telSlotIdx < 0)
       {
@@ -5711,7 +6051,8 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
    }
 
    const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
-   const string fname = AlgoFamilyCsvFileName(dateStr, algoSlot1, "gates_per_minute");
+   const string logSuffix = perSecond ? "gates_per_second" : "gates_per_minute";
+   const string fname = AlgoFamilyCsvFileName(dateStr, algoSlot1, logSuffix);
    int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
@@ -5719,77 +6060,44 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
       return;
    AlgoWriteGatesLogHeaderIfNeeded(fh, algoSlot1);
    FileSeek(fh, 0, SEEK_END);
-   const int weeklyCeilingCountWithDaily = FalgoGetWeekCeilingCountForClosestWeeklyLevel(barIdx);
-   if(algoSlot1 == MAGIC_ALGO15)
-   {
-      FileWrite(fh,
-         TimeToString(barTime, TIME_DATE|TIME_MINUTES),
-         DoubleToString(g_m1Rates[barIdx].open, _Digits),
-         DoubleToString(g_m1Rates[barIdx].high, _Digits),
-         DoubleToString(g_m1Rates[barIdx].low, _Digits),
-         DoubleToString(g_m1Rates[barIdx].close, _Digits),
-         DoubleToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose, _Digits),
-         plannedTradePrice,
-         firstFail,
-         IntegerToString(failGateCount),
-         mfePts,
-         maePts,
-         telTradeAge,
-         telOpenProfit,
-         telSecGreen,
-         telSecRed,
-         telGreenRatio,
-         telConsecGreen,
-         telConsecRed,
-         telProfitVelocity,
-         telProfitFromPeak,
-         DoubleToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity, _Digits),
-         IntegerToString(FalgoLevelCleanOHLCStreakAtBar(barIdx)),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_recent),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_recent),
-         IntegerToString(weeklyCeilingCountWithDaily),
-         closeVs, direction, IntegerToString(tier),
-         IntegerToString(plannedTradeNumber),
-         IntegerToString(AlgoDayWinsForSlot(algoSlot1)), IntegerToString(AlgoDayLossesForSlot(algoSlot1)));
-   }
-   else
-   {
-      FileWrite(fh,
-         TimeToString(barTime, TIME_DATE|TIME_MINUTES),
-         DoubleToString(g_m1Rates[barIdx].open, _Digits),
-         DoubleToString(g_m1Rates[barIdx].high, _Digits),
-         DoubleToString(g_m1Rates[barIdx].low, _Digits),
-         DoubleToString(g_m1Rates[barIdx].close, _Digits),
-         DoubleToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose, _Digits),
-         plannedTradePrice,
-         firstFail,
-         IntegerToString(failGateCount),
-         mfePts,
-         maePts,
-         telTradeAge,
-         telOpenProfit,
-         telSecGreen,
-         telSecRed,
-         telGreenRatio,
-         telConsecGreen,
-         telConsecRed,
-         telProfitVelocity,
-         telProfitFromPeak,
-         DoubleToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity, _Digits),
-         IntegerToString(FalgoLevelCleanOHLCStreakAtBar(barIdx)),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_recent),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_recent),
-         IntegerToString(weeklyCeilingCountWithDaily),
-         closeVs, direction, IntegerToString(tier),
-         IntegerToString(plannedTradeNumber),
-         IntegerToString(AlgoDayWinsForSlot(algoSlot1)), IntegerToString(AlgoDayLossesForSlot(algoSlot1)));
-   }
+   const int weeklyCeilingCountWithDaily = FalgoGetWeekCeilingCountForClosestWeeklyLevel(dataBarIdx);
+   const int timeFormat = perSecond ? (TIME_DATE|TIME_SECONDS) : (TIME_DATE|TIME_MINUTES);
+   const double proxCsv = (perSecond && liveProx >= 0.0)
+      ? liveProx
+      : g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestPriceProximity;
+   FileWrite(fh,
+      TimeToString(rowTime, timeFormat),
+      DoubleToString(rowO, _Digits),
+      DoubleToString(rowH, _Digits),
+      DoubleToString(rowL, _Digits),
+      DoubleToString(rowC, _Digits),
+      DoubleToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevelToCClose, _Digits),
+      plannedTradePrice,
+      firstFail,
+      IntegerToString(failGateCount),
+      mfePts,
+      maePts,
+      telTradeAge,
+      telOpenProfit,
+      telSecGreen,
+      telSecRed,
+      telGreenRatio,
+      telConsecGreen,
+      telConsecRed,
+      telProfitVelocity,
+      telProfitFromPeak,
+      DoubleToString(proxCsv, _Digits),
+      DoubleToString(FalgoLevelAnchorValueInStreakAtBar(dataBarIdx), 1),
+      IntegerToString(FalgoLevelCleanOHLCStreakAtBar(dataBarIdx)),
+      IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_BounceCount_today),
+      IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_BounceCount_recent),
+      IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_CeilingCount_today),
+      IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_CeilingProximityCandles_today),
+      IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_CeilingCount_recent),
+      IntegerToString(weeklyCeilingCountWithDaily),
+      closeVs, direction, IntegerToString(tier),
+      IntegerToString(plannedTradeNumber),
+      IntegerToString(AlgoDayWinsForSlot(algoSlot1)), IntegerToString(AlgoDayLossesForSlot(algoSlot1)));
    FileClose(fh);
 }
 
@@ -5804,7 +6112,10 @@ void FalgoTryLogGatesForClosedMinute()
    {
       g_falgoGatesLogDayStart = g_m1DayStart;
       for(int gi = 0; gi < ALGO_FAMILY_REGISTRY_MAX; gi++)
+      {
          g_algoGatesLastLoggedBarTime[gi] = 0;
+         g_algoGatesPerSecondLastLoggedTime[gi] = 0;
+      }
    }
    int barIdx = g_barsInDay - 2;
    if(g_barsInDay < 2)
@@ -6027,8 +6338,8 @@ bool Babysitf_falgo_runTerribleTradeBabysit(const long posMagic)
    const double targetPts = PointSized(tune.terribletrade_try_smaller_loss_TP);
    return Babysitf_falgo_closeIfProfitTargetTune(posMagic, tune.terribletrade_try_smaller_loss_TP,
       "terribletrade_try_smaller_loss_TP",
-      StringFormat("profit=%.1f|target=%.1f|MAE=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
-         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts));
+      StringFormat("profit=%.1f|target=%.1f|MAE_post=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
+         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts));
 }
 
 //+------------------------------------------------------------------+
@@ -6051,8 +6362,8 @@ bool Babysitf_falgo_runBadTradeBabysit(const long posMagic)
 
    const double targetPts = PointSized(tune.badtrade_try_save_TP);
    return Babysitf_falgo_closeIfProfitTargetTune(posMagic, tune.badtrade_try_save_TP, "badtrade_try_save_TP",
-      StringFormat("profit=%.1f|target=%.1f|MAE=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
-         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts));
+      StringFormat("profit=%.1f|target=%.1f|MAE_post=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
+         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts));
 }
 
 //+------------------------------------------------------------------+
@@ -6162,6 +6473,96 @@ bool FalgoBuildMagicKeyForPlacement(const int algoSlot1, const int barIdx, const
 }
 
 //+------------------------------------------------------------------+
+//| Mirrors AlgoTryPlaceOrderThisTick silent returns as firstFail labels (per-second gates). |
+//+------------------------------------------------------------------+
+string AlgoPlacementBlockReasonFirstFail(const int algoNumber, const int barIdx)
+{
+   if(AlgoSlotIndexByAlgoId(algoNumber) < 0)
+      return "algoNotRegistered";
+   if(!AlgoProfileEnabled(algoNumber))
+      return "profileDisabled";
+   const string familyDayStop = AlgoFamilyDayStopFirstFailLabel();
+   if(familyDayStop != "")
+      return familyDayStop;
+   if(!FalgoProfileAllowsNewOrdersNow())
+      return "profileNoNewOrdersNow";
+
+   const double anchorLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
+   if(anchorLevel <= 0.0)
+      return "noClosestLevel";
+
+   double oDummy = 0.0, hDummy = 0.0, lDummy = 0.0, c = 0.0, prox = 0.0;
+   AlgoLiveOhlcAndProximityAtBar(barIdx, oDummy, hDummy, lDummy, c, prox);
+   if(MathAbs(c - anchorLevel) < 1e-12)
+      return "closeFlatOnLevel";
+
+   int direction = 0;
+   double offsetPoints = 0.0;
+   double proximityLimit = 0.0;
+   int expirationMin = 0;
+   if(c > anchorLevel)
+   {
+      if(AlgoSlotTradesShort(algoNumber))
+         return "longOnly_closeBelowLevel";
+      direction = FALGO_DIRECTION_LONG_LIMIT;
+      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proximityLimit, expirationMin))
+         return "placementParamsMissing";
+      if(!AlgoRulesetPassesForPlacement(algoNumber, barIdx))
+      {
+         string rulesFail = "";
+         AlgoRulesGateFirstFailOrRulesetDisabled(algoNumber, barIdx, rulesFail);
+         return (rulesFail != "") ? rulesFail : "rulesetFail";
+      }
+   }
+   else if(c < anchorLevel)
+   {
+      if(!AlgoSlotTradesShort(algoNumber))
+         return "shortOnly_closeAboveLevel";
+      direction = FALGO_DIRECTION_SHORT_LIMIT;
+      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proximityLimit, expirationMin))
+         return "placementParamsMissing";
+      if(prox > proximityLimit)
+         return StringFormat("proximity(%s vs %s)", DoubleToString(prox, _Digits), DoubleToString(proximityLimit, _Digits));
+      if(!AlgoRulesetPassesForPlacement(algoNumber, barIdx))
+      {
+         string rulesFail = "";
+         AlgoRulesGateFirstFailOrRulesetDisabled(algoNumber, barIdx, rulesFail);
+         return (rulesFail != "") ? rulesFail : "rulesetFail";
+      }
+   }
+   else
+      return "closeFlatOnLevel";
+
+   if(prox > proximityLimit)
+      return StringFormat("proximity(%s vs %s)", DoubleToString(prox, _Digits), DoubleToString(proximityLimit, _Digits));
+
+   if(!g_algoShared.tradesWeeklyLevels)
+      return "tradesWeeklyLevelsOff";
+
+   const int levelExpandedIdx = FalgoClosestExpandedLevelIdxAtBar(barIdx);
+   if(levelExpandedIdx < 0)
+      return "noClosestLevelExpanded";
+   if(!FalgoLevelEligibleForClosestAnchor(levelExpandedIdx))
+      return AlgoClosestLevelGateFailLabelForIdx(levelExpandedIdx);
+
+   FalgoMagicKey planKey;
+   if(!FalgoBuildMagicKeyForPlacement(algoNumber, barIdx, direction, anchorLevel, levelExpandedIdx, offsetPoints, planKey))
+      return "magicKeyBuildFail";
+
+   RefreshOccupiedMagicsCache();
+   if(!CanPlaceNewOrderForAlgo_Cached(algoNumber))
+      return "algoOccupied";
+
+   double orderPrice = 0.0, slDummy = 0.0, tpDummy = 0.0;
+   FalgoPendingOrderPricesForDirection(direction, anchorLevel, offsetPoints, g_algoShared.initialSL, g_algoShared.initialTP,
+      orderPrice, slDummy, tpDummy);
+   if(PlacePending_ShouldSkip_BidTooCloseToOrderPrice(orderPrice, 1.0))
+      return StringFormat("bidTooCloseToOrder(%s vs %s)", DoubleToString(g_liveBid, _Digits), DoubleToString(orderPrice, _Digits));
+
+   return "";
+}
+
+//+------------------------------------------------------------------+
 bool AlgoTryPlaceOrderThisTick(const int algoNumber, const int barIdx)
 {
    if(AlgoSlotIndexByAlgoId(algoNumber) < 0)
@@ -6172,8 +6573,8 @@ bool AlgoTryPlaceOrderThisTick(const int algoNumber, const int barIdx)
    const double anchorLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
    if(anchorLevel <= 0.0)
       return false;
-   const double prox = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity;
-   const double c = g_m1Rates[barIdx].close;
+   double oDummy = 0.0, hDummy = 0.0, lDummy = 0.0, c = 0.0, prox = 0.0;
+   AlgoLiveOhlcAndProximityAtBar(barIdx, oDummy, hDummy, lDummy, c, prox);
    if(MathAbs(c - anchorLevel) < 1e-12)
       return false;
 
@@ -6365,8 +6766,8 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,time_to_reach_neutral_TP,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC"
-#define FALGO_ALLDAYS_COLS     45
+#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC"
+#define FALGO_ALLDAYS_COLS     44
 
 //+------------------------------------------------------------------+
 void FalgoFileWriteAllDaysHeader(const int fh)
@@ -6459,8 +6860,6 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
       cells[base + 28] = DoubleToString(telSummary.avgProfitVelocity, 3);
       cells[base + 29] = IntegerToString(telSummary.secondsGreen);
       cells[base + 30] = IntegerToString(telSummary.secondsRed);
-      cells[base + 31] = (telSummary.timeToReachNeutralTpSeconds >= 0
-         ? IntegerToString(telSummary.timeToReachNeutralTpSeconds) : "");
    }
    else
    {
@@ -6472,7 +6871,6 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
       cells[base + 28] = "";
       cells[base + 29] = "";
       cells[base + 30] = "";
-      cells[base + 31] = "";
    }
    cells[base + 13] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
    cells[base + 14] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
@@ -6488,21 +6886,21 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    cells[base + 24] = FalgoOffsetPriceUnitsStrForTrade(tr);
    cells[base + 25] = FalgoSanitizeCsvCell(tr.tp);
    cells[base + 26] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
-   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
+   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
    int wBounceC = 0, dBounceC = 0, wCeilingC = 0, dCeilingC = 0;
    FalgoFillTradeBounceCeilingCountsAtStart(tr, wBounceC, dBounceC, wCeilingC, dCeilingC);
-   cells[base + 41] = IntegerToString(wCeilingC);
-   cells[base + 42] = IntegerToString(dCeilingC);
-   cells[base + 43] = IntegerToString(wBounceC);
-   cells[base + 44] = IntegerToString(dBounceC);
+   cells[base + 40] = IntegerToString(wCeilingC);
+   cells[base + 41] = IntegerToString(dCeilingC);
+   cells[base + 42] = IntegerToString(wBounceC);
+   cells[base + 43] = IntegerToString(dBounceC);
 }
 
 //+------------------------------------------------------------------+
@@ -6586,7 +6984,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
       FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type",
          "MFE", "MAE", "mfeCandle", "maeCandle", "close_decision", "close_detail",
          "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
-         "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed", "time_to_reach_neutral_TP",
+         "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed",
          "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL",
          "referencePointsAbove", "referencePointsBelow", "levelCats",
          "wCeilingC", "dCeilingC", "wBounceC", "dBounceC");
@@ -6626,8 +7024,6 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             (hasTel ? DoubleToString(telSummary.avgProfitVelocity, 3) : ""),
             (hasTel ? IntegerToString(telSummary.secondsGreen) : ""),
             (hasTel ? IntegerToString(telSummary.secondsRed) : ""),
-            (hasTel && telSummary.timeToReachNeutralTpSeconds >= 0
-               ? IntegerToString(telSummary.timeToReachNeutralTpSeconds) : ""),
             legacyCtx.breakevenC,
             legacyCtx.gapFillPc, legacyCtx.openGapInfo, legacyCtx.pdTrend,
             legacyCtx.dayBrokePDH, legacyCtx.dayBrokePDL,
@@ -6755,7 +7151,10 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoShared.persecond_debug_end_minute                     =  59;
    g_algoShared.secretTPSL                                     = true;
    g_algoShared.secretTPSL_percent                             = 50;
+   
    g_algoShared.blockPlacementIfFamilyOpenOrPending = false;
+   g_algoShared.stop_trading_if_day_has_X_wins_0_losses = 999999;       // family: stop all algos when wins>=X and 0 losses today
+   g_algoShared.stop_trading_if_day_has_profit_factor_above = 999999.0; // family: stop all algos when PF>this and at least 1 loss today
 
    //=== algo10 TUNE BLOCK ===
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].trades_short                                     = ALGO_SIDE_LONG;
@@ -6780,10 +7179,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.badtrade_profit_trigger                                  =  -4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.badtrade_totalRedSeconds_minTrigger                      =   125;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.terribletrade_profit_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
@@ -6813,20 +7213,21 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_profit_trigger                                  =  -3.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_try_save_TP                                     =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_profit_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_totalRedSeconds_minTrigger                      =   180;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_try_save_TP                                     =   1.4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   300;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_try_smaller_loss_TP                           =  -0.75;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].min_bounceCount                                 =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].recentBounceCountToday_Minutes                   = 600;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].recentBounceCountToday_Minutes                   = 192;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].recentBounceCount_max_allowed                   =  1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].min_anchorAbove_cleanStreak                     =  8.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].min_cleanOHLC_streak_count                      =    9;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].levelOffset                               = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].priceProximity                             =  4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].priceProximity                             =  5.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].expiry_minutes                              =  5;
    //=== algo12 TUNE BLOCK ===
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].trades_short                                     = ALGO_SIDE_SHORT;
@@ -6848,10 +7249,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.badtrade_profit_trigger                                  =  -3.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.badtrade_try_save_TP                                     =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_profit_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_try_smaller_loss_TP                           =  0.5;
@@ -6883,10 +7285,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.badtrade_profit_trigger                                  =  -4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.terribletrade_profit_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
@@ -6918,10 +7321,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.badtrade_profit_trigger                                  =  -3.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.badtrade_try_save_TP                                     =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_profit_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_try_smaller_loss_TP                           =  0.5;
@@ -6955,10 +7359,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.badtrade_profit_trigger                                  =  -4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.terribletrade_profit_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
@@ -6988,10 +7393,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.trade_telemetry_per_second_enabled                       = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_profit_trigger                                  =  -4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_profit_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
@@ -7025,21 +7431,22 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.telemetry_avg_velocity_window_seconds                    =   10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.trade_telemetry_per_second_enabled                       = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.badtrade_mode_enabled                                    = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.badtrade_profit_trigger                                  =  -5.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.badtrade_MaePostX_trigger                                  =  -5.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.badtrade_totalRedSeconds_minTrigger                      =   180;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_profit_trigger                             =  -5.8;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_MaePostX_trigger                             =  -5.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_try_smaller_loss_TP                           =  -0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].bounceMaxAllowed_today                          = 19;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].bounceMaxAllowed_today                          = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].min_anchorAbove_cleanStreak                     = 10.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].max_anchorAbove_cleanStreak                     = 21.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].min_cleanOHLC_streak_count                      =   11;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].max_cleanOHLC_streak_count                      =   20;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].max_cleanOHLC_streak_count                      =   22;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].levelOffset                               = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].priceProximity                             =  4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].priceProximity                             =  5.2;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].expiry_minutes                              =  5;
    //=== algobookmark3 end tune blocks ===
 
@@ -8628,6 +9035,7 @@ int AlgoGatesPlacementFailCount(const int algoSlot1, const int barIdx,
    const bool bounceOK, const bool ceilingOK, const bool magicFree)
 {
    int c = 0;
+   if(AlgoFamilyDayStopFirstFailLabel() != "") c++;
    if(!profileEnabled) c++;
    if(!tradingDay) c++;
    if(!tradingTime) c++;
@@ -9854,6 +10262,8 @@ void OnTimer()
 
    FalgoUpdateOpenTradeTelemetryEachSecond();
 
+   FalgoTryLogAlgoFamilyPerSecond();
+
    RunFalgoTradePipeline();
 
    MqlDateTime mqlTime;
@@ -9986,52 +10396,12 @@ void OnTimer()
             int fileHandleAlgoFamily = FileOpen(logNameAlgoFamily, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
             if(fileHandleAlgoFamily == INVALID_HANDLE)
                FatalError("OnTimer: could not open " + logNameAlgoFamily);
-            FileWrite(fileHandleAlgoFamily, "time", "O", "H", "L", "C",
-                     "ClosestWeeklyLevelToCClose",
-                     "closestPriceProximity",
-                     "sessionRangeMidpoint",
-                     "currentCandle_AvgOf_OHLCnumbers",
-                     "cleanOHLC_streak_startTime", "cleanOHLC_streak_count", "cleanOHLC_streak_avgOfOHLC",
-                     "ClosestWeeklyLevel_anchorAbove_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorAbove_time",
-                     "ClosestWeeklyLevel_anchorBelow_within_cleanOHLC_streak", "ClosestWeeklyLevel_anchorBelow_time",
-                     "ClosestWeeklyLevel_BounceCount_today",
-                     StringFormat("recentBounceCount%d", g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].recentBounceCountToday_Minutes),
-                     "ClosestWeeklyLevel_CeilingCount_today",
-                     "ClosestWeeklyLevel_CeilingProximityCandles_today",
-                     StringFormat("recentCeilingCount%d", g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].recentCeilingCountToday_Minutes),
-                     "ClosestWeeklyLevel_contactCount_today",
-                     "accOpenTradeNowBool", "accOpenTradeTime", "accLastClosedTradeTime",
-                     "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "dayProfitFactor");
+            PullingHistoryAlgoFamilyWriteCsvHeader(fileHandleAlgoFamily);
             for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
             {
-               PullingHistoryAlgoFamilyBarSnap snap = g_pullingHistoryAlgoFamilyAtBar[barIdx];
-               string streakStartStr = (snap.cleanOHLC_streak_count > 0) ?
-                  TimeToString(snap.cleanOHLC_streak_startTime, TIME_DATE|TIME_MINUTES) : "";
-               string anchorAboveTimeStr = (snap.closestWeeklyLevel_anchorAbove_time > 0) ?
-                  TimeToString(snap.closestWeeklyLevel_anchorAbove_time, TIME_DATE|TIME_MINUTES) : "";
-               string anchorBelowTimeStr = (snap.closestWeeklyLevel_anchorBelow_time > 0) ?
-                  TimeToString(snap.closestWeeklyLevel_anchorBelow_time, TIME_DATE|TIME_MINUTES) : "";
-               string accOpenTimeStr = (snap.accOpenTradeTime > 0) ?
-                  TimeToString(snap.accOpenTradeTime, TIME_DATE|TIME_MINUTES) : "";
-               string accLastClosedStr = (snap.accLastClosedTradeTime > 0) ?
-                  TimeToString(snap.accLastClosedTradeTime, TIME_DATE|TIME_MINUTES) : "";
-               FileWrite(fileHandleAlgoFamily, TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES),
-                     DoubleToString(g_m1Rates[barIdx].open, _Digits), DoubleToString(g_m1Rates[barIdx].high, _Digits), DoubleToString(g_m1Rates[barIdx].low, _Digits), DoubleToString(g_m1Rates[barIdx].close, _Digits),
-                     DoubleToString(snap.closestWeeklyLevelToCClose, _Digits),
-                     DoubleToString(snap.closestPriceProximity, _Digits),
-                     (g_sessionRangeMidpointAtBar[barIdx].hasValue ? DoubleToString(g_sessionRangeMidpointAtBar[barIdx].value, 2) : "unknown"),
-                     DoubleToString(snap.currentCandle_AvgOf_OHLCnumbers, _Digits),
-                     streakStartStr, IntegerToString(snap.cleanOHLC_streak_count), DoubleToString(snap.cleanOHLC_streak_avgOfOHLC, _Digits),
-                     DoubleToString(snap.closestWeeklyLevel_anchorAbove_within_cleanOHLC_streak, _Digits), anchorAboveTimeStr,
-                     DoubleToString(snap.closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak, _Digits), anchorBelowTimeStr,
-                     IntegerToString(snap.closestWeeklyLevel_BounceCount_today),
-                     IntegerToString(snap.closestWeeklyLevel_BounceCount_recent),
-                     IntegerToString(snap.closestWeeklyLevel_CeilingCount_today),
-                     IntegerToString(snap.closestWeeklyLevel_CeilingProximityCandles_today),
-                     IntegerToString(snap.closestWeeklyLevel_CeilingCount_recent),
-                     IntegerToString(snap.closestWeeklyLevel_contactCount_today),
-                     (snap.accOpenTradeNowBool ? "true" : "false"), accOpenTimeStr, accLastClosedStr,
-                     DoubleToString(snap.dayWinRate * 100.0, 0), IntegerToString(snap.dayTradesCount), DoubleToString(snap.dayPointsSum, _Digits), DoubleToString(snap.dayProfitSum, 2), FormatDayProfitFactorForCsv(snap.dayProfitFactor));
+               PullingHistoryAlgoFamilyWriteCsvRow(fileHandleAlgoFamily, g_m1Rates[barIdx].time, barIdx,
+                  g_m1Rates[barIdx].open, g_m1Rates[barIdx].high, g_m1Rates[barIdx].low, g_m1Rates[barIdx].close,
+                  TIME_DATE|TIME_MINUTES);
             }
             FileClose(fileHandleAlgoFamily);
          }
