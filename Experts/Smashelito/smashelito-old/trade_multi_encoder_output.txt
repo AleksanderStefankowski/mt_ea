@@ -1,0 +1,416 @@
+
+// encoding input magic: 25124440207003232
+g_trade[0].enabled                  = true;
+g_trade[0].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[0].tradeTypeId              = 51;
+g_trade[0].ruleSubsetId             = 24;
+g_trade[0].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[0].tradeSizePct             = 100;
+g_trade[0].tpPoints                 = 32.0;
+g_trade[0].slPoints                 = 32.0;
+g_trade[0].livePriceDiffTrigger     = 4.0;
+g_trade[0].levelOffsetPoints        = 2.0;
+g_trade[0].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[0].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[0].babysit_enabled          = false;
+g_trade[0].babysitStart_minute      = 0;
+
+// encoding input magic: 25125440207003232
+g_trade[1].enabled                  = true;
+g_trade[1].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[1].tradeTypeId              = 51;
+g_trade[1].ruleSubsetId             = 25;
+g_trade[1].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[1].tradeSizePct             = 100;
+g_trade[1].tpPoints                 = 32.0;
+g_trade[1].slPoints                 = 32.0;
+g_trade[1].livePriceDiffTrigger     = 4.0;
+g_trade[1].levelOffsetPoints        = 2.0;
+g_trade[1].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[1].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[1].babysit_enabled          = false;
+g_trade[1].babysitStart_minute      = 0;
+
+// encoding input magic: 25169440037002440
+g_trade[2].enabled                  = true;
+g_trade[2].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[2].tradeTypeId              = 51;
+g_trade[2].ruleSubsetId             = 69;
+g_trade[2].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[2].tradeSizePct             = 100;
+g_trade[2].tpPoints                 = 24.0;
+g_trade[2].slPoints                 = 40.0;
+g_trade[2].livePriceDiffTrigger     = 4.0;
+g_trade[2].levelOffsetPoints        = 0.3;
+g_trade[2].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[2].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[2].babysit_enabled          = false;
+g_trade[2].babysitStart_minute      = 0;
+
+// encoding input magic: 25169440107002440
+g_trade[3].enabled                  = true;
+g_trade[3].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[3].tradeTypeId              = 51;
+g_trade[3].ruleSubsetId             = 69;
+g_trade[3].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[3].tradeSizePct             = 100;
+g_trade[3].tpPoints                 = 24.0;
+g_trade[3].slPoints                 = 40.0;
+g_trade[3].livePriceDiffTrigger     = 4.0;
+g_trade[3].levelOffsetPoints        = 1.0;
+g_trade[3].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[3].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[3].babysit_enabled          = false;
+g_trade[3].babysitStart_minute      = 0;
+
+// encoding input magic: 25235440107002440
+g_trade[4].enabled                  = true;
+g_trade[4].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[4].tradeTypeId              = 52;
+g_trade[4].ruleSubsetId             = 35;
+g_trade[4].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[4].tradeSizePct             = 100;
+g_trade[4].tpPoints                 = 24.0;
+g_trade[4].slPoints                 = 40.0;
+g_trade[4].livePriceDiffTrigger     = 4.0;
+g_trade[4].levelOffsetPoints        = 1.0;
+g_trade[4].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[4].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[4].babysit_enabled          = false;
+g_trade[4].babysitStart_minute      = 0;
+
+// encoding input magic: 25235440107003240
+g_trade[5].enabled                  = true;
+g_trade[5].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[5].tradeTypeId              = 52;
+g_trade[5].ruleSubsetId             = 35;
+g_trade[5].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[5].tradeSizePct             = 100;
+g_trade[5].tpPoints                 = 32.0;
+g_trade[5].slPoints                 = 40.0;
+g_trade[5].livePriceDiffTrigger     = 4.0;
+g_trade[5].levelOffsetPoints        = 1.0;
+g_trade[5].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[5].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[5].babysit_enabled          = false;
+g_trade[5].babysitStart_minute      = 0;
+
+// encoding input magic: 25249440037002440
+g_trade[6].enabled                  = true;
+g_trade[6].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[6].tradeTypeId              = 52;
+g_trade[6].ruleSubsetId             = 49;
+g_trade[6].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[6].tradeSizePct             = 100;
+g_trade[6].tpPoints                 = 24.0;
+g_trade[6].slPoints                 = 40.0;
+g_trade[6].livePriceDiffTrigger     = 4.0;
+g_trade[6].levelOffsetPoints        = 0.3;
+g_trade[6].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[6].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[6].babysit_enabled          = false;
+g_trade[6].babysitStart_minute      = 0;
+
+// encoding input magic: 25253440037002432
+g_trade[7].enabled                  = true;
+g_trade[7].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[7].tradeTypeId              = 52;
+g_trade[7].ruleSubsetId             = 53;
+g_trade[7].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[7].tradeSizePct             = 100;
+g_trade[7].tpPoints                 = 24.0;
+g_trade[7].slPoints                 = 32.0;
+g_trade[7].livePriceDiffTrigger     = 4.0;
+g_trade[7].levelOffsetPoints        = 0.3;
+g_trade[7].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[7].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[7].babysit_enabled          = false;
+g_trade[7].babysitStart_minute      = 0;
+
+// encoding input magic: 25253440037002440
+g_trade[8].enabled                  = true;
+g_trade[8].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[8].tradeTypeId              = 52;
+g_trade[8].ruleSubsetId             = 53;
+g_trade[8].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[8].tradeSizePct             = 100;
+g_trade[8].tpPoints                 = 24.0;
+g_trade[8].slPoints                 = 40.0;
+g_trade[8].livePriceDiffTrigger     = 4.0;
+g_trade[8].levelOffsetPoints        = 0.3;
+g_trade[8].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[8].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[8].babysit_enabled          = false;
+g_trade[8].babysitStart_minute      = 0;
+
+// encoding input magic: 25255340107003240
+g_trade[9].enabled                  = true;
+g_trade[9].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[9].tradeTypeId              = 52;
+g_trade[9].ruleSubsetId             = 55;
+g_trade[9].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[9].tradeSizePct             = 100;
+g_trade[9].tpPoints                 = 32.0;
+g_trade[9].slPoints                 = 40.0;
+g_trade[9].livePriceDiffTrigger     = 4.0;
+g_trade[9].levelOffsetPoints        = 1.0;
+g_trade[9].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[9].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[9].babysit_enabled          = false;
+g_trade[9].babysitStart_minute      = 0;
+
+// encoding input magic: 25255340207002440
+g_trade[10].enabled                  = true;
+g_trade[10].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[10].tradeTypeId              = 52;
+g_trade[10].ruleSubsetId             = 55;
+g_trade[10].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[10].tradeSizePct             = 100;
+g_trade[10].tpPoints                 = 24.0;
+g_trade[10].slPoints                 = 40.0;
+g_trade[10].livePriceDiffTrigger     = 4.0;
+g_trade[10].levelOffsetPoints        = 2.0;
+g_trade[10].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[10].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[10].babysit_enabled          = false;
+g_trade[10].babysitStart_minute      = 0;
+
+// encoding input magic: 25255340207003240
+g_trade[11].enabled                  = true;
+g_trade[11].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[11].tradeTypeId              = 52;
+g_trade[11].ruleSubsetId             = 55;
+g_trade[11].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[11].tradeSizePct             = 100;
+g_trade[11].tpPoints                 = 32.0;
+g_trade[11].slPoints                 = 40.0;
+g_trade[11].livePriceDiffTrigger     = 4.0;
+g_trade[11].levelOffsetPoints        = 2.0;
+g_trade[11].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[11].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[11].babysit_enabled          = false;
+g_trade[11].babysitStart_minute      = 0;
+
+// encoding input magic: 25299440207003224
+g_trade[12].enabled                  = true;
+g_trade[12].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[12].tradeTypeId              = 52;
+g_trade[12].ruleSubsetId             = 99;
+g_trade[12].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[12].tradeSizePct             = 100;
+g_trade[12].tpPoints                 = 32.0;
+g_trade[12].slPoints                 = 24.0;
+g_trade[12].livePriceDiffTrigger     = 4.0;
+g_trade[12].levelOffsetPoints        = 2.0;
+g_trade[12].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[12].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[12].babysit_enabled          = false;
+g_trade[12].babysitStart_minute      = 0;
+
+// encoding input magic: 25303240207002440
+g_trade[13].enabled                  = true;
+g_trade[13].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[13].tradeTypeId              = 53;
+g_trade[13].ruleSubsetId             = 3;
+g_trade[13].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[13].tradeSizePct             = 100;
+g_trade[13].tpPoints                 = 24.0;
+g_trade[13].slPoints                 = 40.0;
+g_trade[13].livePriceDiffTrigger     = 4.0;
+g_trade[13].levelOffsetPoints        = 2.0;
+g_trade[13].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[13].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[13].babysit_enabled          = false;
+g_trade[13].babysitStart_minute      = 0;
+
+// encoding input magic: 25319440037002424
+g_trade[14].enabled                  = true;
+g_trade[14].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[14].tradeTypeId              = 53;
+g_trade[14].ruleSubsetId             = 19;
+g_trade[14].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[14].tradeSizePct             = 100;
+g_trade[14].tpPoints                 = 24.0;
+g_trade[14].slPoints                 = 24.0;
+g_trade[14].livePriceDiffTrigger     = 4.0;
+g_trade[14].levelOffsetPoints        = 0.3;
+g_trade[14].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[14].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[14].babysit_enabled          = false;
+g_trade[14].babysitStart_minute      = 0;
+
+// encoding input magic: 25319440037002432
+g_trade[15].enabled                  = true;
+g_trade[15].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[15].tradeTypeId              = 53;
+g_trade[15].ruleSubsetId             = 19;
+g_trade[15].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[15].tradeSizePct             = 100;
+g_trade[15].tpPoints                 = 24.0;
+g_trade[15].slPoints                 = 32.0;
+g_trade[15].livePriceDiffTrigger     = 4.0;
+g_trade[15].levelOffsetPoints        = 0.3;
+g_trade[15].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[15].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[15].babysit_enabled          = false;
+g_trade[15].babysitStart_minute      = 0;
+
+// encoding input magic: 25322240207002424
+g_trade[16].enabled                  = true;
+g_trade[16].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[16].tradeTypeId              = 53;
+g_trade[16].ruleSubsetId             = 22;
+g_trade[16].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[16].tradeSizePct             = 100;
+g_trade[16].tpPoints                 = 24.0;
+g_trade[16].slPoints                 = 24.0;
+g_trade[16].livePriceDiffTrigger     = 4.0;
+g_trade[16].levelOffsetPoints        = 2.0;
+g_trade[16].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[16].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[16].babysit_enabled          = false;
+g_trade[16].babysitStart_minute      = 0;
+
+// encoding input magic: 25323240207002424
+g_trade[17].enabled                  = true;
+g_trade[17].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[17].tradeTypeId              = 53;
+g_trade[17].ruleSubsetId             = 23;
+g_trade[17].sessionPdCategory        = MAGIC_IS_ON_AND_PD_RED;
+g_trade[17].tradeSizePct             = 100;
+g_trade[17].tpPoints                 = 24.0;
+g_trade[17].slPoints                 = 24.0;
+g_trade[17].livePriceDiffTrigger     = 4.0;
+g_trade[17].levelOffsetPoints        = 2.0;
+g_trade[17].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[17].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[17].babysit_enabled          = false;
+g_trade[17].babysitStart_minute      = 0;
+
+// encoding input magic: 25328440107002440
+g_trade[18].enabled                  = true;
+g_trade[18].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[18].tradeTypeId              = 53;
+g_trade[18].ruleSubsetId             = 28;
+g_trade[18].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[18].tradeSizePct             = 100;
+g_trade[18].tpPoints                 = 24.0;
+g_trade[18].slPoints                 = 40.0;
+g_trade[18].livePriceDiffTrigger     = 4.0;
+g_trade[18].levelOffsetPoints        = 1.0;
+g_trade[18].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[18].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[18].babysit_enabled          = false;
+g_trade[18].babysitStart_minute      = 0;
+
+// encoding input magic: 25346140107002424
+g_trade[19].enabled                  = true;
+g_trade[19].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[19].tradeTypeId              = 53;
+g_trade[19].ruleSubsetId             = 46;
+g_trade[19].sessionPdCategory        = MAGIC_IS_ON_AND_PD_GREEN;
+g_trade[19].tradeSizePct             = 100;
+g_trade[19].tpPoints                 = 24.0;
+g_trade[19].slPoints                 = 24.0;
+g_trade[19].livePriceDiffTrigger     = 4.0;
+g_trade[19].levelOffsetPoints        = 1.0;
+g_trade[19].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[19].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[19].babysit_enabled          = false;
+g_trade[19].babysitStart_minute      = 0;
+
+// encoding input magic: 26170440207002432
+g_trade[20].enabled                  = true;
+g_trade[20].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[20].tradeTypeId              = 61;
+g_trade[20].ruleSubsetId             = 70;
+g_trade[20].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[20].tradeSizePct             = 100;
+g_trade[20].tpPoints                 = 24.0;
+g_trade[20].slPoints                 = 32.0;
+g_trade[20].livePriceDiffTrigger     = 4.0;
+g_trade[20].levelOffsetPoints        = 2.0;
+g_trade[20].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[20].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[20].babysit_enabled          = false;
+g_trade[20].babysitStart_minute      = 0;
+
+// encoding input magic: 26218340107003224
+g_trade[21].enabled                  = true;
+g_trade[21].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[21].tradeTypeId              = 62;
+g_trade[21].ruleSubsetId             = 18;
+g_trade[21].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[21].tradeSizePct             = 100;
+g_trade[21].tpPoints                 = 32.0;
+g_trade[21].slPoints                 = 24.0;
+g_trade[21].livePriceDiffTrigger     = 4.0;
+g_trade[21].levelOffsetPoints        = 1.0;
+g_trade[21].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[21].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[21].babysit_enabled          = false;
+g_trade[21].babysitStart_minute      = 0;
+
+// encoding input magic: 26218340207003224
+g_trade[22].enabled                  = true;
+g_trade[22].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[22].tradeTypeId              = 62;
+g_trade[22].ruleSubsetId             = 18;
+g_trade[22].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_GREEN;
+g_trade[22].tradeSizePct             = 100;
+g_trade[22].tpPoints                 = 32.0;
+g_trade[22].slPoints                 = 24.0;
+g_trade[22].livePriceDiffTrigger     = 4.0;
+g_trade[22].levelOffsetPoints        = 2.0;
+g_trade[22].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[22].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[22].babysit_enabled          = false;
+g_trade[22].babysitStart_minute      = 0;
+
+// encoding input magic: 26307440107002440
+g_trade[23].enabled                  = true;
+g_trade[23].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[23].tradeTypeId              = 63;
+g_trade[23].ruleSubsetId             = 7;
+g_trade[23].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[23].tradeSizePct             = 100;
+g_trade[23].tpPoints                 = 24.0;
+g_trade[23].slPoints                 = 40.0;
+g_trade[23].livePriceDiffTrigger     = 4.0;
+g_trade[23].levelOffsetPoints        = 1.0;
+g_trade[23].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[23].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[23].babysit_enabled          = false;
+g_trade[23].babysitStart_minute      = 0;
+
+// encoding input magic: 27132440207002440
+g_trade[24].enabled                  = true;
+g_trade[24].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[24].tradeTypeId              = 71;
+g_trade[24].ruleSubsetId             = 32;
+g_trade[24].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[24].tradeSizePct             = 100;
+g_trade[24].tpPoints                 = 24.0;
+g_trade[24].slPoints                 = 40.0;
+g_trade[24].livePriceDiffTrigger     = 4.0;
+g_trade[24].levelOffsetPoints        = 2.0;
+g_trade[24].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[24].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[24].babysit_enabled          = false;
+g_trade[24].babysitStart_minute      = 0;
+
+// encoding input magic: 27336440107002440
+g_trade[25].enabled                  = true;
+g_trade[25].tradeDirectionCategory   = MAGIC_TRADE_SHORT;
+g_trade[25].tradeTypeId              = 73;
+g_trade[25].ruleSubsetId             = 36;
+g_trade[25].sessionPdCategory        = MAGIC_IS_RTH_AND_PD_RED;
+g_trade[25].tradeSizePct             = 100;
+g_trade[25].tpPoints                 = 24.0;
+g_trade[25].slPoints                 = 40.0;
+g_trade[25].livePriceDiffTrigger     = 4.0;
+g_trade[25].levelOffsetPoints        = 1.0;
+g_trade[25].bannedRanges             = "21,20,23,59;0,0,1,0;15,25,15,35";
+g_trade[25].levelProximityFocus      = TRADE_LEVEL_FOCUS_ABOVE;
+g_trade[25].babysit_enabled          = false;
+g_trade[25].babysitStart_minute      = 0;

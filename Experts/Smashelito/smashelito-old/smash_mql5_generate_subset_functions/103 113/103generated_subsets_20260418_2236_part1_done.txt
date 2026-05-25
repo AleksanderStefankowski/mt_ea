@@ -1,0 +1,1919 @@
+bool Subset_10301(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10302(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10303(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10304(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10305(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10306(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10307(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10308(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10309(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10310(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10311(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10312(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10313(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10314(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10315(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10316(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10317(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10318(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10319(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10320(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10321(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10322(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10323(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10324(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10325(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 35.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10326(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10327(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10328(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10329(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10330(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10331(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10332(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10333(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10334(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10335(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10336(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10337(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10338(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10339(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10340(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10341(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10342(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10343(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10344(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10345(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10346(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10347(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10348(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10349(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10350(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 15.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10351(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10352(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10353(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10354(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10355(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10356(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10357(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10358(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10359(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10360(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10361(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10362(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10363(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10364(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10365(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10366(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10367(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10368(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10369(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10370(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10371(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10372(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10373(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10374(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10375(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 50.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10376(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10377(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10378(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10379(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10380(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 90;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10381(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10382(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10383(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10384(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10385(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 60;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10386(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10387(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10388(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10389(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10390(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 140;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10391(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10392(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 35; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10393(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 50; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10394(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 80; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10395(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 200;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 120; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}
+
+bool Subset_10396(double levelPx, int levelIdx, int kLast)
+{
+   double levelAbove = Rules_GetClosestNonTertiaryLevelAbovePrice(levelPx);
+   if(levelAbove <= 0.0) return false;
+
+   const double twoLevelsDiff = levelAbove - levelPx;
+   if(twoLevelsDiff < 10.0) return false;
+   if(twoLevelsDiff > 70.0) return false;
+
+   const int cleanStreakAboveMin = 300;
+   int streakAbove = g_cleanStreakAbove[levelIdx][kLast];
+   if(streakAbove < cleanStreakAboveMin) return false;
+
+   const int diffAboveRange = 20; // optionally + X minutes
+   const double diffAboveMin = twoLevelsDiff + 11.0;
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < diffAboveMin) return false;
+   return true;
+}

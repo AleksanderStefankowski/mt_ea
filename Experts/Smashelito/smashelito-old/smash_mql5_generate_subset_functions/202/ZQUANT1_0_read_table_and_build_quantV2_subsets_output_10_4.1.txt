@@ -1,0 +1,168 @@
+bool Subset_2629744020(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 20;
+   if(!Gate_Level_BelowPDH(levelPx)) return false;
+   if(!Gate_Level_AbovePDC(levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 60;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 8.0) return false;
+   return true;
+}
+
+bool Subset_2623314020(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Day_DayBrokePDH_is_TRUE(kLast)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 60;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 8.0) return false;
+   return true;
+}
+
+bool Subset_2623444003(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Level_BelowPDH(levelPx)) return false;
+   if(!Gate_Level_AbovePDC(levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 60;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+   return true;
+}
+
+bool Subset_2629844020(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 20;
+   if(!Gate_Level_AbovePDC(levelPx)) return false;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 60;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+   return true;
+}
+
+bool Subset_2625834010(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovedayLowSoFar(kLast, levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 180;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+   return true;
+}
+
+bool Subset_2625834020(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovedayLowSoFar(kLast, levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 180;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+   return true;
+}
+
+bool Subset_2722234010(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 20;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovedayLowSoFar(kLast, levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 180;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 8.0) return false;
+   return true;
+}
+
+bool Subset_2623834010(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDL(levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 60;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+   return true;
+}
+
+bool Subset_2623834020(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Level_BelowONH(kLast, levelPx)) return false;
+   if(!Gate_Level_AbovePDL(levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 60;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 16.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 16.0) return false;
+   return true;
+}
+
+bool Subset_2625714003(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 180;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 25.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 8.0) return false;
+   return true;
+}
+

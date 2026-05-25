@@ -1,0 +1,17 @@
+bool Subset_2825144010(double levelPx, int levelIdx, int kLast)
+{
+   const int cleanStreakBelowMin = 8;
+   if(!Gate_Level_BelowPDO(levelPx)) return false;
+   if(!Gate_Level_AboveONL(kLast, levelPx)) return false;
+   int cleanStreakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(cleanStreakBelow < cleanStreakBelowMin) return false;
+   const int diffAboveRange = cleanStreakBelowMin + 180;  //+ X minutes
+   string diffAbove = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffAboveRange, true);
+   if(diffAbove == "never" || StringToDouble(diffAbove) < 8.0) return false;
+   int diffBelowRange = cleanStreakBelow - 1;
+   if(diffBelowRange < 1) diffBelowRange = 1;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < 25.0) return false;
+   return true;
+}
+

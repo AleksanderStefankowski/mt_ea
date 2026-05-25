@@ -1,0 +1,1169 @@
+bool Subset_20301(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20302(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20303(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20304(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20305(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20306(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20307(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20308(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20309(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 60;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20310(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20311(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20312(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20313(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20314(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20315(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20316(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20317(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20318(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20319(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20320(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20321(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 90;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20322(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20323(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20324(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20325(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20326(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20327(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20328(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20329(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20330(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20331(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20332(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20333(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 300;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20334(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20335(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20336(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 1; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20337(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20338(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20339(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 30; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20340(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20341(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20342(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 60; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20343(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 11.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20344(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 22.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
+
+bool Subset_20345(double levelPx, int levelIdx, int kLast)
+{
+   // short type 3 : z dołu do góry level przebity jak masło i shortujemy level wyżej. 
+   double levelBelow = Rules_GetClosestNonTertiaryLevelBelowPrice(levelPx);
+   if(levelBelow <= 0.0) return false;
+
+   const double twoLevelsDiff = levelPx - levelBelow;
+   if(twoLevelsDiff < 15.0) return false;
+   if(twoLevelsDiff > 31.0) return false;
+
+   // a: clean OHLC streak below trade level: 131, czyli rule > 120 lub >65
+   // b: level never touched today, ale pewnie wystarczy clean streak 120
+
+   const int cleanStreakBelowMin = 500;
+   int streakBelow = g_cleanStreakBelow[levelIdx][kLast];
+   if(streakBelow < cleanStreakBelowMin) return false;
+
+   //a: (20:20 ma diff below level aż 42 pkt, dzikie rally. 6791-6762=29, 42-29=13
+   //b: (biggest diff w last 35 candles to 26 pkt od 6791 (a z levelami to 6791-6778=13, 26-13 = 13 czyli 13 poniżej 2nd level)
+   const int diffBelowRange = 180; //+ X minutes
+   const double diffBelowMin = twoLevelsDiff + 30.0;
+   string diffBelow = Rules_GetHighestDiffFromLevelInWindowString(levelPx, kLast, diffBelowRange, false);
+   if(diffBelow == "never" || StringToDouble(diffBelow) < diffBelowMin) return false;
+   return true;
+}
