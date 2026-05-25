@@ -30,7 +30,7 @@ void FatalError(string msg)
 }
 string   InpSessionFirstLastCandleFile = "SessionFirstLastCandle.txt";  // written in OnDeinit: symbol, timeframe, first/last candle OHLC
 string   InpAllCandleFile     = "AllCandlesLog_Timer1";
-double   ProximityThreshold   = 1.0;
+double   ProximityThreshold   = 0.6;
 double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to count as broken
 input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for RecoverCount
 // false: skip per-bar UpdateTradeResultsForDay (no HistorySelect each M1); g_tradeResults cleared each bar — EOD block still calls UpdateTradeResultsForDay once before trade-results CSV (and after EOD closes). Intraday pullinghistory/dayProgress rows stay deal-empty until that EOD refresh.
@@ -109,8 +109,9 @@ struct Level
    bool lastCandleInContact;
    int candlesPassedSinceLastBounce;
    int ceilingCount;
-   int ceilingProximityCount;
+   int ceilingProximityCandles;
    int candlesPassedSinceLastCeiling;
+   bool contactFromAbove;  // proximity-contact episode from above (close >= level)
    bool contactFromBelow;  // proximity-contact episode from below (close < level)
    bool lastCandleInPhysicalContact;
    bool contactFromBelowPhysical;
@@ -307,9 +308,9 @@ struct AlgoFamilyWeekPerspectiveRow
    bool   brokenBool;          // price traversed level this week: level between min ONO & max other high, or between min other low & max ONO
    int    countONO_too_close_10p; // days in week where |level - that day's ONO| < 10 (ONO = first M1 open, same as g_ONopen)
    int    candle_overlap_1m_C; // bars with low <= level <= high
-   int    bounceCount;         // week total: first no-contact candle fully above level after contact (Arawevents bounce logic)
-   int    ceilingCount;        // week total: physical contact only, then fully below (ceiling from below)
-   int    ceilingProximityCount; // week total: physical or proximity contact, then fully below
+   int    bounceCount;         // week total: proximity contact from above, then fully above
+   int    ceilingCount;        // week total: proximity contact from below, then fully below
+   int    ceilingProximityCandles; // week total: M1 bars in proximity contact from below
 };
 #define MAX_ALGOFAMILY_WEEK_LEVELS 25   // ~20 weekly levels per week + small headroom
 #define ALGO5_WEEK_PROX_TOUCH_POINTS 0.9
@@ -334,10 +335,10 @@ struct PullingHistoryAlgoFamilyBarSnap
    datetime closestWeeklyLevel_anchorBelow_time;
    int      closestWeeklyLevel_BounceCount_today;
    int      closestWeeklyLevel_CeilingCount_today;
-   int      closestWeeklyLevel_CeilingProximityCount_today;
+   int      closestWeeklyLevel_CeilingProximityCandles_today;
    int      closestWeeklyLevel_BounceCount_recent;
    int      closestWeeklyLevel_CeilingCount_recent;
-   int      closestWeeklyLevel_CeilingProximityCount_recent;
+   int      closestWeeklyLevel_CeilingProximityCandles_recent;
    int      closestWeeklyLevel_contactCount_today;
    bool     accOpenTradeNowBool;       // symbol day trades open at this bar's close
    datetime accOpenTradeTime;          // startTime of latest still-open trade; 0 if none
@@ -416,7 +417,7 @@ enum ENUM_ALGO_RULE
    RULE_BOUNCE_COUNT_TOO_LOW,
    RULE_RECENT_BOUNCE_TOO_HIGH,
    RULE_CEILING_COUNT_TOO_HIGH,
-   RULE_CEILING_PROXIMITY_COUNT_TOO_HIGH,
+   RULE_CEILING_PROXIMITY_CANDLES_TOO_HIGH,
    RULE_SHORTS_AT_LEVEL_LIMIT,
    RULE_CLOSEST_WEEKLY_LEVEL_MISSING,
    RULE_WEEK_BOUNCE_TOO_HIGH,
@@ -463,7 +464,8 @@ struct AlgoDef
    int            bounceMaxAllowed_today;
    int            min_bounceCount;
    int            recentBounceCount_max_allowed;
-   int            ceilingMaxAllowed_today;
+   int            physicalCeilingMaxAllowed_today;
+   int            proximityCeilingMaxAllowed_today;
    int            max_allowed_shorts_perLevel_perDay_forThisAlgo;
    int            max_weekly_bounce_allowed;
    int            max_weekly_ceiling_allowed;
@@ -485,14 +487,15 @@ struct WeeklyLevelAlgoFamilyDayState
    int      contactCount_today;
    int      bounceCount_today;
    int      ceilingCount_today;
-   int      ceilingProximityCount_today;
+   int      ceilingProximityCandles_today;
    datetime bounceEventTimes[ALGOFAMILY_BOUNCE_CEILING_EVENTS_MAX];
    int      bounceEventCount;
    datetime ceilingEventTimes[ALGOFAMILY_BOUNCE_CEILING_EVENTS_MAX];
    int      ceilingEventCount;
-   datetime ceilingProximityEventTimes[ALGOFAMILY_BOUNCE_CEILING_EVENTS_MAX];
-   int      ceilingProximityEventCount;
+   datetime ceilingProximityCandleTimes[ALGOFAMILY_BOUNCE_CEILING_EVENTS_MAX];
+   int      ceilingProximityCandleCount;
    bool     lastInContact;
+   bool     contactFromAbove;
    bool     contactFromBelow;
    bool     lastInPhysicalContact;
    bool     contactFromBelowPhysical;
@@ -1803,11 +1806,12 @@ void ResetWeeklyLevelAlgoFamilyDayState(WeeklyLevelAlgoFamilyDayState &st, doubl
    st.contactCount_today = 0;
    st.bounceCount_today = 0;
    st.ceilingCount_today = 0;
-   st.ceilingProximityCount_today = 0;
+   st.ceilingProximityCandles_today = 0;
    st.bounceEventCount = 0;
    st.ceilingEventCount = 0;
-   st.ceilingProximityEventCount = 0;
+   st.ceilingProximityCandleCount = 0;
    st.lastInContact = false;
+   st.contactFromAbove = false;
    st.contactFromBelow = false;
    st.lastInPhysicalContact = false;
    st.contactFromBelowPhysical = false;
@@ -1873,61 +1877,56 @@ void AlgoFamilyRecordCeilingEvent(WeeklyLevelAlgoFamilyDayState &st, const datet
 }
 
 //+------------------------------------------------------------------+
-void AlgoFamilyRecordCeilingProximityEvent(WeeklyLevelAlgoFamilyDayState &st, const datetime barTime)
+void AlgoFamilyRecordCeilingProximityCandle(WeeklyLevelAlgoFamilyDayState &st, const datetime barTime)
 {
-   if(st.ceilingProximityEventCount < ALGOFAMILY_BOUNCE_CEILING_EVENTS_MAX)
-      st.ceilingProximityEventTimes[st.ceilingProximityEventCount++] = barTime;
+   if(st.ceilingProximityCandleCount < ALGOFAMILY_BOUNCE_CEILING_EVENTS_MAX)
+      st.ceilingProximityCandleTimes[st.ceilingProximityCandleCount++] = barTime;
 }
 
 //+------------------------------------------------------------------+
-//| One M1 bar: bounce (proximity contact); ceilingCount=physical; ceilingProximityCount=proximity contact. |
+//| Bounce: proximity from above → fully above. Ceiling: proximity from below → fully below. |
+//| ceilingProximityCandles: each M1 bar in proximity contact from below. |
 //+------------------------------------------------------------------+
 void AlgoFamilyApplyBounceCeilingOnBar(WeeklyLevelAlgoFamilyDayState &st,
    const double o, const double h, const double l, const double c, const datetime barTime,
    const bool recordEvents)
 {
    const bool in_prox_contact = IsBarInContactWithLevel(o, h, l, c, st.levelPrice);
-   const bool in_phys_contact = IsBarInPhysicalContactWithLevel(o, h, l, c, st.levelPrice);
    if(in_prox_contact)
    {
-      if(c < st.levelPrice) st.contactFromBelow = true;
+      if(c >= st.levelPrice) st.contactFromAbove = true;
+      if(c < st.levelPrice)  st.contactFromAbove = false;
+      if(c < st.levelPrice)  st.contactFromBelow = true;
       if(c >= st.levelPrice) st.contactFromBelow = false;
    }
-   if(in_phys_contact)
+   if(in_prox_contact && c < st.levelPrice)
    {
-      if(c < st.levelPrice) st.contactFromBelowPhysical = true;
-      if(c >= st.levelPrice) st.contactFromBelowPhysical = false;
+      st.ceilingProximityCandles_today++;
+      if(recordEvents)
+         AlgoFamilyRecordCeilingProximityCandle(st, barTime);
    }
    const bool bounceCandle = (!in_prox_contact && l > st.levelPrice);
-   if(st.lastInContact && bounceCandle)
+   if(st.lastInContact && bounceCandle && st.contactFromAbove)
    {
       st.bounceCount_today++;
       if(recordEvents)
          AlgoFamilyRecordBounceEvent(st, barTime);
-      st.contactFromBelow = false;
+      st.contactFromAbove = false;
    }
-   const bool ceilingProxCandle = (!in_prox_contact && h < st.levelPrice);
-   if(st.lastInContact && ceilingProxCandle && st.contactFromBelow)
-   {
-      st.ceilingProximityCount_today++;
-      if(recordEvents)
-         AlgoFamilyRecordCeilingProximityEvent(st, barTime);
-      st.contactFromBelow = false;
-   }
-   const bool ceilingPhysCandle = (!in_phys_contact && h < st.levelPrice);
-   if(st.lastInPhysicalContact && ceilingPhysCandle && st.contactFromBelowPhysical)
+   const bool ceilingCandle = (!in_prox_contact && h < st.levelPrice);
+   if(st.lastInContact && ceilingCandle && st.contactFromBelow)
    {
       st.ceilingCount_today++;
       if(recordEvents)
          AlgoFamilyRecordCeilingEvent(st, barTime);
-      st.contactFromBelowPhysical = false;
+      st.contactFromBelow = false;
    }
    if(!in_prox_contact && !st.lastInContact)
+   {
       st.contactFromBelow = false;
-   if(!in_phys_contact && !st.lastInPhysicalContact)
-      st.contactFromBelowPhysical = false;
+      st.contactFromAbove = false;
+   }
    st.lastInContact = in_prox_contact;
-   st.lastInPhysicalContact = in_phys_contact;
 }
 
 //+------------------------------------------------------------------+
@@ -2110,10 +2109,10 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_time = 0;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_today = 0;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_today = 0;
-         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCount_today = 0;
+         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_today = 0;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_recent = 0;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_recent = 0;
-         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCount_recent = 0;
+         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_recent = 0;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_contactCount_today = 0;
       }
       else
@@ -2132,15 +2131,15 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_anchorBelow_time = states[closestTrackIdx].anchorBelowTime;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_today = states[closestTrackIdx].bounceCount_today;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_today = states[closestTrackIdx].ceilingCount_today;
-         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCount_today = states[closestTrackIdx].ceilingProximityCount_today;
+         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_today = states[closestTrackIdx].ceilingProximityCandles_today;
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_recent =
             AlgoFamilyCountEventTimesInLookbackMinutes(states[closestTrackIdx].bounceEventTimes, states[closestTrackIdx].bounceEventCount,
                barTime, AlgoFamilyRecentBounceLookbackMinutes());
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_recent =
             AlgoFamilyCountEventTimesInLookbackMinutes(states[closestTrackIdx].ceilingEventTimes, states[closestTrackIdx].ceilingEventCount,
                barTime, AlgoFamilyRecentCeilingLookbackMinutes());
-         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCount_recent =
-            AlgoFamilyCountEventTimesInLookbackMinutes(states[closestTrackIdx].ceilingProximityEventTimes, states[closestTrackIdx].ceilingProximityEventCount,
+         g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_recent =
+            AlgoFamilyCountEventTimesInLookbackMinutes(states[closestTrackIdx].ceilingProximityCandleTimes, states[closestTrackIdx].ceilingProximityCandleCount,
                barTime, AlgoFamilyRecentCeilingLookbackMinutes());
          g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_contactCount_today = states[closestTrackIdx].contactCount_today;
       }
@@ -3871,10 +3870,10 @@ int FalgoGetCeilingCountForClosestWeeklyLevel(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-int FalgoGetCeilingProximityCountForClosestWeeklyLevel(const int barIdx)
+int FalgoGetCeilingProximityCandlesForClosestWeeklyLevel(const int barIdx)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return 0;
-   return g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCount_today;
+   return g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_today;
 }
 
 //+------------------------------------------------------------------+
@@ -5500,7 +5499,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
          "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "MFE", "MAE",
          "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
          "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
-         "closestProximity", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCount_today", FalgoGatesColRecentCeilingCount(),
+         "closestProximity", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
          "closeVsLevel", "direction", "levelTier", "proximityOK", "bounceOK", "ceilingOK",
          "tradesWeeklyLevels", "closestLevelCategoryOK", "closestLevelPlacementOK",
          "plannedTradeNumber", "magicNotOccupied", "dayWins", "dayLosses",
@@ -5514,7 +5513,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
       "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "MFE", "MAE",
       "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
       "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
-      "closestProximity", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCount_today", FalgoGatesColRecentCeilingCount(),
+      "closestProximity", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
       "closeVsLevel", "direction", "levelTier", "proximityOK", "bounceOK", "ceilingOK",
       "tradesWeeklyLevels", "closestLevelCategoryOK", "closestLevelPlacementOK",
       "plannedTradeNumber", "magicNotOccupied", "dayWins", "dayLosses",
@@ -5656,6 +5655,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
       return;
    AlgoWriteGatesLogHeaderIfNeeded(fh, algoSlot1);
    FileSeek(fh, 0, SEEK_END);
+   const int weeklyCeilingCountWithDaily = FalgoGetWeekCeilingCountForClosestWeeklyLevel(barIdx);
    if(algoSlot1 == MAGIC_ALGO15)
    {
       FileWrite(fh,
@@ -5683,8 +5683,9 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_today),
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_recent),
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCount_today),
+         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_today),
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_recent),
+         IntegerToString(weeklyCeilingCountWithDaily),
          closeVs, direction, IntegerToString(tier),
          FalgoBoolCsv(proxOK), FalgoBoolCsv(bounceOK), FalgoBoolCsv(ceilingOK),
          FalgoBoolCsv(weeklyOK), FalgoBoolCsv(closestLevelCategoryOK), FalgoBoolCsv(closestLevelPlacementOK),
@@ -5723,8 +5724,9 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1)
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_today),
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_BounceCount_recent),
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_today),
-         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCount_today),
+         IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingProximityCandles_today),
          IntegerToString(g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevel_CeilingCount_recent),
+         IntegerToString(weeklyCeilingCountWithDaily),
          closeVs, direction, IntegerToString(tier),
          FalgoBoolCsv(proxOK), FalgoBoolCsv(bounceOK), FalgoBoolCsv(ceilingOK),
          FalgoBoolCsv(weeklyOK), FalgoBoolCsv(closestLevelCategoryOK), FalgoBoolCsv(closestLevelPlacementOK),
@@ -6802,7 +6804,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].ceilingMaxAllowed_today                         =  2;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].proximityCeilingMaxAllowed_today                =  4;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].max_allowed_shorts_perLevel_perDay_forThisAlgo                =  1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].recentCeilingCountToday_Minutes                 = 300;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].min_anchorBelow_cleanStreak                     = 11.0;
@@ -6872,8 +6874,8 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].max_weekly_ceiling_allowed                      =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].ceilingMaxAllowed_today                         =  0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].max_weekly_ceiling_allowed                      =  1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].physicalCeilingMaxAllowed_today                =  0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].min_levelOnoAbsDiff                             = 12.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].max_allowed_shorts_perLevel_perDay_forThisAlgo                =  1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].recentCeilingCountToday_Minutes                 = 300;
@@ -7234,12 +7236,12 @@ void CollectActiveWeeklyLevelsForAlgoFamily(const string dateStr)
       g_algoFamilyWeekPerspective[rowIdx].candle_overlap_1m_C = 0;
       g_algoFamilyWeekPerspective[rowIdx].bounceCount = 0;
       g_algoFamilyWeekPerspective[rowIdx].ceilingCount = 0;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCount = 0;
+      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles = 0;
    }
 }
 
 //+------------------------------------------------------------------+
-//| Week bounce/ceiling counts per level (bounce+ceilingProximity=proximity contact; ceilingCount=physical only). |
+//| Week bounce/ceiling counts per level (same definitions as day stats). |
 //+------------------------------------------------------------------+
 void AlgoFamilyWeekPerspectiveEvalBounceCeiling(const MqlRates &weekRates[], int barCount, datetime weekStart)
 {
@@ -7248,11 +7250,10 @@ void AlgoFamilyWeekPerspectiveEvalBounceCeiling(const MqlRates &weekRates[], int
       double lvl = g_algoFamilyWeekPerspective[rowIdx].levelPrice;
       g_algoFamilyWeekPerspective[rowIdx].bounceCount = 0;
       g_algoFamilyWeekPerspective[rowIdx].ceilingCount = 0;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCount = 0;
+      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles = 0;
       bool lastInProxContact = false;
+      bool contactFromAboveProx = false;
       bool contactFromBelowProx = false;
-      bool lastInPhysicalContact = false;
-      bool contactFromBelowPhysical = false;
       for(int barIdx = 0; barIdx < barCount; barIdx++)
       {
          if(weekRates[barIdx].time < weekStart) continue;
@@ -7268,38 +7269,31 @@ void AlgoFamilyWeekPerspectiveEvalBounceCeiling(const MqlRates &weekRates[], int
              MathAbs(cl - lvl) <= ProximityThreshold);
          if(in_prox_contact)
          {
-            if(cl < lvl) contactFromBelowProx = true;
+            if(cl >= lvl) contactFromAboveProx = true;
+            if(cl < lvl)  contactFromAboveProx = false;
+            if(cl < lvl)  contactFromBelowProx = true;
             if(cl >= lvl) contactFromBelowProx = false;
          }
-         if(in_phys_contact)
-         {
-            if(cl < lvl) contactFromBelowPhysical = true;
-            if(cl >= lvl) contactFromBelowPhysical = false;
-         }
+         if(in_prox_contact && cl < lvl)
+            g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles++;
          const bool bounceCandle = (!in_prox_contact && lo > lvl);
-         if(lastInProxContact && bounceCandle)
+         if(lastInProxContact && bounceCandle && contactFromAboveProx)
          {
             g_algoFamilyWeekPerspective[rowIdx].bounceCount++;
-            contactFromBelowProx = false;
+            contactFromAboveProx = false;
          }
-         const bool ceilingProxCandle = (!in_prox_contact && hi < lvl);
-         if(lastInProxContact && ceilingProxCandle && contactFromBelowProx)
-         {
-            g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCount++;
-            contactFromBelowProx = false;
-         }
-         const bool ceilingPhysCandle = (!in_phys_contact && hi < lvl);
-         if(lastInPhysicalContact && ceilingPhysCandle && contactFromBelowPhysical)
+         const bool ceilingCandle = (!in_prox_contact && hi < lvl);
+         if(lastInProxContact && ceilingCandle && contactFromBelowProx)
          {
             g_algoFamilyWeekPerspective[rowIdx].ceilingCount++;
-            contactFromBelowPhysical = false;
+            contactFromBelowProx = false;
          }
          if(!in_prox_contact && !lastInProxContact)
+         {
             contactFromBelowProx = false;
-         if(!in_phys_contact && !lastInPhysicalContact)
-            contactFromBelowPhysical = false;
+            contactFromAboveProx = false;
+         }
          lastInProxContact = in_prox_contact;
-         lastInPhysicalContact = in_phys_contact;
       }
    }
 }
@@ -7436,7 +7430,7 @@ void WriteAlgoFamilyWeekPerspectiveLog(const string dateStr, datetime weekMonday
    }
    FileWrite(fileHandle, "date", "weekMondayStart", "levelPrice", "tag", "categories",
              "maxPriceAbove", "maxPriceBelow", "touchedProxBool_09_C", "brokenBool", "countONO_too_close_10p", "1mCandle_overlapC",
-             "BounceCount", "CeilingCount", "CeilingProximityCount");
+             "BounceCount", "CeilingCount", "CeilingProximityCandles");
    string weekStartStr = TimeToString(weekMondayStart, TIME_DATE);
    for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
    {
@@ -7452,7 +7446,7 @@ void WriteAlgoFamilyWeekPerspectiveLog(const string dateStr, datetime weekMonday
                 IntegerToString(g_algoFamilyWeekPerspective[rowIdx].candle_overlap_1m_C),
                 IntegerToString(g_algoFamilyWeekPerspective[rowIdx].bounceCount),
                 IntegerToString(g_algoFamilyWeekPerspective[rowIdx].ceilingCount),
-                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCount));
+                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles));
    }
    FileClose(fileHandle);
 }
@@ -8177,10 +8171,10 @@ bool Gate_CeilingCount_NoMoreThanX(const int barIdx, const int maxAllowed)
 }
 
 //+------------------------------------------------------------------+
-bool Gate_CeilingProximityCount_NoMoreThanX(const int barIdx, const int maxAllowed)
+bool Gate_CeilingProximityCandles_NoMoreThanX(const int barIdx, const int maxAllowed)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return false;
-   return (FalgoGetCeilingProximityCountForClosestWeeklyLevel(barIdx) <= maxAllowed);
+   return (FalgoGetCeilingProximityCandlesForClosestWeeklyLevel(barIdx) <= maxAllowed);
 }
 
 //+------------------------------------------------------------------+
@@ -8238,9 +8232,9 @@ string GateFail_CeilingCount_TooHigh(const int barIdx, const int maxAllowed, con
 }
 
 //+------------------------------------------------------------------+
-string GateFail_CeilingProximityCount_TooHigh(const int barIdx, const int maxAllowed, const string failLabel)
+string GateFail_CeilingProximityCandles_TooHigh(const int barIdx, const int maxAllowed, const string failLabel)
 {
-   if(!Gate_CeilingProximityCount_NoMoreThanX(barIdx, maxAllowed)) return failLabel;
+   if(!Gate_CeilingProximityCandles_NoMoreThanX(barIdx, maxAllowed)) return failLabel;
    return "";
 }
 
@@ -8387,9 +8381,9 @@ void AlgoRuleAdd_BounceCountTooHigh(const int slotIdx, const int maxAllowed, con
    AlgoRuleChainAdd(slotIdx, RULE_BOUNCE_COUNT_TOO_HIGH, maxAllowed, 0, 0, 0, failTag);
 }
 
-void AlgoRuleAdd_CeilingProximityCountTooHigh(const int slotIdx, const int maxAllowed, const string failTag)
+void AlgoRuleAdd_CeilingProximityCandlesTooHigh(const int slotIdx, const int maxAllowed, const string failTag)
 {
-   AlgoRuleChainAdd(slotIdx, RULE_CEILING_PROXIMITY_COUNT_TOO_HIGH, maxAllowed, 0, 0, 0, failTag);
+   AlgoRuleChainAdd(slotIdx, RULE_CEILING_PROXIMITY_CANDLES_TOO_HIGH, maxAllowed, 0, 0, 0, failTag);
 }
 
 void AlgoRuleAdd_CeilingCountTooHigh(const int slotIdx, const int maxAllowed, const string failTag)
@@ -8428,8 +8422,8 @@ string EvalAlgoRule(const AlgoDef &algo, const AlgoRuleEntry &rule, const int ba
          return GateFail_RecentBounceCount_TooHigh(barIdx, rule.i0);
       case RULE_CEILING_COUNT_TOO_HIGH:
          return GateFail_CeilingCount_TooHigh(barIdx, rule.i0, rule.s0);
-      case RULE_CEILING_PROXIMITY_COUNT_TOO_HIGH:
-         return GateFail_CeilingProximityCount_TooHigh(barIdx, rule.i0, rule.s0);
+      case RULE_CEILING_PROXIMITY_CANDLES_TOO_HIGH:
+         return GateFail_CeilingProximityCandles_TooHigh(barIdx, rule.i0, rule.s0);
       case RULE_SHORTS_AT_LEVEL_LIMIT:
          return GateFail_ShortsAtLevel_Limit(barIdx, algo.algo_id, rule.i0);
       case RULE_CLOSEST_WEEKLY_LEVEL_MISSING:
@@ -8498,7 +8492,7 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          break;
       case MAGIC_ALGO12:
          AlgoRuleAdd_CleanStreakShort(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorBelow_cleanStreak);
-         AlgoRuleAdd_CeilingProximityCountTooHigh(slotIdx, a.ceilingMaxAllowed_today, "ceilingProximityCountTooHigh");
+         AlgoRuleAdd_CeilingProximityCandlesTooHigh(slotIdx, a.proximityCeilingMaxAllowed_today, "ceilingProximityCandlesTooHigh");
          AlgoRuleChainAdd(slotIdx, RULE_SHORTS_AT_LEVEL_LIMIT, a.max_allowed_shorts_perLevel_perDay_forThisAlgo);
          break;
       case MAGIC_ALGO13:
@@ -8511,7 +8505,7 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
       case MAGIC_ALGO14:
          AlgoRuleAdd_CleanStreakShort(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorBelow_cleanStreak);
          AlgoRuleChainAdd(slotIdx, RULE_CLOSEST_WEEKLY_LEVEL_MISSING);
-         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.ceilingMaxAllowed_today, "dailyCeilingCountTooHigh");
+         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "dailyCeilingCountTooHigh");
          AlgoRuleChainAdd(slotIdx, RULE_WEEK_CEILING_TOO_HIGH, a.max_weekly_ceiling_allowed);
          AlgoRuleAdd_LevelOnoAbsDiffTooLow(slotIdx, a.min_levelOnoAbsDiff);
          AlgoRuleChainAdd(slotIdx, RULE_SHORTS_AT_LEVEL_LIMIT, a.max_allowed_shorts_perLevel_perDay_forThisAlgo);
@@ -8831,8 +8825,9 @@ void BuildLevelsFromCSV()
       levels[levelIdx].lastCandleInContact = false;
       levels[levelIdx].candlesPassedSinceLastBounce = 0;
       levels[levelIdx].ceilingCount = 0;
-      levels[levelIdx].ceilingProximityCount = 0;
+      levels[levelIdx].ceilingProximityCandles = 0;
       levels[levelIdx].candlesPassedSinceLastCeiling = 0;
+      levels[levelIdx].contactFromAbove = false;
       levels[levelIdx].contactFromBelow = false;
       levels[levelIdx].lastCandleInPhysicalContact = false;
       levels[levelIdx].contactFromBelowPhysical = false;
@@ -8862,8 +8857,9 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].lastCandleInContact = false;
    levels[newIndex].candlesPassedSinceLastBounce = 0;
    levels[newIndex].ceilingCount = 0;
-   levels[newIndex].ceilingProximityCount = 0;
+   levels[newIndex].ceilingProximityCandles = 0;
    levels[newIndex].candlesPassedSinceLastCeiling = 0;
+   levels[newIndex].contactFromAbove = false;
    levels[newIndex].contactFromBelow = false;
    levels[newIndex].lastCandleInPhysicalContact = false;
    levels[newIndex].contactFromBelowPhysical = false;
@@ -9801,7 +9797,7 @@ void OnTimer()
                      "ClosestWeeklyLevel_BounceCount_today",
                      StringFormat("recentBounceCount%d", g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].recentBounceCountToday_Minutes),
                      "ClosestWeeklyLevel_CeilingCount_today",
-                     "ClosestWeeklyLevel_CeilingProximityCount_today",
+                     "ClosestWeeklyLevel_CeilingProximityCandles_today",
                      StringFormat("recentCeilingCount%d", g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].recentCeilingCountToday_Minutes),
                      "ClosestWeeklyLevel_contactCount_today",
                      "accOpenTradeNowBool", "accOpenTradeTime", "accLastClosedTradeTime",
@@ -9831,7 +9827,7 @@ void OnTimer()
                      IntegerToString(snap.closestWeeklyLevel_BounceCount_today),
                      IntegerToString(snap.closestWeeklyLevel_BounceCount_recent),
                      IntegerToString(snap.closestWeeklyLevel_CeilingCount_today),
-                     IntegerToString(snap.closestWeeklyLevel_CeilingProximityCount_today),
+                     IntegerToString(snap.closestWeeklyLevel_CeilingProximityCandles_today),
                      IntegerToString(snap.closestWeeklyLevel_CeilingCount_recent),
                      IntegerToString(snap.closestWeeklyLevel_contactCount_today),
                      (snap.accOpenTradeNowBool ? "true" : "false"), accOpenTimeStr, accLastClosedStr,
@@ -10040,8 +10036,9 @@ void FinalizeCurrentCandle()
             levels[i].bounceCount = 0;
             levels[i].candlesPassedSinceLastBounce = 0;
             levels[i].ceilingCount = 0;
-            levels[i].ceilingProximityCount = 0;
+            levels[i].ceilingProximityCandles = 0;
             levels[i].candlesPassedSinceLastCeiling = 0;
+            levels[i].contactFromAbove = false;
             levels[i].contactFromBelow = false;
             levels[i].lastCandleInPhysicalContact = false;
             levels[i].contactFromBelowPhysical = false;
@@ -10067,7 +10064,7 @@ void FinalizeCurrentCandle()
                FatalError("FinalizeCurrentCandle: could not open " + araFile);
             FileSeek(fileHandleAra, 0, SEEK_END);
             if(FileTell(fileHandleAra) == 0)
-               FileWrite(fileHandleAra, "time", "level", "O", "H", "low", "C", "diff_CloseToLevel", "DayBias", "Contact", "ContactCount", "BounceCount", "CandlesPassedSinceLastBounce", "CeilingCount", "CeilingProximityCount", "CandlesPassedSinceLastCeiling", "CandlesBreakLevelCount", "RecoverCount");
+               FileWrite(fileHandleAra, "time", "level", "O", "H", "low", "C", "diff_CloseToLevel", "DayBias", "Contact", "ContactCount", "BounceCount", "CandlesPassedSinceLastBounce", "CeilingCount", "CeilingProximityCandles", "CandlesPassedSinceLastCeiling", "CandlesBreakLevelCount", "RecoverCount");
             levels[i].logRawEv_fileHandle = fileHandleAra;
             }
             else
@@ -10109,55 +10106,48 @@ void FinalizeCurrentCandle()
             levels[i].consecutiveRecoverCandles = 0;
          }
 
-         // --- Contact-from-below (proximity contact for bounce / ceilingProximity; physical for ceilingCount)
+         // --- Contact direction during proximity / physical contact
+         if(in_contact && candle_close >= lvl)
+            levels[i].contactFromAbove = true;
+         if(in_contact && candle_close < lvl)
+            levels[i].contactFromAbove = false;
          if(in_contact && candle_close < lvl)
             levels[i].contactFromBelow = true;
          if(in_contact && candle_close >= lvl)
             levels[i].contactFromBelow = false;
-         if(physicallyTouched && candle_close < lvl)
-            levels[i].contactFromBelowPhysical = true;
-         if(physicallyTouched && candle_close >= lvl)
-            levels[i].contactFromBelowPhysical = false;
 
-         // --- Bounce: first no-contact candle fully above level after proximity contact
+         if(in_contact && candle_close < lvl)
+            levels[i].ceilingProximityCandles++;
+
+         // --- Bounce: proximity contact from above, then fully above
          bool bounceCandle = (!in_contact && candle_low > lvl);
-         if(levels[i].lastCandleInContact && bounceCandle)
+         if(levels[i].lastCandleInContact && bounceCandle && levels[i].contactFromAbove)
          {
             levels[i].bounceCount++;
             levels[i].candlesPassedSinceLastBounce = 0;
-            levels[i].contactFromBelow = false;
+            levels[i].contactFromAbove = false;
          }
          else if(levels[i].bounceCount > 0)
             levels[i].candlesPassedSinceLastBounce++;
 
-         // --- ceilingProximityCount: after proximity in-contact-from-below, fully below
-         bool ceilingProxCandle = (!in_contact && candle_high < lvl);
-         if(levels[i].lastCandleInContact && ceilingProxCandle && levels[i].contactFromBelow)
+         // --- Ceiling: proximity contact from below, then fully below
+         bool ceilingCandle = (!in_contact && candle_high < lvl);
+         if(levels[i].lastCandleInContact && ceilingCandle && levels[i].contactFromBelow)
          {
-            levels[i].ceilingProximityCount++;
+            levels[i].ceilingCount++;
             levels[i].candlesPassedSinceLastCeiling = 0;
             levels[i].contactFromBelow = false;
          }
-         else if(levels[i].ceilingProximityCount > 0 || levels[i].ceilingCount > 0)
+         else if(levels[i].ceilingProximityCandles > 0 || levels[i].ceilingCount > 0)
             levels[i].candlesPassedSinceLastCeiling++;
 
-         // --- ceilingCount: after physical in-contact-from-below, fully below (no proximity)
-         bool ceilingPhysCandle = (!physicallyTouched && candle_high < lvl);
-         if(levels[i].lastCandleInPhysicalContact && ceilingPhysCandle && levels[i].contactFromBelowPhysical)
+         if(!in_contact && !levels[i].lastCandleInContact)
          {
-            levels[i].ceilingCount++;
-            if(levels[i].ceilingProximityCount == 0)
-               levels[i].candlesPassedSinceLastCeiling = 0;
-            levels[i].contactFromBelowPhysical = false;
+            levels[i].contactFromBelow = false;
+            levels[i].contactFromAbove = false;
          }
 
-         if(!in_contact && !levels[i].lastCandleInContact)
-            levels[i].contactFromBelow = false;
-         if(!physicallyTouched && !levels[i].lastCandleInPhysicalContact)
-            levels[i].contactFromBelowPhysical = false;
-
          levels[i].lastCandleInContact = in_contact;
-         levels[i].lastCandleInPhysicalContact = physicallyTouched;
 
          // --- Write Arawevents (CSV row)
          if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
@@ -10173,7 +10163,7 @@ void FinalizeCurrentCandle()
                IntegerToString(levels[i].bounceCount),
                IntegerToString(levels[i].candlesPassedSinceLastBounce),
                IntegerToString(levels[i].ceilingCount),
-               IntegerToString(levels[i].ceilingProximityCount),
+               IntegerToString(levels[i].ceilingProximityCandles),
                IntegerToString(levels[i].candlesPassedSinceLastCeiling),
                IntegerToString(levels[i].candlesBreakLevelCount),
                IntegerToString(levels[i].recoverCount));
