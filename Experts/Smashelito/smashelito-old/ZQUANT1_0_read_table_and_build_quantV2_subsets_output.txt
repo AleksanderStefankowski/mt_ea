@@ -1,0 +1,400 @@
+bool Subset_2748924010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 80.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749024010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 35.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 105.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749124010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749224010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749324010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 30.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749424010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 55.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749524010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 80.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749624010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 50.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 105.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749724010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749824010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2749924010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 30.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840124010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 55.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840224010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 80.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840324010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 75.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 105.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840424010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 95.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 10.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840524010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 95.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 20.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840624010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 95.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 30.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840724010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 95.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 55.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840824010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 95.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 80.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+
+bool Subset_2840924010(double levelPx, int levelIdx, int kLast)
+{
+   if(!Gate_Day_DayBrokePDH_is_FALSE(kLast)) return false;
+   const double level_minDiff_with_ONO = 35.0;
+   const double level_minDiff_with_RTHO = 95.0; // but skipped check if not set yet
+   const double level_minDiff_with_IBH = 105.0; // but skipped check if not set yet
+
+   if(levelIdx < 0 || levelIdx >= g_levelsTodayCount) return false;
+   if(kLast < 0 || kLast >= g_barsInDay) return false;
+   if(!Gate_Level_neverTouched_ceiling(levelIdx, kLast)) return false;
+   if(!Gate_Level_AbsDiff_with_ONO_atLeastX(levelPx, level_minDiff_with_ONO)) return false;
+
+   if(Gate_Level_AbsDiff_with_RTHO_guard_RTHO_ready(kLast))
+      if(!Gate_Level_AbsDiff_with_RTHO_atLeastX(levelPx, kLast, level_minDiff_with_RTHO)) return false;
+
+   if(g_IBhighAtBar[kLast].hasValue)
+      if(!Gate_Level_AbsDiff_with_IBH_atLeastX(levelPx, kLast, level_minDiff_with_IBH)) return false;
+   return true;
+}
+

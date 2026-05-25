@@ -1,0 +1,1139 @@
+bool Subset_20101(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20102(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20103(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20104(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20105(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20106(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20107(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20108(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20109(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20110(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20111(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20112(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20113(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20114(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20115(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20116(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20117(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20118(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20119(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20120(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 3.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20121(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 3.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20122(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 3.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 45;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20123(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 3.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 45;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20124(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 3.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20125(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 3.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20126(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20127(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20128(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20129(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20130(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20131(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20132(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20133(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20134(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20135(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20136(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20137(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20138(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20139(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 0.77;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20140(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20141(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20142(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20143(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20144(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20145(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20146(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20147(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20148(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20149(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20150(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20151(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 15.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20152(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20153(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20154(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20155(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20156(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20157(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20158(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20159(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20160(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 10.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20161(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20162(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 15;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20163(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 45;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 3;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20164(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 45;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20165(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20166(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20167(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20168(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 10;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20169(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20170(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20171(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20172(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 15;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20173(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 45;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20174(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 60;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20175(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 300;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
+
+bool Subset_20176(double levelPx, int levelIdx, int kLast)
+{
+   const double minDayHighOverLevelPoints = 2.0;
+   const double maxDayHighOverLevelPoints = 25.0;
+   const int exclusiveMaxCandlesLowAboveLevel = 900;
+   if(!Gate_CandleLows_FewerThanX_AboveLevel(kLast, levelPx, exclusiveMaxCandlesLowAboveLevel)) return false;
+   const int cleanStreakBelow_Minimum = 25;
+   const int cleanStreakBelow_max = 900;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(kLast, levelPx, maxDayHighOverLevelPoints)) return false;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(kLast, levelPx, minDayHighOverLevelPoints)) return false;
+   if(!Gate_CleanStreak_NoMoreThanX_BelowLevel(levelIdx, kLast, cleanStreakBelow_max)) return false;
+   if(!Gate_CleanStreak_AtLeastX_BelowLevel(levelIdx, kLast, cleanStreakBelow_Minimum)) return false;
+   return true;
+}
