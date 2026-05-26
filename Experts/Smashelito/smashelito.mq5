@@ -41,36 +41,37 @@ bool     InpEODLogging = true;  // if true: at 21:58-22:00 write EOD logs (pulli
 bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_testing_pullinghistory_algofamily.csv (closest weekly level + algo family columns)
 bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
 bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSummary1line.csv
-// Trade-results CSV referencePointsAbove/Below: min distance when bigflipper_tradeResult_referencePoints_excludeTooClose is true (see bigflipper block).
-double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; omit ref when |ref - level| < this and exclusion bigflipper is on
-bool     dailyEODlog_TestinglevelsPlus =      true;     // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
 bool     dailyLog_StaticMarketContext = true;  // (date)_staticMarketContext_log.csv — PDO/PDH/PDL/PDC once per day right after UpdateStaticMarketContext
 bool     dailyLog_algoFamilyWeekPerspective = true;  // (date)_algofamily_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
-bool     velocity_parameter_testing = true;  // (date)_algoN_velocity_parameter_testing.csv — profitVelocity + avg per tested window (open trade, persecond_debug)
+
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
 bool     finalLog_TradeLog            = true; // (date)_B_TradeLog_algoN.csv per wired algo (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
-bool     dailySpamLog_Arawevents      = true; // Arawevents CSV + level logRawEv (FinalizeCurrentCandle)
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
-//--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
-bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_algoN_gates_per_minute.csv — all wired algos
 bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo EOD CSV + all-days TSV + summary_tradeResults_all_days.tsv
-bool     bigflipper_log_B_TradeLog                         = true;  // (date)_B_TradeLog_algoN.csv
-bool     bigflipper_log_algo_velocity_parameter_testing    = false;  // (date)_algoN_velocity_parameter_testing.csv
-bool     bigflipper_log_algo__trade_telemetry_per_second   = true;  // (date)_algoN_trade_telemetry_per_second.csv
-bool     bigflipper_log_algofamily_per_second = true; // (date)_testing_algofamily_per_second.csv + (date)_algoN_gates_per_second.csv
-int      pullinghistory_per_second_start_hour              = 13;  // inclusive window start (server time)
-int      pullinghistory_per_second_start_minute            =  8;
-int      pullinghistory_per_second_end_hour                = 13;  // inclusive window end (server time)
-int      pullinghistory_per_second_end_minute              = 10;
-bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit any ref when |ref - level| < tradeResult_referencePointMinAbsDiffFromLevel
+//--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
+bool     bigflipper_log_B_TradeLog                         = false;  // (date)_B_TradeLog_algoN.csv
+bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
+bool     bigflipper_log_Arawevents                        = false;  // (date)-..._Arawevents.csv + level logRawEv (FinalizeCurrentCandle)
+bool     bigflipper_log_algo_gates_per_minute              = false;  // (date)_algoN_gates_per_minute.csv — all wired algos
+//--- Per-second logs (shared time window below)
+bool     bigflipper_log_testing_algofamily_per_second      = false;  // (date)_testing_algofamily_per_second.csv
+bool     bigflipper_log_algo_gates_per_second              = false;  // (date)_algoN_gates_per_second.csv
+bool     bigflipper_log_algo_trade_telemetry_per_second    = false;  // (date)_algoN_trade_telemetry_per_second.csv
+bool     bigflipper_log_algo_velocity_parameter_testing_per_second = false;  // (date)_algoN_velocity_parameter_testing.csv
+int      per_second_log_start_hour                         =   0;  // shared inclusive window start (server time) — all 4 per-second logs above
+int      per_second_log_start_minute                       =  20;
+int      per_second_log_end_hour                           =  22;  // shared inclusive window end (server time)
+int      per_second_log_end_minute                         =  59;
+bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
+double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
 
@@ -366,6 +367,7 @@ struct AlgoSharedProfile
    int    tradeSizePct;
    string bannedRanges;
    bool   babysit_enabled;
+   bool   mode_switching_enabled;  // master: when false, no neutral/strong/bad/terrible modes (secretTPSL + broker TP/SL only)
    bool   tradesWeeklyLevels;
    bool   tradesDailyLevels;
    string tradesDays;              // e.g. "12345" = Mon..Fri
@@ -373,11 +375,6 @@ struct AlgoSharedProfile
    int    secretTPSL_percent;
    double initialTP;
    double initialSL;
-   bool   persecond_debug_enabled;
-   int    persecond_debug_start_hour;
-   int    persecond_debug_start_minute;
-   int    persecond_debug_end_hour;
-   int    persecond_debug_end_minute;
    int    revenge_long_allowed_perdayCount;
    int    revenge_short_allowed_perdayCount;
    double revenge_initialTP;
@@ -401,6 +398,7 @@ struct AlgoPerAlgoTune
    double neutral_trade_TP;                    // signed; 0=breakeven; close when profit >= target
    double strong_trade_TP;                     // signed; 0=breakeven; close when profit >= target
    bool   strong_trade_mode_enabled;
+   bool   neutral_trade_mode_enabled;
    bool   badtrade_mode_enabled;
    bool   terribletrade_mode_enabled;
    double strong_trade_eval_min_profit_pts;
@@ -413,7 +411,6 @@ struct AlgoPerAlgoTune
    double strong_trade_stall_min_close_profit_pts;
    int    telemetry_velocity_window_seconds;
    int    telemetry_avg_velocity_window_seconds;
-   bool   trade_telemetry_per_second_enabled;  // (date)_algoN_trade_telemetry_per_second.csv during persecond_debug window
    int    start_mae_care_after_x_seconds;      // MAE_post_xx: 0 until this trade age; then track min profit from that second
    double badtrade_MaePostX_trigger;           // negative MAE_post_xx latch depth when badtrade_mode_enabled
    int    badtrade_totalRedSeconds_minTrigger; // min total red seconds required to latch bad trade
@@ -3629,6 +3626,7 @@ struct FalgoOpenTradeTelemetry
    double   openProfitPts;
    double   mfePts;
    double   maePts;
+   double   maeFirst60Pts;  // worst floating P/L (pts) during tradeAgeSeconds 0..60
    double   maePostXPts;
    int      mfeCandle1Based;
    int      maeCandle1Based;
@@ -3680,6 +3678,7 @@ struct FalgoClosedTradeTelemetrySummary
    double   avgProfitVelocity;
    double   mfePts;
    double   maePts;
+   double   maeFirst60Pts;
    int      mfeCandle1Based;
    int      maeCandle1Based;
    int      timeToReachNeutralTpSeconds;
@@ -4257,6 +4256,7 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = 0.0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = 0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = 0;
@@ -4477,15 +4477,13 @@ void PullingHistoryAlgoFamilyWriteCsvRow(const int fh, const datetime rowTime, c
 }
 
 //+------------------------------------------------------------------+
-bool FalgoIsTimeInAlgoFamilyPerSecondWindow(const datetime t)
+bool FalgoIsTimeInPerSecondLogWindow(const datetime t)
 {
-   if(!bigflipper_log_algofamily_per_second)
-      return false;
    MqlDateTime dt;
    TimeToStruct(t, dt);
    const int minuteOfDay = dt.hour * 60 + dt.min;
-   const int startMin = pullinghistory_per_second_start_hour * 60 + pullinghistory_per_second_start_minute;
-   const int endMin = pullinghistory_per_second_end_hour * 60 + pullinghistory_per_second_end_minute;
+   const int startMin = per_second_log_start_hour * 60 + per_second_log_start_minute;
+   const int endMin = per_second_log_end_hour * 60 + per_second_log_end_minute;
    if(startMin <= endMin)
       return (minuteOfDay >= startMin && minuteOfDay <= endMin);
    return (minuteOfDay >= startMin || minuteOfDay <= endMin);
@@ -4494,7 +4492,9 @@ bool FalgoIsTimeInAlgoFamilyPerSecondWindow(const datetime t)
 //+------------------------------------------------------------------+
 void FalgoTryLogAlgoFamilyPerSecond()
 {
-   if(!FalgoIsTimeInAlgoFamilyPerSecondWindow(g_lastTimer1Time))
+   if(!FalgoIsTimeInPerSecondLogWindow(g_lastTimer1Time))
+      return;
+   if(!bigflipper_log_testing_algofamily_per_second && !bigflipper_log_algo_gates_per_second)
       return;
    if(g_barsInDay <= 0 || g_m1DayStart == 0)
       return;
@@ -4503,20 +4503,25 @@ void FalgoTryLogAlgoFamilyPerSecond()
       return;
    const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    const string dateStr = TimeToString(dayStart, TIME_DATE);
-   const string fname = dateStr + "_testing_algofamily_per_second.csv";
-   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fh == INVALID_HANDLE)
-      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fh != INVALID_HANDLE)
+   if(bigflipper_log_testing_algofamily_per_second)
    {
-      FileSeek(fh, 0, SEEK_END);
-      if(FileTell(fh) == 0)
-         PullingHistoryAlgoFamilyWriteCsvHeader(fh);
-      double o = 0.0, h = 0.0, l = 0.0, c = 0.0;
-      PullingHistoryAlgoFamilyOhlcAsOfTime(g_lastTimer1Time, o, h, l, c);
-      PullingHistoryAlgoFamilyWriteCsvRow(fh, g_lastTimer1Time, snapBarIdx, o, h, l, c, TIME_DATE|TIME_SECONDS);
-      FileClose(fh);
+      const string fname = dateStr + "_testing_algofamily_per_second.csv";
+      int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+      if(fh == INVALID_HANDLE)
+         fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+      if(fh != INVALID_HANDLE)
+      {
+         FileSeek(fh, 0, SEEK_END);
+         if(FileTell(fh) == 0)
+            PullingHistoryAlgoFamilyWriteCsvHeader(fh);
+         double o = 0.0, h = 0.0, l = 0.0, c = 0.0;
+         PullingHistoryAlgoFamilyOhlcAsOfTime(g_lastTimer1Time, o, h, l, c);
+         PullingHistoryAlgoFamilyWriteCsvRow(fh, g_lastTimer1Time, snapBarIdx, o, h, l, c, TIME_DATE|TIME_SECONDS);
+         FileClose(fh);
+      }
    }
+   if(!bigflipper_log_algo_gates_per_second)
+      return;
    const int placementBarIdx = g_barsInDay - 1;
    for(int si = 0; si < g_algoCount; si++)
    {
@@ -4736,21 +4741,6 @@ string FalgoGatesColAvgProfitVelocity()
 }
 
 //+------------------------------------------------------------------+
-bool FalgoIsTimeInPerSecondDebugWindow(const datetime t)
-{
-   if(!g_algoShared.persecond_debug_enabled)
-      return false;
-   MqlDateTime dt;
-   TimeToStruct(t, dt);
-   const int minuteOfDay = dt.hour * 60 + dt.min;
-   const int startMin = g_algoShared.persecond_debug_start_hour * 60 + g_algoShared.persecond_debug_start_minute;
-   const int endMin = g_algoShared.persecond_debug_end_hour * 60 + g_algoShared.persecond_debug_end_minute;
-   if(startMin <= endMin)
-      return (minuteOfDay >= startMin && minuteOfDay <= endMin);
-   return (minuteOfDay >= startMin || minuteOfDay <= endMin);
-}
-
-//+------------------------------------------------------------------+
 void FalgoTelemetryInitFromSelectedPosition()
 {
    FalgoTelemetryClearOpenState();
@@ -4762,6 +4752,7 @@ void FalgoTelemetryInitFromSelectedPosition()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = profitPts;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime, g_lastTimer1Time);
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based;
@@ -4782,6 +4773,7 @@ void FalgoTelemetryFillSummaryFromOpen(FalgoClosedTradeTelemetrySummary &outSumm
    outSummary.avgProfitVelocity = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].avgProfitVelocity;
    outSummary.mfePts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts;
    outSummary.maePts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts;
+   outSummary.maeFirst60Pts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts;
    outSummary.mfeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based;
    outSummary.maeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based;
    outSummary.timeToReachNeutralTpSeconds = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds;
@@ -4864,9 +4856,49 @@ double FalgoTerribleTradeAvgProfitVelocity10(const AlgoPerAlgoTune &tune)
 }
 
 //+------------------------------------------------------------------+
+bool AlgoModeSwitchingEnabled()
+{
+   return g_algoShared.mode_switching_enabled;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoStrongTradeModeActive(const AlgoPerAlgoTune &tune)
+{
+   return AlgoModeSwitchingEnabled() && tune.strong_trade_mode_enabled;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoNeutralTradeModeActive(const AlgoPerAlgoTune &tune)
+{
+   return AlgoModeSwitchingEnabled() && tune.neutral_trade_mode_enabled;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoBadTradeModeActive(const AlgoPerAlgoTune &tune)
+{
+   return AlgoModeSwitchingEnabled() && tune.badtrade_mode_enabled;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoTerribleTradeModeActive(const AlgoPerAlgoTune &tune)
+{
+   return AlgoModeSwitchingEnabled() && tune.terribletrade_mode_enabled;
+}
+
+//+------------------------------------------------------------------+
+void AlgoClearTradeRecoveryModeFlags()
+{
+   if(g_falgoOpenTelemetryCtx < 0 || g_falgoOpenTelemetryCtx >= FALGO_OPEN_TELEMETRY_MAX)
+      return;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].badTradeMode = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].terribleTradeMode = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].aimStrongTp = false;
+}
+
+//+------------------------------------------------------------------+
 bool FalgoBadTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
 {
-   if(!tune.badtrade_mode_enabled)
+   if(!AlgoBadTradeModeActive(tune))
       return false;
    if(tune.badtrade_MaePostX_trigger >= 0.0)
       return false;
@@ -4884,7 +4916,7 @@ bool FalgoBadTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
 //+------------------------------------------------------------------+
 bool FalgoTerribleTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
 {
-   if(!tune.terribletrade_mode_enabled)
+   if(!AlgoTerribleTradeModeActive(tune))
       return false;
    if(tune.terribletrade_MaePostX_trigger >= 0.0)
       return false;
@@ -4905,6 +4937,8 @@ bool FalgoTerribleTradeLatchConditionsMet(const AlgoPerAlgoTune &tune)
 //+------------------------------------------------------------------+
 void FalgoTryLatchTradeRecoveryModes(const AlgoPerAlgoTune &tune)
 {
+   if(!AlgoModeSwitchingEnabled())
+      return;
    if(FalgoTerribleTradeLatchConditionsMet(tune))
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].terribleTradeMode = true;
    if(FalgoBadTradeLatchConditionsMet(tune))
@@ -4914,7 +4948,7 @@ void FalgoTryLatchTradeRecoveryModes(const AlgoPerAlgoTune &tune)
 //+------------------------------------------------------------------+
 void FalgoTryLatchStrongMomentumIfNeeded(const AlgoPerAlgoTune &tune, const double profitPts)
 {
-   if(!tune.strong_trade_mode_enabled || g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].aimStrongTp)
+   if(!AlgoStrongTradeModeActive(tune) || g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].aimStrongTp)
       return;
    const double nearNeutral = (MathAbs(tune.neutral_trade_TP) > 0.0)
       ? PointSized(MathAbs(tune.neutral_trade_TP)) * 0.85
@@ -4950,19 +4984,27 @@ string FalgoExitModeString(const AlgoPerAlgoTune &tune)
       : (g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds / 60);
    if(minutesOpen < fk.babysitMinute)
       return FALGO_EXIT_MODE_NEUTRAL;
-   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].terribleTradeMode)
-      return FALGO_EXIT_MODE_TERRIBLE_TRADE;
-   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].badTradeMode)
-      return FALGO_EXIT_MODE_BAD_TRADE;
-   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].aimStrongTp)
-      return FALGO_EXIT_MODE_GOOD_MOMENTUM;
+   if(AlgoModeSwitchingEnabled())
+   {
+      if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].terribleTradeMode)
+         return FALGO_EXIT_MODE_TERRIBLE_TRADE;
+      if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].badTradeMode)
+         return FALGO_EXIT_MODE_BAD_TRADE;
+      if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].aimStrongTp)
+         return FALGO_EXIT_MODE_GOOD_MOMENTUM;
+   }
+   if(!AlgoNeutralTradeModeActive(tune))
+      return FALGO_EXIT_MODE_NEUTRAL;
    return FALGO_EXIT_MODE_NEUTRAL_TRADE;
 }
 
 //+------------------------------------------------------------------+
 void FalgoUpdateExitModeEachSecond(const AlgoPerAlgoTune &tune)
 {
-   FalgoTryLatchStrongMomentumIfNeeded(tune, g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts);
+   if(!AlgoModeSwitchingEnabled())
+      AlgoClearTradeRecoveryModeFlags();
+   else
+      FalgoTryLatchStrongMomentumIfNeeded(tune, g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts);
    const string prev = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].exitMode;
    const string next = FalgoExitModeString(tune);
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].exitModePrev = prev;
@@ -4973,16 +5015,14 @@ void FalgoUpdateExitModeEachSecond(const AlgoPerAlgoTune &tune)
 //+------------------------------------------------------------------+
 void FalgoAppendTelemetryPerSecondRow(const string eventType, const string closeReason, const string closeDetail)
 {
-   if(!bigflipper_log_algo__trade_telemetry_per_second)
+   if(!bigflipper_log_algo_trade_telemetry_per_second)
       return;
    if(!g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].active)
       return;
-   if(!FalgoIsTimeInPerSecondDebugWindow(g_lastTimer1Time))
+   if(!FalgoIsTimeInPerSecondLogWindow(g_lastTimer1Time))
       return;
    AlgoPerAlgoTune telTune;
    if(!AlgoLoadPerAlgoTuneForMagic(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic, telTune))
-      return;
-   if(!telTune.trade_telemetry_per_second_enabled)
       return;
    const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    const string dateStr = TimeToString(dayStart, TIME_DATE);
@@ -5078,7 +5118,7 @@ string FalgoVelocityParamTestDataLine()
 //+------------------------------------------------------------------+
 void FalgoUpdateVelocityParamTestAverages()
 {
-   if(!bigflipper_log_algo_velocity_parameter_testing || !velocity_parameter_testing || !g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].active)
+   if(!bigflipper_log_algo_velocity_parameter_testing_per_second || !g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].active)
       return;
    const int sampleCount = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].avgVelocitySampleCount;
    if(sampleCount <= 0)
@@ -5100,9 +5140,9 @@ void FalgoUpdateVelocityParamTestAverages()
 //+------------------------------------------------------------------+
 void FalgoTryLogVelocityParameterTesting()
 {
-   if(!bigflipper_log_algo_velocity_parameter_testing || !velocity_parameter_testing || !g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].active)
+   if(!bigflipper_log_algo_velocity_parameter_testing_per_second || !g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].active)
       return;
-   if(!FalgoIsTimeInPerSecondDebugWindow(g_lastTimer1Time))
+   if(!FalgoIsTimeInPerSecondLogWindow(g_lastTimer1Time))
       return;
    const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    const string dateStr = TimeToString(dayStart, TIME_DATE);
@@ -5167,9 +5207,13 @@ void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = profitPts;
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime, g_lastTimer1Time);
    }
+   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds <= 60 &&
+      profitPts < g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts)
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts = profitPts;
    FalgoOpenTelemetryUpdateMaePostX(telTune, profitPts);
    FalgoTryLatchTradeRecoveryModes(telTune);
-   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds < 0 &&
+   if(AlgoNeutralTradeModeActive(telTune) &&
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds < 0 &&
       profitPts >= PointSized(telTune.neutral_trade_TP))
    {
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds;
@@ -5568,43 +5612,37 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
    else
       outCloseVsLevel = "below";
 
+   outProxOK = (prox <= proxLimit);
+
+   const int levelIdx = FalgoClosestExpandedLevelIdxAtBar(barIdx);
+   if(levelIdx >= 0)
+   {
+      outClosestLevelCategoryOK = FalgoLevelEligibleForClosestAnchor(levelIdx);
+      outClosestLevelPlacementOK = outClosestLevelCategoryOK;
+      if(outClosestLevelCategoryOK)
+         outTier = FalgoLevelTierFromLevelIdx(levelIdx);
+   }
+
    if(isShortAlgo)
    {
-      if(outCloseVsLevel != "below")
-         return;
-      outDirection = "short";
-      outProxOK = (prox <= proxLimit);
       outBounceOK = true;
       outCeilingOK = AlgoRulesetPassesForAlgo(algoSlot1, barIdx);
-      outRulesetDir = outRulesetCommon && outCeilingOK;
    }
    else
    {
-      if(outCloseVsLevel != "above")
-         return;
-      outDirection = "long";
-      outProxOK = (prox <= proxLimit);
       outBounceOK = AlgoRulesetPassesForAlgo(algoSlot1, barIdx);
       outCeilingOK = true;
-      outRulesetDir = outRulesetCommon && outBounceOK;
    }
 
-   if(!outWeeklyOK)
-      return;
+   const bool onTradeSide = isShortAlgo ? (outCloseVsLevel == "below") : (outCloseVsLevel == "above");
+   outDirection = onTradeSide ? (isShortAlgo ? "short" : "long") : "none";
+   outRulesetDir = onTradeSide && outRulesetCommon && (isShortAlgo ? outCeilingOK : outBounceOK);
 
-   const int levelIdx = FalgoClosestExpandedLevelIdxAtBar(barIdx);
-   if(levelIdx < 0)
-      return;
-   outClosestLevelCategoryOK = FalgoLevelEligibleForClosestAnchor(levelIdx);
-   outClosestLevelPlacementOK = outClosestLevelCategoryOK;
-   if(outClosestLevelCategoryOK)
-      outTier = FalgoLevelTierFromLevelIdx(levelIdx);
-
-   if(!outProxOK || !outClosestLevelPlacementOK)
-      return;
-
-   RefreshOccupiedMagicsCache();
-   outMagicFree = CanPlaceNewOrderForAlgo_Cached(algoSlot1);
+   if(outWeeklyOK && outProxOK && outClosestLevelPlacementOK)
+   {
+      RefreshOccupiedMagicsCache();
+      outMagicFree = CanPlaceNewOrderForAlgo_Cached(algoSlot1);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -5938,32 +5976,76 @@ void FalgoGatesMfeMaePointsForBar(const int barIdx, const int algoSlot1, string 
 }
 
 //+------------------------------------------------------------------+
-string AlgoGatesComputeFirstFail(const int algoSlot1, const int barIdx, const int closestLevelExpandedIdx,
+void AlgoGatesFailFlagsAppend(string &outFlags[], const string flag)
+{
+   if(flag == "")
+      return;
+   const int n = ArraySize(outFlags);
+   ArrayResize(outFlags, n + 1);
+   outFlags[n] = flag;
+}
+
+//+------------------------------------------------------------------+
+void AlgoGatesAppendRulesFails(string &outFlags[], const int algoSlot1, const int barIdx)
+{
+   const int slotIdx = AlgoSlotIndexByAlgoId(algoSlot1);
+   if(slotIdx < 0)
+   {
+      AlgoGatesFailFlagsAppend(outFlags, "unknownAlgo");
+      return;
+   }
+   if(barIdx < 0 || barIdx >= g_barsInDay)
+   {
+      AlgoGatesFailFlagsAppend(outFlags, "invalidBar");
+      return;
+   }
+   const double tradeLevel = g_pullingHistoryAlgoFamilyAtBar[barIdx].closestWeeklyLevelToCClose;
+   const AlgoDef algo = g_algos[slotIdx];
+   bool anyRuleFail = false;
+   for(int r = 0; r < algo.rule_count; r++)
+   {
+      const string f = EvalAlgoRule(algo, algo.rules[r], barIdx, tradeLevel);
+      if(f != "")
+      {
+         AlgoGatesFailFlagsAppend(outFlags, f);
+         anyRuleFail = true;
+      }
+   }
+   if(!anyRuleFail)
+      AlgoGatesFailFlagsAppend(outFlags, "rulesetDisabled");
+}
+
+//+------------------------------------------------------------------+
+void AlgoGatesCollectPlacementFailFlags(const int algoSlot1, const int barIdx, const int closestLevelExpandedIdx,
    const bool profileEnabled, const bool tradingDay, const bool tradingTime,
    const bool underLoss, const bool underWin, const bool noOpen, const bool noPending,
    const bool tradeCloseDedicatedBar, const bool familyBlock, const bool isShortAlgo,
    const string closeVs, const string direction,
    const bool weeklyOK, const bool closestLevelCategoryOK, const bool proxOK,
    const bool bounceOK, const bool ceilingOK, const bool magicFree,
-   const double proxForLabel = -1.0)
+   string &outFlags[], const double proxForLabel = -1.0)
 {
-   if(!profileEnabled) return "profileDisabled";
-   if(!tradingDay) return "tradingDayBanned";
-   if(!tradingTime) return "tradingTimeBanned";
+   ArrayResize(outFlags, 0);
+   if(!profileEnabled) AlgoGatesFailFlagsAppend(outFlags, "profileDisabled");
+   if(!tradingDay) AlgoGatesFailFlagsAppend(outFlags, "tradingDayBanned");
+   if(!tradingTime) AlgoGatesFailFlagsAppend(outFlags, "tradingTimeBanned");
    const string familyDayStop = AlgoFamilyDayStopFirstFailLabel();
-   if(familyDayStop != "") return familyDayStop;
-   if(!underLoss) return "lossStopDayLimit";
-   if(!underWin) return "winStopDayLimit";
-   if(!noOpen) return "openFalgoPositionThis";
-   if(tradeCloseDedicatedBar) return "tradeClosedThisBar";
-   if(!noPending) return "pendingFalgoOrderThis";
-   if(familyBlock && FalgoHasOpenPositionOnSymbol()) return "openFalgoPositionFam";
-   if(familyBlock && FalgoHasPendingOrderOnSymbol()) return "pendingFalgoOrderFam";
-   if(closeVs == "no_level") return "noClosestLevel";
-   if(closeVs == "flat") return "closeFlatOnLevel";
-   if(!isShortAlgo && closeVs == "below") return "longOnly_closeBelowLevel";
-   if(isShortAlgo && closeVs == "above") return "shortOnly_closeAboveLevel";
-   if(!weeklyOK) return "tradesWeeklyLevelsOff";
+   if(familyDayStop != "") AlgoGatesFailFlagsAppend(outFlags, familyDayStop);
+   if(!underLoss) AlgoGatesFailFlagsAppend(outFlags, "lossStopDayLimit");
+   if(!underWin) AlgoGatesFailFlagsAppend(outFlags, "winStopDayLimit");
+   if(!noOpen) AlgoGatesFailFlagsAppend(outFlags, "openFalgoPositionThis");
+   if(tradeCloseDedicatedBar) AlgoGatesFailFlagsAppend(outFlags, "tradeClosedThisBar");
+   if(!noPending) AlgoGatesFailFlagsAppend(outFlags, "pendingFalgoOrderThis");
+   if(familyBlock && FalgoHasOpenPositionOnSymbol()) AlgoGatesFailFlagsAppend(outFlags, "openFalgoPositionFam");
+   if(familyBlock && FalgoHasPendingOrderOnSymbol()) AlgoGatesFailFlagsAppend(outFlags, "pendingFalgoOrderFam");
+   if(closeVs == "no_level") AlgoGatesFailFlagsAppend(outFlags, "noClosestLevel");
+   if(closeVs == "flat") AlgoGatesFailFlagsAppend(outFlags, "closeFlatOnLevel");
+   if(!isShortAlgo && closeVs == "below") AlgoGatesFailFlagsAppend(outFlags, "longOnly_closeBelowLevel");
+   if(isShortAlgo && closeVs == "above") AlgoGatesFailFlagsAppend(outFlags, "shortOnly_closeAboveLevel");
+   if(closeVs == "no_level")
+      return;
+
+   if(!weeklyOK) AlgoGatesFailFlagsAppend(outFlags, "tradesWeeklyLevelsOff");
    if(!proxOK)
    {
       double proxLimit = 0.0, offsetDummy = 0.0;
@@ -5972,26 +6054,18 @@ string AlgoGatesComputeFirstFail(const int algoSlot1, const int barIdx, const in
       const double proxVal = (proxForLabel >= 0.0)
          ? proxForLabel
          : g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity;
-      return StringFormat("proximity(%s vs %s)",
+      AlgoGatesFailFlagsAppend(outFlags, StringFormat("proximity(%s vs %s)",
          DoubleToString(proxVal, _Digits),
-         DoubleToString(proxLimit, _Digits));
+         DoubleToString(proxLimit, _Digits)));
    }
-   if(!closestLevelCategoryOK) return AlgoClosestLevelGateFailLabelForIdx(closestLevelExpandedIdx);
-   if(direction == "long" && !bounceOK)
-   {
-      string firstFail = "";
-      AlgoRulesGateFirstFailOrRulesetDisabled(algoSlot1, barIdx, firstFail);
-      return firstFail;
-   }
-   if(direction == "short" && !ceilingOK)
-   {
-      string firstFail = "";
-      AlgoRulesGateFirstFailOrRulesetDisabled(algoSlot1, barIdx, firstFail);
-      return firstFail;
-   }
-   if((direction == "long" || direction == "short") && !magicFree)
-      return "algoOccupied";
-   return "";
+   if(!closestLevelCategoryOK)
+      AlgoGatesFailFlagsAppend(outFlags, AlgoClosestLevelGateFailLabelForIdx(closestLevelExpandedIdx));
+   if(!isShortAlgo && !bounceOK)
+      AlgoGatesAppendRulesFails(outFlags, algoSlot1, barIdx);
+   if(isShortAlgo && !ceilingOK)
+      AlgoGatesAppendRulesFails(outFlags, algoSlot1, barIdx);
+   if(weeklyOK && proxOK && closestLevelCategoryOK && !magicFree)
+      AlgoGatesFailFlagsAppend(outFlags, "algoOccupied");
 }
 
 //+------------------------------------------------------------------+
@@ -6004,7 +6078,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
    {
       FileWrite(fh,
          "barTime", "O", "H", "L", "C",
-         "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "failGateCount", "MFE", "MAE",
+         "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount", "MFE", "MAE",
          "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
          "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
          "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
@@ -6014,7 +6088,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
    }
    FileWrite(fh,
       "barTime", "O", "H", "L", "C",
-      "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "failGateCount", "MFE", "MAE",
+      "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount", "MFE", "MAE",
       "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
       "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
       "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
@@ -6029,6 +6103,10 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
    {
       if(!bigflipper_log_algo_gates_per_minute)
          return;
+   }
+   else if(!bigflipper_log_algo_gates_per_second)
+   {
+      return;
    }
    if(barIdx < 0 || barIdx >= g_barsInDay || g_m1DayStart == 0)
       return;
@@ -6091,10 +6169,15 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
    const bool isShortAlgo = AlgoSlotTradesShort(algoSlot1);
 
    const double proxForLabel = (perSecond && liveProx >= 0.0) ? liveProx : -1.0;
-   string firstFail = AlgoGatesComputeFirstFail(algoSlot1, dataBarIdx, closestLevelExpandedIdx,
+   string failFlags[];
+   AlgoGatesCollectPlacementFailFlags(algoSlot1, dataBarIdx, closestLevelExpandedIdx,
       profileEnabled, tradingDay, tradingTime, underLoss, underWin, noOpen, noPending,
       tradeCloseDedicatedBar, familyBlock, isShortAlgo, closeVs, direction,
-      weeklyOK, closestLevelCategoryOK, proxOK, bounceOK, ceilingOK, magicFree, proxForLabel);
+      weeklyOK, closestLevelCategoryOK, proxOK, bounceOK, ceilingOK, magicFree,
+      failFlags, proxForLabel);
+   string firstFail = (ArraySize(failFlags) > 0 ? failFlags[0] : "");
+   string secondFail = (ArraySize(failFlags) > 1 ? failFlags[1] : "");
+   string thirdFail = (ArraySize(failFlags) > 2 ? failFlags[2] : "");
 
    if(perSecond && firstFail == "")
    {
@@ -6105,11 +6188,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
 
    int failGateCount = 0;
    if(firstFail != "")
-      failGateCount = AlgoGatesPlacementFailCount(algoSlot1, dataBarIdx,
-         profileEnabled, tradingDay, tradingTime, underLoss, underWin,
-         noOpen, tradeCloseDedicatedBar, noPending, familyBlock, isShortAlgo,
-         closeVs, direction, weeklyOK, closestLevelCategoryOK, proxOK,
-         bounceOK, ceilingOK, magicFree);
+      failGateCount = ArraySize(failFlags);
    if(perSecond && firstFail != "" && failGateCount == 0)
       failGateCount = 1;
 
@@ -6193,6 +6272,8 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
       DoubleToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevelToCClose, _Digits),
       plannedTradePrice,
       firstFail,
+      secondFail,
+      thirdFail,
       IntegerToString(failGateCount),
       mfePts,
       maePts,
@@ -6362,7 +6443,7 @@ bool Babysitf_falgo_runStrongMomentumBabysit(const long posMagic, bool &outSkipN
    AlgoPerAlgoTune tune;
    if(!AlgoLoadPerAlgoTuneForMagic(posMagic, tune))
       return false;
-   if(!tune.strong_trade_mode_enabled || !FalgoBabysitPositionMatchesOpenTelemetry())
+   if(!AlgoStrongTradeModeActive(tune) || !FalgoBabysitPositionMatchesOpenTelemetry())
       return false;
 
    const double profitPts = FalgoOpenPositionProfitPoints();
@@ -6445,7 +6526,7 @@ bool Babysitf_falgo_runTerribleTradeBabysit(const long posMagic)
    AlgoPerAlgoTune tune;
    if(!AlgoLoadPerAlgoTuneForMagic(posMagic, tune))
       return false;
-   if(!tune.terribletrade_mode_enabled)
+   if(!AlgoTerribleTradeModeActive(tune))
       return false;
    if(!FalgoBabysitPositionMatchesOpenTelemetry())
       return false;
@@ -6470,7 +6551,7 @@ bool Babysitf_falgo_runBadTradeBabysit(const long posMagic)
    AlgoPerAlgoTune tune;
    if(!AlgoLoadPerAlgoTuneForMagic(posMagic, tune))
       return false;
-   if(!tune.badtrade_mode_enabled)
+   if(!AlgoBadTradeModeActive(tune))
       return false;
    if(!FalgoBabysitPositionMatchesOpenTelemetry())
       return false;
@@ -6533,7 +6614,7 @@ void Babysitf_RunAllOpenFalgoPositionsForSymbol()
       bool skipNeutralTp = false;
       if(Babysitf_falgo_runStrongMomentumBabysit(posMagic, skipNeutralTp))
          continue;
-      if(!skipNeutralTp)
+      if(AlgoNeutralTradeModeActive(posTune) && !skipNeutralTp)
       {
          if(Babysitf_falgo_closeIfProfitTargetTune(posMagic, posTune.neutral_trade_TP, "neutral_trade_TP"))
             continue;
@@ -6885,8 +6966,8 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC"
-#define FALGO_ALLDAYS_COLS     44
+#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,MAEfirst60,mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC"
+#define FALGO_ALLDAYS_COLS     45
 
 //+------------------------------------------------------------------+
 void FalgoFileWriteAllDaysHeader(const int fh)
@@ -6973,53 +7054,55 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    {
       cells[base + 11] = DoubleToString(telSummary.mfePts, 1);
       cells[base + 12] = DoubleToString(telSummary.maePts, 1);
-      cells[base + 15] = FalgoSanitizeCsvCell(telSummary.closeDecision);
-      cells[base + 16] = FalgoSanitizeCsvCell(telSummary.closeDetail);
-      cells[base + 27] = DoubleToString(telSummary.greenRatioAtClose, 4);
-      cells[base + 28] = DoubleToString(telSummary.avgProfitVelocity, 3);
-      cells[base + 29] = IntegerToString(telSummary.secondsGreen);
-      cells[base + 30] = IntegerToString(telSummary.secondsRed);
+      cells[base + 13] = DoubleToString(telSummary.maeFirst60Pts, 1);
+      cells[base + 16] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 17] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 28] = DoubleToString(telSummary.greenRatioAtClose, 4);
+      cells[base + 29] = DoubleToString(telSummary.avgProfitVelocity, 3);
+      cells[base + 30] = IntegerToString(telSummary.secondsGreen);
+      cells[base + 31] = IntegerToString(telSummary.secondsRed);
    }
    else
    {
       cells[base + 11] = "";
       cells[base + 12] = "";
-      cells[base + 15] = "";
+      cells[base + 13] = "";
       cells[base + 16] = "";
-      cells[base + 27] = "";
+      cells[base + 17] = "";
       cells[base + 28] = "";
       cells[base + 29] = "";
       cells[base + 30] = "";
+      cells[base + 31] = "";
    }
-   cells[base + 13] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
-   cells[base + 14] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
-   cells[base + 17] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 18] = (string)tr.volume;
-   cells[base + 19] = FalgoSanitizeCsvCell(tr.bothComments);
+   cells[base + 14] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 15] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 18] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 19] = (string)tr.volume;
+   cells[base + 20] = FalgoSanitizeCsvCell(tr.bothComments);
    int planNum = 0, levelNum = 0;
    FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
-   cells[base + 20] = FalgoSanitizeCsvCell(tr.level);
-   cells[base + 21] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
-   cells[base + 22] = IntegerToString(planNum);
-   cells[base + 23] = IntegerToString(levelNum);
-   cells[base + 24] = FalgoOffsetPriceUnitsStrForTrade(tr);
-   cells[base + 25] = FalgoSanitizeCsvCell(tr.tp);
-   cells[base + 26] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
-   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
+   cells[base + 21] = FalgoSanitizeCsvCell(tr.level);
+   cells[base + 22] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
+   cells[base + 23] = IntegerToString(planNum);
+   cells[base + 24] = IntegerToString(levelNum);
+   cells[base + 25] = FalgoOffsetPriceUnitsStrForTrade(tr);
+   cells[base + 26] = FalgoSanitizeCsvCell(tr.tp);
+   cells[base + 27] = FalgoSanitizeCsvCell(tr.sl);
+   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
    int wBounceC = 0, dBounceC = 0, wCeilingC = 0, dCeilingC = 0;
    FalgoFillTradeBounceCeilingCountsAtStart(tr, wBounceC, dBounceC, wCeilingC, dCeilingC);
-   cells[base + 40] = IntegerToString(wCeilingC);
-   cells[base + 41] = IntegerToString(dCeilingC);
-   cells[base + 42] = IntegerToString(wBounceC);
-   cells[base + 43] = IntegerToString(dBounceC);
+   cells[base + 41] = IntegerToString(wCeilingC);
+   cells[base + 42] = IntegerToString(dCeilingC);
+   cells[base + 43] = IntegerToString(wBounceC);
+   cells[base + 44] = IntegerToString(dBounceC);
 }
 
 //+------------------------------------------------------------------+
@@ -7101,7 +7184,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    if(fhDay != INVALID_HANDLE)
    {
       FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type",
-         "MFE", "MAE", "mfeCandle", "maeCandle", "close_decision", "close_detail",
+         "MFE", "MAE", "MAEfirst60", "mfeCandle", "maeCandle", "close_decision", "close_detail",
          "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
          "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed",
          "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL",
@@ -7132,6 +7215,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             EnumToString((ENUM_DEAL_TYPE)tr.type),
             (hasTel ? DoubleToString(telSummary.mfePts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.maePts, 1) : ""),
+            (hasTel ? DoubleToString(telSummary.maeFirst60Pts, 1) : ""),
             legacyCtx.mfeCandle, legacyCtx.maeCandle,
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDecision) : ""),
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDetail) : ""),
@@ -7259,21 +7343,20 @@ void SyncAlgoFamilyProfileFromInputs()
 {  // algobookmark1 — shared + individual tune blocks
    RebuildAlgoSlotsRegistry();
    //=== SHARED TUNE BLOCK ===
-   g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count  = 999;
-   g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
+
    g_algoShared.babysit_enabled                                = true;
-   // per-algo (date)_algoN_trade_telemetry_per_second.csv window
-   g_algoShared.persecond_debug_enabled                        = true;
-   g_algoShared.persecond_debug_start_hour                     =   0;
-   g_algoShared.persecond_debug_start_minute                   =  20;
-   g_algoShared.persecond_debug_end_hour                       =  22;
-   g_algoShared.persecond_debug_end_minute                     =  59;
+   g_algoShared.mode_switching_enabled                       = false; // master: neutral/strong/bad/terrible modes; per-algo *_mode_enabled apply only when true
    g_algoShared.secretTPSL                                     = true;
    g_algoShared.secretTPSL_percent                             = 50;
+   g_algoShared.initialTP = 9.0;
+   g_algoShared.initialSL = 9.0;
    
-   g_algoShared.blockPlacementIfFamilyOpenOrPending = false;
-   g_algoShared.stop_trading_if_day_has_X_wins_0_losses = 999999;       // family: stop all algos when wins>=X and 0 losses today
-   g_algoShared.stop_trading_if_day_has_profit_factor_above = 999999.0; // family: stop all algos when PF>this and at least 1 loss today
+   g_algoShared.blockPlacementIfFamilyOpenOrPending = true;
+   g_algoShared.stop_trading_if_day_has_X_wins_0_losses = 5;       // family: stop all algos when wins>=X and 0 losses today
+   g_algoShared.stop_trading_if_day_has_profit_factor_above = 6.0; // family: stop all algos when PF>this and at least 1 loss today
+   g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count  = 999;
+   g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
+
    g_algoShared.bounce_minimum_clean_ohlc_to_qualify = 2;   // contact-clean-contact = 1 clean = noise, not a bounce. 
    g_algoShared.ceiling_minimum_clean_ohlc_to_qualify = 2; // Set either to 0 to restore old behaviour  
    g_algoShared.bounce_minimum_HighestLow_levelDiff_to_qualify = 0.9;
@@ -7288,6 +7371,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7301,7 +7385,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.badtrade_totalRedSeconds_minTrigger                      =   125;
@@ -7313,7 +7396,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].bounceMaxAllowed_today                          =  3;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].min_anchorAbove_cleanStreak                     =  3.2;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].min_cleanOHLC_streak_count                      =    18; //I set to 18 to exclude bad long 2026.05.14 18:14:24
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].levelOffset                               = 0.4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].levelOffset                               = -0.3;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].priceProximity                             =  4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].expiry_minutes                              =  5;
    //=== algo11 TUNE BLOCK ===
@@ -7325,6 +7408,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7335,7 +7419,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.badtrade_totalRedSeconds_minTrigger                      =   180;
@@ -7361,6 +7444,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7371,7 +7455,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
@@ -7397,6 +7480,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7407,7 +7491,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
@@ -7433,6 +7516,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7443,7 +7527,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
@@ -7471,6 +7554,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7481,7 +7565,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
@@ -7505,6 +7588,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7515,7 +7599,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
@@ -7542,6 +7625,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.strong_trade_min_velocity_trigger                             = 0.4;
@@ -7553,7 +7637,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.badtrade_mode_enabled                                    = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.badtrade_MaePostX_trigger                                  =  -5.0;
@@ -7580,6 +7663,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.neutral_trade_TP                                         =  2.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_TP                                         =  3.8;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.neutral_trade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.badtrade_mode_enabled                                    = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.terribletrade_mode_enabled                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
@@ -7590,7 +7674,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.telemetry_velocity_window_seconds                        = 10;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.trade_telemetry_per_second_enabled                       = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.start_mae_care_after_x_seconds                           =  90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
@@ -7614,8 +7697,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoShared.tradesWeeklyLevels = true;
    g_algoShared.tradesDailyLevels = false;
    g_algoShared.tradesDays = "12345";
-   g_algoShared.initialTP = 22.0;
-   g_algoShared.initialSL = 22.0;
+
    g_algoShared.revenge_long_allowed_perdayCount = 1;
    g_algoShared.revenge_short_allowed_perdayCount = 1;
    g_algoShared.revenge_initialTP = 24.0;
@@ -10585,7 +10667,7 @@ void OnTimer()
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
          const int HighestDiffRange_Log = 15;  // window in bars for both HighestDiffUp and HighestDiffDown in logs
-         if(dailyEODlog_TestinglevelsPlus)
+         if(bigflipper_log_testinglevelsplus)
          for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
          {
             string levelFile = dateStr + "_testinglevelsplus_" + DoubleToString(g_levelsExpanded[levelIdx].levelPrice, _Digits) + "_" + g_levelsExpanded[levelIdx].tag + ".csv";
@@ -10784,7 +10866,7 @@ void FinalizeCurrentCandle()
             if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
                FileClose(levels[i].logRawEv_fileHandle);
 
-            if(dailySpamLog_Arawevents)
+            if(bigflipper_log_Arawevents)
             {
             string araFile = StringFormat("%s-%s_week%s_-%s_Arawevents.csv", 
                                          dateStr, levels[i].baseName, dateStr, DoubleToString(lvl,_Digits));
