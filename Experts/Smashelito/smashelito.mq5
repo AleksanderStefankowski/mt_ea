@@ -118,6 +118,10 @@ struct Level
    int candlesPassedSinceLastCeiling;
    bool contactFromAbove;  // proximity-contact episode from above (close >= level)
    bool contactFromBelow;  // proximity-contact episode from below (close < level)
+   int    bounceCleanOhlcSinceContact;   // clean-above M1 bars since last proximity contact (for bounce qualify)
+   int    ceilingCleanOhlcSinceContact;  // clean-below M1 bars since last proximity contact (for ceiling qualify)
+   double bounceHighestLowSinceContact;
+   double ceilingLowestHighSinceContact;
    bool lastCandleInPhysicalContact;
    bool contactFromBelowPhysical;
 };
@@ -313,8 +317,8 @@ struct AlgoFamilyWeekPerspectiveRow
    bool   brokenBool;          // price traversed level this week: level between min ONO & max other high, or between min other low & max ONO
    int    countONO_too_close_10p; // days in week where |level - that day's ONO| < 10 (ONO = first M1 open, same as g_ONopen)
    int    candle_overlap_1m_C; // bars with low <= level <= high
-   int    bounceCount;         // week total: proximity contact from above, then fully above
-   int    ceilingCount;        // week total: proximity contact from below, then fully below
+   int    bounceCount;         // week total: proximity from above, then >=N clean OHLC above
+   int    ceilingCount;        // week total: proximity from below, then >=N clean OHLC below
    int    ceilingProximityCandles; // week total: M1 bars in proximity contact from below
 };
 #define MAX_ALGOFAMILY_WEEK_LEVELS 25   // ~20 weekly levels per week + small headroom
@@ -383,6 +387,10 @@ struct AlgoSharedProfile
    bool   blockPlacementIfFamilyOpenOrPending;  // whole algo family: block any algo placement when any family open/pending on _Symbol
    int    stop_trading_if_day_has_X_wins_0_losses;       // family: stop all algos today when wins>=X and losses==0 (infinity PF cap)
    double stop_trading_if_day_has_profit_factor_above;   // family: stop all algos today when PF>this and at least 1 loss today
+   int    bounce_minimum_clean_ohlc_to_qualify;          // bounce: need this many clean OHLC bars after contact-from-above (contact-clean-contact = 1 = noise)
+   int    ceiling_minimum_clean_ohlc_to_qualify;         // ceiling: need this many clean OHLC bars after contact-from-below
+   double bounce_minimum_HighestLow_levelDiff_to_qualify;  // bounce: highest low during clean streak must be >= this above level
+   double ceiling_minimum_LowestHigh_levelDiff_to_qualify; // ceiling: lowest high during clean streak must be >= this below level
 };
 
 struct AlgoPerAlgoTune
@@ -437,7 +445,8 @@ enum ENUM_ALGO_RULE
    RULE_LEVEL_ABOVE_ONL,
    RULE_LEVEL_BELOW_DAY_HIGH,
    RULE_LEVEL_BELOW_PDH,
-   RULE_LEVEL_ABOVE_DAY_LOW
+   RULE_LEVEL_ABOVE_DAY_LOW,
+   RULE_DAY_LOW_SOFAR_NO_MORE_THAN_X_BELOW_LEVEL
 };
 
 #define ALGO_RULES_MAX            16
@@ -478,6 +487,7 @@ struct AlgoDef
    int            max_weekly_bounce_allowed;
    int            max_weekly_ceiling_allowed;
    double         min_levelOnoAbsDiff;
+   double         max_dayLowSoFar_belowLevel_dist;  // 0=off; pass when dayLowSoFar >= level - this (price units)
    AlgoRuleEntry  rules[ALGO_RULES_MAX];
    int            rule_count;
 };
@@ -505,6 +515,10 @@ struct WeeklyLevelAlgoFamilyDayState
    bool     lastInContact;
    bool     contactFromAbove;
    bool     contactFromBelow;
+   int    bounceCleanOhlcSinceContact;
+   int    ceilingCleanOhlcSinceContact;
+   double bounceHighestLowSinceContact;    // max low during bounce clean streak (closest low to level from above)
+   double ceilingLowestHighSinceContact;   // min high during ceiling clean streak (closest high to level from below)
    bool     lastInPhysicalContact;
    bool     contactFromBelowPhysical;
    datetime cleanStreakStartTime;
@@ -1847,6 +1861,10 @@ void ResetWeeklyLevelAlgoFamilyDayState(WeeklyLevelAlgoFamilyDayState &st, doubl
    st.lastInContact = false;
    st.contactFromAbove = false;
    st.contactFromBelow = false;
+   st.bounceCleanOhlcSinceContact = 0;
+   st.ceilingCleanOhlcSinceContact = 0;
+   st.bounceHighestLowSinceContact = 0.0;
+   st.ceilingLowestHighSinceContact = 0.0;
    st.lastInPhysicalContact = false;
    st.contactFromBelowPhysical = false;
    st.cleanStreakStartTime = 0;
@@ -1918,49 +1936,149 @@ void AlgoFamilyRecordCeilingProximityCandle(WeeklyLevelAlgoFamilyDayState &st, c
 }
 
 //+------------------------------------------------------------------+
-//| Bounce: proximity from above → fully above. Ceiling: proximity from below → fully below. |
+//| Bounce/ceiling core: proximity contact, then >=N clean OHLC bars fully above/below. |
 //| ceilingProximityCandles: each M1 bar in proximity contact from below. |
+//+------------------------------------------------------------------+
+void ApplyBounceCeilingOnBarCore(const double o, const double h, const double l, const double c, const double levelPrice,
+   bool &lastInContact, bool &contactFromAbove, bool &contactFromBelow,
+   int &bounceCleanOhlcSinceContact, int &ceilingCleanOhlcSinceContact,
+   double &bounceHighestLowSinceContact, double &ceilingLowestHighSinceContact,
+   int &outBounceInc, int &outCeilingInc, int &outCeilingProxInc)
+{
+   outBounceInc = 0;
+   outCeilingInc = 0;
+   outCeilingProxInc = 0;
+
+   const bool in_prox_contact = IsBarInContactWithLevel(o, h, l, c, levelPrice);
+   if(in_prox_contact)
+   {
+      if(c >= levelPrice) contactFromAbove = true;
+      if(c < levelPrice)  contactFromAbove = false;
+      if(c < levelPrice)  contactFromBelow = true;
+      if(c >= levelPrice) contactFromBelow = false;
+      bounceCleanOhlcSinceContact = 0;
+      ceilingCleanOhlcSinceContact = 0;
+      bounceHighestLowSinceContact = 0.0;
+      ceilingLowestHighSinceContact = 0.0;
+   }
+   if(in_prox_contact && c < levelPrice)
+      outCeilingProxInc = 1;
+
+   if(!in_prox_contact)
+   {
+      if(contactFromAbove && IsBarCleanAbove(o, h, l, c, levelPrice))
+      {
+         if(bounceCleanOhlcSinceContact == 0)
+            bounceHighestLowSinceContact = l;
+         else
+            bounceHighestLowSinceContact = MathMax(bounceHighestLowSinceContact, l);
+         bounceCleanOhlcSinceContact++;
+      }
+      else if(bounceCleanOhlcSinceContact > 0 && !IsBarCleanAbove(o, h, l, c, levelPrice))
+      {
+         bounceCleanOhlcSinceContact = 0;
+         bounceHighestLowSinceContact = 0.0;
+      }
+
+      if(contactFromBelow && IsBarCleanBelow(o, h, l, c, levelPrice))
+      {
+         if(ceilingCleanOhlcSinceContact == 0)
+            ceilingLowestHighSinceContact = h;
+         else
+            ceilingLowestHighSinceContact = MathMin(ceilingLowestHighSinceContact, h);
+         ceilingCleanOhlcSinceContact++;
+      }
+      else if(ceilingCleanOhlcSinceContact > 0 && !IsBarCleanBelow(o, h, l, c, levelPrice))
+      {
+         ceilingCleanOhlcSinceContact = 0;
+         ceilingLowestHighSinceContact = 0.0;
+      }
+   }
+
+   const bool bounceCandle = (!in_prox_contact && l > levelPrice);
+   const bool ceilingCandle = (!in_prox_contact && h < levelPrice);
+   const int bounceMin = g_algoShared.bounce_minimum_clean_ohlc_to_qualify;
+   const int ceilingMin = g_algoShared.ceiling_minimum_clean_ohlc_to_qualify;
+   const double bounceMinLowDiff = g_algoShared.bounce_minimum_HighestLow_levelDiff_to_qualify;
+   const double ceilingMinHighDiff = g_algoShared.ceiling_minimum_LowestHigh_levelDiff_to_qualify;
+
+   bool qualifyBounce = false;
+   if(bounceCandle && contactFromAbove)
+   {
+      if(bounceMin <= 0)
+         qualifyBounce = lastInContact;
+      else
+         qualifyBounce = (bounceCleanOhlcSinceContact >= bounceMin);
+      if(qualifyBounce && bounceMinLowDiff > 0.0)
+         qualifyBounce = (bounceHighestLowSinceContact - levelPrice >= bounceMinLowDiff);
+   }
+   if(qualifyBounce)
+   {
+      outBounceInc = 1;
+      contactFromAbove = false;
+      bounceCleanOhlcSinceContact = 0;
+      bounceHighestLowSinceContact = 0.0;
+   }
+
+   bool qualifyCeiling = false;
+   if(ceilingCandle && contactFromBelow)
+   {
+      if(ceilingMin <= 0)
+         qualifyCeiling = lastInContact;
+      else
+         qualifyCeiling = (ceilingCleanOhlcSinceContact >= ceilingMin);
+      if(qualifyCeiling && ceilingMinHighDiff > 0.0)
+         qualifyCeiling = (levelPrice - ceilingLowestHighSinceContact >= ceilingMinHighDiff);
+   }
+   if(qualifyCeiling)
+   {
+      outCeilingInc = 1;
+      contactFromBelow = false;
+      ceilingCleanOhlcSinceContact = 0;
+      ceilingLowestHighSinceContact = 0.0;
+   }
+
+   if(!in_prox_contact && !lastInContact)
+   {
+      contactFromBelow = false;
+      contactFromAbove = false;
+      bounceCleanOhlcSinceContact = 0;
+      ceilingCleanOhlcSinceContact = 0;
+      bounceHighestLowSinceContact = 0.0;
+      ceilingLowestHighSinceContact = 0.0;
+   }
+   lastInContact = in_prox_contact;
+}
+
 //+------------------------------------------------------------------+
 void AlgoFamilyApplyBounceCeilingOnBar(WeeklyLevelAlgoFamilyDayState &st,
    const double o, const double h, const double l, const double c, const datetime barTime,
    const bool recordEvents)
 {
-   const bool in_prox_contact = IsBarInContactWithLevel(o, h, l, c, st.levelPrice);
-   if(in_prox_contact)
+   int bounceInc = 0, ceilingInc = 0, ceilingProxInc = 0;
+   ApplyBounceCeilingOnBarCore(o, h, l, c, st.levelPrice,
+      st.lastInContact, st.contactFromAbove, st.contactFromBelow,
+      st.bounceCleanOhlcSinceContact, st.ceilingCleanOhlcSinceContact,
+      st.bounceHighestLowSinceContact, st.ceilingLowestHighSinceContact,
+      bounceInc, ceilingInc, ceilingProxInc);
+   if(ceilingProxInc > 0)
    {
-      if(c >= st.levelPrice) st.contactFromAbove = true;
-      if(c < st.levelPrice)  st.contactFromAbove = false;
-      if(c < st.levelPrice)  st.contactFromBelow = true;
-      if(c >= st.levelPrice) st.contactFromBelow = false;
-   }
-   if(in_prox_contact && c < st.levelPrice)
-   {
-      st.ceilingProximityCandles_today++;
+      st.ceilingProximityCandles_today += ceilingProxInc;
       if(recordEvents)
          AlgoFamilyRecordCeilingProximityCandle(st, barTime);
    }
-   const bool bounceCandle = (!in_prox_contact && l > st.levelPrice);
-   if(st.lastInContact && bounceCandle && st.contactFromAbove)
+   if(bounceInc > 0)
    {
-      st.bounceCount_today++;
+      st.bounceCount_today += bounceInc;
       if(recordEvents)
          AlgoFamilyRecordBounceEvent(st, barTime);
-      st.contactFromAbove = false;
    }
-   const bool ceilingCandle = (!in_prox_contact && h < st.levelPrice);
-   if(st.lastInContact && ceilingCandle && st.contactFromBelow)
+   if(ceilingInc > 0)
    {
-      st.ceilingCount_today++;
+      st.ceilingCount_today += ceilingInc;
       if(recordEvents)
          AlgoFamilyRecordCeilingEvent(st, barTime);
-      st.contactFromBelow = false;
    }
-   if(!in_prox_contact && !st.lastInContact)
-   {
-      st.contactFromBelow = false;
-      st.contactFromAbove = false;
-   }
-   st.lastInContact = in_prox_contact;
 }
 
 //+------------------------------------------------------------------+
@@ -3106,12 +3224,13 @@ string MagicNumberToFixedWidthString(long magic)
 #define MAGIC_ALGO15                15
 #define MAGIC_ALGO16                16
 #define MAGIC_ALGO17                17
+#define MAGIC_ALGO18                18
 // algobookmark0 above and below
 // wired algo magic prefixes — add MAGIC_ALGO* define + id here + tune block in Sync
 int g_algoRegistryIds[] =
 {
    MAGIC_ALGO10, MAGIC_ALGO11, MAGIC_ALGO12, MAGIC_ALGO13,
-   MAGIC_ALGO14, MAGIC_ALGO15, MAGIC_ALGO16, MAGIC_ALGO17
+   MAGIC_ALGO14, MAGIC_ALGO15, MAGIC_ALGO16, MAGIC_ALGO17, MAGIC_ALGO18
 };
 
 //+------------------------------------------------------------------+
@@ -7155,6 +7274,10 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoShared.blockPlacementIfFamilyOpenOrPending = false;
    g_algoShared.stop_trading_if_day_has_X_wins_0_losses = 999999;       // family: stop all algos when wins>=X and 0 losses today
    g_algoShared.stop_trading_if_day_has_profit_factor_above = 999999.0; // family: stop all algos when PF>this and at least 1 loss today
+   g_algoShared.bounce_minimum_clean_ohlc_to_qualify = 2;   // contact-clean-contact = 1 clean = noise, not a bounce. 
+   g_algoShared.ceiling_minimum_clean_ohlc_to_qualify = 2; // Set either to 0 to restore old behaviour  
+   g_algoShared.bounce_minimum_HighestLow_levelDiff_to_qualify = 0.9;
+   g_algoShared.ceiling_minimum_LowestHigh_levelDiff_to_qualify = 0.9;
 
    //=== algo10 TUNE BLOCK ===
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].trades_short                                     = ALGO_SIDE_LONG;
@@ -7440,7 +7563,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.terribletrade_try_smaller_loss_TP                           =  -0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].bounceMaxAllowed_today                          = 10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].bounceMaxAllowed_today                          = 6;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].min_anchorAbove_cleanStreak                     = 10.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].max_anchorAbove_cleanStreak                     = 21.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].min_cleanOHLC_streak_count                      =   11;
@@ -7448,6 +7571,42 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].levelOffset                               = 0.4;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].priceProximity                             =  5.2;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].expiry_minutes                              =  5;
+   //=== algo18 TUNE BLOCK (short; clean-below streak (110,220), anchorBelow>=30, dayLow within 50 below level) ===
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].trades_short                                     = ALGO_SIDE_SHORT;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.babysitStart_minute                                     =  0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.neutral_trade_TP                                         =  2.1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_TP                                         =  3.8;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.badtrade_mode_enabled                                    = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.terribletrade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_min_velocity_trigger                             = 0.4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_velocity_window_seconds                  =   10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.telemetry_velocity_window_seconds                        = 10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.telemetry_avg_velocity_window_seconds                    =   10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.trade_telemetry_per_second_enabled                       = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.badtrade_try_save_TP                                     =   1.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.terribletrade_try_smaller_loss_TP                           =  0.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].max_allowed_shorts_perLevel_perDay_forThisAlgo                =  1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].min_anchorBelow_cleanStreak                     = 30.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].min_cleanOHLC_streak_count                      =  110;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].max_cleanOHLC_streak_count                      =  220;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].max_dayLowSoFar_belowLevel_dist                 = 50.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].levelOffset                              =  1.1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].priceProximity                            =  5.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].expiry_minutes                              =  8;
    //=== algobookmark3 end tune blocks ===
 
    g_algoShared.tradeSizePct = 100;
@@ -7742,54 +7901,20 @@ void AlgoFamilyWeekPerspectiveEvalBounceCeiling(const MqlRates &weekRates[], int
 {
    for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
    {
-      double lvl = g_algoFamilyWeekPerspective[rowIdx].levelPrice;
-      g_algoFamilyWeekPerspective[rowIdx].bounceCount = 0;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingCount = 0;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles = 0;
-      bool lastInProxContact = false;
-      bool contactFromAboveProx = false;
-      bool contactFromBelowProx = false;
+      const double lvl = g_algoFamilyWeekPerspective[rowIdx].levelPrice;
+      WeeklyLevelAlgoFamilyDayState st;
+      ResetWeeklyLevelAlgoFamilyDayState(st, lvl);
       for(int barIdx = 0; barIdx < barCount; barIdx++)
       {
-         if(weekRates[barIdx].time < weekStart) continue;
-         const double op = weekRates[barIdx].open;
-         const double hi = weekRates[barIdx].high;
-         const double lo = weekRates[barIdx].low;
-         const double cl = weekRates[barIdx].close;
-         const bool in_phys_contact = (lo <= lvl && hi >= lvl);
-         const bool in_prox_contact = in_phys_contact ||
-            (MathAbs(op - lvl) <= ProximityThreshold ||
-             MathAbs(hi - lvl) <= ProximityThreshold ||
-             MathAbs(lo - lvl) <= ProximityThreshold ||
-             MathAbs(cl - lvl) <= ProximityThreshold);
-         if(in_prox_contact)
-         {
-            if(cl >= lvl) contactFromAboveProx = true;
-            if(cl < lvl)  contactFromAboveProx = false;
-            if(cl < lvl)  contactFromBelowProx = true;
-            if(cl >= lvl) contactFromBelowProx = false;
-         }
-         if(in_prox_contact && cl < lvl)
-            g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles++;
-         const bool bounceCandle = (!in_prox_contact && lo > lvl);
-         if(lastInProxContact && bounceCandle && contactFromAboveProx)
-         {
-            g_algoFamilyWeekPerspective[rowIdx].bounceCount++;
-            contactFromAboveProx = false;
-         }
-         const bool ceilingCandle = (!in_prox_contact && hi < lvl);
-         if(lastInProxContact && ceilingCandle && contactFromBelowProx)
-         {
-            g_algoFamilyWeekPerspective[rowIdx].ceilingCount++;
-            contactFromBelowProx = false;
-         }
-         if(!in_prox_contact && !lastInProxContact)
-         {
-            contactFromBelowProx = false;
-            contactFromAboveProx = false;
-         }
-         lastInProxContact = in_prox_contact;
+         if(weekRates[barIdx].time < weekStart)
+            continue;
+         AlgoFamilyApplyBounceCeilingOnBar(st,
+            weekRates[barIdx].open, weekRates[barIdx].high, weekRates[barIdx].low, weekRates[barIdx].close,
+            weekRates[barIdx].time, false);
       }
+      g_algoFamilyWeekPerspective[rowIdx].bounceCount = st.bounceCount_today;
+      g_algoFamilyWeekPerspective[rowIdx].ceilingCount = st.ceilingCount_today;
+      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles = st.ceilingProximityCandles_today;
    }
 }
 
@@ -8875,6 +9000,18 @@ string GateFail_CleanStreak_Short(const int barIdx, const double minAnchorBelow,
    return "";
 }
 
+string GateFail_DayLowSoFar_NoMoreThanX_BelowLevel(const int barIdx, const double levelPx, const double x)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return "";
+   if(x <= 0.0) return "";
+   if(!g_dayLowSoFarAtBar[barIdx].hasValue)
+      return "dayLowSoFarUnknown";
+   const double minAllowedDayLow = levelPx - x;
+   if(!Gate_DayLowSoFar_NoMoreThanX_BelowLevel(barIdx, levelPx, x))
+      return GateFailLabelPxVs("dayLowTooFarBelowLevel", g_dayLowSoFarAtBar[barIdx].value, minAllowedDayLow);
+   return "";
+}
+
 //+------------------------------------------------------------------+
 //| Algo rule engine: ordered rule chains per slot (g_algos[].rules). |
 //+------------------------------------------------------------------+
@@ -8939,6 +9076,11 @@ void AlgoRuleAdd_AnchorAboveTooHigh(const int slotIdx, const double maxAnchorAbo
    AlgoRuleChainAdd(slotIdx, RULE_ANCHOR_ABOVE_TOO_HIGH, 0, 0, maxAnchorAbove);
 }
 
+void AlgoRuleAdd_DayLowSoFarNoMoreThanXBelowLevel(const int slotIdx, const double maxBelowDist)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_DAY_LOW_SOFAR_NO_MORE_THAN_X_BELOW_LEVEL, 0, 0, maxBelowDist);
+}
+
 //+------------------------------------------------------------------+
 string EvalAlgoRule(const AlgoDef &algo, const AlgoRuleEntry &rule, const int barIdx, const double tradeLevel)
 {
@@ -8984,6 +9126,8 @@ string EvalAlgoRule(const AlgoDef &algo, const AlgoRuleEntry &rule, const int ba
          return GateFail_Level_BelowPDH(tradeLevel);
       case RULE_LEVEL_ABOVE_DAY_LOW:
          return GateFail_Level_AbovedayLowSoFar(barIdx, tradeLevel);
+      case RULE_DAY_LOW_SOFAR_NO_MORE_THAN_X_BELOW_LEVEL:
+         return GateFail_DayLowSoFar_NoMoreThanX_BelowLevel(barIdx, tradeLevel, rule.d0);
    }
    return "unknownRule";
 }
@@ -9133,6 +9277,12 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleChainAdd(slotIdx, RULE_CLEAN_STREAK_TOO_LONG, a.max_cleanOHLC_streak_count);
          AlgoRuleAdd_AnchorAboveTooHigh(slotIdx, a.max_anchorAbove_cleanStreak);
          AlgoRuleAdd_BounceCountTooHigh(slotIdx, a.bounceMaxAllowed_today);
+         break;
+      case MAGIC_ALGO18:
+         AlgoRuleAdd_CleanStreakShort(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorBelow_cleanStreak);
+         AlgoRuleChainAdd(slotIdx, RULE_CLEAN_STREAK_TOO_LONG, a.max_cleanOHLC_streak_count);
+         AlgoRuleChainAdd(slotIdx, RULE_SHORTS_AT_LEVEL_LIMIT, a.max_allowed_shorts_perLevel_perDay_forThisAlgo);
+         AlgoRuleAdd_DayLowSoFarNoMoreThanXBelowLevel(slotIdx, a.max_dayLowSoFar_belowLevel_dist);
          break;
       default:
          break;
@@ -9437,6 +9587,10 @@ void BuildLevelsFromCSV()
       levels[levelIdx].candlesPassedSinceLastCeiling = 0;
       levels[levelIdx].contactFromAbove = false;
       levels[levelIdx].contactFromBelow = false;
+      levels[levelIdx].bounceCleanOhlcSinceContact = 0;
+      levels[levelIdx].ceilingCleanOhlcSinceContact = 0;
+      levels[levelIdx].bounceHighestLowSinceContact = 0.0;
+      levels[levelIdx].ceilingLowestHighSinceContact = 0.0;
       levels[levelIdx].lastCandleInPhysicalContact = false;
       levels[levelIdx].contactFromBelowPhysical = false;
    }
@@ -9469,6 +9623,10 @@ void AddLevel(string baseName, double price, string from, string to, string tags
    levels[newIndex].candlesPassedSinceLastCeiling = 0;
    levels[newIndex].contactFromAbove = false;
    levels[newIndex].contactFromBelow = false;
+   levels[newIndex].bounceCleanOhlcSinceContact = 0;
+   levels[newIndex].ceilingCleanOhlcSinceContact = 0;
+   levels[newIndex].bounceHighestLowSinceContact = 0.0;
+   levels[newIndex].ceilingLowestHighSinceContact = 0.0;
    levels[newIndex].lastCandleInPhysicalContact = false;
    levels[newIndex].contactFromBelowPhysical = false;
 }
@@ -10610,6 +10768,10 @@ void FinalizeCurrentCandle()
             levels[i].candlesPassedSinceLastCeiling = 0;
             levels[i].contactFromAbove = false;
             levels[i].contactFromBelow = false;
+            levels[i].bounceCleanOhlcSinceContact = 0;
+            levels[i].ceilingCleanOhlcSinceContact = 0;
+            levels[i].bounceHighestLowSinceContact = 0.0;
+            levels[i].ceilingLowestHighSinceContact = 0.0;
             levels[i].lastCandleInPhysicalContact = false;
             levels[i].contactFromBelowPhysical = false;
             levels[i].recoverCount = 0;
@@ -10676,48 +10838,29 @@ void FinalizeCurrentCandle()
             levels[i].consecutiveRecoverCandles = 0;
          }
 
-         // --- Contact direction during proximity / physical contact
-         if(in_contact && candle_close >= lvl)
-            levels[i].contactFromAbove = true;
-         if(in_contact && candle_close < lvl)
-            levels[i].contactFromAbove = false;
-         if(in_contact && candle_close < lvl)
-            levels[i].contactFromBelow = true;
-         if(in_contact && candle_close >= lvl)
-            levels[i].contactFromBelow = false;
-
-         if(in_contact && candle_close < lvl)
-            levels[i].ceilingProximityCandles++;
-
-         // --- Bounce: proximity contact from above, then fully above
-         bool bounceCandle = (!in_contact && candle_low > lvl);
-         if(levels[i].lastCandleInContact && bounceCandle && levels[i].contactFromAbove)
+         // --- Bounce/ceiling (shared min clean OHLC qualify via ApplyBounceCeilingOnBarCore)
+         int bounceInc = 0, ceilingInc = 0, ceilingProxInc = 0;
+         ApplyBounceCeilingOnBarCore(candle_open, candle_high, candle_low, candle_close, lvl,
+            levels[i].lastCandleInContact, levels[i].contactFromAbove, levels[i].contactFromBelow,
+            levels[i].bounceCleanOhlcSinceContact, levels[i].ceilingCleanOhlcSinceContact,
+            levels[i].bounceHighestLowSinceContact, levels[i].ceilingLowestHighSinceContact,
+            bounceInc, ceilingInc, ceilingProxInc);
+         if(ceilingProxInc > 0)
+            levels[i].ceilingProximityCandles += ceilingProxInc;
+         if(bounceInc > 0)
          {
-            levels[i].bounceCount++;
+            levels[i].bounceCount += bounceInc;
             levels[i].candlesPassedSinceLastBounce = 0;
-            levels[i].contactFromAbove = false;
          }
          else if(levels[i].bounceCount > 0)
             levels[i].candlesPassedSinceLastBounce++;
-
-         // --- Ceiling: proximity contact from below, then fully below
-         bool ceilingCandle = (!in_contact && candle_high < lvl);
-         if(levels[i].lastCandleInContact && ceilingCandle && levels[i].contactFromBelow)
+         if(ceilingInc > 0)
          {
-            levels[i].ceilingCount++;
+            levels[i].ceilingCount += ceilingInc;
             levels[i].candlesPassedSinceLastCeiling = 0;
-            levels[i].contactFromBelow = false;
          }
          else if(levels[i].ceilingProximityCandles > 0 || levels[i].ceilingCount > 0)
             levels[i].candlesPassedSinceLastCeiling++;
-
-         if(!in_contact && !levels[i].lastCandleInContact)
-         {
-            levels[i].contactFromBelow = false;
-            levels[i].contactFromAbove = false;
-         }
-
-         levels[i].lastCandleInContact = in_contact;
 
          // --- Write Arawevents (CSV row)
          if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)

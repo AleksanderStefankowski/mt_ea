@@ -1,13 +1,26 @@
 require 'csv'
+require 'time'
 
 # =========================
-# INPUT DATETIMES TO CHECK
+# INPUT DATETIME RANGE
 # =========================
-datetime_to_check = %[
-2026.05.18 09:13
-2026.05.18 09:14
-2026.05.18 09:15
-].lines.map(&:strip).reject(&:empty?)
+datetime_range_start = "2026.05.18 13:07"
+datetime_range_end   = "2026.05.18 13:11"
+
+# =========================
+# BUILD MINUTE-BY-MINUTE LIST
+# =========================
+start_time = Time.strptime(datetime_range_start, "%Y.%m.%d %H:%M")
+end_time   = Time.strptime(datetime_range_end, "%Y.%m.%d %H:%M")
+
+datetime_to_check = []
+
+current_time = start_time
+
+while current_time <= end_time
+  datetime_to_check << current_time.strftime("%Y.%m.%d %H:%M")
+  current_time += 60
+end
 
 # =========================
 # FILES DIRECTORY
@@ -30,6 +43,11 @@ gate_files.select! do |file|
   dates_needed.any? do |date|
     filename.start_with?(date)
   end
+end
+
+# Optional: sort by algo number
+gate_files.sort_by! do |file|
+  File.basename(file)[/algo(\d+)/, 1].to_i
 end
 
 # =========================
@@ -59,7 +77,9 @@ gate_files.each do |file|
     }
   end
 
-  # Print in original order
+  # =========================
+  # PRINT RESULTS
+  # =========================
   datetime_to_check.each do |dt|
     if rows_by_time[dt]
       data = rows_by_time[dt]

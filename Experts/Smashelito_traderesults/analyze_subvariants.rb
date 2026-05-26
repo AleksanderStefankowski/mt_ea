@@ -18,7 +18,7 @@ MAX_COMBINATION_SIZE = 4
 TOP_RESULTS_TO_PRINT = 300
 
 SAVE_CSV_TO_FILE = true
-SAVE_CSV_OUTPUT = 'analyze_output.csv'
+SAVE_CSV_OUTPUT = 'analyze_subvariants_output.csv'
 
 # Only these booleans may appear as =false gates in output/rules.
 BOOLEAN_GATE_VARIABLES = %i[dayBrokePDH dayBrokePDL].freeze
