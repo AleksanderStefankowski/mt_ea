@@ -72,6 +72,20 @@ int      per_second_log_end_hour                           =  22;  // shared inc
 int      per_second_log_end_minute                         =  59;
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
+int      tradeResult_maeFirst_window_seconds = 15;  // bookmark // trade-results CSV column MAEfirst{N}: worst MAE in first N seconds (telemetry per-second)
+
+int FalgoTradeResultMaeFirstWindowSeconds()
+{
+   if(tradeResult_maeFirst_window_seconds < 1)
+      return 1;
+   return tradeResult_maeFirst_window_seconds;
+}
+
+string FalgoTradeResultMaeFirstCsvColumnName()
+{
+   return "MAEfirst" + IntegerToString(FalgoTradeResultMaeFirstWindowSeconds());
+}
+
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
 
@@ -375,6 +389,8 @@ struct AlgoSharedProfile
    int    secretTPSL_percent;
    double initialTP;
    double initialSL;
+   double extra_offset_all_longs;   // added to every long placement offset (0 = unchanged)
+   double extra_offset_all_shorts;  // added to every short placement offset (0 = unchanged)
    int    revenge_long_allowed_perdayCount;
    int    revenge_short_allowed_perdayCount;
    double revenge_initialTP;
@@ -3296,18 +3312,6 @@ bool AlgoLoadTuneForAlgo(const int algoNumber, AlgoPerAlgoTune &outTune)
    return true;
 }
 
-//+------------------------------------------------------------------+
-bool AlgoPlacementParamsForAlgo(const int algoNumber, double &offsetPoints, double &proximityLimit, int &expirationMin)
-{
-   const int idx = AlgoSlotIndexByAlgoId(algoNumber);
-   if(idx < 0)
-      return false;
-   offsetPoints = g_algos[idx].levelOffset;
-   proximityLimit = g_algos[idx].priceProximity;
-   expirationMin = g_algos[idx].expiry_minutes;
-   return true;
-}
-
 int AlgoFamilyMagicNumber(const long magic)
 {
    string s = MagicNumberToFixedWidthString(magic);
@@ -3386,6 +3390,28 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 #define FALGO_DIRECTION_SHORT_LIMIT       2
 #define FALGO_DIRECTION_LONG_ALT          3
 #define FALGO_DIRECTION_SHORT_ALT         4
+
+//+------------------------------------------------------------------+
+double AlgoExtraOffsetForDirection(const int direction)
+{
+   if(direction == FALGO_DIRECTION_LONG_LIMIT || direction == FALGO_DIRECTION_LONG_ALT)
+      return g_algoShared.extra_offset_all_longs;
+   if(direction == FALGO_DIRECTION_SHORT_LIMIT || direction == FALGO_DIRECTION_SHORT_ALT)
+      return g_algoShared.extra_offset_all_shorts;
+   return 0.0;
+}
+
+//+------------------------------------------------------------------+
+bool AlgoPlacementParamsForAlgo(const int algoNumber, const int direction, double &offsetPoints, double &proximityLimit, int &expirationMin)
+{
+   const int idx = AlgoSlotIndexByAlgoId(algoNumber);
+   if(idx < 0)
+      return false;
+   offsetPoints = g_algos[idx].levelOffset + AlgoExtraOffsetForDirection(direction);
+   proximityLimit = g_algos[idx].priceProximity;
+   expirationMin = g_algos[idx].expiry_minutes;
+   return true;
+}
 
 #define FALGO_BANNED_RANGES_MAX           8
 #define FALGO_LEVEL_TIER_MAX              9
@@ -3626,7 +3652,7 @@ struct FalgoOpenTradeTelemetry
    double   openProfitPts;
    double   mfePts;
    double   maePts;
-   double   maeFirst60Pts;  // worst floating P/L (pts) during tradeAgeSeconds 0..60
+   double   maeFirstWindowPts;  // worst floating P/L (pts) during first tradeResult_maeFirst_window_seconds
    double   maePostXPts;
    int      mfeCandle1Based;
    int      maeCandle1Based;
@@ -3678,7 +3704,7 @@ struct FalgoClosedTradeTelemetrySummary
    double   avgProfitVelocity;
    double   mfePts;
    double   maePts;
-   double   maeFirst60Pts;
+   double   maeFirstWindowPts;
    int      mfeCandle1Based;
    int      maeCandle1Based;
    int      timeToReachNeutralTpSeconds;
@@ -4256,7 +4282,7 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = 0.0;
-   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts = 0.0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirstWindowPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = 0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = 0;
@@ -4752,7 +4778,7 @@ void FalgoTelemetryInitFromSelectedPosition()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = profitPts;
-   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts = profitPts;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirstWindowPts = profitPts;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime, g_lastTimer1Time);
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based;
@@ -4773,7 +4799,7 @@ void FalgoTelemetryFillSummaryFromOpen(FalgoClosedTradeTelemetrySummary &outSumm
    outSummary.avgProfitVelocity = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].avgProfitVelocity;
    outSummary.mfePts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts;
    outSummary.maePts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts;
-   outSummary.maeFirst60Pts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts;
+   outSummary.maeFirstWindowPts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirstWindowPts;
    outSummary.mfeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based;
    outSummary.maeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based;
    outSummary.timeToReachNeutralTpSeconds = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds;
@@ -5207,9 +5233,9 @@ void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = profitPts;
       g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime, g_lastTimer1Time);
    }
-   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds <= 60 &&
-      profitPts < g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts)
-      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirst60Pts = profitPts;
+   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds <= FalgoTradeResultMaeFirstWindowSeconds() &&
+      profitPts < g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirstWindowPts)
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirstWindowPts = profitPts;
    FalgoOpenTelemetryUpdateMaePostX(telTune, profitPts);
    FalgoTryLatchTradeRecoveryModes(telTune);
    if(AlgoNeutralTradeModeActive(telTune) &&
@@ -5602,7 +5628,7 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
    double proxLimit = 0.0;
    double placementOffsetDummy = 0.0;
    int placementExpDummy = 0;
-   if(!AlgoPlacementParamsForAlgo(algoSlot1, placementOffsetDummy, proxLimit, placementExpDummy))
+   if(!AlgoPlacementParamsForAlgo(algoSlot1, 0, placementOffsetDummy, proxLimit, placementExpDummy))
       return;
 
    if(MathAbs(c - anchor) < 1e-12)
@@ -5648,30 +5674,32 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
 //+------------------------------------------------------------------+
 double FalgoProfileOffsetPointsForDirection(const int direction)
 {
+   double base = 0.0;
    if(direction == FALGO_DIRECTION_LONG_LIMIT)
    {
       const int idx = AlgoSlotIndexByAlgoId(MAGIC_ALGO10);
       if(idx >= 0)
-         return g_algos[idx].levelOffset;
+         base = g_algos[idx].levelOffset;
    }
    if(direction == FALGO_DIRECTION_SHORT_LIMIT)
    {
       const int idx = AlgoSlotIndexByAlgoId(MAGIC_ALGO12);
       if(idx >= 0)
-         return g_algos[idx].levelOffset;
+         base = g_algos[idx].levelOffset;
    }
-   return 0.0;
+   return base + AlgoExtraOffsetForDirection(direction);
 }
 
 //+------------------------------------------------------------------+
 double FalgoProfileOffsetPointsForMagic(const long magic)
 {
+   FalgoMagicKey fk = ParseFalgoMagic(magic);
    const int algoNumber = AlgoFamilyMagicNumber(magic);
    double offsetPoints = 0.0, proximityLimit = 0.0;
    int expirationMin = 0;
-   if(AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proximityLimit, expirationMin))
+   if(AlgoPlacementParamsForAlgo(algoNumber, fk.direction, offsetPoints, proximityLimit, expirationMin))
       return offsetPoints;
-   return FalgoProfileOffsetPointsForDirection(ParseFalgoMagic(magic).direction);
+   return FalgoProfileOffsetPointsForDirection(fk.direction);
 }
 
 //+------------------------------------------------------------------+
@@ -5725,7 +5753,7 @@ string FalgoPlannedTradePriceForGates(const int barIdx, const string &closeVsLev
       if(AlgoSlotTradesShort(algoNumber))
          return "";
       FalgoDir = FALGO_DIRECTION_LONG_LIMIT;
-      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proxDummy, expDummy))
+      if(!AlgoPlacementParamsForAlgo(algoNumber, FalgoDir, offsetPoints, proxDummy, expDummy))
          return "";
    }
    else if(closeVsLevel == "below")
@@ -5733,7 +5761,7 @@ string FalgoPlannedTradePriceForGates(const int barIdx, const string &closeVsLev
       if(!AlgoSlotTradesShort(algoNumber))
          return "";
       FalgoDir = FALGO_DIRECTION_SHORT_LIMIT;
-      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proxDummy, expDummy))
+      if(!AlgoPlacementParamsForAlgo(algoNumber, FalgoDir, offsetPoints, proxDummy, expDummy))
          return "";
    }
    else
@@ -6050,7 +6078,7 @@ void AlgoGatesCollectPlacementFailFlags(const int algoSlot1, const int barIdx, c
    {
       double proxLimit = 0.0, offsetDummy = 0.0;
       int expDummy = 0;
-      AlgoPlacementParamsForAlgo(algoSlot1, offsetDummy, proxLimit, expDummy);
+      AlgoPlacementParamsForAlgo(algoSlot1, 0, offsetDummy, proxLimit, expDummy);
       const double proxVal = (proxForLabel >= 0.0)
          ? proxForLabel
          : g_pullingHistoryAlgoFamilyAtBar[barIdx].closestPriceProximity;
@@ -6705,7 +6733,7 @@ string AlgoPlacementBlockReasonFirstFail(const int algoNumber, const int barIdx)
       if(AlgoSlotTradesShort(algoNumber))
          return "longOnly_closeBelowLevel";
       direction = FALGO_DIRECTION_LONG_LIMIT;
-      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proximityLimit, expirationMin))
+      if(!AlgoPlacementParamsForAlgo(algoNumber, direction, offsetPoints, proximityLimit, expirationMin))
          return "placementParamsMissing";
       if(!AlgoRulesetPassesForPlacement(algoNumber, barIdx))
       {
@@ -6719,7 +6747,7 @@ string AlgoPlacementBlockReasonFirstFail(const int algoNumber, const int barIdx)
       if(!AlgoSlotTradesShort(algoNumber))
          return "shortOnly_closeAboveLevel";
       direction = FALGO_DIRECTION_SHORT_LIMIT;
-      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proximityLimit, expirationMin))
+      if(!AlgoPlacementParamsForAlgo(algoNumber, direction, offsetPoints, proximityLimit, expirationMin))
          return "placementParamsMissing";
       if(prox > proximityLimit)
          return StringFormat("proximity(%s vs %s)", DoubleToString(prox, _Digits), DoubleToString(proximityLimit, _Digits));
@@ -6787,7 +6815,7 @@ bool AlgoTryPlaceOrderThisTick(const int algoNumber, const int barIdx)
       if(AlgoSlotTradesShort(algoNumber))
          return false;
       direction = FALGO_DIRECTION_LONG_LIMIT;
-      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proximityLimit, expirationMin))
+      if(!AlgoPlacementParamsForAlgo(algoNumber, direction, offsetPoints, proximityLimit, expirationMin))
          return false;
       if(!AlgoRulesetPassesForPlacement(algoNumber, barIdx))
          return false;
@@ -6797,7 +6825,7 @@ bool AlgoTryPlaceOrderThisTick(const int algoNumber, const int barIdx)
       if(!AlgoSlotTradesShort(algoNumber))
          return false;
       direction = FALGO_DIRECTION_SHORT_LIMIT;
-      if(!AlgoPlacementParamsForAlgo(algoNumber, offsetPoints, proximityLimit, expirationMin))
+      if(!AlgoPlacementParamsForAlgo(algoNumber, direction, offsetPoints, proximityLimit, expirationMin))
          return false;
       if(prox > proximityLimit)
          return false;
@@ -6966,13 +6994,19 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_HEADER "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,MAEfirst60,mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC"
 #define FALGO_ALLDAYS_COLS     45
+
+string FalgoAllDaysTradeResultsHeader()
+{
+   return "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,"
+      + FalgoTradeResultMaeFirstCsvColumnName()
+      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC";
+}
 
 //+------------------------------------------------------------------+
 void FalgoFileWriteAllDaysHeader(const int fh)
 {
-   FileWriteString(fh, FALGO_ALLDAYS_HEADER + "\r\n");
+   FileWriteString(fh, FalgoAllDaysTradeResultsHeader() + "\r\n");
 }
 
 //+------------------------------------------------------------------+
@@ -7054,7 +7088,7 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    {
       cells[base + 11] = DoubleToString(telSummary.mfePts, 1);
       cells[base + 12] = DoubleToString(telSummary.maePts, 1);
-      cells[base + 13] = DoubleToString(telSummary.maeFirst60Pts, 1);
+      cells[base + 13] = DoubleToString(telSummary.maeFirstWindowPts, 1);
       cells[base + 16] = FalgoSanitizeCsvCell(telSummary.closeDecision);
       cells[base + 17] = FalgoSanitizeCsvCell(telSummary.closeDetail);
       cells[base + 28] = DoubleToString(telSummary.greenRatioAtClose, 4);
@@ -7184,7 +7218,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    if(fhDay != INVALID_HANDLE)
    {
       FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type",
-         "MFE", "MAE", "MAEfirst60", "mfeCandle", "maeCandle", "close_decision", "close_detail",
+         "MFE", "MAE", FalgoTradeResultMaeFirstCsvColumnName(), "mfeCandle", "maeCandle", "close_decision", "close_detail",
          "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
          "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed",
          "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL",
@@ -7215,7 +7249,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             EnumToString((ENUM_DEAL_TYPE)tr.type),
             (hasTel ? DoubleToString(telSummary.mfePts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.maePts, 1) : ""),
-            (hasTel ? DoubleToString(telSummary.maeFirst60Pts, 1) : ""),
+            (hasTel ? DoubleToString(telSummary.maeFirstWindowPts, 1) : ""),
             legacyCtx.mfeCandle, legacyCtx.maeCandle,
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDecision) : ""),
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDetail) : ""),
@@ -7239,7 +7273,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
 
    const string summaryAllName = "summary_tradeResults_all_days_algo" + IntegerToString(algoSlot1) + ".tsv";
    string headerParts[];
-   const int schemaCols = StringSplit(FALGO_ALLDAYS_HEADER, ',', headerParts);
+   const int schemaCols = StringSplit(FalgoAllDaysTradeResultsHeader(), ',', headerParts);
    if(schemaCols != FALGO_ALLDAYS_COLS)
       FatalError(StringFormat("WriteAlgoEodTradeResultsCsvsIfNeeded: schemaCols %d != FALGO_ALLDAYS_COLS %d", schemaCols, FALGO_ALLDAYS_COLS));
 
@@ -7283,7 +7317,7 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
 
    const string summaryAllName = "summary_tradeResults_all_days.tsv";
    string headerParts[];
-   const int schemaCols = StringSplit(FALGO_ALLDAYS_HEADER, ',', headerParts);
+   const int schemaCols = StringSplit(FalgoAllDaysTradeResultsHeader(), ',', headerParts);
    if(schemaCols != FALGO_ALLDAYS_COLS)
       FatalError(StringFormat("WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded: schemaCols %d != FALGO_ALLDAYS_COLS %d", schemaCols, FALGO_ALLDAYS_COLS));
 
@@ -7350,7 +7384,9 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoShared.secretTPSL_percent                             = 50;
    g_algoShared.initialTP = 9.0;
    g_algoShared.initialSL = 9.0;
-   
+   g_algoShared.extra_offset_all_shorts = 0.0;
+   g_algoShared.extra_offset_all_longs = 0.0;
+
    g_algoShared.blockPlacementIfFamilyOpenOrPending = true;
    g_algoShared.stop_trading_if_day_has_X_wins_0_losses = 5;       // family: stop all algos when wins>=X and 0 losses today
    g_algoShared.stop_trading_if_day_has_profit_factor_above = 6.0; // family: stop all algos when PF>this and at least 1 loss today
