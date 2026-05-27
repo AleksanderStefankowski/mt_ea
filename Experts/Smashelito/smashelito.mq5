@@ -3312,6 +3312,7 @@ string MagicNumberToFixedWidthString(long magic)
 #define MAGIC_ALGO24                24
 #define MAGIC_ALGO25                25
 #define MAGIC_ALGO26                26
+#define MAGIC_ALGO27                27
 // algobookmark0 above and below
 // wired algo magic prefixes — add MAGIC_ALGO* define + id here + tune block in Sync
 int g_algoRegistryIds[] =
@@ -3319,7 +3320,8 @@ int g_algoRegistryIds[] =
    MAGIC_ALGO10, MAGIC_ALGO11, MAGIC_ALGO12, MAGIC_ALGO13,
    MAGIC_ALGO14, MAGIC_ALGO15, MAGIC_ALGO16, MAGIC_ALGO17, MAGIC_ALGO18,
    MAGIC_ALGO19, MAGIC_ALGO20, MAGIC_ALGO21, MAGIC_ALGO22,
-   MAGIC_ALGO23, MAGIC_ALGO24, MAGIC_ALGO25, MAGIC_ALGO26
+   MAGIC_ALGO23, MAGIC_ALGO24, MAGIC_ALGO25, MAGIC_ALGO26,
+   MAGIC_ALGO27
 };
 
 //+------------------------------------------------------------------+
@@ -8096,6 +8098,43 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].levelOffset                              =  0.9;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].priceProximity                            =  5.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].expiry_minutes                              =  8;
+   //=== algo27 TUNE BLOCK (long; clean>90m; |level-ONO|>=15; week bounce 5..9; day bounce 0) ===
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].trades_short                                     = ALGO_SIDE_LONG;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.babysitStart_minute                                     =  0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.neutral_trade_TP                                         =  2.1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_TP                                         =  3.8;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.neutral_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_mode_enabled                                    = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_min_velocity_trigger                             = 0.4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_velocity_window_seconds                  =   10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.telemetry_velocity_window_seconds                        = 10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.telemetry_avg_velocity_window_seconds                    =   10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_try_save_TP                                      =   1.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].min_weekly_bounce_required                       =  5;  // pass when week bounce > 4
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].max_weekly_bounce_allowed                       =  9;  // pass when week bounce < 10
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].bounceMaxAllowed_today                          =  0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].min_cleanOHLC_streak_count                      =   90;  // pass when streak > 90 M1 bars
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].min_anchorAbove_cleanStreak                     =  0.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].min_levelOnoAbsDiff                             = 15.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].levelOffset                               = 0.4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].priceProximity                             =  4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].expiry_minutes                              =  5;
    //=== algobookmark3 end tune blocks ===
 
    g_algoShared.tradeSizePct = 100;
@@ -9915,6 +9954,13 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleAdd_WeekCeilingCountTooLow(slotIdx, a.min_weekly_ceiling_required);
          AlgoRuleAdd_WeekCeilingCountTooHigh(slotIdx, a.max_weekly_ceiling_allowed);
          AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "dailyCeilingCountTooHigh");
+         break;
+      case MAGIC_ALGO27:
+         AlgoRuleAdd_CleanStreakLong(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorAbove_cleanStreak);
+         AlgoRuleAdd_LevelOnoAbsDiffTooLow(slotIdx, a.min_levelOnoAbsDiff);
+         AlgoRuleAdd_WeekBounceCountTooLow(slotIdx, a.min_weekly_bounce_required);
+         AlgoRuleAdd_WeekBounceCountTooHigh(slotIdx, a.max_weekly_bounce_allowed);
+         AlgoRuleAdd_BounceCountTooHigh(slotIdx, a.bounceMaxAllowed_today);
          break;
       default:
          break;
