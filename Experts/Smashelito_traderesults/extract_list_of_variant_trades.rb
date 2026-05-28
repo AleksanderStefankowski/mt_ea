@@ -7,7 +7,7 @@ require 'csv'
 # =========================================================
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
-SESSION = 'full' # full, ON, RTH, RTH-IB, RTH-afterIB
+SESSION = 'full' # full, ON, RTH-IB, RTH-afterIB
 MAGICPREFIX = 12
 VARIABLES = 'dayBrokePDH=false | below_PDH=true | above_dayLowSoFar=true'
 
@@ -19,17 +19,14 @@ OUTPUT =
   )
 
 # =========================================================
-# ANALYSIS SETS (must match analyze.rb)
+# ANALYSIS SETS (must match analyze_subvariants.rb)
 # =========================================================
-
-RTH_SESSION_VALUES = %w[RTH RTH-IB RTH-afterIB].freeze
 
 BOOLEAN_GATE_VARIABLES = %i[dayBrokePDH dayBrokePDL].freeze
 
 ANALYSIS_SETS = [
   { name: 'full', session_filter: nil },
   { name: 'ON', session_filter: 'ON' },
-  { name: 'RTH', session_filter: RTH_SESSION_VALUES },
   { name: 'RTH-IB', session_filter: 'RTH-IB' },
   { name: 'RTH-afterIB', session_filter: 'RTH-afterIB' }
 ].freeze

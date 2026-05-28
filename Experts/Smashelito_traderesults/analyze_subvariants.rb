@@ -9,9 +9,21 @@ require 'set'
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
-MINIMUM_TRADES_IN_GROUPING = 4
+MINIMUM_TRADES_IN_GROUPING_FULL = 7
+MINIMUM_TRADES_IN_GROUPING_ON = 4
+MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 7
+MINIMUM_TRADES_IN_GROUPING_RTHIB = 4
 
-MINIMUM_PROFITFACTOR = 1.6
+MINIMUM_PROFITFACTOR = 2.75
+MAXIMUM_PROFITFACTOR = 4.0
+# Collect pf >= MIN (including above MAX). Per analysis_set + magic_prefix: anchor = max
+# grp_trades among in-range rows; keep in-range + out-of-range rows with grp_trades == anchor.
+# Profit Factor (PF)	Required Win Rate
+# 6	85.71%
+# 5	83.33%
+# 4	80.00%
+# 3	75.00%
+# 2.75	73.33%
 
 MAX_COMBINATION_SIZE = 4
 
@@ -19,15 +31,13 @@ TOP_RESULTS_TO_PRINT = 300
 
 SAVE_CSV_TO_FILE = true
 SAVE_CSV_OUTPUT = 'analyze_subvariants_output.csv'
+SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT = true
 
 # Only these booleans may appear as =false gates in output/rules.
 BOOLEAN_GATE_VARIABLES = %i[dayBrokePDH dayBrokePDL].freeze
 
 # IBL/IBH/RTHH/RTHL reference gates only meaningful after IB hour (not ON or RTH-IB at open).
 RTH_IB_REFERENCE_NAMES = %w[IBL IBH RTHH RTHL].freeze
-
-# summary_tradeResults_all_days session column (legacy rows may still say "RTH").
-RTH_SESSION_VALUES = %w[RTH RTH-IB RTH-afterIB].freeze
 
 ANALYSIS_SETS = [
   {
@@ -39,11 +49,6 @@ ANALYSIS_SETS = [
     name: 'ON',
     session_filter: 'ON',
     exclude_rth_ib_vars: true
-  },
-  {
-    name: 'RTH',
-    session_filter: RTH_SESSION_VALUES,
-    exclude_rth_ib_vars: false
   },
   {
     name: 'RTH-IB',
@@ -60,6 +65,36 @@ ANALYSIS_SETS = [
 # =========================================================
 # HELPERS
 # =========================================================
+
+def minimum_trades_for_analysis_set(analysis_set_name)
+  case analysis_set_name
+  when 'full' then MINIMUM_TRADES_IN_GROUPING_FULL
+  when 'ON' then MINIMUM_TRADES_IN_GROUPING_ON
+  when 'RTH-afterIB' then MINIMUM_TRADES_IN_GROUPING_RTHafterIB
+  when 'RTH-IB' then MINIMUM_TRADES_IN_GROUPING_RTHIB
+  else
+    raise "Unknown analysis set for minimum trades: #{analysis_set_name.inspect}"
+  end
+end
+
+def pf_in_range?(pf)
+  pf >= MINIMUM_PROFITFACTOR && pf <= MAXIMUM_PROFITFACTOR
+end
+
+def filter_results_by_pf_trade_count_anchor(results)
+  results
+    .group_by { |r| [r[:analysis_set], r[:magic_prefix]] }
+    .flat_map do |_key, bucket|
+      in_range = bucket.select { |r| pf_in_range?(r[:pf]) }
+      anchor_trade_count = in_range.map { |r| r[:trades] }.max
+
+      next [] if anchor_trade_count.nil?
+
+      bucket.select do |r|
+        pf_in_range?(r[:pf]) || r[:trades] == anchor_trade_count
+      end
+    end
+end
 
 def safe_split(str)
   return [] if str.nil?
@@ -417,7 +452,7 @@ ANALYSIS_SETS.each do |analysis_set|
           next if group_key.nil?
 
           next if grouped_trades.size <
-                  MINIMUM_TRADES_IN_GROUPING
+                  minimum_trades_for_analysis_set(analysis_set[:name])
 
           pf =
             profit_factor(grouped_trades)
@@ -441,6 +476,16 @@ ANALYSIS_SETS.each do |analysis_set|
     end
   end
 end
+
+raw_result_count = results.size
+results = filter_results_by_pf_trade_count_anchor(results)
+
+puts
+puts format(
+  "PF range filter: %d -> %d groupings (kept in-range + out-of-range with same trade count as best in-range per magic prefix)",
+  raw_result_count,
+  results.size
+)
 
 # =========================================================
 # SORT RESULTS
@@ -572,7 +617,29 @@ analysis_set_names.each do |analysis_set_name|
 end
 
 puts
-puts "TOTAL VALID GROUPINGS: #{results.size}"
+total_groupings = results.size
+puts "TOTAL VALID GROUPINGS: #{total_groupings}"
+
+counts_by_set =
+  results
+    .group_by { |r| r[:analysis_set] }
+    .transform_values(&:size)
+
+{
+  'full' => 'FULL',
+  'ON' => 'ON',
+  'RTH-IB' => 'RTHIB',
+  'RTH-afterIB' => 'RTHAFTERIB'
+}.each do |set_name, label|
+  count = counts_by_set[set_name] || 0
+  pct =
+    if total_groupings.zero?
+      0.0
+    else
+      (count.to_f / total_groupings) * 100.0
+    end
+  puts format('%s COUNT: %d (%.1f%% of total)', label, count, pct)
+end
 
 if SAVE_CSV_TO_FILE
 
@@ -639,3 +706,7 @@ end
 
 puts
 puts "DONE"
+
+system(
+  'powershell -NoProfile -Command "Add-Type -AssemblyName PresentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open((Get-Item \"alert.mp3\").FullName); $player.Play(); Start-Sleep -Seconds 2"'
+)
