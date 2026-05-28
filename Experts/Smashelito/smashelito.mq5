@@ -56,20 +56,20 @@ bool     maemfe_testing             = false; // if true: all trades use TP=SL=30
 bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo EOD CSV + all-days TSV + summary_tradeResults_all_days.tsv
 //--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
 bool     dailyLog_algoFamilyWeekPerspective = true;  // (date)_algofamily_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
-bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_testing_pullinghistory_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
+bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_a_pullinghistory_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_B_TradeLog                         = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-..._Arawevents.csv + level logRawEv (FinalizeCurrentCandle)
 bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_algoN_gates_per_minute.csv — enabled algos only
 //--- Per-second logs (shared time window below)
-bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_testing_algofamily_per_second.csv
+bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_algofamily_per_second_weekly.csv + _daily.csv
 bool     bigflipper_log_algo_gates_per_second              = true;  // (date)_algoN_gates_per_second.csv — enabled algos only
 bool     bigflipper_log_algo_trade_telemetry_per_second    = true;  // (date)_algoN_trade_telemetry_per_second.csv
 bool     bigflipper_log_algo_velocity_parameter_testing_per_second = false;  // (date)_algoN_velocity_parameter_testing.csv
-int      per_second_log_start_hour                         =   0;  // shared inclusive window start (server time) — all 4 per-second logs above
+int      per_second_log_start_hour                         =   21;  // shared inclusive window start (server time) — all 4 per-second logs above
 int      per_second_log_start_minute                       =  20;
-int      per_second_log_end_hour                           =  22;  // shared inclusive window end (server time)
-int      per_second_log_end_minute                         =  59;
+int      per_second_log_end_hour                           =  21;  // shared inclusive window end (server time)
+int      per_second_log_end_minute                         =  30;
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_maeFirst_window_seconds = 15;  // bookmark // trade-results CSV column MAEfirst{N}: worst MAE in first N seconds (telemetry per-second)
@@ -343,7 +343,7 @@ AlgoFamilyWeekPerspectiveRow g_algoFamilyWeekPerspective[MAX_ALGOFAMILY_WEEK_LEV
 int      g_algoFamilyWeekPerspectiveCount = 0;
 string   g_algoFamilyWeekPerspectiveEvaluatedForDate = "";  // YYYY.MM.DD last (re)evaluated
 
-//--- testing_pullinghistory_algofamily_{weekly|daily}: per-bar closest-level snapshot (neutral columns; weekly vs daily scope in filename only).
+//--- a_pullinghistory_algofamily_{weekly|daily}: per-bar closest-level snapshot (neutral columns; weekly vs daily scope in filename only).
 struct PullingHistoryAlgoFamilyBarSnap
 {
    double   closestWeeklyLevelToCClose;
@@ -4858,7 +4858,7 @@ void PullingHistoryAlgoFamilyWriteCsvRow(const int fh, const datetime rowTime, c
 //+------------------------------------------------------------------+
 void PullingHistoryAlgoFamilyWriteEodCsv(const string dateStr, const string scopeSuffix)
 {
-   const string logName = dateStr + "_testing_pullinghistory_algofamily_" + scopeSuffix + ".csv";
+   const string logName = dateStr + "_a_pullinghistory_algofamily_" + scopeSuffix + ".csv";
    if(FileIsExist(logName))
       return;
    int fh = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
@@ -4876,6 +4876,28 @@ void PullingHistoryAlgoFamilyWriteEodCsv(const string dateStr, const string scop
          g_m1Rates[barIdx].open, g_m1Rates[barIdx].high, g_m1Rates[barIdx].low, g_m1Rates[barIdx].close,
          TIME_DATE|TIME_MINUTES);
    }
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void PullingHistoryAlgoFamilyAppendPerSecondRow(const string dateStr, const string scopeSuffix,
+   const datetime rowTime, const int snapBarIdx, const double o, const double h, const double l, const double c)
+{
+   const string fname = dateStr + "_algofamily_per_second_" + scopeSuffix + ".csv";
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) == 0)
+      PullingHistoryAlgoFamilyWriteCsvHeader(fh);
+   PullingHistoryAlgoFamilyBarSnap snap;
+   if(scopeSuffix == "daily")
+      snap = g_pullingHistoryAlgoFamilyDailyAtBar[snapBarIdx];
+   else
+      snap = g_pullingHistoryAlgoFamilyAtBar[snapBarIdx];
+   PullingHistoryAlgoFamilyWriteCsvRowFromSnap(fh, rowTime, snap, snapBarIdx, o, h, l, c, TIME_DATE|TIME_SECONDS);
    FileClose(fh);
 }
 
@@ -4908,20 +4930,10 @@ void FalgoTryLogAlgoFamilyPerSecond()
    const string dateStr = TimeToString(dayStart, TIME_DATE);
    if(bigflipper_log_testing_algofamily_per_second)
    {
-      const string fname = dateStr + "_testing_algofamily_per_second.csv";
-      int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-      if(fh == INVALID_HANDLE)
-         fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-      if(fh != INVALID_HANDLE)
-      {
-         FileSeek(fh, 0, SEEK_END);
-         if(FileTell(fh) == 0)
-            PullingHistoryAlgoFamilyWriteCsvHeader(fh);
-         double o = 0.0, h = 0.0, l = 0.0, c = 0.0;
-         PullingHistoryAlgoFamilyOhlcAsOfTime(g_lastTimer1Time, o, h, l, c);
-         PullingHistoryAlgoFamilyWriteCsvRow(fh, g_lastTimer1Time, snapBarIdx, o, h, l, c, TIME_DATE|TIME_SECONDS);
-         FileClose(fh);
-      }
+      double o = 0.0, h = 0.0, l = 0.0, c = 0.0;
+      PullingHistoryAlgoFamilyOhlcAsOfTime(g_lastTimer1Time, o, h, l, c);
+      PullingHistoryAlgoFamilyAppendPerSecondRow(dateStr, "weekly", g_lastTimer1Time, snapBarIdx, o, h, l, c);
+      PullingHistoryAlgoFamilyAppendPerSecondRow(dateStr, "daily", g_lastTimer1Time, snapBarIdx, o, h, l, c);
    }
    if(!bigflipper_log_algo_gates_per_second)
       return;
@@ -6497,20 +6509,20 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
    {
       FileWrite(fh,
          "barTime", "O", "H", "L", "C",
-         "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount", "MFE", "MAE",
+         "closestLevel", "closestLevelCategories", "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount", "MFE", "MAE",
          "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
          "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
-         "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
+         "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weekCeilingCount_withDaily",
          "closeVsLevel", "direction", "levelTier",
          "plannedTradeNumber", "dayWins", "dayLosses");
       return;
    }
    FileWrite(fh,
       "barTime", "O", "H", "L", "C",
-      "closestWeeklyLevel", "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount", "MFE", "MAE",
+      "closestLevel", "closestLevelCategories", "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount", "MFE", "MAE",
       "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
       "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
-      "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weeklyCeilingCount_withDaily",
+      "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weekCeilingCount_withDaily",
       "closeVsLevel", "direction", "levelTier",
       "plannedTradeNumber", "dayWins", "dayLosses");
 }
@@ -6679,18 +6691,25 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
       return;
    AlgoWriteGatesLogHeaderIfNeeded(fh, algoSlot1);
    FileSeek(fh, 0, SEEK_END);
-   const int weeklyCeilingCountWithDaily = FalgoGetWeekCeilingCountForClosestWeeklyLevel(dataBarIdx);
+   const double closestLevelPrice = FalgoClosestLevelPriceAtBarForAlgo(algoSlot1, dataBarIdx);
+   string closestLevelCategories = "";
+   if(closestLevelExpandedIdx >= 0 && closestLevelExpandedIdx < g_levelsTodayCount)
+      closestLevelCategories = g_levelsExpanded[closestLevelExpandedIdx].categories;
+   const int weekCeilingCountWithDaily = (closestLevelPrice > 0.0)
+      ? FalgoGetWeekCeilingCountForLevelAtBar(dataBarIdx, closestLevelPrice)
+      : FalgoGetWeekCeilingCountForClosestWeeklyLevel(dataBarIdx);
    const int timeFormat = perSecond ? (TIME_DATE|TIME_SECONDS) : (TIME_DATE|TIME_MINUTES);
    const double proxCsv = (perSecond && liveProx >= 0.0)
       ? liveProx
-      : g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestPriceProximity;
+      : FalgoProximityToClosestLevelAtBarForAlgo(algoSlot1, dataBarIdx);
    FileWrite(fh,
       TimeToString(rowTime, timeFormat),
       DoubleToString(rowO, _Digits),
       DoubleToString(rowH, _Digits),
       DoubleToString(rowL, _Digits),
       DoubleToString(rowC, _Digits),
-      DoubleToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevelToCClose, _Digits),
+      DoubleToString(closestLevelPrice, _Digits),
+      closestLevelCategories,
       plannedTradePrice,
       firstFail,
       secondFail,
@@ -6715,7 +6734,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
       IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_CeilingCount_today),
       IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_CeilingProximityCandles_today),
       IntegerToString(g_pullingHistoryAlgoFamilyAtBar[dataBarIdx].closestWeeklyLevel_CeilingCount_recent),
-      IntegerToString(weeklyCeilingCountWithDaily),
+      IntegerToString(weekCeilingCountWithDaily),
       closeVs, direction, IntegerToString(tier),
       IntegerToString(plannedTradeNumber),
       IntegerToString(AlgoDayWinsForSlot(algoSlot1)), IntegerToString(AlgoDayLossesForSlot(algoSlot1)));
