@@ -41,10 +41,11 @@ bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, ord
 bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSummary1line.csv
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
-bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_log.csv (TryLogDayStatForCurrentDay)
+bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_and_gapstat_log.csv (TryLogDayStatForCurrentDay)
+bool     dailyEODlog_Gaplog           = true;  // (date)_gaplog.csv — per M1: PDC/RTH open, gap day type, fill %, gap range, ON, closest levels above/below gap
 bool     dailyLog_StaticMarketContext = true;  // (date)_staticMarketContext_log.csv — PDO/PDH/PDL/PDC once per day right after UpdateStaticMarketContext
 
-bool     finalLog_DayStatSummary      = true;  // dayPriceStat_summaryLog.csv (WriteDayStatSummaryCsv)
+bool     finalLog_DayStatSummary      = true;  // dayPriceStat_and_gapstat_summaryLog.csv (WriteDayStatSummaryCsv)
 bool     finalLog_TradeLog            = true; // (date)_B_TradeLog_algoN.csv per wired algo (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
@@ -9573,6 +9574,118 @@ int FindExpandedLevelIndexByPrice(double levelPrice)
 }
 
 //+------------------------------------------------------------------+
+//| Gap day type at bar: gapUp_Day / gapDown_Day / flat_Day / unknown (before RTH open or missing PDC/RTH). |
+//+------------------------------------------------------------------+
+string GaplogGapDayTypeAtBar(const int barIdx, const datetime dayStart, const string &dateStr)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay || dayStart == 0) return "unknown";
+   const datetime rthOpenBarTime = dayStart + GetRthOpenBarOffsetSeconds(dateStr);
+   if(g_m1Rates[barIdx].time < rthOpenBarTime) return "unknown";
+   if(!g_todayRTHopenValid || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0) return "unknown";
+   const double rthOpen = g_todayRTHopen;
+   const double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+   if(rthOpen > pdc) return "gapUp_Day";
+   if(rthOpen < pdc) return "gapDown_Day";
+   return "flat_Day";
+}
+
+//+------------------------------------------------------------------+
+//| Closest non-tertiary level above/below refPrice as price|tag|weekly|daily, or unknown. |
+//+------------------------------------------------------------------+
+string GaplogFormatClosestLevelCell(const double refPrice, const bool wantAbove)
+{
+   const double lvl = GetClosestNonTertiaryLevelToPrice(refPrice, wantAbove);
+   if(lvl <= 0.0) return "unknown";
+   const int levelIdx = FindExpandedLevelIndexByPrice(lvl);
+   if(levelIdx < 0)
+      return DoubleToString(lvl, _Digits);
+   string scope = "other";
+   if(LevelIsWeeklyKind(g_levelsExpanded[levelIdx].categories))
+      scope = "weekly";
+   else if(StringFind(g_levelsExpanded[levelIdx].categories, "daily") >= 0)
+      scope = "daily";
+   return DoubleToString(lvl, _Digits) + "|" + g_levelsExpanded[levelIdx].tag + "|" + scope;
+}
+
+//+------------------------------------------------------------------+
+void GaplogWriteCsvHeader(const int fh)
+{
+   FileWrite(fh, "datetime", "pdclose", "rthopen", "gap_day_type", "gap_fill_pc",
+      "gap_range_pts", "ON_open", "ON_low", "ON_high", "rthHigh", "rthLow",
+      "closest_level_above_gap", "closest_level_below_gap");
+}
+
+//+------------------------------------------------------------------+
+//| Append one gaplog row for barIdx (after UpdateGapFillSoFarAtBar and g_ONopen). Post-RTH columns unknown until RTH open known. |
+//+------------------------------------------------------------------+
+void GaplogAppendBarRow(const int barIdx)
+{
+   if(!dailyEODlog_Gaplog || barIdx < 0 || barIdx >= g_barsInDay || g_m1DayStart == 0)
+      return;
+   const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   const string fname = dateStr + "_gaplog.csv";
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) == 0)
+      GaplogWriteCsvHeader(fh);
+
+   const double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+   const string pdCloseStr = (pdc > 0.0) ? DoubleToString(pdc, _Digits) : "unknown";
+
+   const bool rthKnown = g_todayRTHopenValid;
+   const string rthOpenStr = rthKnown ? DoubleToString(g_todayRTHopen, _Digits) : "unknown";
+   const string gapDayTypeStr = GaplogGapDayTypeAtBar(barIdx, g_m1DayStart, dateStr);
+
+   string gapFillPcStr = "unknown";
+   string gapRangePtsStr = "unknown";
+   string onOpenStr = "unknown";
+   string onLowStr = "unknown";
+   string onHighStr = "unknown";
+   string rthHighStr = "unknown";
+   string rthLowStr = "unknown";
+   string closestAboveStr = "unknown";
+   string closestBelowStr = "unknown";
+
+   if(rthKnown && pdc > 0.0)
+   {
+      double gapFillVal = 0.0;
+      if(GetGapFillSoFarAtBar(barIdx, g_m1DayStart, dateStr, gapFillVal))
+         gapFillPcStr = DoubleToString(gapFillVal, 2);
+
+      const double rangeTop = MathMax(pdc, g_todayRTHopen);
+      const double rangeBottom = MathMin(pdc, g_todayRTHopen);
+      gapRangePtsStr = DoubleToString(rangeTop - rangeBottom, _Digits);
+
+      if(g_barsInDay > 0)
+         onOpenStr = DoubleToString(g_ONopen, _Digits);
+      double onL = 0.0, onH = 0.0;
+      if(GetONlowSoFarAtBar(barIdx, onL))
+         onLowStr = DoubleToString(onL, _Digits);
+      if(GetONhighSoFarAtBar(barIdx, onH))
+         onHighStr = DoubleToString(onH, _Digits);
+      double rthH = 0.0, rthL = 0.0;
+      if(GetRthHighSoFarAtBar(barIdx, g_m1DayStart, dateStr, rthH))
+         rthHighStr = DoubleToString(rthH, _Digits);
+      if(GetRthLowSoFarAtBar(barIdx, g_m1DayStart, dateStr, rthL))
+         rthLowStr = DoubleToString(rthL, _Digits);
+
+      closestAboveStr = GaplogFormatClosestLevelCell(rangeTop, true);
+      closestBelowStr = GaplogFormatClosestLevelCell(rangeBottom, false);
+   }
+
+   FileWrite(fh,
+      TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES),
+      pdCloseStr, rthOpenStr, gapDayTypeStr, gapFillPcStr,
+      gapRangePtsStr, onOpenStr, onLowStr, onHighStr, rthHighStr, rthLowStr,
+      closestAboveStr, closestBelowStr);
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
 //| Look up level in g_levelsExpanded by price (tradeResult.level string). Fills outTag (e.g. dailySmash) and outCats (e.g. daily_monday_smash_stacked). Empty if not found. |
 //+------------------------------------------------------------------+
 void GetLevelTagAndCatsForTrade(const string &levelStr, string &outTag, string &outCats)
@@ -11679,7 +11792,7 @@ bool Gate_Level_Belowmidpoint(const int kLast, const double levelPx)
 }
 
 //+------------------------------------------------------------------+
-//| Gap down day: today's RTH open < prior day RTH close (PDC). Same rule as dayPriceStat_log hasGapDown once logged; uses g_todayRTHopen so valid after RTH open bar exists. |
+//| Gap down day: today's RTH open < prior day RTH close (PDC). Same rule as dayPriceStat_and_gapstat_log hasGapDown once logged; uses g_todayRTHopen so valid after RTH open bar exists. |
 //+------------------------------------------------------------------+
 bool Gate_Day_HasGapDown()
 {
@@ -11688,7 +11801,7 @@ bool Gate_Day_HasGapDown()
 }
 
 //+------------------------------------------------------------------+
-//| Gap up day: RTH open > PDC. Same as dayPriceStat_log hasGapUp. |
+//| Gap up day: RTH open > PDC. Same as dayPriceStat_and_gapstat_log hasGapUp. |
 //+------------------------------------------------------------------+
 bool Gate_Day_HasGapUp()
 {
@@ -12511,7 +12624,7 @@ bool TryLogDayStatForCurrentDay()
    dayStat_ONboth_t_RTH = (dayStat_ONH_t_RTH && dayStat_ONL_t_RTH);
 
    string dateStrStat = TimeToString(g_m1DayStart, TIME_DATE);
-   string dayStatLogName = dateStrStat + "_dayPriceStat_log.csv";
+   string dayStatLogName = dateStrStat + "_dayPriceStat_and_gapstat_log.csv";
    if(dailyEODlog_DayStat)
    {
    int fileHandleDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
@@ -12544,7 +12657,7 @@ bool TryLogDayStatForCurrentDay()
 //+------------------------------------------------------------------+
 void WriteDayStatSummaryCsv()
 {
-   int fileHandleSum = FileOpen("dayPriceStat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   int fileHandleSum = FileOpen("dayPriceStat_and_gapstat_summaryLog.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleSum != INVALID_HANDLE)
    {
       double avgFillD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
@@ -12795,6 +12908,7 @@ void OnTimer()
    {
       // g_m1Rates is oldest-first: [0]=first bar of day
       g_ONopen = g_m1Rates[0].open;
+      GaplogAppendBarRow(g_barsInDay - 1);
    }
    
    if(InpEODLogging)
@@ -12997,7 +13111,7 @@ void FinalizeCurrentCandle()
       allCandlesFileDate = candleDay;
    }
 
-   // Day stat: once after 21:30 candle, set dayStat_hasGapDown (RTH open < PD RTH close) and write dayPriceStat_log + dayPriceStat_summaryLog
+   // Day stat: once after 21:30 candle, set dayStat_hasGapDown (RTH open < PD RTH close) and write dayPriceStat_and_gapstat_log + dayPriceStat_and_gapstat_summaryLog
    {
       MqlDateTime mqlTime;
       TimeToStruct(current_candle_time, mqlTime);
