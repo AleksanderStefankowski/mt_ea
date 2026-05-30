@@ -35,7 +35,7 @@ double   LevelCountsAsBroken_Threshold = -2.5; // how deep close must breach to 
 input int      HowManyCandlesAboveLevel_CountAsPriceRecovered = 6; // for RecoverCount
 // false: skip per-bar UpdateTradeResultsForDay (no HistorySelect each M1); g_tradeResults cleared each bar — EOD block still calls UpdateTradeResultsForDay once before trade-results CSV (and after EOD closes). Intraday pullinghistory/dayProgress rows stay deal-empty until that EOD refresh.
 input bool     InpLoadTradeResultsFromHistory = true;
-bool     InpEODLogging = true;  // if true: at 21:58-22:00 write EOD logs (pullinghistory_algofamily, algo trade results, levels, etc.)
+bool     InpEODLogging = true;  // if true: write EOD logs in eod_log_start/end window (pullinghistory, trade results, levels, etc.)
 //--- Log to file: set false to disable that log (optimization)
 //    finalLog_ = one file across whole run; dailyEODlog_ = daily once at EOD; dailySpamLog_ = daily and frequent
 bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
@@ -56,20 +56,24 @@ bool     maemfe_testing             = false; // if true: all trades use TP=SL=30
 bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo EOD CSV + all-days TSV + summary_tradeResults_all_days.tsv
 //--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
 bool     dailyLog_algoFamilyWeekPerspective = true;  // (date)_algofamily_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
-bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_a_pullinghistory_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
+bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_B_TradeLog                         = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-..._Arawevents.csv + level logRawEv (FinalizeCurrentCandle)
 bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_algoN_gates_per_minute.csv — enabled algos only
+int      eod_log_start_hour                                =  17;  // originally 21 // EOD log window start (server time; broker clock incl. DST)
+int      eod_log_start_minute                              =  58;  // originally 58
+int      eod_log_end_hour                                  =  18;  // originally 22 EOD log window end inclusive (server time)
+int      eod_log_end_minute                                =   0;  // originally 0
 //--- Per-second logs (shared time window below)
-bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_algofamily_per_second_weekly.csv + _daily.csv
+bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
 bool     bigflipper_log_algo_gates_per_second              = true;  // (date)_algoN_gates_per_second.csv — enabled algos only
 bool     bigflipper_log_algo_trade_telemetry_per_second    = true;  // (date)_algoN_trade_telemetry_per_second.csv
 bool     bigflipper_log_algo_velocity_parameter_testing_per_second = false;  // (date)_algoN_velocity_parameter_testing.csv
-int      per_second_log_start_hour                         =   21;  // shared inclusive window start (server time) — all 4 per-second logs above
-int      per_second_log_start_minute                       =  20;
-int      per_second_log_end_hour                           =  21;  // shared inclusive window end (server time)
-int      per_second_log_end_minute                         =  30;
+int      per_second_log_start_hour                         =   9;  // shared inclusive window start (server time) — all 4 per-second logs above
+int      per_second_log_start_minute                       =  32;
+int      per_second_log_end_hour                           =  9;  // shared inclusive window end (server time)
+int      per_second_log_end_minute                         =  34;
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_maeFirst_window_seconds = 15;  // bookmark // trade-results CSV column MAEfirst{N}: worst MAE in first N seconds (telemetry per-second)
@@ -343,7 +347,7 @@ AlgoFamilyWeekPerspectiveRow g_algoFamilyWeekPerspective[MAX_ALGOFAMILY_WEEK_LEV
 int      g_algoFamilyWeekPerspectiveCount = 0;
 string   g_algoFamilyWeekPerspectiveEvaluatedForDate = "";  // YYYY.MM.DD last (re)evaluated
 
-//--- a_pullinghistory_algofamily_{weekly|daily}: per-bar closest-level snapshot (neutral columns; weekly vs daily scope in filename only).
+//--- pullinghistory_a_algofamily_{weekly|daily}: per-bar closest-level snapshot (neutral columns; weekly vs daily scope in filename only).
 struct PullingHistoryAlgoFamilyBarSnap
 {
    double   closestWeeklyLevelToCClose;
@@ -822,15 +826,20 @@ string GetSessionForTradeTime(datetime t)
 }
 
 //+------------------------------------------------------------------+
-//| True if t is in the EOD log window (21:58–22:00 inclusive). Used to gate pullinghistory and other daily logs. |
-//| WARNING: Setting the window even 1 minute later (e.g. 21:59) can break EOD logging: the tester may not deliver a tick in that later minute, so summaryZ_tradeResults and summary_tradeResults_all_days may never be written. |
+//| True if t is in the EOD log window (eod_log_start..eod_log_end inclusive, server time). |
+//| Uses TimeToStruct → broker/server clock (DST when the terminal/server adjusts). |
+//| WARNING: A window too narrow or shifted late can miss ticks in the tester and skip EOD files. |
 //+------------------------------------------------------------------+
 bool IsInEODLogWindow(datetime t)
 {
    MqlDateTime mql;
    TimeToStruct(t, mql);
-   int minOfDay = mql.hour * 60 + mql.min;
-   return (minOfDay >= 21*60+58 && minOfDay <= 22*60+0);
+   const int minuteOfDay = mql.hour * 60 + mql.min;
+   const int startMin = eod_log_start_hour * 60 + eod_log_start_minute;
+   const int endMin = eod_log_end_hour * 60 + eod_log_end_minute;
+   if(startMin <= endMin)
+      return (minuteOfDay >= startMin && minuteOfDay <= endMin);
+   return (minuteOfDay >= startMin || minuteOfDay <= endMin);
 }
 
 //+------------------------------------------------------------------+
@@ -3366,8 +3375,8 @@ string MagicNumberToFixedWidthString(long magic)
 #define MAGIC_ALGO35                35
 #define MAGIC_ALGO36                36
 #define MAGIC_ALGO37                37
-// algobookmark0 above and below
-// wired algo magic prefixes — add MAGIC_ALGO* define + id here + tune block in Sync (algo37 = daily-only long)
+#define MAGIC_ALGO38                38
+// wired algo magic prefixes — add MAGIC_ALGO* define + id here + tune block in Sync (algo37 = daily-only long; algo38 = daily-only short)
 int g_algoRegistryIds[] =
 {
    MAGIC_ALGO10, MAGIC_ALGO11, MAGIC_ALGO12, MAGIC_ALGO13,
@@ -3377,7 +3386,7 @@ int g_algoRegistryIds[] =
    MAGIC_ALGO27, MAGIC_ALGO28, MAGIC_ALGO29,
    MAGIC_ALGO30, MAGIC_ALGO31, MAGIC_ALGO32,
    MAGIC_ALGO33, MAGIC_ALGO34, MAGIC_ALGO35, MAGIC_ALGO36,
-   MAGIC_ALGO37
+   MAGIC_ALGO37, MAGIC_ALGO38
 };
 
 //+------------------------------------------------------------------+
@@ -3511,8 +3520,8 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 #define FALGO_MAGIC_LENGTH_LEVEL_TRADE_NUM 1
 #define FALGO_MAGIC_INDEX_BABYSIT_MIN     11  // 0..9
 #define FALGO_MAGIC_LENGTH_BABYSIT_MIN    1
-#define FALGO_MAGIC_INDEX_SUBSET_A        12  // reserved
-#define FALGO_MAGIC_LENGTH_SUBSET_A       1
+#define FALGO_MAGIC_INDEX_LEVEL_CATEGORY  12  // 1=weekly 2=daily 3=tertiary; stacked+both-enabled → 1 (weekly path)
+#define FALGO_MAGIC_LENGTH_LEVEL_CATEGORY 1
 #define FALGO_MAGIC_INDEX_SUBSET_B        13  // reserved
 #define FALGO_MAGIC_LENGTH_SUBSET_B       1
 #define FALGO_MAGIC_INDEX_TP              14  // %02d whole points
@@ -3520,6 +3529,9 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 #define FALGO_MAGIC_INDEX_SL              16  // %02d whole points
 #define FALGO_MAGIC_LENGTH_SL             2
 
+#define FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY  1
+#define FALGO_LEVEL_CATEGORY_MAGIC_DAILY   2
+#define FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY 3
 #define FALGO_DIRECTION_LONG_LIMIT        1
 #define FALGO_DIRECTION_SHORT_LIMIT       2
 #define FALGO_DIRECTION_LONG_ALT          3
@@ -3870,7 +3882,7 @@ struct FalgoMagicKey
    int planTradeNum;    // 0..8
    int levelTradeNum;   // 0..8
    int babysitMinute;   // 0..9
-   int subsetA;         // reserved
+   int levelCategory;   // magic slot 12: 1=weekly 2=daily 3=tertiary (algo assignment at placement)
    int subsetB;
    int tpWhole;         // 1..99
    int slWhole;
@@ -3892,6 +3904,9 @@ int FalgoCapWholeTpSlForMagic(const double points)
 //+------------------------------------------------------------------+
 long BuildAlgoMagicNumber(const int algoNumber, const FalgoMagicKey &k)
 {
+   if(k.levelCategory < FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || k.levelCategory > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
+      FatalError(StringFormat("BuildAlgoMagicNumber: algo%d invalid levelCategory %d (expected 1=weekly 2=daily 3=tertiary)",
+         algoNumber, k.levelCategory));
    string s = StringFormat("%02d%d%d%d%d%d%02d%d%d%d%d%d%02d%02d",
       algoNumber,
       k.direction,
@@ -3903,7 +3918,7 @@ long BuildAlgoMagicNumber(const int algoNumber, const FalgoMagicKey &k)
       FalgoClamp0_8(k.planTradeNum),
       FalgoClamp0_8(k.levelTradeNum),
       FalgoClamp0_9(k.babysitMinute),
-      k.subsetA,
+      k.levelCategory,
       k.subsetB,
       k.tpWhole,
       k.slWhole);
@@ -3925,7 +3940,7 @@ FalgoMagicKey ParseFalgoMagic(const long magic)
    emptyKey.planTradeNum = 0;
    emptyKey.levelTradeNum = 0;
    emptyKey.babysitMinute = 0;
-   emptyKey.subsetA = 0;
+   emptyKey.levelCategory = 0;
    emptyKey.subsetB = 0;
    emptyKey.tpWhole = 0;
    emptyKey.slWhole = 0;
@@ -3942,7 +3957,7 @@ FalgoMagicKey ParseFalgoMagic(const long magic)
    k.planTradeNum = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_PLAN_TRADE_NUM, FALGO_MAGIC_LENGTH_PLAN_TRADE_NUM));
    k.levelTradeNum = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_LEVEL_TRADE_NUM, FALGO_MAGIC_LENGTH_LEVEL_TRADE_NUM));
    k.babysitMinute = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_BABYSIT_MIN, FALGO_MAGIC_LENGTH_BABYSIT_MIN));
-   k.subsetA = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_SUBSET_A, FALGO_MAGIC_LENGTH_SUBSET_A));
+   k.levelCategory = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_LEVEL_CATEGORY, FALGO_MAGIC_LENGTH_LEVEL_CATEGORY));
    k.subsetB = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_SUBSET_B, FALGO_MAGIC_LENGTH_SUBSET_B));
    k.tpWhole = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_TP, FALGO_MAGIC_LENGTH_TP));
    k.slWhole = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_SL, FALGO_MAGIC_LENGTH_SL));
@@ -4858,7 +4873,7 @@ void PullingHistoryAlgoFamilyWriteCsvRow(const int fh, const datetime rowTime, c
 //+------------------------------------------------------------------+
 void PullingHistoryAlgoFamilyWriteEodCsv(const string dateStr, const string scopeSuffix)
 {
-   const string logName = dateStr + "_a_pullinghistory_algofamily_" + scopeSuffix + ".csv";
+   const string logName = dateStr + "_pullinghistory_a_algofamily_" + scopeSuffix + ".csv";
    if(FileIsExist(logName))
       return;
    int fh = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
@@ -4883,7 +4898,7 @@ void PullingHistoryAlgoFamilyWriteEodCsv(const string dateStr, const string scop
 void PullingHistoryAlgoFamilyAppendPerSecondRow(const string dateStr, const string scopeSuffix,
    const datetime rowTime, const int snapBarIdx, const double o, const double h, const double l, const double c)
 {
-   const string fname = dateStr + "_algofamily_per_second_" + scopeSuffix + ".csv";
+   const string fname = dateStr + "_pullinghistory_b_algofamily_per_second_" + scopeSuffix + ".csv";
    int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
@@ -5779,7 +5794,85 @@ int FalgoLevelTierFromLevelIdx(const int levelIdx)
 }
 
 //+------------------------------------------------------------------+
-//| Today's weekly level price for magic levelTier (1..9); must match g_levelsExpanded. |
+//| Magic levelCategory slot 12: scope path that assigned this level (1 weekly, 2 daily, 3 tertiary). |
+//| Stacked + weekly+daily algo → 1 (weekly path wins, same as LevelEligibleForAlgoLevelScope). |
+//+------------------------------------------------------------------+
+bool FalgoLevelMatchesMagicCategorySlot(const string &categories, const int categorySlot)
+{
+   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
+      return LevelIsTertiary(categories);
+   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY)
+      return LevelIsWeeklyKind(categories);
+   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_DAILY)
+      return LevelIsDailyKind(categories);
+   return false;
+}
+
+//+------------------------------------------------------------------+
+int FalgoLevelCategoryMagicSlotForAlgoLevel(const int expandedLevelIdx, const int algoNumber, const datetime asOfTime)
+{
+   if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
+      FatalError(StringFormat("FalgoLevelCategoryMagicSlotForAlgoLevel: bad expandedLevelIdx %d", expandedLevelIdx));
+   const string categories = g_levelsExpanded[expandedLevelIdx].categories;
+   string c = categories;
+   StringToLower(c);
+   if(StringFind(c, "tertiary") >= 0)
+      return FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY;
+
+   const bool tradesWeekly = AlgoTradesWeeklyLevels(algoNumber);
+   const bool tradesDaily = AlgoTradesDailyLevels(algoNumber);
+   const bool weeklyKind = LevelIsWeeklyKind(categories);
+   const bool dailyKind = LevelIsDailyKind(categories);
+
+   if(tradesWeekly && weeklyKind)
+      return FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY;
+   if(tradesDaily && dailyKind)
+   {
+      if(!LevelEligibleForAlgoLevelScope(categories, false, true, asOfTime))
+         FatalError(StringFormat("FalgoLevelCategoryMagicSlotForAlgoLevel: daily path ineligible at %s for \"%s\"",
+            TimeToString(asOfTime, TIME_DATE|TIME_MINUTES), categories));
+      return FALGO_LEVEL_CATEGORY_MAGIC_DAILY;
+   }
+   FatalError(StringFormat("FalgoLevelCategoryMagicSlotForAlgoLevel: algo %d level \"%s\" not weekly/daily eligible",
+      algoNumber, categories));
+   return 0;
+}
+
+//+------------------------------------------------------------------+
+int FalgoExpandedLevelIdxForTierAndCategorySlot(const int tier, const int categorySlot)
+{
+   if(tier < 1 || tier > FALGO_LEVEL_TIER_MAX)
+      return -1;
+   if(categorySlot < 1 || categorySlot > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
+      return -1;
+   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
+   {
+      if(FalgoLevelTierFromLevelIdx(levelIdx) != tier)
+         continue;
+      if(!FalgoLevelMatchesMagicCategorySlot(g_levelsExpanded[levelIdx].categories, categorySlot))
+         continue;
+      return levelIdx;
+   }
+   return -1;
+}
+
+//+------------------------------------------------------------------+
+int FalgoResolveExpandedLevelIdxFromMagicKey(const FalgoMagicKey &fk)
+{
+   if(fk.levelTier < 1 || fk.levelTier > FALGO_LEVEL_TIER_MAX)
+      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: invalid levelTier %d in magic", fk.levelTier));
+   if(fk.levelCategory < FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || fk.levelCategory > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
+      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: invalid levelCategory %d (expected 1=weekly 2=daily 3=tertiary)",
+         fk.levelCategory));
+   const int expandedIdx = FalgoExpandedLevelIdxForTierAndCategorySlot(fk.levelTier, fk.levelCategory);
+   if(expandedIdx < 0)
+      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: no g_levelsExpanded row for tier %d levelCategory %d (g_levelsTodayCount=%d)",
+         fk.levelTier, fk.levelCategory, g_levelsTodayCount));
+   return expandedIdx;
+}
+
+//+------------------------------------------------------------------+
+//| Today's level price for magic levelTier (legacy weekly-first scan; prefer FalgoLevelPriceForMagicKey). |
 //+------------------------------------------------------------------+
 double FalgoWeeklyLevelPriceForTier(const int tier)
 {
@@ -5806,6 +5899,13 @@ double FalgoWeeklyLevelPriceForTier(const int tier)
 }
 
 //+------------------------------------------------------------------+
+double FalgoLevelPriceForMagicKey(const FalgoMagicKey &fk)
+{
+   const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk);
+   return g_levelsExpanded[levelIdx].levelPrice;
+}
+
+//+------------------------------------------------------------------+
 //| tpWhole/slWhole from magic; if secretTPSL on, scale by secretTPSL_percent (babysit-effective points). |
 //+------------------------------------------------------------------+
 void FalgoEffectiveTpSlPointsFromMagicKey(const FalgoMagicKey &k, double &outTpPoints, double &outSlPoints)
@@ -5829,7 +5929,7 @@ void FalgoEnrichTradeResultLevelTpSl(TradeResult &tr)
    if(fk.levelTier < 1 || fk.levelTier > FALGO_LEVEL_TIER_MAX)
       FatalError(StringFormat("FalgoEnrichTradeResultLevelTpSl: magic %s has invalid levelTier %d",
          IntegerToString(tr.magic), fk.levelTier));
-   const double levelPrice = FalgoWeeklyLevelPriceForTier(fk.levelTier);
+   const double levelPrice = FalgoLevelPriceForMagicKey(fk);
    double tpPts = 0.0, slPts = 0.0;
    FalgoEffectiveTpSlPointsFromMagicKey(fk, tpPts, slPts);
    tr.level = DoubleToString(levelPrice, _Digits);
@@ -6205,22 +6305,15 @@ string FalgoOffsetPriceUnitsStrForTrade(const TradeResult &tr)
 //+------------------------------------------------------------------+
 string FalgoLevelTagUneditedForTradeResult(const TradeResult &tr)
 {
-   double levelPrice = StringToDouble(tr.level);
-   if(levelPrice <= 0.0)
+   if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
    {
-      FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
-      if(fk.levelTier >= 1 && fk.levelTier <= FALGO_LEVEL_TIER_MAX)
-      {
-         const double tierPx = FalgoWeeklyLevelPriceForTier(fk.levelTier);
-         if(tierPx > 0.0)
-            levelPrice = tierPx;
-      }
+      const int levelIdx = FindExpandedLevelIndexByPrice(StringToDouble(tr.level));
+      if(levelIdx < 0)
+         return "";
+      return g_levelsExpanded[levelIdx].tag;
    }
-   if(levelPrice <= 0.0)
-      return "";
-   const int levelIdx = FindExpandedLevelIndexByPrice(levelPrice);
-   if(levelIdx < 0)
-      return "";
+   const FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
+   const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk);
    return g_levelsExpanded[levelIdx].tag;
 }
 
@@ -7107,7 +7200,8 @@ bool FalgoBuildMagicKeyForPlacement(const int algoSlot1, const int barIdx, const
    if(!AlgoLoadPerAlgoTune(algoSlot1, placeTune))
       FatalError(StringFormat("FalgoBuildMagicKeyForPlacement: unknown algo slot %d", algoSlot1));
    outKey.babysitMinute = FalgoClamp0_9(placeTune.babysitStart_minute);
-   outKey.subsetA = 0;
+   outKey.levelCategory = FalgoLevelCategoryMagicSlotForAlgoLevel(levelExpandedIdx, algoSlot1,
+      FalgoLevelEligibilityTimeForBar(barIdx));
    outKey.subsetB = 0;
    outKey.tpWhole = FalgoCapWholeTpSlForMagic(g_algoShared.initialTP);
    outKey.slWhole = FalgoCapWholeTpSlForMagic(g_algoShared.initialSL);
@@ -7329,18 +7423,9 @@ struct FalgoTradeLegacyContextCols
 //+------------------------------------------------------------------+
 double FalgoLevelPriceForTradeResult(const TradeResult &tr)
 {
-   double levelPrice = StringToDouble(tr.level);
-   if(levelPrice <= 0.0)
-   {
-      FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
-      if(fk.levelTier >= 1 && fk.levelTier <= FALGO_LEVEL_TIER_MAX)
-      {
-         const double tierPx = FalgoWeeklyLevelPriceForTier(fk.levelTier);
-         if(tierPx > 0.0)
-            levelPrice = tierPx;
-      }
-   }
-   return levelPrice;
+   if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
+      return StringToDouble(tr.level);
+   return FalgoLevelPriceForMagicKey(ParseFalgoMagic(tr.magic));
 }
 
 //+------------------------------------------------------------------+
@@ -7377,13 +7462,20 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
    out.dayBrokePDH = GetDayBrokePDHAtTradeOpenTime(tr.startTime);
    out.dayBrokePDL = GetDayBrokePDLAtTradeOpenTime(tr.startTime);
 
+   const FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
+   if(IsAnyAlgoFamilyCompositeMagic(tr.magic))
+      out.levelCats = g_levelsExpanded[FalgoResolveExpandedLevelIdxFromMagicKey(fk)].categories;
+
    const double levelPrice = FalgoLevelPriceForTradeResult(tr);
    if(levelPrice > 0.0)
    {
       GetReferencePointsAboveBelow(tr.startTime, levelPrice, out.refAbove, out.refBelow);
-      string levelTagDummy = "";
-      const string levelStr = (StringLen(tr.level) > 0) ? tr.level : DoubleToString(levelPrice, _Digits);
-      GetLevelTagAndCatsForTrade(levelStr, levelTagDummy, out.levelCats);
+      if(out.levelCats == "")
+      {
+         string levelTagDummy = "";
+         const string levelStr = (StringLen(tr.level) > 0) ? tr.level : DoubleToString(levelPrice, _Digits);
+         GetLevelTagAndCatsForTrade(levelStr, levelTagDummy, out.levelCats);
+      }
    }
 }
 
@@ -8839,6 +8931,40 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].levelOffset                               = 0.4;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].priceProximity                             =  4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].expiry_minutes                              =  5;
+   //=== algo38 TUNE BLOCK (short; daily levels only; day ceiling 0) ===
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].trades_short                                     = ALGO_SIDE_SHORT;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tradesWeeklyLevels                              = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tradesDailyLevels                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.babysitStart_minute                                     =  0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.neutral_trade_TP                                         =  2.1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_TP                                         =  3.8;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.neutral_trade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.badtrade_mode_enabled                                    = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.terribletrade_mode_enabled                               = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_min_velocity_trigger                             = 0.4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_velocity_window_seconds                  =   10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.telemetry_velocity_window_seconds                        = 10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.telemetry_avg_velocity_window_seconds                    =   10;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.start_mae_care_after_x_seconds                           =  90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.badtrade_try_save_TP                                      =   1.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].physicalCeilingMaxAllowed_today                =  0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].levelOffset                               = 0.4;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].priceProximity                             =  4.0;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].expiry_minutes                              =  5;
    //=== algobookmark3 end tune blocks ===
 
    g_algoShared.tradeSizePct = 100;
@@ -8849,7 +8975,7 @@ void SyncAlgoFamilyProfileFromInputs()
 
    for(int ai = 0; ai < g_algoCount; ai++)
    {
-      if(g_algos[ai].algo_id == MAGIC_ALGO37)
+      if(g_algos[ai].algo_id == MAGIC_ALGO37 || g_algos[ai].algo_id == MAGIC_ALGO38)
          continue;
       g_algos[ai].tradesWeeklyLevels = g_algoShared.tradesWeeklyLevels;
       g_algos[ai].tradesDailyLevels = g_algoShared.tradesDailyLevels;
@@ -10921,6 +11047,9 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
       case MAGIC_ALGO37:
          AlgoRuleAdd_BounceCountTooHigh(slotIdx, a.bounceMaxAllowed_today);
          AlgoRuleAdd_OnoAboveLevelTooLow(slotIdx, a.min_onoAboveLevel);
+         break;
+      case MAGIC_ALGO38:
+         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "dailyCeilingCountTooHigh");
          break;
       default:
          break;
