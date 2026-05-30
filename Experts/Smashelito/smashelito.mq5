@@ -711,7 +711,8 @@ struct StaticMarketContext
 };
 StaticMarketContext g_staticMarketContext;
 datetime g_staticMarketContextPulledForDate = 0;  // day-start we last pulled for; 0 = never pulled
-// Proximity (price distance): do not add PDrthClose or todayRTHopen if a level valid for that day is within this distance
+// Proximity (price distance): do not add PDrthClose or todayRTHopen if a level valid for that day is within this distance (only when flipper true)
+const bool   tertiaryLevel_tooTight_featureFlipper = false;
 const double tertiaryLevel_tooTight_toAdd_proximity = 2.0;
 
 //+------------------------------------------------------------------+
@@ -1419,12 +1420,13 @@ void TryAddTodayRTHopenLevel(const string &dateStr)
       if(g_levels[levelIdx].tag == "todayRTHopen" && g_levels[levelIdx].startStr == todayStr && g_levels[levelIdx].endStr == todayStr)
       { alreadyAdded = true; break; }
    if(alreadyAdded) return;
-   bool tooClose = false;
-   for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
-      if(g_levels[levelIdx].startStr <= todayStr && todayStr <= g_levels[levelIdx].endStr &&
-         MathAbs(g_levels[levelIdx].levelPrice - g_todayRTHopen) < tertiaryLevel_tooTight_toAdd_proximity)
-      { tooClose = true; break; }
-   if(tooClose) return;
+   if(tertiaryLevel_tooTight_featureFlipper)
+   {
+      for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+         if(g_levels[levelIdx].startStr <= todayStr && todayStr <= g_levels[levelIdx].endStr &&
+            MathAbs(g_levels[levelIdx].levelPrice - g_todayRTHopen) < tertiaryLevel_tooTight_toAdd_proximity)
+            return;
+   }
    if(g_levelsTotalCount >= MAX_LEVEL_ROWS)
       FatalError("todayRTHopen: RTH open bar found but g_levels full (g_levelsTotalCount=" + IntegerToString(g_levelsTotalCount) + ")");
    AddLevel(todayStr + "_todayRTHopen", g_todayRTHopen, todayStr + " 00:00", todayStr + " 23:59", "daily_tertiary_todayRTHopen");
@@ -1433,6 +1435,39 @@ void TryAddTodayRTHopenLevel(const string &dateStr)
    g_levels[g_levelsTotalCount].levelPrice = g_todayRTHopen;
    g_levels[g_levelsTotalCount].categories = "daily_tertiary_todayRTHopen";
    g_levels[g_levelsTotalCount].tag        = "todayRTHopen";
+   g_levelsTotalCount++;
+}
+
+//+------------------------------------------------------------------+
+//| If static PDC is available, add PDrthClose tertiary level once per day (same dedup as todayRTHopen). |
+//+------------------------------------------------------------------+
+void TryAddPDrthCloseLevel(const string &dateStr)
+{
+   if(g_staticMarketContextPulledForDate != g_m1DayStart || g_staticMarketContext.PDCpreviousDayRTHClose <= 0.0)
+      return;
+   const string todayStr = dateStr;
+   const double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+      if(g_levels[levelIdx].tag == "PDrthClose" && g_levels[levelIdx].startStr == todayStr && g_levels[levelIdx].endStr == todayStr)
+         return;
+   if(tertiaryLevel_tooTight_featureFlipper)
+   {
+      for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+      {
+         if(g_levels[levelIdx].startStr > todayStr || todayStr > g_levels[levelIdx].endStr) continue;
+         if(MathAbs(g_levels[levelIdx].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity)
+            return;
+      }
+   }
+   if(g_levelsTotalCount >= MAX_LEVEL_ROWS)
+      FatalError("PDrthClose: static PDC available but g_levels full (g_levelsTotalCount=" + IntegerToString(g_levelsTotalCount) + ")");
+   const string categories = "daily_tertiary_PDrthClose";
+   AddLevel(todayStr + "_PDrthClose", pdc, todayStr + " 00:00", todayStr + " 23:59", categories);
+   g_levels[g_levelsTotalCount].startStr   = todayStr;
+   g_levels[g_levelsTotalCount].endStr     = todayStr;
+   g_levels[g_levelsTotalCount].levelPrice = pdc;
+   g_levels[g_levelsTotalCount].categories = categories;
+   g_levels[g_levelsTotalCount].tag        = "PDrthClose";
    g_levelsTotalCount++;
 }
 
@@ -2731,30 +2766,7 @@ void UpdateDayM1AndLevelsExpanded()
       TryAddTodayRTHopenLevel(dateStr);
    }
 
-   // Add PD RTH Close as a level for today only if static context was pulled for this day and no level is within proximity
-   if(g_staticMarketContextPulledForDate == g_m1DayStart && g_staticMarketContext.PDCpreviousDayRTHClose > 0.0)
-   {
-      string todayStr = dateStr;
-      double pdc = g_staticMarketContext.PDCpreviousDayRTHClose;
-      bool PDrthLevel_tooClose_to_regularLevel = false;
-      for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
-      {
-         if(g_levels[levelIdx].startStr > todayStr || todayStr > g_levels[levelIdx].endStr) continue;
-         if(MathAbs(g_levels[levelIdx].levelPrice - pdc) < tertiaryLevel_tooTight_toAdd_proximity) { PDrthLevel_tooClose_to_regularLevel = true; break; }
-      }
-      if(!PDrthLevel_tooClose_to_regularLevel && g_levelsTotalCount < MAX_LEVEL_ROWS)
-      {
-         string categories = "daily_tertiary_PDrthClose";
-         string baseName = todayStr + "_PDrthClose";
-         AddLevel(baseName, pdc, todayStr + " 00:00", todayStr + " 23:59", categories);
-         g_levels[g_levelsTotalCount].startStr   = todayStr;
-         g_levels[g_levelsTotalCount].endStr    = todayStr;
-         g_levels[g_levelsTotalCount].levelPrice = pdc;
-         g_levels[g_levelsTotalCount].categories = categories;
-         g_levels[g_levelsTotalCount].tag       = "PDrthClose";
-         g_levelsTotalCount++;
-      }
-   }
+   TryAddPDrthCloseLevel(dateStr);
 
    // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
    g_levelsTodayCount = 0;
@@ -5210,7 +5222,8 @@ void PullingHistoryAlgoFamilyWriteCsvHeader(const int fh)
             StringFormat("recentCeilingCount%d", AlgoFamilyRecentCeilingLookbackMinutes()),
             "ClosestLevel_contactCount_today",
             "accOpenTradeNowBool", "accOpenTradeTime", "accLastClosedTradeTime",
-            "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "dayProfitFactor");
+            "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "dayProfitFactor",
+            "gap_fill_pc");
 }
 
 //+------------------------------------------------------------------+
@@ -5229,6 +5242,14 @@ void PullingHistoryAlgoFamilyWriteCsvRowFromSnap(const int fh, const datetime ro
       TimeToString(snap.accOpenTradeTime, TIME_DATE|TIME_MINUTES) : "";
    string accLastClosedStr = (snap.accLastClosedTradeTime > 0) ?
       TimeToString(snap.accLastClosedTradeTime, TIME_DATE|TIME_MINUTES) : "";
+   string gapFillPcStr = "unknown";
+   if(g_m1DayStart != 0)
+   {
+      const string dateStrGap = TimeToString(g_m1DayStart, TIME_DATE);
+      double gapFillVal = 0.0;
+      if(GetGapFillSoFarAtBar(snapBarIdx, g_m1DayStart, dateStrGap, gapFillVal))
+         gapFillPcStr = DoubleToString(gapFillVal, 2);
+   }
    FileWrite(fh, TimeToString(rowTime, timeFormat),
             DoubleToString(o, _Digits), DoubleToString(h, _Digits), DoubleToString(l, _Digits), DoubleToString(c, _Digits),
             DoubleToString(snap.closestWeeklyLevelToCClose, _Digits),
@@ -5247,7 +5268,8 @@ void PullingHistoryAlgoFamilyWriteCsvRowFromSnap(const int fh, const datetime ro
             (snap.accOpenTradeNowBool ? "true" : "false"), accOpenTimeStr, accLastClosedStr,
             DoubleToString(snap.dayWinRate * 100.0, 0), IntegerToString(snap.dayTradesCount),
             DoubleToString(snap.dayPointsSum, _Digits), DoubleToString(snap.dayProfitSum, 2),
-            FormatDayProfitFactorForCsv(snap.dayProfitFactor));
+            FormatDayProfitFactorForCsv(snap.dayProfitFactor),
+            gapFillPcStr);
 }
 
 //+------------------------------------------------------------------+
@@ -7970,9 +7992,9 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 
 string FalgoAllDaysTradeResultsHeader()
 {
-   return "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,MFE,MAE,"
+   return "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,level,levelTag,MFE,MAE,"
       + FalgoTradeResultMaeFirstCsvColumnName()
-      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,level,levelTag,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC";
+      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC";
 }
 
 //+------------------------------------------------------------------+
@@ -8052,17 +8074,21 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    cells[base + 8]  = DoubleToString(tr.priceDiff, _Digits);
    cells[base + 9]  = DoubleToString(tr.profit, 2);
    cells[base + 10] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
+   int planNum = 0, levelNum = 0;
+   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
+   cells[base + 11] = FalgoSanitizeCsvCell(tr.level);
+   cells[base + 12] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
    FalgoClosedTradeTelemetrySummary telSummary;
    const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
    FalgoTradeLegacyContextCols legacyCtx;
    FalgoFillTradeLegacyContextCols(tr, legacyCtx);
    if(hasTel)
    {
-      cells[base + 11] = DoubleToString(telSummary.mfePts, 1);
-      cells[base + 12] = DoubleToString(telSummary.maePts, 1);
-      cells[base + 13] = DoubleToString(telSummary.maeFirstWindowPts, 1);
-      cells[base + 16] = FalgoSanitizeCsvCell(telSummary.closeDecision);
-      cells[base + 17] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 13] = DoubleToString(telSummary.mfePts, 1);
+      cells[base + 14] = DoubleToString(telSummary.maePts, 1);
+      cells[base + 15] = DoubleToString(telSummary.maeFirstWindowPts, 1);
+      cells[base + 18] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 19] = FalgoSanitizeCsvCell(telSummary.closeDetail);
       cells[base + 28] = DoubleToString(telSummary.greenRatioAtClose, 4);
       cells[base + 29] = DoubleToString(telSummary.avgProfitVelocity, 3);
       cells[base + 30] = IntegerToString(telSummary.secondsGreen);
@@ -8070,25 +8096,21 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    }
    else
    {
-      cells[base + 11] = "";
-      cells[base + 12] = "";
       cells[base + 13] = "";
-      cells[base + 16] = "";
-      cells[base + 17] = "";
+      cells[base + 14] = "";
+      cells[base + 15] = "";
+      cells[base + 18] = "";
+      cells[base + 19] = "";
       cells[base + 28] = "";
       cells[base + 29] = "";
       cells[base + 30] = "";
       cells[base + 31] = "";
    }
-   cells[base + 14] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
-   cells[base + 15] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
-   cells[base + 18] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 19] = (string)tr.volume;
-   cells[base + 20] = FalgoSanitizeCsvCell(tr.bothComments);
-   int planNum = 0, levelNum = 0;
-   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
-   cells[base + 21] = FalgoSanitizeCsvCell(tr.level);
-   cells[base + 22] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
+   cells[base + 16] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 17] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 20] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 21] = (string)tr.volume;
+   cells[base + 22] = FalgoSanitizeCsvCell(tr.bothComments);
    cells[base + 23] = IntegerToString(planNum);
    cells[base + 24] = IntegerToString(levelNum);
    cells[base + 25] = FalgoOffsetPriceUnitsStrForTrade(tr);
@@ -8190,8 +8212,9 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    if(fhDay != INVALID_HANDLE)
    {
       FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type",
+         "level", "levelTag",
          "MFE", "MAE", FalgoTradeResultMaeFirstCsvColumnName(), "mfeCandle", "maeCandle", "close_decision", "close_detail",
-         "reason", "volume", "bothComments", "level", "levelTag", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
+         "reason", "volume", "bothComments", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
          "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed",
          "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL",
          "referencePointsAbove", "referencePointsBelow", "levelCats",
@@ -8219,6 +8242,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             DoubleToString(tr.priceDiff, _Digits),
             DoubleToString(tr.profit, 2),
             EnumToString((ENUM_DEAL_TYPE)tr.type),
+            tr.level, FalgoLevelTagUneditedForTradeResult(tr),
             (hasTel ? DoubleToString(telSummary.mfePts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.maePts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.maeFirstWindowPts, 1) : ""),
@@ -8226,7 +8250,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDecision) : ""),
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDetail) : ""),
             EnumToString((ENUM_DEAL_REASON)tr.reason),
-            tr.volume, tr.bothComments, tr.level, FalgoLevelTagUneditedForTradeResult(tr),
+            tr.volume, tr.bothComments,
             IntegerToString(planNum), IntegerToString(levelNum),
             FalgoOffsetPriceUnitsStrForTrade(tr), FalgoSanitizeCsvCell(tr.tp), FalgoSanitizeCsvCell(tr.sl),
             (hasTel ? DoubleToString(telSummary.greenRatioAtClose, 4) : ""),
@@ -11692,7 +11716,7 @@ bool Gate_Day_DayBrokePDL_is_FALSE(const int kLast)
 }
 
 //+------------------------------------------------------------------+
-//| Gap-fill state at bar kLast from g_gapFillSoFarAtBar (same % as pullinghistory gapFillSoFar). |
+//| Gap-fill state at bar kLast from g_gapFillSoFarAtBar (same % as pullinghistory_a/b column gap_fill_pc). |
 //| "unknown" if before RTH open or value not computed; "filled" if pct >= 90; else "unfilled". |
 //+------------------------------------------------------------------+
 string GetGapFillStatus_atBar(const int kLast)
