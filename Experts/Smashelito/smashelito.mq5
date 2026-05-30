@@ -42,7 +42,7 @@ bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSumma
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_and_gapstat_log.csv (TryLogDayStatForCurrentDay)
-bool     dailyEODlog_Gaplog           = true;  // (date)_gaplog.csv — per M1: PDC/RTH open, gap day type, fill %, gap range, ON, closest levels above/below gap
+bool     dailyEODlog_Gaplog           = true;  // (date)_gaplog.csv — per M1: PDC/RTH open, gap fill %, gap range, Gap_as_%_of_ONrange, ON, closest levels
 bool     dailyLog_StaticMarketContext = true;  // (date)_staticMarketContext_log.csv — PDO/PDH/PDL/PDC once per day right after UpdateStaticMarketContext
 
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_and_gapstat_summaryLog_gapDowns.csv + _gapUps.csv (WriteDayStatSummaryCsv)
@@ -58,17 +58,17 @@ bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo 
 bool     dailyLog_algoFamilyWeekPerspective = true;  // (date)_algofamily_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
 bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_B_TradeLog                         = false;  // (date)_B_TradeLog_algoN.csv
-bool     bigflipper_log_testinglevelsplus                 = true;  // (date)_testinglevelsplus_(level)_(tag).csv per level
-bool     bigflipper_log_Arawevents                        = true;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
-bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_algoN_gates_per_minute.csv — enabled algos only
-int      eod_log_start_hour                                =  17;  // originally 21 // EOD log window start (server time; broker clock incl. DST)
+bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
+bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
+bool     bigflipper_log_algo_gates_per_minute              = false;  // (date)_algoN_gates_per_minute.csv — enabled algos only
+int      eod_log_start_hour                                =  21;  // originally 21 // EOD log window start (server time; broker clock incl. DST)
 int      eod_log_start_minute                              =  58;  // originally 58
-int      eod_log_end_hour                                  =  18;  // originally 22 EOD log window end inclusive (server time)
+int      eod_log_end_hour                                  =  22;  // originally 22 EOD log window end inclusive (server time)
 int      eod_log_end_minute                                =   0;  // originally 0
 //--- Per-second logs (shared time window below)
-bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
-bool     bigflipper_log_algo_gates_per_second              = true;  // (date)_algoN_gates_per_second.csv — enabled algos only
-bool     bigflipper_log_algo_trade_telemetry_per_second    = true;  // (date)_algoN_trade_telemetry_per_second.csv
+bool     bigflipper_log_testing_algofamily_per_second      = false;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
+bool     bigflipper_log_algo_gates_per_second              = false;  // (date)_algoN_gates_per_second.csv — enabled algos only
+bool     bigflipper_log_algo_trade_telemetry_per_second    = false;  // (date)_algoN_trade_telemetry_per_second.csv
 bool     bigflipper_log_algo_velocity_parameter_testing_per_second = false;  // (date)_algoN_velocity_parameter_testing.csv
 int      per_second_log_start_hour                         =   9;  // shared inclusive window start (server time) — all 4 per-second logs above
 int      per_second_log_start_minute                       =  31;
@@ -299,6 +299,7 @@ int      dayStat_totalDays = 0;
 int      dayStat_daysWithGapDown = 0;
 int      dayStat_daysWithoutGapDown = 0;
 double   dayStat_gapDown_fillPercentSum = 0.0;  // sum of percentage_gap_filled for gap-down days (for avg)
+int      dayStat_daysWithGapDown_10fill = 0;   // gap-down days with percentage_gap_filled >= 10
 int      dayStat_daysWithGapDown_20fill = 0;   // gap-down days with percentage_gap_filled >= 20
 int      dayStat_daysWithGapDown_25fill = 0;   // gap-down days with percentage_gap_filled >= 25
 int      dayStat_daysWithGapDown_30fill = 0;   // gap-down days with percentage_gap_filled >= 30
@@ -586,6 +587,7 @@ double   dayStat_openGapUp_percentageFill = 0.0;
 int      dayStat_daysWithGapUp = 0;
 int      dayStat_daysWithoutGapUp = 0;
 double   dayStat_gapUp_fillPercentSum = 0.0;
+int      dayStat_daysWithGapUp_10fill = 0;
 int      dayStat_daysWithGapUp_20fill = 0;
 int      dayStat_daysWithGapUp_25fill = 0;
 int      dayStat_daysWithGapUp_30fill = 0;
@@ -6260,7 +6262,21 @@ string FalgoGatesColRecentCeilingCount()
 }
 
 //+------------------------------------------------------------------+
-//| Ladder tier 1..9 from weekly/daily tag (smash=5; down4..up4). Tertiary → 0 (magic slot unused). |
+//| Clamp ladder tier for magic: raw 1..9 → 2..8 (down4→2, up4/up5→8). Tertiary raw 0 unchanged. |
+//+------------------------------------------------------------------+
+int FalgoClampLadderTierForMagic(const int rawTier)
+{
+   if(rawTier < 1)
+      return rawTier;
+   if(rawTier < 2)
+      return 2;
+   if(rawTier > 8)
+      return 8;
+   return rawTier;
+}
+
+//+------------------------------------------------------------------+
+//| Ladder tier from weekly/daily tag (smash=5; down4..up4; down5/6, up5 → clamped). Tertiary → 0. |
 //+------------------------------------------------------------------+
 int FalgoLevelTierFromLevelIdx(const int levelIdx)
 {
@@ -6277,31 +6293,38 @@ int FalgoLevelTierFromLevelIdx(const int levelIdx)
    if(!isWeekly && !isDaily)
       FatalError(StringFormat("FalgoLevelTierFromLevelIdx: levelIdx=%d tag \"%s\" categories \"%s\" — not weekly/daily/tertiary",
          levelIdx, t, cats));
+
+   int rawTier = 5;
    if(StringFind(tLower, "smash") >= 0)
-      return 5;
-   if(StringFind(tLower, "down4") >= 0 || StringFind(tLower, "_down4") >= 0)
-      return 1;
-   if(StringFind(tLower, "down3") >= 0 || StringFind(tLower, "_down3") >= 0)
-      return 2;
-   if(StringFind(tLower, "down2") >= 0 || StringFind(tLower, "_down2") >= 0)
-      return 3;
-   if(StringFind(tLower, "down1") >= 0 || StringFind(tLower, "_down1") >= 0)
-      return 4;
-   if(StringFind(tLower, "down") >= 0 && isWeekly)
-      FatalError(StringFormat("FalgoLevelTierFromLevelIdx: levelIdx=%d tag \"%s\" — weeklydown without down1..down4 tier", levelIdx, t));
-   if(StringFind(tLower, "up1") >= 0 || StringFind(tLower, "_up1") >= 0)
-      return 6;
-   if(StringFind(tLower, "up2") >= 0 || StringFind(tLower, "_up2") >= 0)
-      return 7;
-   if(StringFind(tLower, "up3") >= 0 || StringFind(tLower, "_up3") >= 0)
-      return 8;
-   if(StringFind(tLower, "up4") >= 0 || StringFind(tLower, "_up4") >= 0)
-      return 9;
-   if(StringFind(tLower, "up") >= 0 && isWeekly)
-      return 9;
-   FatalError(StringFormat("FalgoLevelTierFromLevelIdx: levelIdx=%d tag \"%s\" categories \"%s\" — tag not mapped to tier 1..9",
-      levelIdx, t, cats));
-   return 0;
+      rawTier = 5;
+   else if(StringFind(tLower, "down6") >= 0 || StringFind(tLower, "_down6") >= 0)
+      rawTier = 1;
+   else if(StringFind(tLower, "down5") >= 0 || StringFind(tLower, "_down5") >= 0)
+      rawTier = 1;
+   else if(StringFind(tLower, "down4") >= 0 || StringFind(tLower, "_down4") >= 0)
+      rawTier = 1;
+   else if(StringFind(tLower, "down3") >= 0 || StringFind(tLower, "_down3") >= 0)
+      rawTier = 2;
+   else if(StringFind(tLower, "down2") >= 0 || StringFind(tLower, "_down2") >= 0)
+      rawTier = 3;
+   else if(StringFind(tLower, "down1") >= 0 || StringFind(tLower, "_down1") >= 0)
+      rawTier = 4;
+   else if(StringFind(tLower, "down") >= 0 && isWeekly)
+      rawTier = 1;
+   else if(StringFind(tLower, "up5") >= 0 || StringFind(tLower, "_up5") >= 0)
+      rawTier = 9;
+   else if(StringFind(tLower, "up1") >= 0 || StringFind(tLower, "_up1") >= 0)
+      rawTier = 6;
+   else if(StringFind(tLower, "up2") >= 0 || StringFind(tLower, "_up2") >= 0)
+      rawTier = 7;
+   else if(StringFind(tLower, "up3") >= 0 || StringFind(tLower, "_up3") >= 0)
+      rawTier = 8;
+   else if(StringFind(tLower, "up4") >= 0 || StringFind(tLower, "_up4") >= 0)
+      rawTier = 9;
+   else if(StringFind(tLower, "up") >= 0 && isWeekly)
+      rawTier = 9;
+
+   return FalgoClampLadderTierForMagic(rawTier);
 }
 
 //+------------------------------------------------------------------+
@@ -9706,10 +9729,21 @@ string GaplogFormatClosestLevelCell(const double refPrice, const bool wantAbove)
 }
 
 //+------------------------------------------------------------------+
+//| gapPts / (onHigh - onLow) * 100, e.g. gap 2 pts / ON range 20 pts => 10.00 |
+//+------------------------------------------------------------------+
+string GapAsPctOfONrangeStr(const double gapPts, const double onHigh, const double onLow)
+{
+   const double onRange = onHigh - onLow;
+   if(onRange <= 0.0)
+      return "unknown";
+   return DoubleToString(100.0 * gapPts / onRange, 2);
+}
+
+//+------------------------------------------------------------------+
 void GaplogWriteCsvHeader(const int fh)
 {
    FileWrite(fh, "datetime", "pdclose", "rthopen", "gap_day_type", "gap_fill_pc",
-      "gap_range_pts", "ON_open", "ON_low", "ON_high", "rthHigh", "rthLow",
+      "gap_range_pts", "ON_open", "ON_low", "ON_high", "Gap_as_%_of_ONrange", "rthHigh", "rthLow",
       "max_before_gapfillAttempt_over_5",
       "closest_level_above_gap", "closest_level_below_gap");
 }
@@ -9744,6 +9778,7 @@ void GaplogAppendBarRow(const int barIdx)
    string onOpenStr = "unknown";
    string onLowStr = "unknown";
    string onHighStr = "unknown";
+   string gapAsPctOfONrangeStr = "unknown";
    string rthHighStr = "unknown";
    string rthLowStr = "unknown";
    string maxBeforeGapfillAttemptStr = "unknown";
@@ -9767,6 +9802,8 @@ void GaplogAppendBarRow(const int barIdx)
          onLowStr = DoubleToString(onL, _Digits);
       if(GetONhighSoFarAtBar(barIdx, onH))
          onHighStr = DoubleToString(onH, _Digits);
+      if(GetONlowSoFarAtBar(barIdx, onL) && GetONhighSoFarAtBar(barIdx, onH))
+         gapAsPctOfONrangeStr = GapAsPctOfONrangeStr(rangeTop - rangeBottom, onH, onL);
       double rthH = 0.0, rthL = 0.0;
       if(GetRthHighSoFarAtBar(barIdx, g_m1DayStart, dateStr, rthH))
          rthHighStr = DoubleToString(rthH, _Digits);
@@ -9782,7 +9819,7 @@ void GaplogAppendBarRow(const int barIdx)
    FileWrite(fh,
       TimeToString(g_m1Rates[barIdx].time, TIME_DATE|TIME_MINUTES),
       pdCloseStr, rthOpenStr, gapDayTypeStr, gapFillPcStr,
-      gapRangePtsStr, onOpenStr, onLowStr, onHighStr, rthHighStr, rthLowStr,
+      gapRangePtsStr, onOpenStr, onLowStr, onHighStr, gapAsPctOfONrangeStr, rthHighStr, rthLowStr,
       maxBeforeGapfillAttemptStr, closestAboveStr, closestBelowStr);
    FileClose(fh);
 }
@@ -12636,6 +12673,7 @@ void AccumulateGapDownThresholds(double pctFill)
 {
    dayStat_daysWithGapDown++;
    dayStat_gapDown_fillPercentSum += pctFill;
+   if(pctFill >= 10.0) dayStat_daysWithGapDown_10fill++;
    if(pctFill >= 20.0) dayStat_daysWithGapDown_20fill++;
    if(pctFill >= 25.0) dayStat_daysWithGapDown_25fill++;
    if(pctFill >= 30.0) dayStat_daysWithGapDown_30fill++;
@@ -12652,6 +12690,7 @@ void AccumulateGapUpThresholds(double pctFill)
 {
    dayStat_daysWithGapUp++;
    dayStat_gapUp_fillPercentSum += pctFill;
+   if(pctFill >= 10.0) dayStat_daysWithGapUp_10fill++;
    if(pctFill >= 20.0) dayStat_daysWithGapUp_20fill++;
    if(pctFill >= 25.0) dayStat_daysWithGapUp_25fill++;
    if(pctFill >= 30.0) dayStat_daysWithGapUp_30fill++;
@@ -12665,18 +12704,19 @@ void AccumulateGapUpThresholds(double pctFill)
 }
 
 //+------------------------------------------------------------------+
-//| Compute 10 gap-fill frequency percentages: pcts[i] = 100 * counts[i] / daysWith (or 0 if daysWith==0). counts[] and pcts[] must have size >= 10. |
+//| Compute 11 gap-fill frequency percentages: pcts[i] = 100 * counts[i] / daysWith (or 0 if daysWith==0). counts[] and pcts[] must have size >= 11. |
 //+------------------------------------------------------------------+
 void ComputeGapFillFreqs(int daysWith, int &counts[], double &pcts[])
 {
-   ArrayResize(pcts, 10);
+   const int nThresh = 11;
+   ArrayResize(pcts, nThresh);
    if(daysWith <= 0)
    {
-      for(int i = 0; i < 10; i++) pcts[i] = 0.0;
+      for(int i = 0; i < nThresh; i++) pcts[i] = 0.0;
       return;
    }
    double denom = (double)daysWith;
-   for(int i = 0; i < 10; i++)
+   for(int i = 0; i < nThresh; i++)
       pcts[i] = 100.0 * (double)counts[i] / denom;
 }
 
@@ -12728,6 +12768,8 @@ bool TryLogDayStatForCurrentDay()
    UpdateGapFillAttemptStatsAtBar();
    const string maxBeforeGapfillAttemptStr = dayStat_maxBeforeGapfillAttempt_valid ?
       DoubleToString(dayStat_maxBeforeGapfillAttempt_over_5, _Digits) : "unknown";
+   const string gapAsPctOfONrangeStr = (hasON && dayStat_onHigh > dayStat_onLow) ?
+      GapAsPctOfONrangeStr(dayStat_gapDiff, dayStat_onHigh, dayStat_onLow) : "unknown";
 
    string dateStrStat = TimeToString(g_m1DayStart, TIME_DATE);
    string dayStatLogName = dateStrStat + "_dayPriceStat_and_gapstat_log.csv";
@@ -12736,8 +12778,8 @@ bool TryLogDayStatForCurrentDay()
    int fileHandleDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleDay != INVALID_HANDLE)
    {
-      FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH", "max_before_gapfillAttempt_over_5", "spreadHighestSeen", "spreadLowestSeen", "PD_trend");
-      FileWrite(fileHandleDay, dateStrStat, (dayStat_hasGapDown ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"), maxBeforeGapfillAttemptStr, DoubleToString(dayStat_spreadHighestSeen, 2), DoubleToString(dayStat_spreadLowestSeen, 2), GetPDtrendString());
+      FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "Gap_as_%_of_ONrange", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH", "max_before_gapfillAttempt_over_5", "spreadHighestSeen", "spreadLowestSeen", "PD_trend");
+      FileWrite(fileHandleDay, dateStrStat, (dayStat_hasGapDown ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), gapAsPctOfONrangeStr, (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"), maxBeforeGapfillAttemptStr, DoubleToString(dayStat_spreadHighestSeen, 2), DoubleToString(dayStat_spreadLowestSeen, 2), GetPDtrendString());
       FileClose(fileHandleDay);
    }
    }
@@ -12768,41 +12810,41 @@ void WriteDayStatSummaryCsv()
    double daysONHL_t = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONboth_tested / (double)dayStat_totalDays) : 0.0;
 
    double avgFillD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
-   int countsD[10];
-   countsD[0] = dayStat_daysWithGapDown_20fill;  countsD[1] = dayStat_daysWithGapDown_25fill;  countsD[2] = dayStat_daysWithGapDown_30fill;
-   countsD[3] = dayStat_daysWithGapDown_33fill;  countsD[4] = dayStat_daysWithGapDown_40fill;  countsD[5] = dayStat_daysWithGapDown_50fill;
-   countsD[6] = dayStat_daysWithGapDown_60fill;  countsD[7] = dayStat_daysWithGapDown_75fill;  countsD[8] = dayStat_daysWithGapDown_90fill;
-   countsD[9] = dayStat_daysWithGapDown_100fill;
+   int countsD[11];
+   countsD[0] = dayStat_daysWithGapDown_10fill;  countsD[1] = dayStat_daysWithGapDown_20fill;  countsD[2] = dayStat_daysWithGapDown_25fill;
+   countsD[3] = dayStat_daysWithGapDown_30fill;  countsD[4] = dayStat_daysWithGapDown_33fill;  countsD[5] = dayStat_daysWithGapDown_40fill;
+   countsD[6] = dayStat_daysWithGapDown_50fill;  countsD[7] = dayStat_daysWithGapDown_60fill;  countsD[8] = dayStat_daysWithGapDown_75fill;
+   countsD[9] = dayStat_daysWithGapDown_90fill;  countsD[10] = dayStat_daysWithGapDown_100fill;
    double pctsD[];
    ComputeGapFillFreqs(dayStat_daysWithGapDown, countsD, pctsD);
 
    int fileHandleGapD = FileOpen("dayPriceStat_and_gapstat_summaryLog_gapDowns.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleGapD != INVALID_HANDLE)
    {
-      FileWrite(fileHandleGapD, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
+      FileWrite(fileHandleGapD, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_10_f", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
                 "daysONH_t_freq", "daysONL_t_freq", "daysONHL_t");
       FileWrite(fileHandleGapD, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2),
-                DoubleToString(pctsD[0], 2), DoubleToString(pctsD[1], 2), DoubleToString(pctsD[2], 2), DoubleToString(pctsD[3], 2), DoubleToString(pctsD[4], 2), DoubleToString(pctsD[5], 2), DoubleToString(pctsD[6], 2), DoubleToString(pctsD[7], 2), DoubleToString(pctsD[8], 2), DoubleToString(pctsD[9], 2),
+                DoubleToString(pctsD[0], 2), DoubleToString(pctsD[1], 2), DoubleToString(pctsD[2], 2), DoubleToString(pctsD[3], 2), DoubleToString(pctsD[4], 2), DoubleToString(pctsD[5], 2), DoubleToString(pctsD[6], 2), DoubleToString(pctsD[7], 2), DoubleToString(pctsD[8], 2), DoubleToString(pctsD[9], 2), DoubleToString(pctsD[10], 2),
                 DoubleToString(daysONH_t_freq, 2), DoubleToString(daysONL_t_freq, 2), DoubleToString(daysONHL_t, 2));
       FileClose(fileHandleGapD);
    }
 
    double avgFillU = (dayStat_daysWithGapUp > 0) ? dayStat_gapUp_fillPercentSum / (double)dayStat_daysWithGapUp : 0.0;
-   int countsU[10];
-   countsU[0] = dayStat_daysWithGapUp_20fill;  countsU[1] = dayStat_daysWithGapUp_25fill;  countsU[2] = dayStat_daysWithGapUp_30fill;
-   countsU[3] = dayStat_daysWithGapUp_33fill;  countsU[4] = dayStat_daysWithGapUp_40fill;  countsU[5] = dayStat_daysWithGapUp_50fill;
-   countsU[6] = dayStat_daysWithGapUp_60fill;  countsU[7] = dayStat_daysWithGapUp_75fill;  countsU[8] = dayStat_daysWithGapUp_90fill;
-   countsU[9] = dayStat_daysWithGapUp_100fill;
+   int countsU[11];
+   countsU[0] = dayStat_daysWithGapUp_10fill;  countsU[1] = dayStat_daysWithGapUp_20fill;  countsU[2] = dayStat_daysWithGapUp_25fill;
+   countsU[3] = dayStat_daysWithGapUp_30fill;  countsU[4] = dayStat_daysWithGapUp_33fill;  countsU[5] = dayStat_daysWithGapUp_40fill;
+   countsU[6] = dayStat_daysWithGapUp_50fill;  countsU[7] = dayStat_daysWithGapUp_60fill;  countsU[8] = dayStat_daysWithGapUp_75fill;
+   countsU[9] = dayStat_daysWithGapUp_90fill;  countsU[10] = dayStat_daysWithGapUp_100fill;
    double pctsU[];
    ComputeGapFillFreqs(dayStat_daysWithGapUp, countsU, pctsU);
 
    int fileHandleGapU = FileOpen("dayPriceStat_and_gapstat_summaryLog_gapUps.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleGapU != INVALID_HANDLE)
    {
-      FileWrite(fileHandleGapU, "days", "daysGapUp", "daysNoGU", "gapU_avg_fill", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f",
+      FileWrite(fileHandleGapU, "days", "daysGapUp", "daysNoGU", "gapU_avg_fill", "gU_10_f", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f",
                 "daysONH_t_freq", "daysONL_t_freq", "daysONHL_t");
       FileWrite(fileHandleGapU, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2),
-                DoubleToString(pctsU[0], 2), DoubleToString(pctsU[1], 2), DoubleToString(pctsU[2], 2), DoubleToString(pctsU[3], 2), DoubleToString(pctsU[4], 2), DoubleToString(pctsU[5], 2), DoubleToString(pctsU[6], 2), DoubleToString(pctsU[7], 2), DoubleToString(pctsU[8], 2), DoubleToString(pctsU[9], 2),
+                DoubleToString(pctsU[0], 2), DoubleToString(pctsU[1], 2), DoubleToString(pctsU[2], 2), DoubleToString(pctsU[3], 2), DoubleToString(pctsU[4], 2), DoubleToString(pctsU[5], 2), DoubleToString(pctsU[6], 2), DoubleToString(pctsU[7], 2), DoubleToString(pctsU[8], 2), DoubleToString(pctsU[9], 2), DoubleToString(pctsU[10], 2),
                 DoubleToString(daysONH_t_freq, 2), DoubleToString(daysONL_t_freq, 2), DoubleToString(daysONHL_t, 2));
       FileClose(fileHandleGapU);
    }
