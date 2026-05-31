@@ -33,6 +33,13 @@ SAVE_CSV_TO_FILE = true
 SAVE_CSV_OUTPUT = 'analyze_subvariants_output.csv'
 SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT = true
 
+# =========================================================
+
+
+
+
+
+
 # Only these booleans may appear as =false gates in output/rules.
 BOOLEAN_GATE_VARIABLES = %i[dayBrokePDH dayBrokePDL].freeze
 
@@ -94,6 +101,17 @@ def filter_results_by_pf_trade_count_anchor(results)
         pf_in_range?(r[:pf]) || r[:trades] == anchor_trade_count
       end
     end
+end
+
+def filter_results_to_session_highest_trade_count(results)
+  max_trades_by_session =
+    results
+      .group_by { |r| r[:analysis_set] }
+      .transform_values { |bucket| bucket.map { |r| r[:trades] }.max }
+
+  results.select do |r|
+    r[:trades] == max_trades_by_session[r[:analysis_set]]
+  end
 end
 
 def safe_split(str)
@@ -657,8 +675,25 @@ if SAVE_CSV_TO_FILE
     end
   end
 
+  csv_results = results
+  if SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT
+    csv_results = filter_results_to_session_highest_trade_count(results)
+    puts
+    puts format(
+      'CSV session highest trade count filter: %d -> %d rows',
+      results.size,
+      csv_results.size
+    )
+    csv_results
+      .group_by { |r| r[:analysis_set] }
+      .sort_by { |set_name, _| set_name }
+      .each do |set_name, bucket|
+        puts format('  %s: grp_trades=%d (%d rows)', set_name, bucket.first[:trades], bucket.size)
+      end
+  end
+
   csv_rows =
-    results.map do |r|
+    csv_results.map do |r|
       prefix_stats =
         prefix_stats_by_set[[r[:analysis_set], r[:magic_prefix]]] ||
         { trade_count: 0, pf: 0.0, trade_rate: 0.0 }

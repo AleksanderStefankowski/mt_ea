@@ -32,9 +32,9 @@ SUMMARY_HEADERS = [
   'avg_Gap_as_pct_of_ONrange_for_all_gap_days',
   'avg_Gap_as_pct_of_ONrange_for_filled_days',
   'avg_Gap_as_pct_of_ONrange_for_notfilled_days',
-  'avg_gap_range_pts_for_all_gap_days',
-  'avg_gap_range_pts_for_filled_days',
-  'avg_gap_range_pts_for_notfilled_days'
+  'avgGapRangePts',
+  'avgGapRangePts_for_filled_days',
+  'avgGapRangePts_for_notfilled_days'
 ].freeze
 
 def truthy?(val)
@@ -103,7 +103,7 @@ def load_day_rows(files_dir)
         has_gap_up: truthy?(row['hasGapUp']),
         gap_fill_pc: parse_float(row['gap_fill_pc']) || 0.0,
         gap_as_on_pct: gap_as_pct_of_onrange(row),
-        gap_range_pts: parse_float(row['gapDiff']),
+        gap_range_pts: parse_float(row['gapRangePts']) || parse_float(row['gapDiff']),
         max_before_gapfill_attempt_over_5: parse_float(row['max_before_gapfillAttempt_over_5'])
       }
     end
@@ -136,7 +136,7 @@ def pluck(days, key)
   days.map { |d| d[key] }.compact
 end
 
-# gap_fill_pc, max_before_gapfillAttempt_over_5, Gap_as_%_of_ONrange, gap_range_pts (gapDiff)
+# gap_fill_pc, max_before_gapfillAttempt_over_5, Gap_as_%_of_ONrange, gapRangePts (gapDiff alias)
 def bucket_metric_cells(days)
   [
     fmt(avg(pluck(days, :gap_fill_pc))),

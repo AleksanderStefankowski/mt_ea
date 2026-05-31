@@ -9,7 +9,7 @@ require 'date'
 # =========================================================
 
 FILE_PATH   = 'summary_tradeResults_all_days.tsv'
-OUTPUT_FILE = 'analyze_week_by_week_o.csv'
+OUTPUT_FILE = 'analyze_week_by_week_1_2_3_tradesPerDay_any_o.csv'
 
 simulate_trades_per_day_limit_start = 1
 simulate_trades_per_day_limit_end   = 3
