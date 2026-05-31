@@ -299,6 +299,7 @@ int      dayStat_totalDays = 0;
 int      dayStat_daysWithGapDown = 0;
 int      dayStat_daysWithoutGapDown = 0;
 double   dayStat_gapDown_fillPercentSum = 0.0;  // sum of percentage_gap_filled for gap-down days (for avg)
+double   dayStat_gapDown_rangeSum = 0.0;      // sum of gap range pts (|RTHopen-PDC|) on gap-down days
 int      dayStat_daysWithGapDown_10fill = 0;   // gap-down days with percentage_gap_filled >= 10
 int      dayStat_daysWithGapDown_20fill = 0;   // gap-down days with percentage_gap_filled >= 20
 int      dayStat_daysWithGapDown_25fill = 0;   // gap-down days with percentage_gap_filled >= 25
@@ -599,6 +600,7 @@ double   dayStat_openGapUp_percentageFill = 0.0;
 int      dayStat_daysWithGapUp = 0;
 int      dayStat_daysWithoutGapUp = 0;
 double   dayStat_gapUp_fillPercentSum = 0.0;
+double   dayStat_gapUp_rangeSum = 0.0;        // sum of gap range pts on gap-up days
 int      dayStat_daysWithGapUp_10fill = 0;
 int      dayStat_daysWithGapUp_20fill = 0;
 int      dayStat_daysWithGapUp_25fill = 0;
@@ -11720,6 +11722,7 @@ void AccumulateGapDownThresholds(double pctFill)
 {
    dayStat_daysWithGapDown++;
    dayStat_gapDown_fillPercentSum += pctFill;
+   dayStat_gapDown_rangeSum += dayStat_gapDiff;
    if(pctFill >= 10.0) dayStat_daysWithGapDown_10fill++;
    if(pctFill >= 20.0) dayStat_daysWithGapDown_20fill++;
    if(pctFill >= 25.0) dayStat_daysWithGapDown_25fill++;
@@ -11737,6 +11740,7 @@ void AccumulateGapUpThresholds(double pctFill)
 {
    dayStat_daysWithGapUp++;
    dayStat_gapUp_fillPercentSum += pctFill;
+   dayStat_gapUp_rangeSum += dayStat_gapDiff;
    if(pctFill >= 10.0) dayStat_daysWithGapUp_10fill++;
    if(pctFill >= 20.0) dayStat_daysWithGapUp_20fill++;
    if(pctFill >= 25.0) dayStat_daysWithGapUp_25fill++;
@@ -11825,8 +11829,8 @@ bool TryLogDayStatForCurrentDay()
    int fileHandleDay = FileOpen(dayStatLogName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleDay != INVALID_HANDLE)
    {
-      FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "rthHigh", "rthLow", "ONH", "ONL", "Gap_as_%_of_ONrange", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH", "max_before_gapfillAttempt_over_5", "spreadHighestSeen", "spreadLowestSeen", "PD_trend");
-      FileWrite(fileHandleDay, dateStrStat, (dayStat_hasGapDown ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), gapAsPctOfONrangeStr, (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"), maxBeforeGapfillAttemptStr, DoubleToString(dayStat_spreadHighestSeen, 2), DoubleToString(dayStat_spreadLowestSeen, 2), GetPDtrendString());
+      FileWrite(fileHandleDay, "date", "hasGapDown", "hasGapUp", "RTHopen", "PD_RTH_Close", "gap_fill_pc", "gapDiff", "gapRangePts", "rthHigh", "rthLow", "ONH", "ONL", "Gap_as_%_of_ONrange", "ONH_t_RTH", "ONL_t_RTH", "ONboth_t_RTH", "max_before_gapfillAttempt_over_5", "spreadHighestSeen", "spreadLowestSeen", "PD_trend");
+      FileWrite(fileHandleDay, dateStrStat, (dayStat_hasGapDown ? "true" : "false"), (dayStat_hasGapUp ? "true" : "false"), DoubleToString(rthOpen, _Digits), DoubleToString(pdc, _Digits), DoubleToString(dayStat_openGapDown_percentageFill, 2), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_gapDiff, _Digits), DoubleToString(dayStat_rthHigh, _Digits), DoubleToString(dayStat_rthLow, _Digits), DoubleToString(dayStat_onHigh, _Digits), DoubleToString(dayStat_onLow, _Digits), gapAsPctOfONrangeStr, (dayStat_ONH_t_RTH ? "true" : "false"), (dayStat_ONL_t_RTH ? "true" : "false"), (dayStat_ONboth_t_RTH ? "true" : "false"), maxBeforeGapfillAttemptStr, DoubleToString(dayStat_spreadHighestSeen, 2), DoubleToString(dayStat_spreadLowestSeen, 2), GetPDtrendString());
       FileClose(fileHandleDay);
    }
    }
@@ -11857,6 +11861,7 @@ void WriteDayStatSummaryCsv()
    double daysONHL_t = (dayStat_totalDays > 0) ? (100.0 * (double)dayStat_daysONboth_tested / (double)dayStat_totalDays) : 0.0;
 
    double avgFillD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_fillPercentSum / (double)dayStat_daysWithGapDown : 0.0;
+   double avgGapRangePtsD = (dayStat_daysWithGapDown > 0) ? dayStat_gapDown_rangeSum / (double)dayStat_daysWithGapDown : 0.0;
    int countsD[11];
    countsD[0] = dayStat_daysWithGapDown_10fill;  countsD[1] = dayStat_daysWithGapDown_20fill;  countsD[2] = dayStat_daysWithGapDown_25fill;
    countsD[3] = dayStat_daysWithGapDown_30fill;  countsD[4] = dayStat_daysWithGapDown_33fill;  countsD[5] = dayStat_daysWithGapDown_40fill;
@@ -11868,15 +11873,16 @@ void WriteDayStatSummaryCsv()
    int fileHandleGapD = FileOpen("dayPriceStat_and_gapstat_summaryLog_gapDowns.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleGapD != INVALID_HANDLE)
    {
-      FileWrite(fileHandleGapD, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "gD_10_f", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
+      FileWrite(fileHandleGapD, "days", "daysGapD", "daysNoGD", "gapD_avg_fill", "avgGapRangePts", "gD_10_f", "gD_20_f", "gD_25_f", "gD_30_f", "gD_33_f", "gD_40_f", "gD_50_f", "gD_60_f", "gD_75_f", "gD_90_f", "gD_100_f",
                 "daysONH_t_freq", "daysONL_t_freq", "daysONHL_t");
-      FileWrite(fileHandleGapD, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2),
+      FileWrite(fileHandleGapD, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapDown), IntegerToString(dayStat_daysWithoutGapDown), DoubleToString(avgFillD, 2), DoubleToString(avgGapRangePtsD, _Digits),
                 DoubleToString(pctsD[0], 2), DoubleToString(pctsD[1], 2), DoubleToString(pctsD[2], 2), DoubleToString(pctsD[3], 2), DoubleToString(pctsD[4], 2), DoubleToString(pctsD[5], 2), DoubleToString(pctsD[6], 2), DoubleToString(pctsD[7], 2), DoubleToString(pctsD[8], 2), DoubleToString(pctsD[9], 2), DoubleToString(pctsD[10], 2),
                 DoubleToString(daysONH_t_freq, 2), DoubleToString(daysONL_t_freq, 2), DoubleToString(daysONHL_t, 2));
       FileClose(fileHandleGapD);
    }
 
    double avgFillU = (dayStat_daysWithGapUp > 0) ? dayStat_gapUp_fillPercentSum / (double)dayStat_daysWithGapUp : 0.0;
+   double avgGapRangePtsU = (dayStat_daysWithGapUp > 0) ? dayStat_gapUp_rangeSum / (double)dayStat_daysWithGapUp : 0.0;
    int countsU[11];
    countsU[0] = dayStat_daysWithGapUp_10fill;  countsU[1] = dayStat_daysWithGapUp_20fill;  countsU[2] = dayStat_daysWithGapUp_25fill;
    countsU[3] = dayStat_daysWithGapUp_30fill;  countsU[4] = dayStat_daysWithGapUp_33fill;  countsU[5] = dayStat_daysWithGapUp_40fill;
@@ -11888,9 +11894,9 @@ void WriteDayStatSummaryCsv()
    int fileHandleGapU = FileOpen("dayPriceStat_and_gapstat_summaryLog_gapUps.csv", FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandleGapU != INVALID_HANDLE)
    {
-      FileWrite(fileHandleGapU, "days", "daysGapUp", "daysNoGU", "gapU_avg_fill", "gU_10_f", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f",
+      FileWrite(fileHandleGapU, "days", "daysGapUp", "daysNoGU", "gapU_avg_fill", "avgGapRangePts", "gU_10_f", "gU_20_f", "gU_25_f", "gU_30_f", "gU_33_f", "gU_40_f", "gU_50_f", "gU_60_f", "gU_75_f", "gU_90_f", "gU_100_f",
                 "daysONH_t_freq", "daysONL_t_freq", "daysONHL_t");
-      FileWrite(fileHandleGapU, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2),
+      FileWrite(fileHandleGapU, IntegerToString(dayStat_totalDays), IntegerToString(dayStat_daysWithGapUp), IntegerToString(dayStat_daysWithoutGapUp), DoubleToString(avgFillU, 2), DoubleToString(avgGapRangePtsU, _Digits),
                 DoubleToString(pctsU[0], 2), DoubleToString(pctsU[1], 2), DoubleToString(pctsU[2], 2), DoubleToString(pctsU[3], 2), DoubleToString(pctsU[4], 2), DoubleToString(pctsU[5], 2), DoubleToString(pctsU[6], 2), DoubleToString(pctsU[7], 2), DoubleToString(pctsU[8], 2), DoubleToString(pctsU[9], 2), DoubleToString(pctsU[10], 2),
                 DoubleToString(daysONH_t_freq, 2), DoubleToString(daysONL_t_freq, 2), DoubleToString(daysONHL_t, 2));
       FileClose(fileHandleGapU);
