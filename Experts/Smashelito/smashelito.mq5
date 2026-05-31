@@ -58,9 +58,9 @@ bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo 
 bool     dailyLog_algoFamilyDayStartWeekPerspective = true;  // (date)_algofamily_dayStart_weekPerspective.csv — today-loaded levels vs week M1 at day start only
 bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_B_TradeLog                         = false;  // (date)_B_TradeLog_algoN.csv
-bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
-bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
-bool     bigflipper_log_algo_gates_per_minute              = false;  // (date)_algoN_gates_per_minute.csv — enabled algos only
+bool     bigflipper_log_testinglevelsplus                 = true;  // (date)_testinglevelsplus_(level)_(tag).csv per level
+bool     bigflipper_log_Arawevents                        = true;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
+bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_algoN_gates_per_minute.csv — enabled algos only
 int      eod_log_start_hour                                =  21;  // originally 21 // EOD log window start (server time; broker clock incl. DST)
 int      eod_log_start_minute                              =  58;  // originally 58
 int      eod_log_end_hour                                  =  22;  // originally 22 EOD log window end inclusive (server time)
@@ -323,16 +323,15 @@ struct AlgoFamilyDayStartWeekPerspectiveRow
    string levelActiveTo;       // CSV end YYYY.MM.DD
    double maxPriceAbove;       // max(high - level) when high > level (M1 week scan)
    double maxPriceBelow;       // max(level - low) when low < level
-   int    touchedProx_09_C;    // M1: low <= level+0.9 && high >= level-0.9
    bool   brokenBool;          // M1 week: level between min ONO & max other high, or min other low & max ONO
    int    countONO_too_close_10p; // days in week where |level - that day's ONO| < 10
-   int    contact1m_earlierThisWeek;   // M1 contact before today 00:00 (earlier days this week); gates add intraday today separately
+   int    contact1m_earlierThisWeek_physicalContactCount;       // M1 earlier this week: level in [low, high]
+   int    contact1m_earlierThisWeek_contactAndProximityCount;   // M1 earlier this week: physical or proximity_threshold on OHLC
    int    bounceCount;         // M1 week total
    int    ceilingCount;
    int    ceilingProximityCandles;
 };
 #define MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS 60
-#define ALGO5_WEEK_PROX_TOUCH_POINTS 0.9
 #define ALGO5_WEEK_ON_TOO_CLOSE_POINTS 10.0
 AlgoFamilyDayStartWeekPerspectiveRow g_algoFamilyDayStartWeekPerspective[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS];
 int      g_algoFamilyDayStartWeekPerspectiveCount = 0;
@@ -358,7 +357,8 @@ struct PullingHistoryAlgoFamilyBarSnap
    int      closestWeeklyLevel_BounceCount_recent;
    int      closestWeeklyLevel_CeilingCount_recent;
    int      closestWeeklyLevel_CeilingProximityCandles_recent;
-   int      closestWeeklyLevel_contactCount_today;
+   int      closestWeeklyLevel_physicalContactCount_today;
+   int      closestWeeklyLevel_contactAndProximityCount_today;
    bool     accOpenTradeNowBool;       // symbol day trades open at this bar's close
    datetime accOpenTradeTime;          // startTime of latest still-open trade; 0 if none
    datetime accLastClosedTradeTime;    // max endTime among trades closed before this bar's close; 0 if none
@@ -516,7 +516,7 @@ struct AlgoDef
    int            min_ceilingCount;             // daily ceiling on closest level must be >= this when rule added
    int            min_weekly_ceiling_required;  // 0=off; week ceiling on closest level must be >= this
    int            max_weekly_ceiling_allowed;
-   int            max_weekly_contact_candles_allowed;  // contact1m_earlierThisWeek (day-start) + intraday M1 today; -1=off
+   int            max_weekly_contact_candles_allowed;  // contact1m_earlierThisWeek_contactAndProximity + intraday; -1=off
    double         min_levelOnoAbsDiff;
    double         min_onoAboveLevel;  // 0=off; pass when ONO - level >= this (ONO strictly above level by X)
    double         max_dayLowSoFar_belowLevel_dist;  // 0=off; pass when dayLowSoFar >= level - this (price units)
@@ -534,7 +534,8 @@ int               g_algoCount = 0;
 struct WeeklyLevelAlgoFamilyDayState
 {
    double   levelPrice;
-   int      contactCount_today;
+   int      physicalContactCount_today;
+   int      contactAndProximityCount_today;
    int      bounceCount_today;
    int      ceilingCount_today;
    int      ceilingProximityCandles_today;
@@ -573,7 +574,8 @@ struct AlgoFamilyLevelDayStatsAtBar
    int bounceCount_today;
    int ceilingCount_today;
    int ceilingProximityCandles_today;
-   int contactCount_today;
+   int physicalContactCount_today;
+   int contactAndProximityCount_today;
    int candlesPassedSinceLastBounce;
    int candlesPassedSinceLastCeiling;
    int bounceCount_recent;
@@ -1917,6 +1919,23 @@ bool IsBarInContactWithLevel(double o, double h, double l, double c, double leve
 }
 
 //+------------------------------------------------------------------+
+//| CSV suffix from g_algoShared.proximity_threshold: 0.01->"001", 0.3->"03". |
+//+------------------------------------------------------------------+
+string FalgoContactAndProximityCountSuffixForLogColumns()
+{
+   const double t = g_algoShared.proximity_threshold;
+   if(t < 0.1)
+      return StringFormat("%03d", (int)MathRound(t * 100.0));
+   return StringFormat("%02d", (int)MathRound(t * 10.0));
+}
+
+//+------------------------------------------------------------------+
+string FalgoLogCol_contactAndProximityCount(const string namePrefix)
+{
+   return namePrefix + "contactAndProximityCount_" + FalgoContactAndProximityCountSuffixForLogColumns();
+}
+
+//+------------------------------------------------------------------+
 //| Min price distance from bar range to level (0 if overlap; else low-level or level-high). |
 //+------------------------------------------------------------------+
 double GetBarClosestPriceProximityToLevel(double h, double l, double level)
@@ -1957,7 +1976,8 @@ void AlgoLiveOhlcAndProximityAtBar(const int algoNumber, const int barIdx, doubl
 void ResetWeeklyLevelAlgoFamilyDayState(WeeklyLevelAlgoFamilyDayState &st, double levelPrice)
 {
    st.levelPrice = levelPrice;
-   st.contactCount_today = 0;
+   st.physicalContactCount_today = 0;
+   st.contactAndProximityCount_today = 0;
    st.bounceCount_today = 0;
    st.ceilingCount_today = 0;
    st.ceilingProximityCandles_today = 0;
@@ -2279,12 +2299,12 @@ int AlgoFamilyDayStartWeekPerspectiveCeilingForLevel(const double levelPrice)
 }
 
 //+------------------------------------------------------------------+
-int Falgo_DayStart_Contact1mEarlierThisWeekForLevel(const double levelPrice)
+int Falgo_DayStart_ContactAndProxC_1m_EarlierThisWeek(const double levelPrice)
 {
    for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
       if(MathAbs(g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice - levelPrice) < 1e-9)
-         return g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek;
+         return g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek_contactAndProximityCount;
    }
    return 0;
 }
@@ -2359,7 +2379,7 @@ void FalgoGetAlgoFamilyLevelDayStatsAtBar(const double levelPrice, const int bar
       outBounce = s.bounceCount_today;
       outCeiling = s.ceilingCount_today;
       outProx = s.ceilingProximityCandles_today;
-      outContact = s.contactCount_today;
+      outContact = s.contactAndProximityCount_today;
       outCandlesSinceBounce = s.candlesPassedSinceLastBounce;
       outCandlesSinceCeiling = s.candlesPassedSinceLastCeiling;
       return;
@@ -2379,14 +2399,14 @@ void FalgoGetAlgoFamilyLevelDayStatsAtBar(const double levelPrice, const int bar
 }
 
 //+------------------------------------------------------------------+
-int FalgoGetWeekContactCountForLevelAtBar(const int barIdx, const double levelPrice)
+int Falgo_GetWeekContactAndProxC_ForLevelAtBar(const int barIdx, const double levelPrice)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay || levelPrice <= 0.0)
       return 0;
    const datetime asOfTime = g_m1Rates[barIdx].time + 60;
    int dayContact = 0;
    AlgoFamilyDayContactCountForLevelAsOfTime(levelPrice, asOfTime, dayContact);
-   return Falgo_DayStart_Contact1mEarlierThisWeekForLevel(levelPrice) + dayContact;
+   return Falgo_DayStart_ContactAndProxC_1m_EarlierThisWeek(levelPrice) + dayContact;
 }
 
 //+------------------------------------------------------------------+
@@ -2395,7 +2415,7 @@ int FalgoGetWeekContactCountForClosestWeeklyLevel(const int barIdx)
    if(barIdx < 0 || barIdx >= g_barsInDay)
       return 0;
    const double levelPrice = g_pullingHistoryAlgoFamilyWeeklyAtBar[barIdx].closestWeeklyLevelToCClose;
-   return FalgoGetWeekContactCountForLevelAtBar(barIdx, levelPrice);
+   return Falgo_GetWeekContactAndProxC_ForLevelAtBar(barIdx, levelPrice);
 }
 
 //+------------------------------------------------------------------+
@@ -2417,7 +2437,8 @@ void PullingHistoryAlgoFamilyClearClosestFields(PullingHistoryAlgoFamilyBarSnap 
    snap.closestWeeklyLevel_BounceCount_recent = 0;
    snap.closestWeeklyLevel_CeilingCount_recent = 0;
    snap.closestWeeklyLevel_CeilingProximityCandles_recent = 0;
-   snap.closestWeeklyLevel_contactCount_today = 0;
+   snap.closestWeeklyLevel_physicalContactCount_today = 0;
+   snap.closestWeeklyLevel_contactAndProximityCount_today = 0;
 }
 
 //+------------------------------------------------------------------+
@@ -2448,7 +2469,8 @@ void PullingHistoryAlgoFamilyFillClosestFields(PullingHistoryAlgoFamilyBarSnap &
    snap.closestWeeklyLevel_CeilingProximityCandles_recent =
       AlgoFamilyCountEventTimesInLookbackMinutes(st.ceilingProximityCandleTimes, st.ceilingProximityCandleCount,
          barTime, AlgoFamilyRecentCeilingLookbackMinutes());
-   snap.closestWeeklyLevel_contactCount_today = st.contactCount_today;
+   snap.closestWeeklyLevel_physicalContactCount_today = st.physicalContactCount_today;
+   snap.closestWeeklyLevel_contactAndProximityCount_today = st.contactAndProximityCount_today;
 }
 
 //+------------------------------------------------------------------+
@@ -2474,9 +2496,10 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
       for(int trackIdx = 0; trackIdx < g_weeklyAlgoFamilyTrackCount; trackIdx++)
       {
          double lvl = states[trackIdx].levelPrice;
-         bool in_contact = IsBarInContactWithLevel(o, h, l, c, lvl);
-         if(in_contact)
-            states[trackIdx].contactCount_today++;
+         if(IsBarInPhysicalContactWithLevel(o, h, l, c, lvl))
+            states[trackIdx].physicalContactCount_today++;
+         if(IsBarInContactWithLevel(o, h, l, c, lvl))
+            states[trackIdx].contactAndProximityCount_today++;
          AlgoFamilyApplyBounceCeilingOnBar(states[trackIdx], o, h, l, c, barTime, true);
          bool cleanAbove = IsBarCleanAbove(o, h, l, c, lvl);
          bool cleanBelow = IsBarCleanBelow(o, h, l, c, lvl);
@@ -2551,7 +2574,8 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].bounceCount_today = states[trackIdx].bounceCount_today;
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].ceilingCount_today = states[trackIdx].ceilingCount_today;
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].ceilingProximityCandles_today = states[trackIdx].ceilingProximityCandles_today;
-         g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].contactCount_today = states[trackIdx].contactCount_today;
+         g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].physicalContactCount_today = states[trackIdx].physicalContactCount_today;
+         g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].contactAndProximityCount_today = states[trackIdx].contactAndProximityCount_today;
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].candlesPassedSinceLastBounce = states[trackIdx].candlesPassedSinceLastBounce;
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].candlesPassedSinceLastCeiling = states[trackIdx].candlesPassedSinceLastCeiling;
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].bounceCount_recent =
@@ -4484,7 +4508,8 @@ void FalgoFillPullingSnapFromLevelStatsCache(const int expandedIdx, const int ba
    outSnap.closestWeeklyLevel_BounceCount_recent = stats.bounceCount_recent;
    outSnap.closestWeeklyLevel_CeilingCount_recent = stats.ceilingCount_recent;
    outSnap.closestWeeklyLevel_CeilingProximityCandles_recent = stats.ceilingProximityCandles_recent;
-   outSnap.closestWeeklyLevel_contactCount_today = stats.contactCount_today;
+   outSnap.closestWeeklyLevel_physicalContactCount_today = stats.physicalContactCount_today;
+   outSnap.closestWeeklyLevel_contactAndProximityCount_today = stats.contactAndProximityCount_today;
 }
 
 //+------------------------------------------------------------------+
@@ -5311,6 +5336,7 @@ void PullingHistoryAlgoFamilyOhlcAsOfTime(const datetime t, double &o, double &h
 //+------------------------------------------------------------------+
 void PullingHistoryAlgoFamilyWriteCsvHeader(const int fh)
 {
+   const string colClosestProx = FalgoLogCol_contactAndProximityCount("ClosestLevel_");
    FileWrite(fh, "time", "O", "H", "L", "C",
             "ClosestLevelToCClose",
             "closestPriceProximity",
@@ -5324,7 +5350,8 @@ void PullingHistoryAlgoFamilyWriteCsvHeader(const int fh)
             "ClosestLevel_CeilingCount_today",
             "ClosestLevel_CeilingProximityCandles_today",
             StringFormat("recentCeilingCount%d", AlgoFamilyRecentCeilingLookbackMinutes()),
-            "ClosestLevel_contactCount_today",
+            "ClosestLevel_physicalContactCount_today",
+            colClosestProx,
             "accOpenTradeNowBool", "accOpenTradeTime", "accLastClosedTradeTime",
             "dayWinRate", "dayTradesCount", "dayPointsSum", "dayProfitSum", "dayProfitFactor",
             "gap_fill_pc");
@@ -5368,7 +5395,8 @@ void PullingHistoryAlgoFamilyWriteCsvRowFromSnap(const int fh, const datetime ro
             IntegerToString(snap.closestWeeklyLevel_CeilingCount_today),
             IntegerToString(snap.closestWeeklyLevel_CeilingProximityCandles_today),
             IntegerToString(snap.closestWeeklyLevel_CeilingCount_recent),
-            IntegerToString(snap.closestWeeklyLevel_contactCount_today),
+            IntegerToString(snap.closestWeeklyLevel_physicalContactCount_today),
+            IntegerToString(snap.closestWeeklyLevel_contactAndProximityCount_today),
             (snap.accOpenTradeNowBool ? "true" : "false"), accOpenTimeStr, accLastClosedStr,
             DoubleToString(snap.dayWinRate * 100.0, 0), IntegerToString(snap.dayTradesCount),
             DoubleToString(snap.dayPointsSum, _Digits), DoubleToString(snap.dayProfitSum, 2),
@@ -10022,10 +10050,10 @@ void CollectActiveLevelsForDayStartWeekPerspective(const string dateStr)
       g_algoFamilyDayStartWeekPerspective[rowIdx].levelActiveTo = g_levels[levelIdx].endStr;
       g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove = 0.0;
       g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow = 0.0;
-      g_algoFamilyDayStartWeekPerspective[rowIdx].touchedProx_09_C = 0;
       g_algoFamilyDayStartWeekPerspective[rowIdx].brokenBool = false;
       g_algoFamilyDayStartWeekPerspective[rowIdx].countONO_too_close_10p = 0;
-      g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek = 0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek_physicalContactCount = 0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek_contactAndProximityCount = 0;
       g_algoFamilyDayStartWeekPerspective[rowIdx].bounceCount = 0;
       g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingCount = 0;
       g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingProximityCandles = 0;
@@ -10073,11 +10101,13 @@ void AlgoFamilyDayStartWeekPerspectiveAccumulateLevel(int rowIdx, const MqlRates
          g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove = MathMax(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove, hi - lvl);
       if(lo < lvl)
          g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow = MathMax(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow, lvl - lo);
-      if(lo <= lvl + ALGO5_WEEK_PROX_TOUCH_POINTS && hi >= lvl - ALGO5_WEEK_PROX_TOUCH_POINTS)
-         g_algoFamilyDayStartWeekPerspective[rowIdx].touchedProx_09_C++;
-      if(weekRates[barIdx].time < todayDayStart &&
-         IsBarInContactWithLevel(o, hi, lo, c, lvl))
-         g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek++;
+      if(weekRates[barIdx].time < todayDayStart)
+      {
+         if(IsBarInPhysicalContactWithLevel(o, hi, lo, c, lvl))
+            g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek_physicalContactCount++;
+         if(IsBarInContactWithLevel(o, hi, lo, c, lvl))
+            g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek_contactAndProximityCount++;
+      }
    }
 }
 
@@ -10187,9 +10217,10 @@ void WriteAlgoFamilyDayStartWeekPerspectiveLog(const string dateStr, datetime we
       Print("WriteAlgoFamilyDayStartWeekPerspectiveLog: could not open ", logName);
       return;
    }
+   const string colEarlierProx = FalgoLogCol_contactAndProximityCount("contact1m_earlierThisWeek_");
    FileWrite(fileHandle, "date", "weekMondayStart", "levelPrice", "tag", "categories", "levelKind", "levelActiveFrom", "levelActiveTo",
-             "maxPriceAbove", "maxPriceBelow", "touchedProx_09_C", "brokenBool", "countONO_too_close_10p",
-             "contact1m_earlierThisWeek",
+             "maxPriceAbove", "maxPriceBelow", "brokenBool", "countONO_too_close_10p",
+             "contact1m_earlierThisWeek_physicalContactCount", colEarlierProx,
              "BounceCount", "CeilingCount", "CeilingProximityCandles");
    string weekStartStr = TimeToString(weekMondayStart, TIME_DATE);
    for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
@@ -10203,10 +10234,10 @@ void WriteAlgoFamilyDayStartWeekPerspectiveLog(const string dateStr, datetime we
                 g_algoFamilyDayStartWeekPerspective[rowIdx].levelActiveTo,
                 DoubleToString(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove, _Digits),
                 DoubleToString(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow, _Digits),
-                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].touchedProx_09_C),
                 (g_algoFamilyDayStartWeekPerspective[rowIdx].brokenBool ? "true" : "false"),
                 IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].countONO_too_close_10p),
-                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek_physicalContactCount),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek_contactAndProximityCount),
                 IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].bounceCount),
                 IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingCount),
                 IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingProximityCandles));
@@ -11082,7 +11113,7 @@ string GateFail_WeekCeilingCount_TooLow(const int barIdx, const double tradeLeve
 
 string GateFail_WeekContactCandles_TooHigh(const int barIdx, const double tradeLevel, const int maxAllowed)
 {
-   const int contact = FalgoGetWeekContactCountForLevelAtBar(barIdx, tradeLevel);
+   const int contact = Falgo_GetWeekContactAndProxC_ForLevelAtBar(barIdx, tradeLevel);
    if(contact > maxAllowed)
       return GateFailLabelIntVs("weeklyContactCandlesTooHigh", contact, maxAllowed);
    return "";
@@ -13343,10 +13374,14 @@ void FinalizeCurrentCandle()
                FatalError("FinalizeCurrentCandle: could not open " + araFile);
             FileSeek(fileHandleAra, 0, SEEK_END);
             if(FileTell(fileHandleAra) == 0)
+            {
+               const string colAraProx = FalgoLogCol_contactAndProximityCount("ClosestLevel_");
                FileWrite(fileHandleAra, "time", "level", "O", "H", "low", "C", "closestPriceProximity", "DayBias", "Contact",
-                  "ClosestLevel_contactCount_today", "ClosestLevel_BounceCount_today", "CandlesPassedSinceLastBounce",
+                  "ClosestLevel_physicalContactCount_today", colAraProx,
+                  "ClosestLevel_BounceCount_today", "CandlesPassedSinceLastBounce",
                   "ClosestLevel_CeilingCount_today", "ClosestLevel_CeilingProximityCandles_today", "CandlesPassedSinceLastCeiling",
                   "CandlesBreakLevelCount", "RecoverCount");
+            }
             levels[i].logRawEv_fileHandle = fileHandleAra;
             }
             else
@@ -13357,11 +13392,15 @@ void FinalizeCurrentCandle()
          const bool physicallyTouched = IsBarInPhysicalContactWithLevel(candle_open, candle_high, candle_low, candle_close, lvl);
          const bool in_contact = IsBarInContactWithLevel(candle_open, candle_high, candle_low, candle_close, lvl);
          const int barIdx = FalgoBarIdxForDayOpenTime(current_candle_time);
-         int bounceCountToday = 0, ceilingCountToday = 0, proxCountToday = 0, contactCountToday = 0;
+         int bounceCountToday = 0, ceilingCountToday = 0, proxCountToday = 0;
+         int physicalContactCountToday = 0, contactAndProximityCountToday = 0;
          int candlesSinceBounce = 0, candlesSinceCeiling = 0;
          FalgoGetAlgoFamilyLevelDayStatsAtBar(lvl, barIdx,
-            bounceCountToday, ceilingCountToday, proxCountToday, contactCountToday,
+            bounceCountToday, ceilingCountToday, proxCountToday, contactAndProximityCountToday,
             candlesSinceBounce, candlesSinceCeiling);
+         const int trackIdxAra = AlgoFamilyTrackIdxForLevelPrice(lvl);
+         if(trackIdxAra >= 0 && barIdx >= 0 && barIdx < g_barsInDay)
+            physicalContactCountToday = g_algoFamilyLevelStatsAtBar[trackIdxAra][barIdx].physicalContactCount_today;
 
          if(physicallyTouched) levels[i].count++;
 
@@ -13394,7 +13433,8 @@ void FinalizeCurrentCandle()
                DoubleToString(closestPriceProximity, _Digits),
                (levels[i].dailyBias > 0 ? "bias_long" : "bias_short"),
                (in_contact ? "in_contact" : "no_contact"),
-               IntegerToString(contactCountToday),
+               IntegerToString(physicalContactCountToday),
+               IntegerToString(contactAndProximityCountToday),
                IntegerToString(bounceCountToday),
                IntegerToString(candlesSinceBounce),
                IntegerToString(ceilingCountToday),
