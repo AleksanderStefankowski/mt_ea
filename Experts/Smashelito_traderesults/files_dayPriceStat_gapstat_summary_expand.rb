@@ -15,58 +15,26 @@ OUT_GAP_U = File.join(Dir.pwd, 'dayPriceStat_and_gapstat_summaryLog_gapUps_expan
 DAY_LOG_GLOB = '*_dayPriceStat_and_gapstat_log.csv'
 WHICH_FILL_LEVELS = [10, 20, 25, 30, 33, 40, 50, 60, 75, 90, 100].freeze
 
-# --- Output columns (one CSV row per which_fill_threshold_pc value) ---
-#
-# which_fill_threshold_pc
-#   Row key: ALL = whole sample, or 10/20/25/.../100 = that EOD gap-fill % cutoff.
-#
-# total_calendar_days_logged
-#   Count of per-day log files loaded (all days in the backtest window, any gap type).
-#
-# days_with_this_gap_type
-#   Subset of those days that are gap-down (gapDowns file) or gap-up (gapUps file).
-#
-# count_gap_days_reached_fill_threshold
-#   Gap-type days where EOD gap_fill_pc >= which_fill_threshold_pc (on ALL row = all gap days).
-#
-# count_gap_days_did_not_reach_fill_threshold
-#   Gap-type days where gap_fill_pc < threshold (0 on ALL row).
-#
-# percent_gap_days_reached_fill_threshold
-#   100 * count_reached / days_with_this_gap_type.
-#
-# avg_gap_fill_pc_for_filled_days
-#   Mean EOD gap_fill_pc among gap days in the "reached threshold" bucket.
-#   On ALL row: mean over all gap-type days (same as avg_gap_fill_pc_for_all_gap_days).
-#
-# avg_gap_fill_pc_for_notfilled_days
-#   Mean gap_fill_pc among gap days below the threshold. Empty on ALL row.
-#
-# avg_Gap_as_pct_of_ONrange_for_filled_days
-#   Mean Gap_as_%_of_ONrange (gap pts / ON range * 100) for the reached-threshold bucket.
-#
-# avg_Gap_as_pct_of_ONrange_for_notfilled_days
-#   Same metric for days below threshold. Empty on ALL row.
-#
-# avg_gap_fill_pc_for_all_gap_days
-#   Filled only on ALL row: overall mean gap_fill_pc for every gap-down/up day.
-#
-# avg_Gap_as_pct_of_ONrange_for_all_gap_days
-#   Filled only on ALL row: overall mean gap-vs-ON-range % for every gap-down/up day.
-#
+# Each metric: Block C (all gap days), Block A (filled), Block B (not-filled) — adjacent triplets.
 SUMMARY_HEADERS = [
   'which_fill_threshold_pc',
-  'total_calendar_days_logged',
-  'days_with_this_gap_type',
-  'count_gap_days_reached_fill_threshold',
-  'count_gap_days_did_not_reach_fill_threshold',
-  'percent_gap_days_reached_fill_threshold',
+  'all_days_count',
+  'gap_days_count',
+  'fill_reached_daycount',
+  'fill_NOTreached_daycount',
+  'daysreached_percent',
+  'avg_gap_fill_pc_for_all_gap_days',
   'avg_gap_fill_pc_for_filled_days',
   'avg_gap_fill_pc_for_notfilled_days',
+  'avg_max_before_gapfillAttempt_over_5_for_all_gap_days',
+  'avg_max_before_gapfillAttempt_over_5_for_filled_days',
+  'avg_max_before_gapfillAttempt_over_5_for_notfilled_days',
+  'avg_Gap_as_pct_of_ONrange_for_all_gap_days',
   'avg_Gap_as_pct_of_ONrange_for_filled_days',
   'avg_Gap_as_pct_of_ONrange_for_notfilled_days',
-  'avg_gap_fill_pc_for_all_gap_days',
-  'avg_Gap_as_pct_of_ONrange_for_all_gap_days'
+  'avg_gap_range_pts_for_all_gap_days',
+  'avg_gap_range_pts_for_filled_days',
+  'avg_gap_range_pts_for_notfilled_days'
 ].freeze
 
 def truthy?(val)
@@ -134,7 +102,9 @@ def load_day_rows(files_dir)
         has_gap_down: truthy?(row['hasGapDown']),
         has_gap_up: truthy?(row['hasGapUp']),
         gap_fill_pc: parse_float(row['gap_fill_pc']) || 0.0,
-        gap_as_on_pct: gap_as_pct_of_onrange(row)
+        gap_as_on_pct: gap_as_pct_of_onrange(row),
+        gap_range_pts: parse_float(row['gapDiff']),
+        max_before_gapfill_attempt_over_5: parse_float(row['max_before_gapfillAttempt_over_5'])
       }
     end
   end
@@ -166,6 +136,24 @@ def pluck(days, key)
   days.map { |d| d[key] }.compact
 end
 
+# gap_fill_pc, max_before_gapfillAttempt_over_5, Gap_as_%_of_ONrange, gap_range_pts (gapDiff)
+def bucket_metric_cells(days)
+  [
+    fmt(avg(pluck(days, :gap_fill_pc))),
+    fmt(avg(pluck(days, :max_before_gapfill_attempt_over_5))),
+    fmt(avg(pluck(days, :gap_as_on_pct))),
+    fmt(avg(pluck(days, :gap_range_pts)))
+  ]
+end
+
+# Per metric index: all_gap (C), filled (A), not_filled (B).
+def metric_cells_cab(all_gap_days, filled_days, notfilled_days)
+  c = bucket_metric_cells(all_gap_days)
+  a = bucket_metric_cells(filled_days)
+  b = bucket_metric_cells(notfilled_days)
+  4.times.flat_map { |i| [c[i], a[i], b[i]] }
+end
+
 def threshold_row(all_days, gap_days, which_fill)
   filled = gap_days.select { |d| d[:gap_fill_pc] >= which_fill }
   not_filled = gap_days.select { |d| d[:gap_fill_pc] < which_fill }
@@ -178,12 +166,7 @@ def threshold_row(all_days, gap_days, which_fill)
     filled.length.to_s,
     not_filled.length.to_s,
     fmt(pct(filled.length, n_gap)),
-    fmt(avg(pluck(filled, :gap_fill_pc))),
-    fmt(avg(pluck(not_filled, :gap_fill_pc))),
-    fmt(avg(pluck(filled, :gap_as_on_pct))),
-    fmt(avg(pluck(not_filled, :gap_as_on_pct))),
-    '',  # avg_gap_fill_pc_for_all_gap_days — only on ALL row
-    ''   # avg_Gap_as_pct_of_ONrange_for_all_gap_days
+    *metric_cells_cab([], filled, not_filled)
   ]
 end
 
@@ -198,12 +181,7 @@ def all_row(all_days, gap_days)
     n_gap.to_s,
     '0',
     n_gap.positive? ? '100.00' : '0.00',
-    fmt(avg(pluck(gap_days, :gap_fill_pc))),
-    '',
-    fmt(avg(pluck(gap_days, :gap_as_on_pct))),
-    '',
-    fmt(avg(pluck(gap_days, :gap_fill_pc))),
-    fmt(avg(pluck(gap_days, :gap_as_on_pct)))
+    *metric_cells_cab(gap_days, gap_days, [])
   ]
 end
 
