@@ -55,7 +55,7 @@ double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle b
 bool     maemfe_testing             = false; // if true: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo EOD CSV + all-days TSV + summary_tradeResults_all_days.tsv
 //--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
-bool     dailyLog_algoFamilyWeekPerspective = true;  // (date)_algofamily_weekPerspective.csv — weekly levels vs current-week M1 (skipped on Monday)
+bool     dailyLog_algoFamilyDayStartWeekPerspective = true;  // (date)_algofamily_dayStart_weekPerspective.csv — today-loaded levels vs week M1 at day start only
 bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_B_TradeLog                         = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
@@ -312,28 +312,31 @@ int      dayStat_daysWithGapDown_90fill = 0;   // gap-down days with percentage_
 int      dayStat_daysWithGapDown_100fill = 0;  // gap-down days with percentage_gap_filled >= 100
 datetime dayStat_lastLoggedDayStart = 0;  // avoid logging same day twice
 
-//--- algofamily_weekPerspective: active weekly levels vs current-week M1 (rebuilt OnInit + each new day)
-struct AlgoFamilyWeekPerspectiveRow
+//--- algofamily_dayStart_weekPerspective: today-loaded weekly+daily levels vs week M1 once at day start (not intraday)
+struct AlgoFamilyDayStartWeekPerspectiveRow
 {
    double levelPrice;
    string tag;
    string categories;
-   double maxPriceAbove;       // max(high - level) when high > level
+   string levelKind;           // weekly | daily | stacked
+   string levelActiveFrom;     // CSV start YYYY.MM.DD
+   string levelActiveTo;       // CSV end YYYY.MM.DD
+   double maxPriceAbove;       // max(high - level) when high > level (M1 week scan)
    double maxPriceBelow;       // max(level - low) when low < level
-   int    touchedProx_09_C;    // bars with proximity overlap band: low <= level+0.9 && high >= level-0.9
-   bool   brokenBool;          // price traversed level this week: level between min ONO & max other high, or between min other low & max ONO
-   int    countONO_too_close_10p; // days in week where |level - that day's ONO| < 10 (ONO = first M1 open, same as g_ONopen)
-   int    candle_overlap_1m_C; // bars with low <= level <= high
-   int    bounceCount;         // week total: proximity from above, then >=N clean OHLC above
-   int    ceilingCount;        // week total: proximity from below, then >=N clean OHLC below
-   int    ceilingProximityCandles; // week total: M1 bars in proximity contact from below
+   int    touchedProx_09_C;    // M1: low <= level+0.9 && high >= level-0.9
+   bool   brokenBool;          // M1 week: level between min ONO & max other high, or min other low & max ONO
+   int    countONO_too_close_10p; // days in week where |level - that day's ONO| < 10
+   int    contact1m_earlierThisWeek;   // M1 contact before today 00:00 (earlier days this week); gates add intraday today separately
+   int    bounceCount;         // M1 week total
+   int    ceilingCount;
+   int    ceilingProximityCandles;
 };
-#define MAX_ALGOFAMILY_WEEK_LEVELS 25   // ~20 weekly levels per week + small headroom
+#define MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS 60
 #define ALGO5_WEEK_PROX_TOUCH_POINTS 0.9
 #define ALGO5_WEEK_ON_TOO_CLOSE_POINTS 10.0
-AlgoFamilyWeekPerspectiveRow g_algoFamilyWeekPerspective[MAX_ALGOFAMILY_WEEK_LEVELS];
-int      g_algoFamilyWeekPerspectiveCount = 0;
-string   g_algoFamilyWeekPerspectiveEvaluatedForDate = "";  // YYYY.MM.DD last (re)evaluated
+AlgoFamilyDayStartWeekPerspectiveRow g_algoFamilyDayStartWeekPerspective[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS];
+int      g_algoFamilyDayStartWeekPerspectiveCount = 0;
+string   g_algoFamilyDayStartWeekPerspectiveEvaluatedForDate = "";  // YYYY.MM.DD last (re)evaluated
 
 //--- pullinghistory_a_algofamily_{weekly|daily}: per-bar closest-level snapshot (neutral columns; weekly vs daily scope in filename only).
 struct PullingHistoryAlgoFamilyBarSnap
@@ -513,7 +516,7 @@ struct AlgoDef
    int            min_ceilingCount;             // daily ceiling on closest level must be >= this when rule added
    int            min_weekly_ceiling_required;  // 0=off; week ceiling on closest level must be >= this
    int            max_weekly_ceiling_allowed;
-   int            max_weekly_contact_candles_allowed;  // week 1m contact candles (low<=level<=high); -1=off
+   int            max_weekly_contact_candles_allowed;  // contact1m_earlierThisWeek (day-start) + intraday M1 today; -1=off
    double         min_levelOnoAbsDiff;
    double         min_onoAboveLevel;  // 0=off; pass when ONO - level >= this (ONO strictly above level by X)
    double         max_dayLowSoFar_belowLevel_dist;  // 0=off; pass when dayLowSoFar >= level - this (price units)
@@ -562,7 +565,7 @@ struct WeeklyLevelAlgoFamilyDayState
    double   anchorBelow;      // clean-below streak: max(level - low)
    datetime anchorBelowTime;
 };
-int g_weeklyAlgoFamilyTrackExpandedIdx[MAX_ALGOFAMILY_WEEK_LEVELS];  // index into g_levelsExpanded
+int g_weeklyAlgoFamilyTrackExpandedIdx[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS];  // index into g_levelsExpanded
 int g_weeklyAlgoFamilyTrackCount = 0;
 
 struct AlgoFamilyLevelDayStatsAtBar
@@ -580,7 +583,7 @@ struct AlgoFamilyLevelDayStatsAtBar
    double anchorBelow;
    int cleanStreakCount;
 };
-AlgoFamilyLevelDayStatsAtBar g_algoFamilyLevelStatsAtBar[MAX_ALGOFAMILY_WEEK_LEVELS][MAX_BARS_IN_DAY];
+AlgoFamilyLevelDayStatsAtBar g_algoFamilyLevelStatsAtBar[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS][MAX_BARS_IN_DAY];
 
 //--- Gap-up mirror (RTH open > PD RTH close)
 double   dayStat_openGapUp_percentageFill = 0.0;
@@ -2254,34 +2257,34 @@ void AlgoFamilyDayBounceCeilingForLevelAsOfTime(const double levelPrice, const d
 }
 
 //+------------------------------------------------------------------+
-int AlgoFamilyWeekPerspectiveBounceForLevel(const double levelPrice)
+int AlgoFamilyDayStartWeekPerspectiveBounceForLevel(const double levelPrice)
 {
-   for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
+   for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
-      if(MathAbs(g_algoFamilyWeekPerspective[rowIdx].levelPrice - levelPrice) < 1e-9)
-         return g_algoFamilyWeekPerspective[rowIdx].bounceCount;
+      if(MathAbs(g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice - levelPrice) < 1e-9)
+         return g_algoFamilyDayStartWeekPerspective[rowIdx].bounceCount;
    }
    return 0;
 }
 
 //+------------------------------------------------------------------+
-int AlgoFamilyWeekPerspectiveCeilingForLevel(const double levelPrice)
+int AlgoFamilyDayStartWeekPerspectiveCeilingForLevel(const double levelPrice)
 {
-   for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
+   for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
-      if(MathAbs(g_algoFamilyWeekPerspective[rowIdx].levelPrice - levelPrice) < 1e-9)
-         return g_algoFamilyWeekPerspective[rowIdx].ceilingCount;
+      if(MathAbs(g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice - levelPrice) < 1e-9)
+         return g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingCount;
    }
    return 0;
 }
 
 //+------------------------------------------------------------------+
-int AlgoFamilyWeekPerspectiveContactForLevel(const double levelPrice)
+int Falgo_DayStart_Contact1mEarlierThisWeekForLevel(const double levelPrice)
 {
-   for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
+   for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
-      if(MathAbs(g_algoFamilyWeekPerspective[rowIdx].levelPrice - levelPrice) < 1e-9)
-         return g_algoFamilyWeekPerspective[rowIdx].candle_overlap_1m_C;
+      if(MathAbs(g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice - levelPrice) < 1e-9)
+         return g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek;
    }
    return 0;
 }
@@ -2383,7 +2386,7 @@ int FalgoGetWeekContactCountForLevelAtBar(const int barIdx, const double levelPr
    const datetime asOfTime = g_m1Rates[barIdx].time + 60;
    int dayContact = 0;
    AlgoFamilyDayContactCountForLevelAsOfTime(levelPrice, asOfTime, dayContact);
-   return AlgoFamilyWeekPerspectiveContactForLevel(levelPrice) + dayContact;
+   return Falgo_DayStart_Contact1mEarlierThisWeekForLevel(levelPrice) + dayContact;
 }
 
 //+------------------------------------------------------------------+
@@ -2454,13 +2457,13 @@ void PullingHistoryAlgoFamilyFillClosestFields(PullingHistoryAlgoFamilyBarSnap &
 void UpdatePullingHistoryAlgoFamilyPerBarStats()
 {
    g_weeklyAlgoFamilyTrackCount = 0;
-   for(int levelIdx = 0; levelIdx < g_levelsTodayCount && g_weeklyAlgoFamilyTrackCount < MAX_ALGOFAMILY_WEEK_LEVELS; levelIdx++)
+   for(int levelIdx = 0; levelIdx < g_levelsTodayCount && g_weeklyAlgoFamilyTrackCount < MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS; levelIdx++)
    {
       if(!AlgoFamilyLevelShouldTrackForDayStatsLocal(g_levelsExpanded[levelIdx].categories))
          continue;
       g_weeklyAlgoFamilyTrackExpandedIdx[g_weeklyAlgoFamilyTrackCount++] = levelIdx;
    }
-   WeeklyLevelAlgoFamilyDayState states[MAX_ALGOFAMILY_WEEK_LEVELS];
+   WeeklyLevelAlgoFamilyDayState states[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS];
    for(int trackIdx = 0; trackIdx < g_weeklyAlgoFamilyTrackCount; trackIdx++)
       ResetWeeklyLevelAlgoFamilyDayState(states[trackIdx], g_levelsExpanded[g_weeklyAlgoFamilyTrackExpandedIdx[trackIdx]].levelPrice);
 
@@ -2732,7 +2735,7 @@ void UpdateDayM1AndLevelsExpanded()
          return;  // file open failed; keep previous levels
       g_levelsLoadedForDate = dateStr;
       BuildLevelsFromCSV();
-      RefreshAlgoFamilyWeekPerspective(g_lastTimer1Time);
+      RefreshAlgoFamilyDayStartWeekPerspective(g_lastTimer1Time);
       dayStat_spreadHighestSeen = 0.0;  // reset for new day
       dayStat_spreadLowestSeen = 0.0;
    }
@@ -5030,7 +5033,7 @@ int FalgoGetWeekBounceCountForLevelAtBar(const int barIdx, const double levelPri
    const datetime asOfTime = g_m1Rates[barIdx].time + 60;
    int dBounce = 0, dCeiling = 0;
    AlgoFamilyDayBounceCeilingForLevelAsOfTime(levelPrice, asOfTime, dBounce, dCeiling);
-   return AlgoFamilyWeekPerspectiveBounceForLevel(levelPrice) + dBounce;
+   return AlgoFamilyDayStartWeekPerspectiveBounceForLevel(levelPrice) + dBounce;
 }
 
 //+------------------------------------------------------------------+
@@ -5041,7 +5044,7 @@ int FalgoGetWeekCeilingCountForLevelAtBar(const int barIdx, const double levelPr
    const datetime asOfTime = g_m1Rates[barIdx].time + 60;
    int dBounce = 0, dCeiling = 0;
    AlgoFamilyDayBounceCeilingForLevelAsOfTime(levelPrice, asOfTime, dBounce, dCeiling);
-   return AlgoFamilyWeekPerspectiveCeilingForLevel(levelPrice) + dCeiling;
+   return AlgoFamilyDayStartWeekPerspectiveCeilingForLevel(levelPrice) + dCeiling;
 }
 
 //+------------------------------------------------------------------+
@@ -8088,7 +8091,7 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
 }
 
 //+------------------------------------------------------------------+
-//| w/d bounce & ceiling at trade open: weekPerspective prior days + today through last closed M1 before startTime. |
+//| w/d bounce & ceiling at trade open: dayStart_weekPerspective prior days + today through last closed M1 before startTime. |
 //+------------------------------------------------------------------+
 void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
    int &outWBounce, int &outDBounce, int &outWCeiling, int &outDCeiling)
@@ -8105,8 +8108,8 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
       return;
 
    AlgoFamilyDayBounceCeilingForLevelAsOfTime(levelPrice, tr.startTime, outDBounce, outDCeiling);
-   outWBounce = AlgoFamilyWeekPerspectiveBounceForLevel(levelPrice) + outDBounce;
-   outWCeiling = AlgoFamilyWeekPerspectiveCeilingForLevel(levelPrice) + outDCeiling;
+   outWBounce = AlgoFamilyDayStartWeekPerspectiveBounceForLevel(levelPrice) + outDBounce;
+   outWCeiling = AlgoFamilyDayStartWeekPerspectiveCeilingForLevel(levelPrice) + outDCeiling;
 }
 
 //+------------------------------------------------------------------+
@@ -9985,39 +9988,56 @@ bool IsMondayDatetime(datetime t)
 }
 
 //+------------------------------------------------------------------+
-//| Fill g_algoFamilyWeekPerspective[] with today's active weekly levels (zeroed stats). |
+//| Label for dayStart weekPerspective log (weekly / daily / stacked). |
 //+------------------------------------------------------------------+
-void CollectActiveWeeklyLevelsForAlgoFamily(const string dateStr)
+string LevelKindLabelFromCategories(const string &categories)
 {
-   g_algoFamilyWeekPerspectiveCount = 0;
-   for(int levelIdx = 0; levelIdx < g_levelsTotalCount && g_algoFamilyWeekPerspectiveCount < MAX_ALGOFAMILY_WEEK_LEVELS; levelIdx++)
+   if(LevelIsStacked(categories))
+      return "stacked";
+   if(LevelIsWeekly(categories))
+      return "weekly";
+   if(LevelIsDailyKind(categories))
+      return "daily";
+   return "other";
+}
+
+//+------------------------------------------------------------------+
+//| Fill g_algoFamilyDayStartWeekPerspective[] — today-loaded weekly+daily only (not future CSV days). |
+//+------------------------------------------------------------------+
+void CollectActiveLevelsForDayStartWeekPerspective(const string dateStr)
+{
+   g_algoFamilyDayStartWeekPerspectiveCount = 0;
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount && g_algoFamilyDayStartWeekPerspectiveCount < MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS; levelIdx++)
    {
-      if(!LevelIsWeeklyKind(g_levels[levelIdx].categories)) continue;
-      if(g_levels[levelIdx].startStr > dateStr || dateStr > g_levels[levelIdx].endStr) continue;
-      int rowIdx = g_algoFamilyWeekPerspectiveCount++;
-      g_algoFamilyWeekPerspective[rowIdx].levelPrice = g_levels[levelIdx].levelPrice;
-      g_algoFamilyWeekPerspective[rowIdx].tag = g_levels[levelIdx].tag;
-      g_algoFamilyWeekPerspective[rowIdx].categories = g_levels[levelIdx].categories;
-      g_algoFamilyWeekPerspective[rowIdx].maxPriceAbove = 0.0;
-      g_algoFamilyWeekPerspective[rowIdx].maxPriceBelow = 0.0;
-      g_algoFamilyWeekPerspective[rowIdx].touchedProx_09_C = 0;
-      g_algoFamilyWeekPerspective[rowIdx].brokenBool = false;
-      g_algoFamilyWeekPerspective[rowIdx].countONO_too_close_10p = 0;
-      g_algoFamilyWeekPerspective[rowIdx].candle_overlap_1m_C = 0;
-      g_algoFamilyWeekPerspective[rowIdx].bounceCount = 0;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingCount = 0;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles = 0;
+      if(!AlgoFamilyLevelShouldTrackForDayStatsLocal(g_levels[levelIdx].categories))
+         continue;
+      if(g_levels[levelIdx].startStr > dateStr || dateStr > g_levels[levelIdx].endStr)
+         continue;
+      int rowIdx = g_algoFamilyDayStartWeekPerspectiveCount++;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice = g_levels[levelIdx].levelPrice;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].tag = g_levels[levelIdx].tag;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].categories = g_levels[levelIdx].categories;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].levelKind = LevelKindLabelFromCategories(g_levels[levelIdx].categories);
+      g_algoFamilyDayStartWeekPerspective[rowIdx].levelActiveFrom = g_levels[levelIdx].startStr;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].levelActiveTo = g_levels[levelIdx].endStr;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove = 0.0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow = 0.0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].touchedProx_09_C = 0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].brokenBool = false;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].countONO_too_close_10p = 0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek = 0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].bounceCount = 0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingCount = 0;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingProximityCandles = 0;
    }
 }
 
 //+------------------------------------------------------------------+
-//| Week bounce/ceiling counts per level (same definitions as day stats). |
-//+------------------------------------------------------------------+
-void AlgoFamilyWeekPerspectiveEvalBounceCeiling(const MqlRates &weekRates[], int barCount, datetime weekStart)
+void AlgoFamilyDayStartWeekPerspectiveEvalBounceCeiling(const MqlRates &weekRates[], int barCount, datetime weekStart)
 {
-   for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
+   for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
-      const double lvl = g_algoFamilyWeekPerspective[rowIdx].levelPrice;
+      const double lvl = g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice;
       WeeklyLevelAlgoFamilyDayState st;
       ResetWeeklyLevelAlgoFamilyDayState(st, lvl);
       for(int barIdx = 0; barIdx < barCount; barIdx++)
@@ -10028,40 +10048,43 @@ void AlgoFamilyWeekPerspectiveEvalBounceCeiling(const MqlRates &weekRates[], int
             weekRates[barIdx].open, weekRates[barIdx].high, weekRates[barIdx].low, weekRates[barIdx].close,
             weekRates[barIdx].time, false);
       }
-      g_algoFamilyWeekPerspective[rowIdx].bounceCount = st.bounceCount_today;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingCount = st.ceilingCount_today;
-      g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles = st.ceilingProximityCandles_today;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].bounceCount = st.bounceCount_today;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingCount = st.ceilingCount_today;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingProximityCandles = st.ceilingProximityCandles_today;
    }
 }
 
 //+------------------------------------------------------------------+
-//| Scan current-week M1 for one weekly level; update g_algoFamilyWeekPerspective[rowIdx]. |
+//| Scan current-week M1 for one level; update g_algoFamilyDayStartWeekPerspective[rowIdx]. |
 //+------------------------------------------------------------------+
-void AlgoFamilyWeekPerspectiveAccumulateLevel(int rowIdx, const MqlRates &weekRates[], int barCount, datetime weekStart)
+void AlgoFamilyDayStartWeekPerspectiveAccumulateLevel(int rowIdx, const MqlRates &weekRates[], int barCount,
+   datetime weekStart, datetime todayDayStart)
 {
-   if(rowIdx < 0 || rowIdx >= g_algoFamilyWeekPerspectiveCount) return;
-   double lvl = g_algoFamilyWeekPerspective[rowIdx].levelPrice;
+   if(rowIdx < 0 || rowIdx >= g_algoFamilyDayStartWeekPerspectiveCount) return;
+   double lvl = g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice;
    for(int barIdx = 0; barIdx < barCount; barIdx++)
    {
       if(weekRates[barIdx].time < weekStart) continue;
+      const double o = weekRates[barIdx].open;
       double hi = weekRates[barIdx].high;
       double lo = weekRates[barIdx].low;
-      double cl = weekRates[barIdx].close;
+      const double c = weekRates[barIdx].close;
       if(hi > lvl)
-         g_algoFamilyWeekPerspective[rowIdx].maxPriceAbove = MathMax(g_algoFamilyWeekPerspective[rowIdx].maxPriceAbove, hi - lvl);
+         g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove = MathMax(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove, hi - lvl);
       if(lo < lvl)
-         g_algoFamilyWeekPerspective[rowIdx].maxPriceBelow = MathMax(g_algoFamilyWeekPerspective[rowIdx].maxPriceBelow, lvl - lo);
+         g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow = MathMax(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow, lvl - lo);
       if(lo <= lvl + ALGO5_WEEK_PROX_TOUCH_POINTS && hi >= lvl - ALGO5_WEEK_PROX_TOUCH_POINTS)
-         g_algoFamilyWeekPerspective[rowIdx].touchedProx_09_C++;
-      if(lo <= lvl && lvl <= hi)
-         g_algoFamilyWeekPerspective[rowIdx].candle_overlap_1m_C++;
+         g_algoFamilyDayStartWeekPerspective[rowIdx].touchedProx_09_C++;
+      if(weekRates[barIdx].time < todayDayStart &&
+         IsBarInContactWithLevel(o, hi, lo, c, lvl))
+         g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek++;
    }
 }
 
 //+------------------------------------------------------------------+
 //| Per calendar day in weekRates: ONO = open of first M1 bar (like g_ONopen). Count days per level where |level - ONO| < threshold. |
 //+------------------------------------------------------------------+
-void AlgoFamilyWeekPerspectiveEvalONOtooClose(const MqlRates &weekRates[], int barCount, datetime weekStart)
+void AlgoFamilyDayStartWeekPerspectiveEvalONOtooClose(const MqlRates &weekRates[], int barCount, datetime weekStart)
 {
    datetime dayStarts[7];
    double   dayONO[7];
@@ -10082,14 +10105,14 @@ void AlgoFamilyWeekPerspectiveEvalONOtooClose(const MqlRates &weekRates[], int b
          dayCount++;
       }
    }
-   for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
+   for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
-      double lvl = g_algoFamilyWeekPerspective[rowIdx].levelPrice;
-      g_algoFamilyWeekPerspective[rowIdx].countONO_too_close_10p = 0;
+      double lvl = g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].countONO_too_close_10p = 0;
       for(int dayIdx = 0; dayIdx < dayCount; dayIdx++)
       {
          if(MathAbs(lvl - dayONO[dayIdx]) < ALGO5_WEEK_ON_TOO_CLOSE_POINTS)
-            g_algoFamilyWeekPerspective[rowIdx].countONO_too_close_10p++;
+            g_algoFamilyDayStartWeekPerspective[rowIdx].countONO_too_close_10p++;
       }
    }
 }
@@ -10097,7 +10120,7 @@ void AlgoFamilyWeekPerspectiveEvalONOtooClose(const MqlRates &weekRates[], int b
 //+------------------------------------------------------------------+
 //| brokenBool: level strictly between week min ONO and max high of non-ONO M1 bars, or between min low of non-ONO bars and max ONO. |
 //+------------------------------------------------------------------+
-void AlgoFamilyWeekPerspectiveEvalBrokenBool(const MqlRates &weekRates[], int barCount, datetime weekStart)
+void AlgoFamilyDayStartWeekPerspectiveEvalBrokenBool(const MqlRates &weekRates[], int barCount, datetime weekStart)
 {
    double minONO = 1e300, maxONO = -1e300;
    double maxOtherHigh = -1e300, minOtherLow = 1e300;
@@ -10123,104 +10146,108 @@ void AlgoFamilyWeekPerspectiveEvalBrokenBool(const MqlRates &weekRates[], int ba
          if(weekRates[barIdx].low < minOtherLow) minOtherLow = weekRates[barIdx].low;
       }
    }
-   for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
+   for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
-      double lvl = g_algoFamilyWeekPerspective[rowIdx].levelPrice;
-      g_algoFamilyWeekPerspective[rowIdx].brokenBool = false;
+      double lvl = g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice;
+      g_algoFamilyDayStartWeekPerspective[rowIdx].brokenBool = false;
       if(!hasONO || !hasOther) continue;
       if(minONO < lvl && lvl < maxOtherHigh)
-         g_algoFamilyWeekPerspective[rowIdx].brokenBool = true;
+         g_algoFamilyDayStartWeekPerspective[rowIdx].brokenBool = true;
       if(minOtherLow < lvl && lvl < maxONO)
-         g_algoFamilyWeekPerspective[rowIdx].brokenBool = true;
+         g_algoFamilyDayStartWeekPerspective[rowIdx].brokenBool = true;
    }
 }
 
 //+------------------------------------------------------------------+
-//| Sort g_algoFamilyWeekPerspective[] by levelPrice descending (highest first). |
+//| Sort g_algoFamilyDayStartWeekPerspective[] by levelPrice descending (highest first). |
 //+------------------------------------------------------------------+
-void AlgoFamilyWeekPerspectiveSortByLevelPriceDesc()
+void AlgoFamilyDayStartWeekPerspectiveSortByLevelPriceDesc()
 {
-   for(int sortIdx = 0; sortIdx < g_algoFamilyWeekPerspectiveCount - 1; sortIdx++)
-      for(int innerIdx = sortIdx + 1; innerIdx < g_algoFamilyWeekPerspectiveCount; innerIdx++)
-         if(g_algoFamilyWeekPerspective[innerIdx].levelPrice > g_algoFamilyWeekPerspective[sortIdx].levelPrice)
+   for(int sortIdx = 0; sortIdx < g_algoFamilyDayStartWeekPerspectiveCount - 1; sortIdx++)
+      for(int innerIdx = sortIdx + 1; innerIdx < g_algoFamilyDayStartWeekPerspectiveCount; innerIdx++)
+         if(g_algoFamilyDayStartWeekPerspective[innerIdx].levelPrice > g_algoFamilyDayStartWeekPerspective[sortIdx].levelPrice)
          {
-            AlgoFamilyWeekPerspectiveRow swapTmp = g_algoFamilyWeekPerspective[sortIdx];
-            g_algoFamilyWeekPerspective[sortIdx] = g_algoFamilyWeekPerspective[innerIdx];
-            g_algoFamilyWeekPerspective[innerIdx] = swapTmp;
+            AlgoFamilyDayStartWeekPerspectiveRow swapTmp = g_algoFamilyDayStartWeekPerspective[sortIdx];
+            g_algoFamilyDayStartWeekPerspective[sortIdx] = g_algoFamilyDayStartWeekPerspective[innerIdx];
+            g_algoFamilyDayStartWeekPerspective[innerIdx] = swapTmp;
          }
 }
 
 //+------------------------------------------------------------------+
-//| Write (date)_algofamily_weekPerspective.csv from globals.             |
+//| Write (date)_algofamily_dayStart_weekPerspective.csv (day-start snapshot; not updated intraday). |
 //+------------------------------------------------------------------+
-void WriteAlgoFamilyWeekPerspectiveLog(const string dateStr, datetime weekMondayStart)
+void WriteAlgoFamilyDayStartWeekPerspectiveLog(const string dateStr, datetime weekMondayStart)
 {
-   if(!dailyLog_algoFamilyWeekPerspective) return;
-   AlgoFamilyWeekPerspectiveSortByLevelPriceDesc();
-   string logName = dateStr + "_algofamily_weekPerspective.csv";
+   if(!dailyLog_algoFamilyDayStartWeekPerspective) return;
+   AlgoFamilyDayStartWeekPerspectiveSortByLevelPriceDesc();
+   string logName = dateStr + "_algofamily_dayStart_weekPerspective.csv";
    int fileHandle = FileOpen(logName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fileHandle == INVALID_HANDLE)
    {
-      Print("WriteAlgoFamilyWeekPerspectiveLog: could not open ", logName);
+      Print("WriteAlgoFamilyDayStartWeekPerspectiveLog: could not open ", logName);
       return;
    }
-   FileWrite(fileHandle, "date", "weekMondayStart", "levelPrice", "tag", "categories",
-             "maxPriceAbove", "maxPriceBelow", "touchedProxBool_09_C", "brokenBool", "countONO_too_close_10p", "1mCandle_overlapC",
+   FileWrite(fileHandle, "date", "weekMondayStart", "levelPrice", "tag", "categories", "levelKind", "levelActiveFrom", "levelActiveTo",
+             "maxPriceAbove", "maxPriceBelow", "touchedProx_09_C", "brokenBool", "countONO_too_close_10p",
+             "contact1m_earlierThisWeek",
              "BounceCount", "CeilingCount", "CeilingProximityCandles");
    string weekStartStr = TimeToString(weekMondayStart, TIME_DATE);
-   for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
+   for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
    {
       FileWrite(fileHandle, dateStr, weekStartStr,
-                DoubleToString(g_algoFamilyWeekPerspective[rowIdx].levelPrice, _Digits),
-                g_algoFamilyWeekPerspective[rowIdx].tag,
-                g_algoFamilyWeekPerspective[rowIdx].categories,
-                DoubleToString(g_algoFamilyWeekPerspective[rowIdx].maxPriceAbove, _Digits),
-                DoubleToString(g_algoFamilyWeekPerspective[rowIdx].maxPriceBelow, _Digits),
-                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].touchedProx_09_C),
-                (g_algoFamilyWeekPerspective[rowIdx].brokenBool ? "true" : "false"),
-                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].countONO_too_close_10p),
-                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].candle_overlap_1m_C),
-                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].bounceCount),
-                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].ceilingCount),
-                IntegerToString(g_algoFamilyWeekPerspective[rowIdx].ceilingProximityCandles));
+                DoubleToString(g_algoFamilyDayStartWeekPerspective[rowIdx].levelPrice, _Digits),
+                g_algoFamilyDayStartWeekPerspective[rowIdx].tag,
+                g_algoFamilyDayStartWeekPerspective[rowIdx].categories,
+                g_algoFamilyDayStartWeekPerspective[rowIdx].levelKind,
+                g_algoFamilyDayStartWeekPerspective[rowIdx].levelActiveFrom,
+                g_algoFamilyDayStartWeekPerspective[rowIdx].levelActiveTo,
+                DoubleToString(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceAbove, _Digits),
+                DoubleToString(g_algoFamilyDayStartWeekPerspective[rowIdx].maxPriceBelow, _Digits),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].touchedProx_09_C),
+                (g_algoFamilyDayStartWeekPerspective[rowIdx].brokenBool ? "true" : "false"),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].countONO_too_close_10p),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].contact1m_earlierThisWeek),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].bounceCount),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingCount),
+                IntegerToString(g_algoFamilyDayStartWeekPerspective[rowIdx].ceilingProximityCandles));
    }
    FileClose(fileHandle);
 }
 
 //+------------------------------------------------------------------+
-//| Rebuild algofamily_weekPerspective memory + log (OnInit and each new day). Monday: log only, no week M1 scan. |
+//| Rebuild algofamily_dayStart_weekPerspective at day start only (OnInit + each new day). |
 //+------------------------------------------------------------------+
-void RefreshAlgoFamilyWeekPerspective(datetime refTime)
+void RefreshAlgoFamilyDayStartWeekPerspective(datetime refTime)
 {
    if(refTime == 0)
       refTime = TimeCurrent();
    datetime dayStart = refTime - (refTime % 86400);
    string dateStr = TimeToString(dayStart, TIME_DATE);
-   if(dateStr == g_algoFamilyWeekPerspectiveEvaluatedForDate)
+   if(dateStr == g_algoFamilyDayStartWeekPerspectiveEvaluatedForDate)
       return;
 
-   CollectActiveWeeklyLevelsForAlgoFamily(dateStr);
+   CollectActiveLevelsForDayStartWeekPerspective(dateStr);
    datetime weekMondayStart = GetWeekMondayStart(refTime);
-   bool mondaySkipped = IsMondayDatetime(refTime);
 
-   if(!mondaySkipped && g_algoFamilyWeekPerspectiveCount > 0)
+   if(g_algoFamilyDayStartWeekPerspectiveCount > 0)
    {
       MqlRates weekRates[];
-      int copied = CopyRates(_Symbol, PERIOD_M1, weekMondayStart, refTime, weekRates);
-      if(copied > 0)
+      int copiedM1 = CopyRates(_Symbol, PERIOD_M1, weekMondayStart, refTime, weekRates);
+      if(copiedM1 > 0)
       {
-         for(int rowIdx = 0; rowIdx < g_algoFamilyWeekPerspectiveCount; rowIdx++)
-            AlgoFamilyWeekPerspectiveAccumulateLevel(rowIdx, weekRates, copied, weekMondayStart);
-         AlgoFamilyWeekPerspectiveEvalONOtooClose(weekRates, copied, weekMondayStart);
-         AlgoFamilyWeekPerspectiveEvalBrokenBool(weekRates, copied, weekMondayStart);
-         AlgoFamilyWeekPerspectiveEvalBounceCeiling(weekRates, copied, weekMondayStart);
+         for(int rowIdx = 0; rowIdx < g_algoFamilyDayStartWeekPerspectiveCount; rowIdx++)
+            AlgoFamilyDayStartWeekPerspectiveAccumulateLevel(rowIdx, weekRates, copiedM1, weekMondayStart, dayStart);
+         AlgoFamilyDayStartWeekPerspectiveEvalONOtooClose(weekRates, copiedM1, weekMondayStart);
+         AlgoFamilyDayStartWeekPerspectiveEvalBrokenBool(weekRates, copiedM1, weekMondayStart);
+         AlgoFamilyDayStartWeekPerspectiveEvalBounceCeiling(weekRates, copiedM1, weekMondayStart);
       }
       else
-         Print("RefreshAlgoFamilyWeekPerspective: CopyRates returned ", copied, " for week starting ", TimeToString(weekMondayStart, TIME_DATE));
+         Print("RefreshAlgoFamilyDayStartWeekPerspective: M1 CopyRates returned ", copiedM1,
+               " for week starting ", TimeToString(weekMondayStart, TIME_DATE));
    }
 
-   WriteAlgoFamilyWeekPerspectiveLog(dateStr, weekMondayStart);
-   g_algoFamilyWeekPerspectiveEvaluatedForDate = dateStr;
+   WriteAlgoFamilyDayStartWeekPerspectiveLog(dateStr, weekMondayStart);
+   g_algoFamilyDayStartWeekPerspectiveEvaluatedForDate = dateStr;
 }
 
 //+------------------------------------------------------------------+
@@ -12530,7 +12557,7 @@ int OnInit()
    g_levelsLoadedForDate = todayStrInit;
    Print("Levels loaded for ", todayStrInit, ": ", g_levelsTotalCount, " rows from ", InpLevelsFile);
    BuildLevelsFromCSV();
-   RefreshAlgoFamilyWeekPerspective(TimeCurrent());
+   RefreshAlgoFamilyDayStartWeekPerspective(TimeCurrent());
 
    return(INIT_SUCCEEDED);
 }
