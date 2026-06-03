@@ -9,10 +9,13 @@ require 'date'
 # =========================================================
 
 FILE_PATH   = 'summary_tradeResults_all_days.tsv'
-OUTPUT_FILE = 'analyze_week_by_week_1_2_3_tradesPerDay_any_o.csv'
+OUTPUT_FILE = 'analyze_week_by_week_1_2_3_tradesPerDay_perAlgo_o.csv'
 
 simulate_trades_per_day_limit_start = 1
 simulate_trades_per_day_limit_end   = 3
+
+# Match smashelito.mq5: stop when wins+losses >= this per algo family per day (0=off)
+STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT = 3
 
 # =========================================================
 # HELPERS
@@ -24,6 +27,13 @@ end
 
 def direction(trade)
   trade['type'].include?('BUY') ? :long : :short
+end
+
+def algo_id(trade)
+  magic = trade['magic'].to_s.strip
+  return magic if magic.length < 2
+
+  magic[0, 2]
 end
 
 def profit_factor(trades)
@@ -47,8 +57,116 @@ def total_profit(trades)
   trades.map { |t| t['profit'].to_f }.sum.round(2)
 end
 
+def parse_trade_date(date_str)
+  Date.parse(date_str.gsub('.', '-'))
+end
+
+def weekday?(date)
+  !date.saturday? && !date.sunday?
+end
+
+def weekday_count_in_range(first_date, last_date)
+  count = 0
+  date = first_date
+
+  while date <= last_date
+    count += 1 if weekday?(date)
+    date += 1
+  end
+
+  count
+end
+
+def trade_date_range(trades)
+  dates =
+    trades
+      .map { |t| t['date'].to_s.strip }
+      .reject(&:empty?)
+      .map { |d| parse_trade_date(d) }
+
+  return [nil, nil, 0] if dates.empty?
+
+  first_date = dates.min
+  last_date = dates.max
+
+  [first_date, last_date, weekday_count_in_range(first_date, last_date)]
+end
+
+def unique_trade_days(trades)
+  trades
+    .map { |t| t['date'].to_s.strip }
+    .reject(&:empty?)
+    .uniq
+end
+
+def trade_rate(trades, total_weekdays)
+  return 0.0 if total_weekdays.zero?
+
+  unique_trade_days(trades).size.to_f / total_weekdays
+end
+
+def print_overall_summary(weekly_data, all_rows_for_range)
+  _, _, total_weekdays = trade_date_range(all_rows_for_range)
+
+  overall = Hash.new { |h, k| h[k] = [] }
+
+  weekly_data.each_value do |analyses|
+    analyses.each do |analysis_type, data|
+      overall[analysis_type].concat(data[:trades])
+    end
+  end
+
+  summary_rows =
+    overall.map do |scenario, trades|
+      {
+        scenario: scenario,
+        profit_factor: profit_factor(trades),
+        trade_rate: trade_rate(trades, total_weekdays),
+        trade_count: trades.size,
+        trade_days: unique_trade_days(trades).size
+      }
+    end
+
+  summary_rows.sort_by! { |r| -r[:profit_factor] }
+
+  puts 'OVERALL SUMMARY (all weeks, sorted by profit factor)'
+  puts format(
+    '%-45s %12s %12s %12s %12s',
+    'scenario', 'profit_factor', 'trade_rate', 'trade_count', 'trade_days'
+  )
+  puts '-' * 97
+
+  summary_rows.each do |r|
+    puts format(
+      '%-45s %12.2f %12.2f %12d %12d',
+      r[:scenario],
+      r[:profit_factor],
+      r[:trade_rate],
+      r[:trade_count],
+      r[:trade_days]
+    )
+  end
+
+  puts
+end
+
+def overlap_seconds(trade_a, trade_b)
+  a_start = parse_time(trade_a['startTime'])
+  a_end   = parse_time(trade_a['endTime'])
+  b_start = parse_time(trade_b['startTime'])
+  b_end   = parse_time(trade_b['endTime'])
+
+  [a_end, b_end].min - [a_start, b_start].max
+end
+
+def stacked_with?(trade_a, trade_b)
+  return false unless direction(trade_a) == direction(trade_b)
+
+  overlap_seconds(trade_a, trade_b) >= 1
+end
+
 # =========================================================
-# REMOVE STACKED TRADES
+# REMOVE STACKED TRADES (within one algo)
 # =========================================================
 
 def remove_stacked_trades(trades)
@@ -57,27 +175,56 @@ def remove_stacked_trades(trades)
   selected = []
 
   sorted.each do |trade|
-    current_start = parse_time(trade['startTime'])
-    current_end   = parse_time(trade['endTime'])
-    current_dir   = direction(trade)
-
-    overlaps = selected.any? do |kept|
-      kept_start = parse_time(kept['startTime'])
-      kept_end   = parse_time(kept['endTime'])
-      kept_dir   = direction(kept)
-
-      next false unless current_dir == kept_dir
-
-      overlap_seconds =
-        [current_end, kept_end].min - [current_start, kept_start].max
-
-      overlap_seconds >= 1
-    end
+    overlaps = selected.any? { |kept| stacked_with?(trade, kept) }
 
     selected << trade unless overlaps
   end
 
   selected
+end
+
+# =========================================================
+# REMOVE CROSS-ALGO STACKED TRADES (no backfill)
+# =========================================================
+
+def remove_cross_algo_stacked(candidates)
+  sorted = candidates.sort_by { |t| parse_time(t['startTime']) }
+
+  selected = []
+
+  sorted.each do |trade|
+    conflicts = selected.any? do |kept|
+      algo_id(kept) != algo_id(trade) && stacked_with?(trade, kept)
+    end
+
+    selected << trade unless conflicts
+  end
+
+  selected
+end
+
+# =========================================================
+# FIRST N NON-STACKED TRADES PER ALGO PER DAY
+# =========================================================
+
+def select_per_algo_trades(day_trades, limit)
+  candidates = []
+
+  day_trades
+    .group_by { |t| algo_id(t) }
+    .each_value do |algo_trades|
+      sorted = algo_trades.sort_by { |t| parse_time(t['startTime']) }
+
+      capped = sorted
+      if STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT > 0
+        capped = sorted.first(STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT)
+      end
+
+      clean = remove_stacked_trades(capped)
+      candidates.concat(clean.first(limit))
+    end
+
+  remove_cross_algo_stacked(candidates)
 end
 
 # =========================================================
@@ -88,18 +235,7 @@ def stacked_trade_count(trades)
   count = 0
 
   trades.combination(2).each do |a, b|
-    next unless direction(a) == direction(b)
-
-    a_start = parse_time(a['startTime'])
-    a_end   = parse_time(a['endTime'])
-
-    b_start = parse_time(b['startTime'])
-    b_end   = parse_time(b['endTime'])
-
-    overlap_seconds =
-      [a_end, b_end].min - [a_start, b_start].max
-
-    count += 1 if overlap_seconds >= 1
+    count += 1 if stacked_with?(a, b)
   end
 
   count
@@ -155,15 +291,13 @@ trades_by_day.each do |date_str, trades|
     stacked_trade_count(trades)
 
   # -------------------------------------------------------
-  # FIRST N NON-STACKED TRADES
+  # FIRST N NON-STACKED TRADES PER ALGO
   # -------------------------------------------------------
 
-  clean_trades = remove_stacked_trades(trades)
-
   (simulate_trades_per_day_limit_start..simulate_trades_per_day_limit_end).each do |limit|
-    selected = clean_trades.first(limit)
+    selected = select_per_algo_trades(trades, limit)
 
-    analysis_name = "first_#{limit}_trades_non_stacked"
+    analysis_name = "first_#{limit}_trades_per_algo_non_stacked"
 
     weekly_data[week_key][analysis_name][:trades]
       .concat(selected)
@@ -212,7 +346,7 @@ end
 
 puts
 puts '========================================================='
-puts 'WEEKLY ANALYSIS COMPLETE'
+puts 'WEEKLY ANALYSIS COMPLETE (PER ALGO)'
 puts '========================================================='
 puts
 puts "Input file : #{FILE_PATH}"
@@ -225,8 +359,14 @@ weekly_count =
 puts "Weeks analyzed: #{weekly_count}"
 
 (simulate_trades_per_day_limit_start..simulate_trades_per_day_limit_end).each do |limit|
-  puts "Included analysis: first #{limit} non-stacked trades per day"
+  puts "Included analysis: first #{limit} non-stacked trades per algo family per day (cross-algo stacked excluded, no backfill)"
 end
+
+if STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT > 0
+  puts "Per algo family daily cap: #{STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT} total trades (chronological, before non-stacked filter)"
+end
+
+print_overall_summary(weekly_data, rows)
 
 puts
 puts 'Done.'

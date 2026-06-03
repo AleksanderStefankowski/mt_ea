@@ -9,13 +9,17 @@ require 'set'
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
-MINIMUM_TRADES_IN_GROUPING_FULL = 7
-MINIMUM_TRADES_IN_GROUPING_ON = 4
-MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 7
-MINIMUM_TRADES_IN_GROUPING_RTHIB = 4
+# Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
+MAGIC_PREFIXES_TO_ANALYZE = [14]
 
+MINIMUM_TRADES_IN_GROUPING_FULL = 8
+MINIMUM_TRADES_IN_GROUPING_ON = 5
+MINIMUM_TRADES_IN_GROUPING_RTHIB = 2
+MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 4
+
+SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT = false  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 MINIMUM_PROFITFACTOR = 2.75
-MAXIMUM_PROFITFACTOR = 4.0
+MAXIMUM_PROFITFACTOR = 9999999999999999999999999.9
 # Collect pf >= MIN (including above MAX). Per analysis_set + magic_prefix: anchor = max
 # grp_trades among in-range rows; keep in-range + out-of-range rows with grp_trades == anchor.
 # Profit Factor (PF)	Required Win Rate
@@ -31,8 +35,9 @@ TOP_RESULTS_TO_PRINT = 300
 GROUPING_SAMPLEDATES_MAX = 20
 
 SAVE_CSV_TO_FILE = true
-SAVE_CSV_OUTPUT = 'analyze_subvariants_output.csv'
-SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT = true
+SAVE_CSV_OUTPUT = 'analyze_subvariantss_for_specified_algo_o.csv'
+
+
 
 # =========================================================
 
@@ -73,6 +78,14 @@ ANALYSIS_SETS = [
 # =========================================================
 # HELPERS
 # =========================================================
+
+def normalize_magic_prefix(value)
+  value.to_s.strip.rjust(2, '0')
+end
+
+def configured_magic_prefixes
+  MAGIC_PREFIXES_TO_ANALYZE.map { |p| normalize_magic_prefix(p) }.uniq.sort
+end
 
 def minimum_trades_for_analysis_set(analysis_set_name)
   case analysis_set_name
@@ -265,6 +278,16 @@ puts "Detected headers:"
 puts csv.headers.inspect
 puts
 
+allowed_magic_prefixes = configured_magic_prefixes
+
+if allowed_magic_prefixes.empty?
+  puts 'ERROR: MAGIC_PREFIXES_TO_ANALYZE is empty.'
+  exit 1
+end
+
+puts "Magic prefixes to analyze: #{allowed_magic_prefixes.join(', ')}"
+puts
+
 rows = []
 
 csv.each do |row|
@@ -274,14 +297,16 @@ csv.each do |row|
 
   next if magic.empty?
 
+  magic_prefix = magic[0, 2]
+  next unless allowed_magic_prefixes.include?(magic_prefix)
+
   trade = {}
 
   # =======================================================
   # ROOT GROUP
   # =======================================================
 
-  trade[:magic_prefix] =
-    magic[0, 2]
+  trade[:magic_prefix] = magic_prefix
 
   # =======================================================
   # DAY OF WEEK
@@ -363,9 +388,18 @@ all_trading_day_count =
 puts "Days with any trade: #{all_trading_day_count}"
 
 if rows.empty?
+  all_prefixes_in_file =
+    csv
+      .map { |row| row['magic'].to_s.strip }
+      .reject(&:empty?)
+      .map { |magic| magic[0, 2] }
+      .uniq
+      .sort
+
   puts
-  puts "ERROR: No trades loaded."
-  exit
+  puts "ERROR: No trades loaded for magic prefixes: #{allowed_magic_prefixes.join(', ')}"
+  puts "Prefixes present in file: #{all_prefixes_in_file.join(', ')}"
+  exit 1
 end
 
 # =========================================================
@@ -743,6 +777,6 @@ end
 puts
 puts "DONE"
 
-system(
-  'powershell -NoProfile -Command "Add-Type -AssemblyName PresentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open((Get-Item \"alert.mp3\").FullName); $player.Play(); Start-Sleep -Seconds 2"'
-)
+# system(
+#   'powershell -NoProfile -Command "Add-Type -AssemblyName PresentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open((Get-Item \"alert.mp3\").FullName); $player.Play(); Start-Sleep -Seconds 2"'
+# )

@@ -47,6 +47,94 @@ def total_profit(trades)
   trades.map { |t| t['profit'].to_f }.sum.round(2)
 end
 
+def parse_trade_date(date_str)
+  Date.parse(date_str.gsub('.', '-'))
+end
+
+def weekday?(date)
+  !date.saturday? && !date.sunday?
+end
+
+def weekday_count_in_range(first_date, last_date)
+  count = 0
+  date = first_date
+
+  while date <= last_date
+    count += 1 if weekday?(date)
+    date += 1
+  end
+
+  count
+end
+
+def trade_date_range(trades)
+  dates =
+    trades
+      .map { |t| t['date'].to_s.strip }
+      .reject(&:empty?)
+      .map { |d| parse_trade_date(d) }
+
+  return [nil, nil, 0] if dates.empty?
+
+  first_date = dates.min
+  last_date = dates.max
+
+  [first_date, last_date, weekday_count_in_range(first_date, last_date)]
+end
+
+def unique_trade_days(trades)
+  trades
+    .map { |t| t['date'].to_s.strip }
+    .reject(&:empty?)
+    .uniq
+end
+
+def trade_rate(trades, total_weekdays)
+  return 0.0 if total_weekdays.zero?
+
+  unique_trade_days(trades).size.to_f / total_weekdays
+end
+
+def print_overall_summary(weekly_data, all_rows_for_range)
+  _, _, total_weekdays = trade_date_range(all_rows_for_range)
+
+  overall = Hash.new { |h, k| h[k] = [] }
+
+  weekly_data.each_value do |analyses|
+    analyses.each do |analysis_type, data|
+      overall[analysis_type].concat(data[:trades])
+    end
+  end
+
+  summary_rows =
+    overall.map do |scenario, trades|
+      {
+        scenario: scenario,
+        profit_factor: profit_factor(trades),
+        trade_rate: trade_rate(trades, total_weekdays),
+        trade_count: trades.size
+      }
+    end
+
+  summary_rows.sort_by! { |r| -r[:profit_factor] }
+
+  puts 'OVERALL SUMMARY (all weeks, sorted by profit factor)'
+  puts format('%-45s %12s %12s %12s', 'scenario', 'profit_factor', 'trade_rate', 'trade_count')
+  puts '-' * 85
+
+  summary_rows.each do |r|
+    puts format(
+      '%-45s %12.2f %12.2f %12d',
+      r[:scenario],
+      r[:profit_factor],
+      r[:trade_rate],
+      r[:trade_count]
+    )
+  end
+
+  puts
+end
+
 # =========================================================
 # REMOVE STACKED TRADES
 # =========================================================
@@ -227,6 +315,8 @@ puts "Weeks analyzed: #{weekly_count}"
 (simulate_trades_per_day_limit_start..simulate_trades_per_day_limit_end).each do |limit|
   puts "Included analysis: first #{limit} non-stacked trades per day"
 end
+
+print_overall_summary(weekly_data, rows)
 
 puts
 puts 'Done.'

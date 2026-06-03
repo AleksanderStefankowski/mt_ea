@@ -8,8 +8,8 @@ require 'csv'
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 SESSION = 'full' # full, ON, RTH-IB, RTH-afterIB
-MAGICPREFIX = 12
-VARIABLES = 'dayBrokePDH=false | below_PDH=true | above_dayLowSoFar=true'
+MAGICPREFIX = 14
+VARIABLES = 'dayBrokePDH=false | above_dayHighSoFar=true | above_midpoint=true | above_PDO=true'
 
 OUTPUT =
   format(
