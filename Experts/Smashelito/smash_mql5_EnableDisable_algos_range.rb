@@ -2,12 +2,12 @@
 # Sets g_algos[...].enabled for each MAGIC_ALGO id in algo_range_start..algo_range_end.
 
 MQ5_FILE = File.expand_path("smashelito.mq5", __dir__)
-set_enabled_to = true # true or false. Skips an algo if it is already in that state.
+set_enabled_to = false # true or false. Skips an algo if it is already in that state.
 # algo_range_start = 10
 # algo_range_end = 15
 
-algo_range_start = 13
-algo_range_end = 16
+algo_range_start = 10
+algo_range_end = 18
 
 # algo_range_start = 17
 # algo_range_end = 19

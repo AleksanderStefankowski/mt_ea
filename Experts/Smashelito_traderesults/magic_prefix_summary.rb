@@ -89,7 +89,7 @@ csv.each do |row|
 
   rows << {
     magic_prefix: magic[0, 2],
-    session: row['session'].to_s.strip,
+    session: row['sessionSent'].to_s.strip,
     profit: row['profit'].to_f,
     date: row['date'].to_s.strip,
     start_time: row['startTime'].to_s.strip

@@ -10,9 +10,9 @@ FM = SmashMql5AlgoReader::FalgoMagic
 # =========================================================
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
-SESSION = 'full' # full, ON, RTH-IB, RTH-afterIB
+SESSION = 'ON' # full, ON, RTH-IB, RTH-afterIB
 MAGICPREFIX = 14
-VARIABLES = 'dayBrokePDH=false | above_dayHighSoFar=true | above_midpoint=true | above_PDO=true'
+VARIABLES = 'PD_trend=PD_green | above_ONH=true | above_ONL=true | above_dayHighSoFar=true | above_dayLowSoFar=true | above_midpoint=true | dayBrokePDH=false | openGap_info=unknown'
 
 OUTPUT =
   format(
@@ -98,7 +98,7 @@ def build_trade_from_row(row)
 
   FM.apply_trade_fields!(trade, magic)
 
-  trade[:session] = row['session'].to_s.strip
+  trade[:session] = row['sessionSent'].to_s.strip
   trade[:levelTag] = row['levelTag'].to_s.strip
   trade[:openGap_info] = row['openGap_info'].to_s.strip
   trade[:PD_trend] = row['PD_trend'].to_s.strip

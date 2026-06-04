@@ -47,7 +47,11 @@ end
 longs, shorts = algo_ids.partition { |id| SmashMql5AlgoReader.direction(params_by_algo[id]["trades_short"]) == "long" }
 longs_enabled, longs_disabled = longs.partition { |id| params_by_algo[id]["enabled"] == "true" }
 shorts_enabled, shorts_disabled = shorts.partition { |id| params_by_algo[id]["enabled"] == "true" }
+all_enabled = algo_ids.select { |id| params_by_algo[id]["enabled"] == "true" }
+all_disabled = algo_ids.select { |id| params_by_algo[id]["enabled"] != "true" }
 puts "longs (enabled): #{longs_enabled.join(', ')}"
 puts "longs (disabled): #{longs_disabled.join(', ')}"
 puts "shorts (enabled): #{shorts_enabled.join(', ')}"
 puts "shorts (disabled): #{shorts_disabled.join(', ')}"
+puts "all (enabled): #{all_enabled.join(', ')}"
+puts "all (disabled): #{all_disabled.join(', ')}"

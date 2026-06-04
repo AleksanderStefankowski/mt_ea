@@ -4,11 +4,13 @@ to daily levels whose levelPrice matches any weekly level in the same week.
 Add weekday to every daily level's categories (same as daily smash).
 Extend weekly levels' categories with "stacked" and weekdays when stacked with daily(s).
 Write result to levelsinfo_zeFinal.csv, skipping levels that have both daily and stacked.
+Then re-open zeFinal and drop 100% identical duplicate data rows (first kept).
 """
 
 import os
 import json
 import csv
+import io
 from datetime import datetime
 
 WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
@@ -113,6 +115,43 @@ def write_csv(levels, out_path):
     return written, skipped
 
 
+def format_csv_row(row):
+    buf = io.StringIO()
+    csv.writer(buf).writerow(row)
+    return buf.getvalue().rstrip("\r\n")
+
+
+def remove_identical_duplicate_lines(csv_path):
+    """Re-read zeFinal CSV, drop 100% identical data rows (keep first), rewrite file."""
+    with open(csv_path, encoding="utf-8", newline="") as f:
+        rows = list(csv.reader(f))
+
+    if len(rows) <= 1:
+        return 0
+
+    header = rows[0]
+    seen = set()
+    kept = [header]
+    removed = []
+
+    for row in rows[1:]:
+        key = tuple(row)
+        if key in seen:
+            removed.append(row)
+            continue
+        seen.add(key)
+        kept.append(row)
+
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        csv.writer(f).writerows(kept)
+
+    print("Duplicate lines removed:", len(removed))
+    for row in removed:
+        print(format_csv_row(row))
+
+    return len(removed)
+
+
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     levels = load_raw(script_dir)
@@ -121,6 +160,12 @@ def main():
     process_duplicates(levels, week_prices)
     out_path = os.path.join(script_dir, "levelsinfo_zeFinal.csv")
     written, skipped_daily_stacked = write_csv(levels, out_path)
+
+    # to jesli pullnę te same mejle, nie bedzie dupes
+    print("Deduping identical lines in", out_path)
+    remove_identical_duplicate_lines(out_path)
+
+    print("Deduping identical lines in", out_path)
     cats_strs = ["_".join(lev["categories"]) for lev in levels]
     n_daily_stacked = sum(1 for s in cats_strs if "daily" in s and "stacked" in s)
     n_weekly_stacked = sum(1 for s in cats_strs if "weekly" in s and "stacked" in s)
@@ -130,7 +175,7 @@ def main():
     print("Weekly levels containing 'stacked':", n_weekly_stacked)
     print("Levels not written (daily and stacked):", skipped_daily_stacked)
     print("\n")
-    print(r"!!!!!!!!!!!!  MAKE SURE TO PUT LEVELS FILE IN METATRADER5 SHARED FILES DIR C:\Users\Aleks\AppData\Roaming\MetaQuotes\Terminal\Common\Files !!!!!!!!!!!!!!")
+    print(r"!!!!!!!!!!!!  MAKE SURE REMEMBER TO PUT LEVELS FILE IN METATRADER5 SHARED FILES DIR C:\Users\Aleks\AppData\Roaming\MetaQuotes\Terminal\Common\Files !!!!!!!!!!!!!!")
     print("\n")
 
 if __name__ == "__main__":

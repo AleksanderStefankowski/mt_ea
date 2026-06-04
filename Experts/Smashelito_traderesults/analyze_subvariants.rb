@@ -286,7 +286,7 @@ csv.each do |row|
   # =======================================================
 
   trade[:session] =
-    row['session'].to_s.strip
+    row['sessionSent'].to_s.strip
 
   trade[:levelTag] =
     row['levelTag'].to_s.strip

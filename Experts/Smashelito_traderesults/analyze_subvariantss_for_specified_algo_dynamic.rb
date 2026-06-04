@@ -13,15 +13,14 @@ FM = SmashMql5AlgoReader::FalgoMagic
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
 # Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
-# MAGIC_PREFIXES_TO_ANALYZE = [11]
-
-MAGIC_PREFIXES_TO_ANALYZE = [12]
+MAGIC_PREFIXES_TO_ANALYZE = [14]
 
 # Minimum grp size sweep: collect at min, then per session keep rows at highest threshold still non-empty.
-TRADE_COUNT_RANGE = [3, 40].freeze
+TRADE_COUNT_RANGE = [4, 40].freeze
 
-MERGE_SAME_RESULTS = true # if true, when there is a same session slice, same profit factor, same grouping_sampledates row, it should be merged into 1 row as the only difference between such rows is variables
-, so the variables for this row should be merged into 1 uniq list 
+# Same session slice + PF + sample dates → one row; split variables on |, union uniq tokens.
+MERGE_SAME_RESULTS = true
+
 MINIMUM_PROFITFACTOR = 2.75
 # Profit Factor (PF)	Winrate (WR)
 # 0.2	16.67%
@@ -215,6 +214,47 @@ def stringify_group(group_hash)
   end.join(' | ')
 end
 
+def variable_tokens_from_group_string(group_string)
+  group_string
+    .split('|')
+    .map(&:strip)
+    .reject(&:empty?)
+end
+
+def variable_tokens_for_result(result)
+  variable_tokens_from_group_string(stringify_group(result[:values]))
+end
+
+def merge_same_results_rows(results)
+  return results unless MERGE_SAME_RESULTS
+
+  results
+    .group_by do |r|
+      [
+        r[:analysis_set],
+        r[:magic_prefix],
+        r[:pf].round(4),
+        r[:grouping_sampledates]
+      ]
+    end
+    .values
+    .map do |bucket|
+      base = bucket.first
+      merged_variables =
+        bucket
+          .flat_map { |r| variable_tokens_for_result(r) }
+          .uniq
+          .sort
+
+      base.merge(merged_variables: merged_variables)
+    end
+end
+
+def variables_for_csv_row(result)
+  tokens = result[:merged_variables] || variable_tokens_for_result(result)
+  tokens.join(' | ')
+end
+
 def ref_variable?(sym)
   s = sym.to_s
   s.start_with?('below_') || s.start_with?('above_')
@@ -314,7 +354,7 @@ csv.each do |row|
   # =======================================================
 
   trade[:session] =
-    row['session'].to_s.strip
+    row['sessionSent'].to_s.strip
 
   trade[:levelTag] =
     row['levelTag'].to_s.strip
@@ -487,14 +527,23 @@ ANALYSIS_SETS.each do |analysis_set|
   kept.each { |r| r[:min_trades_threshold] = threshold }
   csv_results.concat(kept)
 
-  best =
-    kept.max_by { |r| [r[:pf], r[:net_profit], r[:trades]] }
-
   slice_summaries << {
     set_name: set_name,
     threshold: threshold,
-    best: best
+    best: nil
   }
+end
+
+csv_results = merge_same_results_rows(csv_results)
+
+slice_summaries.each do |summary|
+  next if summary[:threshold].nil?
+
+  set_rows =
+    csv_results.select { |r| r[:analysis_set] == summary[:set_name] }
+
+  summary[:best] =
+    set_rows.max_by { |r| [r[:pf], r[:net_profit], r[:trades]] } unless set_rows.empty?
 end
 
 # =========================================================
@@ -550,8 +599,8 @@ if SAVE_CSV_TO_FILE
         grp_traderate: r[:group_trade_rate].round(2),
         grp_winrate: r[:winrate].round(2),
         grp_net_profit: r[:net_profit].round(2),
-        variable_count: r[:vars].size,
-        variables: stringify_group(r[:values]),
+        variable_count: (r[:merged_variables] || variable_tokens_for_result(r)).size,
+        variables: variables_for_csv_row(r),
         grouping_sampledates: r[:grouping_sampledates]
       }
     end
