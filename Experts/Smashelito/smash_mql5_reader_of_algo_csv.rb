@@ -56,7 +56,7 @@ CSV.open(OUT_CSV, "w") do |csv|
       p["max_intraday_contactAndProx_today_allowed"] || "",
       p["min_onoAboveLevel"] || "",
       p["min_onoBelowLevel"] || "",
-      p["max_allowed_shorts_perLevel_perDay_forThisAlgo"] || "",
+      p["max_allowed_trades_perLevel_perDay_forThisAlgo"] || "",
       t["stop_trading_today_if_thisAlgo_total_trades_count"] || "",
       SmashMql5AlgoReader.format_fields(p, SmashMql5AlgoReader::BOUNCE_CEILING_FIELDS),
       SmashMql5AlgoReader.format_fields(p, SmashMql5AlgoReader::PLACEMENT_FIELDS),

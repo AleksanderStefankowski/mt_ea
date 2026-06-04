@@ -2,6 +2,9 @@
 
 require 'csv'
 require 'set'
+require_relative '../Smashelito/smash_mql5_algo_reader_lib'
+
+FM = SmashMql5AlgoReader::FalgoMagic
 
 # =========================================================
 # CONFIG
@@ -10,15 +13,38 @@ require 'set'
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
 # Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
-MAGIC_PREFIXES_TO_ANALYZE = [14]
+# MAGIC_PREFIXES_TO_ANALYZE = [11]
 
-MINIMUM_TRADES_IN_GROUPING_FULL = 8
-MINIMUM_TRADES_IN_GROUPING_ON = 5
-MINIMUM_TRADES_IN_GROUPING_RTHIB = 2
-MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 4
+# MINIMUM_TRADES_IN_GROUPING_FULL = 11
+# MINIMUM_TRADES_IN_GROUPING_ON = 8
+# MINIMUM_TRADES_IN_GROUPING_RTHIB = 4
+# MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 7
+
+MAGIC_PREFIXES_TO_ANALYZE = [11]
+
+MINIMUM_TRADES_IN_GROUPING_FULL = 11
+MINIMUM_TRADES_IN_GROUPING_ON = 8
+MINIMUM_TRADES_IN_GROUPING_RTHIB = 4
+MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 7
+
 
 SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT = false  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-MINIMUM_PROFITFACTOR = 2.75
+MINIMUM_PROFITFACTOR = 2.5
+# Profit Factor (PF)	Winrate (WR)
+# 0.2	16.67%
+# 0.33	24.81%
+# 0.5	33.33%
+# 0.75	42.86%
+# 1	50.00%
+# 2	66.67%
+# 2.5	71.43%
+# 3	75.00%
+# 3.5	77.78%
+# 4	80.00%
+# 4.5	81.82%
+# 5	83.33%
+# 6	85.71%
+# 7	87.50%
 MAXIMUM_PROFITFACTOR = 9999999999999999999999999.9
 # Collect pf >= MIN (including above MAX). Per analysis_set + magic_prefix: anchor = max
 # grp_trades among in-range rows; keep in-range + out-of-range rows with grp_trades == anchor.
@@ -302,29 +328,8 @@ csv.each do |row|
 
   trade = {}
 
-  # =======================================================
-  # ROOT GROUP
-  # =======================================================
-
+  FM.apply_trade_fields!(trade, magic)
   trade[:magic_prefix] = magic_prefix
-
-  # =======================================================
-  # DAY OF WEEK
-  # 4th digit of magic
-  # =======================================================
-
-  dow_digit =
-    magic[3]
-
-  trade[:day_of_week] =
-    case dow_digit
-    when '1' then 'MON'
-    when '2' then 'TUE'
-    when '3' then 'WED'
-    when '4' then 'THU'
-    when '5' then 'FRI'
-    else 'UNKNOWN'
-    end
 
   # =======================================================
   # STANDARD VARIABLES

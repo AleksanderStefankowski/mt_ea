@@ -16,7 +16,7 @@ module SmashMql5AlgoReader
     max_daystart_earlierWeek_contactAndProx_allowed
     max_intraday_contactAndProx_today_allowed
     min_onoAboveLevel min_onoBelowLevel min_levelOnoAbsDiff
-    max_allowed_shorts_perLevel_perDay_forThisAlgo
+    max_allowed_trades_perLevel_perDay_forThisAlgo
   ].freeze
 
   GAP_DAY_FIELDS = %w[
@@ -105,7 +105,7 @@ module SmashMql5AlgoReader
       [/AlgoRuleAdd_CleanStreakShort\([^,]+,\s*([^,]+),\s*([^)]+)\)/,
        ->(m) { "CleanStreakShort(min_streak=#{resolve(m[1], params)}, min_anchorBelow=#{resolve(m[2], params)})" }],
       [/AlgoRuleAdd_BounceCountTooHigh\([^,]+,\s*([^)]+)\)/,
-       ->(m) { "dailyBounceCountTooHigh(max=#{resolve(m[1], params)})" }],
+       ->(m) { "todayBounceCountTooHigh(max=#{resolve(m[1], params)})" }],
       [/AlgoRuleAdd_WeekBounceCountTooLow\([^,]+,\s*([^)]+)\)/,
        ->(m) { "WeekBounceCountTooLow(min=#{resolve(m[1], params)})" }],
       [/AlgoRuleAdd_WeekBounceCountTooHigh\([^,]+,\s*([^)]+)\)/,
@@ -119,11 +119,11 @@ module SmashMql5AlgoReader
       [/AlgoRuleAdd_DayStartEarlierWeekContactTooHigh\([^,]+,\s*([^)]+)\)/,
        ->(m) { "earlierWeekContactTooHigh(max=#{resolve(m[1], params)})" }],
       [/AlgoRuleAdd_DayContactTodayTooHigh\([^,]+,\s*([^)]+)\)/,
-       ->(m) { "contactTodayTooHigh(max=#{resolve(m[1], params)})" }],
+       ->(m) { "contactAndProximityCandlesTodayTooHigh(max=#{resolve(m[1], params)})" }],
       [/AlgoRuleAdd_CeilingCountTooLow\([^,]+,\s*([^)]+)\)/,
        ->(m) { "dailyCeilingCountTooLow(min=#{resolve(m[1], params)})" }],
       [/AlgoRuleAdd_CeilingCountTooHigh\([^,]+,\s*([^,]+),\s*([^)]+)\)/,
-       ->(m) { "CeilingCountTooHigh(max=#{resolve(m[1], params)}, tag=#{resolve(m[2], params)})" }],
+       ->(m) { "todayCeilingCountTooHigh(max=#{resolve(m[1], params)})" }],
       [/AlgoRuleAdd_CeilingProximityCandlesTooHigh\([^,]+,\s*([^,]+),\s*([^)]+)\)/,
        ->(m) { "CeilingProximityCandlesTooHigh(max=#{resolve(m[1], params)}, tag=#{resolve(m[2], params)})" }],
       [/AlgoRuleAdd_LevelOnoAbsDiffTooLow\([^,]+,\s*([^)]+)\)/,
@@ -170,9 +170,103 @@ module SmashMql5AlgoReader
     rules_by_algo = {}
     return rules_by_algo unless rule_switch
 
-    rule_switch.scan(/case\s+MAGIC_ALGO(\d+):\s*(.*?)(?=case\s+MAGIC_ALGO|\z)/m) do |id, body|
-      rules_by_algo[id.to_i] = body.lines.filter_map { |ln| parse_rule_line(ln, params_by_algo[id.to_i]) }
+    pending_ids = []
+    body_lines = []
+
+    rule_switch.each_line do |line|
+      stripped = line.sub(%r{//.*}, "").strip
+      if (m = stripped.match(/\Acase\s+MAGIC_ALGO(\d+):\z/))
+        pending_ids << m[1].to_i
+      elsif stripped == "break;"
+        pending_ids.each do |id|
+          rules_by_algo[id] = body_lines.filter_map { |ln| parse_rule_line(ln, params_by_algo[id]) }
+        end
+        pending_ids = []
+        body_lines = []
+      elsif !stripped.empty? && !pending_ids.empty?
+        body_lines << line
+      end
     end
+
     rules_by_algo
+  end
+
+  # 18-digit Falgo composite magic (smashelito.mq5 layout).
+  module FalgoMagic
+    MAGIC_LEN = 18
+
+    DAY_LABEL = {
+      "1" => "MON",
+      "2" => "TUE",
+      "3" => "WED",
+      "4" => "THU",
+      "5" => "FRI"
+    }.freeze
+
+    module_function
+
+    def pad_magic(raw)
+      s = raw.to_s.strip
+      raise ArgumentError, "Magic must be #{MAGIC_LEN} digits (got #{s.length}: #{s})" unless s.match?(/\A\d+\z/)
+      raise ArgumentError, "Magic must be at most #{MAGIC_LEN} digits (got #{s.length})" if s.length > MAGIC_LEN
+
+      s.rjust(MAGIC_LEN, "0")
+    end
+
+    def level_slot_label(slot)
+      return "tertiary RTHO" if slot == 0
+      return "tertiary PDrthClose" if slot == 1
+      if slot >= 10 && slot <= 30
+        center = 20
+        return "weekly smash" if slot == center
+        return "weekly up#{slot - center}" if slot > center
+
+        return "weekly down#{center - slot}"
+      end
+      if slot >= 50 && slot <= 70
+        center = 60
+        return "daily smash" if slot == center
+        return "daily up#{slot - center}" if slot > center
+
+        return "daily down#{center - slot}"
+      end
+      "unknown (#{slot})"
+    end
+
+    def parse(raw_magic)
+      m = pad_magic(raw_magic)
+      {
+        raw: m,
+        algo: m[0, 2].to_i,
+        direction: m[2].to_i,
+        day_of_week_digit: m[3],
+        day_of_week: DAY_LABEL[m[3]] || "UNKNOWN",
+        level_slot: m[4, 2].to_i,
+        bounce_count: m[6].to_i,
+        ceiling_count: m[7].to_i,
+        offset_tenths: m[8, 2].to_i,
+        plan_trade_num: m[10].to_i,
+        level_trade_num: m[11].to_i,
+        babysit_minute: m[12].to_i,
+        unused_slot: m[13].to_i,
+        tp_whole: m[14, 2].to_i,
+        sl_whole: m[16, 2].to_i
+      }
+    end
+
+    def apply_trade_fields!(trade, raw_magic)
+      d = parse(raw_magic)
+      trade[:magic_prefix] = format("%02d", d[:algo])
+      trade[:direction_magic] = d[:direction]
+      trade[:day_of_week] = d[:day_of_week]
+      trade[:levelSlot] = d[:level_slot]
+      trade[:levelSlotLabel] = level_slot_label(d[:level_slot])
+      trade[:bounce_count] = d[:bounce_count]
+      trade[:ceiling_count] = d[:ceiling_count]
+      trade[:offset_tenths] = d[:offset_tenths]
+      trade[:plan_trade_num] = d[:plan_trade_num]
+      trade[:level_trade_num] = d[:level_trade_num]
+      trade
+    end
   end
 end

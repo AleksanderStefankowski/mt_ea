@@ -38,16 +38,16 @@ bool     InpEODLogging = true;  // if true: write EOD logs in eod_log_start/end 
 //--- Log to file: set false to disable that log (optimization)
 //    finalLog_ = one file across whole run; dailyEODlog_ = daily once at EOD; dailySpamLog_ = daily and frequent
 bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
-bool     dailyEODlog_EodTradesSummary = true;  // (date)_summary_EOD_tradesSummary1line.csv
+bool     dailyEODlog_EodTradesSummary = false;  // (date)_summary_EOD_tradesSummary1line.csv
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
-bool     dailySpamLog_LivePrice       = true;  // (date)_testing_liveprice.csv 21:35-21:37
+bool     dailySpamLog_LivePrice       = false;  // (date)_testing_liveprice.csv 21:35-21:37
 bool     dailyEODlog_DayStat          = true;  // (date)_dayPriceStat_and_gapstat_log.csv (TryLogDayStatForCurrentDay)
 bool     dailyEODlog_Gaplog           = true;  // (date)_gaplog.csv — per M1: PDC/RTH open, gap fill %, gap range, Gap_as_%_of_ONrange, ON, closest levels
 bool     dailyLog_StaticMarketContext = true;  // (date)_staticMarketContext_log.csv — PDO/PDH/PDL/PDC once per day right after UpdateStaticMarketContext
 
 bool     finalLog_DayStatSummary      = true;  // dayPriceStat_and_gapstat_summaryLog_gapDowns.csv + _gapUps.csv (WriteDayStatSummaryCsv)
 bool     finalLog_TradeLog            = true; // (date)_B_TradeLog_algoN.csv per wired algo (WriteTradeLog)
-bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
+bool     dailySpamLog_AllCandles      = false;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
@@ -60,7 +60,7 @@ bool     dailyEODlog_PullingHistoryAlgoFamily = true;  // (date)_pullinghistory_
 bool     bigflipper_log_B_TradeLog                         = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
-bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_algoN_gates_per_minute.csv — enabled algos only
+bool     bigflipper_log_algo_gates_per_minute              = false;  // (date)_algoN_gates_per_minute.csv — enabled algos only
 int      eod_log_start_hour                                =  21;  // originally 21 // EOD log window start (server time; broker clock incl. DST)
 int      eod_log_start_minute                              =  58;  // originally 58
 int      eod_log_end_hour                                  =  22;  // originally 22 EOD log window end inclusive (server time)
@@ -3828,22 +3828,20 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 #define FALGO_MAGIC_LENGTH_DIRECTION      1
 #define FALGO_MAGIC_INDEX_DAY_OF_WEEK     3   // 1..5 Mon..Fri
 #define FALGO_MAGIC_LENGTH_DAY_OF_WEEK    1
-#define FALGO_MAGIC_INDEX_LEVEL_TIER      4   // 0=tertiary (unused); 1..9 ladder tier (weekly/daily tags)
-#define FALGO_MAGIC_LENGTH_LEVEL_TIER     1
-#define FALGO_MAGIC_INDEX_BOUNCE          5   // 0..8 capped
+#define FALGO_MAGIC_INDEX_LEVEL_SLOT      4   // %02d level tag slot (00=RTHO; 01=PDC; 10..30 weekly; 50..70 daily)
+#define FALGO_MAGIC_LENGTH_LEVEL_SLOT     2
+#define FALGO_MAGIC_INDEX_BOUNCE          6   // 0..8 capped
 #define FALGO_MAGIC_LENGTH_BOUNCE         1
-#define FALGO_MAGIC_INDEX_CEILING         6   // 0..8 capped
+#define FALGO_MAGIC_INDEX_CEILING         7   // 0..8 capped
 #define FALGO_MAGIC_LENGTH_CEILING        1
-#define FALGO_MAGIC_INDEX_OFFSET          7   // %02d tenths (long or short offset for this plan)
+#define FALGO_MAGIC_INDEX_OFFSET          8   // %02d tenths (long or short offset for this plan)
 #define FALGO_MAGIC_LENGTH_OFFSET         2
-#define FALGO_MAGIC_INDEX_PLAN_TRADE_NUM  9   // 0..8
+#define FALGO_MAGIC_INDEX_PLAN_TRADE_NUM  10  // 0..8
 #define FALGO_MAGIC_LENGTH_PLAN_TRADE_NUM 1
-#define FALGO_MAGIC_INDEX_LEVEL_TRADE_NUM 10  // 0..8
+#define FALGO_MAGIC_INDEX_LEVEL_TRADE_NUM 11  // 0..8
 #define FALGO_MAGIC_LENGTH_LEVEL_TRADE_NUM 1
-#define FALGO_MAGIC_INDEX_BABYSIT_MIN     11  // 0..9
+#define FALGO_MAGIC_INDEX_BABYSIT_MIN     12  // 0..9
 #define FALGO_MAGIC_LENGTH_BABYSIT_MIN    1
-#define FALGO_MAGIC_INDEX_LEVEL_CATEGORY  12  // 1=weekly 2=daily 3=tertiary; stacked+both-enabled → 1 (weekly path)
-#define FALGO_MAGIC_LENGTH_LEVEL_CATEGORY 1
 #define FALGO_MAGIC_INDEX_UNUSED_SLOT     13  // reserved
 #define FALGO_MAGIC_LENGTH_UNUSED_SLOT    1
 #define FALGO_MAGIC_INDEX_TP              14  // %02d whole points
@@ -3851,9 +3849,16 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 #define FALGO_MAGIC_INDEX_SL              16  // %02d whole points
 #define FALGO_MAGIC_LENGTH_SL             2
 
-#define FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY  1
-#define FALGO_LEVEL_CATEGORY_MAGIC_DAILY   2
-#define FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY 3
+#define FALGO_MAGIC_LEVEL_SLOT_RTHO          0   // todayRTHopen
+#define FALGO_MAGIC_LEVEL_SLOT_PDRTHCLOSE    1   // PDrthClose (prior day RTH close)
+#define FALGO_MAGIC_LEVEL_SLOT_TERTIARY      0   // alias: todayRTHopen
+#define FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MIN   10
+#define FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MAX   30
+#define FALGO_MAGIC_LEVEL_SLOT_WEEKLY_SMASH 20
+#define FALGO_MAGIC_LEVEL_SLOT_DAILY_MIN    50
+#define FALGO_MAGIC_LEVEL_SLOT_DAILY_MAX    70
+#define FALGO_MAGIC_LEVEL_SLOT_DAILY_SMASH  60
+#define FALGO_MAGIC_LEVEL_SLOT_COUNT        100
 #define FALGO_DIRECTION_LONG_LIMIT        1
 #define FALGO_DIRECTION_SHORT_LIMIT       2
 #define FALGO_DIRECTION_LONG_ALT          3
@@ -3882,14 +3887,13 @@ bool AlgoPlacementParamsForAlgo(const int algoNumber, const int direction, doubl
 }
 
 #define FALGO_BANNED_RANGES_MAX           8
-#define FALGO_LEVEL_TIER_MAX              9
 
 struct BannedRangeMinutes { int startMin; int endMin; };
 BannedRangeMinutes g_falgoBannedRanges[FALGO_BANNED_RANGES_MAX];
 int g_falgoBannedRangeCount = 0;
 datetime g_falgoPlanCountersDayStart = 0;
 int g_algoPlanTradeNumToday[ALGO_FAMILY_REGISTRY_MAX];  // per wired algo (10–15); next plan # = count+1
-int g_algoLevelTradeNumByTierCategory[ALGO_FAMILY_REGISTRY_MAX][FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY + 1][FALGO_LEVEL_TIER_MAX + 1];
+int g_algoLevelTradeNumByMagicSlot[ALGO_FAMILY_REGISTRY_MAX][FALGO_MAGIC_LEVEL_SLOT_COUNT];
 int g_algoDayWins[ALGO_FAMILY_REGISTRY_MAX];
 int g_algoDayLosses[ALGO_FAMILY_REGISTRY_MAX];
 int g_algoFamilyDayWins = 0;
@@ -4082,27 +4086,14 @@ int AlgoPlanTradeNumToday(const int algoSlot1)
 }
 
 //+------------------------------------------------------------------+
-int AlgoLevelTradeNumTodayAtTierCategory(const int algoSlot1, const int tier, const int categorySlot)
+int AlgoLevelTradeNumTodayAtMagicLevelSlot(const int algoSlot1, const int levelSlot)
 {
    const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
-   if(idx < 0 || tier < 0 || tier > FALGO_LEVEL_TIER_MAX)
+   if(idx < 0 || levelSlot < 0 || levelSlot >= FALGO_MAGIC_LEVEL_SLOT_COUNT)
       return 0;
-   if(categorySlot < FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || categorySlot > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
+   if(!FalgoMagicLevelSlotIsValid(levelSlot))
       return 0;
-   if(!FalgoMagicLevelTierMatchesCategory(tier, categorySlot))
-      return 0;
-   return g_algoLevelTradeNumByTierCategory[idx][categorySlot][tier];
-}
-
-//+------------------------------------------------------------------+
-int AlgoLevelTradeNumTodayAtTier(const int algoSlot1, const int tier)
-{
-   if(tier < 0 || tier > FALGO_LEVEL_TIER_MAX)
-      return 0;
-   int total = 0;
-   for(int categorySlot = FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY; categorySlot <= FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY; categorySlot++)
-      total += AlgoLevelTradeNumTodayAtTierCategory(algoSlot1, tier, categorySlot);
-   return total;
+   return g_algoLevelTradeNumByMagicSlot[idx][levelSlot];
 }
 
 datetime g_algoGatesLastLoggedBarTime[ALGO_FAMILY_REGISTRY_MAX];
@@ -4214,14 +4205,13 @@ struct FalgoMagicKey
 {
    int direction;       // 1..4
    int dayOfWeek;       // 1..5 Mon..Fri
-   int levelTier;       // 0=tertiary (slot unused); 1..9 ladder tier for weekly/daily
+   int levelSlot;       // 00=RTHO; 01=PDC; 10..30 weekly; 50..70 daily
    int bounceCount;     // 0..8
    int ceilingCount;    // 0..8
    int offset_tenths;   // encoded 0.1..9.9 (long or short offset for this order)
    int planTradeNum;    // 0..8
    int levelTradeNum;   // 0..8
    int babysitMinute;   // 0..9
-   int levelCategory;   // magic slot 12: 1=weekly 2=daily 3=tertiary (algo assignment at placement)
    int unusedSlot;
    int tpWhole;         // 1..99
    int slWhole;
@@ -4243,24 +4233,20 @@ int FalgoCapWholeTpSlForMagic(const double points)
 //+------------------------------------------------------------------+
 long BuildAlgoMagicNumber(const int algoNumber, const FalgoMagicKey &k)
 {
-   if(k.levelCategory < FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || k.levelCategory > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-      FatalError(StringFormat("BuildAlgoMagicNumber: algo%d invalid levelCategory %d (expected 1=weekly 2=daily 3=tertiary)",
-         algoNumber, k.levelCategory));
-   if(!FalgoMagicLevelTierMatchesCategory(k.levelTier, k.levelCategory))
-      FatalError(StringFormat("BuildAlgoMagicNumber: algo%d levelTier %d invalid for levelCategory %d (tertiary→0; weekly/daily→1..9)",
-         algoNumber, k.levelTier, k.levelCategory));
-   string s = StringFormat("%02d%d%d%d%d%d%02d%d%d%d%d%d%02d%02d",
+   if(!FalgoMagicLevelSlotIsValid(k.levelSlot))
+      FatalError(StringFormat("BuildAlgoMagicNumber: algo%d invalid levelSlot %d (00=RTHO; 01=PDC; 10..30 weekly; 50..70 daily)",
+         algoNumber, k.levelSlot));
+   string s = StringFormat("%02d%d%d%02d%d%d%02d%d%d%d%d%02d%02d",
       algoNumber,
       k.direction,
       k.dayOfWeek,
-      k.levelTier,
+      k.levelSlot,
       FalgoClamp0_8(k.bounceCount),
       FalgoClamp0_8(k.ceilingCount),
       k.offset_tenths,
       FalgoClamp0_8(k.planTradeNum),
       FalgoClamp0_8(k.levelTradeNum),
       FalgoClamp0_9(k.babysitMinute),
-      k.levelCategory,
       k.unusedSlot,
       k.tpWhole,
       k.slWhole);
@@ -4275,14 +4261,13 @@ FalgoMagicKey ParseFalgoMagic(const long magic)
    FalgoMagicKey emptyKey;
    emptyKey.direction = 0;
    emptyKey.dayOfWeek = 0;
-   emptyKey.levelTier = 0;
+   emptyKey.levelSlot = 0;
    emptyKey.bounceCount = 0;
    emptyKey.ceilingCount = 0;
    emptyKey.offset_tenths = 0;
    emptyKey.planTradeNum = 0;
    emptyKey.levelTradeNum = 0;
    emptyKey.babysitMinute = 0;
-   emptyKey.levelCategory = 0;
    emptyKey.unusedSlot = 0;
    emptyKey.tpWhole = 0;
    emptyKey.slWhole = 0;
@@ -4292,14 +4277,13 @@ FalgoMagicKey ParseFalgoMagic(const long magic)
    FalgoMagicKey k;
    k.direction = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_DIRECTION, FALGO_MAGIC_LENGTH_DIRECTION));
    k.dayOfWeek = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_DAY_OF_WEEK, FALGO_MAGIC_LENGTH_DAY_OF_WEEK));
-   k.levelTier = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_LEVEL_TIER, FALGO_MAGIC_LENGTH_LEVEL_TIER));
+   k.levelSlot = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_LEVEL_SLOT, FALGO_MAGIC_LENGTH_LEVEL_SLOT));
    k.bounceCount = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_BOUNCE, FALGO_MAGIC_LENGTH_BOUNCE));
    k.ceilingCount = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_CEILING, FALGO_MAGIC_LENGTH_CEILING));
    k.offset_tenths = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_OFFSET, FALGO_MAGIC_LENGTH_OFFSET));
    k.planTradeNum = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_PLAN_TRADE_NUM, FALGO_MAGIC_LENGTH_PLAN_TRADE_NUM));
    k.levelTradeNum = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_LEVEL_TRADE_NUM, FALGO_MAGIC_LENGTH_LEVEL_TRADE_NUM));
    k.babysitMinute = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_BABYSIT_MIN, FALGO_MAGIC_LENGTH_BABYSIT_MIN));
-   k.levelCategory = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_LEVEL_CATEGORY, FALGO_MAGIC_LENGTH_LEVEL_CATEGORY));
    k.unusedSlot = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_UNUSED_SLOT, FALGO_MAGIC_LENGTH_UNUSED_SLOT));
    k.tpWhole = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_TP, FALGO_MAGIC_LENGTH_TP));
    k.slWhole = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_SL, FALGO_MAGIC_LENGTH_SL));
@@ -4658,15 +4642,6 @@ double FalgoLevelAnchorValueInSnapStreak(const PullingHistoryAlgoFamilyBarSnap &
 }
 
 //+------------------------------------------------------------------+
-int FalgoClosestLevelTierAtBarForAlgo(const int algoNumber, const int barIdx)
-{
-   const int levelIdx = FalgoClosestExpandedLevelIdxAtBarForAlgo(algoNumber, barIdx);
-   if(levelIdx < 0)
-      return 0;
-   return FalgoLevelTierFromLevelIdx(levelIdx);
-}
-
-//+------------------------------------------------------------------+
 bool FalgoPullingHistorySnapForLevelAtBar(const double levelPrice, const int barIdx,
    PullingHistoryAlgoFamilyBarSnap &outSnap)
 {
@@ -4917,9 +4892,8 @@ void FalgoResetPlanCountersIfNewDay(const datetime dayStart)
    for(int ai = 0; ai < ALGO_FAMILY_REGISTRY_MAX; ai++)
    {
       g_algoPlanTradeNumToday[ai] = 0;
-      for(int categorySlot = FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY; categorySlot <= FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY; categorySlot++)
-         for(int tier = 0; tier <= FALGO_LEVEL_TIER_MAX; tier++)
-            g_algoLevelTradeNumByTierCategory[ai][categorySlot][tier] = 0;
+      for(int levelSlot = 0; levelSlot < FALGO_MAGIC_LEVEL_SLOT_COUNT; levelSlot++)
+         g_algoLevelTradeNumByMagicSlot[ai][levelSlot] = 0;
    }
 }
 
@@ -4966,9 +4940,8 @@ void SyncFalgoPlanCountersFromTradeResults()
    for(int ai = 0; ai < ALGO_FAMILY_REGISTRY_MAX; ai++)
    {
       g_algoPlanTradeNumToday[ai] = 0;
-      for(int categorySlot = FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY; categorySlot <= FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY; categorySlot++)
-         for(int tier = 0; tier <= FALGO_LEVEL_TIER_MAX; tier++)
-            g_algoLevelTradeNumByTierCategory[ai][categorySlot][tier] = 0;
+      for(int levelSlot = 0; levelSlot < FALGO_MAGIC_LEVEL_SLOT_COUNT; levelSlot++)
+         g_algoLevelTradeNumByMagicSlot[ai][levelSlot] = 0;
    }
    for(int i = 0; i < g_tradeResultsCount; i++)
    {
@@ -4979,11 +4952,9 @@ void SyncFalgoPlanCountersFromTradeResults()
          continue;
       g_algoPlanTradeNumToday[algoIdx]++;
       FalgoMagicKey fk = ParseFalgoMagic(g_tradeResults[i].magic);
-      if(fk.levelCategory < FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || fk.levelCategory > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
+      if(!FalgoMagicLevelSlotIsValid(fk.levelSlot))
          continue;
-      if(!FalgoMagicLevelTierMatchesCategory(fk.levelTier, fk.levelCategory))
-         continue;
-      g_algoLevelTradeNumByTierCategory[algoIdx][fk.levelCategory][fk.levelTier]++;
+      g_algoLevelTradeNumByMagicSlot[algoIdx][fk.levelSlot]++;
    }
 }
 
@@ -6367,249 +6338,132 @@ string FalgoGatesColRecentCeilingCount()
 }
 
 //+------------------------------------------------------------------+
-//| Clamp ladder tier for magic: raw 1..9 → 2..8 (down4→2, up4/up5→8). Tertiary raw 0 unchanged. |
+//| Magic digits 5-6: level tag slot (00=RTHO; 01=PDC; weekly smash=20; daily smash=60). |
 //+------------------------------------------------------------------+
-int FalgoClampLadderTierForMagic(const int rawTier)
+bool FalgoMagicLevelSlotIsValid(const int levelSlot)
 {
-   if(rawTier < 1)
-      return rawTier;
-   if(rawTier < 2)
-      return 2;
-   if(rawTier > 8)
-      return 8;
-   return rawTier;
+   if(levelSlot == FALGO_MAGIC_LEVEL_SLOT_RTHO)
+      return true;
+   if(levelSlot == FALGO_MAGIC_LEVEL_SLOT_PDRTHCLOSE)
+      return true;
+   if(levelSlot >= FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MIN && levelSlot <= FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MAX)
+      return true;
+   if(levelSlot >= FALGO_MAGIC_LEVEL_SLOT_DAILY_MIN && levelSlot <= FALGO_MAGIC_LEVEL_SLOT_DAILY_MAX)
+      return true;
+   return false;
 }
 
 //+------------------------------------------------------------------+
-//| Ladder tier from weekly/daily tag (smash=5; down4..up4; down5/6, up5 → clamped). Tertiary → 0. |
+int FalgoReadLadderStepAfterKeywordInTag(const string &tLower, const string keyword)
+{
+   const int pos = StringFind(tLower, keyword);
+   if(pos < 0)
+      return 0;
+   int idx = pos + (int)StringLen(keyword);
+   int step = 0;
+   while(idx < StringLen(tLower))
+   {
+      const ushort ch = StringGetCharacter(tLower, idx);
+      if(ch >= '0' && ch <= '9')
+      {
+         step = step * 10 + (ch - '0');
+         idx++;
+      }
+      else
+         break;
+   }
+   return (step > 0) ? step : 1;
+}
+
 //+------------------------------------------------------------------+
-int FalgoLevelTierFromLevelIdx(const int levelIdx)
+int FalgoMagicLevelSlotFromLevelIdx(const int levelIdx)
 {
    if(levelIdx < 0 || levelIdx >= g_levelsTodayCount)
-      FatalError(StringFormat("FalgoLevelTierFromLevelIdx: invalid levelIdx=%d (g_levelsTodayCount=%d)", levelIdx, g_levelsTodayCount));
+      FatalError(StringFormat("FalgoMagicLevelSlotFromLevelIdx: invalid levelIdx=%d (g_levelsTodayCount=%d)", levelIdx, g_levelsTodayCount));
    const string cats = g_levelsExpanded[levelIdx].categories;
-   if(LevelIsTertiary(cats))
-      return 0;
-   string t = g_levelsExpanded[levelIdx].tag;
-   string tLower = t;
+   if(LevelIsTodayRthOpenTertiary(cats))
+      return FALGO_MAGIC_LEVEL_SLOT_RTHO;
+   if(LevelIsPDrthCloseTertiary(cats))
+      return FALGO_MAGIC_LEVEL_SLOT_PDRTHCLOSE;
+
+   string tLower = g_levelsExpanded[levelIdx].tag;
    StringToLower(tLower);
-   const bool isWeekly = (StringFind(tLower, "weekly") >= 0 || StringFind(cats, "weekly") >= 0);
-   const bool isDaily = (StringFind(tLower, "daily") >= 0 || StringFind(cats, "daily") >= 0);
-   if(!isWeekly && !isDaily)
-      FatalError(StringFormat("FalgoLevelTierFromLevelIdx: levelIdx=%d tag \"%s\" categories \"%s\" — not weekly/daily/tertiary",
-         levelIdx, t, cats));
 
-   int rawTier = 5;
+   bool weeklyBand;
+   if(StringFind(tLower, "weekly") >= 0)
+      weeklyBand = true;
+   else if(StringFind(tLower, "daily") >= 0)
+      weeklyBand = false;
+   else if(LevelIsWeeklyKind(cats))
+      weeklyBand = true;
+   else if(LevelIsDailyKind(cats) && !LevelIsWeekly(cats))
+      weeklyBand = false;
+   else
+      FatalError(StringFormat("FalgoMagicLevelSlotFromLevelIdx: levelIdx=%d tag \"%s\" categories \"%s\" — not weekly/daily/tertiary",
+         levelIdx, g_levelsExpanded[levelIdx].tag, cats));
+
+   const int center = weeklyBand ? FALGO_MAGIC_LEVEL_SLOT_WEEKLY_SMASH : FALGO_MAGIC_LEVEL_SLOT_DAILY_SMASH;
+   const int bandMin = weeklyBand ? FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MIN : FALGO_MAGIC_LEVEL_SLOT_DAILY_MIN;
+   const int bandMax = weeklyBand ? FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MAX : FALGO_MAGIC_LEVEL_SLOT_DAILY_MAX;
+
+   int slot = center;
    if(StringFind(tLower, "smash") >= 0)
-      rawTier = 5;
-   else if(StringFind(tLower, "down6") >= 0 || StringFind(tLower, "_down6") >= 0)
-      rawTier = 1;
-   else if(StringFind(tLower, "down5") >= 0 || StringFind(tLower, "_down5") >= 0)
-      rawTier = 1;
-   else if(StringFind(tLower, "down4") >= 0 || StringFind(tLower, "_down4") >= 0)
-      rawTier = 1;
-   else if(StringFind(tLower, "down3") >= 0 || StringFind(tLower, "_down3") >= 0)
-      rawTier = 2;
-   else if(StringFind(tLower, "down2") >= 0 || StringFind(tLower, "_down2") >= 0)
-      rawTier = 3;
-   else if(StringFind(tLower, "down1") >= 0 || StringFind(tLower, "_down1") >= 0)
-      rawTier = 4;
-   else if(StringFind(tLower, "down") >= 0 && isWeekly)
-      rawTier = 1;
-   else if(StringFind(tLower, "up5") >= 0 || StringFind(tLower, "_up5") >= 0)
-      rawTier = 9;
-   else if(StringFind(tLower, "up1") >= 0 || StringFind(tLower, "_up1") >= 0)
-      rawTier = 6;
-   else if(StringFind(tLower, "up2") >= 0 || StringFind(tLower, "_up2") >= 0)
-      rawTier = 7;
-   else if(StringFind(tLower, "up3") >= 0 || StringFind(tLower, "_up3") >= 0)
-      rawTier = 8;
-   else if(StringFind(tLower, "up4") >= 0 || StringFind(tLower, "_up4") >= 0)
-      rawTier = 9;
-   else if(StringFind(tLower, "up") >= 0 && isWeekly)
-      rawTier = 9;
+      slot = center;
+   else if(StringFind(tLower, "down") >= 0)
+      slot = center - FalgoReadLadderStepAfterKeywordInTag(tLower, "down");
+   else if(StringFind(tLower, "up") >= 0)
+      slot = center + FalgoReadLadderStepAfterKeywordInTag(tLower, "up");
+   else
+      FatalError(StringFormat("FalgoMagicLevelSlotFromLevelIdx: levelIdx=%d tag \"%s\" — no smash/up/down ladder token",
+         levelIdx, g_levelsExpanded[levelIdx].tag));
 
-   return FalgoClampLadderTierForMagic(rawTier);
+   if(slot < bandMin || slot > bandMax)
+      FatalError(StringFormat("FalgoMagicLevelSlotFromLevelIdx: levelIdx=%d tag \"%s\" → slot %d outside %d..%d",
+         levelIdx, g_levelsExpanded[levelIdx].tag, slot, bandMin, bandMax));
+   return slot;
 }
 
 //+------------------------------------------------------------------+
-//| Magic levelCategory slot 12: scope path that assigned this level (1 weekly, 2 daily, 3 tertiary). |
-//| Stacked + weekly+daily algo → 1 (weekly path wins, same as LevelEligibleForAlgoLevelScope). |
-//+------------------------------------------------------------------+
-bool FalgoLevelMatchesMagicCategorySlot(const string &categories, const int categorySlot)
+int FalgoExpandedLevelIdxForMagicLevelSlot(const int levelSlot)
 {
-   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-      return LevelIsTertiary(categories);
-   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY)
-      return LevelIsWeeklyKind(categories);
-   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_DAILY)
-   {
-      // weekly_*_stacked_* matches LevelIsDailyKind via "stacked" but must not win daily magic slot (e.g. tier-5 weeklySmash vs dailySmash).
-      return LevelIsDailyKind(categories) && !LevelIsWeekly(categories);
-   }
-   return false;
-}
+   if(!FalgoMagicLevelSlotIsValid(levelSlot))
+      return -1;
 
-//+------------------------------------------------------------------+
-int FalgoLevelCategoryMagicSlotForAlgoLevel(const int expandedLevelIdx, const int algoNumber, const datetime asOfTime)
-{
-   if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
-      FatalError(StringFormat("FalgoLevelCategoryMagicSlotForAlgoLevel: bad expandedLevelIdx %d", expandedLevelIdx));
-   const string categories = g_levelsExpanded[expandedLevelIdx].categories;
-   if(AlgoTradesTertiaryTodayRTHOLevel(algoNumber))
-   {
-      if(!LevelIsTodayRthOpenTertiary(categories))
-         FatalError(StringFormat("FalgoLevelCategoryMagicSlotForAlgoLevel: algo %d expected todayRTHopen tertiary for \"%s\"",
-            algoNumber, categories));
-      return FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY;
-   }
-
-   string c = categories;
-   StringToLower(c);
-   if(StringFind(c, "tertiary") >= 0)
-      return FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY;
-
-   const bool tradesWeekly = AlgoTradesWeeklyLevels(algoNumber);
-   const bool tradesDaily = AlgoTradesDailyLevels(algoNumber);
-   const bool weeklyKind = LevelIsWeeklyKind(categories);
-   const bool dailyKind = LevelIsDailyKind(categories);
-
-   if(tradesWeekly && weeklyKind)
-      return FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY;
-   if(tradesDaily && dailyKind)
-   {
-      if(!LevelEligibleForAlgoLevelScope(categories, false, true, asOfTime))
-         FatalError(StringFormat("FalgoLevelCategoryMagicSlotForAlgoLevel: daily path ineligible at %s for \"%s\"",
-            TimeToString(asOfTime, TIME_DATE|TIME_MINUTES), categories));
-      return FALGO_LEVEL_CATEGORY_MAGIC_DAILY;
-   }
-   FatalError(StringFormat("FalgoLevelCategoryMagicSlotForAlgoLevel: algo %d level \"%s\" not weekly/daily eligible",
-      algoNumber, categories));
-   return 0;
-}
-
-//+------------------------------------------------------------------+
-//+------------------------------------------------------------------+
-bool FalgoMagicLevelTierMatchesCategory(const int levelTier, const int levelCategory)
-{
-   if(levelCategory == FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-      return (levelTier == 0);
-   if(levelCategory == FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || levelCategory == FALGO_LEVEL_CATEGORY_MAGIC_DAILY)
-      return (levelTier >= 1 && levelTier <= FALGO_LEVEL_TIER_MAX);
-   return false;
-}
-
-//+------------------------------------------------------------------+
-int FalgoExpandedLevelIdxForTertiaryMagic(const double priceMatchHint = 0.0)
-{
-   int onlyIdx = -1;
-   int count = 0;
+   int matchIdx = -1;
+   int matchCount = 0;
    for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
    {
-      if(!LevelIsTertiary(g_levelsExpanded[levelIdx].categories))
+      if(FalgoMagicLevelSlotFromLevelIdx(levelIdx) != levelSlot)
          continue;
-      count++;
-      onlyIdx = levelIdx;
+      matchCount++;
+      matchIdx = levelIdx;
    }
-   if(count == 0)
+   if(matchCount == 0)
       return -1;
-   if(count == 1)
-      return onlyIdx;
-   if(priceMatchHint <= 0.0)
-      return -1;
-   int bestIdx = -1;
-   double bestDist = 1e300;
-   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
-   {
-      if(!LevelIsTertiary(g_levelsExpanded[levelIdx].categories))
-         continue;
-      const double d = MathAbs(g_levelsExpanded[levelIdx].levelPrice - priceMatchHint);
-      if(d < bestDist)
-      {
-         bestDist = d;
-         bestIdx = levelIdx;
-      }
-   }
-   return bestIdx;
-}
-
-//+------------------------------------------------------------------+
-int FalgoExpandedLevelIdxForTierAndCategorySlot(const int tier, const int categorySlot)
-{
-   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-   {
-      if(tier != 0)
-         return -1;
-      return FalgoExpandedLevelIdxForTertiaryMagic(0.0);
-   }
-   if(tier < 1 || tier > FALGO_LEVEL_TIER_MAX)
-      return -1;
-   if(categorySlot < 1 || categorySlot > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-      return -1;
-   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
-   {
-      if(FalgoLevelTierFromLevelIdx(levelIdx) != tier)
-         continue;
-      if(!FalgoLevelMatchesMagicCategorySlot(g_levelsExpanded[levelIdx].categories, categorySlot))
-         continue;
-      return levelIdx;
-   }
+   if(matchCount == 1)
+      return matchIdx;
+   FatalError(StringFormat("FalgoExpandedLevelIdxForMagicLevelSlot: levelSlot %02d matches %d levels (expected 1)",
+      levelSlot, matchCount));
    return -1;
 }
 
 //+------------------------------------------------------------------+
-int FalgoResolveExpandedLevelIdxFromMagicKey(const FalgoMagicKey &fk, const double priceMatchHint = 0.0)
+int FalgoResolveExpandedLevelIdxFromMagicKey(const FalgoMagicKey &fk)
 {
-   if(fk.levelCategory < FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || fk.levelCategory > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: invalid levelCategory %d (expected 1=weekly 2=daily 3=tertiary)",
-         fk.levelCategory));
-   if(!FalgoMagicLevelTierMatchesCategory(fk.levelTier, fk.levelCategory))
-      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: levelTier %d invalid for levelCategory %d",
-         fk.levelTier, fk.levelCategory));
-   int expandedIdx = -1;
-   if(fk.levelCategory == FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-      expandedIdx = FalgoExpandedLevelIdxForTertiaryMagic(priceMatchHint);
-   else
-      expandedIdx = FalgoExpandedLevelIdxForTierAndCategorySlot(fk.levelTier, fk.levelCategory);
+   if(!FalgoMagicLevelSlotIsValid(fk.levelSlot))
+      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: invalid levelSlot %d (00=RTHO; 01=PDC; 10..30 weekly; 50..70 daily)",
+         fk.levelSlot));
+   const int expandedIdx = FalgoExpandedLevelIdxForMagicLevelSlot(fk.levelSlot);
    if(expandedIdx < 0)
-      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: no g_levelsExpanded row for tier %d levelCategory %d (g_levelsTodayCount=%d)",
-         fk.levelTier, fk.levelCategory, g_levelsTodayCount));
+      FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: no g_levelsExpanded row for levelSlot %02d (g_levelsTodayCount=%d)",
+         fk.levelSlot, g_levelsTodayCount));
    return expandedIdx;
 }
 
 //+------------------------------------------------------------------+
-//| Today's level price for ladder tier 1..9 (weekly kinds first, then daily). Prefer FalgoLevelPriceForMagicKey. |
-//+------------------------------------------------------------------+
-double FalgoWeeklyLevelPriceForTier(const int tier)
+double FalgoLevelPriceForMagicKey(const FalgoMagicKey &fk)
 {
-   if(tier < 1 || tier > FALGO_LEVEL_TIER_MAX)
-      FatalError(StringFormat("FalgoWeeklyLevelPriceForTier: tier %d out of range (use FalgoLevelPriceForMagicKey for tertiary)", tier));
-   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
-   {
-      if(LevelIsWeeklyKind(g_levelsExpanded[levelIdx].categories))
-      {
-         if(FalgoLevelTierFromLevelIdx(levelIdx) != tier)
-            continue;
-         return g_levelsExpanded[levelIdx].levelPrice;
-      }
-   }
-   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
-   {
-      if(!LevelIsDailyNonTertiary(g_levelsExpanded[levelIdx].categories))
-         continue;
-      if(FalgoLevelTierFromLevelIdx(levelIdx) != tier)
-         continue;
-      return g_levelsExpanded[levelIdx].levelPrice;
-   }
-   FatalError(StringFormat("FalgoWeeklyLevelPriceForTier: no weekly/daily level in g_levelsExpanded for tier %d (g_levelsTodayCount=%d)",
-      tier, g_levelsTodayCount));
-   return 0.0;
-}
-
-//+------------------------------------------------------------------+
-double FalgoLevelPriceForMagicKey(const FalgoMagicKey &fk, const double priceMatchHint = 0.0)
-{
-   const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk, priceMatchHint);
+   const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk);
    return g_levelsExpanded[levelIdx].levelPrice;
 }
 
@@ -6634,10 +6488,10 @@ void FalgoEnrichTradeResultLevelTpSl(TradeResult &tr)
    if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
       return;
    FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
-   if(!FalgoMagicLevelTierMatchesCategory(fk.levelTier, fk.levelCategory))
-      FatalError(StringFormat("FalgoEnrichTradeResultLevelTpSl: magic %s levelTier %d invalid for levelCategory %d",
-         IntegerToString(tr.magic), fk.levelTier, fk.levelCategory));
-   const double levelPrice = FalgoLevelPriceForMagicKey(fk, tr.priceStart);
+   if(!FalgoMagicLevelSlotIsValid(fk.levelSlot))
+      FatalError(StringFormat("FalgoEnrichTradeResultLevelTpSl: magic %s invalid levelSlot %d",
+         IntegerToString(tr.magic), fk.levelSlot));
+   const double levelPrice = FalgoLevelPriceForMagicKey(fk);
    double tpPts = 0.0, slPts = 0.0;
    FalgoEffectiveTpSlPointsFromMagicKey(fk, tpPts, slPts);
    tr.level = DoubleToString(levelPrice, _Digits);
@@ -6727,41 +6581,22 @@ bool FalgoMagicKeyIsShortDirection(const FalgoMagicKey &k)
 }
 
 //+------------------------------------------------------------------+
-int FalgoClosestWeeklyLevelTierAtBar(const int barIdx)
+bool FalgoClosestLevelMagicSlotAtBarForAlgo(const int algoNumber, const int barIdx, int &outLevelSlot)
 {
-   const int levelIdx = FalgoClosestExpandedLevelIdxAtBar(barIdx);
-   if(levelIdx < 0)
-      return 0;
-   return FalgoLevelTierFromLevelIdx(levelIdx);
-}
-
-//+------------------------------------------------------------------+
-bool FalgoClosestLevelTierAndCategoryAtBarForAlgo(const int algoNumber, const int barIdx, int &outTier, int &outCategorySlot)
-{
-   outTier = 0;
-   outCategorySlot = 0;
+   outLevelSlot = 0;
    const int levelIdx = FalgoClosestExpandedLevelIdxAtBarForAlgo(algoNumber, barIdx);
    if(levelIdx < 0)
       return false;
-   outTier = FalgoLevelTierFromLevelIdx(levelIdx);
-   outCategorySlot = FalgoLevelCategoryMagicSlotForAlgoLevel(levelIdx, algoNumber, FalgoLevelEligibilityTimeForBar(barIdx));
+   outLevelSlot = FalgoMagicLevelSlotFromLevelIdx(levelIdx);
    return true;
 }
 
 //+------------------------------------------------------------------+
-bool FalgoTradeLevelSlotValidForLimit(const int tier, const int categorySlot)
-{
-   if(categorySlot < FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY || categorySlot > FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-      return false;
-   return FalgoMagicLevelTierMatchesCategory(tier, categorySlot);
-}
-
+//| Today's trades + pending for this algo at magic levelSlot. Matches placement magic encoding. |
 //+------------------------------------------------------------------+
-//| Today's trades + pending for this algo at (levelTier, levelCategory magic slot). Matches placement magic encoding. |
-//+------------------------------------------------------------------+
-int FalgoTradeCountTodayAtTierCategoryForThisAlgo(const int algoNumber, const int tier, const int categorySlot)
+int FalgoTradeCountTodayAtLevelSlotForThisAlgo(const int algoNumber, const int levelSlot)
 {
-   if(!FalgoTradeLevelSlotValidForLimit(tier, categorySlot))
+   if(!FalgoMagicLevelSlotIsValid(levelSlot))
       return 0;
    const int slotIdx = AlgoSlotIndexByAlgoId(algoNumber);
    const bool wantShort = (slotIdx >= 0 && g_algos[slotIdx].trades_short);
@@ -6771,7 +6606,7 @@ int FalgoTradeCountTodayAtTierCategoryForThisAlgo(const int algoNumber, const in
       if(!IsAlgoCompositeMagic(g_tradeResults[i].magic, algoNumber))
          continue;
       const FalgoMagicKey fk = ParseFalgoMagic(g_tradeResults[i].magic);
-      if(fk.levelTier != tier || fk.levelCategory != categorySlot || FalgoMagicKeyIsShortDirection(fk) != wantShort)
+      if(fk.levelSlot != levelSlot || FalgoMagicKeyIsShortDirection(fk) != wantShort)
          continue;
       count++;
    }
@@ -6785,28 +6620,11 @@ int FalgoTradeCountTodayAtTierCategoryForThisAlgo(const int algoNumber, const in
       if(!IsAlgoCompositeMagic(magic, algoNumber))
          continue;
       const FalgoMagicKey fk = ParseFalgoMagic(magic);
-      if(fk.levelTier != tier || fk.levelCategory != categorySlot || FalgoMagicKeyIsShortDirection(fk) != wantShort)
+      if(fk.levelSlot != levelSlot || FalgoMagicKeyIsShortDirection(fk) != wantShort)
          continue;
       count++;
    }
    return count;
-}
-
-//+------------------------------------------------------------------+
-int FalgoTradeCountTodayAtTierForThisAlgo(const int algoNumber, const int tier)
-{
-   if(tier < 1 || tier > FALGO_LEVEL_TIER_MAX)
-      return 0;
-   int total = 0;
-   for(int categorySlot = FALGO_LEVEL_CATEGORY_MAGIC_WEEKLY; categorySlot <= FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY; categorySlot++)
-      total += FalgoTradeCountTodayAtTierCategoryForThisAlgo(algoNumber, tier, categorySlot);
-   return total;
-}
-
-//+------------------------------------------------------------------+
-int FalgoShortTradeCountTodayAtTierForThisAlgo(const int algoNumber, const int tier)
-{
-   return FalgoTradeCountTodayAtTierForThisAlgo(algoNumber, tier);
 }
 
 
@@ -6826,7 +6644,7 @@ bool FalgoProfileAllowsNewOrdersNow()
 
 //+------------------------------------------------------------------+
 void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const datetime evalTime,
-   string &outCloseVsLevel, string &outDirection, int &outTier,
+   string &outCloseVsLevel, string &outDirection, int &outLevelSlot,
    bool &outProxOK, bool &outBounceOK, bool &outCeilingOK, bool &outWeeklyOK,
    bool &outClosestLevelCategoryOK, bool &outClosestLevelPlacementOK,
    bool &outMagicFree, bool &outUnderLossStop, bool &outUnderWinStop,
@@ -6835,7 +6653,7 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
 {
    outCloseVsLevel = "no_level";
    outDirection = "none";
-   outTier = 0;
+   outLevelSlot = 0;
    outProxOK = false;
    outBounceOK = false;
    outCeilingOK = false;
@@ -6899,7 +6717,7 @@ void AlgoEvaluateGatesAtBarForAlgo(const int algoSlot1, const int barIdx, const 
       outClosestLevelCategoryOK = FalgoLevelEligibleForAlgo(levelIdx, algoSlot1, FalgoLevelEligibilityTimeForBar(barIdx));
       outClosestLevelPlacementOK = outClosestLevelCategoryOK;
       if(outClosestLevelCategoryOK)
-         outTier = FalgoLevelTierFromLevelIdx(levelIdx);
+         outLevelSlot = FalgoMagicLevelSlotFromLevelIdx(levelIdx);
    }
 
    if(isShortAlgo)
@@ -7046,7 +6864,7 @@ string FalgoOffsetPriceUnitsStrForTrade(const TradeResult &tr)
 }
 
 //+------------------------------------------------------------------+
-//| Raw g_levelsExpanded[].tag for trade row (from level price / magic tier). |
+//| Raw g_levelsExpanded[].tag for trade row (from magic levelSlot → level index). |
 //+------------------------------------------------------------------+
 string FalgoLevelTagUneditedForTradeResult(const TradeResult &tr)
 {
@@ -7058,7 +6876,7 @@ string FalgoLevelTagUneditedForTradeResult(const TradeResult &tr)
       return g_levelsExpanded[levelIdx].tag;
    }
    const FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
-   const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk, tr.priceStart);
+   const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk);
    return g_levelsExpanded[levelIdx].tag;
 }
 
@@ -7068,6 +6886,15 @@ void FalgoPlanAndLevelTradeNumsFromMagic(const long magic, int &outPlanTradeNumT
    const FalgoMagicKey fk = ParseFalgoMagic(magic);
    outPlanTradeNumToday = fk.planTradeNum;
    outLevelTradeNumToday = fk.levelTradeNum;
+}
+
+//+------------------------------------------------------------------+
+string FalgoLevelSlotStrForMagic(const long magic)
+{
+   if(!IsAnyAlgoFamilyCompositeMagic(magic))
+      return "";
+   const FalgoMagicKey fk = ParseFalgoMagic(magic);
+   return StringFormat("%02d", fk.levelSlot);
 }
 
 //+------------------------------------------------------------------+
@@ -7349,7 +7176,7 @@ void AlgoWriteGatesLogHeaderIfNeeded(const int fh, const int algoSlot1)
       "tradeAgeSeconds", "openProfitPts", "secondsGreen", "secondsRed", "greenRatio",
       "consecutiveGreen", "consecutiveRed", AlgoGatesColProfitVelocity(algoSlot1), "profitFromPeak",
       "closestProximity", "level_anchorValue_in_streak", "level_cleanOHLC_streak", "bounceCount_today", FalgoGatesColRecentBounceCount(), "ceilingCount_today", "ceilingProximityCandles_today", FalgoGatesColRecentCeilingCount(), "weekCeilingCount_withDaily",
-      "closeVsLevel", "direction", "levelTier",
+      "closeVsLevel", "direction", "levelSlot",
       "plannedTradeNumber", "dayWins", "dayLosses");
 }
 
@@ -7406,13 +7233,13 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
    }
 
    string closeVs = "", direction = "";
-   int tier = 0;
+   int levelSlot = 0;
    bool proxOK = false, bounceOK = false, ceilingOK = false, weeklyOK = false;
    bool closestLevelCategoryOK = false, closestLevelPlacementOK = false;
    bool magicFree = false;
    bool underLoss = false, underWin = false, noOpen = false, noPending = false;
    bool rulesCommon = false, rulesDir = false;
-   AlgoEvaluateGatesAtBarForAlgo(algoSlot1, dataBarIdx, evalTime, closeVs, direction, tier,
+   AlgoEvaluateGatesAtBarForAlgo(algoSlot1, dataBarIdx, evalTime, closeVs, direction, levelSlot,
       proxOK, bounceOK, ceilingOK, weeklyOK, closestLevelCategoryOK, closestLevelPlacementOK, magicFree,
       underLoss, underWin, noOpen, noPending, rulesCommon, rulesDir, perSecond);
    const int closestLevelExpandedIdx = FalgoClosestExpandedLevelIdxAtBarForAlgo(algoSlot1, dataBarIdx);
@@ -7568,7 +7395,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
       IntegerToString(haveClosestSnap ? closestSnap.closestWeeklyLevel_CeilingProximityCandles_today : 0),
       IntegerToString(haveClosestSnap ? closestSnap.closestWeeklyLevel_CeilingCount_recent : 0),
       IntegerToString(weekCeilingCountWithDaily),
-      closeVs, direction, IntegerToString(tier),
+      closeVs, direction, IntegerToString(levelSlot),
       IntegerToString(plannedTradeNumber),
       IntegerToString(AlgoDayWinsForSlot(algoSlot1)), IntegerToString(AlgoDayLossesForSlot(algoSlot1)));
    FileClose(fh);
@@ -7923,26 +7750,14 @@ bool FalgoBuildMagicKeyForPlacement(const int algoSlot1, const int barIdx, const
 {
    if(direction != FALGO_DIRECTION_LONG_LIMIT && direction != FALGO_DIRECTION_SHORT_LIMIT)
       FatalError(StringFormat("FalgoBuildMagicKeyForPlacement: unsupported direction %d", direction));
-   const int categorySlot = FalgoLevelCategoryMagicSlotForAlgoLevel(levelExpandedIdx, algoSlot1,
-      FalgoLevelEligibilityTimeForBar(barIdx));
-   int tier = 0;
-   int nextLevelTradeNum = 0;
-   if(categorySlot == FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY)
-   {
-      tier = 0;
-      nextLevelTradeNum = AlgoLevelTradeNumTodayAtTierCategory(algoSlot1, 0, FALGO_LEVEL_CATEGORY_MAGIC_TERTIARY) + 1;
-   }
-   else
-   {
-      tier = FalgoLevelTierFromLevelIdx(levelExpandedIdx);
-      if(tier < 1 || tier > FALGO_LEVEL_TIER_MAX)
-         FatalError(StringFormat("FalgoBuildMagicKeyForPlacement: tier %d out of range", tier));
-      nextLevelTradeNum = AlgoLevelTradeNumTodayAtTierCategory(algoSlot1, tier, categorySlot) + 1;
-   }
+   const int levelSlot = FalgoMagicLevelSlotFromLevelIdx(levelExpandedIdx);
+   if(!FalgoMagicLevelSlotIsValid(levelSlot))
+      FatalError(StringFormat("FalgoBuildMagicKeyForPlacement: invalid levelSlot %d for levelIdx %d", levelSlot, levelExpandedIdx));
+   const int nextLevelTradeNum = AlgoLevelTradeNumTodayAtMagicLevelSlot(algoSlot1, levelSlot) + 1;
 
    outKey.direction = direction;
    outKey.dayOfWeek = FalgoDayOfWeekSlotFromTime(g_lastTimer1Time);
-   outKey.levelTier = tier;
+   outKey.levelSlot = levelSlot;
    outKey.bounceCount = FalgoClamp0_8(FalgoGetDayBounceCountForLevelAtBar(barIdx, anchorLevel));
    outKey.ceilingCount = FalgoClamp0_8(FalgoGetDayCeilingCountForLevelAtBar(barIdx, anchorLevel));
    outKey.offset_tenths = EncodeMagicTwoDigitTenths(MathAbs(offsetPoints));
@@ -7952,7 +7767,6 @@ bool FalgoBuildMagicKeyForPlacement(const int algoSlot1, const int barIdx, const
    if(!AlgoLoadPerAlgoTune(algoSlot1, placeTune))
       FatalError(StringFormat("FalgoBuildMagicKeyForPlacement: unknown algo slot %d", algoSlot1));
    outKey.babysitMinute = FalgoClamp0_9(placeTune.babysitStart_minute);
-   outKey.levelCategory = categorySlot;
    outKey.unusedSlot = 0;
    outKey.tpWhole = FalgoCapWholeTpSlForMagic(g_algoShared.initialTP);
    outKey.slWhole = FalgoCapWholeTpSlForMagic(g_algoShared.initialSL);
@@ -8170,7 +7984,7 @@ double FalgoLevelPriceForTradeResult(const TradeResult &tr)
 {
    if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
       return StringToDouble(tr.level);
-   return FalgoLevelPriceForMagicKey(ParseFalgoMagic(tr.magic), tr.priceStart);
+   return FalgoLevelPriceForMagicKey(ParseFalgoMagic(tr.magic));
 }
 
 //+------------------------------------------------------------------+
@@ -8209,7 +8023,7 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
 
    const FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
    if(IsAnyAlgoFamilyCompositeMagic(tr.magic))
-      out.levelCats = g_levelsExpanded[FalgoResolveExpandedLevelIdxFromMagicKey(fk, tr.priceStart)].categories;
+      out.levelCats = g_levelsExpanded[FalgoResolveExpandedLevelIdxFromMagicKey(fk)].categories;
 
    const double levelPrice = FalgoLevelPriceForTradeResult(tr);
    if(levelPrice > 0.0)
@@ -8247,11 +8061,11 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_COLS     45
+#define FALGO_ALLDAYS_COLS     46
 
 string FalgoAllDaysTradeResultsHeader()
 {
-   return "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,level,levelTag,MFE,MAE,"
+   return "date,symbol,startTime,endTime,session,magic,priceStart,priceEnd,priceDiff,profit,type,level,levelTag,levelSlot,MFE,MAE,"
       + FalgoTradeResultMaeFirstCsvColumnName()
       + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC";
 }
@@ -8337,59 +8151,60 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
    cells[base + 11] = FalgoSanitizeCsvCell(tr.level);
    cells[base + 12] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
+   cells[base + 13] = FalgoSanitizeCsvCell(FalgoLevelSlotStrForMagic(tr.magic));
    FalgoClosedTradeTelemetrySummary telSummary;
    const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
    FalgoTradeLegacyContextCols legacyCtx;
    FalgoFillTradeLegacyContextCols(tr, legacyCtx);
    if(hasTel)
    {
-      cells[base + 13] = DoubleToString(telSummary.mfePts, 1);
-      cells[base + 14] = DoubleToString(telSummary.maePts, 1);
-      cells[base + 15] = DoubleToString(telSummary.maeFirstWindowPts, 1);
-      cells[base + 18] = FalgoSanitizeCsvCell(telSummary.closeDecision);
-      cells[base + 19] = FalgoSanitizeCsvCell(telSummary.closeDetail);
-      cells[base + 28] = DoubleToString(telSummary.greenRatioAtClose, 4);
-      cells[base + 29] = DoubleToString(telSummary.avgProfitVelocity, 3);
-      cells[base + 30] = IntegerToString(telSummary.secondsGreen);
-      cells[base + 31] = IntegerToString(telSummary.secondsRed);
+      cells[base + 14] = DoubleToString(telSummary.mfePts, 1);
+      cells[base + 15] = DoubleToString(telSummary.maePts, 1);
+      cells[base + 16] = DoubleToString(telSummary.maeFirstWindowPts, 1);
+      cells[base + 19] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 20] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 29] = DoubleToString(telSummary.greenRatioAtClose, 4);
+      cells[base + 30] = DoubleToString(telSummary.avgProfitVelocity, 3);
+      cells[base + 31] = IntegerToString(telSummary.secondsGreen);
+      cells[base + 32] = IntegerToString(telSummary.secondsRed);
    }
    else
    {
-      cells[base + 13] = "";
       cells[base + 14] = "";
       cells[base + 15] = "";
-      cells[base + 18] = "";
+      cells[base + 16] = "";
       cells[base + 19] = "";
-      cells[base + 28] = "";
+      cells[base + 20] = "";
       cells[base + 29] = "";
       cells[base + 30] = "";
       cells[base + 31] = "";
+      cells[base + 32] = "";
    }
-   cells[base + 16] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
-   cells[base + 17] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
-   cells[base + 20] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 21] = (string)tr.volume;
-   cells[base + 22] = FalgoSanitizeCsvCell(tr.bothComments);
-   cells[base + 23] = IntegerToString(planNum);
-   cells[base + 24] = IntegerToString(levelNum);
-   cells[base + 25] = FalgoOffsetPriceUnitsStrForTrade(tr);
-   cells[base + 26] = FalgoSanitizeCsvCell(tr.tp);
-   cells[base + 27] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
-   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
+   cells[base + 17] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 18] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 21] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 22] = (string)tr.volume;
+   cells[base + 23] = FalgoSanitizeCsvCell(tr.bothComments);
+   cells[base + 24] = IntegerToString(planNum);
+   cells[base + 25] = IntegerToString(levelNum);
+   cells[base + 26] = FalgoOffsetPriceUnitsStrForTrade(tr);
+   cells[base + 27] = FalgoSanitizeCsvCell(tr.tp);
+   cells[base + 28] = FalgoSanitizeCsvCell(tr.sl);
+   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 41] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
    int wBounceC = 0, dBounceC = 0, wCeilingC = 0, dCeilingC = 0;
    FalgoFillTradeBounceCeilingCountsAtStart(tr, wBounceC, dBounceC, wCeilingC, dCeilingC);
-   cells[base + 41] = IntegerToString(wCeilingC);
-   cells[base + 42] = IntegerToString(dCeilingC);
-   cells[base + 43] = IntegerToString(wBounceC);
-   cells[base + 44] = IntegerToString(dBounceC);
+   cells[base + 42] = IntegerToString(wCeilingC);
+   cells[base + 43] = IntegerToString(dCeilingC);
+   cells[base + 44] = IntegerToString(wBounceC);
+   cells[base + 45] = IntegerToString(dBounceC);
 }
 
 //+------------------------------------------------------------------+
@@ -8471,7 +8286,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    if(fhDay != INVALID_HANDLE)
    {
       FileWrite(fhDay, "symbol", "startTime", "endTime", "session", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type",
-         "level", "levelTag",
+         "level", "levelTag", "levelSlot",
          "MFE", "MAE", FalgoTradeResultMaeFirstCsvColumnName(), "mfeCandle", "maeCandle", "close_decision", "close_detail",
          "reason", "volume", "bothComments", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
          "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed",
@@ -8501,7 +8316,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             DoubleToString(tr.priceDiff, _Digits),
             DoubleToString(tr.profit, 2),
             EnumToString((ENUM_DEAL_TYPE)tr.type),
-            tr.level, FalgoLevelTagUneditedForTradeResult(tr),
+            tr.level, FalgoLevelTagUneditedForTradeResult(tr), FalgoLevelSlotStrForMagic(tr.magic),
             (hasTel ? DoubleToString(telSummary.mfePts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.maePts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.maeFirstWindowPts, 1) : ""),
@@ -9811,6 +9626,14 @@ bool LevelIsTodayRthOpenTertiary(const string &categories)
 }
 
 //+------------------------------------------------------------------+
+bool LevelIsPDrthCloseTertiary(const string &categories)
+{
+   if(!LevelIsTertiary(categories))
+      return false;
+   return (StringFind(categories, "PDrthClose") >= 0);
+}
+
+//+------------------------------------------------------------------+
 bool AlgoTradesTertiaryTodayRTHOLevel(const int algoNumber)
 {
    const int idx = AlgoSlotIndexByAlgoId(algoNumber);
@@ -10524,12 +10347,12 @@ bool Gate_WeekCeilingCount_NoMoreThanX(const int barIdx, const int maxAllowed)
 bool Gate_TradesAtLevel_UnderDailyLimit(const int barIdx, const int algoNumber, const int maxTradesPerLevel)
 {
    if(maxTradesPerLevel <= 0) return true;
-   int tier = 0, categorySlot = 0;
-   if(!FalgoClosestLevelTierAndCategoryAtBarForAlgo(algoNumber, barIdx, tier, categorySlot))
+   int levelSlot = 0;
+   if(!FalgoClosestLevelMagicSlotAtBarForAlgo(algoNumber, barIdx, levelSlot))
       return true;
-   if(!FalgoTradeLevelSlotValidForLimit(tier, categorySlot))
+   if(!FalgoMagicLevelSlotIsValid(levelSlot))
       return true;
-   return (FalgoTradeCountTodayAtTierCategoryForThisAlgo(algoNumber, tier, categorySlot) < maxTradesPerLevel);
+   return (FalgoTradeCountTodayAtLevelSlotForThisAlgo(algoNumber, levelSlot) < maxTradesPerLevel);
 }
 
 //+------------------------------------------------------------------+
@@ -10562,7 +10385,7 @@ string GateFail_BounceCount_TooHigh(const int barIdx, const double tradeLevel, c
 {
    const int bounce = FalgoGetDayBounceCountForLevelAtBar(barIdx, tradeLevel);
    if(bounce > maxAllowed)
-      return GateFailLabelIntVs("dailyBounceCountTooHigh", bounce, maxAllowed);
+      return GateFailLabelIntVs("todayBounceCountTooHigh", bounce, maxAllowed);
    return "";
 }
 
@@ -10673,7 +10496,7 @@ string GateFail_DayContactToday_TooHigh(const int barIdx, const double levelPx, 
 {
    const int contact = Falgo_ContactAndProxC_Today_ForLevelAtBar(barIdx, levelPx);
    if(contact > maxAllowed)
-      return GateFailLabelIntVs("contactTodayTooHigh", contact, maxAllowed);
+      return GateFailLabelIntVs("contactAndProximityCandlesTodayTooHigh", contact, maxAllowed);
    return "";
 }
 
@@ -10681,11 +10504,11 @@ string GateFail_TradesAtLevel_Limit(const int barIdx, const int algoNumber, cons
 {
    if(!Gate_TradesAtLevel_UnderDailyLimit(barIdx, algoNumber, maxTradesPerLevel))
    {
-      int tier = 0, categorySlot = 0;
-      if(!FalgoClosestLevelTierAndCategoryAtBarForAlgo(algoNumber, barIdx, tier, categorySlot))
+      int levelSlot = 0;
+      if(!FalgoClosestLevelMagicSlotAtBarForAlgo(algoNumber, barIdx, levelSlot))
          return "tradesAtLevelLimit";
       return GateFailLabelIntVs("tradesAtLevelLimit",
-         FalgoTradeCountTodayAtTierCategoryForThisAlgo(algoNumber, tier, categorySlot), maxTradesPerLevel);
+         FalgoTradeCountTodayAtLevelSlotForThisAlgo(algoNumber, levelSlot), maxTradesPerLevel);
    }
    return "";
 }
@@ -11482,11 +11305,11 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleChainAdd(slotIdx, RULE_TRADES_AT_LEVEL_LIMIT, a.max_allowed_trades_perLevel_perDay_forThisAlgo);
          break;
       case MAGIC_ALGO12:
-         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "dailyCeilingCountTooHigh");
+         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "todayCeilingCountTooHigh");
          AlgoRuleChainAdd(slotIdx, RULE_TRADES_AT_LEVEL_LIMIT, a.max_allowed_trades_perLevel_perDay_forThisAlgo);
          break;
       case MAGIC_ALGO18:
-         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "dailyCeilingCountTooHigh");
+         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "todayCeilingCountTooHigh");
          AlgoRuleChainAdd(slotIdx, RULE_TRADES_AT_LEVEL_LIMIT, a.max_allowed_trades_perLevel_perDay_forThisAlgo);
          break;
       case MAGIC_ALGO13:

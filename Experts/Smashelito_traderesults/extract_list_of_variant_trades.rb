@@ -1,6 +1,9 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require_relative '../Smashelito/smash_mql5_algo_reader_lib'
+
+FM = SmashMql5AlgoReader::FalgoMagic
 
 # =========================================================
 # CONFIG
@@ -93,18 +96,7 @@ def build_trade_from_row(row)
 
   trade = {}
 
-  trade[:magic_prefix] = magic[0, 2]
-
-  dow_digit = magic[3]
-  trade[:day_of_week] =
-    case dow_digit
-    when '1' then 'MON'
-    when '2' then 'TUE'
-    when '3' then 'WED'
-    when '4' then 'THU'
-    when '5' then 'FRI'
-    else 'UNKNOWN'
-    end
+  FM.apply_trade_fields!(trade, magic)
 
   trade[:session] = row['session'].to_s.strip
   trade[:levelTag] = row['levelTag'].to_s.strip
@@ -251,4 +243,5 @@ else
 end
 
 puts
+puts "!!!!!!!!!!!!!!!!!!!! DID YOU REMEMBER TO SET CORRECT SESSION GROUPING? OTHERWISE EXTRACTS WRONG ORDERS !!!!!!!!!!!!"
 puts 'DONE'
