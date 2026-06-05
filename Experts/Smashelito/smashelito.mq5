@@ -8499,7 +8499,7 @@ void SyncAlgoFamilyProfileFromInputs()
    RebuildAlgoSlotsRegistry();
    //=== SHARED TUNE BLOCK ===
 
-   g_algoShared.babysit_enabled                                = true;
+   g_algoShared.babysit_enabled                              = true;
    g_algoShared.mode_switching_enabled                       = false; // master: neutral/strong/bad/terrible modes; shared + per-algo *_mode_enabled apply only when true
    g_algoShared.strong_trade_mode_enabled                    = false;
    g_algoShared.neutral_trade_mode_enabled                   = false;
@@ -8507,8 +8507,8 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoShared.terribletrade_mode_enabled                   = false;
    g_algoShared.secretTPSL                                     = true;
    g_algoShared.secretTPSL_percent                             = 50;
-   g_algoShared.initialTP = 15.0;
-   g_algoShared.initialSL = 14.4;
+   g_algoShared.initialTP = 14.5;
+   g_algoShared.initialSL = 16.0;
    g_algoShared.extra_offset_all_shorts = 0.0;
    g_algoShared.extra_offset_all_longs = 0.0;
 
