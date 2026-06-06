@@ -384,8 +384,6 @@ struct AlgoSharedProfile
    bool   neutral_trade_mode_enabled;    // family: neutral TP exit
    bool   badtrade_mode_enabled;         // family: bad-trade recovery latch/exit
    bool   terribletrade_mode_enabled;    // family: terrible-trade recovery latch/exit
-   bool   tradesWeeklyLevels;
-   bool   tradesDailyLevels;
    string tradesDays;              // e.g. "12345" = Mon..Fri
    bool   secretTPSL;
    int    secretTPSL_percent;
@@ -536,7 +534,7 @@ struct AlgoDef
    int            algo_id;
    bool           enabled;
    bool           trades_short;
-   bool           tradesWeeklyLevels;  // per-algo; default copied from g_algoShared in Sync
+   bool           tradesWeeklyLevels;  // per-algo; required in algocreator2 (at least one level type must be true)
    bool           tradesDailyLevels;
    bool           tradesTertiaryTodayRTHOLevel;  // today's RTH-open tertiary level (after nominal RTH open)
    AlgoPerAlgoTune tune;
@@ -2105,14 +2103,6 @@ bool AlgoFamilyLevelShouldTrackForDayStatsLocal(const string &categories)
    if(LevelIsWeeklyKind(categories))
       return true;
    return LevelIsDailyKind(categories);
-}
-
-bool AlgoFamilyLevelEligibleForClosestAnchorLocal(const int expandedLevelIdx, const datetime asOfTime)
-{
-   if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
-      return false;
-   return LevelEligibleForAlgoLevelScope(g_levelsExpanded[expandedLevelIdx].categories,
-      g_algoShared.tradesWeeklyLevels, g_algoShared.tradesDailyLevels, asOfTime);
 }
 
 //+------------------------------------------------------------------+
@@ -4492,15 +4482,6 @@ datetime FalgoLevelEligibilityTimeForBar(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-bool FalgoLevelEligibleForClosestAnchor(const int expandedLevelIdx, const datetime asOfTime)
-{
-   if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
-      return false;
-   return LevelEligibleForAlgoLevelScope(g_levelsExpanded[expandedLevelIdx].categories,
-      g_algoShared.tradesWeeklyLevels, g_algoShared.tradesDailyLevels, asOfTime);
-}
-
-//+------------------------------------------------------------------+
 bool LevelIsDailyNonTertiary(const string &categories)
 {
    return LevelIsDailyKind(categories);
@@ -4537,7 +4518,7 @@ bool AlgoTradesWeeklyLevels(const int algoNumber)
 {
    const int idx = AlgoSlotIndexByAlgoId(algoNumber);
    if(idx < 0)
-      return g_algoShared.tradesWeeklyLevels;
+      return false;
    return g_algos[idx].tradesWeeklyLevels;
 }
 
@@ -4546,7 +4527,7 @@ bool AlgoTradesDailyLevels(const int algoNumber)
 {
    const int idx = AlgoSlotIndexByAlgoId(algoNumber);
    if(idx < 0)
-      return g_algoShared.tradesDailyLevels;
+      return false;
    return g_algos[idx].tradesDailyLevels;
 }
 
@@ -4874,15 +4855,7 @@ double FalgoLevelAnchorValueInStreakAtBarForExpandedIdx(const int expandedIdx, c
 }
 
 //+------------------------------------------------------------------+
-//| Closest weekly level price (not anchor-above/below streak) → gates firstFail. |
-//+------------------------------------------------------------------+
-string AlgoClosestLevelCategoryGateFailLabel(const int expandedLevelIdx)
-{
-   if(g_algoShared.tradesDailyLevels)
-      return "closestLevelNotDailyCategory";
-   return "closestLevelNotWeeklyCategory";
-}
-
+//| Closest level category mismatch → gates firstFail (per-algo level scope). |
 //+------------------------------------------------------------------+
 string AlgoClosestLevelCategoryGateFailLabelForAlgo(const int expandedLevelIdx, const int algoNumber)
 {
@@ -4890,7 +4863,7 @@ string AlgoClosestLevelCategoryGateFailLabelForAlgo(const int expandedLevelIdx, 
       return "closestLevelNotDailyCategory";
    if(AlgoTradesWeeklyLevels(algoNumber) && !AlgoTradesDailyLevels(algoNumber))
       return "closestLevelNotWeeklyCategory";
-   return AlgoClosestLevelCategoryGateFailLabel(expandedLevelIdx);
+   return "closestLevelNotWeeklyCategory";
 }
 
 int FalgoClosestExpandedLevelIdxAtBar(const int barIdx)
@@ -4933,21 +4906,6 @@ double FalgoLevelAnchorValueInStreakAtBar(const int barIdx)
    if(closePx < levelPx)
       return g_pullingHistoryAlgoFamilyWeeklyAtBar[barIdx].closestWeeklyLevel_anchorBelow_within_cleanOHLC_streak;
    return 0.0;
-}
-
-string AlgoClosestLevelGateFailLabelForIdx(const int expandedLevelIdx)
-{
-   if(!FalgoLevelEligibleForClosestAnchor(expandedLevelIdx, FalgoLevelEligibilityTimeForBar(-1)))
-      return AlgoClosestLevelCategoryGateFailLabel(expandedLevelIdx);
-   return "";
-}
-
-//+------------------------------------------------------------------+
-string AlgoClosestLevelGateFailLabelForIdxAtBar(const int expandedLevelIdx, const int barIdx)
-{
-   if(!FalgoLevelEligibleForClosestAnchor(expandedLevelIdx, FalgoLevelEligibilityTimeForBar(barIdx)))
-      return AlgoClosestLevelCategoryGateFailLabel(expandedLevelIdx);
-   return "";
 }
 
 //+------------------------------------------------------------------+
@@ -8563,6 +8521,8 @@ void SyncAlgoFamilyProfileFromInputs()
 //algocreator2start
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].trades_short                                     = ALGO_SIDE_SHORT;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tradesWeeklyLevels                              = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
@@ -9345,38 +9305,16 @@ void SyncAlgoFamilyProfileFromInputs()
 
    g_algoShared.tradeSizePct = 100;
    g_algoShared.bannedRanges = "21,35,23,59;0,0,1,0";
-   g_algoShared.tradesWeeklyLevels = true;
-   g_algoShared.tradesDailyLevels = false;
    g_algoShared.tradesDays = "12345";
 
    for(int ai = 0; ai < g_algoCount; ai++)
    {
-//algocreator3start      
-      if(g_algos[ai].algo_id == MAGIC_ALGO11
-         || g_algos[ai].algo_id == MAGIC_ALGO12
-         || g_algos[ai].algo_id == MAGIC_ALGO13
-         || g_algos[ai].algo_id == MAGIC_ALGO14
-         || g_algos[ai].algo_id == MAGIC_ALGO15
-         || g_algos[ai].algo_id == MAGIC_ALGO16
-         || g_algos[ai].algo_id == MAGIC_ALGO17
-         || g_algos[ai].algo_id == MAGIC_ALGO18
-         || g_algos[ai].algo_id == MAGIC_ALGO19
-         || g_algos[ai].algo_id == MAGIC_ALGO20
-         || g_algos[ai].algo_id == MAGIC_ALGO21
-         || g_algos[ai].algo_id == MAGIC_ALGO22
-         || g_algos[ai].algo_id == MAGIC_ALGO23
-         || g_algos[ai].algo_id == MAGIC_ALGO24
-         || g_algos[ai].algo_id == MAGIC_ALGO25
-         || g_algos[ai].algo_id == MAGIC_ALGO26
-         || g_algos[ai].algo_id == MAGIC_ALGO27
-         || g_algos[ai].algo_id == MAGIC_ALGO28
-         || g_algos[ai].algo_id == MAGIC_ALGO29
-         || g_algos[ai].algo_id == MAGIC_ALGO30
-         )
-         continue;
-//algocreator3end     
-      g_algos[ai].tradesWeeklyLevels = g_algoShared.tradesWeeklyLevels;
-      g_algos[ai].tradesDailyLevels = g_algoShared.tradesDailyLevels;
+//algocreator3start
+      if(!g_algos[ai].tradesWeeklyLevels && !g_algos[ai].tradesDailyLevels && !g_algos[ai].tradesTertiaryTodayRTHOLevel)
+         FatalError(StringFormat(
+            "Algo %d: enable at least one of tradesWeeklyLevels, tradesDailyLevels, tradesTertiaryTodayRTHOLevel in algocreator2",
+            g_algos[ai].algo_id));
+//algocreator3end
    }
 
    g_algoShared.revenge_long_allowed_perdayCount = 1;

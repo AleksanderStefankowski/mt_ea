@@ -338,39 +338,14 @@ module SmashMql5AlgoCreatorCommon
     [define_lines, comment, '', format_registry_array(ids)].flatten.join("\n")
   end
 
-  def parse_block3_algo_ids(inner)
-    inner
-      .scan(/g_algos\[ai\]\.algo_id\s*==\s*(MAGIC_ALGO\d+)/)
-      .flatten
-      .map { |c| c[/(\d+)/, 1].to_i }
-      .uniq
-      .sort
-  end
-
-  def format_block3(ids)
-    raise 'algocreator3 block is empty' if ids.empty?
-
-    out = ["      if(g_algos[ai].algo_id == #{magic_const(ids.first)}"]
-    ids[1..].each do |id|
-      out << "         || g_algos[ai].algo_id == #{magic_const(id)}"
-    end
-    out << '         )'
-    out << '         continue;'
-    out.join("\n")
-  end
-
-  def rebuild_block3(inner, add_id: nil)
-    ids = parse_block3_algo_ids(inner)
-    ids << add_id if add_id && !ids.include?(add_id)
-    format_block3(ids.sort)
-  end
-
   def normalize_block1!(content)
     replace_inner(content, 1, rebuild_block1(extract_inner(content, 1)))
   end
 
-  def normalize_block3!(content)
-    replace_inner(content, 3, rebuild_block3(extract_inner(content, 3)))
+  def finalize_mq5!(content)
+    content = normalize_block1!(content)
+    required_registry = registry_ids(extract_inner(content, 1)).size
+    bump_registry_max(content, required_registry)
   end
 
   def update_block1(inner, new_id)
@@ -404,6 +379,7 @@ module SmashMql5AlgoCreatorCommon
     tune = extract_tune_block(inner, source_id)
     cloned = clone_tune_block(tune, source_id, new_id)
     raise "Algo #{new_id} tune block already present in algocreator2" if inner.include?(magic_const(new_id))
+    validate_tune_block_level_flags!(cloned)
 
     inner.rstrip + "\n\n" + cloned
   end
@@ -439,12 +415,46 @@ module SmashMql5AlgoCreatorCommon
     out
   end
 
+  def mql5_bool_true?(rhs)
+    rhs == 'true'
+  end
+
+  def validate_algo_level_flags!(values)
+    weekly = mql5_bool_true?(values['tradesWeeklyLevels'])
+    daily = mql5_bool_true?(values['tradesDailyLevels'])
+    tertiary = mql5_bool_true?(values['tradesTertiaryTodayRTHOLevel'])
+    return if weekly || daily || tertiary
+
+    raise 'At least one of tradesWeeklyLevels, tradesDailyLevels, tradesTertiaryTodayRTHOLevel must be true (uncomment/set in tune_overrides)'
+  end
+
+  def tune_values_from_block2_text(tune_text)
+    values = {}
+    tune_text.lines.each do |raw|
+      m = raw.match(/\.(tradesWeeklyLevels|tradesDailyLevels|tradesTertiaryTodayRTHOLevel)\s*=\s*(true|false)/)
+      next unless m
+
+      values[m[1]] = m[2]
+    end
+    values
+  end
+
+  def validate_tune_block_level_flags!(tune_text)
+    values = tune_values_from_block2_text(tune_text)
+    validate_algo_level_flags!(
+      'tradesWeeklyLevels' => values.fetch('tradesWeeklyLevels', 'false'),
+      'tradesDailyLevels' => values.fetch('tradesDailyLevels', 'false'),
+      'tradesTertiaryTodayRTHOLevel' => values.fetch('tradesTertiaryTodayRTHOLevel', 'false')
+    )
+  end
+
   def build_full_tune_block(algo_id, overrides)
     unknown = overrides.keys - TUNE_FIELD_DEFAULTS.map(&:first)
     raise "Unknown tune override(s): #{unknown.join(', ')}" unless unknown.empty?
 
     values = TUNE_FIELD_DEFAULTS.to_h
     overrides.each { |field, value| values[field] = value }
+    validate_algo_level_flags!(values)
 
     lines = values.map { |field, value| format_tune_assignment(algo_id, field, value) }
     lines.join("\n")
@@ -454,13 +464,6 @@ module SmashMql5AlgoCreatorCommon
     raise "Algo #{algo_id} tune block already present in algocreator2" if inner.include?(magic_const(algo_id))
 
     inner.rstrip + "\n\n" + build_full_tune_block(algo_id, overrides)
-  end
-
-  def update_block3_add(inner, new_id)
-    const = magic_const(new_id)
-    return inner if inner.include?(const)
-
-    rebuild_block3(inner, add_id: new_id)
   end
 
   def extract_rule_case_block_for_id(block4_inner, algo_id)
@@ -610,16 +613,5 @@ module SmashMql5AlgoCreatorCommon
       /#define\s+ALGO_FAMILY_REGISTRY_MAX\s+\d+/,
       "#define ALGO_FAMILY_REGISTRY_MAX  #{required_count}"
     )
-  end
-
-  def copy_from_in_weekly_exception_list?(block3_inner, source_id)
-    block3_inner.include?(magic_const(source_id))
-  end
-
-  def finalize_mq5!(content)
-    content = normalize_block1!(content)
-    content = normalize_block3!(content)
-    required_registry = registry_ids(extract_inner(content, 1)).size
-    bump_registry_max(content, required_registry)
   end
 end

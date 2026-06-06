@@ -52,15 +52,6 @@ module AlgoDeleter
     remaining.join("\n").gsub(/\n{3,}/, "\n\n").rstrip
   end
 
-  def delete_from_block3(inner, delete_id)
-    ids = AlgoCreator.parse_block3_algo_ids(inner)
-    if ids.include?(delete_id)
-      AlgoCreator.format_block3(ids - [delete_id])
-    else
-      inner.rstrip
-    end
-  end
-
   def delete_from_block4(inner, delete_id)
     const = AlgoCreator.magic_const(delete_id)
     lines = inner.lines.map(&:chomp)
@@ -78,20 +69,6 @@ module AlgoDeleter
     remaining.join("\n").rstrip
   end
 
-  def decrement_registry_max(content, by: 1)
-    match = content.match(/#define\s+ALGO_FAMILY_REGISTRY_MAX\s+(\d+)/)
-    raise 'ALGO_FAMILY_REGISTRY_MAX not found' unless match
-
-    current = match[1].to_i
-    new_val = current - by
-    raise "ALGO_FAMILY_REGISTRY_MAX would become #{new_val}" if new_val < 1
-
-    content.sub(
-      /#define\s+ALGO_FAMILY_REGISTRY_MAX\s+\d+/,
-      "#define ALGO_FAMILY_REGISTRY_MAX  #{new_val}"
-    )
-  end
-
   def delete_one!(content, delete_id)
     delete_id = delete_id.to_i
     if delete_id < MIN_ALGO_ID
@@ -105,14 +82,26 @@ module AlgoDeleter
 
     b1 = AlgoCreator.extract_inner(content, 1)
     b2 = AlgoCreator.extract_inner(content, 2)
-    b3 = AlgoCreator.extract_inner(content, 3)
     b4 = AlgoCreator.extract_inner(content, 4)
 
     content = AlgoCreator.replace_inner(content, 1, delete_from_block1(b1, delete_id))
     content = AlgoCreator.replace_inner(content, 2, delete_from_block2(b2, delete_id))
-    content = AlgoCreator.replace_inner(content, 3, delete_from_block3(b3, delete_id))
     content = AlgoCreator.replace_inner(content, 4, delete_from_block4(b4, delete_id))
     [decrement_registry_max(content, by: 1), true]
+  end
+
+  def decrement_registry_max(content, by: 1)
+    match = content.match(/#define\s+ALGO_FAMILY_REGISTRY_MAX\s+(\d+)/)
+    raise 'ALGO_FAMILY_REGISTRY_MAX not found' unless match
+
+    current = match[1].to_i
+    new_val = current - by
+    raise "ALGO_FAMILY_REGISTRY_MAX would become #{new_val}" if new_val < 1
+
+    content.sub(
+      /#define\s+ALGO_FAMILY_REGISTRY_MAX\s+\d+/,
+      "#define ALGO_FAMILY_REGISTRY_MAX  #{new_val}"
+    )
   end
 
   def run(delete_ids:)
@@ -131,7 +120,6 @@ module AlgoDeleter
 
     if deleted_ids.any?
       content = AlgoCreator.normalize_block1!(content)
-      content = AlgoCreator.normalize_block3!(content)
       AlgoCreator.write_mq5!(content)
     end
 
@@ -149,7 +137,6 @@ module AlgoDeleter
 
     if deleted_ids.any?
       AlgoCreator.print_block(1, AlgoCreator.extract_inner(content, 1))
-      AlgoCreator.print_block(3, AlgoCreator.extract_inner(content, 3))
     end
 
     deleted_ids

@@ -143,21 +143,14 @@ def run_copy_from!(copy_from:, extra_rules_text:)
 
   b1 = extract_inner(content, 1)
   b2 = extract_inner(content, 2)
-  b3 = extract_inner(content, 3)
   b4 = extract_inner(content, 4)
 
   new_b1 = update_block1(b1, new_id)
   new_b2 = update_block2_copy(b2, source_id, new_id)
-  new_b3 = if copy_from_in_weekly_exception_list?(b3, source_id)
-             update_block3_add(b3, new_id)
-           else
-             b3
-           end
   new_b4 = append_rule_case_cloned_from(b4, source_id, new_id, extra_tokens)
 
   content = replace_inner(content, 1, new_b1)
   content = replace_inner(content, 2, new_b2)
-  content = replace_inner(content, 3, new_b3)
   content = replace_inner(content, 4, new_b4)
   content = finalize_mq5!(content)
 
@@ -170,7 +163,6 @@ def run_copy_from!(copy_from:, extra_rules_text:)
 
   print_block(1, extract_inner(content, 1))
   print_block(2, extract_tune_block(new_b2, new_id))
-  print_block(3, extract_inner(content, 3))
   print_block(4, extract_rule_case_block_for_id(new_b4, new_id))
 
   new_id
@@ -180,11 +172,9 @@ if __FILE__ == $PROGRAM_NAME
   if ARGV.include?('--normalize')
     content = read_mq5
     content = normalize_block1!(content)
-    content = normalize_block3!(content)
     write_mq5!(content)
-    puts "Normalized algocreator1 registry + algocreator3 weekly-exception formatting in #{MQ5_FILE}"
+    puts "Normalized algocreator1 registry formatting in #{MQ5_FILE}"
     print_block(1, extract_inner(content, 1))
-    print_block(3, extract_inner(content, 3))
   else
     run_copy_from!(copy_from: copy_from_algo_id, extra_rules_text: extra_rules)
   end
