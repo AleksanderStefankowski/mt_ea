@@ -461,6 +461,7 @@ enum ENUM_ALGO_RULE
    RULE_WEEK_CEILING_TOO_HIGH,
    RULE_WEEK_CEILING_TOO_LOW,
    RULE_WEEK_CONTACT_CANDLES_TOO_HIGH,
+   RULE_WEEK_CONTACT_CANDLES_TOO_LOW,
    RULE_LEVEL_ONO_ABS_DIFF_TOO_LOW,
    RULE_ONO_ABOVE_LEVEL_TOO_LOW,
    RULE_ONO_BELOW_LEVEL_TOO_LOW,
@@ -477,6 +478,9 @@ enum ENUM_ALGO_RULE
    RULE_LEVEL_BELOW_PDH,
    RULE_LEVEL_ABOVE_DAY_LOW,
    RULE_DAY_LOW_SOFAR_NO_MORE_THAN_X_BELOW_LEVEL,
+   RULE_DAY_LOW_SOFAR_AT_LEAST_X_BELOW_LEVEL,
+   RULE_DAY_HIGH_SOFAR_AT_LEAST_X_ABOVE_LEVEL,
+   RULE_DAY_HIGH_SOFAR_NO_MORE_THAN_X_ABOVE_LEVEL,
    RULE_LEVEL_ABOVE_PDL,
    RULE_LEVEL_BELOW_PDC,
    RULE_LEVEL_BELOW_PDO,
@@ -10852,6 +10856,12 @@ bool Gate_WeekContactCandles_NoMoreThanX(const int barIdx, const int maxAllowed)
    return (FalgoGetWeekContactCountForClosestWeeklyLevel(barIdx) <= maxAllowed);
 }
 
+bool Gate_WeekContactCandles_AtLeastX(const int barIdx, const int minCount)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return false;
+   return (FalgoGetWeekContactCountForClosestWeeklyLevel(barIdx) >= minCount);
+}
+
 //+------------------------------------------------------------------+
 bool Gate_CeilingProximityCandles_NoMoreThanX(const int barIdx, const int maxAllowed)
 {
@@ -10982,6 +10992,14 @@ string GateFail_WeekContactCandles_TooHigh(const int barIdx, const double tradeL
    const int contact = Falgo_GetWeekContactAndProxC_ForLevelAtBar(barIdx, tradeLevel);
    if(contact > maxAllowed)
       return GateFailLabelIntVs("weeklyContactCandlesTooHigh", contact, maxAllowed);
+   return "";
+}
+
+string GateFail_WeekContactCandles_TooLow(const int barIdx, const double tradeLevel, const int minCount)
+{
+   const int contact = Falgo_GetWeekContactAndProxC_ForLevelAtBar(barIdx, tradeLevel);
+   if(contact < minCount)
+      return GateFailLabelIntVs("weeklyContactCandlesTooLow", contact, minCount);
    return "";
 }
 
@@ -11541,6 +11559,42 @@ string GateFail_DayLowSoFar_NoMoreThanX_BelowLevel(const int barIdx, const doubl
    return "";
 }
 
+string GateFail_DayLowSoFar_AtLeastX_BelowLevel(const int barIdx, const double levelPx, const double x)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return "";
+   if(x <= 0.0) return "";
+   if(!g_dayLowSoFarAtBar[barIdx].hasValue)
+      return "dayLowSoFarUnknown";
+   const double maxAllowedDayLow = levelPx - x;
+   if(!Gate_DayLowSoFar_AtLeastX_BelowLevel(barIdx, levelPx, x))
+      return GateFailLabelPxVs("dayLowNotFarEnoughBelowLevel", g_dayLowSoFarAtBar[barIdx].value, maxAllowedDayLow);
+   return "";
+}
+
+string GateFail_DayHighSoFar_AtLeastX_AboveLevel(const int barIdx, const double levelPx, const double x)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return "";
+   if(x <= 0.0) return "";
+   if(!g_dayHighSoFarAtBar[barIdx].hasValue)
+      return "dayHighSoFarUnknown";
+   const double minAllowedDayHigh = levelPx + x;
+   if(!Gate_DayHighSoFar_AtLeastX_AboveLevel(barIdx, levelPx, x))
+      return GateFailLabelPxVs("dayHighNotFarEnoughAboveLevel", g_dayHighSoFarAtBar[barIdx].value, minAllowedDayHigh);
+   return "";
+}
+
+string GateFail_DayHighSoFar_NoMoreThanX_AboveLevel(const int barIdx, const double levelPx, const double x)
+{
+   if(barIdx < 0 || barIdx >= g_barsInDay) return "";
+   if(x <= 0.0) return "";
+   if(!g_dayHighSoFarAtBar[barIdx].hasValue)
+      return "dayHighSoFarUnknown";
+   const double maxAllowedDayHigh = levelPx + x;
+   if(!Gate_DayHighSoFar_NoMoreThanX_AboveLevel(barIdx, levelPx, x))
+      return GateFailLabelPxVs("dayHighTooFarAboveLevel", g_dayHighSoFarAtBar[barIdx].value, maxAllowedDayHigh);
+   return "";
+}
+
 //+------------------------------------------------------------------+
 //| Algo rule engine: ordered rule chains per slot (g_algos[].rules). |
 //+------------------------------------------------------------------+
@@ -11580,9 +11634,24 @@ void AlgoRuleAdd_CleanStreakShort(const int slotIdx, const int minStreakCount, c
    AlgoRuleChainAdd(slotIdx, RULE_CLEAN_STREAK_SHORT, minStreakCount, 0, minAnchorBelow);
 }
 
+void AlgoRuleAdd_CleanStreakTooLong(const int slotIdx, const int maxStreakCountExclusive)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_CLEAN_STREAK_TOO_LONG, maxStreakCountExclusive);
+}
+
 void AlgoRuleAdd_BounceCountTooHigh(const int slotIdx, const int maxAllowed)
 {
    AlgoRuleChainAdd(slotIdx, RULE_BOUNCE_COUNT_TOO_HIGH, maxAllowed);
+}
+
+void AlgoRuleAdd_BounceCountTooLow(const int slotIdx, const int minCount)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_BOUNCE_COUNT_TOO_LOW, minCount);
+}
+
+void AlgoRuleAdd_RecentBounceCountTooHigh(const int slotIdx, const int maxAllowed)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_RECENT_BOUNCE_TOO_HIGH, maxAllowed);
 }
 
 void AlgoRuleAdd_CeilingProximityCandlesTooHigh(const int slotIdx, const int maxAllowed, const string failTag)
@@ -11650,6 +11719,11 @@ void AlgoRuleAdd_WeekContactCandlesTooHigh(const int slotIdx, const int maxAllow
    AlgoRuleChainAdd(slotIdx, RULE_WEEK_CONTACT_CANDLES_TOO_HIGH, maxAllowed);
 }
 
+void AlgoRuleAdd_WeekContactCandlesTooLow(const int slotIdx, const int minCount)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_WEEK_CONTACT_CANDLES_TOO_LOW, minCount);
+}
+
 void AlgoRuleAdd_AnchorAboveTooHigh(const int slotIdx, const double maxAnchorAbove)
 {
    AlgoRuleChainAdd(slotIdx, RULE_ANCHOR_ABOVE_TOO_HIGH, 0, 0, maxAnchorAbove);
@@ -11658,6 +11732,21 @@ void AlgoRuleAdd_AnchorAboveTooHigh(const int slotIdx, const double maxAnchorAbo
 void AlgoRuleAdd_DayLowSoFarNoMoreThanXBelowLevel(const int slotIdx, const double maxBelowDist)
 {
    AlgoRuleChainAdd(slotIdx, RULE_DAY_LOW_SOFAR_NO_MORE_THAN_X_BELOW_LEVEL, 0, 0, maxBelowDist);
+}
+
+void AlgoRuleAdd_DayLowSoFarAtLeastXBelowLevel(const int slotIdx, const double minBelowDist)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_DAY_LOW_SOFAR_AT_LEAST_X_BELOW_LEVEL, 0, 0, minBelowDist);
+}
+
+void AlgoRuleAdd_DayHighSoFarAtLeastXAboveLevel(const int slotIdx, const double minAboveDist)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_DAY_HIGH_SOFAR_AT_LEAST_X_ABOVE_LEVEL, 0, 0, minAboveDist);
+}
+
+void AlgoRuleAdd_DayHighSoFarNoMoreThanXAboveLevel(const int slotIdx, const double maxAboveDist)
+{
+   AlgoRuleChainAdd(slotIdx, RULE_DAY_HIGH_SOFAR_NO_MORE_THAN_X_ABOVE_LEVEL, 0, 0, maxAboveDist);
 }
 
 void AlgoRuleAdd_LevelAbovePDL(const int slotIdx)
@@ -11912,6 +12001,8 @@ string EvalAlgoRule(const AlgoDef &algo, const AlgoRuleEntry &rule, const int ba
          return GateFail_WeekCeilingCount_TooLow(barIdx, tradeLevel, rule.i0);
       case RULE_WEEK_CONTACT_CANDLES_TOO_HIGH:
          return GateFail_WeekContactCandles_TooHigh(barIdx, tradeLevel, rule.i0);
+      case RULE_WEEK_CONTACT_CANDLES_TOO_LOW:
+         return GateFail_WeekContactCandles_TooLow(barIdx, tradeLevel, rule.i0);
       case RULE_LEVEL_ONO_ABS_DIFF_TOO_LOW:
          return GateFail_LevelOnoAbsDiff_TooLow(tradeLevel, rule.d0);
       case RULE_ONO_ABOVE_LEVEL_TOO_LOW:
@@ -11950,6 +12041,12 @@ string EvalAlgoRule(const AlgoDef &algo, const AlgoRuleEntry &rule, const int ba
          return GateFail_Level_AbovedayLowSoFar(barIdx, tradeLevel);
       case RULE_DAY_LOW_SOFAR_NO_MORE_THAN_X_BELOW_LEVEL:
          return GateFail_DayLowSoFar_NoMoreThanX_BelowLevel(barIdx, tradeLevel, rule.d0);
+      case RULE_DAY_LOW_SOFAR_AT_LEAST_X_BELOW_LEVEL:
+         return GateFail_DayLowSoFar_AtLeastX_BelowLevel(barIdx, tradeLevel, rule.d0);
+      case RULE_DAY_HIGH_SOFAR_AT_LEAST_X_ABOVE_LEVEL:
+         return GateFail_DayHighSoFar_AtLeastX_AboveLevel(barIdx, tradeLevel, rule.d0);
+      case RULE_DAY_HIGH_SOFAR_NO_MORE_THAN_X_ABOVE_LEVEL:
+         return GateFail_DayHighSoFar_NoMoreThanX_AboveLevel(barIdx, tradeLevel, rule.d0);
       case RULE_LEVEL_ABOVE_PDL:
          return GateFail_Level_AbovePDL(tradeLevel);
       case RULE_LEVEL_BELOW_PDL:
