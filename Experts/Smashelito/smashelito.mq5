@@ -4855,15 +4855,27 @@ double FalgoLevelAnchorValueInStreakAtBarForExpandedIdx(const int expandedIdx, c
 }
 
 //+------------------------------------------------------------------+
-//| Closest level category mismatch → gates firstFail (per-algo level scope). |
+//| Closest level category mismatch → gates firstFail (from level categories). |
 //+------------------------------------------------------------------+
 string AlgoClosestLevelCategoryGateFailLabelForAlgo(const int expandedLevelIdx, const int algoNumber)
 {
-   if(AlgoTradesDailyLevels(algoNumber) && !AlgoTradesWeeklyLevels(algoNumber))
-      return "closestLevelNotDailyCategory";
-   if(AlgoTradesWeeklyLevels(algoNumber) && !AlgoTradesDailyLevels(algoNumber))
-      return "closestLevelNotWeeklyCategory";
-   return "closestLevelNotWeeklyCategory";
+   if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
+      return "noClosestLevelExpanded";
+
+   const string categories = g_levelsExpanded[expandedLevelIdx].categories;
+   if(LevelIsTertiary(categories))
+      return "closestLevelIsTertiary";
+   if(LevelIsStacked(categories))
+      return "closestLevelIsStacked";
+   if(LevelIsWeekly(categories))
+      return "closestLevelIsWeekly";
+   if(LevelIsDailyKind(categories))
+      return "closestLevelIsDaily";
+
+   FatalError(StringFormat(
+      "AlgoClosestLevelCategoryGateFailLabelForAlgo: algo %d level idx %d categories \"%s\" — not weekly/daily/stacked/tertiary",
+      algoNumber, expandedLevelIdx, categories));
+   return "";
 }
 
 int FalgoClosestExpandedLevelIdxAtBar(const int barIdx)

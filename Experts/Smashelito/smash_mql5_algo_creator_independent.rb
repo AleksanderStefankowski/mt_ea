@@ -11,17 +11,18 @@ require_relative 'smash_mql5_algo_creator_common'
 include SmashMql5AlgoCreatorCommon
 
 # --- CONFIG (edit before running) ---
-# Configured below to recreate algo 29 (next run creates a new algo id with same tune + rules).
+# Edit tune_overrides and rules below, then run to create a new algo id.
 
-# Uncomment key=value lines to override defaults. Every field is still written to mq5.
+# Every field in TUNE_FIELD_DEFAULTS (common.rb) is always written to mq5.
+# Tune values are literal thresholds when the matching rule is present; omit the rule to disable a check.
 # At least one of tradesWeeklyLevels, tradesDailyLevels, tradesTertiaryTodayRTHOLevel must be true.
 tune_overrides = <<~TUNE
-  # --- placement / side (algo 29) ---
+  # --- placement / side ---
   trades_short=ALGO_SIDE_SHORT
-  enabled=true
+  enabled=false
   tradesWeeklyLevels=true
   tradesDailyLevels=false
-  # tradesTertiaryTodayRTHOLevel=false
+  tradesTertiaryTodayRTHOLevel=false
 
   # --- per-algo stop counts ---
   tune.stop_trading_today_if_thisAlgo_losing_trades_count=2
@@ -39,72 +40,72 @@ tune_overrides = <<~TUNE
   tune.strong_trade_eval_min_profit_pts=1.8
   tune.strong_trade_min_velocity_trigger=0.4
   tune.strong_trade_velocity_window_seconds=10
-  # tune.strong_trade_stall_mode_uses_avgvelocity_weakening=false
+  tune.strong_trade_stall_mode_uses_avgvelocity_weakening=false
   tune.strong_trade_stall_velocity_max_trigger=0.1
   tune.strong_trade_stall_giveback_pts_trigger=99.0
-  # tune.strong_trade_stall_avgvelocity_weaken_pct=0.0
+  tune.strong_trade_stall_avgvelocity_weaken_pct=0.0
   tune.strong_trade_stall_min_close_profit_pts=2.5
   tune.telemetry_velocity_window_seconds=10
   tune.telemetry_avg_velocity_window_seconds=10
   tune.start_mae_care_after_x_seconds=90
-  tune.badtrade_MaePostX_trigger=-4.0
+  tune.badtrade_MaePostX_trigger=-3.0
   tune.badtrade_totalRedSeconds_minTrigger=90
   tune.badtrade_try_save_TP=1.0
   tune.terribletrade_MaePostX_trigger=-5.5
   tune.terribletrade_consecutiveRedSeconds_minTrigger=90
   tune.terribletrade_avgProfitVelocity10_trigger=0.02
-  tune.terribletrade_try_smaller_loss_TP=-2.0
+  tune.terribletrade_try_smaller_loss_TP=0.5
 
-  # --- order placement (algo 29) ---
-  levelOffset=0.4
-  priceProximity=4.5
-  expiry_minutes=5
+  # --- order placement ---
+  levelOffset=1.1
+  priceProximity=5.0
+  expiry_minutes=8
 
   # --- lookbacks ---
-  # recentBounceCountToday_Minutes=0
-  # recentCeilingCountToday_Minutes=0
+  recentBounceCountToday_Minutes=0
+  recentCeilingCountToday_Minutes=300
 
   # --- clean streak / anchor ---
-  # min_anchorAbove_cleanStreak=0.0
-  # max_anchorAbove_cleanStreak=0.0
-  # min_anchorBelow_cleanStreak=11.0
-  # min_cleanOHLC_streak_count=2
-  # max_cleanOHLC_streak_count=0
+  min_anchorAbove_cleanStreak=0.0
+  max_anchorAbove_cleanStreak=0.0
+  min_anchorBelow_cleanStreak=11.0
+  min_cleanOHLC_streak_count=2
+  max_cleanOHLC_streak_count=0
 
-  # --- bounce / ceiling (algo 29) ---
-  # bounceMaxAllowed_today=0
-  # min_bounceCount=0
-  # recentBounceCount_max_allowed=0
+  # --- bounce / ceiling ---
+  bounceMaxAllowed_today=0
+  min_bounceCount=0
+  recentBounceCount_max_allowed=0
   physicalCeilingMaxAllowed_today=0
-  # proximityCeilingMaxAllowed_today=0
+  proximityCeilingMaxAllowed_today=4
   max_allowed_trades_perLevel_perDay_forThisAlgo=1
 
   # --- weekly bounce / ceiling / contact ---
-  # min_weekly_bounce_required=0
-  # max_weekly_bounce_allowed=0
-  # min_ceilingCount=0
-  # min_weekly_ceiling_required=0
-  # max_weekly_ceiling_allowed=0
-  # max_weekly_contact_candles_allowed=-1
+  min_weekly_bounce_required=0
+  max_weekly_bounce_allowed=0
+  min_ceilingCount=0
+  min_weekly_ceiling_required=0
+  max_weekly_ceiling_allowed=0
+  max_weekly_contact_candles_allowed=9999
 
   # --- ONO / contact ---
-  # min_levelOnoAbsDiff=0.0
-  # min_onoAboveLevel=1.0
-  # min_onoBelowLevel=0.0
-  # max_daystart_earlierWeek_contactAndProx_allowed=-1
-  # max_intraday_contactAndProx_today_allowed=-1
+  min_levelOnoAbsDiff=0.0
+  min_onoAboveLevel=0.0
+  min_onoBelowLevel=0.0
+  max_daystart_earlierWeek_contactAndProx_allowed=9999
+  max_intraday_contactAndProx_today_allowed=9999
 
   # --- day range / gap ---
-  # max_dayLowSoFar_belowLevel_dist=0.0
-  # min_gap_range_pts_exclusive=0.0
-  # max_gap_fill_pc_exclusive=0.0
+  max_dayLowSoFar_belowLevel_dist=0.0
+  min_gap_range_pts_exclusive=0.0
+  max_gap_fill_pc_exclusive=0.0
 TUNE
 
 # Uncomment rules to include. Shorthand below_PDH also accepts below_PDH=true.
 rules = <<~RULES
   # --- clean streak / anchor ---
   # cleanStreakLong
-  # cleanStreakShort
+  cleanStreakShort
   # cleanStreakTooLong
   # anchorAboveTooHigh
 
@@ -112,8 +113,8 @@ rules = <<~RULES
   # bounceCountTooHigh
   # bounceCountTooLow
   # recentBounceCountTooHigh
-  # ceilingProximityCandlesTooHigh
-  ceilingCountTooHigh
+  ceilingProximityCandlesTooHigh
+  # ceilingCountTooHigh
   # ceilingCountTooLow
   # weekBounceCountTooLow
   # weekBounceCountTooHigh
@@ -187,9 +188,9 @@ rules = <<~RULES
   # above_PDC=true
 
   # --- level vs ONH / ONL ---
-  below_ONH=true
+  # below_ONH=true
   # above_ONH=true
-  below_ONL=true
+  # below_ONL=true
   # above_ONL=true
 
   # --- level vs RTH high/low ---
@@ -205,13 +206,13 @@ rules = <<~RULES
   # above_IBH=true
 
   # --- level vs day high/low so far ---
-  below_dayHighSoFar=true
+  # below_dayHighSoFar=true
   # above_dayHighSoFar=true
   # below_dayLowSoFar=true
-  # above_dayLowSoFar=true
+  above_dayLowSoFar=true
 
   # --- level vs midpoint ---
-  below_midpoint=true
+  # below_midpoint=true
   # above_midpoint=true
 
   # --- weekly contact (literal min count; edit number) ---
