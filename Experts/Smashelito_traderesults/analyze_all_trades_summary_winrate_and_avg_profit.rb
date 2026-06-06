@@ -12,7 +12,7 @@ FILE_PATH = 'summary_tradeResults_all_days.tsv'
 # HELPERS
 # =========================================================
 EXCLUDE_PREFIXES_MODE = true
-EXCLUDE_PREFIXES = ["19", "20", "21", "22", "25"]  # magic first 2 digits; comma in one string also works, e.g. "20, 24"
+EXCLUDE_PREFIXES = ["19", "20", "21", "22", "25", "26"]  # magic first 2 digits; comma in one string also works, e.g. "20, 24"
 
 def excluded_prefixes
   EXCLUDE_PREFIXES
@@ -135,7 +135,7 @@ def print_excluded_prefixes_footer(all_rows)
       "prefix #{prefix} (#{trades.size} trades, pf #{format_profit_factor(trades)})"
     end
 
-  puts "Excluded from ALL TRADES: #{parts.join('; ')}"
+  puts "!!!!!!!!!!!!!!!!!!!!!!!!! EXCLUDED from ALL TRADES: #{parts.join('; ')}"
 end
 
 # =========================================================

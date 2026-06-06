@@ -411,9 +411,9 @@ struct AlgoSharedProfile
 
 struct AlgoPerAlgoTune
 {
-   int    stop_trading_today_if_thisAlgo_losing_trades_count;
-   int    stop_trading_today_if_thisAlgo_winning_trades_count;
-   int    stop_trading_today_if_thisAlgo_total_trades_count;  // 0=off; stop when wins+losses >= this
+   int    stop_trading_today_if_thisAlgo_losing_trades_count;  // stop when losses >= this
+   int    stop_trading_today_if_thisAlgo_winning_trades_count;  // stop when wins >= this
+   int    stop_trading_today_if_thisAlgo_total_trades_count;  // stop when wins+losses >= this
    int    babysitStart_minute;
    double neutral_trade_TP;                    // signed; 0=breakeven; close when profit >= target
    double strong_trade_TP;                     // signed; 0=breakeven; close when profit >= target
@@ -554,20 +554,20 @@ struct AlgoDef
    int            physicalCeilingMaxAllowed_today;
    int            proximityCeilingMaxAllowed_today;
    int            max_allowed_trades_perLevel_perDay_forThisAlgo;
-   int            min_weekly_bounce_required;   // 0=off; week bounce on closest level must be >= this
+   int            min_weekly_bounce_required;   // week bounce on closest level must be >= this (weekBounceCountTooLow rule)
    int            max_weekly_bounce_allowed;
-   int            min_ceilingCount;             // daily ceiling on closest level must be >= this when rule added
-   int            min_weekly_ceiling_required;  // 0=off; week ceiling on closest level must be >= this
+   int            min_ceilingCount;             // daily ceiling on closest level must be >= this (ceilingCountTooLow rule)
+   int            min_weekly_ceiling_required;  // week ceiling on closest level must be >= this (weekCeilingCountTooLow rule)
    int            max_weekly_ceiling_allowed;
-   int            max_weekly_contact_candles_allowed;  // contact1m_earlierThisWeek_contactAndProximity + intraday; -1=off
+   int            max_weekly_contact_candles_allowed;  // weekContactCandlesTooHigh rule
    double         min_levelOnoAbsDiff;
-   double         min_onoAboveLevel;  // 0=off; pass when ONO - level >= this (ONO strictly above level by X)
-   double         min_onoBelowLevel;  // 0=off; pass when level - ONO >= this (ONO strictly below level by X)
-   int            max_daystart_earlierWeek_contactAndProx_allowed;  // -1=off; earlier-this-week contact+prox at day start
-   int            max_intraday_contactAndProx_today_allowed;        // -1=off; contact+prox today on trade level
-   double         max_dayLowSoFar_belowLevel_dist;  // 0=off; pass when dayLowSoFar >= level - this (price units)
-   double         min_gap_range_pts_exclusive;      // 0=off; pass when |RTHopen-PDC| > this
-   double         max_gap_fill_pc_exclusive;        // 0=off; pass when intraday gap_fill_pc < this
+   double         min_onoAboveLevel;  // ONO - level >= this (onoAboveLevelTooLow rule)
+   double         min_onoBelowLevel;  // level - ONO >= this (onoBelowLevelTooLow rule)
+   int            max_daystart_earlierWeek_contactAndProx_allowed;  // dayStartEarlierWeekContactTooHigh rule
+   int            max_intraday_contactAndProx_today_allowed;        // dayContactTodayTooHigh rule
+   double         max_dayLowSoFar_belowLevel_dist;  // dayLowSoFarNoMoreThanXBelowLevel rule
+   double         min_gap_range_pts_exclusive;      // gapRangePtsAbove rule
+   double         max_gap_fill_pc_exclusive;        // gapFillPcBelow rule
    AlgoRuleEntry  rules[ALGO_RULES_MAX];
    int            rule_count;
 };
@@ -724,6 +724,10 @@ struct TradeResult
 };
 TradeResult g_tradeResults[MAX_TRADE_RESULTS];
 int g_tradeResultsCount = 0;
+datetime g_tradeResultsEodFlushedForDayStart = 0;  // legacy: latest flushed day (debug); see g_tradeResultsEodFlushedDayStarts[]
+#define TRADE_RESULTS_EOD_FLUSHED_DAYS_MAX 512
+datetime g_tradeResultsEodFlushedDayStarts[TRADE_RESULTS_EOD_FLUSHED_DAYS_MAX];
+int g_tradeResultsEodFlushedDayCount = 0;
 // Temp deal buffers for UpdateTradeResultsForDay (sort by magic then time)
 datetime g_dealTime[MAX_DEALS_DAY];
 long g_dealMagic[MAX_DEALS_DAY];
@@ -3134,13 +3138,12 @@ datetime FalgoSentTimeFromInDeal(const ulong inDealTicket)
 }
 
 //+------------------------------------------------------------------+
-//| Load deals for current day, reject DEAL_TYPE_BALANCE, group by magic, pair IN/OUT into g_tradeResults. Call from loop2. |
+//| Load deals for [dayStart, dayStart+86400), pair IN/OUT into g_tradeResults. |
 //+------------------------------------------------------------------+
-void UpdateTradeResultsForDay()
+void UpdateTradeResultsForDayStart(const datetime dayStart)
 {
    g_tradeResultsCount = 0;
    g_dealCount = 0;
-   datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    datetime dayEnd = dayStart + 86400;
    if(!HistorySelect(dayStart, dayEnd)) return;
    int total = HistoryDealsTotal();
@@ -3222,6 +3225,13 @@ void UpdateTradeResultsForDay()
          g_tradeResults[g_tradeResultsCount++] = tradeResult;
       }
    }
+}
+
+//+------------------------------------------------------------------+
+void UpdateTradeResultsForDay()
+{
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   UpdateTradeResultsForDayStart(dayStart);
 }
 
 //+------------------------------------------------------------------+
@@ -4094,21 +4104,16 @@ bool AlgoRulesetPassesDayStops(const int algoSlot1)
    const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
    if(idx >= 0)
    {
-      if(tune.stop_trading_today_if_thisAlgo_losing_trades_count > 0 &&
-         g_algoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_losing_trades_count)
+      if(g_algoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_losing_trades_count)
          return false;
-      if(tune.stop_trading_today_if_thisAlgo_winning_trades_count > 0 &&
-         g_algoDayWins[idx] >= tune.stop_trading_today_if_thisAlgo_winning_trades_count)
+      if(g_algoDayWins[idx] >= tune.stop_trading_today_if_thisAlgo_winning_trades_count)
          return false;
-      if(tune.stop_trading_today_if_thisAlgo_total_trades_count > 0 &&
-         g_algoDayWins[idx] + g_algoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_total_trades_count)
+      if(g_algoDayWins[idx] + g_algoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_total_trades_count)
          return false;
    }
-   if(g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count > 0 &&
-      g_algoFamilyDayLosses >= g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count)
+   if(g_algoFamilyDayLosses >= g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count)
       return false;
-   if(g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count > 0 &&
-      g_algoFamilyDayWins >= g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count)
+   if(g_algoFamilyDayWins >= g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count)
       return false;
    if(!AlgoFamilyDayAllowsNewTrades())
       return false;
@@ -4124,11 +4129,10 @@ bool AlgoDayStopUnderLossLimit(const int algoSlot1, bool &outUnderThisAlgo, bool
    if(AlgoLoadPerAlgoTune(algoSlot1, tune))
    {
       const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
-      if(idx >= 0 && tune.stop_trading_today_if_thisAlgo_losing_trades_count > 0)
+      if(idx >= 0)
          outUnderThisAlgo = (g_algoDayLosses[idx] < tune.stop_trading_today_if_thisAlgo_losing_trades_count);
    }
-   if(g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count > 0)
-      outUnderAllAlgos = (g_algoFamilyDayLosses < g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count);
+   outUnderAllAlgos = (g_algoFamilyDayLosses < g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count);
    return (outUnderThisAlgo && outUnderAllAlgos);
 }
 
@@ -4141,11 +4145,10 @@ bool AlgoDayStopUnderWinLimit(const int algoSlot1, bool &outUnderThisAlgo, bool 
    if(AlgoLoadPerAlgoTune(algoSlot1, tune))
    {
       const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
-      if(idx >= 0 && tune.stop_trading_today_if_thisAlgo_winning_trades_count > 0)
+      if(idx >= 0)
          outUnderThisAlgo = (g_algoDayWins[idx] < tune.stop_trading_today_if_thisAlgo_winning_trades_count);
    }
-   if(g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count > 0)
-      outUnderAllAlgos = (g_algoFamilyDayWins < g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count);
+   outUnderAllAlgos = (g_algoFamilyDayWins < g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count);
    return (outUnderThisAlgo && outUnderAllAlgos);
 }
 
@@ -8496,6 +8499,104 @@ void WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(const string dateStr)
 }
 
 //+------------------------------------------------------------------+
+bool TradeResultsEodAlreadyFlushedForDay(const datetime dayStart)
+{
+   for(int i = 0; i < g_tradeResultsEodFlushedDayCount; i++)
+   {
+      if(g_tradeResultsEodFlushedDayStarts[i] == dayStart)
+         return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+void MarkTradeResultsEodFlushedForDay(const datetime dayStart)
+{
+   if(TradeResultsEodAlreadyFlushedForDay(dayStart))
+      return;
+   if(g_tradeResultsEodFlushedDayCount >= TRADE_RESULTS_EOD_FLUSHED_DAYS_MAX)
+      FatalError("MarkTradeResultsEodFlushedForDay: TRADE_RESULTS_EOD_FLUSHED_DAYS_MAX exceeded");
+   g_tradeResultsEodFlushedDayStarts[g_tradeResultsEodFlushedDayCount++] = dayStart;
+   g_tradeResultsEodFlushedForDayStart = dayStart;
+}
+
+//+------------------------------------------------------------------+
+bool M1SameCalendarDayExistsAfter(const datetime barTime)
+{
+   const string barDate = TimeToString(barTime, TIME_DATE);
+   const datetime probe = barTime + 60;
+   const int sh = iBarShift(_Symbol, PERIOD_M1, probe, false);
+   if(sh < 0)
+      return false;
+   return (TimeToString(iTime(_Symbol, PERIOD_M1, sh), TIME_DATE) == barDate);
+}
+
+//+------------------------------------------------------------------+
+void FlushTradeResultsForDayIfNeeded(const datetime dayStart)
+{
+   if(!InpEODLogging || !InpLoadTradeResultsFromHistory)
+      return;
+   if(TradeResultsEodAlreadyFlushedForDay(dayStart))
+      return;
+
+   const string dateStr = TimeToString(dayStart, TIME_DATE);
+   UpdateTradeResultsForDayStart(dayStart);
+   FalgoEnrichAllTradeResultsLevelTpSl();
+   WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(dateStr);
+   MarkTradeResultsEodFlushedForDay(dayStart);
+}
+
+//+------------------------------------------------------------------+
+//| After UpdateDayM1: last M1 of calendar day in feed (e.g. Good Friday 15:13) with no same-day bar at +1 min. |
+//+------------------------------------------------------------------+
+void TryFlushTradeResultsIfLastBarOfDayInFeed()
+{
+   if(!InpEODLogging || !InpLoadTradeResultsFromHistory)
+      return;
+   if(g_barsInDay <= 0 || g_m1DayStart == 0)
+      return;
+   if(TradeResultsEodAlreadyFlushedForDay(g_m1DayStart))
+      return;
+
+   const datetime lastBarTime = g_m1Rates[g_barsInDay - 1].time;
+   if(M1SameCalendarDayExistsAfter(lastBarTime))
+      return;
+
+   FlushTradeResultsForDayIfNeeded(g_m1DayStart);
+}
+
+//+------------------------------------------------------------------+
+//| Fallback when 21:58 EOD window was missed. Day rollover flushes every skipped calendar day
+//| between barClosed and barOpen (not only barClosed's day). Same-day gap > 1 min if 21:58 did not run. |
+//+------------------------------------------------------------------+
+void TryFlushTradeResultsEodFallback(const datetime barOpen, const datetime barClosed)
+{
+   if(!InpEODLogging || !InpLoadTradeResultsFromHistory)
+      return;
+   if(barOpen <= 0 || barClosed <= 0)
+      return;
+
+   const datetime closedDayStart = barClosed - (barClosed % 86400);
+   const string dateOpen = TimeToString(barOpen, TIME_DATE);
+   const string dateClosed = TimeToString(barClosed, TIME_DATE);
+
+   if(dateOpen != dateClosed)
+   {
+      const datetime openDayStart = barOpen - (barOpen % 86400);
+      for(datetime d = closedDayStart; d < openDayStart; d += 86400)
+         FlushTradeResultsForDayIfNeeded(d);
+      return;
+   }
+
+   if((barOpen - barClosed) <= 60)
+      return;
+   if(TradeResultsEodAlreadyFlushedForDay(closedDayStart))
+      return;
+
+   FlushTradeResultsForDayIfNeeded(closedDayStart);
+}
+
+//+------------------------------------------------------------------+
 //| Algo family profile defaults (shared + wired algos 10–14). |
 //+------------------------------------------------------------------+
 void SyncAlgoFamilyProfileFromInputs()
@@ -9205,7 +9306,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9241,7 +9342,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -10738,14 +10839,12 @@ bool Gate_ONO_BelowLevelByAtLeastX(const double levelPx, const double minDiffPoi
 //+------------------------------------------------------------------+
 bool Gate_DayStartEarlierWeekContact_NoMoreThanX(const double levelPx, const int maxAllowed)
 {
-   if(maxAllowed < 0) return true;
    return (Falgo_DayStart_ContactAndProxC_1m_EarlierThisWeek(levelPx) <= maxAllowed);
 }
 
 //+------------------------------------------------------------------+
 bool Gate_DayContactToday_NoMoreThanX(const int barIdx, const double levelPx, const int maxAllowed)
 {
-   if(maxAllowed < 0) return true;
    return (Falgo_ContactAndProxC_Today_ForLevelAtBar(barIdx, levelPx) <= maxAllowed);
 }
 
@@ -10828,7 +10927,6 @@ bool Gate_WeekCeilingCount_NoMoreThanX(const int barIdx, const int maxAllowed)
 
 bool Gate_TradesAtLevel_UnderDailyLimit(const int barIdx, const int algoNumber, const int maxTradesPerLevel)
 {
-   if(maxTradesPerLevel <= 0) return true;
    int levelSlot = 0;
    if(!FalgoClosestLevelMagicSlotAtBarForAlgo(algoNumber, barIdx, levelSlot))
       return true;
@@ -11459,7 +11557,6 @@ string GateFail_CleanStreak_Long(const int barIdx, const double tradeLevel, cons
 string GateFail_CleanStreak_TooLong(const int barIdx, const double tradeLevel, const int maxStreakCountExclusive)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay || tradeLevel <= 0.0) return "";
-   if(maxStreakCountExclusive <= 0) return "";
    PullingHistoryAlgoFamilyBarSnap snap;
    if(!FalgoPullingHistorySnapForLevelAtBar(tradeLevel, barIdx, snap))
       return "";
@@ -11472,7 +11569,6 @@ string GateFail_CleanStreak_TooLong(const int barIdx, const double tradeLevel, c
 string GateFail_AnchorAbove_TooHigh(const int barIdx, const double tradeLevel, const double maxAnchorAboveExclusive)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay || tradeLevel <= 0.0) return "";
-   if(maxAnchorAboveExclusive <= 0.0) return "";
    PullingHistoryAlgoFamilyBarSnap snap;
    if(!FalgoPullingHistorySnapForLevelAtBar(tradeLevel, barIdx, snap))
       return "";
@@ -11500,7 +11596,6 @@ string GateFail_CleanStreak_Short(const int barIdx, const double tradeLevel, con
 string GateFail_DayLowSoFar_NoMoreThanX_BelowLevel(const int barIdx, const double levelPx, const double x)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return "";
-   if(x <= 0.0) return "";
    if(!g_dayLowSoFarAtBar[barIdx].hasValue)
       return "dayLowSoFarUnknown";
    const double minAllowedDayLow = levelPx - x;
@@ -11512,7 +11607,6 @@ string GateFail_DayLowSoFar_NoMoreThanX_BelowLevel(const int barIdx, const doubl
 string GateFail_DayLowSoFar_AtLeastX_BelowLevel(const int barIdx, const double levelPx, const double x)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return "";
-   if(x <= 0.0) return "";
    if(!g_dayLowSoFarAtBar[barIdx].hasValue)
       return "dayLowSoFarUnknown";
    const double maxAllowedDayLow = levelPx - x;
@@ -11524,7 +11618,6 @@ string GateFail_DayLowSoFar_AtLeastX_BelowLevel(const int barIdx, const double l
 string GateFail_DayHighSoFar_AtLeastX_AboveLevel(const int barIdx, const double levelPx, const double x)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return "";
-   if(x <= 0.0) return "";
    if(!g_dayHighSoFarAtBar[barIdx].hasValue)
       return "dayHighSoFarUnknown";
    const double minAllowedDayHigh = levelPx + x;
@@ -11536,7 +11629,6 @@ string GateFail_DayHighSoFar_AtLeastX_AboveLevel(const int barIdx, const double 
 string GateFail_DayHighSoFar_NoMoreThanX_AboveLevel(const int barIdx, const double levelPx, const double x)
 {
    if(barIdx < 0 || barIdx >= g_barsInDay) return "";
-   if(x <= 0.0) return "";
    if(!g_dayHighSoFarAtBar[barIdx].hasValue)
       return "dayHighSoFarUnknown";
    const double maxAllowedDayHigh = levelPx + x;
@@ -12480,8 +12572,6 @@ double FalgoOpenGapRangePts()
 //+------------------------------------------------------------------+
 bool Gate_GapRangePts_AboveX(const double minPtsExclusive)
 {
-   if(minPtsExclusive <= 0.0)
-      return true;
    return (FalgoOpenGapRangePts() > minPtsExclusive);
 }
 
@@ -13572,6 +13662,9 @@ void OnTimer()
 
    g_lastBarTime = barNowM1;
 
+   const datetime barClosedM1 = iTime(_Symbol, PERIOD_M1, 1);
+   TryFlushTradeResultsEodFallback(barNowM1, barClosedM1);
+
    CloseAnyOpenTrade_atEOD_2158_falgo();   // algo family magics; EOD write at 21:58 sees OUT
 
    // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
@@ -13584,6 +13677,7 @@ void OnTimer()
 
    // Refresh day M1 and levels first; then set closed-candle OHLC from same source (or terminal fallback)
    UpdateDayM1AndLevelsExpanded();
+   TryFlushTradeResultsIfLastBarOfDayInFeed();
    FalgoTryLogGatesForClosedMinute();
    SetClosedCandleOHLCFromDayM1OrTerminal();
 
@@ -13671,6 +13765,7 @@ void OnTimer()
 
 
          WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(dateStr);
+         MarkTradeResultsEodFlushedForDay(dayStart);
 
          // Per-level files (only once per file per day; if missing, write again). MT5 CSV with headers.
          const int HighestDiffRange_Log = 15;  // window in bars for both HighestDiffUp and HighestDiffDown in logs

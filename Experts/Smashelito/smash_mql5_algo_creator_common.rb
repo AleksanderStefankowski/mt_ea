@@ -506,6 +506,17 @@ module SmashMql5AlgoCreatorCommon
       .uniq
   end
 
+  # Pipe-separated quant export, e.g. "above_ONH=true | levelTag=dailyUp1 | below_PDH"
+  def selected_rule_tokens_from_quant_string(text)
+    return [] if text.nil? || text.strip.empty?
+
+    text
+      .split('|')
+      .map { |part| normalize_rule_token(part) }
+      .compact
+      .uniq
+  end
+
   def rule_call_signature(mql5_line)
     mql5_line.strip.sub(/;\z/, '')[/AlgoRuleAdd_\w+/, 0]
   end
