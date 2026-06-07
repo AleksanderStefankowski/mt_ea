@@ -58,17 +58,17 @@ end
 # ============================================================
 
 puts
-puts "=== Subset_ VARIABLES (all) ==="
+puts "--- Subset_ VARIABLES (all) ---"
 subset_set.to_a.sort.each { |s| puts s }
 
 puts
-puts "=== Subset_ MAX SUFFIX PER PREFIX ==="
+puts "--- Subset_ MAX SUFFIX PER PREFIX ---"
 largest_suffix_per_prefix.sort.each do |prefix, max_suffix|
   puts "Subset_#{prefix}#{format('%02d', max_suffix)}"
 end
 
 puts
-puts "=== GROUPED (last 2 digits) BY FIRST 3 DIGITS ==="
+puts "--- GROUPED (last 2 digits) BY FIRST 3 DIGITS ---"
 subset_groups_sorted.sort.each do |prefix, suffixes|
   puts "Group #{prefix}: #{suffixes.inspect}"
   puts "\n"

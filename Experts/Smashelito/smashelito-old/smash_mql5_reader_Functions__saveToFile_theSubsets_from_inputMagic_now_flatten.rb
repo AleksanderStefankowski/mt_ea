@@ -66,14 +66,14 @@ end
 
 # ================== OUTPUT ==================
 
-puts "\n=== CONFIG ==="
+puts "\n--- CONFIG ---"
 puts "first_digit: #{first_digit}"
 puts "second_digits_allowed: #{second_digits_allowed.inspect}"
 puts "third_digit: #{third_digit}"
 puts "start_suffix: #{starting_index_digits4th5th}"
 puts "total blocks: #{blocks.size}"
 
-puts "\n=== FINAL GENERATED SUBSET IDS ==="
+puts "\n--- FINAL GENERATED SUBSET IDS ---"
 puts new_ids.join(" ")
 
 # ================== SAVE ==================

@@ -64,7 +64,7 @@ end
 # -----------------------------
 # PRINT GROUPED RESULT
 # -----------------------------
-puts "\n=== GROUPED (last 2 digits) BY FIRST 3 DIGITS ==="
+puts "\n--- GROUPED (last 2 digits) BY FIRST 3 DIGITS ---"
 
 groups.keys.sort.each do |key|
   list = groups[key]

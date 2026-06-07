@@ -168,10 +168,10 @@ File.write("ZQUANT2_3_quant_encoder_quantsNiceSpace_output.txt", all_output.join
 
 # ================== CONSOLE ==================
 
-puts "\n=== PREVIEW (FIRST BLOCK) ==="
+puts "\n--- PREVIEW (FIRST BLOCK) ---"
 puts blocks.first
 
-puts "\n=== PREVIEW (LAST BLOCK) ==="
+puts "\n--- PREVIEW (LAST BLOCK) ---"
 puts blocks.last
 puts "\nTotal trade blocks generated: #{blocks.size}"
 puts "\n(full output saved to ZQUANT2_3_quant_encoder_quantsNiceSpace_output.txt)"

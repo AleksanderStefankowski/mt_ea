@@ -50,7 +50,7 @@ end
 # OUTPUT GROUPED AS RUBY ARRAYS
 # ============================================================
 
-puts "\n=== GROUPED subset IDs (last 2 digits) BY FIRST 3 DIGITS (trade direction and type) ==="
+puts "\n--- GROUPED subset IDs (last 2 digits) BY FIRST 3 DIGITS (trade direction and type) ---"
 
 groups.keys.sort.each do |key|
   values = groups[key]

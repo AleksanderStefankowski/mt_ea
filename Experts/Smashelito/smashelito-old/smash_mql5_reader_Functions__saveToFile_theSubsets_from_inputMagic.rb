@@ -43,7 +43,7 @@ end
 # ================== STEP 4: OUTPUT ==================
 
 if blocks.any?
-  puts "\n=== EXAMPLE MATCHED BLOCK ==="
+  puts "\n--- EXAMPLE MATCHED BLOCK ---"
   puts blocks.first
 else
   puts "\nNo matching blocks found."

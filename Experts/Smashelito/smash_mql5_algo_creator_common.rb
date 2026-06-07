@@ -261,9 +261,9 @@ module SmashMql5AlgoCreatorCommon
 
   def print_block(block_num, inner)
     start_marker, end_marker = MARKERS.fetch(block_num)
-    puts '=' * 80
+    puts '-' * 80
     puts "BLOCK #{block_num} (#{start_marker} .. #{end_marker})"
-    puts '=' * 80
+    puts '-' * 80
     puts inner
     puts
   end

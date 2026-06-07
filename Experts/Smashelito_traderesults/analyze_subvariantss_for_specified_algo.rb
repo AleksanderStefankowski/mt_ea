@@ -486,10 +486,10 @@ ANALYSIS_SETS.each do |analysis_set|
     next if trades.empty?
 
     puts
-    puts "=" * 80
+    puts "-" * 80
     puts "MAGIC PREFIX #{magic_prefix} [#{analysis_set[:name]}]"
     puts "Trades: #{trades.size}"
-    puts "=" * 80
+    puts "-" * 80
 
     (1..MAX_COMBINATION_SIZE).each do |combo_size|
 

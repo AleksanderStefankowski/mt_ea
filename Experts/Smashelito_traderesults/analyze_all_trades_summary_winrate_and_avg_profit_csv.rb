@@ -2,17 +2,34 @@
 
 require 'csv'
 require 'date'
+
 # =========================================================
 # CONFIG
 # =========================================================
 
-FILE_PATH = 'summary_tradeResults_all_days.tsv'
+SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
+FILE_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days.tsv')
+SMASHELITO_MQ5_PATH = File.join(SCRIPT_DIR, '..', 'Smashelito', 'smashelito.mq5')
+OUTPUT_CSV_PATH = File.join(SCRIPT_DIR, 'analyze_all_trades_summary_winrate_and_avg_profit_output.csv')
+
+EXCLUDE_PREFIXES_MODE = false
+EXCLUDE_PREFIXES = ['19', '20', '21', '22', '25', '26', '27']
+
+CSV_HEADERS = %w[
+  magicprefix
+  tp
+  sl
+  profitfactor
+  traderate
+  tradedDaysCount
+  allDaysCount
+  allDays_startDate
+  allDays_endDate
+].freeze
 
 # =========================================================
 # HELPERS
 # =========================================================
-EXCLUDE_PREFIXES_MODE = true
-EXCLUDE_PREFIXES = ["19", "20", "21", "22", "25", "26", "27"]  # magic first 2 digits; comma in one string also works, e.g. "20, 24"
 
 def excluded_prefixes
   EXCLUDE_PREFIXES
@@ -29,19 +46,6 @@ def apply_exclude_prefixes(trades)
   return trades unless EXCLUDE_PREFIXES_MODE
 
   trades.reject { |t| trade_excluded?(t) }
-end
-
-def winrate(trades)
-  return 0.0 if trades.empty?
-
-  wins = trades.count { |t| t[:profit].to_f > 0 }
-  (wins.to_f / trades.size) * 100.0
-end
-
-def avg_profit(trades)
-  return 0.0 if trades.empty?
-
-  trades.sum { |t| t[:profit].to_f } / trades.size
 end
 
 def profit_factor(trades)
@@ -104,38 +108,26 @@ def trade_rate(trades, total_trading_days)
   unique_trade_days(trades).size.to_f / total_trading_days
 end
 
-def format_profit_factor(trades)
-  return 'n/a (no trades)' if trades.empty?
+def read_algo_shared_tp_sl(mq5_path)
+  unless File.file?(mq5_path)
+    $stderr.puts "ERROR: smashelito.mq5 not found: #{mq5_path}"
+    exit 1
+  end
 
-  pf = profit_factor(trades)
-  pf >= 999.0 ? '999.00 (no losses)' : format('%.2f', pf)
+  content = File.read(mq5_path, encoding: 'bom|utf-8')
+  tp = content[/g_algoShared\.initialTP\s*=\s*([\d.]+)/, 1]
+  sl = content[/g_algoShared\.initialSL\s*=\s*([\d.]+)/, 1]
+
+  unless tp && sl
+    $stderr.puts "ERROR: g_algoShared.initialTP / initialSL not found in #{mq5_path}"
+    exit 1
+  end
+
+  [tp.to_f, sl.to_f]
 end
 
-def print_summary(label, trades, total_trading_days)
-  winners = trades.select { |t| t[:profit].to_f > 0 }
-  losers = trades.select { |t| t[:profit].to_f < 0 }
-
-  puts label
-  puts format('  trades: %d', trades.size)
-  puts format('  trade rate: %.2f (%d / %d weekdays)', trade_rate(trades, total_trading_days), unique_trade_days(trades).size, total_trading_days)
-  puts format('  winrate: %.2f%%', winrate(trades))
-  puts format('  profit factor: %.2f', profit_factor(trades))
-  puts format('  avg profit (winning trades): %.2f', avg_profit(winners))
-  puts format('  avg profit (losing trades): %.2f', avg_profit(losers))
-  puts
-end
-
-def print_excluded_prefixes_footer(all_rows)
-  return unless EXCLUDE_PREFIXES_MODE
-
-  excluded_groups = all_rows.group_by { |r| r[:magic_prefix] }
-  parts =
-    excluded_prefixes.sort.map do |prefix|
-      trades = excluded_groups[prefix] || []
-      "prefix #{prefix} (#{trades.size} trades, pf #{format_profit_factor(trades)})"
-    end
-
-  puts "!!!!!!!!!!!!!!!!!!!!!!!!! EXCLUDED from ALL TRADES: #{parts.join('; ')}"
+def format_date(date)
+  date&.strftime('%Y-%m-%d')
 end
 
 # =========================================================
@@ -144,6 +136,10 @@ end
 
 $stderr.puts
 $stderr.puts "Loading file: #{FILE_PATH}"
+$stderr.puts "Reading TP/SL from: #{SMASHELITO_MQ5_PATH}"
+
+initial_tp, initial_sl = read_algo_shared_tp_sl(SMASHELITO_MQ5_PATH)
+$stderr.puts "g_algoShared.initialTP = #{initial_tp}, initialSL = #{initial_sl}"
 
 raw = File.read(FILE_PATH, encoding: 'bom|utf-8')
 csv = CSV.parse(raw, headers: true, col_sep: ',')
@@ -171,37 +167,42 @@ first_date, last_date, all_trading_day_count = trade_date_range(rows)
 $stderr.puts "Loaded trades: #{rows.size}"
 $stderr.puts "Date range: #{first_date} -> #{last_date}"
 $stderr.puts "Weekdays in range (excl. weekends): #{all_trading_day_count}"
-$stderr.puts "Days with any trade in file: #{unique_trade_days(rows).size}"
 if EXCLUDE_PREFIXES_MODE
   excluded = rows.count { |t| trade_excluded?(t) }
-  $stderr.puts "EXCLUDE_PREFIXES_MODE: excluding prefixes #{excluded_prefixes.inspect} (#{excluded} trades dropped from ALL TRADES output)"
+  $stderr.puts "EXCLUDE_PREFIXES_MODE: excluding prefixes #{excluded_prefixes.inspect} (#{excluded} trades dropped)"
 end
 $stderr.puts
 
 rows_for_all_trades = apply_exclude_prefixes(rows)
-
-# =========================================================
-# OUTPUT
-# =========================================================
-
-puts '-' * 60
-puts 'ALL TRADES'
-puts '-' * 60
-puts
-
-print_summary('Overall', rows_for_all_trades, all_trading_day_count)
-
-puts '-' * 60
-puts 'BY MAGIC PREFIX (first 2 digits)'
-puts '-' * 60
-puts
-
 magic_groups = rows_for_all_trades.group_by { |r| r[:magic_prefix] }
 
-magic_groups.keys.sort.each do |magic_prefix|
-  print_summary("Magic prefix #{magic_prefix}", magic_groups[magic_prefix], all_trading_day_count)
+csv_rows =
+  magic_groups.keys.sort.map do |magic_prefix|
+    trades = magic_groups[magic_prefix]
+    traded_days_count = unique_trade_days(trades).size
+
+    {
+      magicprefix: magic_prefix,
+      tp: initial_tp,
+      sl: initial_sl,
+      profitfactor: format('%.2f', profit_factor(trades)),
+      traderate: format('%.2f', trade_rate(trades, all_trading_day_count)),
+      tradedDaysCount: traded_days_count,
+      allDaysCount: all_trading_day_count,
+      allDays_startDate: format_date(first_date),
+      allDays_endDate: format_date(last_date)
+    }
+  end
+
+# =========================================================
+# OUTPUT CSV
+# =========================================================
+
+CSV.open(OUTPUT_CSV_PATH, 'w', write_headers: true, headers: CSV_HEADERS) do |out|
+  csv_rows.each do |row|
+    out << CSV_HEADERS.map { |h| row[h.to_sym] }
+  end
 end
 
-print_excluded_prefixes_footer(rows)
-
+$stderr.puts "Wrote #{csv_rows.size} rows to #{OUTPUT_CSV_PATH}"
 $stderr.puts 'DONE'

@@ -61,16 +61,16 @@ largest_suffix_per_prefix = subset_groups.transform_values { |arr| arr.max }
 # ============================================================
 
 puts
-puts "=== Gate_ VARIABLES ==="
+puts "--- Gate_ VARIABLES ---"
 gate_set.keys.sort.each { |k| puts k }
 
 puts
-puts "=== Subset_ VARIABLES (all) ==="
+puts "--- Subset_ VARIABLES (all) ---"
 subset_set.to_a.sort.each { |s| puts s }
 puts "commented out the print"
 
 puts
-puts "=== Subset_ MAX SUFFIX PER PREFIX ==="
+puts "--- Subset_ MAX SUFFIX PER PREFIX ---"
 largest_suffix_per_prefix.sort.each do |prefix, max_suffix|
   puts "Subset_#{prefix}#{format('%02d', max_suffix)}"
 end

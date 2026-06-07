@@ -64,15 +64,15 @@ def print_decoded(d)
 end
 
 # --- part 1: slot legend ---
-puts "=" * 60
+puts "-" * 60
 puts "Part 1 — digit slots"
-puts "=" * 60
+puts "-" * 60
 print_slot_legend
 
 # --- part 2: decode input ---
 magic_input = (ARGV[0] || DEFAULT_MAGIC)
 puts
-puts "=" * 60
+puts "-" * 60
 puts "Part 2 — decode"
-puts "=" * 60
+puts "-" * 60
 print_decoded(FM.parse(magic_input))

@@ -14,7 +14,7 @@ rules_by_algo = SmashMql5AlgoReader.rules_by_algo_from_src(src, params_by_algo)
 algo_ids.each do |id|
   p = params_by_algo[id]
   t = tune_by_algo[id]
-  puts "=== algo#{id} ==="
+  puts "--- algo#{id} ---"
   puts "direction: #{SmashMql5AlgoReader.direction(p['trades_short'])}"
   puts "enabled: #{p['enabled'] || '?'}"
   puts "levels: weekly=#{p['tradesWeeklyLevels'] || 'shared'}, daily=#{p['tradesDailyLevels'] || 'shared'}, rthoTertiary=#{p['tradesTertiaryTodayRTHOLevel'] || 'false'}"
