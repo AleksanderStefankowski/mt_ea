@@ -4,11 +4,15 @@
 # Deletes one or more algos from smashelito.mq5 (four //algocreator* blocks)
 # and decrements ALGO_FAMILY_REGISTRY_MAX by 1 per deleted algo.
 
-require_relative 'smash_mql5_algo_creator'
+require_relative 'smash_mql5_algo_creator_common'
+
+AlgoCreator = SmashMql5AlgoCreatorCommon
+MIN_ALGO_ID = SmashMql5AlgoCreatorCommon::MIN_ALGO_ID
+MQ5_FILE = SmashMql5AlgoCreatorCommon::MQ5_FILE
 
 # --- CONFIG (edit before running) ---
-# Delete highest id first when removing several (e.g. 39 down to 35).
-delete_algo_ids = [32, 31, 40]
+# Delete highest id first when removing several (e.g. 32 then 31).
+delete_algo_ids = [31]
 
 module AlgoDeleter
   module_function

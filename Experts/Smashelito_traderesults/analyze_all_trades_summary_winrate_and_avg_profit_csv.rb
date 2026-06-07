@@ -25,6 +25,8 @@ CSV_HEADERS = %w[
   tp
   sl
   profitfactor
+  projected_PF_if_next_future_trade_is_a_loss
+  projected_PF_if_next_2_future_trades_is_a_loss
   traderate
   max_loseday_streak
   max_notrades_streak
@@ -57,15 +59,46 @@ def apply_exclude_prefixes(trades)
 end
 
 def profit_factor(trades)
+  gross_profit, gross_loss = gross_profit_and_loss(trades)
+  profit_factor_from_gross(gross_profit, gross_loss)
+end
+
+def gross_profit_and_loss(trades)
   profits = trades.map { |t| t[:profit].to_f }
 
-  gross_profit = profits.select(&:positive?).sum
-  gross_loss = profits.select(&:negative?).sum.abs
+  [
+    profits.select(&:positive?).sum,
+    profits.select(&:negative?).sum.abs
+  ]
+end
 
+def profit_factor_from_gross(gross_profit, gross_loss)
   return 999.0 if gross_loss.zero? && gross_profit > 0
   return 0.0 if gross_loss.zero?
 
   gross_profit / gross_loss
+end
+
+def avg_loss_magnitude(trades)
+  losers = trades.select { |t| t[:profit].to_f < 0 }
+  return nil if losers.empty?
+
+  losers.sum { |t| t[:profit].to_f }.abs / losers.size
+end
+
+def projected_pf_if_next_n_losses(trades, loss_count)
+  avg_loss = avg_loss_magnitude(trades)
+  return nil if avg_loss.nil?
+
+  gross_profit, gross_loss = gross_profit_and_loss(trades)
+  profit_factor_from_gross(gross_profit, gross_loss + (loss_count * avg_loss))
+end
+
+def format_projected_pf(pf)
+  return '' if pf.nil?
+  return '999.00' if pf >= 999.0
+
+  format('%.2f', pf)
 end
 
 def parse_trade_date(date_str)
@@ -210,6 +243,27 @@ def format_date(date)
   date&.strftime('%Y-%m-%d')
 end
 
+def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last_date, all_trading_day_count, include_projected_pf:)
+  traded_days_count = unique_trade_days(trades).size
+
+  {
+    magicprefix: magic_prefix,
+    tp: initial_tp,
+    sl: initial_sl,
+    profitfactor: format('%.2f', profit_factor(trades)),
+    projected_PF_if_next_future_trade_is_a_loss: include_projected_pf ? format_projected_pf(projected_pf_if_next_n_losses(trades, 1)) : '',
+    projected_PF_if_next_2_future_trades_is_a_loss: include_projected_pf ? format_projected_pf(projected_pf_if_next_n_losses(trades, 2)) : '',
+    traderate: format('%.2f', trade_rate(trades, all_trading_day_count)),
+    max_loseday_streak: max_loss_day_streak(trades, first_date, last_date),
+    max_notrades_streak: max_no_trades_streak(trades, first_date, last_date),
+    avg_notrades_streak: format('%.2f', avg_no_trades_streak(trades, first_date, last_date)),
+    tradedDaysCount: traded_days_count,
+    allDaysCount: all_trading_day_count,
+    allDays_startDate: format_date(first_date),
+    allDays_endDate: format_date(last_date)
+  }
+end
+
 # =========================================================
 # LOAD FILE
 # =========================================================
@@ -255,27 +309,33 @@ $stderr.puts
 
 rows_for_all_trades = apply_exclude_prefixes(rows)
 magic_groups = rows_for_all_trades.group_by { |r| r[:magic_prefix] }
+enabled_prefixes = magic_groups.keys.sort
 
-csv_rows =
-  magic_groups.keys.sort.map do |magic_prefix|
-    trades = magic_groups[magic_prefix]
-    traded_days_count = unique_trade_days(trades).size
+csv_rows = [
+  build_csv_row(
+    "all(#{enabled_prefixes.join('-')})",
+    rows_for_all_trades,
+    initial_tp,
+    initial_sl,
+    first_date,
+    last_date,
+    all_trading_day_count,
+    include_projected_pf: false
+  )
+]
 
-    {
-      magicprefix: magic_prefix,
-      tp: initial_tp,
-      sl: initial_sl,
-      profitfactor: format('%.2f', profit_factor(trades)),
-      traderate: format('%.2f', trade_rate(trades, all_trading_day_count)),
-      max_loseday_streak: max_loss_day_streak(trades, first_date, last_date),
-      max_notrades_streak: max_no_trades_streak(trades, first_date, last_date),
-      avg_notrades_streak: format('%.2f', avg_no_trades_streak(trades, first_date, last_date)),
-      tradedDaysCount: traded_days_count,
-      allDaysCount: all_trading_day_count,
-      allDays_startDate: format_date(first_date),
-      allDays_endDate: format_date(last_date)
-    }
-  end
+enabled_prefixes.each do |magic_prefix|
+  csv_rows << build_csv_row(
+    magic_prefix,
+    magic_groups[magic_prefix],
+    initial_tp,
+    initial_sl,
+    first_date,
+    last_date,
+    all_trading_day_count,
+    include_projected_pf: true
+  )
+end
 
 # =========================================================
 # OUTPUT CSV

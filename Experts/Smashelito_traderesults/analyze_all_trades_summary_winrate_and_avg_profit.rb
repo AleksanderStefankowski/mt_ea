@@ -50,15 +50,46 @@ def avg_profit(trades)
 end
 
 def profit_factor(trades)
+  gross_profit, gross_loss = gross_profit_and_loss(trades)
+  profit_factor_from_gross(gross_profit, gross_loss)
+end
+
+def gross_profit_and_loss(trades)
   profits = trades.map { |t| t[:profit].to_f }
 
-  gross_profit = profits.select(&:positive?).sum
-  gross_loss = profits.select(&:negative?).sum.abs
+  [
+    profits.select(&:positive?).sum,
+    profits.select(&:negative?).sum.abs
+  ]
+end
 
+def profit_factor_from_gross(gross_profit, gross_loss)
   return 999.0 if gross_loss.zero? && gross_profit > 0
   return 0.0 if gross_loss.zero?
 
   gross_profit / gross_loss
+end
+
+def avg_loss_magnitude(trades)
+  losers = trades.select { |t| t[:profit].to_f < 0 }
+  return nil if losers.empty?
+
+  losers.sum { |t| t[:profit].to_f }.abs / losers.size
+end
+
+def projected_pf_if_next_n_losses(trades, loss_count)
+  avg_loss = avg_loss_magnitude(trades)
+  return nil if avg_loss.nil?
+
+  gross_profit, gross_loss = gross_profit_and_loss(trades)
+  profit_factor_from_gross(gross_profit, gross_loss + (loss_count * avg_loss))
+end
+
+def format_projected_pf(pf)
+  return 'n/a (no losing trades)' if pf.nil?
+  return '999.00 (no losses)' if pf >= 999.0
+
+  format('%.2f', pf)
 end
 
 def parse_trade_date(date_str)
@@ -188,7 +219,7 @@ def format_profit_factor(trades)
   pf >= 999.0 ? '999.00 (no losses)' : format('%.2f', pf)
 end
 
-def print_summary(label, trades, first_date, last_date, total_trading_days)
+def print_summary(label, trades, first_date, last_date, total_trading_days, include_projected_pf: true)
   winners = trades.select { |t| t[:profit].to_f > 0 }
   losers = trades.select { |t| t[:profit].to_f < 0 }
 
@@ -200,6 +231,10 @@ def print_summary(label, trades, first_date, last_date, total_trading_days)
   puts format('  max loss-day streak: %d weekdays', max_loss_day_streak(trades, first_date, last_date))
   puts format('  winrate: %.2f%%', winrate(trades))
   puts format('  profit factor: %.2f', profit_factor(trades))
+  if include_projected_pf
+    puts format('  projected PF if next future trade is a loss: %s', format_projected_pf(projected_pf_if_next_n_losses(trades, 1)))
+    puts format('  projected PF if next 2 future trades are a loss: %s', format_projected_pf(projected_pf_if_next_n_losses(trades, 2)))
+  end
   puts format('  avg profit (winning trades): %.2f', avg_profit(winners))
   puts format('  avg profit (losing trades): %.2f', avg_profit(losers))
   puts
@@ -269,7 +304,7 @@ puts 'ALL TRADES'
 puts '-' * 60
 puts
 
-print_summary('Overall', rows_for_all_trades, first_date, last_date, all_trading_day_count)
+print_summary('Overall', rows_for_all_trades, first_date, last_date, all_trading_day_count, include_projected_pf: false)
 
 puts '-' * 60
 puts 'BY MAGIC PREFIX (first 2 digits)'
