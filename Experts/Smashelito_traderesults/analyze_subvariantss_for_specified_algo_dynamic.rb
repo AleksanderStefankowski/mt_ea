@@ -13,7 +13,7 @@ FM = SmashMql5AlgoReader::FalgoMagic
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
 # Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
-MAGIC_PREFIXES_TO_ANALYZE = [14]
+MAGIC_PREFIXES_TO_ANALYZE = [31]
 
 # Minimum grp size sweep: collect at min, then per session keep rows at highest threshold still non-empty.
 TRADE_COUNT_RANGE = [4, 40].freeze
@@ -21,7 +21,9 @@ TRADE_COUNT_RANGE = [4, 40].freeze
 # Same session slice + PF + sample dates → one row; split variables on |, union uniq tokens.
 MERGE_SAME_RESULTS = true
 
-MINIMUM_PROFITFACTOR = 2.75
+MINIMUM_PROFITFACTOR = 2.5
+CHECK_MINIMUM_TRADERATE_ENABLED = false
+CHECK_MINIMUM_TRADERATE_VALUE = 0.05
 # Profit Factor (PF)	Winrate (WR)
 # 0.2	16.67%
 # 0.33	24.81%
@@ -190,7 +192,13 @@ end
 def trade_rate(trades, total_trading_days)
   return 0.0 if total_trading_days.zero?
 
-  (unique_trade_days(trades).size.to_f / total_trading_days) * 100.0
+  unique_trade_days(trades).size.to_f / total_trading_days
+end
+
+def passes_minimum_trade_rate?(trades, total_trading_days)
+  return true unless CHECK_MINIMUM_TRADERATE_ENABLED
+
+  trade_rate(trades, total_trading_days) >= CHECK_MINIMUM_TRADERATE_VALUE
 end
 
 def sample_start_times(trades, max_samples = GROUPING_SAMPLEDATES_MAX)
@@ -480,6 +488,7 @@ ANALYSIS_SETS.each do |analysis_set|
 
           pf = profit_factor(grouped_trades)
           next if pf < MINIMUM_PROFITFACTOR
+          next unless passes_minimum_trade_rate?(grouped_trades, all_trading_day_count)
 
           results << {
             analysis_set: analysis_set[:name],
@@ -559,11 +568,12 @@ slice_summaries.each do |summary|
 
   best = summary[:best]
   puts format(
-    '%s | min_trades=%d | pf=%.2f | grp_trades=%d',
+    '%s | min_trades=%d | pf=%.2f | grp_trades=%d | traderate=%.2f',
     summary[:set_name],
     summary[:threshold],
     best[:pf],
-    best[:trades]
+    best[:trades],
+    best[:group_trade_rate]
   )
 end
 
@@ -593,7 +603,7 @@ if SAVE_CSV_TO_FILE
         magic_prefix: r[:magic_prefix],
         magic_prefix_trades: prefix_stats[:trade_count],
         magic_prefix_pf: prefix_stats[:pf].round(2),
-        magic_prefix_trade_rate: prefix_stats[:trade_rate].round(2),
+        magic_prefix_traderate: prefix_stats[:trade_rate].round(2),
         grp_trades: r[:trades],
         grp_pf: r[:pf].round(2),
         grp_traderate: r[:group_trade_rate].round(2),
@@ -611,7 +621,7 @@ if SAVE_CSV_TO_FILE
     :magic_prefix,
     :magic_prefix_trades,
     :magic_prefix_pf,
-    :magic_prefix_trade_rate,
+    :magic_prefix_traderate,
     :grp_trades,
     :grp_pf,
     :grp_traderate,

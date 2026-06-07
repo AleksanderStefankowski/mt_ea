@@ -30,6 +30,8 @@ MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 7
 
 SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT = false  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 MINIMUM_PROFITFACTOR = 2.5
+CHECK_MINIMUM_TRADERATE_ENABLED = false
+CHECK_MINIMUM_TRADERATE_VALUE = 0.05
 # Profit Factor (PF)	Winrate (WR)
 # 0.2	16.67%
 # 0.33	24.81%
@@ -203,7 +205,13 @@ end
 def trade_rate(trades, total_trading_days)
   return 0.0 if total_trading_days.zero?
 
-  (unique_trade_days(trades).size.to_f / total_trading_days) * 100.0
+  unique_trade_days(trades).size.to_f / total_trading_days
+end
+
+def passes_minimum_trade_rate?(trades, total_trading_days)
+  return true unless CHECK_MINIMUM_TRADERATE_ENABLED
+
+  trade_rate(trades, total_trading_days) >= CHECK_MINIMUM_TRADERATE_VALUE
 end
 
 def sample_start_times(trades, max_samples = GROUPING_SAMPLEDATES_MAX)
@@ -516,6 +524,7 @@ ANALYSIS_SETS.each do |analysis_set|
             profit_factor(grouped_trades)
 
           next if pf < MINIMUM_PROFITFACTOR
+          next unless passes_minimum_trade_rate?(grouped_trades, all_trading_day_count)
 
           results << {
             analysis_set: analysis_set[:name],
@@ -614,7 +623,7 @@ analysis_set_names.each do |analysis_set_name|
 
     puts
     puts format(
-      "MAGIC PREFIX %s [%s] (ungrouped it has %d trades, %.2f profit factor, %.2f%% trade rate)",
+      "MAGIC PREFIX %s [%s] (ungrouped it has %d trades, %.2f profit factor, %.2f traderate)",
       magic_prefix,
       analysis_set_name,
       ungrouped_trades.size,
@@ -658,7 +667,7 @@ analysis_set_names.each do |analysis_set_name|
         puts "##{idx + 1}"
 
         puts format(
-          "PF: %.2f | WR: %.2f%% | NET: %.2f | TR: %.2f%%",
+          "PF: %.2f | WR: %.2f%% | NET: %.2f | traderate: %.2f",
           r[:pf],
           r[:winrate],
           r[:net_profit],
@@ -743,7 +752,7 @@ if SAVE_CSV_TO_FILE
         magic_prefix: r[:magic_prefix],
         magic_prefix_trades: prefix_stats[:trade_count],
         magic_prefix_pf: prefix_stats[:pf].round(2),
-        magic_prefix_trade_rate: prefix_stats[:trade_rate].round(2),
+        magic_prefix_traderate: prefix_stats[:trade_rate].round(2),
         grp_trades: r[:trades],
         grp_pf: r[:pf].round(2),
         grp_traderate: r[:group_trade_rate].round(2),
@@ -760,7 +769,7 @@ if SAVE_CSV_TO_FILE
     :magic_prefix,
     :magic_prefix_trades,
     :magic_prefix_pf,
-    :magic_prefix_trade_rate,
+    :magic_prefix_traderate,
     :grp_trades,
     :grp_pf,
     :grp_traderate,
