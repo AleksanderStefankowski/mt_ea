@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'date'
+require 'set'
 
 # =========================================================
 # CONFIG
@@ -12,8 +13,12 @@ FILE_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days.tsv')
 SMASHELITO_MQ5_PATH = File.join(SCRIPT_DIR, '..', 'Smashelito', 'smashelito.mq5')
 OUTPUT_CSV_PATH = File.join(SCRIPT_DIR, 'analyze_all_trades_summary_winrate_and_avg_profit_output.csv')
 
-EXCLUDE_PREFIXES_MODE = false
-EXCLUDE_PREFIXES = ['19', '20', '21', '22', '25', '26', '27']
+EXCLUDE_PREFIXES_MODE = true
+EXCLUDE_PREFIXES = [
+    "11", "12", "13", "14", "15", "16", "17", "18", "19", 
+    "20", "21", "22", "23", "25", "26", "27", "30"
+]
+# EXCLUDE_PREFIXES = ["11" "12 13  14 15 16 17 18 19', '20', '21', '22',  "23" '25', '26', '27', "30] #  10 24  28 29
 
 CSV_HEADERS = %w[
   magicprefix
@@ -21,6 +26,9 @@ CSV_HEADERS = %w[
   sl
   profitfactor
   traderate
+  max_loseday_streak
+  max_notrades_streak
+  avg_notrades_streak
   tradedDaysCount
   allDaysCount
   allDays_startDate
@@ -108,6 +116,78 @@ def trade_rate(trades, total_trading_days)
   unique_trade_days(trades).size.to_f / total_trading_days
 end
 
+def daily_net_profit_by_date(trades)
+  trades.each_with_object({}) do |trade, totals|
+    next if trade[:date].empty?
+
+    date = parse_trade_date(trade[:date])
+    totals[date] = (totals[date] || 0.0) + trade[:profit].to_f
+  end
+end
+
+def no_trades_streaks(trades, first_date, last_date)
+  return [] if first_date.nil? || last_date.nil?
+
+  trade_dates = daily_net_profit_by_date(trades).keys.to_set
+  streaks = []
+  current_streak = 0
+  date = first_date
+
+  while date <= last_date
+    if weekday?(date)
+      if trade_dates.include?(date)
+        streaks << current_streak if current_streak.positive?
+        current_streak = 0
+      else
+        current_streak += 1
+      end
+    end
+
+    date += 1
+  end
+
+  streaks << current_streak if current_streak.positive?
+  streaks
+end
+
+def max_no_trades_streak(trades, first_date, last_date)
+  streaks = no_trades_streaks(trades, first_date, last_date)
+  streaks.empty? ? 0 : streaks.max
+end
+
+def avg_no_trades_streak(trades, first_date, last_date)
+  streaks = no_trades_streaks(trades, first_date, last_date)
+  return 0.0 if streaks.empty?
+
+  streaks.sum.to_f / streaks.size
+end
+
+def max_loss_day_streak(trades, first_date, last_date)
+  return 0 if first_date.nil? || last_date.nil?
+
+  daily_net = daily_net_profit_by_date(trades)
+  max_streak = 0
+  current_streak = 0
+  date = first_date
+
+  while date <= last_date
+    if weekday?(date)
+      if daily_net.key?(date)
+        if daily_net[date].negative?
+          current_streak += 1
+          max_streak = [max_streak, current_streak].max
+        else
+          current_streak = 0
+        end
+      end
+    end
+
+    date += 1
+  end
+
+  max_streak
+end
+
 def read_algo_shared_tp_sl(mq5_path)
   unless File.file?(mq5_path)
     $stderr.puts "ERROR: smashelito.mq5 not found: #{mq5_path}"
@@ -187,6 +267,9 @@ csv_rows =
       sl: initial_sl,
       profitfactor: format('%.2f', profit_factor(trades)),
       traderate: format('%.2f', trade_rate(trades, all_trading_day_count)),
+      max_loseday_streak: max_loss_day_streak(trades, first_date, last_date),
+      max_notrades_streak: max_no_trades_streak(trades, first_date, last_date),
+      avg_notrades_streak: format('%.2f', avg_no_trades_streak(trades, first_date, last_date)),
       tradedDaysCount: traded_days_count,
       allDaysCount: all_trading_day_count,
       allDays_startDate: format_date(first_date),

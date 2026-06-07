@@ -8612,8 +8612,8 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoShared.terribletrade_mode_enabled                   = false;
    g_algoShared.secretTPSL                                     = true;
    g_algoShared.secretTPSL_percent                             = 50;
-   g_algoShared.initialTP = 15.0;
-   g_algoShared.initialSL = 12.0;
+   g_algoShared.initialTP = 9.0;
+   g_algoShared.initialSL = 9.0;
    g_algoShared.extra_offset_all_shorts = 0.0;
    g_algoShared.extra_offset_all_longs = 0.0;
 

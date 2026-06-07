@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'date'
+require 'set'
 # =========================================================
 # CONFIG
 # =========================================================
@@ -12,7 +13,11 @@ FILE_PATH = 'summary_tradeResults_all_days.tsv'
 # HELPERS
 # =========================================================
 EXCLUDE_PREFIXES_MODE = true
-EXCLUDE_PREFIXES = ["19", "20", "21", "22", "25", "26", "27"]  # magic first 2 digits; comma in one string also works, e.g. "20, 24"
+# EXCLUDE_PREFIXES = ["19", "20", "21", "22", "25", "26", "27"]  # magic first 2 digits; comma in one string also works, e.g. "20, 24"
+EXCLUDE_PREFIXES = [
+    "11", "12", "13", "14", "15", "16", "17", "18", "19", 
+    "20", "21", "22", "23", "25", "26", "27", "30"
+]
 
 def excluded_prefixes
   EXCLUDE_PREFIXES
@@ -104,6 +109,78 @@ def trade_rate(trades, total_trading_days)
   unique_trade_days(trades).size.to_f / total_trading_days
 end
 
+def daily_net_profit_by_date(trades)
+  trades.each_with_object({}) do |trade, totals|
+    next if trade[:date].empty?
+
+    date = parse_trade_date(trade[:date])
+    totals[date] = (totals[date] || 0.0) + trade[:profit].to_f
+  end
+end
+
+def no_trades_streaks(trades, first_date, last_date)
+  return [] if first_date.nil? || last_date.nil?
+
+  trade_dates = daily_net_profit_by_date(trades).keys.to_set
+  streaks = []
+  current_streak = 0
+  date = first_date
+
+  while date <= last_date
+    if weekday?(date)
+      if trade_dates.include?(date)
+        streaks << current_streak if current_streak.positive?
+        current_streak = 0
+      else
+        current_streak += 1
+      end
+    end
+
+    date += 1
+  end
+
+  streaks << current_streak if current_streak.positive?
+  streaks
+end
+
+def max_no_trades_streak(trades, first_date, last_date)
+  streaks = no_trades_streaks(trades, first_date, last_date)
+  streaks.empty? ? 0 : streaks.max
+end
+
+def avg_no_trades_streak(trades, first_date, last_date)
+  streaks = no_trades_streaks(trades, first_date, last_date)
+  return 0.0 if streaks.empty?
+
+  streaks.sum.to_f / streaks.size
+end
+
+def max_loss_day_streak(trades, first_date, last_date)
+  return 0 if first_date.nil? || last_date.nil?
+
+  daily_net = daily_net_profit_by_date(trades)
+  max_streak = 0
+  current_streak = 0
+  date = first_date
+
+  while date <= last_date
+    if weekday?(date)
+      if daily_net.key?(date)
+        if daily_net[date].negative?
+          current_streak += 1
+          max_streak = [max_streak, current_streak].max
+        else
+          current_streak = 0
+        end
+      end
+    end
+
+    date += 1
+  end
+
+  max_streak
+end
+
 def format_profit_factor(trades)
   return 'n/a (no trades)' if trades.empty?
 
@@ -111,13 +188,16 @@ def format_profit_factor(trades)
   pf >= 999.0 ? '999.00 (no losses)' : format('%.2f', pf)
 end
 
-def print_summary(label, trades, total_trading_days)
+def print_summary(label, trades, first_date, last_date, total_trading_days)
   winners = trades.select { |t| t[:profit].to_f > 0 }
   losers = trades.select { |t| t[:profit].to_f < 0 }
 
   puts label
   puts format('  trades: %d', trades.size)
   puts format('  trade rate: %.2f (%d / %d weekdays)', trade_rate(trades, total_trading_days), unique_trade_days(trades).size, total_trading_days)
+  puts format('  max no-trades streak: %d weekdays', max_no_trades_streak(trades, first_date, last_date))
+  puts format('  avg no-trades streak: %.2f weekdays', avg_no_trades_streak(trades, first_date, last_date))
+  puts format('  max loss-day streak: %d weekdays', max_loss_day_streak(trades, first_date, last_date))
   puts format('  winrate: %.2f%%', winrate(trades))
   puts format('  profit factor: %.2f', profit_factor(trades))
   puts format('  avg profit (winning trades): %.2f', avg_profit(winners))
@@ -189,7 +269,7 @@ puts 'ALL TRADES'
 puts '-' * 60
 puts
 
-print_summary('Overall', rows_for_all_trades, all_trading_day_count)
+print_summary('Overall', rows_for_all_trades, first_date, last_date, all_trading_day_count)
 
 puts '-' * 60
 puts 'BY MAGIC PREFIX (first 2 digits)'
@@ -199,7 +279,7 @@ puts
 magic_groups = rows_for_all_trades.group_by { |r| r[:magic_prefix] }
 
 magic_groups.keys.sort.each do |magic_prefix|
-  print_summary("Magic prefix #{magic_prefix}", magic_groups[magic_prefix], all_trading_day_count)
+  print_summary("Magic prefix #{magic_prefix}", magic_groups[magic_prefix], first_date, last_date, all_trading_day_count)
 end
 
 print_excluded_prefixes_footer(rows)
