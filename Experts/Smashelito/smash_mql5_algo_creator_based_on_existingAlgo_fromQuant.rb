@@ -17,13 +17,14 @@ include SmashMql5AlgoCreatorCommon
 
 # --- CONFIG (edit before running) ---
 
-copy_from_algo_id = 31
+copy_from_algo_id = 36
 
 session_rule_enabled = true
-session_rule = "ON" # full, ON, RTH-IB, RTH-afterIB (aliases: on, rthib, rthafterib)
+session_rule = "RTH-afterIB" # full, ON, RTH-IB, RTH-afterIB (aliases: on, rthib, rthafterib)
 
 extra_rules_quant = <<~QUANT.strip
-above_ONL=true | above_PDL=true | above_PDO=true | above_dayLowSoFar=true | above_midpoint=true | below_ONH=true | below_dayHighSoFar=true | dayBrokePDL=false | openGap_info=unknown
+above_ONL=true | above_PDO=true | above_RTHL=true | above_dayLowSoFar=true | above_midpoint=true | below_PDH=true | below_RTHH=true | below_dayHighSoFar=true
+
 QUANT
 
 def run_copy_from_quant!(copy_from:, extra_rules_quant:, session_rule_enabled: false, session_rule: nil)

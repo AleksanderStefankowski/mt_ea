@@ -6,8 +6,8 @@ set_enabled_to = false # true or false. Skips an algo if it is already in that s
 # algo_range_start = 10
 # algo_range_end = 15
 
-algo_range_start = 10
-algo_range_end = 18
+algo_range_start = 39
+algo_range_end = 45
 
 # algo_range_start = 17
 # algo_range_end = 19
