@@ -4,6 +4,9 @@
 # Creates a new algo in smashelito.mq5 by copying an existing one and adding
 # extra rules from a quant pipe-separated string, e.g.:
 #   "above_ONH=true | above_PDC=true | levelTag=dailyUp1"
+# Optional session gate (adds AlgoRuleAdd_Session):
+#   session_rule_enabled = true
+#   session_rule = "ON"  # full, ON, RTH-IB, RTH-afterIB (aliases: on, rthib, rthafterib)
 #
 # Usage: edit CONFIG below, then run:
 #   ruby smash_mql5_algo_creator_based_on_existingAlgo_fromQuant.rb
@@ -14,13 +17,16 @@ include SmashMql5AlgoCreatorCommon
 
 # --- CONFIG (edit before running) ---
 
-copy_from_algo_id = 18
+copy_from_algo_id = 31
+
+session_rule_enabled = true
+session_rule = "ON" # full, ON, RTH-IB, RTH-afterIB (aliases: on, rthib, rthafterib)
 
 extra_rules_quant = <<~QUANT.strip
-above_ONH=true | above_PDC=true | above_PDL=true | above_dayHighSoFar=true | above_dayLowSoFar=true | above_midpoint=true | levelTag=dailyUp1
+above_ONL=true | above_PDL=true | above_PDO=true | above_dayLowSoFar=true | above_midpoint=true | below_ONH=true | below_dayHighSoFar=true | dayBrokePDL=false | openGap_info=unknown
 QUANT
 
-def run_copy_from_quant!(copy_from:, extra_rules_quant:)
+def run_copy_from_quant!(copy_from:, extra_rules_quant:, session_rule_enabled: false, session_rule: nil)
   content = read_mq5
   new_id = next_unused_algo_id(content)
   source_id = copy_from.to_i
@@ -28,7 +34,11 @@ def run_copy_from_quant!(copy_from:, extra_rules_quant:)
   raise "copy_from_algo_id must be >= #{MIN_ALGO_ID}" if source_id < MIN_ALGO_ID
   raise "Source algo #{source_id} not found in #{MQ5_FILE}" unless existing_algo_ids(content).include?(source_id)
 
-  extra_tokens = selected_rule_tokens_from_quant_string(extra_rules_quant)
+  extra_tokens = extra_rule_tokens_from_quant(
+    extra_rules_quant: extra_rules_quant,
+    session_rule_enabled: session_rule_enabled,
+    session_rule: session_rule
+  )
 
   b1 = extract_inner(content, 1)
   b2 = extract_inner(content, 2)
@@ -48,6 +58,9 @@ def run_copy_from_quant!(copy_from:, extra_rules_quant:)
   puts
   puts "Created algo #{new_id} (copy of algo #{source_id}) in #{MQ5_FILE}"
   puts "Extra rules added: #{extra_tokens.empty? ? '(none)' : extra_tokens.join(', ')}"
+  if session_rule_enabled
+    puts "Session rule: #{session_rule} -> #{session_rule_token(session_rule)}"
+  end
   puts
 
   print_block(1, extract_inner(content, 1))
@@ -65,6 +78,11 @@ if __FILE__ == $PROGRAM_NAME
     puts "Normalized algocreator1 registry formatting in #{MQ5_FILE}"
     print_block(1, extract_inner(content, 1))
   else
-    run_copy_from_quant!(copy_from: copy_from_algo_id, extra_rules_quant: extra_rules_quant)
+    run_copy_from_quant!(
+      copy_from: copy_from_algo_id,
+      extra_rules_quant: extra_rules_quant,
+      session_rule_enabled: session_rule_enabled,
+      session_rule: session_rule
+    )
   end
 end

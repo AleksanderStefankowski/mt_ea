@@ -28,6 +28,7 @@ CSV_HEADERS = %w[
   projected_PF_if_next_future_trade_is_a_loss
   projected_PF_if_next_2_future_trades_is_a_loss
   traderate
+  weekly_traderate
   max_loseday_streak
   max_notrades_streak
   avg_notrades_streak
@@ -149,6 +150,44 @@ def trade_rate(trades, total_trading_days)
   unique_trade_days(trades).size.to_f / total_trading_days
 end
 
+def monday_of_week(date)
+  date - ((date.wday + 6) % 7)
+end
+
+def mon_fri_weeks_in_date_range(first_date, last_date)
+  return [] if first_date.nil? || last_date.nil?
+
+  first_monday = monday_of_week(first_date)
+  last_monday = monday_of_week(last_date)
+
+  full_weeks = []
+  monday = first_monday
+  while monday <= last_monday
+    weekdays = (0..4).map { |i| monday + i }
+    full_weeks << monday if weekdays.all? { |d| d >= first_date && d <= last_date }
+    monday += 7
+  end
+  full_weeks
+end
+
+def traded_full_week_count(trades, full_week_mondays)
+  return 0 if full_week_mondays.nil? || full_week_mondays.empty?
+
+  full_week_set = full_week_mondays.to_set
+  unique_trade_days(trades)
+    .map { |d| parse_trade_date(d) }
+    .compact
+    .map { |d| monday_of_week(d) }
+    .uniq
+    .count { |monday| full_week_set.include?(monday) }
+end
+
+def weekly_trade_rate(trades, full_week_mondays)
+  return 0.0 if full_week_mondays.nil? || full_week_mondays.empty?
+
+  traded_full_week_count(trades, full_week_mondays).to_f / full_week_mondays.size
+end
+
 def daily_net_profit_by_date(trades)
   trades.each_with_object({}) do |trade, totals|
     next if trade[:date].empty?
@@ -243,7 +282,7 @@ def format_date(date)
   date&.strftime('%Y-%m-%d')
 end
 
-def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last_date, all_trading_day_count, include_projected_pf:)
+def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last_date, all_trading_day_count, full_week_mondays, include_projected_pf:)
   traded_days_count = unique_trade_days(trades).size
 
   {
@@ -254,6 +293,7 @@ def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last
     projected_PF_if_next_future_trade_is_a_loss: include_projected_pf ? format_projected_pf(projected_pf_if_next_n_losses(trades, 1)) : '',
     projected_PF_if_next_2_future_trades_is_a_loss: include_projected_pf ? format_projected_pf(projected_pf_if_next_n_losses(trades, 2)) : '',
     traderate: format('%.2f', trade_rate(trades, all_trading_day_count)),
+    weekly_traderate: format('%.2f', weekly_trade_rate(trades, full_week_mondays)),
     max_loseday_streak: max_loss_day_streak(trades, first_date, last_date),
     max_notrades_streak: max_no_trades_streak(trades, first_date, last_date),
     avg_notrades_streak: format('%.2f', avg_no_trades_streak(trades, first_date, last_date)),
@@ -298,9 +338,13 @@ end
 
 first_date, last_date, all_trading_day_count = trade_date_range(rows)
 
+all_full_week_mondays =
+  mon_fri_weeks_in_date_range(first_date, last_date)
+
 $stderr.puts "Loaded trades: #{rows.size}"
 $stderr.puts "Date range: #{first_date} -> #{last_date}"
 $stderr.puts "Weekdays in range (excl. weekends): #{all_trading_day_count}"
+$stderr.puts "Mon-Fri weeks in date range: #{all_full_week_mondays.size}"
 if EXCLUDE_PREFIXES_MODE
   excluded = rows.count { |t| trade_excluded?(t) }
   $stderr.puts "EXCLUDE_PREFIXES_MODE: excluding prefixes #{excluded_prefixes.inspect} (#{excluded} trades dropped)"
@@ -320,6 +364,7 @@ csv_rows = [
     first_date,
     last_date,
     all_trading_day_count,
+    all_full_week_mondays,
     include_projected_pf: false
   )
 ]
@@ -333,6 +378,7 @@ enabled_prefixes.each do |magic_prefix|
     first_date,
     last_date,
     all_trading_day_count,
+    all_full_week_mondays,
     include_projected_pf: true
   )
 end

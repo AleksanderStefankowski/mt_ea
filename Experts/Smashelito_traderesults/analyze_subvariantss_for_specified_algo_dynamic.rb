@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'date'
 require 'set'
 require_relative '../Smashelito/smash_mql5_algo_reader_lib'
 
@@ -13,7 +14,7 @@ FM = SmashMql5AlgoReader::FalgoMagic
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
 # Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
-MAGIC_PREFIXES_TO_ANALYZE = [31]
+MAGIC_PREFIXES_TO_ANALYZE = [32]
 
 # Minimum grp size sweep: collect at min, then per session keep rows at highest threshold still non-empty.
 TRADE_COUNT_RANGE = [4, 40].freeze
@@ -24,6 +25,8 @@ MERGE_SAME_RESULTS = true
 MINIMUM_PROFITFACTOR = 2.5
 CHECK_MINIMUM_TRADERATE_ENABLED = false
 CHECK_MINIMUM_TRADERATE_VALUE = 0.05
+CHECK_MINIMUM_TRADERATEWEEKLY_ENABLED = true
+CHECK_MINIMUM_TRADERATEWEEKLY_VALUE = 0.41
 # Profit Factor (PF)	Winrate (WR)
 # 0.2	16.67%
 # 0.33	24.81%
@@ -195,10 +198,59 @@ def trade_rate(trades, total_trading_days)
   unique_trade_days(trades).size.to_f / total_trading_days
 end
 
+def parse_trade_date(date_str)
+  return nil if date_str.nil? || date_str.to_s.strip.empty?
+
+  Date.strptime(date_str.to_s.strip, '%Y.%m.%d')
+rescue ArgumentError
+  nil
+end
+
+def monday_of_week(date)
+  date - ((date.wday + 6) % 7)
+end
+
+def mon_fri_weeks_in_date_range(first_date, last_date)
+  return [] if first_date.nil? || last_date.nil?
+
+  first_monday = monday_of_week(first_date)
+  last_monday = monday_of_week(last_date)
+
+  full_weeks = []
+  monday = first_monday
+  while monday <= last_monday
+    weekdays = (0..4).map { |i| monday + i }
+    full_weeks << monday if weekdays.all? { |d| d >= first_date && d <= last_date }
+    monday += 7
+  end
+  full_weeks
+end
+
+def weekly_trade_rate(trades, full_week_mondays)
+  return 0.0 if full_week_mondays.nil? || full_week_mondays.empty?
+
+  full_week_set = full_week_mondays.to_set
+  traded_full_weeks =
+    unique_trade_days(trades)
+      .map { |d| parse_trade_date(d) }
+      .compact
+      .map { |d| monday_of_week(d) }
+      .uniq
+      .count { |monday| full_week_set.include?(monday) }
+
+  traded_full_weeks.to_f / full_week_mondays.size
+end
+
 def passes_minimum_trade_rate?(trades, total_trading_days)
   return true unless CHECK_MINIMUM_TRADERATE_ENABLED
 
   trade_rate(trades, total_trading_days) >= CHECK_MINIMUM_TRADERATE_VALUE
+end
+
+def passes_minimum_weekly_trade_rate?(trades, full_week_mondays)
+  return true unless CHECK_MINIMUM_TRADERATEWEEKLY_ENABLED
+
+  weekly_trade_rate(trades, full_week_mondays) >= CHECK_MINIMUM_TRADERATEWEEKLY_VALUE
 end
 
 def sample_start_times(trades, max_samples = GROUPING_SAMPLEDATES_MAX)
@@ -414,6 +466,14 @@ end
 all_trading_day_count =
   unique_trade_days(rows).size
 
+all_trading_dates =
+  unique_trade_days(rows)
+    .map { |d| parse_trade_date(d) }
+    .compact
+
+all_full_week_mondays =
+  mon_fri_weeks_in_date_range(all_trading_dates.min, all_trading_dates.max)
+
 if rows.empty?
   all_prefixes_in_file =
     csv
@@ -489,6 +549,7 @@ ANALYSIS_SETS.each do |analysis_set|
           pf = profit_factor(grouped_trades)
           next if pf < MINIMUM_PROFITFACTOR
           next unless passes_minimum_trade_rate?(grouped_trades, all_trading_day_count)
+          next unless passes_minimum_weekly_trade_rate?(grouped_trades, all_full_week_mondays)
 
           results << {
             analysis_set: analysis_set[:name],
@@ -500,6 +561,7 @@ ANALYSIS_SETS.each do |analysis_set|
             net_profit: net_profit(grouped_trades),
             winrate: winrate(grouped_trades),
             group_trade_rate: trade_rate(grouped_trades, all_trading_day_count),
+            group_weekly_trade_rate: weekly_trade_rate(grouped_trades, all_full_week_mondays),
             grouping_sampledates: sample_start_times(grouped_trades)
           }
         end
@@ -568,12 +630,13 @@ slice_summaries.each do |summary|
 
   best = summary[:best]
   puts format(
-    '%s | min_trades=%d | pf=%.2f | grp_trades=%d | traderate=%.2f',
+    '%s | min_trades=%d | pf=%.2f | grp_trades=%d | traderate=%.2f | weekly_traderate=%.2f',
     summary[:set_name],
     summary[:threshold],
     best[:pf],
     best[:trades],
-    best[:group_trade_rate]
+    best[:group_trade_rate],
+    best[:group_weekly_trade_rate]
   )
 end
 
@@ -586,7 +649,8 @@ if SAVE_CSV_TO_FILE
       prefix_stats_by_set[key] = {
         trade_count: set_trades.size,
         pf: profit_factor(set_trades),
-        trade_rate: trade_rate(set_trades, all_trading_day_count)
+        trade_rate: trade_rate(set_trades, all_trading_day_count),
+        weekly_trade_rate: weekly_trade_rate(set_trades, all_full_week_mondays)
       }
     end
   end
@@ -595,7 +659,7 @@ if SAVE_CSV_TO_FILE
     csv_results.map do |r|
       prefix_stats =
         prefix_stats_by_set[[r[:analysis_set], r[:magic_prefix]]] ||
-        { trade_count: 0, pf: 0.0, trade_rate: 0.0 }
+        { trade_count: 0, pf: 0.0, trade_rate: 0.0, weekly_trade_rate: 0.0 }
 
       {
         analysis_set: r[:analysis_set],
@@ -604,9 +668,11 @@ if SAVE_CSV_TO_FILE
         magic_prefix_trades: prefix_stats[:trade_count],
         magic_prefix_pf: prefix_stats[:pf].round(2),
         magic_prefix_traderate: prefix_stats[:trade_rate].round(2),
+        magic_prefix_weekly_traderate: prefix_stats[:weekly_trade_rate].round(2),
         grp_trades: r[:trades],
         grp_pf: r[:pf].round(2),
         grp_traderate: r[:group_trade_rate].round(2),
+        grp_weekly_traderate: r[:group_weekly_trade_rate].round(2),
         grp_winrate: r[:winrate].round(2),
         grp_net_profit: r[:net_profit].round(2),
         variable_count: (r[:merged_variables] || variable_tokens_for_result(r)).size,
@@ -622,9 +688,11 @@ if SAVE_CSV_TO_FILE
     :magic_prefix_trades,
     :magic_prefix_pf,
     :magic_prefix_traderate,
+    :magic_prefix_weekly_traderate,
     :grp_trades,
     :grp_pf,
     :grp_traderate,
+    :grp_weekly_traderate,
     :grp_winrate,
     :grp_net_profit,
     :variable_count,

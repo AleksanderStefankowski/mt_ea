@@ -517,6 +517,39 @@ module SmashMql5AlgoCreatorCommon
       .uniq
   end
 
+  SESSION_RULE_TO_TOKEN = {
+    'full' => 'session=full',
+    'on' => 'session=ON',
+    'rthib' => 'session=RTH-IB',
+    'rth-ib' => 'session=RTH-IB',
+    'rthafterib' => 'session=RTH-afterIB',
+    'rth-afterib' => 'session=RTH-afterIB',
+    'ON' => 'session=ON',
+    'RTH-IB' => 'session=RTH-IB',
+    'RTH-afterIB' => 'session=RTH-afterIB'
+  }.freeze
+
+  def session_rule_token(session_rule)
+    key = session_rule.to_s.strip
+    raise "session_rule is empty" if key.empty?
+
+    catalog_key = SESSION_RULE_TO_TOKEN[key] || SESSION_RULE_TO_TOKEN[key.downcase]
+    raise "Unknown session_rule: #{session_rule.inspect} (use full, ON, RTH-IB, RTH-afterIB or on, rthib, rthafterib)" unless catalog_key
+
+    token = normalize_rule_token(catalog_key)
+    raise "Invalid session_rule token: #{catalog_key.inspect}" unless token
+
+    token
+  end
+
+  def extra_rule_tokens_from_quant(extra_rules_quant:, session_rule_enabled: false, session_rule: nil)
+    tokens = selected_rule_tokens_from_quant_string(extra_rules_quant)
+    return tokens unless session_rule_enabled
+
+    session_token = session_rule_token(session_rule)
+    (tokens + [session_token]).uniq
+  end
+
   def rule_call_signature(mql5_line)
     mql5_line.strip.sub(/;\z/, '')[/AlgoRuleAdd_\w+/, 0]
   end
