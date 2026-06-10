@@ -95,14 +95,26 @@ def trade_rate(trades, total_weekdays)
   unique_trade_days(trades).size.to_f / total_weekdays
 end
 
+def total_overlapping_trades(weekly_data)
+  total = 0
+
+  weekly_data.each_value do |analyses|
+    total += analyses['all_trades'][:overlapping_trades]
+  end
+
+  total
+end
+
 def print_overall_summary(weekly_data, all_rows_for_range)
   _, _, total_weekdays = trade_date_range(all_rows_for_range)
 
   overall = Hash.new { |h, k| h[k] = [] }
+  overlap_by_scenario = Hash.new(0)
 
   weekly_data.each_value do |analyses|
     analyses.each do |analysis_type, data|
       overall[analysis_type].concat(data[:trades])
+      overlap_by_scenario[analysis_type] += data[:overlapping_trades]
     end
   end
 
@@ -112,32 +124,53 @@ def print_overall_summary(weekly_data, all_rows_for_range)
         scenario: scenario,
         profit_factor: profit_factor(trades),
         trade_rate: trade_rate(trades, total_weekdays),
-        trade_count: trades.size
+        trade_count: trades.size,
+        overlapping_trades: scenario == 'all_trades' ? overlap_by_scenario[scenario] : nil
       }
     end
 
   summary_rows.sort_by! { |r| -r[:profit_factor] }
 
   puts 'OVERALL SUMMARY (all weeks, sorted by profit factor)'
-  puts format('%-45s %12s %12s %12s', 'scenario', 'profit_factor', 'trade_rate', 'trade_count')
-  puts '-' * 85
+  puts format('%-45s %12s %12s %12s %12s', 'scenario', 'profit_factor', 'trade_rate', 'trade_count', 'overlap_trades')
+  puts '-' * 97
 
   summary_rows.each do |r|
+    overlap_label = r[:overlapping_trades].nil? ? '' : r[:overlapping_trades].to_s
+
     puts format(
-      '%-45s %12.2f %12.2f %12d',
+      '%-45s %12.2f %12.2f %12d %12s',
       r[:scenario],
       r[:profit_factor],
       r[:trade_rate],
-      r[:trade_count]
+      r[:trade_count],
+      overlap_label
     )
   end
 
   puts
+  puts 'overlap_trades = same-direction trades overlapping >=1s (all_trades row only)'
+  puts
 end
 
 # =========================================================
-# REMOVE STACKED TRADES
+# OVERLAP / STACKED TRADES
 # =========================================================
+
+def overlap_seconds(trade_a, trade_b)
+  a_start = parse_time(trade_a['startTime'])
+  a_end   = parse_time(trade_a['endTime'])
+  b_start = parse_time(trade_b['startTime'])
+  b_end   = parse_time(trade_b['endTime'])
+
+  [a_end, b_end].min - [a_start, b_start].max
+end
+
+def stacked_with?(trade_a, trade_b)
+  return false unless direction(trade_a) == direction(trade_b)
+
+  overlap_seconds(trade_a, trade_b) >= 1
+end
 
 def remove_stacked_trades(trades)
   sorted = trades.sort_by { |t| parse_time(t['startTime']) }
@@ -145,49 +178,28 @@ def remove_stacked_trades(trades)
   selected = []
 
   sorted.each do |trade|
-    current_start = parse_time(trade['startTime'])
-    current_end   = parse_time(trade['endTime'])
-    current_dir   = direction(trade)
-
-    overlaps = selected.any? do |kept|
-      kept_start = parse_time(kept['startTime'])
-      kept_end   = parse_time(kept['endTime'])
-      kept_dir   = direction(kept)
-
-      next false unless current_dir == kept_dir
-
-      overlap_seconds =
-        [current_end, kept_end].min - [current_start, kept_start].max
-
-      overlap_seconds >= 1
-    end
-
+    overlaps = selected.any? { |kept| stacked_with?(trade, kept) }
     selected << trade unless overlaps
   end
 
   selected
 end
 
-# =========================================================
-# COUNT STACKED PAIRS
-# =========================================================
+def overlapping_trades_count(trades)
+  sorted = trades.sort_by { |t| parse_time(t['startTime']) }
+
+  sorted.count do |trade|
+    sorted.any? do |other|
+      other.object_id != trade.object_id && stacked_with?(trade, other)
+    end
+  end
+end
 
 def stacked_trade_count(trades)
   count = 0
 
   trades.combination(2).each do |a, b|
-    next unless direction(a) == direction(b)
-
-    a_start = parse_time(a['startTime'])
-    a_end   = parse_time(a['endTime'])
-
-    b_start = parse_time(b['startTime'])
-    b_end   = parse_time(b['endTime'])
-
-    overlap_seconds =
-      [a_end, b_end].min - [a_start, b_start].max
-
-    count += 1 if overlap_seconds >= 1
+    count += 1 if stacked_with?(a, b)
   end
 
   count
@@ -213,7 +225,8 @@ weekly_data = Hash.new do |h, k|
   h[k] = Hash.new do |hh, kk|
     hh[kk] = {
       trades: [],
-      stacked: 0
+      stacked: 0,
+      overlapping_trades: 0
     }
   end
 end
@@ -242,6 +255,9 @@ trades_by_day.each do |date_str, trades|
   weekly_data[week_key]['all_trades'][:stacked] +=
     stacked_trade_count(trades)
 
+  weekly_data[week_key]['all_trades'][:overlapping_trades] +=
+    overlapping_trades_count(trades)
+
   # -------------------------------------------------------
   # FIRST N NON-STACKED TRADES
   # -------------------------------------------------------
@@ -268,6 +284,7 @@ output_headers = [
   'analysis_type',
   'tradecount',
   'stacked_trade_count',
+  'overlapping_trades_count',
   'profit_factor',
   'profit'
 ]
@@ -280,6 +297,8 @@ CSV.open(OUTPUT_FILE, 'w') do |csv|
 
     analyses.each do |analysis_type, data|
       trades = data[:trades]
+      overlapping_trades =
+        analysis_type == 'all_trades' ? data[:overlapping_trades] : ''
 
       csv << [
         week_start.to_s,
@@ -287,6 +306,7 @@ CSV.open(OUTPUT_FILE, 'w') do |csv|
         analysis_type,
         trades.size,
         data[:stacked],
+        overlapping_trades,
         profit_factor(trades),
         total_profit(trades)
       ]
@@ -315,6 +335,8 @@ puts "Weeks analyzed: #{weekly_count}"
 (simulate_trades_per_day_limit_start..simulate_trades_per_day_limit_end).each do |limit|
   puts "Included analysis: first #{limit} non-stacked trades per day"
 end
+
+puts "All-trades overlapping trades: #{total_overlapping_trades(weekly_data)}"
 
 print_overall_summary(weekly_data, rows)
 

@@ -105,14 +105,26 @@ def trade_rate(trades, total_weekdays)
   unique_trade_days(trades).size.to_f / total_weekdays
 end
 
+def total_overlapping_trades(weekly_data)
+  total = 0
+
+  weekly_data.each_value do |analyses|
+    total += analyses['all_trades'][:overlapping_trades]
+  end
+
+  total
+end
+
 def print_overall_summary(weekly_data, all_rows_for_range)
   _, _, total_weekdays = trade_date_range(all_rows_for_range)
 
   overall = Hash.new { |h, k| h[k] = [] }
+  overlap_by_scenario = Hash.new(0)
 
   weekly_data.each_value do |analyses|
     analyses.each do |analysis_type, data|
       overall[analysis_type].concat(data[:trades])
+      overlap_by_scenario[analysis_type] += data[:overlapping_trades]
     end
   end
 
@@ -123,7 +135,8 @@ def print_overall_summary(weekly_data, all_rows_for_range)
         profit_factor: profit_factor(trades),
         trade_rate: trade_rate(trades, total_weekdays),
         trade_count: trades.size,
-        trade_days: unique_trade_days(trades).size
+        trade_days: unique_trade_days(trades).size,
+        overlapping_trades: scenario == 'all_trades' ? overlap_by_scenario[scenario] : nil
       }
     end
 
@@ -131,22 +144,27 @@ def print_overall_summary(weekly_data, all_rows_for_range)
 
   puts 'OVERALL SUMMARY (all weeks, sorted by profit factor)'
   puts format(
-    '%-45s %12s %12s %12s %12s',
-    'scenario', 'profit_factor', 'trade_rate', 'trade_count', 'trade_days'
+    '%-45s %12s %12s %12s %12s %12s',
+    'scenario', 'profit_factor', 'trade_rate', 'trade_count', 'trade_days', 'overlap_trades'
   )
-  puts '-' * 97
+  puts '-' * 109
 
   summary_rows.each do |r|
+    overlap_label = r[:overlapping_trades].nil? ? '' : r[:overlapping_trades].to_s
+
     puts format(
-      '%-45s %12.2f %12.2f %12d %12d',
+      '%-45s %12.2f %12.2f %12d %12d %12s',
       r[:scenario],
       r[:profit_factor],
       r[:trade_rate],
       r[:trade_count],
-      r[:trade_days]
+      r[:trade_days],
+      overlap_label
     )
   end
 
+  puts
+  puts 'overlap_trades = same-direction trades overlapping >=1s (all_trades row only)'
   puts
 end
 
@@ -227,6 +245,16 @@ def select_per_algo_trades(day_trades, limit)
   remove_cross_algo_stacked(candidates)
 end
 
+def overlapping_trades_count(trades)
+  sorted = trades.sort_by { |t| parse_time(t['startTime']) }
+
+  sorted.count do |trade|
+    sorted.any? do |other|
+      other.object_id != trade.object_id && stacked_with?(trade, other)
+    end
+  end
+end
+
 # =========================================================
 # COUNT STACKED PAIRS
 # =========================================================
@@ -261,7 +289,8 @@ weekly_data = Hash.new do |h, k|
   h[k] = Hash.new do |hh, kk|
     hh[kk] = {
       trades: [],
-      stacked: 0
+      stacked: 0,
+      overlapping_trades: 0
     }
   end
 end
@@ -290,6 +319,9 @@ trades_by_day.each do |date_str, trades|
   weekly_data[week_key]['all_trades'][:stacked] +=
     stacked_trade_count(trades)
 
+  weekly_data[week_key]['all_trades'][:overlapping_trades] +=
+    overlapping_trades_count(trades)
+
   # -------------------------------------------------------
   # FIRST N NON-STACKED TRADES PER ALGO
   # -------------------------------------------------------
@@ -314,6 +346,7 @@ output_headers = [
   'analysis_type',
   'tradecount',
   'stacked_trade_count',
+  'overlapping_trades_count',
   'profit_factor',
   'profit'
 ]
@@ -326,6 +359,8 @@ CSV.open(OUTPUT_FILE, 'w') do |csv|
 
     analyses.each do |analysis_type, data|
       trades = data[:trades]
+      overlapping_trades =
+        analysis_type == 'all_trades' ? data[:overlapping_trades] : ''
 
       csv << [
         week_start.to_s,
@@ -333,6 +368,7 @@ CSV.open(OUTPUT_FILE, 'w') do |csv|
         analysis_type,
         trades.size,
         data[:stacked],
+        overlapping_trades,
         profit_factor(trades),
         total_profit(trades)
       ]
@@ -365,6 +401,8 @@ end
 if STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT > 0
   puts "Per algo family daily cap: #{STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT} total trades (chronological, before non-stacked filter)"
 end
+
+puts "All-trades overlapping trades: #{total_overlapping_trades(weekly_data)}"
 
 print_overall_summary(weekly_data, rows)
 

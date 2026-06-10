@@ -17,7 +17,7 @@ FM = SmashMql5AlgoReader::FalgoMagic
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
 # Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
-MAGIC_PREFIXES_TO_ANALYZE = [38]
+MAGIC_PREFIXES_TO_ANALYZE = [31]
 
 # Minimum grp size sweep: collect at min, then per session keep rows at highest threshold still non-empty.
 TRADE_COUNT_RANGE = [6, 40].freeze
