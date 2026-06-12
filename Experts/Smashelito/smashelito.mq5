@@ -4005,6 +4005,7 @@ struct BannedRangeMinutes { int startMin; int endMin; };
 BannedRangeMinutes g_falgoBannedRanges[FALGO_BANNED_RANGES_MAX];
 int g_falgoBannedRangeCount = 0;
 datetime g_falgoPlanCountersDayStart = 0;
+datetime g_falgoDayTradeCountsDayStart = 0;
 int g_algoPlanTradeNumToday[ALGO_FAMILY_REGISTRY_MAX];  // per wired algo (10–15); next plan # = count+1
 int g_algoLevelTradeNumByMagicSlot[ALGO_FAMILY_REGISTRY_MAX][FALGO_MAGIC_LEVEL_SLOT_COUNT];
 int g_algoDayWins[ALGO_FAMILY_REGISTRY_MAX];
@@ -5047,37 +5048,90 @@ void SyncFalgoPlanCountersFromTradeResults()
 //+------------------------------------------------------------------+
 void UpdateFalgoDayTradeCounts()
 {
+   const datetime dayStart = (g_lastTimer1Time > 0) ? (g_lastTimer1Time - (g_lastTimer1Time % 86400)) : 0;
+   if(dayStart != 0 && g_falgoDayTradeCountsDayStart != dayStart)
+   {
+      g_falgoDayTradeCountsDayStart = dayStart;
+      for(int si = 0; si < ALGO_FAMILY_REGISTRY_MAX; si++)
+      {
+         g_algoDayWins[si] = 0;
+         g_algoDayLosses[si] = 0;
+      }
+      g_algoFamilyDayWins = 0;
+      g_algoFamilyDayLosses = 0;
+   }
+
    SyncFalgoPlanCountersFromTradeResults();
+
+   int histFamilyWins = 0;
+   int histFamilyLosses = 0;
+   int histAlgoWins[ALGO_FAMILY_REGISTRY_MAX];
+   int histAlgoLosses[ALGO_FAMILY_REGISTRY_MAX];
    for(int si = 0; si < ALGO_FAMILY_REGISTRY_MAX; si++)
    {
-      g_algoDayWins[si] = 0;
-      g_algoDayLosses[si] = 0;
+      histAlgoWins[si] = 0;
+      histAlgoLosses[si] = 0;
    }
-   g_algoFamilyDayWins = 0;
-   g_algoFamilyDayLosses = 0;
-   g_algoFamilyDayGrossProfit = 0.0;
-   g_algoFamilyDayGrossLossAbs = 0.0;
+   double histGrossProfit = 0.0;
+   double histGrossLossAbs = 0.0;
+   const datetime dayEnd = (dayStart != 0) ? (dayStart + 86400) : 0;
+
    for(int i = 0; i < g_tradeResultsCount; i++)
    {
       if(!g_tradeResults[i].foundOut)
          continue;
       if(!IsAnyAlgoFamilyCompositeMagic(g_tradeResults[i].magic))
          continue;
+      if(dayStart != 0 && (g_tradeResults[i].endTime < dayStart || g_tradeResults[i].endTime >= dayEnd))
+         continue;
       const int algoIdx = AlgoFamilySlotArrayIndex(AlgoFamilyMagicNumber(g_tradeResults[i].magic));
       if(g_tradeResults[i].profit > 0.0)
       {
-         g_algoFamilyDayWins++;
-         g_algoFamilyDayGrossProfit += g_tradeResults[i].profit;
+         histFamilyWins++;
+         histGrossProfit += g_tradeResults[i].profit;
          if(algoIdx >= 0)
-            g_algoDayWins[algoIdx]++;
+            histAlgoWins[algoIdx]++;
       }
       else if(g_tradeResults[i].profit < 0.0)
       {
-         g_algoFamilyDayLosses++;
-         g_algoFamilyDayGrossLossAbs += -g_tradeResults[i].profit;
+         histFamilyLosses++;
+         histGrossLossAbs += -g_tradeResults[i].profit;
          if(algoIdx >= 0)
-            g_algoDayLosses[algoIdx]++;
+            histAlgoLosses[algoIdx]++;
       }
+   }
+
+   // Keep babysit bumps until today's g_tradeResults catches up on next M1 bar.
+   g_algoFamilyDayWins = MathMax(g_algoFamilyDayWins, histFamilyWins);
+   g_algoFamilyDayLosses = MathMax(g_algoFamilyDayLosses, histFamilyLosses);
+   for(int si = 0; si < ALGO_FAMILY_REGISTRY_MAX; si++)
+   {
+      g_algoDayWins[si] = MathMax(g_algoDayWins[si], histAlgoWins[si]);
+      g_algoDayLosses[si] = MathMax(g_algoDayLosses[si], histAlgoLosses[si]);
+   }
+   g_algoFamilyDayGrossProfit = histGrossProfit;
+   g_algoFamilyDayGrossLossAbs = histGrossLossAbs;
+}
+
+//+------------------------------------------------------------------+
+//| Babysit close: bump day win/loss before placement (g_tradeResults lags until next M1 bar; UpdateFalgoDayTradeCounts keeps max). |
+//+------------------------------------------------------------------+
+void AlgoFamilyDayStopBumpFromBabysitClose(const long positionMagic, const double profitPtsBeforeClose)
+{
+   if(!IsAnyAlgoFamilyCompositeMagic(positionMagic))
+      return;
+   const int algoIdx = AlgoFamilySlotArrayIndex(AlgoFamilyMagicNumber(positionMagic));
+   if(profitPtsBeforeClose > 0.0)
+   {
+      g_algoFamilyDayWins++;
+      if(algoIdx >= 0)
+         g_algoDayWins[algoIdx]++;
+   }
+   else if(profitPtsBeforeClose < 0.0)
+   {
+      g_algoFamilyDayLosses++;
+      if(algoIdx >= 0)
+         g_algoDayLosses[algoIdx]++;
    }
 }
 
@@ -7676,6 +7730,8 @@ bool Babysitf_falgo_closeIfProfitPointsAtLeast(const long positionMagic, const d
    ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
    const bool closed = ExtTrade.PositionClose(ExtPositionInfo.Ticket());
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   if(closed)
+      AlgoFamilyDayStopBumpFromBabysitClose(positionMagic, profitPts);
    return closed;
 }
 
@@ -7691,6 +7747,8 @@ bool Babysitf_falgo_closeIfProfitPointsAtOrAbove(const long positionMagic, const
    ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
    const bool closed = ExtTrade.PositionClose(ExtPositionInfo.Ticket());
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   if(closed)
+      AlgoFamilyDayStopBumpFromBabysitClose(positionMagic, profitPts);
    return closed;
 }
 
@@ -7770,6 +7828,8 @@ bool Babysitf_falgo_closeIfLossPointsAtLeast(const long positionMagic, const dou
    ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
    const bool closed = ExtTrade.PositionClose(ExtPositionInfo.Ticket());
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   if(closed)
+      AlgoFamilyDayStopBumpFromBabysitClose(positionMagic, profitPts);
    return closed;
 }
 
@@ -8647,11 +8707,11 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algoShared.extra_offset_all_shorts = 0.0;
    g_algoShared.extra_offset_all_longs = 0.0;
 
-   g_algoShared.blockPlacementIfFamilyOpenOrPending = false;
+   g_algoShared.blockPlacementIfFamilyOpenOrPending = true;
    g_algoShared.stop_trading_if_day_has_X_wins_0_losses = 9999;       // 5 999 family: stop all algos when wins>=X and 0 losses today
    g_algoShared.stop_trading_if_day_has_profit_factor_above = 9999; // 6.0 9999 family: stop all algos when PF>this and at least 1 loss today
-   g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count  = 9999;
-   g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 9999;
+   g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count  = 1;
+   g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 1;
 
    g_algoShared.bounce_minimum_clean_ohlc_to_qualify = 2;   // contact-clean-contact = 1 clean = noise, not a bounce. 
    g_algoShared.ceiling_minimum_clean_ohlc_to_qualify = 2; // Set either to 0 to restore old behaviour  
