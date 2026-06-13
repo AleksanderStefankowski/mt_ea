@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # Sets g_algos[...].enabled for each MAGIC_ALGO id in algo_range_start..algo_range_end.
 
-MQ5_FILE = File.expand_path("smashelito.mq5", __dir__)
+MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 set_enabled_to = false # true or false. Skips an algo if it is already in that state.
 # algo_range_start = 10
 # algo_range_end = 15

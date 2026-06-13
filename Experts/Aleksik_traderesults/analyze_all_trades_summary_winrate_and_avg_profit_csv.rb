@@ -10,7 +10,7 @@ require 'set'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 FILE_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days.tsv')
-SMASHELITO_MQ5_PATH = File.join(SCRIPT_DIR, '..', 'Smashelito', 'smashelito.mq5')
+ALEKSIK_MQ5_PATH = File.join(SCRIPT_DIR, '..', 'Aleksik', 'aleksik.mq5')
 OUTPUT_CSV_PATH = File.join(SCRIPT_DIR, 'analyze_all_trades_summary_winrate_and_avg_profit_output.csv')
 
 EXCLUDE_PREFIXES_MODE = true
@@ -262,7 +262,7 @@ end
 
 def read_algo_shared_tp_sl(mq5_path)
   unless File.file?(mq5_path)
-    $stderr.puts "ERROR: smashelito.mq5 not found: #{mq5_path}"
+    $stderr.puts "ERROR: aleksik.mq5 not found: #{mq5_path}"
     exit 1
   end
 
@@ -310,9 +310,9 @@ end
 
 $stderr.puts
 $stderr.puts "Loading file: #{FILE_PATH}"
-$stderr.puts "Reading TP/SL from: #{SMASHELITO_MQ5_PATH}"
+$stderr.puts "Reading TP/SL from: #{ALEKSIK_MQ5_PATH}"
 
-initial_tp, initial_sl = read_algo_shared_tp_sl(SMASHELITO_MQ5_PATH)
+initial_tp, initial_sl = read_algo_shared_tp_sl(ALEKSIK_MQ5_PATH)
 $stderr.puts "g_algoShared.initialTP = #{initial_tp}, initialSL = #{initial_sl}"
 
 raw = File.read(FILE_PATH, encoding: 'bom|utf-8')

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Deletes one or more algos from smashelito.mq5 (four //algocreator* blocks)
+# Deletes one or more algos from aleksik.mq5 (four //algocreator* blocks)
 # and decrements ALGO_FAMILY_REGISTRY_MAX by 1 per deleted algo.
 
 require_relative 'smash_mql5_algo_creator_common'

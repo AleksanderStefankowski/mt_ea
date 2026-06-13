@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
-# Reads smashelito.mq5 tune blocks → CSV of per-algo trade modes (neutral/strong/bad/terrible) + triggers.
+# Reads aleksik.mq5 tune blocks → CSV of per-algo trade modes (neutral/strong/bad/terrible) + triggers.
 
 require "csv"
 
-MQ5_FILE = File.expand_path("smashelito.mq5", __dir__)
+MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 OUT_CSV  = File.expand_path("smash_mql5_reader_of_algo_modes_output.csv", __dir__)
 src = File.read(MQ5_FILE)
 

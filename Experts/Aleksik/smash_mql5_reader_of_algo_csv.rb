@@ -4,7 +4,7 @@
 require "csv"
 require_relative "smash_mql5_algo_reader_lib"
 
-MQ5_FILE = File.expand_path("smashelito.mq5", __dir__)
+MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 OUT_CSV  = File.expand_path("smash_mql5_reader_of_algo_csv_output.csv", __dir__)
 src = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
 

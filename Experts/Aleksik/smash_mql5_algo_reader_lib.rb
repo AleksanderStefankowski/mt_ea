@@ -191,7 +191,7 @@ module SmashMql5AlgoReader
     rules_by_algo
   end
 
-  # 18-digit Falgo composite magic (smashelito.mq5 layout).
+  # 18-digit Falgo composite magic (aleksik.mq5 layout).
   module FalgoMagic
     MAGIC_LEN = 18
 
@@ -218,14 +218,14 @@ module SmashMql5AlgoReader
       return "tertiary PDrthClose" if slot == 1
       if slot >= 10 && slot <= 30
         center = 20
-        return "weekly smash" if slot == center
+        return "weekly pivot" if slot == center
         return "weekly up#{slot - center}" if slot > center
 
         return "weekly down#{center - slot}"
       end
       if slot >= 50 && slot <= 70
         center = 60
-        return "daily smash" if slot == center
+        return "daily pivot" if slot == center
         return "daily up#{slot - center}" if slot > center
 
         return "daily down#{center - slot}"

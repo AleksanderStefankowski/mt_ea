@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Creates a new algo in smashelito.mq5 by copying an existing one and optionally
+# Creates a new algo in aleksik.mq5 by copying an existing one and optionally
 # adding extra rules on top. Edits the four //algocreator* blocks.
 
 require_relative 'smash_mql5_algo_creator_common'
@@ -70,7 +70,7 @@ extra_rules = <<~RULES
   # openGap_info=gapDown_Day
 
   # --- level tag ---
-  # levelTag=dailySmash
+  # levelTag=dailyPivot
   # levelTag=dailyUp1
   # levelTag=todayRTHopen
 

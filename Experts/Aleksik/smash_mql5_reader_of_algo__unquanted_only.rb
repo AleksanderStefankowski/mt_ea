@@ -41,7 +41,7 @@ def contains_quant_rule?(rules)
   end
 end
 
-MQ5_FILE = File.expand_path("smashelito.mq5", __dir__)
+MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 src = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
 
 params_by_algo = SmashMql5AlgoReader.params_by_algo_from_src(src)

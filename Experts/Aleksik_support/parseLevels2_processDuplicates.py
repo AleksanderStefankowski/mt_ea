@@ -1,7 +1,7 @@
 """
 Read levelsinfo_raw.txt (JSON from parseLevels1), add category "stacked"
 to daily levels whose levelPrice matches any weekly level in the same week.
-Add weekday to every daily level's categories (same as daily smash).
+Add weekday to every daily level's categories (same as daily pivot).
 Extend weekly levels' categories with "stacked" and weekdays when stacked with daily(s).
 Write result to levelsinfo_zeFinal.csv, skipping levels that have both daily and stacked.
 """
@@ -38,7 +38,7 @@ def weekday_from_date(date_str):
 
 
 def ensure_daily_weekdays(levels):
-    """Ensure every daily level has its weekday in categories (same as daily smash)."""
+    """Ensure every daily level has its weekday in categories (same as daily pivot)."""
     for lev in levels:
         cats = lev.get("categories", [])
         if "daily" not in cats:

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Creates a new algo in smashelito.mq5 from scratch (no copy-from source).
+# Creates a new algo in aleksik.mq5 from scratch (no copy-from source).
 # Writes a full tune block (every AlgoDef field) and rules from uncommented lines below.
 # Edits algocreator1 (registry), algocreator2 (tune), algocreator4 (rules).
 # algocreator3 is a fixed per-algo level-flag validation loop — not edited by this script.
@@ -158,7 +158,7 @@ rules = <<~RULES
   # openGap_info=gapDown_Day
 
   # --- level tag ---
-  # levelTag=dailySmash
+  # levelTag=dailyPivot
   # levelTag=dailyUp1
   # levelTag=todayRTHopen
 

@@ -5,7 +5,7 @@
 module SmashMql5AlgoCreatorCommon
   module_function
 
-  MQ5_FILE = File.expand_path('smashelito.mq5', __dir__)
+  MQ5_FILE = File.expand_path('aleksik.mq5', __dir__)
   MIN_ALGO_ID = 10
 
   MARKERS = {
@@ -79,7 +79,7 @@ module SmashMql5AlgoCreatorCommon
       'openGap_info=gapDown_Day' => 'AlgoRuleAdd_DayGapDownRequired(slotIdx)'
     },
     'level tag' => {
-      'levelTag=dailySmash' => 'AlgoRuleAdd_LevelTagDailySmash(slotIdx)',
+      'levelTag=dailyPivot' => 'AlgoRuleAdd_LevelTagDailyPivot(slotIdx)',
       'levelTag=dailyUp1' => 'AlgoRuleAdd_LevelTagDailyUp1(slotIdx)',
       'levelTag=todayRTHopen' => 'AlgoRuleAdd_LevelTagTodayRthOpen(slotIdx)'
     },

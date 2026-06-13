@@ -13,9 +13,9 @@ Scripts/
 Experts/Advisors/
 Experts/Free Robots/
 Experts/Examples/
-Experts/Smashelito/smash_mql5_generate_subset_functions/*/
+Experts/Aleksik/smash_mql5_generate_subset_functions/*/
 
-Experts/Smashelito_support/credentials.json
+Experts/Aleksik_support/credentials.json
 **/credentials.json
 **/token.pickle
 

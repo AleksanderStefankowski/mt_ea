@@ -14,7 +14,7 @@ OUTPUT_FILE = 'analyze_week_by_week_1_2_3_tradesPerDay_perAlgo_o.csv'
 simulate_trades_per_day_limit_start = 1
 simulate_trades_per_day_limit_end   = 3
 
-# Match smashelito.mq5: stop when wins+losses >= this per algo family per day (0=off)
+# Match aleksik.mq5: stop when wins+losses >= this per algo family per day (0=off)
 STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT = 3
 
 # Save full trade list per scenario (same rows used for overall profit factor).

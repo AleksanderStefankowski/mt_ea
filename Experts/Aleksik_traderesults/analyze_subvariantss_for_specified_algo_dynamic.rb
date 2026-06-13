@@ -3,7 +3,7 @@
 require 'csv'
 require 'date'
 require 'set'
-require_relative '../Smashelito/smash_mql5_algo_reader_lib'
+require_relative '../Aleksik/smash_mql5_algo_reader_lib'
 
 FM = SmashMql5AlgoReader::FalgoMagic
 

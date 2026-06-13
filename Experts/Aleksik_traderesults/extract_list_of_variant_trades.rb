@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
-require_relative '../Smashelito/smash_mql5_algo_reader_lib'
+require_relative '../Aleksik/smash_mql5_algo_reader_lib'
 
 FM = SmashMql5AlgoReader::FalgoMagic
 

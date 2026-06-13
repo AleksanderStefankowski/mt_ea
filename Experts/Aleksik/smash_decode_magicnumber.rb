@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# Decodes 18-digit Falgo composite magic numbers (smashelito.mq5 layout).
+# Decodes 18-digit Falgo composite magic numbers (aleksik.mq5 layout).
 
 require_relative "smash_mql5_algo_reader_lib"
 
@@ -10,7 +10,7 @@ SLOTS = [
   { digits: "1-2",   name: "algo ID",           range: "10..99", note: "wired algo number (MAGIC_ALGO*)" },
   { digits: "3",     name: "direction",         range: "1..4",   note: "1=long limit 2=short limit 3=long alt 4=short alt" },
   { digits: "4",     name: "day of week",       range: "1..5",   note: "Mon..Fri (MT5 day_of_week)" },
-  { digits: "5-6",   name: "level slot",        range: "00..99", note: "00=RTHO; 01=PDC; 10..30 weekly (smash=20); 50..70 daily (smash=60)" },
+  { digits: "5-6",   name: "level slot",        range: "00..99", note: "00=RTHO; 01=PDC; 10..30 weekly (pivot=20); 50..70 daily (pivot=60)" },
   { digits: "7",     name: "bounce count",      range: "0..8",   note: "capped at placement" },
   { digits: "8",     name: "ceiling count",     range: "0..8",   note: "capped at placement" },
   { digits: "9-10",  name: "offset (tenths)",   range: "00..99", note: "encoded 0.1..9.9 points (long/short offset for plan)" },

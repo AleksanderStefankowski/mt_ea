@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Creates a new algo in smashelito.mq5 by copying an existing one and adding
+# Creates a new algo in aleksik.mq5 by copying an existing one and adding
 # extra rules from a quant pipe-separated string, e.g.:
 #   "above_ONH=true | above_PDC=true | levelTag=dailyUp1"
 # Optional session gate (adds AlgoRuleAdd_Session):
