@@ -10,9 +10,9 @@ FM = SmashMql5AlgoReader::FalgoMagic
 # =========================================================
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
-SESSION = 'ON' # full, ON, RTH-IB, RTH-afterIB
-MAGICPREFIX = 14
-VARIABLES = 'PD_trend=PD_green | above_ONH=true | above_ONL=true | above_dayHighSoFar=true | above_dayLowSoFar=true | above_midpoint=true | dayBrokePDH=false | openGap_info=unknown'
+SESSION = 'full' # full, ON, RTH-IB, RTH-afterIB
+MAGICPREFIX = 31
+VARIABLES = 'above_PDO=true | above_midpoint=true | below_ONH=true | below_dayHighSoFar=true | openGap_info=unknown'
 
 OUTPUT =
   format(

@@ -17,6 +17,10 @@ simulate_trades_per_day_limit_end   = 3
 # Match smashelito.mq5: stop when wins+losses >= this per algo family per day (0=off)
 STOP_TRADING_TODAY_IF_THIS_ALGO_TOTAL_TRADES_COUNT = 3
 
+# Save full trade list per scenario (same rows used for overall profit factor).
+# Skips all_trades — that list is identical to the input file.
+OUTPUT_LIST_OF_TRADES_OF_EACH_SCENARIO = true
+
 # =========================================================
 # HELPERS
 # =========================================================
@@ -115,15 +119,47 @@ def total_overlapping_trades(weekly_data)
   total
 end
 
-def print_overall_summary(weekly_data, all_rows_for_range)
-  _, _, total_weekdays = trade_date_range(all_rows_for_range)
-
+def aggregate_trades_by_scenario(weekly_data)
   overall = Hash.new { |h, k| h[k] = [] }
-  overlap_by_scenario = Hash.new(0)
 
   weekly_data.each_value do |analyses|
     analyses.each do |analysis_type, data|
       overall[analysis_type].concat(data[:trades])
+    end
+  end
+
+  overall
+end
+
+def scenario_trades_output_path(scenario_name)
+  base = OUTPUT_FILE.sub(/\.csv\z/, '')
+  "#{base}_scenario_#{scenario_name}_trades.tsv"
+end
+
+def write_scenario_trade_lists(weekly_data, headers)
+  aggregate_trades_by_scenario(weekly_data).each do |scenario, trades|
+    next if scenario == 'all_trades'
+    next if trades.empty?
+
+    output_path = scenario_trades_output_path(scenario)
+    sorted = trades.sort_by { |t| parse_time(t['startTime']) }
+
+    CSV.open(output_path, 'w', write_headers: true, headers: headers) do |csv|
+      sorted.each { |row| csv << row }
+    end
+
+    puts "Scenario trades: #{scenario} (#{sorted.size}) -> #{output_path}"
+  end
+end
+
+def print_overall_summary(weekly_data, all_rows_for_range)
+  _, _, total_weekdays = trade_date_range(all_rows_for_range)
+
+  overall = aggregate_trades_by_scenario(weekly_data)
+  overlap_by_scenario = Hash.new(0)
+
+  weekly_data.each_value do |analyses|
+    analyses.each do |analysis_type, data|
       overlap_by_scenario[analysis_type] += data[:overlapping_trades]
     end
   end
@@ -405,6 +441,11 @@ end
 puts "All-trades overlapping trades: #{total_overlapping_trades(weekly_data)}"
 
 print_overall_summary(weekly_data, rows)
+
+if OUTPUT_LIST_OF_TRADES_OF_EACH_SCENARIO
+  puts 'Scenario trade lists (all weeks combined, excludes all_trades):'
+  write_scenario_trade_lists(weekly_data, rows.headers)
+end
 
 puts
 puts 'Done.'
