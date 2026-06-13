@@ -3928,11 +3928,7 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 
 
 //+------------------------------------------------------------------+
-//| Algo family: Falgo pipeline, rules, telemetry, EOD logs
-//+------------------------------------------------------------------+
-//+------------------------------------------------------------------+
-//| smashelito_falgo.mqh — algo family (algo 10..99): Falgo* helpers, pipelines, telemetry |
-//| Included from smashelito.mq5 after globals (g_tradeResults, g_m1Rates, …). |
+//| Algo family (algo 10..99): Falgo* helpers, pipelines, telemetry, EOD logs (inline below). |
 //+------------------------------------------------------------------+
 
 
