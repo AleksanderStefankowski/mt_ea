@@ -14,10 +14,31 @@ from datetime import datetime
 WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 
 
+def normalize_level_record(lev):
+    tag = lev.get("tag", "")
+    if tag == "weeklySmash":
+        lev["tag"] = "weeklyPivot"
+    elif tag == "dailySmash":
+        lev["tag"] = "dailyPivot"
+
+    cats = lev.get("categories", [])
+    lev["categories"] = [
+        "pivot" if c == "smash" else c.replace("smash", "pivot") if "smash" in c else c
+        for c in cats
+    ]
+    return lev
+
+
+def normalize_level_list(levels):
+    for lev in levels:
+        normalize_level_record(lev)
+    return levels
+
+
 def load_raw(script_dir):
     path = os.path.join(script_dir, "levelsinfo_raw.txt")
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        return normalize_level_list(json.load(f))
 
 
 def build_weekly_prices_by_week(levels):

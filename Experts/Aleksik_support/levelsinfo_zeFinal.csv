@@ -733,3 +733,16 @@ start,end,levelPrice,categories,tag
 2026.06.12,2026.06.12,7455,daily_friday,dailyUp2
 2026.06.12,2026.06.12,7478,daily_friday,dailyUp3
 2026.06.12,2026.06.12,7336,daily_friday,dailyDown2
+2026.06.15,2026.06.19,7481,weekly_pivot_stacked_monday,weeklyPivot
+2026.06.15,2026.06.19,7540,weekly_stacked_monday,weeklyUp1
+2026.06.15,2026.06.19,7605,weekly,weeklyUp2
+2026.06.15,2026.06.19,7635,weekly,weeklyUp3
+2026.06.15,2026.06.19,7675,weekly,weeklyUp4
+2026.06.15,2026.06.19,7735,weekly,weeklyUp5
+2026.06.15,2026.06.19,7435,weekly_stacked_monday,weeklyDown1
+2026.06.15,2026.06.19,7365,weekly,weeklyDown2
+2026.06.15,2026.06.19,7335,weekly,weeklyDown3
+2026.06.15,2026.06.19,7300,weekly,weeklyDown4
+2026.06.15,2026.06.19,7250,weekly,weeklyDown5
+2026.06.15,2026.06.15,7515,daily_monday,dailyUp1
+2026.06.15,2026.06.15,7461,daily_monday,dailyDown1

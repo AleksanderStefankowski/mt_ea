@@ -6,6 +6,27 @@ from calendar import month_name
 from datetime import datetime, timedelta
 
 
+def normalize_level_record(lev):
+    tag = lev.get("tag", "")
+    if tag == "weeklySmash":
+        lev["tag"] = "weeklyPivot"
+    elif tag == "dailySmash":
+        lev["tag"] = "dailyPivot"
+
+    cats = lev.get("categories", [])
+    lev["categories"] = [
+        "pivot" if c == "smash" else c.replace("smash", "pivot") if "smash" in c else c
+        for c in cats
+    ]
+    return lev
+
+
+def normalize_level_list(levels):
+    for lev in levels:
+        normalize_level_record(lev)
+    return levels
+
+
 def month_to_number(month_str):
     for i in range(1, 13):
         if month_name[i].lower() == month_str.lower():
@@ -133,24 +154,24 @@ def parse_plan(text, trading):
 
         if pivot is not None:
             if category == "weekly":
-                results.append({
+                results.append(normalize_level_record({
                     "start": start_date,
                     "end": end_date,
                     "levelPrice": pivot,
                     "categories": ["weekly", "pivot"],
                     "tag": "weeklyPivot",
-                })
+                }))
             else:
                 dt = datetime.strptime(start_date, "%Y.%m.%d")
                 weekday = dt.strftime("%A").lower()
 
-                results.append({
+                results.append(normalize_level_record({
                     "start": start_date,
                     "end": end_date,
                     "levelPrice": pivot,
                     "categories": ["daily", weekday, "pivot"],
                     "tag": "dailyPivot",
-                })
+                }))
 
         for i, level in enumerate(sorted(ups), start=1):
             results.append({
@@ -199,8 +220,8 @@ if __name__ == "__main__":
     if os.path.exists(out_path):
         with open(out_path, "r", encoding="utf-8") as f:
             try:
-                existing = json.load(f)
-            except:
+                existing = normalize_level_list(json.load(f))
+            except json.JSONDecodeError:
                 existing = []
 
     combined = existing + data
