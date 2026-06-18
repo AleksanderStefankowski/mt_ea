@@ -7,43 +7,6 @@ require_relative "smash_mql5_algo_reader_lib"
 PRINT_ENABLED_BLOCKS = true
 PRINT_DISABLED_BLOCKS = true
 
-QUANT_RULES = [
-  
-  "LevelBelowONH",
-  "LevelBelowONL",
-  "LevelBelowPDC",
-  "LevelBelowPDH",
-  "LevelBelowDayHighSoFar",
-  "LevelBelowMidpoint",
-  "LevelAboveIBH",
-  "LevelAboveIBL",
-  "LevelAboveONH",
-  "LevelAbovePDL",
-  "LevelAbovePDO",
-  "LevelAboveRTHL",
-  "LevelAboveDayHighSoFar",
-  "LevelAboveDayLowSoFar",
-  "LevelAboveMidpoint",
-  "LevelBelowDayLowSoFar",
-  "LevelBelowRTHL",
-  "LevelBelowIBL",
-  "LevelBelowPDL",
-  "LevelBelowPDO",
-  "LevelBelowIBH",
-  "LevelBelowRTHH",
-  "LevelBelowIBH",
-  "LevelBelowIBL"
-
-].freeze
-
-def contains_quant_rule?(rules)
-  return false if rules.nil? || rules.empty?
-
-  rules.any? do |rule|
-    QUANT_RULES.any? { |quant| rule == quant || rule.start_with?("#{quant}(") }
-  end
-end
-
 MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 src = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
 
@@ -53,7 +16,7 @@ algo_ids = SmashMql5AlgoReader.registry_algo_ids(src)
 rules_by_algo = SmashMql5AlgoReader.rules_by_algo_from_src(src, params_by_algo)
 
 unquanted_algo_ids =
-  algo_ids.reject { |id| contains_quant_rule?(rules_by_algo[id]) }
+  algo_ids.reject { |id| SmashMql5AlgoReader.contains_quant_rule?(rules_by_algo[id]) }
 
 print_algo_ids = unquanted_algo_ids.select do |id|
   enabled = params_by_algo[id]["enabled"] == "true"

@@ -515,7 +515,7 @@ enum ENUM_ALGO_RULE
 };
 
 #define ALGO_RULES_MAX            22
-#define ALGO_FAMILY_REGISTRY_MAX  33
+#define ALGO_FAMILY_REGISTRY_MAX  25
 #define ALGO_FAMILY_REGISTRY_MAX_HEADROOM 3  // max may exceed wired algo count by at most this
 //algobookmarkMAX
 
@@ -575,6 +575,10 @@ struct AlgoDef
 AlgoSharedProfile g_algoShared;
 AlgoDef           g_algos[ALGO_FAMILY_REGISTRY_MAX];
 int               g_algoCount = 0;
+
+// Base calendar overrides (YYYY.MM.DD): non-trade days block all placement; daily-only days restrict to daily/stacked levels.
+string g_falgoNonTradeDates[];
+string g_falgoDailyLevelsOnlyDates[];
 
 #define ALGOFAMILY_BOUNCE_CEILING_EVENTS_MAX 64
 
@@ -3751,12 +3755,7 @@ string MagicNumberToFixedWidthString(long magic)
 #define MAGIC_ALGO16                16
 #define MAGIC_ALGO17                17
 #define MAGIC_ALGO18                18
-#define MAGIC_ALGO19                19
-#define MAGIC_ALGO20                20
 #define MAGIC_ALGO24                24
-#define MAGIC_ALGO25                25
-#define MAGIC_ALGO26                26
-#define MAGIC_ALGO27                27
 #define MAGIC_ALGO28                28
 #define MAGIC_ALGO29                29
 #define MAGIC_ALGO30                30
@@ -3769,10 +3768,7 @@ string MagicNumberToFixedWidthString(long magic)
 #define MAGIC_ALGO37                37
 #define MAGIC_ALGO38                38
 #define MAGIC_ALGO39                39
-#define MAGIC_ALGO40                40
-#define MAGIC_ALGO41                41
 #define MAGIC_ALGO42                42
-#define MAGIC_ALGO43                43
 #define MAGIC_ALGO44                44
 #define MAGIC_ALGO45                45
 // wired algo magic prefixes — add MAGIC_ALGO* define + id here + tune block in Sync
@@ -3788,12 +3784,7 @@ int g_algoRegistryIds[] =
    MAGIC_ALGO16,
    MAGIC_ALGO17,
    MAGIC_ALGO18,
-   MAGIC_ALGO19,
-   MAGIC_ALGO20,
    MAGIC_ALGO24,
-   MAGIC_ALGO25,
-   MAGIC_ALGO26,
-   MAGIC_ALGO27,
    MAGIC_ALGO28,
    MAGIC_ALGO29,
    MAGIC_ALGO30,
@@ -3806,10 +3797,7 @@ int g_algoRegistryIds[] =
    MAGIC_ALGO37,
    MAGIC_ALGO38,
    MAGIC_ALGO39,
-   MAGIC_ALGO40,
-   MAGIC_ALGO41,
    MAGIC_ALGO42,
-   MAGIC_ALGO43,
    MAGIC_ALGO44,
    MAGIC_ALGO45
 };
@@ -4570,6 +4558,59 @@ bool LevelIsDailyNonTertiary(const string &categories)
 }
 
 //+------------------------------------------------------------------+
+//| Base calendar overrides: non-trade dates + daily/stacked-only dates (YYYY.MM.DD). |
+//+------------------------------------------------------------------+
+void RebuildFalgoCalendarOverrideDateLists()
+{
+   string nonTrade[] = {
+      "2026.03.16", "2026.03.17", "2026.03.18",
+      "2026.06.15", "2026.06.16", "2026.06.17"
+   };
+   string dailyOnly[] = {
+      "2026.03.19", "2026.03.20",
+      "2026.06.18", "2026.06.19"
+   };
+   ArrayResize(g_falgoNonTradeDates, ArraySize(nonTrade));
+   for(int i = 0; i < ArraySize(nonTrade); i++)
+      g_falgoNonTradeDates[i] = nonTrade[i];
+   ArrayResize(g_falgoDailyLevelsOnlyDates, ArraySize(dailyOnly));
+   for(int i = 0; i < ArraySize(dailyOnly); i++)
+      g_falgoDailyLevelsOnlyDates[i] = dailyOnly[i];
+}
+
+//+------------------------------------------------------------------+
+string FalgoNormalizeDateStr(string dateStr)
+{
+   if(StringFind(dateStr, "-") >= 0)
+      StringReplace(dateStr, "-", ".");
+   return dateStr;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoDateStrInList(const string dateStr, const string &dates[])
+{
+   const string key = FalgoNormalizeDateStr(dateStr);
+   for(int i = 0; i < ArraySize(dates); i++)
+      if(dates[i] == key)
+         return true;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoIsNonTradeCalendarDate(const datetime t)
+{
+   return FalgoDateStrInList(TimeToString(t, TIME_DATE), g_falgoNonTradeDates);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoIsDailyLevelsOnlyCalendarDate(const datetime t)
+{
+   if(FalgoIsNonTradeCalendarDate(t))
+      return false;
+   return FalgoDateStrInList(TimeToString(t, TIME_DATE), g_falgoDailyLevelsOnlyDates);
+}
+
+//+------------------------------------------------------------------+
 //| Stacked = weekly+daily: weekly algos / both-enabled → whole week; daily-only → weekday substrings required (FatalError if missing). |
 //+------------------------------------------------------------------+
 bool LevelEligibleForAlgoLevelScope(const string &categories, const bool tradesWeekly, const bool tradesDaily, const datetime asOfTime)
@@ -4578,6 +4619,23 @@ bool LevelEligibleForAlgoLevelScope(const string &categories, const bool tradesW
    StringToLower(c);
    if(StringFind(c, "tertiary") >= 0)
       return false;
+
+   if(FalgoIsDailyLevelsOnlyCalendarDate(asOfTime))
+   {
+      if(!LevelIsDailyKind(categories))
+         return false;
+      MqlDateTime mt;
+      TimeToStruct(asOfTime, mt);
+      if(LevelIsStacked(categories))
+      {
+         if(tradesWeekly || tradesDaily)
+            return LevelCategoriesActiveOnDayOfWeek(categories, mt.day_of_week);
+         return false;
+      }
+      if(tradesDaily)
+         return LevelCategoriesActiveOnDayOfWeek(categories, mt.day_of_week);
+      return false;
+   }
 
    const bool weeklyKind = LevelIsWeeklyKind(categories);
    const bool dailyKind = LevelIsDailyKind(categories);
@@ -4625,6 +4683,8 @@ bool FalgoLevelEligibleForAlgo(const int expandedLevelIdx, const int algoNumber,
 {
    if(expandedLevelIdx < 0 || expandedLevelIdx >= g_levelsTodayCount)
       return false;
+   if(FalgoIsDailyLevelsOnlyCalendarDate(asOfTime) && AlgoTradesTertiaryTodayRTHOLevel(algoNumber))
+      return false;
    if(AlgoTradesTertiaryTodayRTHOLevel(algoNumber))
       return LevelIsTodayRthOpenTertiary(g_levelsExpanded[expandedLevelIdx].categories);
    return LevelEligibleForAlgoLevelScope(g_levelsExpanded[expandedLevelIdx].categories,
@@ -4643,7 +4703,11 @@ int FalgoClosestExpandedLevelIdxAtBarForAlgo(const int algoNumber, const int bar
    if(barIdx < 0 || barIdx >= g_barsInDay)
       return -1;
    if(AlgoTradesTertiaryTodayRTHOLevel(algoNumber))
+   {
+      if(FalgoIsDailyLevelsOnlyCalendarDate(g_m1Rates[barIdx].time))
+         return -1;
       return FalgoTodayRthOpenTertiaryExpandedIdx(barIdx);
+   }
    const bool tradesWeekly = AlgoTradesWeeklyLevels(algoNumber);
    const bool tradesDaily = AlgoTradesDailyLevels(algoNumber);
    if(tradesWeekly && !tradesDaily)
@@ -5046,6 +5110,8 @@ void FalgoBumpPlanCountersAfterPlacement(const int algoNumber, const int levelSl
 //+------------------------------------------------------------------+
 bool FalgoIsTradingDayAllowed(const datetime t)
 {
+   if(FalgoIsNonTradeCalendarDate(t))
+      return false;
    int slot = FalgoDayOfWeekSlotFromTimeOrInvalid(t);
    if(slot < 1)
       return false;
@@ -8850,6 +8916,7 @@ void TryFlushTradeResultsEodFallback(const datetime barOpen, const datetime barC
 void SyncAlgoFamilyProfileFromInputs()
 {  // algobookmark1 — shared + individual tune blocks
    RebuildAlgoSlotsRegistry();
+   RebuildFalgoCalendarOverrideDateLists();
    //=== SHARED TUNE BLOCK ===
 
    g_algoShared.babysit_enabled                              = true;
@@ -9217,80 +9284,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].priceProximity                             =  4.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].expiry_minutes                              =  5;
 
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tradesWeeklyLevels                              = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tradesDailyLevels                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].bounceMaxAllowed_today                          =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].min_onoAboveLevel                                 = 1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].levelOffset                               = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].priceProximity                             =  4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO19)].expiry_minutes                              =  5;
-
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tradesWeeklyLevels                              = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tradesDailyLevels                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].bounceMaxAllowed_today                          =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].min_onoAboveLevel                                 = 1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].levelOffset                               = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].priceProximity                             =  4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].expiry_minutes                              =  5;
-
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].trades_short                                     = ALGO_SIDE_LONG;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].tradesWeeklyLevels                              = false;
@@ -9328,116 +9321,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].levelOffset                               = -0.5;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].priceProximity                             =  4.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].expiry_minutes                              =  5;
-
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tradesWeeklyLevels                              = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tradesDailyLevels                               = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tradesTertiaryTodayRTHOLevel                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].min_gap_range_pts_exclusive                        = 10.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].max_gap_fill_pc_exclusive                          = 55.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].levelOffset                               = -0.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].priceProximity                             =  4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO25)].expiry_minutes                              =  7;
-
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tradesWeeklyLevels                              = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tradesDailyLevels                               = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].physicalCeilingMaxAllowed_today                =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].levelOffset                               = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].priceProximity                             =  4.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO26)].expiry_minutes                              =  5;
-
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tradesWeeklyLevels                              = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tradesDailyLevels                               = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_MaePostX_trigger                                  =  -4.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.badtrade_try_save_TP                                      =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].tune.terribletrade_try_smaller_loss_TP                           =  -2.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].physicalCeilingMaxAllowed_today                =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].levelOffset                               = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].priceProximity                             =  4.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].trades_short                                     = ALGO_SIDE_SHORT;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].enabled                                         = false;
@@ -9889,85 +9772,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].priceProximity                            =  5.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].expiry_minutes                              =  8;
 
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tradesWeeklyLevels                              = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tradesDailyLevels                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.badtrade_try_save_TP                                     =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].tune.terribletrade_try_smaller_loss_TP                           =  0.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].proximityCeilingMaxAllowed_today                =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].recentCeilingCountToday_Minutes                 = 300;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].min_anchorBelow_cleanStreak                     = 11.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].min_cleanOHLC_streak_count                      =    2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].levelOffset                              =  1.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].priceProximity                            =  5.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO40)].expiry_minutes                              =  8;
-
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tradesWeeklyLevels                              = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tradesDailyLevels                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.badtrade_try_save_TP                                     =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].tune.terribletrade_try_smaller_loss_TP                           =  0.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].proximityCeilingMaxAllowed_today                =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].recentCeilingCountToday_Minutes                 = 300;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].min_anchorBelow_cleanStreak                     = 11.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].min_anchorAbove_cleanStreak                     = 11.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].min_cleanOHLC_streak_count                      =    2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].levelOffset                              =  1.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].priceProximity                            =  5.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].expiry_minutes                              =  8;
-
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].trades_short                                     = ALGO_SIDE_LONG;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].tradesWeeklyLevels                              = false;
@@ -10007,46 +9811,6 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].levelOffset                              =  1.1;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].priceProximity                            =  5.0;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].expiry_minutes                              =  8;
-
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].enabled                                         = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tradesWeeklyLevels                              = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tradesDailyLevels                               = false;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.stop_trading_today_if_thisAlgo_winning_trades_count     =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.stop_trading_today_if_thisAlgo_total_trades_count        =  7;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.babysitStart_minute                                     =  0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.neutral_trade_TP                                         =  2.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_TP                                         =  3.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.neutral_trade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.badtrade_mode_enabled                                    = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.terribletrade_mode_enabled                               = true;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_eval_min_profit_pts                      =  1.8;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_min_velocity_trigger                             = 0.4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_velocity_window_seconds                  =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_stall_velocity_max_trigger                       = 0.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_stall_giveback_pts_trigger                       =  99.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.strong_trade_stall_min_close_profit_pts               =  2.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.telemetry_velocity_window_seconds                        = 10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.telemetry_avg_velocity_window_seconds                    =   10;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.start_mae_care_after_x_seconds                           =  90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.badtrade_MaePostX_trigger                                  =  -3.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.badtrade_totalRedSeconds_minTrigger                      =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.badtrade_try_save_TP                                     =   1.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.terribletrade_MaePostX_trigger                             =  -5.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.terribletrade_consecutiveRedSeconds_minTrigger            =   90;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.terribletrade_avgProfitVelocity10_trigger                 = 0.02;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].tune.terribletrade_try_smaller_loss_TP                           =  0.5;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].proximityCeilingMaxAllowed_today                =  4;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].max_allowed_trades_perLevel_perDay_forThisAlgo                =  1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].recentCeilingCountToday_Minutes                 = 300;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].min_anchorBelow_cleanStreak                     = 11.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].min_anchorAbove_cleanStreak                     = 11.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].min_cleanOHLC_streak_count                      =    2;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].levelOffset                              =  1.1;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].priceProximity                            =  5.0;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].expiry_minutes                              =  8;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].trades_short                                     = ALGO_SIDE_SHORT;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].enabled                                         = false;
@@ -12998,38 +12762,6 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleAdd_GapRangePtsAbove(slotIdx, a.min_gap_range_pts_exclusive);
          AlgoRuleAdd_GapFillPcBelow(slotIdx, a.max_gap_fill_pc_exclusive);
          break;
-      case MAGIC_ALGO19:
-         AlgoRuleAdd_BounceCountTooHigh(slotIdx, a.bounceMaxAllowed_today);
-         AlgoRuleAdd_OnoAboveLevelTooLow(slotIdx, a.min_onoAboveLevel);
-         AlgoRuleAdd_Session(slotIdx, "ON");
-         AlgoRuleAdd_LevelTagDailyPivot(slotIdx);
-         AlgoRuleAdd_LevelBelowONH(slotIdx);
-         AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowMidpoint(slotIdx);
-         AlgoRuleAdd_LevelAbovePDL(slotIdx);
-         AlgoRuleAdd_LevelBelowONL(slotIdx);
-         AlgoRuleAdd_LevelBelowDayLowSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowPDH(slotIdx);
-         AlgoRuleAdd_DayBrokePDLfalse(slotIdx);
-         break;
-      case MAGIC_ALGO20:
-         AlgoRuleAdd_BounceCountTooHigh(slotIdx, a.bounceMaxAllowed_today);
-         AlgoRuleAdd_OnoAboveLevelTooLow(slotIdx, a.min_onoAboveLevel);
-         AlgoRuleAdd_Session(slotIdx, "RTH-afterIB");
-         AlgoRuleAdd_DayGapUpRequired(slotIdx);
-         AlgoRuleAdd_DayBrokePDLfalse(slotIdx);
-         AlgoRuleAdd_LevelBelowPDH(slotIdx);
-         AlgoRuleAdd_LevelBelowONH(slotIdx);
-         AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowPDC(slotIdx);
-         AlgoRuleAdd_LevelBelowONL(slotIdx);
-         AlgoRuleAdd_LevelBelowDayLowSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowMidpoint(slotIdx);
-         AlgoRuleAdd_LevelBelowRTHH(slotIdx);
-         AlgoRuleAdd_LevelBelowRTHL(slotIdx);
-         AlgoRuleAdd_LevelBelowIBL(slotIdx);
-         AlgoRuleAdd_LevelBelowIBH(slotIdx);
-         break;
       case MAGIC_ALGO24:
          AlgoRuleAdd_RthoTertiaryReady(slotIdx);
          AlgoRuleAdd_DayGapDownRequired(slotIdx);
@@ -13044,45 +12776,6 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleAdd_LevelBelowPDH(slotIdx);
          AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
          AlgoRuleAdd_LevelTagTodayRthOpen(slotIdx);
-         break;
-      case MAGIC_ALGO25:
-         AlgoRuleAdd_RthoTertiaryReady(slotIdx);
-         AlgoRuleAdd_DayGapDownRequired(slotIdx);
-         AlgoRuleAdd_GapRangePtsAbove(slotIdx, a.min_gap_range_pts_exclusive);
-         AlgoRuleAdd_GapFillPcBelow(slotIdx, a.max_gap_fill_pc_exclusive);
-         AlgoRuleAdd_Session(slotIdx, "RTH-IB");
-         AlgoRuleAdd_PDred(slotIdx);
-         AlgoRuleAdd_LevelAboveONL(slotIdx);
-         AlgoRuleAdd_LevelAbovePDL(slotIdx);
-         AlgoRuleAdd_LevelAboveDayLowSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowONH(slotIdx);
-         AlgoRuleAdd_LevelBelowPDC(slotIdx);
-         AlgoRuleAdd_LevelBelowPDH(slotIdx);
-         AlgoRuleAdd_LevelBelowPDO(slotIdx);
-         AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
-         AlgoRuleAdd_LevelTagTodayRthOpen(slotIdx);
-         break;
-      case MAGIC_ALGO26:
-         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "todayCeilingCountTooHigh");
-         AlgoRuleAdd_Session(slotIdx, "ON");
-         AlgoRuleAdd_PDgreen(slotIdx);
-         AlgoRuleAdd_LevelAbovePDL(slotIdx);
-         AlgoRuleAdd_LevelBelowONH(slotIdx);
-         AlgoRuleAdd_LevelBelowPDH(slotIdx);
-         AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowMidpoint(slotIdx);
-         AlgoRuleAdd_DayBrokePDLfalse(slotIdx);
-         AlgoRuleAdd_OpenGapInfoUnknown(slotIdx);
-         break;
-      case MAGIC_ALGO27:
-         AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "todayCeilingCountTooHigh");
-         AlgoRuleAdd_Session(slotIdx, "ON");
-         AlgoRuleAdd_PDgreen(slotIdx);
-         AlgoRuleAdd_LevelAbovePDL(slotIdx);
-         AlgoRuleAdd_LevelBelowPDC(slotIdx);
-         AlgoRuleAdd_LevelBelowPDH(slotIdx);
-         AlgoRuleAdd_DayBrokePDLfalse(slotIdx);
-         AlgoRuleAdd_OpenGapInfoUnknown(slotIdx);
          break;
       case MAGIC_ALGO28:
          AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "todayCeilingCountTooHigh");
@@ -13156,28 +12849,6 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleAdd_OpenGapInfoUnknown(slotIdx);
          AlgoRuleAdd_Session(slotIdx, "ON");
          break;
-      case MAGIC_ALGO40:
-         AlgoRuleAdd_CleanStreakShort(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorBelow_cleanStreak);
-         AlgoRuleAdd_CeilingProximityCandlesTooHigh(slotIdx, a.proximityCeilingMaxAllowed_today, "ceilingProximityCandlesTooHigh");
-         AlgoRuleAdd_LevelAbovePDO(slotIdx);
-         AlgoRuleAdd_LevelAboveMidpoint(slotIdx);
-         AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
-         AlgoRuleAdd_DayBrokePDLfalse(slotIdx);
-         AlgoRuleAdd_Session(slotIdx, "full");
-         break;
-      case MAGIC_ALGO41:
-         AlgoRuleAdd_CleanStreakLong(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorAbove_cleanStreak);
-         AlgoRuleAdd_CeilingProximityCandlesTooHigh(slotIdx, a.proximityCeilingMaxAllowed_today, "ceilingProximityCandlesTooHigh");
-         AlgoRuleAdd_LevelAbovePDL(slotIdx);
-         AlgoRuleAdd_LevelBelowONH(slotIdx);
-         AlgoRuleAdd_LevelBelowPDH(slotIdx);
-         AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowMidpoint(slotIdx);
-         AlgoRuleAdd_DayBrokePDLfalse(slotIdx);
-         AlgoRuleAdd_LevelTagDailyPivot(slotIdx);
-         AlgoRuleAdd_OpenGapInfoUnknown(slotIdx);
-         AlgoRuleAdd_Session(slotIdx, "ON");
-         break;
       case MAGIC_ALGO42:
          AlgoRuleAdd_CleanStreakLong(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorAbove_cleanStreak);
          AlgoRuleAdd_CeilingProximityCandlesTooHigh(slotIdx, a.proximityCeilingMaxAllowed_today, "ceilingProximityCandlesTooHigh");
@@ -13193,15 +12864,6 @@ void AlgoRebuildRuleChainForSlot(const int slotIdx)
          AlgoRuleAdd_DayOfWeek(slotIdx, 5);
          AlgoRuleAdd_OpenGapInfoUnknown(slotIdx);
          AlgoRuleAdd_Session(slotIdx, "ON");
-         break;
-      case MAGIC_ALGO43:
-         AlgoRuleAdd_CleanStreakLong(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorAbove_cleanStreak);
-         AlgoRuleAdd_CeilingProximityCandlesTooHigh(slotIdx, a.proximityCeilingMaxAllowed_today, "ceilingProximityCandlesTooHigh");
-         AlgoRuleAdd_PDred(slotIdx);
-         AlgoRuleAdd_LevelAboveONL(slotIdx);
-         AlgoRuleAdd_LevelAboveDayLowSoFar(slotIdx);
-         AlgoRuleAdd_LevelBelowDayHighSoFar(slotIdx);
-         AlgoRuleAdd_Session(slotIdx, "full");
          break;
       case MAGIC_ALGO44:
          AlgoRuleAdd_CeilingCountTooHigh(slotIdx, a.physicalCeilingMaxAllowed_today, "todayCeilingCountTooHigh");
