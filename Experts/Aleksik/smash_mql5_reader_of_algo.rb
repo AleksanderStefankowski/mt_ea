@@ -3,6 +3,9 @@
 
 require_relative "smash_mql5_algo_reader_lib"
 
+PRINT_ENABLED_BLOCKS = false
+PRINT_DISABLED_BLOCKS = true
+
 MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 src = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
 
@@ -11,7 +14,12 @@ tune_by_algo = SmashMql5AlgoReader.tune_by_algo_from_src(src)
 algo_ids = SmashMql5AlgoReader.registry_algo_ids(src)
 rules_by_algo = SmashMql5AlgoReader.rules_by_algo_from_src(src, params_by_algo)
 
-algo_ids.each do |id|
+print_algo_ids = algo_ids.select do |id|
+  enabled = params_by_algo[id]["enabled"] == "true"
+  enabled ? PRINT_ENABLED_BLOCKS : PRINT_DISABLED_BLOCKS
+end
+
+print_algo_ids.each do |id|
   p = params_by_algo[id]
   t = tune_by_algo[id]
   puts "--- algo#{id} ---"

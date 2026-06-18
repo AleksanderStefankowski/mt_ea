@@ -8881,7 +8881,7 @@ void SyncAlgoFamilyProfileFromInputs()
 
 //algocreator2start
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -8920,7 +8920,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO10)].expiry_minutes                              =  8;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -8957,7 +8957,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO11)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -8993,7 +8993,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO12)].expiry_minutes                              =  5;
  
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  999;
@@ -9031,7 +9031,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO13)].expiry_minutes                              =  10;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  999;
@@ -9069,7 +9069,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO14)].expiry_minutes                              =  10;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].tradesTertiaryTodayRTHOLevel                    = true;
@@ -9107,7 +9107,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO15)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].tradesTertiaryTodayRTHOLevel                    = true;
@@ -9145,7 +9145,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO16)].expiry_minutes                              =  7;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9182,7 +9182,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO17)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO18)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9292,7 +9292,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO20)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO24)].tradesTertiaryTodayRTHOLevel                    = true;
@@ -9440,7 +9440,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO27)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9476,7 +9476,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO28)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9512,7 +9512,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO29)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO30)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO30)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO30)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO30)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO30)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO30)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9548,7 +9548,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO30)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO31)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO31)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO31)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO31)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO31)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO31)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9587,7 +9587,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO31)].expiry_minutes                              =  8;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO32)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO32)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO32)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO32)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO32)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO32)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9627,7 +9627,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO32)].expiry_minutes                              =  8;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO33)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO33)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO33)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO33)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO33)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO33)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9667,7 +9667,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO33)].expiry_minutes                              =  8;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO34)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO34)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO34)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO34)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO34)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO34)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9703,7 +9703,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO34)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO35)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO35)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO35)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO35)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO35)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO35)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9739,7 +9739,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO35)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO36)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO36)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO36)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO36)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO36)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO36)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9775,7 +9775,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO36)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  999;
@@ -9813,7 +9813,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO37)].expiry_minutes                              =  10;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].enabled                                         = false;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].enabled                                         = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  999;
@@ -9851,7 +9851,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO38)].expiry_minutes                              =  10;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO39)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -9969,7 +9969,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO41)].expiry_minutes                              =  8;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO42)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -10049,7 +10049,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO43)].expiry_minutes                              =  8;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].tradesWeeklyLevels                              = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].tradesDailyLevels                               = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;
@@ -10085,7 +10085,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO44)].expiry_minutes                              =  5;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO45)].trades_short                                     = ALGO_SIDE_LONG;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO45)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO45)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO45)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO45)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO45)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  2;

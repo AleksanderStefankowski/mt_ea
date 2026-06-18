@@ -36,6 +36,31 @@ module SmashMql5AlgoReader
     stop_trading_today_if_thisAlgo_total_trades_count
   ].freeze
 
+  QUANT_RULES = [
+    "LevelBelowONH",
+    "LevelBelowONL",
+    "LevelBelowPDC",
+    "LevelBelowPDH",
+    "LevelBelowDayHighSoFar",
+    "LevelBelowMidpoint",
+    "LevelAboveIBH",
+    "LevelAboveIBL",
+    "LevelAboveONH",
+    "LevelAbovePDL",
+    "LevelAbovePDO",
+    "LevelAboveRTHL",
+    "LevelAboveDayHighSoFar",
+    "LevelAboveDayLowSoFar",
+    "LevelAboveMidpoint",
+    "LevelBelowDayLowSoFar",
+    "LevelBelowRTHL",
+    "LevelBelowIBL",
+    "LevelBelowPDL",
+    "LevelBelowPDO",
+    "LevelBelowIBH",
+    "LevelBelowRTHH"
+  ].freeze
+
   ASSIGN_RE = /
     g_algos\[AlgoSlotIndexByAlgoId\(MAGIC_ALGO(\d+)\)\]\.(\w+)\s*=\s*([^;]+);
   /x
@@ -93,6 +118,14 @@ module SmashMql5AlgoReader
 
   def format_fields(params, fields)
     fields.filter_map { |f| params[f] ? "#{f}=#{params[f]}" : nil }.join(", ")
+  end
+
+  def contains_quant_rule?(rules)
+    return false if rules.nil? || rules.empty?
+
+    rules.any? do |rule|
+      QUANT_RULES.any? { |quant| rule == quant || rule.start_with?("#{quant}(") }
+    end
   end
 
   def parse_rule_line(line, params)
