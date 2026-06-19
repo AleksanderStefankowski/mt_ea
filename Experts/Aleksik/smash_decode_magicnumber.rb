@@ -7,17 +7,16 @@ FM = SmashMql5AlgoReader::FalgoMagic
 MAGIC_LEN = FM::MAGIC_LEN
 
 SLOTS = [
-  { digits: "1-2",   name: "algo ID",           range: "10..99", note: "wired algo number (MAGIC_ALGO*)" },
-  { digits: "3",     name: "direction",         range: "1..4",   note: "1=long limit 2=short limit 3=long alt 4=short alt" },
-  { digits: "4",     name: "day of week",       range: "1..5",   note: "Mon..Fri (MT5 day_of_week)" },
-  { digits: "5-6",   name: "level slot",        range: "00..99", note: "00=RTHO; 01=PDC; 10..30 weekly (pivot=20); 50..70 daily (pivot=60)" },
-  { digits: "7",     name: "bounce count",      range: "0..8",   note: "capped at placement" },
-  { digits: "8",     name: "ceiling count",     range: "0..8",   note: "capped at placement" },
-  { digits: "9-10",  name: "offset (tenths)",   range: "00..99", note: "encoded 0.1..9.9 points (long/short offset for plan)" },
-  { digits: "11",    name: "plan trade num",    range: "0..8",   note: "plan trade # today" },
-  { digits: "12",    name: "level trade num",   range: "0..8",   note: "per-level-slot trade # today" },
-  { digits: "13",    name: "babysit minute",    range: "0..9",   note: "babysit slot" },
-  { digits: "14",    name: "unused_slot",       range: "0..9",   note: "reserved" },
+  { digits: "1-3",   name: "algo ID",           range: "100..999", note: "wired algo number (MAGIC_ALGO*)" },
+  { digits: "4",     name: "direction",         range: "1..4",   note: "1=long limit 2=short limit 3=long alt 4=short alt" },
+  { digits: "5",     name: "day of week",       range: "1..5",   note: "Mon..Fri (MT5 day_of_week)" },
+  { digits: "6-7",   name: "level slot",        range: "00..99", note: "00=RTHO; 01=PDC; 10..30 weekly (pivot=20); 50..70 daily (pivot=60)" },
+  { digits: "8",     name: "bounce count",      range: "0..8",   note: "capped at placement" },
+  { digits: "9",     name: "ceiling count",     range: "0..8",   note: "capped at placement" },
+  { digits: "10-11", name: "offset (tenths)",   range: "00..99", note: "encoded 0.1..9.9 points (long/short offset for plan)" },
+  { digits: "12",    name: "plan trade num",    range: "0..8",   note: "plan trade # today" },
+  { digits: "13",    name: "level trade num",   range: "0..8",   note: "per-level-slot trade # today" },
+  { digits: "14",    name: "babysit minute",    range: "0..9",   note: "babysit slot" },
   { digits: "15-16", name: "TP (whole points)", range: "01..99", note: "whole points" },
   { digits: "17-18", name: "SL (whole points)", range: "01..99", note: "whole points" }
 ].freeze
@@ -29,7 +28,7 @@ DIRECTION_LABEL = {
   4 => "short alt"
 }.freeze
 
-DEFAULT_MAGIC = "151200250511001515"
+DEFAULT_MAGIC = "105120025051101515"
 
 def print_slot_legend
   puts "Falgo composite magic — #{MAGIC_LEN} decimal digits"
@@ -58,7 +57,6 @@ def print_decoded(d)
   puts "  plan_trade_num:    #{d[:plan_trade_num]}"
   puts "  level_trade_num:   #{d[:level_trade_num]}"
   puts "  babysit_minute:    #{d[:babysit_minute]}"
-  puts "  unused_slot:       #{d[:unused_slot]}"
   puts "  tp_points:         #{d[:tp_whole]}"
   puts "  sl_points:         #{d[:sl_whole]}"
 end

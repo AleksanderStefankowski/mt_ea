@@ -314,7 +314,7 @@ csv.each do |row|
   next if magic.empty?
 
   rows << {
-    magic_prefix: magic[0, 2],
+    magic_prefix: magic[0, 3],
     date: row['date'].to_s.strip,
     profit: row['profit'].to_f
   }
@@ -355,7 +355,7 @@ puts
 print_summary('Overall', rows_for_all_trades, first_date, last_date, all_trading_day_count, all_full_week_mondays, include_projected_pf: false)
 
 puts '-' * 60
-puts 'BY MAGIC PREFIX (first 2 digits)'
+puts 'BY MAGIC PREFIX (first 3 digits)'
 puts '-' * 60
 puts
 

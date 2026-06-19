@@ -17,7 +17,7 @@ include SmashMql5AlgoCreatorCommon
 
 # --- CONFIG (edit before running) ---
 
-copy_from_algo_id = 36
+copy_from_algo_id = 136
 
 session_rule_enabled = true
 session_rule = "RTH-afterIB" # full, ON, RTH-IB, RTH-afterIB (aliases: on, rthib, rthafterib)

@@ -12,7 +12,7 @@ MQ5_FILE = SmashMql5AlgoCreatorCommon::MQ5_FILE
 
 # --- CONFIG (edit before running) ---
 # Delete highest id first when removing several (e.g. 32 then 31).
-delete_algo_ids = [19, 20, 25, 26, 27, 40, 41, 43]
+delete_algo_ids = [109, 110, 115, 116, 117, 130, 131, 133]
 
 module AlgoDeleter
   module_function

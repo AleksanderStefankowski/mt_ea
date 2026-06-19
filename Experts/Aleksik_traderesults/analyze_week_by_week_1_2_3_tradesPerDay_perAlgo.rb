@@ -37,7 +37,7 @@ def algo_id(trade)
   magic = trade['magic'].to_s.strip
   return magic if magic.length < 2
 
-  magic[0, 2]
+  magic[0, 3]
 end
 
 def profit_factor(trades)

@@ -4,6 +4,8 @@ require 'csv'
 require 'date'
 require 'set'
 require_relative '../Aleksik/smash_mql5_algo_reader_lib'
+require_relative 'analyze_subvariants_csv_common'
+require_relative 'analyze_subvariants_shared_config'
 
 FM = SmashMql5AlgoReader::FalgoMagic
 
@@ -13,15 +15,15 @@ FM = SmashMql5AlgoReader::FalgoMagic
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
-# Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
-# MAGIC_PREFIXES_TO_ANALYZE = [11]
+# Only analyze these algo magic prefixes (first 3 digits of magic). Integers or strings ok.
+# MAGIC_PREFIXES_TO_ANALYZE = [111]
 
 # MINIMUM_TRADES_IN_GROUPING_FULL = 11
 # MINIMUM_TRADES_IN_GROUPING_ON = 8
 # MINIMUM_TRADES_IN_GROUPING_RTHIB = 4
 # MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 7
 
-MAGIC_PREFIXES_TO_ANALYZE = [11]
+MAGIC_PREFIXES_TO_ANALYZE = [111]
 
 MINIMUM_TRADES_IN_GROUPING_FULL = 11
 MINIMUM_TRADES_IN_GROUPING_ON = 8
@@ -30,38 +32,9 @@ MINIMUM_TRADES_IN_GROUPING_RTHafterIB = 7
 
 
 SAVE_CSV_ONLY_THE_SESSIONROWS_WITH_HIGHEST_TRADE_COUNT = false  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-MINIMUM_PROFITFACTOR = 2.5
-CHECK_MINIMUM_TRADERATE_ENABLED = false
-CHECK_MINIMUM_TRADERATE_VALUE = 0.05
-# Profit Factor (PF)	Winrate (WR)
-# 0.2	16.67%
-# 0.33	24.81%
-# 0.5	33.33%
-# 0.75	42.86%
-# 1	50.00%
-# 2	66.67%
-# 2.5	71.43%
-# 3	75.00%
-# 3.5	77.78%
-# 4	80.00%
-# 4.5	81.82%
-# 5	83.33%
-# 6	85.71%
-# 7	87.50%
-MAXIMUM_PROFITFACTOR = 9999999999999999999999999.9
-# Collect pf >= MIN (including above MAX). Per analysis_set + magic_prefix: anchor = max
-# grp_trades among in-range rows; keep in-range + out-of-range rows with grp_trades == anchor.
-# Profit Factor (PF)	Required Win Rate
-# 6	85.71%
-# 5	83.33%
-# 4	80.00%
-# 3	75.00%
-# 2.75	73.33%
-
-MAX_COMBINATION_SIZE = 4
+# PF / traderate thresholds — see analyze_subvariants_shared_config.rb
 
 TOP_RESULTS_TO_PRINT = 300
-GROUPING_SAMPLEDATES_MAX = 20
 
 SAVE_CSV_TO_FILE = true
 SAVE_CSV_OUTPUT = 'analyze_subvariantss_for_specified_algo_o.csv'
@@ -109,7 +82,7 @@ ANALYSIS_SETS = [
 # =========================================================
 
 def normalize_magic_prefix(value)
-  value.to_s.strip.rjust(2, '0')
+  value.to_s.strip.rjust(FM::MAGIC_PREFIX_LEN, '0')
 end
 
 def configured_magic_prefixes
@@ -258,6 +231,12 @@ def passes_minimum_trade_rate?(trades, total_trading_days)
   trade_rate(trades, total_trading_days) >= CHECK_MINIMUM_TRADERATE_VALUE
 end
 
+def passes_minimum_weekly_trade_rate?(trades, full_week_mondays)
+  return true unless CHECK_MINIMUM_TRADERATEWEEKLY_ENABLED
+
+  weekly_trade_rate(trades, full_week_mondays) >= CHECK_MINIMUM_TRADERATEWEEKLY_VALUE
+end
+
 def sample_start_times(trades, max_samples = GROUPING_SAMPLEDATES_MAX)
   trades
     .map { |t| t[:start_time] }
@@ -277,6 +256,48 @@ def stringify_group(group_hash)
       "#{k}=#{v}"
     end
   end.join(' | ')
+end
+
+def variable_tokens_from_group_string(group_string)
+  group_string
+    .split('|')
+    .map(&:strip)
+    .reject(&:empty?)
+end
+
+def variable_tokens_for_result(result)
+  variable_tokens_from_group_string(stringify_group(result[:values]))
+end
+
+def merge_same_results_rows(results)
+  return results unless MERGE_SAME_RESULTS
+
+  results
+    .group_by do |r|
+      [
+        r[:analysis_set],
+        r[:magic_prefix],
+        r[:min_trades_threshold],
+        r[:pf].round(4),
+        r[:grouping_sampledates]
+      ]
+    end
+    .values
+    .map do |bucket|
+      base = bucket.first
+      merged_variables =
+        bucket
+          .flat_map { |r| variable_tokens_for_result(r) }
+          .uniq
+          .sort
+
+      base.merge(merged_variables: merged_variables)
+    end
+end
+
+def variables_for_csv_row(result)
+  tokens = result[:merged_variables] || variable_tokens_for_result(result)
+  tokens.join(' | ')
 end
 
 def ref_variable?(sym)
@@ -375,7 +396,7 @@ csv.each do |row|
 
   next if magic.empty?
 
-  magic_prefix = magic[0, 2]
+  magic_prefix = magic[0, FM::MAGIC_PREFIX_LEN]
   next unless allowed_magic_prefixes.include?(magic_prefix)
 
   trade = {}
@@ -458,7 +479,7 @@ if rows.empty?
     csv
       .map { |row| row['magic'].to_s.strip }
       .reject(&:empty?)
-      .map { |magic| magic[0, 2] }
+      .map { |magic| magic[0, FM::MAGIC_PREFIX_LEN] }
       .uniq
       .sort
 
@@ -578,6 +599,7 @@ ANALYSIS_SETS.each do |analysis_set|
 
           next if pf < MINIMUM_PROFITFACTOR
           next unless passes_minimum_trade_rate?(grouped_trades, all_trading_day_count)
+          next unless passes_minimum_weekly_trade_rate?(grouped_trades, all_full_week_mondays)
 
           results << {
             analysis_set: analysis_set[:name],
@@ -800,52 +822,36 @@ if SAVE_CSV_TO_FILE
       end
   end
 
+  csv_results = AnalyzeSubvariantsCsvCommon.annotate_min_trades_threshold(csv_results) do |r|
+    minimum_trades_for_analysis_set(r[:analysis_set])
+  end
+
+  pre_merge_count = csv_results.size
+  csv_results = merge_same_results_rows(csv_results)
+  if MERGE_SAME_RESULTS && pre_merge_count != csv_results.size
+    puts
+    puts format(
+      'Merge same results: %d -> %d rows (same analysis_set, magic_prefix, min_trades_threshold, pf, sample dates)',
+      pre_merge_count,
+      csv_results.size
+    )
+  end
+
   csv_rows =
     csv_results.map do |r|
       prefix_stats =
         prefix_stats_by_set[[r[:analysis_set], r[:magic_prefix]]] ||
         { trade_count: 0, pf: 0.0, trade_rate: 0.0, weekly_trade_rate: 0.0 }
 
-      {
-        analysis_set: r[:analysis_set],
-        magic_prefix: r[:magic_prefix],
-        magic_prefix_trades: prefix_stats[:trade_count],
-        magic_prefix_pf: prefix_stats[:pf].round(2),
-        magic_prefix_traderate: prefix_stats[:trade_rate].round(2),
-        magic_prefix_weekly_traderate: prefix_stats[:weekly_trade_rate].round(2),
-        grp_trades: r[:trades],
-        grp_pf: r[:pf].round(2),
-        grp_traderate: r[:group_trade_rate].round(2),
-        grp_weekly_traderate: r[:group_weekly_trade_rate].round(2),
-        grp_winrate: r[:winrate].round(2),
-        grp_net_profit: r[:net_profit].round(2),
-        variable_count: r[:vars].size,
-        variables: stringify_group(r[:values]),
-        grouping_sampledates: r[:grouping_sampledates]
-      }
+      AnalyzeSubvariantsCsvCommon.build_row(
+        r,
+        prefix_stats: prefix_stats,
+        variables: variables_for_csv_row(r),
+        variable_count: (r[:merged_variables] || variable_tokens_for_result(r)).size
+      )
     end
 
-  csv_headers = [
-    :analysis_set,
-    :magic_prefix,
-    :magic_prefix_trades,
-    :magic_prefix_pf,
-    :magic_prefix_traderate,
-    :magic_prefix_weekly_traderate,
-    :grp_trades,
-    :grp_pf,
-    :grp_traderate,
-    :grp_weekly_traderate,
-    :grp_winrate,
-    :grp_net_profit,
-    :variable_count,
-    :variables,
-    :grouping_sampledates
-  ]
-
-  CSV.open(SAVE_CSV_OUTPUT, 'w', write_headers: true, headers: csv_headers) do |out|
-    csv_rows.each { |row| out << row.values_at(*csv_headers) }
-  end
+  AnalyzeSubvariantsCsvCommon.write_csv(SAVE_CSV_OUTPUT, csv_rows)
 
   puts
   puts "Saved CSV: #{SAVE_CSV_OUTPUT} (#{csv_rows.size} rows)"

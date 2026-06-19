@@ -128,6 +128,21 @@ module SmashMql5AlgoReader
     end
   end
 
+  def print_algo_summary_by_quant_and_direction(algo_ids, params_by_algo, rules_by_algo)
+    unquanted = algo_ids.reject { |id| contains_quant_rule?(rules_by_algo[id]) }
+    quanted = algo_ids.select { |id| contains_quant_rule?(rules_by_algo[id]) }
+
+    [["unquanted", unquanted], ["quanted", quanted]].each do |label, ids|
+      longs, shorts = ids.partition { |id| direction(params_by_algo[id]["trades_short"]) == "long" }
+      longs_enabled, longs_disabled = longs.partition { |id| params_by_algo[id]["enabled"] == "true" }
+      shorts_enabled, shorts_disabled = shorts.partition { |id| params_by_algo[id]["enabled"] == "true" }
+      puts "#{label} longs (enabled): #{longs_enabled.join(', ')}"
+      puts "#{label} longs (disabled): #{longs_disabled.join(', ')}"
+      puts "#{label} shorts (enabled): #{shorts_enabled.join(', ')}"
+      puts "#{label} shorts (disabled): #{shorts_disabled.join(', ')}"
+    end
+  end
+
   def parse_rule_line(line, params)
     line = line.sub(%r{//.*}, "").strip
     return nil if line.empty?
@@ -227,6 +242,9 @@ module SmashMql5AlgoReader
   # 18-digit Falgo composite magic (aleksik.mq5 layout).
   module FalgoMagic
     MAGIC_LEN = 18
+    MAGIC_PREFIX_LEN = 3
+    ALGO_MIN = 100
+    ALGO_MAX = 999
 
     DAY_LABEL = {
       "1" => "MON",
@@ -270,26 +288,29 @@ module SmashMql5AlgoReader
       m = pad_magic(raw_magic)
       {
         raw: m,
-        algo: m[0, 2].to_i,
-        direction: m[2].to_i,
-        day_of_week_digit: m[3],
-        day_of_week: DAY_LABEL[m[3]] || "UNKNOWN",
-        level_slot: m[4, 2].to_i,
-        bounce_count: m[6].to_i,
-        ceiling_count: m[7].to_i,
-        offset_tenths: m[8, 2].to_i,
-        plan_trade_num: m[10].to_i,
-        level_trade_num: m[11].to_i,
-        babysit_minute: m[12].to_i,
-        unused_slot: m[13].to_i,
+        algo: m[0, MAGIC_PREFIX_LEN].to_i,
+        direction: m[3].to_i,
+        day_of_week_digit: m[4],
+        day_of_week: DAY_LABEL[m[4]] || "UNKNOWN",
+        level_slot: m[5, 2].to_i,
+        bounce_count: m[7].to_i,
+        ceiling_count: m[8].to_i,
+        offset_tenths: m[9, 2].to_i,
+        plan_trade_num: m[11].to_i,
+        level_trade_num: m[12].to_i,
+        babysit_minute: m[13].to_i,
         tp_whole: m[14, 2].to_i,
         sl_whole: m[16, 2].to_i
       }
     end
 
+    def magic_prefix(raw_magic)
+      pad_magic(raw_magic)[0, MAGIC_PREFIX_LEN]
+    end
+
     def apply_trade_fields!(trade, raw_magic)
       d = parse(raw_magic)
-      trade[:magic_prefix] = format("%02d", d[:algo])
+      trade[:magic_prefix] = format("%03d", d[:algo])
       trade[:direction_magic] = d[:direction]
       trade[:day_of_week] = d[:day_of_week]
       trade[:levelSlot] = d[:level_slot]

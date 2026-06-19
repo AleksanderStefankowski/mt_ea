@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Renumbers wired algos in aleksik.mq5 to contiguous ids from 10 upward:
+# Renumbers wired algos in aleksik.mq5 to contiguous ids from 100 upward:
 # unquanted algos first (sorted by old id), then quanted algos (sorted by old id).
 
 require_relative 'smash_mql5_algo_creator_common'
@@ -152,7 +152,7 @@ module AlgoFlattener
     new_ids, old_to_new, = build_id_mapping(unquanted_ids, quanted_ids)
 
     if already_flat?(old_ids, new_ids, old_to_new)
-      puts 'Already flat: unquanted then quanted from 10 with no gaps.'
+      puts 'Already flat: unquanted then quanted from 100 with no gaps.'
       puts "Wired algos (#{old_ids.size}): #{old_ids.join(', ')}"
       puts "  unquanted (#{unquanted_ids.size}): #{unquanted_ids.join(', ')}"
       puts "  quanted (#{quanted_ids.size}): #{quanted_ids.join(', ')}"

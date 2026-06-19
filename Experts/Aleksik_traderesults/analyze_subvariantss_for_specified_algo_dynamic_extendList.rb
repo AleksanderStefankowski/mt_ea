@@ -7,6 +7,8 @@ require 'csv'
 require 'date'
 require 'set'
 require_relative '../Aleksik/smash_mql5_algo_reader_lib'
+require_relative 'analyze_subvariants_csv_common'
+require_relative 'analyze_subvariants_shared_config'
 
 FM = SmashMql5AlgoReader::FalgoMagic
 
@@ -16,25 +18,15 @@ FM = SmashMql5AlgoReader::FalgoMagic
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
-# Only analyze these algo magic prefixes (first 2 digits of magic). Integers or strings ok.
-MAGIC_PREFIXES_TO_ANALYZE = [10]
+# Only analyze these algo magic prefixes (first 3 digits of magic). Integers or strings ok.
+MAGIC_PREFIXES_TO_ANALYZE = [100]
 
 # Minimum grp size sweep: collect at min, then per session keep rows at highest threshold still non-empty.
 TRADE_COUNT_RANGE = [6, 40].freeze
 
 # Same session slice + PF + sample dates → one row; split variables on |, union uniq tokens.
-MERGE_SAME_RESULTS = true
 
-MINIMUM_PROFITFACTOR = 2.5
-CHECK_MINIMUM_TRADERATE_ENABLED = false
-CHECK_MINIMUM_TRADERATE_VALUE = 0.05
-CHECK_MINIMUM_TRADERATEWEEKLY_ENABLED = true
-CHECK_MINIMUM_TRADERATEWEEKLY_VALUE = 0.25
-MAXIMUM_PROFITFACTOR = 9999999999999999999999999.9
-
-MAX_COMBINATION_SIZE = 4
-
-GROUPING_SAMPLEDATES_MAX = 50
+# PF / traderate thresholds — see analyze_subvariants_shared_config.rb
 
 SAVE_CSV_TO_FILE = true
 SAVE_CSV_OUTPUT = 'analyze_subvariantss_for_specified_algo_dynamic_extendList_o.csv'
@@ -72,7 +64,7 @@ ANALYSIS_SETS = [
 # =========================================================
 
 def normalize_magic_prefix(value)
-  value.to_s.strip.rjust(2, '0')
+  value.to_s.strip.rjust(FM::MAGIC_PREFIX_LEN, '0')
 end
 
 def configured_magic_prefixes
@@ -385,7 +377,7 @@ csv.each do |row|
 
   next if magic.empty?
 
-  magic_prefix = magic[0, 2]
+  magic_prefix = magic[0, FM::MAGIC_PREFIX_LEN]
   next unless allowed_magic_prefixes.include?(magic_prefix)
 
   trade = {}
@@ -453,7 +445,7 @@ if rows.empty?
     csv
       .map { |row| row['magic'].to_s.strip }
       .reject(&:empty?)
-      .map { |magic| magic[0, 2] }
+      .map { |magic| magic[0, FM::MAGIC_PREFIX_LEN] }
       .uniq
       .sort
 
@@ -630,48 +622,15 @@ if SAVE_CSV_TO_FILE
         prefix_stats_by_set[[r[:analysis_set], r[:magic_prefix]]] ||
         { trade_count: 0, pf: 0.0, trade_rate: 0.0, weekly_trade_rate: 0.0 }
 
-      {
-        analysis_set: r[:analysis_set],
-        min_trades_threshold: r[:min_trades_threshold],
-        magic_prefix: r[:magic_prefix],
-        magic_prefix_trades: prefix_stats[:trade_count],
-        magic_prefix_pf: prefix_stats[:pf].round(2),
-        magic_prefix_traderate: prefix_stats[:trade_rate].round(2),
-        magic_prefix_weekly_traderate: prefix_stats[:weekly_trade_rate].round(2),
-        grp_trades: r[:trades],
-        grp_pf: r[:pf].round(2),
-        grp_traderate: r[:group_trade_rate].round(2),
-        grp_weekly_traderate: r[:group_weekly_trade_rate].round(2),
-        grp_winrate: r[:winrate].round(2),
-        grp_net_profit: r[:net_profit].round(2),
-        variable_count: (r[:merged_variables] || variable_tokens_for_result(r)).size,
+      AnalyzeSubvariantsCsvCommon.build_row(
+        r,
+        prefix_stats: prefix_stats,
         variables: variables_for_csv_row(r),
-        grouping_sampledates: r[:grouping_sampledates]
-      }
+        variable_count: (r[:merged_variables] || variable_tokens_for_result(r)).size
+      )
     end
 
-  csv_headers = [
-    :analysis_set,
-    :min_trades_threshold,
-    :magic_prefix,
-    :magic_prefix_trades,
-    :magic_prefix_pf,
-    :magic_prefix_traderate,
-    :magic_prefix_weekly_traderate,
-    :grp_trades,
-    :grp_pf,
-    :grp_traderate,
-    :grp_weekly_traderate,
-    :grp_winrate,
-    :grp_net_profit,
-    :variable_count,
-    :variables,
-    :grouping_sampledates
-  ]
-
-  CSV.open(SAVE_CSV_OUTPUT, 'w', write_headers: true, headers: csv_headers) do |out|
-    csv_rows.each { |row| out << row.values_at(*csv_headers) }
-  end
+  AnalyzeSubvariantsCsvCommon.write_csv(SAVE_CSV_OUTPUT, csv_rows)
 
   puts
   puts "Saved CSV: #{SAVE_CSV_OUTPUT} (#{csv_rows.size} rows)"

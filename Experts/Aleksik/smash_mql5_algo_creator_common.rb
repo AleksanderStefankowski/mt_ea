@@ -6,7 +6,7 @@ module SmashMql5AlgoCreatorCommon
   module_function
 
   MQ5_FILE = File.expand_path('aleksik.mq5', __dir__)
-  MIN_ALGO_ID = 10
+  MIN_ALGO_ID = 100
 
   MARKERS = {
     1 => %w[//algocreator1start //algocreator1end],
