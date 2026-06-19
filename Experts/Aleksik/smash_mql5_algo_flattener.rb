@@ -11,6 +11,9 @@ AlgoCreator = SmashMql5AlgoCreatorCommon
 MIN_ALGO_ID = SmashMql5AlgoCreatorCommon::MIN_ALGO_ID
 MQ5_FILE = SmashMql5AlgoCreatorCommon::MQ5_FILE
 
+# --- CONFIG (edit before running) ---
+DRY_RUN = false
+
 module AlgoFlattener
   module_function
 
@@ -188,6 +191,5 @@ module AlgoFlattener
 end
 
 if __FILE__ == $PROGRAM_NAME
-  dry_run = ARGV.include?('--dry-run')
-  AlgoFlattener.run(dry_run: dry_run)
+  AlgoFlattener.run(dry_run: DRY_RUN)
 end

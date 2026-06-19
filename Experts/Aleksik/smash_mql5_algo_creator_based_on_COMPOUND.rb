@@ -3,17 +3,15 @@
 
 # Bulk-creates quant algos in aleksik.mq5 from compound.csv (analyze_subvariants export).
 # Each row: copy magic_prefix base algo, add variables as quant rules, gate session via analysis_set.
-#
-# Usage:
-#   ruby smash_mql5_algo_creator_based_on_COMPOUND.rb
-#   ruby smash_mql5_algo_creator_based_on_COMPOUND.rb --dry-run
-#   ruby smash_mql5_algo_creator_based_on_COMPOUND.rb path/to/other.csv
+# Edit CONFIG below, then run the script.
 
 require 'csv'
 require_relative 'smash_mql5_algo_creator_common'
 
 include SmashMql5AlgoCreatorCommon
 
+# --- CONFIG (edit before running) ---
+DRY_RUN = false
 COMPOUND_CSV = File.expand_path('compound.csv', __dir__)
 
 REQUIRED_COLUMNS = %w[
@@ -21,15 +19,6 @@ REQUIRED_COLUMNS = %w[
   magic_prefix
   variables
 ].freeze
-
-def compound_csv_path
-  custom = ARGV.reject { |a| a.start_with?('--') }.first
-  custom ? File.expand_path(custom) : COMPOUND_CSV
-end
-
-def dry_run?
-  ARGV.include?('--dry-run')
-end
 
 def load_compound_rows(path)
   raise "Compound CSV not found: #{path}" unless File.file?(path)
@@ -187,5 +176,5 @@ def run_compound_bulk!(csv_path:, dry_run: false)
 end
 
 if __FILE__ == $PROGRAM_NAME
-  run_compound_bulk!(csv_path: compound_csv_path, dry_run: dry_run?)
+  run_compound_bulk!(csv_path: COMPOUND_CSV, dry_run: DRY_RUN)
 end

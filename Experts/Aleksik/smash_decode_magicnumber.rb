@@ -28,7 +28,8 @@ DIRECTION_LABEL = {
   4 => "short alt"
 }.freeze
 
-DEFAULT_MAGIC = "105120025051101515"
+# --- CONFIG (edit before running) ---
+magic_input = "105120025051101515"
 
 def print_slot_legend
   puts "Falgo composite magic — #{MAGIC_LEN} decimal digits"
@@ -68,7 +69,6 @@ puts "-" * 60
 print_slot_legend
 
 # --- part 2: decode input ---
-magic_input = (ARGV[0] || DEFAULT_MAGIC)
 puts
 puts "-" * 60
 puts "Part 2 — decode"

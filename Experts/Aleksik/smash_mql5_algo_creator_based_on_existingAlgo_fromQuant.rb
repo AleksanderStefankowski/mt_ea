@@ -18,6 +18,7 @@ include SmashMql5AlgoCreatorCommon
 # --- CONFIG (edit before running) ---
 
 copy_from_algo_id = 136
+normalize_only = false
 
 session_rule_enabled = true
 session_rule = "RTH-afterIB" # full, ON, RTH-IB, RTH-afterIB (aliases: on, rthib, rthafterib)
@@ -72,7 +73,7 @@ def run_copy_from_quant!(copy_from:, extra_rules_quant:, session_rule_enabled: f
 end
 
 if __FILE__ == $PROGRAM_NAME
-  if ARGV.include?('--normalize')
+  if normalize_only
     content = read_mq5
     content = normalize_block1!(content)
     write_mq5!(content)

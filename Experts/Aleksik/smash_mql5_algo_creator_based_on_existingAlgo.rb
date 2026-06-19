@@ -11,6 +11,7 @@ include SmashMql5AlgoCreatorCommon
 # --- CONFIG (edit before running) ---
 
 copy_from_algo_id = 118
+normalize_only = false
 
 # Rules copied from copy_from_algo_id; uncommented lines below are ADDED (duplicates skipped).
 # Shorthand below_PDH also accepts below_PDH=true.
@@ -169,7 +170,7 @@ def run_copy_from!(copy_from:, extra_rules_text:)
 end
 
 if __FILE__ == $PROGRAM_NAME
-  if ARGV.include?('--normalize')
+  if normalize_only
     content = read_mq5
     content = normalize_block1!(content)
     write_mq5!(content)

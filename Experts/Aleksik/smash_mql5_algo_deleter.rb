@@ -11,10 +11,9 @@ MIN_ALGO_ID = SmashMql5AlgoCreatorCommon::MIN_ALGO_ID
 MQ5_FILE = SmashMql5AlgoCreatorCommon::MQ5_FILE
 
 # --- CONFIG (edit before running) ---
-# Delete highest id first when removing several (e.g. 32 then 31).
+delete_algo_ids_USE_THIS = false # true = use delete_algo_ids array; false = use delete_algo_ids_text
 delete_algo_ids = [109, 110, 115, 116, 117, 130, 131, 133]
-
-delete_algo_ids << text
+delete_algo_ids_text = <<~TEXT
 165
 126
 138
@@ -29,7 +28,17 @@ delete_algo_ids << text
 161
 158
 159
-text
+TEXT
+
+unless delete_algo_ids_USE_THIS
+  delete_algo_ids =
+    delete_algo_ids_text
+      .lines
+      .map(&:strip)
+      .reject(&:empty?)
+      .grep(/\A\d+\z/)
+      .map(&:to_i)
+end
 
 
 
@@ -168,10 +177,5 @@ module AlgoDeleter
 end
 
 if __FILE__ == $PROGRAM_NAME
-  ids = if ARGV.empty?
-          delete_algo_ids
-        else
-          ARGV.map(&:to_i)
-        end
-  AlgoDeleter.run(delete_ids: ids)
+  AlgoDeleter.run(delete_ids: delete_algo_ids)
 end
