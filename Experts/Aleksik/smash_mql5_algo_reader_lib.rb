@@ -36,30 +36,7 @@ module SmashMql5AlgoReader
     stop_trading_today_if_thisAlgo_total_trades_count
   ].freeze
 
-  QUANT_RULES = [
-    "LevelBelowONH",
-    "LevelBelowONL",
-    "LevelBelowPDC",
-    "LevelBelowPDH",
-    "LevelBelowDayHighSoFar",
-    "LevelBelowMidpoint",
-    "LevelAboveIBH",
-    "LevelAboveIBL",
-    "LevelAboveONH",
-    "LevelAbovePDL",
-    "LevelAbovePDO",
-    "LevelAboveRTHL",
-    "LevelAboveDayHighSoFar",
-    "LevelAboveDayLowSoFar",
-    "LevelAboveMidpoint",
-    "LevelBelowDayLowSoFar",
-    "LevelBelowRTHL",
-    "LevelBelowIBL",
-    "LevelBelowPDL",
-    "LevelBelowPDO",
-    "LevelBelowIBH",
-    "LevelBelowRTHH"
-  ].freeze
+  QUANT_RULE_PREFIXES = %w[LevelAbove LevelBelow LevelTag].freeze
 
   ASSIGN_RE = /
     g_algos\[AlgoSlotIndexByAlgoId\(MAGIC_ALGO(\d+)\)\]\.(\w+)\s*=\s*([^;]+);
@@ -124,7 +101,8 @@ module SmashMql5AlgoReader
     return false if rules.nil? || rules.empty?
 
     rules.any? do |rule|
-      QUANT_RULES.any? { |quant| rule == quant || rule.start_with?("#{quant}(") }
+      name = rule[/\A([A-Za-z]+)/, 1]
+      QUANT_RULE_PREFIXES.any? { |pfx| name&.start_with?(pfx) }
     end
   end
 

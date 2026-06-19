@@ -7,6 +7,7 @@ module SmashMql5AlgoCreatorCommon
 
   MQ5_FILE = File.expand_path('aleksik.mq5', __dir__)
   MIN_ALGO_ID = 100
+  MAX_ALGO_ID = 999
 
   MARKERS = {
     1 => %w[//algocreator1start //algocreator1end],
@@ -81,6 +82,8 @@ module SmashMql5AlgoCreatorCommon
     'level tag' => {
       'levelTag=dailyPivot' => 'AlgoRuleAdd_LevelTagDailyPivot(slotIdx)',
       'levelTag=dailyUp1' => 'AlgoRuleAdd_LevelTagDailyUp1(slotIdx)',
+      'levelTag=dailyDown1' => 'AlgoRuleAdd_LevelTagDailyDown1(slotIdx)',
+      'levelTag=weeklyUp1' => 'AlgoRuleAdd_LevelTagWeeklyUp1(slotIdx)',
       'levelTag=todayRTHopen' => 'AlgoRuleAdd_LevelTagTodayRthOpen(slotIdx)'
     },
     'session' => {
@@ -657,5 +660,32 @@ module SmashMql5AlgoCreatorCommon
       /#define\s+ALGO_FAMILY_REGISTRY_MAX\s+\d+/,
       "#define ALGO_FAMILY_REGISTRY_MAX  #{required_count}"
     )
+  end
+
+  def remaining_algo_slot_count(content)
+    used = existing_algo_ids(content)
+    (MIN_ALGO_ID..MAX_ALGO_ID).count { |id| !used.include?(id) }
+  end
+
+  def validate_algo_slot_capacity!(content, needed_count)
+    used = existing_algo_ids(content)
+    remaining = remaining_algo_slot_count(content)
+    return remaining if needed_count <= remaining
+
+    raise format(
+      'Not enough free algo IDs: need %d row(s), only %d slot(s) left in %d..%d (%d already wired: %d..%d)',
+      needed_count,
+      remaining,
+      MIN_ALGO_ID,
+      MAX_ALGO_ID,
+      used.size,
+      used.first,
+      used.last
+    )
+  end
+
+  def validate_rule_tokens!(tokens)
+    tokens.each { |token| mql5_line_for_rule_token(token) }
+    tokens
   end
 end

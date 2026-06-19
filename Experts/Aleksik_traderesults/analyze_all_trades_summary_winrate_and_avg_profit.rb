@@ -348,13 +348,6 @@ rows_for_all_trades = apply_exclude_prefixes(rows)
 # =========================================================
 
 puts '-' * 60
-puts 'ALL TRADES'
-puts '-' * 60
-puts
-
-print_summary('Overall', rows_for_all_trades, first_date, last_date, all_trading_day_count, all_full_week_mondays, include_projected_pf: false)
-
-puts '-' * 60
 puts 'BY MAGIC PREFIX (first 3 digits)'
 puts '-' * 60
 puts
@@ -364,6 +357,13 @@ magic_groups = rows_for_all_trades.group_by { |r| r[:magic_prefix] }
 magic_groups.keys.sort.each do |magic_prefix|
   print_summary("Magic prefix #{magic_prefix}", magic_groups[magic_prefix], first_date, last_date, all_trading_day_count, all_full_week_mondays)
 end
+
+puts '-' * 60
+puts 'ALL TRADES'
+puts '-' * 60
+puts
+
+print_summary('Overall', rows_for_all_trades, first_date, last_date, all_trading_day_count, all_full_week_mondays, include_projected_pf: false)
 
 print_excluded_prefixes_footer(rows)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # Lists each wired algo (unquanted only): id, direction, bounce/ceiling/contact/ONO params, ruleset.
-# Skips algos whose ruleset contains any quant rule from QUANT_RULES.
+# Skips algos whose ruleset contains any LevelAbove/LevelBelow/LevelTag quant gate.
 
 require_relative "smash_mql5_algo_reader_lib"
 

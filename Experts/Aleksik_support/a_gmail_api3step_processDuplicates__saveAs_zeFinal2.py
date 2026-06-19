@@ -196,7 +196,9 @@ def main():
     print("Weekly levels containing 'stacked':", n_weekly_stacked)
     print("Levels not written (daily and stacked):", skipped_daily_stacked)
     print("\n")
-    print(r"!!!!!!!!!!!!  MAKE SURE REMEMBER TO PUT LEVELS FILE IN METATRADER5 SHARED FILES DIR C:\Users\Aleks\AppData\Roaming\MetaQuotes\Terminal\Common\Files !!!!!!!!!!!!!!")
+    print(r"!!!!!!!!!!!!  MAKE SURE REMEMBER TO PUT LEVELS FILE IN METATRADER5 SHARED FILES DIR !!!!!!!!!!!!!!")
+    print(r"!!!!!!!!!!!!  C:\Users\Aleks\AppData\Roaming\MetaQuotes\Terminal\Common\Files !!!!!!!!!!!!!!")
+
     print("\n")
 
 if __name__ == "__main__":

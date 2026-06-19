@@ -5,11 +5,10 @@ require_relative "smash_mql5_algo_reader_lib"
 
 MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 
-enable_all_unquanted = true
-disable_all_unquanted = false
-
+enable_all_unquanted = false
+disable_all_unquanted = true
 enable_all_quanted = false
-disable_all_quanted = true
+disable_all_quanted = false
 
 ENABLED_LINE_RE = /
   g_algos\[AlgoSlotIndexByAlgoId\(MAGIC_ALGO(\d+)\)\]\.enabled\s*=\s*(true|false);
