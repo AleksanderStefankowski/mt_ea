@@ -3,12 +3,6 @@
 //+------------------------------------------------------------------+
 //|                   MetaTrader 5 Only (MT5-specific code)          |
 //|        Copyright 2026, Aleksander Stefankowski                   |
-// NOTE: This EA is MetaTrader 5 (MT5) ONLY. Do NOT attempt to add MT4 code.
-// All file operations and timer/candle handling are MT5-specific.
-// '&' reference cannot ever be used!
-//
-// OVERFLOW: Magic numbers and MT5 IDs (order/deal/position) can exceed INT_MAX.
-// Never cast them to (int). Use long/ulong and IntegerToString((long)value) for logging.
 // COMPOSITE MAGIC: 18-digit fixed-width magics; first 3 digits = algo number (100..999). Never paste full magic in comments.
 
 
