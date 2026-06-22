@@ -10015,5 +10015,126 @@
       "daily"
     ],
     "tag": "dailyDown3"
+  },
+  {
+    "start": "2026.06.22",
+    "end": "2026.06.22",
+    "levelPrice": 7558,
+    "categories": [
+      "daily",
+      "monday",
+      "pivot"
+    ],
+    "tag": "dailyPivot"
+  },
+  {
+    "start": "2026.06.22",
+    "end": "2026.06.22",
+    "levelPrice": 7581,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.06.22",
+    "end": "2026.06.22",
+    "levelPrice": 7613,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.06.22",
+    "end": "2026.06.22",
+    "levelPrice": 7632,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp3"
+  },
+  {
+    "start": "2026.06.22",
+    "end": "2026.06.22",
+    "levelPrice": 7540,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.06.22",
+    "end": "2026.06.22",
+    "levelPrice": 7515,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.06.22",
+    "end": "2026.06.22",
+    "levelPrice": 7491,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown3"
+  },
+  {
+    "start": "2026.06.23",
+    "end": "2026.06.23",
+    "levelPrice": 7560,
+    "categories": [
+      "daily",
+      "tuesday",
+      "pivot"
+    ],
+    "tag": "dailyPivot"
+  },
+  {
+    "start": "2026.06.23",
+    "end": "2026.06.23",
+    "levelPrice": 7581,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.06.23",
+    "end": "2026.06.23",
+    "levelPrice": 7613,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.06.23",
+    "end": "2026.06.23",
+    "levelPrice": 7540,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.06.23",
+    "end": "2026.06.23",
+    "levelPrice": 7515,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.06.23",
+    "end": "2026.06.23",
+    "levelPrice": 7491,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown3"
   }
 ]
