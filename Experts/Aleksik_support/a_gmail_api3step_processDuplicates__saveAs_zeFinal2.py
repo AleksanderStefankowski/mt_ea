@@ -11,9 +11,15 @@ import os
 import json
 import csv
 import io
+import platform
+import shutil
 from datetime import datetime
 
 WEEKDAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+
+MT5_COMMON_LEVELS_FILE = (
+    r"C:\Users\Aleks\AppData\Roaming\MetaQuotes\Terminal\Common\Files\levelsinfo_zeFinal.csv"
+)
 
 
 def normalize_level_record(lev):
@@ -173,6 +179,35 @@ def remove_identical_duplicate_lines(csv_path):
     return len(removed)
 
 
+def count_csv_data_rows(path):
+    """Return number of data rows in a CSV (excluding header)."""
+    with open(path, newline="", encoding="utf-8") as f:
+        return max(sum(1 for _ in csv.reader(f)) - 1, 0)
+
+
+def sync_to_mt5_common_files(source_path):
+    """On Windows, overwrite MT5 Common Files levelsinfo_zeFinal.csv if it exists."""
+    os_name = platform.system()
+    print(f"OS detected: {os_name}")
+
+    if os_name != "Windows":
+        print("MT5 common file sync skipped (Windows only)")
+        return
+
+    if os.path.exists(MT5_COMMON_LEVELS_FILE):
+        print(f"Target file exists: {MT5_COMMON_LEVELS_FILE}")
+    else:
+        print(f"Target file not found: {MT5_COMMON_LEVELS_FILE}")
+        return
+
+    old_rows = count_csv_data_rows(MT5_COMMON_LEVELS_FILE)
+    new_rows = count_csv_data_rows(source_path)
+
+    shutil.copy2(source_path, MT5_COMMON_LEVELS_FILE)
+
+    print(f"Overwritten ({old_rows} old rows, {new_rows} new rows)")
+
+
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     levels = load_raw(script_dir)
@@ -195,6 +230,8 @@ def main():
     print("Daily levels containing 'stacked':", n_daily_stacked)
     print("Weekly levels containing 'stacked':", n_weekly_stacked)
     print("Levels not written (daily and stacked):", skipped_daily_stacked)
+    print()
+    sync_to_mt5_common_files(out_path)
     print("\n")
     print(r"!!!!!!!!!!!!  MAKE SURE REMEMBER TO PUT LEVELS FILE IN METATRADER5 SHARED FILES DIR !!!!!!!!!!!!!!")
     print(r"!!!!!!!!!!!!  C:\Users\Aleks\AppData\Roaming\MetaQuotes\Terminal\Common\Files !!!!!!!!!!!!!!")
