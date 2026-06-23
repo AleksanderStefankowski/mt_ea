@@ -769,9 +769,9 @@ start,end,levelPrice,categories,tag
 2026.06.22,2026.06.26,7735,weekly,weeklyUp4
 2026.06.22,2026.06.26,7780,weekly,weeklyUp5
 2026.06.22,2026.06.26,7820,weekly,weeklyUp6
-2026.06.22,2026.06.26,7491,weekly_stacked_monday_tuesday,weeklyDown1
+2026.06.22,2026.06.26,7491,weekly_stacked_monday_tuesday_wednesday,weeklyDown1
 2026.06.22,2026.06.26,7435,weekly,weeklyDown2
-2026.06.22,2026.06.26,7405,weekly,weeklyDown3
+2026.06.22,2026.06.26,7405,weekly_stacked_wednesday,weeklyDown3
 2026.06.22,2026.06.26,7365,weekly,weeklyDown4
 2026.06.22,2026.06.26,7300,weekly,weeklyDown5
 2026.06.22,2026.06.22,7558,daily_monday_pivot,dailyPivot
@@ -780,3 +780,8 @@ start,end,levelPrice,categories,tag
 2026.06.23,2026.06.23,7560,daily_tuesday_pivot,dailyPivot
 2026.06.23,2026.06.23,7581,daily_tuesday,dailyUp1
 2026.06.23,2026.06.23,7515,daily_tuesday,dailyDown2
+2026.06.24,2026.06.24,7452,daily_wednesday_pivot,dailyPivot
+2026.06.24,2026.06.24,7472,daily_wednesday,dailyUp1
+2026.06.24,2026.06.24,7510,daily_wednesday,dailyUp3
+2026.06.24,2026.06.24,7429,daily_wednesday,dailyDown1
+2026.06.24,2026.06.24,7380,daily_wednesday,dailyDown3
