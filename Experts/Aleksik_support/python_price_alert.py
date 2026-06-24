@@ -19,7 +19,7 @@
 # price_proximity_trigger allows.
 #
 # Email title format:
-#   pythonOloAlertsV1 (levelprice) (leveltag) and price(L) (actual value) proximity above less than (price_proximity_trigger)
+#   pythonOloAlertsV1 7476.25 (price-O) proximity above 7472 (dailyUp1) : less than 15
 #   (or below, if price is below level but still within proximity)
 #
 # Email body: all levels active today sorted highest-first, with live OHLC inserted at its price position:
@@ -36,7 +36,8 @@ import os
 import pickle
 import time
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
+from email.header import decode_header, make_header
 from email.mime.text import MIMEText
 from typing import Dict, Optional, Tuple
 
@@ -64,18 +65,18 @@ can_send_email_if_x_minutes_passed = 120
 # a stacked level counts as both daily and weekly, so if weekly is false but daily true
 # (or weekly true daily false), stacked email can still be sent
 can_send_daily_level_emails = True
-can_send_weekly_level_emails = False
+can_send_weekly_level_emails = True
 
 # if any of O H L C, minus level, is less than this proximity, the proximity rule for email is satisfied
-price_proximity_trigger = 15.0 # phone notification has delay like 3 minutes even
+price_proximity_trigger = 12.5 # phone notification has delay like 3 minutes even
 
 # script reads levels file on launch and again every this many minutes
 reload_levels_file_every_x_minutes = 60
 
-# every this many minutes, find up to 3 emails with title starting with "pythonOloAlertsV1"
-# that are older than can_delete_email_older_than_x_minutes and delete each (move to bin)
-check_emails_for_deletion_every_x_minutes = 30
-can_delete_email_older_than_x_minutes = 45
+# every this many minutes, trash all emails with title starting with "pythonOloAlertsV1"
+# that are older than can_delete_email_older_than_x_minutes (move to bin)
+check_emails_for_deletion_every_x_minutes = 120 # but do first check immediately after launch
+can_delete_email_older_than_x_minutes = 800
 
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
@@ -174,83 +175,120 @@ def send_alert_email(service, subject: str, body: str) -> None:
     ).execute()
 
 
-def is_alert_email(headers: dict) -> bool:
-    """True if message is our self-sent pythonOloAlertsV1 alert."""
-    subject = headers.get("Subject", "")
-    if not subject.startswith(EMAIL_SUBJECT_PREFIX):
-        return False
+def decode_email_header(value: str) -> str:
+    if not value:
+        return ""
+    try:
+        parts = decode_header(value)
+        chunks = []
+        for text, charset in parts:
+            if isinstance(text, bytes):
+                chunks.append(text.decode(charset or "utf-8", errors="replace"))
+            else:
+                chunks.append(str(text))
+        return "".join(chunks)
+    except Exception:
+        try:
+            return str(make_header(decode_header(value)))
+        except Exception:
+            return value
 
-    from_hdr = headers.get("From", "")
-    if EMAIL_FROM not in from_hdr:
-        return False
 
-    # self-sent mail: To can be missing or formatted oddly; Delivered-To is reliable in inbox
-    to_hdr = headers.get("To", "")
-    delivered_to = headers.get("Delivered-To", "")
-    if EMAIL_TO in to_hdr or EMAIL_TO in delivered_to:
-        return True
+def list_all_message_ids(service, query: str, page_size: int = 100):
+    """Paginate Gmail list until all matching message ids are collected."""
+    message_ids = []
+    page_token = None
 
-    # sent-folder copy: from us + our subject prefix is enough
-    return EMAIL_FROM in from_hdr
+    while True:
+        kwargs = {"userId": "me", "q": query, "maxResults": page_size}
+        if page_token:
+            kwargs["pageToken"] = page_token
+
+        results = service.users().messages().list(**kwargs).execute()
+        for msg in results.get("messages", []):
+            message_ids.append(msg["id"])
+
+        page_token = results.get("nextPageToken")
+        if not page_token:
+            break
+
+    return message_ids
 
 
-def delete_old_alert_emails(service, max_delete: int = 3) -> int:
-    # every check_emails_for_deletion_every_x_minutes, find up to 3 emails with
-    # title starting with "pythonOloAlertsV1" from EMAIL_FROM that are older than
-    # can_delete_email_older_than_x_minutes and delete each (move to bin)
+def delete_old_alert_emails(service) -> int:
+    # trash all emails with title starting with "pythonOloAlertsV1" that are older than
+    # can_delete_email_older_than_x_minutes (move to bin)
     cutoff_ms = int(
-        (datetime.now() - timedelta(minutes=can_delete_email_older_than_x_minutes)).timestamp()
+        (
+            datetime.now(timezone.utc)
+            - timedelta(minutes=can_delete_email_older_than_x_minutes)
+        ).timestamp()
         * 1000
     )
 
-    # do not use to: in query — Gmail often fails to match self-sent inbox mail with to:
-    query = f"from:{EMAIL_FROM} subject:{EMAIL_SUBJECT_PREFIX} -in:trash -in:spam"
-    results = service.users().messages().list(
-        userId="me",
-        q=query,
-        maxResults=25,
-    ).execute()
+    # count ALL with subject prefix (paginated); do not use to: — fails on self-sent mail
+    query = f"subject:{EMAIL_SUBJECT_PREFIX} -in:trash -in:spam"
+    message_ids = list_all_message_ids(service, query)
 
-    messages = results.get("messages", [])
-    if not messages:
+    print(f"Email cleanup: {len(message_ids)} total with subject {EMAIL_SUBJECT_PREFIX}")
+
+    if not message_ids:
         print(f"Email cleanup: 0 messages matched query ({query})")
         return 0
 
     candidates = []
+    older_than_cutoff_count = 0
+    eligible_count = 0
     skipped_young = 0
-    skipped_headers = 0
-    for msg in messages:
+    skipped_subject = 0
+
+    for msg_id in message_ids:
         msg_data = service.users().messages().get(
             userId="me",
-            id=msg["id"],
+            id=msg_id,
             format="metadata",
-            metadataHeaders=["From", "To", "Delivered-To", "Subject"],
+            metadataHeaders=["Subject"],
         ).execute()
-        headers = {
-            h["name"]: h["value"]
-            for h in msg_data.get("payload", {}).get("headers", [])
-        }
-        if not is_alert_email(headers):
-            skipped_headers += 1
-            continue
 
+        # age first — Gmail query already matched subject; internalDate is UTC ms
         internal_date = int(msg_data.get("internalDate", "0"))
         if internal_date >= cutoff_ms:
             skipped_young += 1
             continue
 
-        candidates.append((internal_date, msg["id"], headers.get("Subject", "")))
+        older_than_cutoff_count += 1
+
+        headers = {
+            h["name"]: h["value"]
+            for h in msg_data.get("payload", {}).get("headers", [])
+        }
+        subject = decode_email_header(headers.get("Subject", ""))
+        # only reject if Subject header is present but clearly not our alert
+        if subject and not subject.startswith(EMAIL_SUBJECT_PREFIX):
+            skipped_subject += 1
+            continue
+
+        eligible_count += 1
+        candidates.append((
+            internal_date,
+            msg_id,
+            subject or EMAIL_SUBJECT_PREFIX,
+        ))
 
     candidates.sort(key=lambda item: item[0])
 
     print(
-        f"Email cleanup: matched {len(messages)}, "
-        f"eligible {len(candidates)}, skipped young {skipped_young}, "
-        f"skipped headers {skipped_headers}"
+        f"Email cleanup: {older_than_cutoff_count} older than "
+        f"{can_delete_email_older_than_x_minutes} min "
+        f"(skipped young {skipped_young})"
+    )
+    print(
+        f"Email cleanup: {eligible_count} eligible to trash "
+        f"(skipped subject {skipped_subject})"
     )
 
     deleted = 0
-    for _, msg_id, subject in candidates[:max_delete]:
+    for _, msg_id, subject in candidates:
         try:
             service.users().messages().trash(userId="me", id=msg_id).execute()
             deleted += 1
@@ -377,11 +415,11 @@ def can_send_for_level(level: LevelState, now: datetime) -> bool:
 def build_email_subject(
     level: LevelState, closest_label: str, closest_price: float, direction: str
 ) -> str:
-    # email title: pythonOloAlertsV1 (levelprice) (leveltag) and price(O/H/L/C) (value) proximity above/below less than (trigger)
+    # email title: pythonOloAlertsV1 7476.25 (price-O) proximity above 7472 (dailyUp1) : less than 15
     return (
-        f"{EMAIL_SUBJECT_PREFIX} ({level.level_price:.0f}) ({level.tag}) "
-        f"and price({closest_label}) ({closest_price:.2f}) proximity {direction} "
-        f"less than ({price_proximity_trigger:g})"
+        f"{EMAIL_SUBJECT_PREFIX} {closest_price:.2f} (price-{closest_label}) "
+        f"proximity {direction} {level.level_price:.0f} ({level.tag}) "
+        f": less than {price_proximity_trigger:g}"
     )
 
 
@@ -449,6 +487,16 @@ def maybe_send_alerts(
 # MAIN LOOP — poll ES=F bars, reload levels, cleanup emails
 # ============================================================
 
+def run_email_cleanup(service) -> int:
+    print("Running email cleanup check...")
+    deleted = delete_old_alert_emails(service)
+    print(f"Email cleanup done: trashed {deleted}")
+    if deleted > 0:
+        print("Sleeping 3 seconds after trash before price checks...")
+        time.sleep(3)
+    return deleted
+
+
 def main():
     global last_seen
 
@@ -458,8 +506,9 @@ def main():
 
     # upon launch: read levels file
     tracked_levels, current_day = reload_levels(tracked_levels, current_day)
+    run_email_cleanup(service)
     last_reload = time.monotonic()
-    last_email_cleanup = 0.0  # run email cleanup on first loop iteration
+    last_email_cleanup = time.monotonic()
 
     while True:
         try:
@@ -474,8 +523,7 @@ def main():
 
             # every check_emails_for_deletion_every_x_minutes: trash old alert emails
             if now_mono - last_email_cleanup >= check_emails_for_deletion_every_x_minutes * 60:
-                deleted = delete_old_alert_emails(service)
-                print(f"Email cleanup done: trashed {deleted}")
+                run_email_cleanup(service)
                 last_email_cleanup = now_mono
 
             # fetch latest 1m ES=F bar; only act on new bar (ts != last_seen)

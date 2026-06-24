@@ -119,6 +119,11 @@ module SmashMql5AlgoReader
       puts "#{label} shorts (enabled): #{shorts_enabled.join(', ')}"
       puts "#{label} shorts (disabled): #{shorts_disabled.join(', ')}"
     end
+
+    enabled_count = algo_ids.count { |id| params_by_algo[id]["enabled"] == "true" }
+    disabled_count = algo_ids.size - enabled_count
+    puts "total disabled count: #{disabled_count}"
+    puts "total enabled count: #{enabled_count}"
   end
 
   def parse_rule_line(line, params)
