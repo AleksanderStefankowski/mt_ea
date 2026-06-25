@@ -15,14 +15,15 @@
 #
 # General rule: an email cannot be sent again unless the last email sent
 # for that level was over can_send_email_if_x_minutes_passed minutes ago.
-# An email can be sent for a given level if time allows and
-# price_proximity_trigger allows.
+# An email can be sent for a given level if time allows, price_proximity_trigger allows,
+# and alert_proximity_above / alert_proximity_below allow that direction.
 #
 # Email title format:
 #   pythonOloAlertsV1 7476.25 (price-O) proximity above 7472 (dailyUp1) : less than 15
 #   (or below, if price is below level but still within proximity)
 #
-# Email body: all levels active today sorted highest-first, with live OHLC inserted at its price position:
+# Email body line 1-3: ES=F proximity alert / Email sent: (local time) / Bar time: (candle)
+# then all levels active today sorted highest-first, with live OHLC inserted at its price position:
 #   somelevelprice, tag, categories
 #   liveprice O=... H=... L=... C=..., LIVEPRICE
 #   somelevelprice, tag, categories
@@ -69,6 +70,8 @@ can_send_weekly_level_emails = True
 
 # if any of O H L C, minus level, is less than this proximity, the proximity rule for email is satisfied
 price_proximity_trigger = 12.5 # phone notification has delay like 3 minutes even
+alert_proximity_above = True
+alert_proximity_below = True
 
 # script reads levels file on launch and again every this many minutes
 reload_levels_file_every_x_minutes = 60
@@ -76,7 +79,7 @@ reload_levels_file_every_x_minutes = 60
 # every this many minutes, trash all emails with title starting with "pythonOloAlertsV1"
 # that are older than can_delete_email_older_than_x_minutes (move to bin)
 check_emails_for_deletion_every_x_minutes = 120 # but do first check immediately after launch
-can_delete_email_older_than_x_minutes = 800
+can_delete_email_older_than_x_minutes = 600
 
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
@@ -430,12 +433,8 @@ def build_email_body(
     l: float,
     c: float,
     ts: datetime,
+    send_time: datetime,
 ) -> str:
-    # all levels active today, highest price first; live OHLC inserted at its sorted position:
-    #   somelevelprice, tag, categories
-    #   somelevelprice, tag, categories
-    #   liveprice O=... H=... L=... C=..., LIVEPRICE
-    #   somelevelprice, tag, categories
     entries = []
     for level in levels.values():
         line = f"{level.level_price:.0f}, {level.tag}, {level.categories}"
@@ -447,7 +446,13 @@ def build_email_body(
     entries.sort(key=lambda item: (-item[0], item[1]))
     lines = [line for _, _, line in entries]
 
-    return f"ES=F proximity alert\nBar time: {ts}\n\n" + "\n".join(lines) + "\n"
+    return (
+        f"ES=F proximity alert\n"
+        f"Email sent: {send_time:%Y-%m-%d %H:%M:%S}\n"
+        f"Bar time: {ts}\n\n"
+        + "\n".join(lines)
+        + "\n"
+    )
 
 
 def maybe_send_alerts(
@@ -470,16 +475,23 @@ def maybe_send_alerts(
         if hit is None:
             continue
 
+        closest_label, closest_price, distance, direction = hit
+
+        if direction == "above" and not alert_proximity_above:
+            continue
+        if direction == "below" and not alert_proximity_below:
+            continue
+
         if not can_send_for_level(level, now):
             continue
 
-        closest_label, closest_price, distance, direction = hit
         subject = build_email_subject(level, closest_label, closest_price, direction)
-        body = build_email_body(levels, o, h, l, c, ts)
+        send_time = datetime.now()
+        body = build_email_body(levels, o, h, l, c, ts, send_time)
 
         send_alert_email(service, subject, body)
-        level.emailed_count += 1   # emailedCount increases when email sent
-        level.last_email_time = now  # lastEmailTime stored at email sent time
+        level.emailed_count += 1
+        level.last_email_time = send_time
         print(f"Sent alert: {subject}")
 
 
