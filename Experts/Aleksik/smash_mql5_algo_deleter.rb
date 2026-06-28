@@ -14,20 +14,7 @@ MQ5_FILE = SmashMql5AlgoCreatorCommon::MQ5_FILE
 delete_algo_ids_USE_THIS = false # true = use delete_algo_ids array; false = use delete_algo_ids_text
 delete_algo_ids = [109, 110, 115, 116, 117, 130, 131, 133]
 delete_algo_ids_text = <<~TEXT
-165
-126
-138
-164
-163
-160
-136
-137
-134
-135
-162
-161
-158
-159
+142
 TEXT
 
 unless delete_algo_ids_USE_THIS

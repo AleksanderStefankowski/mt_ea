@@ -12,11 +12,10 @@ FILE_PATH = 'summary_tradeResults_all_days.tsv'
 # =========================================================
 # HELPERS
 # =========================================================
-EXCLUDE_PREFIXES_MODE = true
+EXCLUDE_PREFIXES_MODE = false
 # EXCLUDE_PREFIXES = ["19", "20", "21", "22", "25", "26", "27"]  # magic first 2 digits; comma in one string also works, e.g. "20, 24"
 EXCLUDE_PREFIXES = [
-    "11", "12", "13", "14", "15", "16", "17", "18", "19", 
-    "20", "21", "22", "23", "25", "26", "27", "30"
+    "11"
 ]
 
 def excluded_prefixes

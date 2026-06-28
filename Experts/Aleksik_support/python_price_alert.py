@@ -69,7 +69,7 @@ can_send_daily_level_emails = True
 can_send_weekly_level_emails = True
 
 # if any of O H L C, minus level, is less than this proximity, the proximity rule for email is satisfied
-price_proximity_trigger = 12.5 # phone notification has delay like 3 minutes even
+price_proximity_trigger = 18.5 # latest candle for free we get is 10 minutes old
 alert_proximity_above = True
 alert_proximity_below = True
 

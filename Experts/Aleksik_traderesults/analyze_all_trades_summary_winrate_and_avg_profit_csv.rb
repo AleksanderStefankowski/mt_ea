@@ -13,7 +13,7 @@ FILE_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days.tsv')
 ALEKSIK_MQ5_PATH = File.join(SCRIPT_DIR, '..', 'Aleksik', 'aleksik.mq5')
 OUTPUT_CSV_PATH = File.join(SCRIPT_DIR, 'analyze_all_trades_summary_winrate_and_avg_profit_output.csv')
 
-EXCLUDE_PREFIXES_MODE = true
+EXCLUDE_PREFIXES_MODE = false
 EXCLUDE_PREFIXES = [
     # "11", "12", "13", "14", "15", "16", "17", "18", "19", 
     # "20", "21", "22", "23", "25", "26", "27", "30"
@@ -32,6 +32,7 @@ CSV_HEADERS = %w[
   max_loseday_streak
   max_notrades_streak
   avg_notrades_streak
+  tradesCount
   tradedDaysCount
   allDaysCount
   allDays_startDate
@@ -297,6 +298,7 @@ def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last
     max_loseday_streak: max_loss_day_streak(trades, first_date, last_date),
     max_notrades_streak: max_no_trades_streak(trades, first_date, last_date),
     avg_notrades_streak: format('%.2f', avg_no_trades_streak(trades, first_date, last_date)),
+    tradesCount: trades.size,
     tradedDaysCount: traded_days_count,
     allDaysCount: all_trading_day_count,
     allDays_startDate: format_date(first_date),
