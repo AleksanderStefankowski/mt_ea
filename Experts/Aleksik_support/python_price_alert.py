@@ -19,13 +19,13 @@
 # and alert_proximity_above / alert_proximity_below allow that direction.
 #
 # Email title format:
-#   pythonOloAlertsV1 7476.25 (price-O) proximity above 7472 (dailyUp1) : less than 15
-#   (or below, if price is below level but still within proximity)
+#   pythonOloAlertsV1 7544 (price-L) proximity above 7530 (weeklyUp2) : less than 18.5
+#   main price rounded to whole number; (or below, if price is below level but still within proximity)
 #
-# Email body line 1-3: ES=F proximity alert / Email sent: (local time) / Bar time: (candle)
+# Email body line 1-3: ES=F proximity alert / Email sent: (local + tz) / Bar time: (local + tz) (raw bar tz)
 # then all levels active today sorted highest-first, with live OHLC inserted at its price position:
 #   somelevelprice, tag, categories
-#   liveprice O=... H=... L=... C=..., LIVEPRICE
+#   liveprice LIVEPRICE O=... H=... L=... C=...  (leading live price rounded; OHLC not rounded)
 #   somelevelprice, tag, categories
 #
 # use existing token.pickle
@@ -69,12 +69,12 @@ can_send_daily_level_emails = True
 can_send_weekly_level_emails = True
 
 # if any of O H L C, minus level, is less than this proximity, the proximity rule for email is satisfied
-price_proximity_trigger = 18.5 # latest candle for free we get is 10 minutes old
+price_proximity_trigger = 20.0 # latest candle for free we get is 10 minutes old
 alert_proximity_above = True
 alert_proximity_below = True
 
 # script reads levels file on launch and again every this many minutes
-reload_levels_file_every_x_minutes = 60
+reload_levels_file_every_x_minutes = 1440 # 1440 = 24h
 
 # every this many minutes, trash all emails with title starting with "pythonOloAlertsV1"
 # that are older than can_delete_email_older_than_x_minutes (move to bin)
@@ -415,12 +415,46 @@ def can_send_for_level(level: LevelState, now: datetime) -> bool:
     return elapsed >= timedelta(minutes=can_send_email_if_x_minutes_passed)
 
 
+def _to_datetime(dt) -> datetime:
+    if hasattr(dt, "to_pydatetime"):
+        return dt.to_pydatetime()
+    return dt
+
+
+def _format_utc_offset(dt: datetime) -> str:
+    offset = dt.utcoffset()
+    if offset is None:
+        return ""
+    total_sec = int(offset.total_seconds())
+    sign = "+" if total_sec >= 0 else "-"
+    total_sec = abs(total_sec)
+    hours, remainder = divmod(total_sec, 3600)
+    minutes = remainder // 60
+    return f"{sign}{hours:02d}:{minutes:02d}"
+
+
+def _tz_label(dt: datetime) -> str:
+    return dt.tzname() or _format_utc_offset(dt) or "local"
+
+
+def format_dt_local_with_tz(dt) -> str:
+    local = _to_datetime(dt).astimezone()
+    return f"{local:%Y-%m-%d %H:%M:%S} [{_tz_label(local)}]"
+
+
+def format_bar_time_raw(dt) -> str:
+    raw = _to_datetime(dt)
+    if raw.tzinfo is None:
+        return f"({raw:%H:%M:%S} raw)"
+    offset = _format_utc_offset(raw)
+    return f"({raw:%H:%M:%S}{offset} raw)"
+
+
 def build_email_subject(
     level: LevelState, closest_label: str, closest_price: float, direction: str
 ) -> str:
-    # email title: pythonOloAlertsV1 7476.25 (price-O) proximity above 7472 (dailyUp1) : less than 15
     return (
-        f"{EMAIL_SUBJECT_PREFIX} {closest_price:.2f} (price-{closest_label}) "
+        f"{EMAIL_SUBJECT_PREFIX} {closest_price:.0f} (price-{closest_label}) "
         f"proximity {direction} {level.level_price:.0f} ({level.tag}) "
         f": less than {price_proximity_trigger:g}"
     )
@@ -440,7 +474,7 @@ def build_email_body(
         line = f"{level.level_price:.0f}, {level.tag}, {level.categories}"
         entries.append((level.level_price, 0, line))
 
-    live_line = f"{c:.2f} O={o:.2f} H={h:.2f} L={l:.2f} C={c:.2f}, LIVEPRICE"
+    live_line = f"{c:.0f} LIVEPRICE O={o:.2f} H={h:.2f} L={l:.2f} C={c:.2f}"
     entries.append((c, 1, live_line))  # 1 = after a level at the same price
 
     entries.sort(key=lambda item: (-item[0], item[1]))
@@ -448,8 +482,8 @@ def build_email_body(
 
     return (
         f"ES=F proximity alert\n"
-        f"Email sent: {send_time:%Y-%m-%d %H:%M:%S}\n"
-        f"Bar time: {ts}\n\n"
+        f"Email sent: {format_dt_local_with_tz(send_time)}\n"
+        f"Bar time: {format_dt_local_with_tz(ts)} {format_bar_time_raw(ts)}\n\n"
         + "\n".join(lines)
         + "\n"
     )
@@ -465,7 +499,7 @@ def maybe_send_alerts(
     ts: datetime,
 ) -> None:
     # for each tracked level: check category filter, proximity, and cooldown; then send
-    now = datetime.now()
+    now = datetime.now().astimezone()
 
     for level in levels.values():
         if not category_allows_email(level.categories):
@@ -486,7 +520,7 @@ def maybe_send_alerts(
             continue
 
         subject = build_email_subject(level, closest_label, closest_price, direction)
-        send_time = datetime.now()
+        send_time = datetime.now().astimezone()
         body = build_email_body(levels, o, h, l, c, ts, send_time)
 
         send_alert_email(service, subject, body)
