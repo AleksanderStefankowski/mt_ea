@@ -4592,9 +4592,11 @@ bool LevelIsDailyNonTertiary(const string &categories)
 //+------------------------------------------------------------------+
 void RebuildFalgoCalendarOverrideDateLists()
 {
+   // algobookmark banned days
    string nonTrade[] = {
       "2026.03.16", "2026.03.17", "2026.03.18",
-      "2026.06.15", "2026.06.16", "2026.06.17", "2026.06.18", "2026.06.19"
+      "2026.06.15", "2026.06.16", "2026.06.17", "2026.06.18", "2026.06.19",
+      "2026.07.03"
    };
    string dailyOnly[] = {
       "2026.03.19", "2026.03.20"

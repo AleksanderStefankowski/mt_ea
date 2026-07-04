@@ -10,7 +10,7 @@ require 'date'
 
 FILE_PATH = 'summary_tradeResults_all_days.tsv'
 
-EXCLUDE_PREFIXES_MODE = true
+EXCLUDE_PREFIXES_MODE = false
 EXCLUDE_PREFIXES = [
   '11', '12', '13', '14', '15', '16', '17', '18', '19',
   '20', '21', '22', '23', '25', '26', '27', '30'

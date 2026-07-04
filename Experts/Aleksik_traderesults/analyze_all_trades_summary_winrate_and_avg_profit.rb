@@ -76,6 +76,21 @@ def avg_loss_magnitude(trades)
   losers.sum { |t| t[:profit].to_f }.abs / losers.size
 end
 
+def avg_win_magnitude(trades)
+  winners = trades.select { |t| t[:profit].to_f > 0 }
+  return nil if winners.empty?
+
+  winners.sum { |t| t[:profit].to_f } / winners.size
+end
+
+def projected_pf_if_next_n_wins(trades, win_count)
+  avg_win = avg_win_magnitude(trades)
+  return nil if avg_win.nil?
+
+  gross_profit, gross_loss = gross_profit_and_loss(trades)
+  profit_factor_from_gross(gross_profit + (win_count * avg_win), gross_loss)
+end
+
 def projected_pf_if_next_n_losses(trades, loss_count)
   avg_loss = avg_loss_magnitude(trades)
   return nil if avg_loss.nil?
@@ -84,8 +99,8 @@ def projected_pf_if_next_n_losses(trades, loss_count)
   profit_factor_from_gross(gross_profit, gross_loss + (loss_count * avg_loss))
 end
 
-def format_projected_pf(pf)
-  return 'n/a (no losing trades)' if pf.nil?
+def format_projected_pf(pf, empty_reason: 'no losing trades')
+  return "n/a (#{empty_reason})" if pf.nil?
   return '999.00 (no losses)' if pf >= 999.0
 
   format('%.2f', pf)
@@ -275,6 +290,10 @@ def print_summary(label, trades, first_date, last_date, total_trading_days, full
   puts format('  winrate: %.2f%%', winrate(trades))
   puts format('  profit factor: %.2f', profit_factor(trades))
   if include_projected_pf
+    puts format(
+      '  projected PF if next future trade is a win: %s',
+      format_projected_pf(projected_pf_if_next_n_wins(trades, 1), empty_reason: 'no winning trades')
+    )
     puts format('  projected PF if next future trade is a loss: %s', format_projected_pf(projected_pf_if_next_n_losses(trades, 1)))
     puts format('  projected PF if next 2 future trades are a loss: %s', format_projected_pf(projected_pf_if_next_n_losses(trades, 2)))
   end
