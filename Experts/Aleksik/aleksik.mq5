@@ -44,7 +44,7 @@ bool     finalLog_TradeLog            = false; // (date)_B_TradeLog_algoN.csv pe
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
-string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag
+string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag (multi-year OK)
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if tru: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     bigflipper_log_algo_trade_results_csv             = true;  // per-algo EOD CSV + all-days TSV + summary_tradeResults_all_days.tsv
@@ -205,7 +205,7 @@ struct CalendarRow
    bool   opex;
    bool   qopex;
 };
-#define MAX_CALENDAR_ROWS 367
+#define MAX_CALENDAR_ROWS 1100
 CalendarRow g_calendar[MAX_CALENDAR_ROWS];
 int g_calendarCount = 0;
 
@@ -218,7 +218,7 @@ struct LevelInfoRow
    string categories; // e.g. "daily_monday_pivot_stacked"
    string tag;       // e.g. "dailyPivot", "weeklyUp1" (loaded but not used yet)
 };
-#define MAX_LEVEL_ROWS 2000
+#define MAX_LEVEL_ROWS 5000  // max levels active on one day; CSV may span many years (~4000+ rows total)
 LevelInfoRow g_levels[MAX_LEVEL_ROWS];
 int g_levelsTotalCount = 0;  // levels for current day only (reloaded each new day)
 string g_levelsLoadedForDate = "";  // YYYY.MM.DD for which g_levels was loaded (empty = not yet loaded)
@@ -233,7 +233,7 @@ struct LevelExpandedRow
    double diffs[];    // newway_Diff_CloseToLevel = close - levelPrice per bar
    datetime times[];  // bar time per bar
 };
-#define MAX_LEVELS_EXPANDED 500 // per day
+#define MAX_LEVELS_EXPANDED 500 // per day (must be <= MAX_LEVEL_ROWS)
 #define MAX_BARS_IN_DAY 1500 // a day has 1440 minutes
 LevelExpandedRow g_levelsExpanded[MAX_LEVELS_EXPANDED];
 int g_levelsTodayCount = 0;  // levels valid for current day (from g_levels); per-bar data in g_levelsExpanded[e]
@@ -1882,7 +1882,7 @@ bool LoadLevelsForDate(const string &dateStr)
       return false;
    }
    string line = FileReadString(fileHandle);  // skip header
-   while(!FileIsEnding(fileHandle) && g_levelsTotalCount < MAX_LEVEL_ROWS)
+   while(!FileIsEnding(fileHandle))
    {
       line = FileReadString(fileHandle);
       if(StringLen(line) == 0) continue;
@@ -1890,15 +1890,20 @@ bool LoadLevelsForDate(const string &dateStr)
       if(StringSplit(line, ',', parts) < 5) continue;
       string startStr = parts[0];
       string endStr   = parts[1];
-      if(startStr <= dateStr && dateStr <= endStr)
+      if(endStr < dateStr || startStr > dateStr)
+         continue;
+      if(g_levelsTotalCount >= MAX_LEVEL_ROWS)
       {
-         g_levels[g_levelsTotalCount].startStr   = startStr;
-         g_levels[g_levelsTotalCount].endStr     = endStr;
-         g_levels[g_levelsTotalCount].levelPrice = StringToDouble(parts[2]);
-         g_levels[g_levelsTotalCount].categories = parts[3];
-         g_levels[g_levelsTotalCount].tag        = parts[4];
-         g_levelsTotalCount++;
+         FileClose(fileHandle);
+         FatalError("LoadLevelsForDate: too many levels for " + dateStr + " (max " + IntegerToString(MAX_LEVEL_ROWS) + ")");
+         return false;
       }
+      g_levels[g_levelsTotalCount].startStr   = startStr;
+      g_levels[g_levelsTotalCount].endStr     = endStr;
+      g_levels[g_levelsTotalCount].levelPrice = StringToDouble(parts[2]);
+      g_levels[g_levelsTotalCount].categories = parts[3];
+      g_levels[g_levelsTotalCount].tag        = parts[4];
+      g_levelsTotalCount++;
    }
    FileClose(fileHandle);
    return true;  // file read ok (count may be 0 if no levels for this day)
@@ -2901,9 +2906,11 @@ void UpdateDayM1AndLevelsExpanded()
 
    // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
    g_levelsTodayCount = 0;
-   for(int levelIdx = 0; levelIdx < g_levelsTotalCount && g_levelsTodayCount < MAX_LEVELS_EXPANDED; levelIdx++)
+   for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
    {
       if(g_levels[levelIdx].startStr > dayKey || dayKey > g_levels[levelIdx].endStr) continue;
+      if(g_levelsTodayCount >= MAX_LEVELS_EXPANDED)
+         FatalError("UpdateDayM1AndLevelsExpanded: too many expanded levels for " + dayKey + " (max " + IntegerToString(MAX_LEVELS_EXPANDED) + ")");
       g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[levelIdx].levelPrice;
       g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[levelIdx].tag;
       g_levelsExpanded[g_levelsTodayCount].categories = g_levels[levelIdx].categories;
@@ -4594,12 +4601,36 @@ void RebuildFalgoCalendarOverrideDateLists()
 {
    // algobookmark banned days
    string nonTrade[] = {
-      "2026.03.16", "2026.03.17", "2026.03.18",
-      "2026.06.15", "2026.06.16", "2026.06.17", "2026.06.18", "2026.06.19",
-      "2026.07.03"
+      // 2024 — market holidays
+      "2024.01.01", "2024.01.15", "2024.02.19", "2024.03.29", "2024.05.27", "2024.06.19",
+      "2024.07.04", "2024.09.02", "2024.11.28", "2024.12.25",
+      // 2024 — early close / special
+      "2024.07.03", "2024.11.29", "2024.12.24",
+      // 2024 — OpEx weeks (Mon–Fri)
+      "2024.03.11", "2024.03.12", "2024.03.13", "2024.03.14", "2024.03.15",
+      "2024.06.17", "2024.06.18", "2024.06.20", "2024.06.21",
+      "2024.09.16", "2024.09.17", "2024.09.18", "2024.09.19", "2024.09.20",
+      "2024.12.16", "2024.12.17", "2024.12.18", "2024.12.19", "2024.12.20",
+      // 2025 — market holidays
+      "2025.01.01", "2025.01.20", "2025.02.17", "2025.04.18", "2025.05.26", "2025.06.19",
+      "2025.07.04", "2025.09.01", "2025.11.27", "2025.12.25",
+      // 2025 — early close / special
+      "2025.07.03", "2025.11.28", "2025.12.24",
+      // 2025 — OpEx weeks (Mon–Fri)
+      "2025.03.17", "2025.03.18", "2025.03.19", "2025.03.20", "2025.03.21",
+      "2025.06.16", "2025.06.17", "2025.06.18", "2025.06.20",
+      "2025.09.15", "2025.09.16", "2025.09.17", "2025.09.18", "2025.09.19",
+      "2025.12.15", "2025.12.16", "2025.12.17", "2025.12.18", "2025.12.19",
+      // 2026 — market holidays
+      "2026.01.01", "2026.01.19", "2026.02.16", "2026.04.03", "2026.05.25", "2026.06.19",
+      "2026.07.03", "2026.09.07", "2026.11.26", "2026.12.25",
+      // 2026 — OpEx weeks (Mon–Fri)
+      "2026.03.16", "2026.03.17", "2026.03.18", "2026.03.19", "2026.03.20",
+      "2026.06.15", "2026.06.16", "2026.06.17", "2026.06.18",
+      "2026.09.14", "2026.09.15", "2026.09.16", "2026.09.17", "2026.09.18",
+      "2026.12.14", "2026.12.15", "2026.12.16", "2026.12.17", "2026.12.18"
    };
    string dailyOnly[] = {
-      "2026.03.19", "2026.03.20"
    };
    ArrayResize(g_falgoNonTradeDates, ArraySize(nonTrade));
    for(int i = 0; i < ArraySize(nonTrade); i++)

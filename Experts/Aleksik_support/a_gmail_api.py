@@ -1,4 +1,5 @@
 import base64
+import re
 from email import message_from_bytes
 import os
 import pickle
@@ -69,23 +70,74 @@ def extract_text(email_msg):
     return ""
 
 
-def extract_block(body_text, subject_line):
-    lines = body_text.splitlines()
+def _subject_is_plan_email(subject_line):
+    if not subject_line:
+        return False
+    if re.search(r"\bRecap\b", subject_line, re.I):
+        return False
+    return bool(re.search(r"\b(Daily|Weekly)\s+Plan\b", subject_line, re.I))
 
+
+def _lines_after_levels_of_interest(lines):
+    for i, line in enumerate(lines):
+        if "levels of interest" in line.lower():
+            return lines[i + 1 :]
+    return lines
+
+
+def _collect_would_target_lines(lines, max_lines=2):
+    target_lines = []
+    for line in lines:
+        if "would target" not in line.lower():
+            continue
+        stripped = line.strip()
+        if stripped:
+            target_lines.append(stripped)
+        if len(target_lines) >= max_lines:
+            break
+    return target_lines
+
+
+def extract_block(body_text, subject_line):
+    if not _subject_is_plan_email(subject_line):
+        return None
+
+    lines = body_text.splitlines()
+    scoped = _lines_after_levels_of_interest(lines)
+
+    target_lines = _collect_would_target_lines(scoped)
+    if target_lines:
+        return "\n".join([subject_line] + target_lines)
+
+    # Legacy marker fallback (older/newer wording variants)
+    marker_variants = (
+        email_body_text_marker,
+        "observe the behavior at",
+        "closely observe the behavior around",
+        "will closely observe",
+        "will observe",
+    )
     start_idx = None
     for i, line in enumerate(lines):
-        if email_body_text_marker in line:
+        lower = line.lower()
+        if any(marker in lower for marker in marker_variants):
             start_idx = i
             break
 
-    if start_idx is None:
-        return None
+    if start_idx is not None:
+        remaining = [l.strip() for l in lines[start_idx + 1 :] if l.strip()]
+        target_lines = _collect_would_target_lines(remaining)
+        if target_lines:
+            return "\n".join([subject_line] + target_lines)
+        if remaining:
+            return "\n".join([subject_line] + remaining[:2])
 
-    remaining = lines[start_idx + 1:]
-    remaining = [l for l in remaining if l.strip()]
-    content_lines = remaining[:2]
+    # Last resort: scan whole body
+    target_lines = _collect_would_target_lines(lines)
+    if target_lines:
+        return "\n".join([subject_line] + target_lines)
 
-    return "\n".join([subject_line] + content_lines)
+    return None
 
 
 # ============================================================
@@ -134,8 +186,11 @@ def main():
 
         if extracted:
             result = extracted
-        else:
+        elif _subject_is_plan_email(subject):
             result = f"{subject}\nMarker not found"
+        else:
+            print(f"Skip non-plan email: {subject}")
+            continue
 
         email_data.append({
             "time": int(msg_data.get("internalDate", "0")),

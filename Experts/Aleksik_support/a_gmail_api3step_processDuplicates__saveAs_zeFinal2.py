@@ -45,8 +45,42 @@ def normalize_level_list(levels):
 
 def load_raw(script_dir):
     path = os.path.join(script_dir, "a_gmail_api2step_parse_append_to_ALLRAW_output.txt")
+    if not os.path.exists(path):
+        return []
     with open(path, encoding="utf-8") as f:
-        return normalize_level_list(json.load(f))
+        try:
+            return normalize_level_list(json.load(f))
+        except json.JSONDecodeError:
+            return []
+
+
+def load_csv_levels(csv_path):
+    """Load existing zeFinal CSV rows into the same dict shape as ALLRAW."""
+    levels = []
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            cats = [c for c in row["categories"].split("_") if c]
+            levels.append({
+                "start": row["start"],
+                "end": row["end"],
+                "levelPrice": int(float(row["levelPrice"])),
+                "categories": cats,
+                "tag": row["tag"],
+            })
+    return normalize_level_list(levels)
+
+
+def level_row_key(lev):
+    return (lev["start"], lev["end"], lev["levelPrice"], lev["tag"])
+
+
+def merge_level_lists(*lists):
+    """Merge level lists; later lists overwrite earlier on identical row keys."""
+    merged = {}
+    for levels in lists:
+        for lev in levels:
+            merged[level_row_key(lev)] = lev
+    return list(merged.values())
 
 
 def build_weekly_prices_by_week(levels):
@@ -210,11 +244,22 @@ def sync_to_mt5_common_files(source_path):
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    levels = load_raw(script_dir)
+    out_path = os.path.join(script_dir, "levelsinfo_zeFinal.csv")
+
+    allraw_levels = load_raw(script_dir)
+    existing_levels = []
+    if os.path.exists(out_path):
+        existing_levels = load_csv_levels(out_path)
+        print(
+            f"Merge: {len(existing_levels)} existing zeFinal rows + "
+            f"{len(allraw_levels)} ALLRAW rows"
+        )
+
+    # Keep historical zeFinal rows; ALLRAW wins on duplicate keys (latest pull).
+    levels = merge_level_lists(existing_levels, allraw_levels)
     ensure_daily_weekdays(levels)
     week_prices = build_weekly_prices_by_week(levels)
     process_duplicates(levels, week_prices)
-    out_path = os.path.join(script_dir, "levelsinfo_zeFinal.csv")
     written, skipped_daily_stacked = write_csv(levels, out_path)
 
     # to jesli pullnę te same mejle, nie bedzie dupes

@@ -11672,5 +11672,105 @@
       "daily"
     ],
     "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7497,
+    "categories": [
+      "weekly",
+      "pivot"
+    ],
+    "tag": "weeklyPivot"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7556,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyUp1"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7640,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyUp2"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7670,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyUp3"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7700,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyUp4"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7735,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyUp5"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7444,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyDown1"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7390,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyDown2"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7360,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyDown3"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7300,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyDown4"
+  },
+  {
+    "start": "2026.07.06",
+    "end": "2026.07.10",
+    "levelPrice": 7250,
+    "categories": [
+      "weekly"
+    ],
+    "tag": "weeklyDown5"
   }
 ]

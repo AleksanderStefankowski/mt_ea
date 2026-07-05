@@ -2,7 +2,7 @@ import csv
 import json
 import os
 import re
-from calendar import month_name
+from calendar import month_abbr, month_name
 from datetime import datetime, timedelta
 
 
@@ -28,8 +28,9 @@ def normalize_level_list(levels):
 
 
 def month_to_number(month_str):
+    key = month_str.strip().lower()
     for i in range(1, 13):
-        if month_name[i].lower() == month_str.lower():
+        if month_name[i].lower() == key or month_abbr[i].lower() == key:
             return i
     raise ValueError(f"Invalid month: {month_str}")
 
@@ -80,7 +81,10 @@ def week_trading_span(anchor_iso, trading):
 
 
 def parse_daily_date(date_part):
-    single = re.match(r"^([A-Za-z]+)\s+(\d+),\s*(\d{4})$", date_part.strip())
+    single = re.match(
+        r"^([A-Za-z]+)\s+(\d+)(?:/\d+|-\d+)*,\s*(\d{4})$",
+        date_part.strip(),
+    )
     if not single:
         raise ValueError(f"Cannot parse daily date part: {date_part!r}")
 
@@ -92,7 +96,10 @@ def parse_daily_date(date_part):
 
 
 def parse_title_range(title, trading):
-    date_part = title.split("|")[1].strip()
+    parts = title.split("|")
+    if len(parts) < 2:
+        raise ValueError(f"No date part in title: {title!r}")
+    date_part = parts[1].strip()
     if "Weekly" in title:
         anchor = parse_first_date_in_title(date_part)
         return week_trading_span(anchor, trading)
@@ -125,8 +132,15 @@ def parse_plan(text, trading):
 
         title = lines[0]
 
-        category = "weekly" if "Weekly" in title else "daily"
-        start_date, end_date = parse_title_range(title, trading)
+        if "Marker not found" in title or not re.search(r"\b(Daily|Weekly)\s+Plan\b", title, re.I):
+            continue
+
+        try:
+            category = "weekly" if "Weekly" in title else "daily"
+            start_date, end_date = parse_title_range(title, trading)
+        except (ValueError, IndexError) as exc:
+            print(f"SKIP parse: {title!r} — {exc}")
+            continue
 
         pivot = None
         ups = []
