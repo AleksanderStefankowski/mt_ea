@@ -25,6 +25,7 @@ CSV_HEADERS = %w[
   tp
   sl
   profitfactor
+  projected_PF_if_next_future_trade_is_a_win
   projected_PF_if_next_future_trade_is_a_loss
   projected_PF_if_next_2_future_trades_is_a_loss
   traderate
@@ -86,6 +87,21 @@ def avg_loss_magnitude(trades)
   return nil if losers.empty?
 
   losers.sum { |t| t[:profit].to_f }.abs / losers.size
+end
+
+def avg_win_magnitude(trades)
+  winners = trades.select { |t| t[:profit].to_f > 0 }
+  return nil if winners.empty?
+
+  winners.sum { |t| t[:profit].to_f } / winners.size
+end
+
+def projected_pf_if_next_n_wins(trades, win_count)
+  avg_win = avg_win_magnitude(trades)
+  return nil if avg_win.nil?
+
+  gross_profit, gross_loss = gross_profit_and_loss(trades)
+  profit_factor_from_gross(gross_profit + (win_count * avg_win), gross_loss)
 end
 
 def projected_pf_if_next_n_losses(trades, loss_count)
@@ -291,6 +307,7 @@ def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last
     tp: initial_tp,
     sl: initial_sl,
     profitfactor: format('%.2f', profit_factor(trades)),
+    projected_PF_if_next_future_trade_is_a_win: include_projected_pf ? format_projected_pf(projected_pf_if_next_n_wins(trades, 1)) : '',
     projected_PF_if_next_future_trade_is_a_loss: include_projected_pf ? format_projected_pf(projected_pf_if_next_n_losses(trades, 1)) : '',
     projected_PF_if_next_2_future_trades_is_a_loss: include_projected_pf ? format_projected_pf(projected_pf_if_next_n_losses(trades, 2)) : '',
     traderate: format('%.2f', trade_rate(trades, all_trading_day_count)),

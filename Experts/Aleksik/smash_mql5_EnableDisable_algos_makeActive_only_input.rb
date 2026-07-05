@@ -4,20 +4,33 @@
 MQ5_FILE = File.expand_path("aleksik.mq5", __dir__)
 
 ### enable the list, disable all other
+#  to lecialo i wyszlo niedobrze bo too many stacked at once
+# algos_to_enable = <<TEXT
+# 117
+# 118
+# 119
+# 120
+# 121
+# 122
+# 123
+# 124
+# 125
+# 126
+# 128
+# 129
+# 130
+# 131
+# TEXT
+
+# retry all
 algos_to_enable = <<TEXT
-117
-118
-119
-120
-121
-122
-123
-124
-125
 126
+132
+123
+120
+119
+138
 128
-129
-130
 131
 TEXT
 
