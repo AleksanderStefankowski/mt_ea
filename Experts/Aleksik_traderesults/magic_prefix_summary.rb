@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require_relative 'analyze_traderate_common'
 
 # =========================================================
 # CONFIG
@@ -35,17 +36,10 @@ def winrate(trades)
   (wins.to_f / trades.size) * 100.0
 end
 
-def unique_trade_days(trades)
-  trades
-    .map { |t| t[:date] }
-    .reject(&:empty?)
-    .uniq
-end
-
-def trade_rate(trades, total_trading_days)
+def trade_rate_percent(trades, total_trading_days)
   return 0.0 if total_trading_days.zero?
 
-  (unique_trade_days(trades).size.to_f / total_trading_days) * 100.0
+  (countable_unique_trade_days(trades).size.to_f / total_trading_days) * 100.0
 end
 
 def sample_start_times(trades, max_samples = 5)
@@ -101,7 +95,9 @@ if rows.empty?
   exit 1
 end
 
-all_trading_day_count = unique_trade_days(rows).size
+first_date, last_date, all_trading_day_count = trade_date_range(rows)
+all_full_week_mondays =
+  countable_mon_fri_weeks_in_date_range(first_date, last_date)
 all_sessions_in_data =
   rows
     .map { |t| t[:session] }
@@ -109,8 +105,14 @@ all_sessions_in_data =
     .uniq
     .sort
 
-$stderr.puts "Loaded trades: #{rows.size}"
-$stderr.puts "Days with any level trade: #{all_trading_day_count}"
+print_loaded_trade_span_summary(
+  trade_count: rows.size,
+  first_date: first_date,
+  last_date: last_date,
+  trading_day_count: all_trading_day_count,
+  full_week_mondays: all_full_week_mondays,
+  io: $stderr
+)
 $stderr.puts
 
 magic_groups = rows.group_by { |r| r[:magic_prefix] }
@@ -136,7 +138,7 @@ csv_out = CSV.generate do |out|
       magic_prefix,
       sessions_detected(trades, all_sessions_in_data),
       trades.size,
-      format('%.2f', trade_rate(trades, all_trading_day_count)),
+      format('%.2f', trade_rate_percent(trades, all_trading_day_count)),
       format('%.2f', profit_factor(trades)),
       format('%.2f', winrate(trades)),
       format('%.2f', net_profit(trades)),

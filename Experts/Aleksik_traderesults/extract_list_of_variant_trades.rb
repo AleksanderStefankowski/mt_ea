@@ -2,6 +2,7 @@
 
 require 'csv'
 require_relative '../Aleksik/smash_mql5_algo_reader_lib'
+require_relative 'analyze_traderate_common'
 
 FM = SmashMql5AlgoReader::FalgoMagic
 
@@ -156,24 +157,17 @@ def winrate(trades)
   (wins.to_f / trades.size) * 100.0
 end
 
-def unique_trade_days(trades)
-  trades
-    .map { |t| t[:date] }
-    .reject(&:empty?)
-    .uniq
-end
-
-def trade_rate(trades, total_trading_days)
+def trade_rate_percent(trades, total_trading_days)
   return 0.0 if total_trading_days.zero?
 
-  (unique_trade_days(trades).size.to_f / total_trading_days) * 100.0
+  (countable_unique_trade_days(trades).size.to_f / total_trading_days) * 100.0
 end
 
 def group_stats(trades, all_trading_day_count)
   {
     grp_trades: trades.size,
     grp_pf: profit_factor(trades).round(2),
-    grp_traderate: trade_rate(trades, all_trading_day_count).round(2),
+    grp_traderate: trade_rate_percent(trades, all_trading_day_count).round(2),
     grp_winrate: winrate(trades).round(2),
     grp_net_profit: net_profit(trades).round(2)
   }
@@ -213,7 +207,7 @@ csv.each do |row|
   matched_trades << trade
 end
 
-all_trading_day_count = unique_trade_days(all_trades).size
+_, _, all_trading_day_count = trade_date_range(all_trades)
 
 CSV.open(OUTPUT, 'w', write_headers: true, headers: csv.headers) do |out|
   matched_rows.each { |row| out << row }

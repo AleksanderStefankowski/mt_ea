@@ -3,6 +3,7 @@
 require 'csv'
 require 'date'
 require 'set'
+require_relative 'analyze_traderate_common'
 
 # =========================================================
 # CONFIG
@@ -119,92 +120,6 @@ def format_projected_pf(pf)
   format('%.2f', pf)
 end
 
-def parse_trade_date(date_str)
-  Date.parse(date_str.gsub('.', '-'))
-end
-
-def weekday?(date)
-  !date.saturday? && !date.sunday?
-end
-
-def weekday_count_in_range(first_date, last_date)
-  count = 0
-  date = first_date
-
-  while date <= last_date
-    count += 1 if weekday?(date)
-    date += 1
-  end
-
-  count
-end
-
-def trade_date_range(trades)
-  dates =
-    trades
-      .map { |t| t[:date] }
-      .reject(&:empty?)
-      .map { |d| parse_trade_date(d) }
-
-  return [nil, nil, 0] if dates.empty?
-
-  first_date = dates.min
-  last_date = dates.max
-
-  [first_date, last_date, weekday_count_in_range(first_date, last_date)]
-end
-
-def unique_trade_days(trades)
-  trades
-    .map { |t| t[:date] }
-    .reject(&:empty?)
-    .uniq
-end
-
-def trade_rate(trades, total_trading_days)
-  return 0.0 if total_trading_days.zero?
-
-  unique_trade_days(trades).size.to_f / total_trading_days
-end
-
-def monday_of_week(date)
-  date - ((date.wday + 6) % 7)
-end
-
-def mon_fri_weeks_in_date_range(first_date, last_date)
-  return [] if first_date.nil? || last_date.nil?
-
-  first_monday = monday_of_week(first_date)
-  last_monday = monday_of_week(last_date)
-
-  full_weeks = []
-  monday = first_monday
-  while monday <= last_monday
-    weekdays = (0..4).map { |i| monday + i }
-    full_weeks << monday if weekdays.all? { |d| d >= first_date && d <= last_date }
-    monday += 7
-  end
-  full_weeks
-end
-
-def traded_full_week_count(trades, full_week_mondays)
-  return 0 if full_week_mondays.nil? || full_week_mondays.empty?
-
-  full_week_set = full_week_mondays.to_set
-  unique_trade_days(trades)
-    .map { |d| parse_trade_date(d) }
-    .compact
-    .map { |d| monday_of_week(d) }
-    .uniq
-    .count { |monday| full_week_set.include?(monday) }
-end
-
-def weekly_trade_rate(trades, full_week_mondays)
-  return 0.0 if full_week_mondays.nil? || full_week_mondays.empty?
-
-  traded_full_week_count(trades, full_week_mondays).to_f / full_week_mondays.size
-end
-
 def daily_net_profit_by_date(trades)
   trades.each_with_object({}) do |trade, totals|
     next if trade[:date].empty?
@@ -300,7 +215,7 @@ def format_date(date)
 end
 
 def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last_date, all_trading_day_count, full_week_mondays, include_projected_pf:)
-  traded_days_count = unique_trade_days(trades).size
+  traded_days_count = countable_unique_trade_days(trades).size
 
   {
     magicprefix: magic_prefix,
@@ -358,12 +273,16 @@ end
 first_date, last_date, all_trading_day_count = trade_date_range(rows)
 
 all_full_week_mondays =
-  mon_fri_weeks_in_date_range(first_date, last_date)
+  countable_mon_fri_weeks_in_date_range(first_date, last_date)
 
-$stderr.puts "Loaded trades: #{rows.size}"
-$stderr.puts "Date range: #{first_date} -> #{last_date}"
-$stderr.puts "Weekdays in range (excl. weekends): #{all_trading_day_count}"
-$stderr.puts "Mon-Fri weeks in date range: #{all_full_week_mondays.size}"
+print_loaded_trade_span_summary(
+  trade_count: rows.size,
+  first_date: first_date,
+  last_date: last_date,
+  trading_day_count: all_trading_day_count,
+  full_week_mondays: all_full_week_mondays,
+  io: $stderr
+)
 if EXCLUDE_PREFIXES_MODE
   excluded = rows.count { |t| trade_excluded?(t) }
   $stderr.puts "EXCLUDE_PREFIXES_MODE: excluding prefixes #{excluded_prefixes.inspect} (#{excluded} trades dropped)"

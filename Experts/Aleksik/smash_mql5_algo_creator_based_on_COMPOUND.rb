@@ -117,6 +117,22 @@ def print_capacity_report(content, row_count)
   )
 end
 
+def print_created_by_parent_summary(created)
+  return if created.empty?
+
+  by_parent =
+    created
+      .group_by { |c| c[:source_id] }
+      .transform_values(&:size)
+      .sort_by { |parent_id, _| parent_id }
+
+  puts
+  puts 'Created quant algos by parent (magic_prefix):'
+  by_parent.each do |parent_id, count|
+    puts format('  %d => %d', parent_id, count)
+  end
+end
+
 def run_compound_bulk!(csv_path:, dry_run: false)
   rows = load_compound_rows(csv_path)
   content = read_mq5
@@ -140,6 +156,11 @@ def run_compound_bulk!(csv_path:, dry_run: false)
       )
     end
     puts "  ... (#{rows.size - 5} more)" if rows.size > 5
+    dry_run_created =
+      rows.map do |row|
+        { source_id: row[:magic_prefix] }
+      end
+    print_created_by_parent_summary(dry_run_created)
     return rows.size
   end
 
@@ -172,6 +193,7 @@ def run_compound_bulk!(csv_path:, dry_run: false)
   puts
   puts "Created #{created.size} quant algo(s) in #{MQ5_FILE}"
   puts "New IDs: #{created.map { |c| c[:new_id] }.join(', ')}"
+  print_created_by_parent_summary(created)
   created.size
 end
 

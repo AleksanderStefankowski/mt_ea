@@ -6,6 +6,7 @@ require 'set'
 require_relative '../Aleksik/smash_mql5_algo_reader_lib'
 require_relative 'analyze_subvariants_csv_common'
 require_relative 'analyze_subvariants_shared_config'
+require_relative 'analyze_traderate_common'
 
 FM = SmashMql5AlgoReader::FalgoMagic
 
@@ -148,62 +149,6 @@ def winrate(trades)
     trades.count { |t| t[:profit].to_f > 0 }
 
   (wins.to_f / trades.size) * 100.0
-end
-
-def unique_trade_days(trades)
-  trades
-    .map { |t| t[:date] }
-    .reject(&:empty?)
-    .uniq
-end
-
-def trade_rate(trades, total_trading_days)
-  return 0.0 if total_trading_days.zero?
-
-  unique_trade_days(trades).size.to_f / total_trading_days
-end
-
-def parse_trade_date(date_str)
-  return nil if date_str.nil? || date_str.to_s.strip.empty?
-
-  Date.strptime(date_str.to_s.strip, '%Y.%m.%d')
-rescue ArgumentError
-  nil
-end
-
-def monday_of_week(date)
-  date - ((date.wday + 6) % 7)
-end
-
-def mon_fri_weeks_in_date_range(first_date, last_date)
-  return [] if first_date.nil? || last_date.nil?
-
-  first_monday = monday_of_week(first_date)
-  last_monday = monday_of_week(last_date)
-
-  full_weeks = []
-  monday = first_monday
-  while monday <= last_monday
-    weekdays = (0..4).map { |i| monday + i }
-    full_weeks << monday if weekdays.all? { |d| d >= first_date && d <= last_date }
-    monday += 7
-  end
-  full_weeks
-end
-
-def weekly_trade_rate(trades, full_week_mondays)
-  return 0.0 if full_week_mondays.nil? || full_week_mondays.empty?
-
-  full_week_set = full_week_mondays.to_set
-  traded_full_weeks =
-    unique_trade_days(trades)
-      .map { |d| parse_trade_date(d) }
-      .compact
-      .map { |d| monday_of_week(d) }
-      .uniq
-      .count { |monday| full_week_set.include?(monday) }
-
-  traded_full_weeks.to_f / full_week_mondays.size
 end
 
 def passes_minimum_trade_rate?(trades, total_trading_days)
@@ -354,9 +299,9 @@ csv =
     col_sep: ","
   )
 
-puts "Detected headers:"
-puts csv.headers.inspect
-puts
+progress_puts "Detected headers:"
+progress_puts csv.headers.inspect
+progress_puts
 
 rows = []
 
@@ -425,21 +370,18 @@ csv.each do |row|
   rows << trade
 end
 
-puts "Loaded trades: #{rows.size}"
-
-all_trading_day_count =
-  unique_trade_days(rows).size
-
-all_trading_dates =
-  unique_trade_days(rows)
-    .map { |d| parse_trade_date(d) }
-    .compact
+first_date, last_date, all_trading_day_count = trade_date_range(rows)
 
 all_full_week_mondays =
-  mon_fri_weeks_in_date_range(all_trading_dates.min, all_trading_dates.max)
+  countable_mon_fri_weeks_in_date_range(first_date, last_date)
 
-puts "Days with any trade: #{all_trading_day_count}"
-puts "Mon-Fri weeks in date range: #{all_full_week_mondays.size}"
+print_trade_span_summary(
+  trade_count: rows.size,
+  first_date: first_date,
+  last_date: last_date,
+  trading_day_count: all_trading_day_count,
+  full_week_mondays: all_full_week_mondays
+)
 
 if rows.empty?
   puts
@@ -451,8 +393,8 @@ end
 # VARIABLE DISCOVERY
 # =========================================================
 
-puts
-puts "Discovering variables..."
+progress_puts
+progress_puts "Discovering variables..."
 
 base_variables = [
   :session,
@@ -479,9 +421,9 @@ dynamic_variables =
 all_variables =
   base_variables + dynamic_variables
 
-puts "Base variables: #{base_variables.size}"
-puts "Dynamic variables: #{dynamic_variables.size}"
-puts "Total variables: #{all_variables.size}"
+progress_puts "Base variables: #{base_variables.size}"
+progress_puts "Dynamic variables: #{dynamic_variables.size}"
+progress_puts "Total variables: #{all_variables.size}"
 
 # =========================================================
 # ROOT GROUPING
@@ -490,11 +432,11 @@ puts "Total variables: #{all_variables.size}"
 magic_groups =
   rows.group_by { |r| r[:magic_prefix] }
 
-puts
-puts "Magic prefix groups:"
+progress_puts
+progress_puts "Magic prefix groups:"
 
 magic_groups.each do |k, v|
-  puts "#{k} => #{v.size} trades"
+  progress_puts "#{k} => #{v.size} trades"
 end
 
 results = []
@@ -503,20 +445,20 @@ results = []
 # ANALYSIS
 # =========================================================
 
-puts
-puts "Starting analysis..."
+progress_puts
+progress_puts "Starting analysis..."
 
 ANALYSIS_SETS.each do |analysis_set|
 
-  puts
-  puts "#" * 80
-  puts "ANALYSIS SET: #{analysis_set[:name]}"
-  puts "#" * 80
+  progress_puts
+  progress_puts "#" * 80
+  progress_puts "ANALYSIS SET: #{analysis_set[:name]}"
+  progress_puts "#" * 80
 
   set_variables =
     variables_for_analysis_set(all_variables, analysis_set)
 
-  puts "Variables in set: #{set_variables.size}"
+  progress_puts "Variables in set: #{set_variables.size}"
 
   magic_groups.each do |magic_prefix, prefix_trades|
 
@@ -525,16 +467,16 @@ ANALYSIS_SETS.each do |analysis_set|
 
     next if trades.empty?
 
-    puts
-    puts "-" * 80
-    puts "MAGIC PREFIX #{magic_prefix} [#{analysis_set[:name]}]"
-    puts "Trades: #{trades.size}"
-    puts "-" * 80
+    progress_puts
+    progress_puts "-" * 80
+    progress_puts "MAGIC PREFIX #{magic_prefix} [#{analysis_set[:name]}]"
+    progress_puts "Trades: #{trades.size}"
+    progress_puts "-" * 80
 
     (1..MAX_COMBINATION_SIZE).each do |combo_size|
 
-      puts
-      puts "Combination size #{combo_size}"
+      progress_puts
+      progress_puts "Combination size #{combo_size}"
 
       set_variables
         .combination(combo_size)
@@ -588,12 +530,19 @@ puts format(
   results.size
 )
 
+results =
+  AnalyzeSubvariantsCsvCommon.drop_redundant_full_results!(
+    results,
+    magic_groups: magic_groups,
+    analysis_sets: ANALYSIS_SETS
+  )
+
 # =========================================================
 # SORT RESULTS
 # =========================================================
 
-puts
-puts "Sorting results..."
+progress_puts
+progress_puts "Sorting results..."
 
 results.sort_by! do |r|
   [

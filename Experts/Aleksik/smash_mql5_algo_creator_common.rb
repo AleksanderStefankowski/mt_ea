@@ -24,6 +24,17 @@ module SmashMql5AlgoCreatorCommon
     'FRI' => 5
   }.freeze
 
+  LEVEL_TAG_NAMES = (
+    %w[dailyPivot weeklyPivot todayRTHopen] +
+    %w[Up Down].flat_map { |dir| (1..3).map { |n| "daily#{dir}#{n}" } } +
+    %w[Up Down].flat_map { |dir| (1..3).map { |n| "weekly#{dir}#{n}" } }
+  ).freeze
+
+  LEVEL_TAG_RULES =
+    LEVEL_TAG_NAMES.to_h do |name|
+      ["levelTag=#{name}", %(AlgoRuleAdd_LevelTag(slotIdx, "#{name}"))]
+    end.freeze
+
   RULE_CATALOG = {
     'clean streak / anchor' => {
       'cleanStreakLong' => 'AlgoRuleAdd_CleanStreakLong(slotIdx, a.min_cleanOHLC_streak_count, a.min_anchorAbove_cleanStreak)',
@@ -79,13 +90,7 @@ module SmashMql5AlgoCreatorCommon
       'openGap_info=gapUp_Day' => 'AlgoRuleAdd_DayGapUpRequired(slotIdx)',
       'openGap_info=gapDown_Day' => 'AlgoRuleAdd_DayGapDownRequired(slotIdx)'
     },
-    'level tag' => {
-      'levelTag=dailyPivot' => 'AlgoRuleAdd_LevelTagDailyPivot(slotIdx)',
-      'levelTag=dailyUp1' => 'AlgoRuleAdd_LevelTagDailyUp1(slotIdx)',
-      'levelTag=dailyDown1' => 'AlgoRuleAdd_LevelTagDailyDown1(slotIdx)',
-      'levelTag=weeklyUp1' => 'AlgoRuleAdd_LevelTagWeeklyUp1(slotIdx)',
-      'levelTag=todayRTHopen' => 'AlgoRuleAdd_LevelTagTodayRthOpen(slotIdx)'
-    },
+    'level tag' => LEVEL_TAG_RULES,
     'session' => {
       'session=ON' => 'AlgoRuleAdd_Session(slotIdx, "ON")',
       'session=RTH-IB' => 'AlgoRuleAdd_Session(slotIdx, "RTH-IB")',
@@ -554,7 +559,12 @@ module SmashMql5AlgoCreatorCommon
   end
 
   def rule_call_signature(mql5_line)
-    mql5_line.strip.sub(/;\z/, '')[/AlgoRuleAdd_\w+/, 0]
+    line = mql5_line.strip.sub(/;\z/, '')
+    if (m = line.match(/\AAlgoRuleAdd_LevelTag\(slotIdx,\s*"([^"]+)"\)/))
+      return "AlgoRuleAdd_LevelTag:#{m[1]}"
+    end
+
+    line[/AlgoRuleAdd_\w+/, 0]
   end
 
   def mql5_line_for_rule_token(token)

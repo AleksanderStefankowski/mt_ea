@@ -9,6 +9,7 @@ require 'set'
 require_relative '../Aleksik/smash_mql5_algo_reader_lib'
 require_relative 'analyze_subvariants_csv_common'
 require_relative 'analyze_subvariants_shared_config'
+require_relative 'analyze_traderate_common'
 
 FM = SmashMql5AlgoReader::FalgoMagic
 
@@ -159,62 +160,6 @@ def winrate(trades)
     trades.count { |t| t[:profit].to_f > 0 }
 
   (wins.to_f / trades.size) * 100.0
-end
-
-def unique_trade_days(trades)
-  trades
-    .map { |t| t[:date] }
-    .reject(&:empty?)
-    .uniq
-end
-
-def trade_rate(trades, total_trading_days)
-  return 0.0 if total_trading_days.zero?
-
-  unique_trade_days(trades).size.to_f / total_trading_days
-end
-
-def parse_trade_date(date_str)
-  return nil if date_str.nil? || date_str.to_s.strip.empty?
-
-  Date.strptime(date_str.to_s.strip, '%Y.%m.%d')
-rescue ArgumentError
-  nil
-end
-
-def monday_of_week(date)
-  date - ((date.wday + 6) % 7)
-end
-
-def mon_fri_weeks_in_date_range(first_date, last_date)
-  return [] if first_date.nil? || last_date.nil?
-
-  first_monday = monday_of_week(first_date)
-  last_monday = monday_of_week(last_date)
-
-  full_weeks = []
-  monday = first_monday
-  while monday <= last_monday
-    weekdays = (0..4).map { |i| monday + i }
-    full_weeks << monday if weekdays.all? { |d| d >= first_date && d <= last_date }
-    monday += 7
-  end
-  full_weeks
-end
-
-def weekly_trade_rate(trades, full_week_mondays)
-  return 0.0 if full_week_mondays.nil? || full_week_mondays.empty?
-
-  full_week_set = full_week_mondays.to_set
-  traded_full_weeks =
-    unique_trade_days(trades)
-      .map { |d| parse_trade_date(d) }
-      .compact
-      .map { |d| monday_of_week(d) }
-      .uniq
-      .count { |monday| full_week_set.include?(monday) }
-
-  traded_full_weeks.to_f / full_week_mondays.size
 end
 
 def passes_minimum_trade_rate?(trades, total_trading_days)
@@ -429,16 +374,18 @@ csv.each do |row|
   rows << trade
 end
 
-all_trading_day_count =
-  unique_trade_days(rows).size
-
-all_trading_dates =
-  unique_trade_days(rows)
-    .map { |d| parse_trade_date(d) }
-    .compact
+first_date, last_date, all_trading_day_count = trade_date_range(rows)
 
 all_full_week_mondays =
-  mon_fri_weeks_in_date_range(all_trading_dates.min, all_trading_dates.max)
+  countable_mon_fri_weeks_in_date_range(first_date, last_date)
+
+print_trade_span_summary(
+  trade_count: rows.size,
+  first_date: first_date,
+  last_date: last_date,
+  trading_day_count: all_trading_day_count,
+  full_week_mondays: all_full_week_mondays
+)
 
 if rows.empty?
   all_prefixes_in_file =
@@ -537,6 +484,13 @@ ANALYSIS_SETS.each do |analysis_set|
 end
 
 results = filter_results_by_pf_trade_count_anchor(results)
+
+results =
+  AnalyzeSubvariantsCsvCommon.drop_redundant_full_results!(
+    results,
+    magic_groups: magic_groups,
+    analysis_sets: ANALYSIS_SETS
+  )
 
 results.sort_by! do |r|
   [-r[:pf], -r[:net_profit], -r[:trades]]
