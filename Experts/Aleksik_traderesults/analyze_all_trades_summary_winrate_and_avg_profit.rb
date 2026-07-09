@@ -19,6 +19,38 @@ EXCLUDE_PREFIXES = [
     "11"
 ]
 
+INCLUDE_PREFIXES_MODE = true # one magic prefix per line below (no commas)
+INCLUDE_PREFIXES = <<~INCLUDE_PREFIXES
+121
+124
+129
+138
+142
+120
+133
+127
+155
+157
+130
+141
+144
+206
+171
+174
+192
+182
+189
+268
+226
+137
+162
+153
+183
+INCLUDE_PREFIXES
+
+CHECK_ONLY_A_DATERANGE = true
+CHECK_ONLY_A_DATERANGE_LATEST_X_WEEKS = 15
+
 def excluded_prefixes
   EXCLUDE_PREFIXES
     .flat_map { |p| p.to_s.split(',') }
@@ -26,14 +58,94 @@ def excluded_prefixes
     .reject(&:empty?)
 end
 
+def normalize_magic_prefix(value)
+  value.to_s.strip.rjust(3, '0')
+end
+
+def included_prefixes
+  INCLUDE_PREFIXES
+    .lines
+    .map(&:strip)
+    .reject(&:empty?)
+    .reject { |line| line.start_with?('#') }
+    .map { |p| normalize_magic_prefix(p) }
+    .uniq
+end
+
 def trade_excluded?(trade)
   EXCLUDE_PREFIXES_MODE && excluded_prefixes.include?(trade[:magic_prefix])
+end
+
+def trade_included?(trade)
+  included_prefixes.include?(trade[:magic_prefix])
+end
+
+def apply_include_prefixes(trades)
+  return trades unless INCLUDE_PREFIXES_MODE
+
+  trades.select { |t| trade_included?(t) }
 end
 
 def apply_exclude_prefixes(trades)
   return trades unless EXCLUDE_PREFIXES_MODE
 
   trades.reject { |t| trade_excluded?(t) }
+end
+
+def apply_prefix_filters(trades)
+  apply_exclude_prefixes(apply_include_prefixes(trades))
+end
+
+def print_include_prefixes_summary(before_count, after_count, trades, io: $stderr)
+  return unless INCLUDE_PREFIXES_MODE
+
+  prefixes = included_prefixes
+  found_prefixes = trades.map { |t| t[:magic_prefix] }.uniq.sort
+  missing_prefixes = prefixes - found_prefixes
+
+  io.puts format(
+    'INCLUDE_PREFIXES_MODE: keeping prefixes %s (%d trades kept from %d)',
+    prefixes.join(', '),
+    after_count,
+    before_count
+  )
+  io.puts "Included prefixes with trades (#{found_prefixes.size}): #{found_prefixes.join(', ')}" if found_prefixes.any?
+  if missing_prefixes.any?
+    io.puts "Included prefixes with no trades (#{missing_prefixes.size}): #{missing_prefixes.join(', ')}"
+  end
+end
+
+def apply_latest_weeks_date_filter(trades, week_count)
+  return trades if week_count.nil? || week_count <= 0
+
+  _, last_date, = trade_date_range(trades)
+  return trades if last_date.nil?
+
+  filter_start = monday_of_week(last_date) - ((week_count - 1) * 7)
+
+  trades.select do |trade|
+    trade_date = parse_trade_date(trade[:date])
+    trade_date && trade_date >= filter_start && trade_date <= last_date
+  end
+end
+
+def apply_date_range_filter(trades)
+  return trades unless CHECK_ONLY_A_DATERANGE
+
+  apply_latest_weeks_date_filter(trades, CHECK_ONLY_A_DATERANGE_LATEST_X_WEEKS)
+end
+
+def print_date_range_filter_summary(before_count, after_count, filtered_first_date, filtered_last_date, io: $stderr)
+  return unless CHECK_ONLY_A_DATERANGE
+
+  io.puts format(
+    'CHECK_ONLY_A_DATERANGE: latest %d weeks (%s .. %s), %d trades kept from %d',
+    CHECK_ONLY_A_DATERANGE_LATEST_X_WEEKS,
+    format_trade_span_date(filtered_first_date),
+    format_trade_span_date(filtered_last_date),
+    after_count,
+    before_count
+  )
 end
 
 def winrate(trades)
@@ -258,6 +370,14 @@ if rows.empty?
   exit 1
 end
 
+loaded_trade_count = rows.size
+rows = apply_date_range_filter(rows)
+
+if rows.empty?
+  $stderr.puts 'ERROR: No trades left after date-range filter.'
+  exit 1
+end
+
 first_date, last_date, all_trading_day_count = trade_date_range(rows)
 
 all_full_week_mondays =
@@ -271,14 +391,24 @@ print_loaded_trade_span_summary(
   full_week_mondays: all_full_week_mondays,
   io: $stderr
 )
+print_date_range_filter_summary(loaded_trade_count, rows.size, first_date, last_date)
 $stderr.puts "Days with any trade in file: #{unique_trade_days(rows).size}"
+
+prefix_filter_before_count = rows.size
+rows_for_all_trades = apply_prefix_filters(rows)
+
+if rows_for_all_trades.empty?
+  $stderr.puts 'ERROR: No trades left after prefix filter.'
+  exit 1
+end
+
+print_include_prefixes_summary(prefix_filter_before_count, rows_for_all_trades.size, rows_for_all_trades)
+
 if EXCLUDE_PREFIXES_MODE
   excluded = rows.count { |t| trade_excluded?(t) }
   $stderr.puts "EXCLUDE_PREFIXES_MODE: excluding prefixes #{excluded_prefixes.inspect} (#{excluded} trades dropped from ALL TRADES output)"
 end
 $stderr.puts
-
-rows_for_all_trades = apply_exclude_prefixes(rows)
 
 # =========================================================
 # OUTPUT
