@@ -1,4 +1,4 @@
-//+------------------------------------------------------------------+
+   //+------------------------------------------------------------------+
 //|                                                    aleksik.mq5 |
 //+------------------------------------------------------------------+
 //|                   MetaTrader 5 Only (MT5-specific code)          |
@@ -50,8 +50,10 @@ string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if tru: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     bigflipper_log_algo_trade_results_csv             = false; // (date)_summaryZ_tradeResults_ALL_Day_algoN.csv
-bool     bigflipper_log_summary_tradeResults_all_days      = true;  // summary_tradeResults_all_days.tsv (family-wide)
-bool     bigflipper_log_summary_tradeResults_all_days_algo = false; // summary_tradeResults_all_days_algoN.tsv (per algo)
+bool     bigflipper_log_summary_tradeResults_all_days      = true;  // summary_tradeResults_all_days.tsv (level family only)
+bool     bigflipper_log_summary_tradeResults_all_days_algo = false; // summary_tradeResults_all_days_algoN.tsv (per level algo)
+bool     bigflipper_log_summary_tradeResults_all_days_breakdown = true;  // summary_tradeResults_all_days_breakdown.tsv
+bool     bigflipper_log_breakdown_trade_lifetime             = true;  // bdalgoN_alltrades_log.csv — one file per algo for whole run
 //--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
 bool     dailyLog_algoFamilyDayStartWeekPerspective = true;  // (date)_algofamily_dayStart_weekPerspective.csv — today-loaded levels vs week M1 at day start only
 bool     dailyEODlog_PullingHistoryAlgoFamily = false;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
@@ -72,6 +74,7 @@ int      per_second_log_start_hour                         =   10;  // shared in
 int      per_second_log_start_minute                       =  33;
 int      per_second_log_end_hour                           =  10;  // shared inclusive window end (server time)
 int      per_second_log_end_minute                         =  36;
+bool     backtest_profile_enabled                          = true;   // strategy tester only: section wall-time → backtest_profile_*.tsv
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_referencePoints_movingLookback_seconds = 180;  // bookmark moving trade-result context: bar at (startTime - this); refs, dayBrokePDH/PDL
@@ -101,6 +104,7 @@ bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but
 
 double   g_global_base_trade_size = 0.001; //  0.001 min. bookmark9 basetradesize basesize defaultsize globalsize
 #define TRADE_VARIANT_COUNT_MAX_LOTSIZE 4.0
+const double one_lot_equals_xPLN = 65000.0;  // PLN notional per 1.0 lot; 0.001 lot => 65 PLN deposit equivalent
 const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000000.0; //  5000000.0/ PLN budget ceiling vs ValidateBaseTradeSizeVsAccountBudgetOnInit()
 
 // OnTimer (1s): FatalError if (used margin / equity)×100 exceeds this (terminal-style deposit load as % of equity locked in margin). 0 = disabled.
@@ -192,6 +196,198 @@ ulong    g_onTimerDuration_maxUsToday = 0;
 int      g_onTimerDuration_samplesToday = 0;
 datetime g_onTimerDuration_logged2130ForDay = 0;
 
+//--- Backtest section profiler (GetMicrosecondCount wall time; tester only when backtest_profile_enabled)
+#define BACKTEST_PROF_FALGO_PLACEMENT           0
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT       1
+#define BACKTEST_PROF_GATES_LOG_PER_SECOND      2
+#define BACKTEST_PROF_GATES_LOG_PER_MINUTE      3
+#define BACKTEST_PROF_BABYSIT                   4
+#define BACKTEST_PROF_TELEMETRY_PER_SEC         5
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_NEW_DAY      6
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES   7
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_RTH_PDC        8
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_EXPAND_DIFFS   9
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_BREAKS        10
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_STREAKS       11
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_ABOVE_BELOW   12
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_TRACK_SETUP 13
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_FORWARD_PASS 14
+#define BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_CLOSEST_SNAP 15
+#define BACKTEST_PROF_TRADE_RESULTS_HISTORY     16
+#define BACKTEST_PROF_M1_BAR_CLOSE_OTHER        17
+#define BACKTEST_PROF_ONTIMER_TOTAL             18
+#define BACKTEST_PROF_SECTION_COUNT             19
+
+struct BacktestProfBucket
+{
+   ulong totalUs;
+   ulong maxUs;
+   int   calls;
+};
+
+BacktestProfBucket g_backtestProfRunTotals[BACKTEST_PROF_SECTION_COUNT];
+BacktestProfBucket g_backtestProfDayTotals[BACKTEST_PROF_SECTION_COUNT];
+datetime           g_backtestProfTrackingDayStart = 0;
+
+//+------------------------------------------------------------------+
+bool BacktestProfileEnabled()
+{
+   if(!backtest_profile_enabled)
+      return false;
+   return (bool)MQLInfoInteger(MQL_TESTER);
+}
+
+//+------------------------------------------------------------------+
+string BacktestProfSectionLabel(const int section)
+{
+   switch(section)
+   {
+      case BACKTEST_PROF_FALGO_PLACEMENT:          return "falgo_placement";
+      case BACKTEST_PROF_BREAKDOWN_PLACEMENT:      return "breakdown_placement";
+      case BACKTEST_PROF_GATES_LOG_PER_SECOND:     return "gates_log_per_second";
+      case BACKTEST_PROF_GATES_LOG_PER_MINUTE:     return "gates_log_per_minute";
+      case BACKTEST_PROF_BABYSIT:                  return "babysit";
+      case BACKTEST_PROF_TELEMETRY_PER_SEC:        return "telemetry_per_sec";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_NEW_DAY:       return "update_day_m1_levels_new_day_reload";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES:    return "update_day_m1_levels_copy_rates";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_RTH_PDC:       return "update_day_m1_levels_rth_pdc_levels";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_EXPAND_DIFFS:   return "update_day_m1_levels_expand_diffs";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_BREAKS:        return "update_day_m1_levels_breaks";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_STREAKS:       return "update_day_m1_levels_streaks";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_ABOVE_BELOW:   return "update_day_m1_levels_above_below_session";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_TRACK_SETUP: return "update_day_m1_levels_pullinghistory_track_setup";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_FORWARD_PASS: return "update_day_m1_levels_pullinghistory_forward_pass";
+      case BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_CLOSEST_SNAP: return "update_day_m1_levels_pullinghistory_closest_snap";
+      case BACKTEST_PROF_TRADE_RESULTS_HISTORY:    return "trade_results_history";
+      case BACKTEST_PROF_M1_BAR_CLOSE_OTHER:       return "m1_bar_close_other";
+      case BACKTEST_PROF_ONTIMER_TOTAL:            return "ontimer_total";
+   }
+   return "unknown";
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfZeroBuckets(BacktestProfBucket &buckets[])
+{
+   for(int i = 0; i < BACKTEST_PROF_SECTION_COUNT; i++)
+   {
+      buckets[i].totalUs = 0;
+      buckets[i].maxUs = 0;
+      buckets[i].calls = 0;
+   }
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfAccumulate(const int section, const ulong t0)
+{
+   if(section < 0 || section >= BACKTEST_PROF_SECTION_COUNT)
+      return;
+   const ulong elapsed = GetMicrosecondCount() - t0;
+   g_backtestProfRunTotals[section].totalUs += elapsed;
+   g_backtestProfRunTotals[section].calls++;
+   if(elapsed > g_backtestProfRunTotals[section].maxUs)
+      g_backtestProfRunTotals[section].maxUs = elapsed;
+   g_backtestProfDayTotals[section].totalUs += elapsed;
+   g_backtestProfDayTotals[section].calls++;
+   if(elapsed > g_backtestProfDayTotals[section].maxUs)
+      g_backtestProfDayTotals[section].maxUs = elapsed;
+}
+
+//+------------------------------------------------------------------+
+ulong BacktestProfSumProfiledUsExceptOnTimer(const BacktestProfBucket &buckets[])
+{
+   ulong sum = 0;
+   for(int i = 0; i < BACKTEST_PROF_ONTIMER_TOTAL; i++)
+      sum += buckets[i].totalUs;
+   return sum;
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfWriteBucketRows(const int fh, const string datePrefix, const BacktestProfBucket &buckets[])
+{
+   const ulong denomUs = BacktestProfSumProfiledUsExceptOnTimer(buckets);
+   for(int i = 0; i < BACKTEST_PROF_SECTION_COUNT; i++)
+   {
+      if(buckets[i].calls <= 0 && buckets[i].totalUs == 0)
+         continue;
+      const double totalMs = (double)buckets[i].totalUs / 1000.0;
+      const double totalS = (double)buckets[i].totalUs / 1000000.0;
+      const double totalMin = totalS / 60.0;
+      const double avgMs = (buckets[i].calls > 0) ? totalMs / (double)buckets[i].calls : 0.0;
+      const double maxMs = (double)buckets[i].maxUs / 1000.0;
+      const double pct = (i == BACKTEST_PROF_ONTIMER_TOTAL || denomUs == 0) ? 0.0 :
+         100.0 * (double)buckets[i].totalUs / (double)denomUs;
+      if(StringLen(datePrefix) > 0)
+      {
+         FileWrite(fh, datePrefix, BacktestProfSectionLabel(i),
+            DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(buckets[i].calls),
+            DoubleToString(avgMs, 3), DoubleToString(maxMs, 3), DoubleToString(pct, 1));
+      }
+      else
+      {
+         FileWrite(fh, BacktestProfSectionLabel(i),
+            DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(buckets[i].calls),
+            DoubleToString(avgMs, 3), DoubleToString(maxMs, 3), DoubleToString(pct, 1));
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfWriteDayRows(const datetime dayStart, const BacktestProfBucket &buckets[])
+{
+   const string dateStr = TimeToString(dayStart, TIME_DATE);
+   const string fileName = "backtest_profile_by_day.tsv";
+   int fh = FileOpen(fileName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   const bool writeHeader = (FileSize(fh) == 0);
+   FileSeek(fh, 0, SEEK_END);
+   if(writeHeader)
+      FileWrite(fh, "date", "section", "total_s", "total_minutes", "calls", "avg_ms", "max_ms", "pct_of_profiled");
+   BacktestProfWriteBucketRows(fh, dateStr, buckets);
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfFlushCurrentDayIfNeeded()
+{
+   if(!BacktestProfileEnabled() || g_backtestProfTrackingDayStart == 0)
+      return;
+   BacktestProfWriteDayRows(g_backtestProfTrackingDayStart, g_backtestProfDayTotals);
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfOnTimerDayRollover(const datetime dayStart)
+{
+   if(!BacktestProfileEnabled())
+      return;
+   if(g_backtestProfTrackingDayStart == 0)
+   {
+      g_backtestProfTrackingDayStart = dayStart;
+      return;
+   }
+   if(dayStart == g_backtestProfTrackingDayStart)
+      return;
+   BacktestProfWriteDayRows(g_backtestProfTrackingDayStart, g_backtestProfDayTotals);
+   BacktestProfZeroBuckets(g_backtestProfDayTotals);
+   g_backtestProfTrackingDayStart = dayStart;
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfWriteRunSummary()
+{
+   if(!BacktestProfileEnabled())
+      return;
+   BacktestProfFlushCurrentDayIfNeeded();
+   const string fileName = "backtest_profile_run_summary.tsv";
+   int fh = FileOpen(fileName, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileWrite(fh, "section", "total_s", "total_minutes", "calls", "avg_ms", "max_ms", "pct_of_profiled");
+   BacktestProfWriteBucketRows(fh, "", g_backtestProfRunTotals);
+   FileClose(fh);
+   Print("Backtest profile: ", fileName, " and backtest_profile_by_day.tsv (Tester Files folder)");
+}
+
 //--- Live price (updated every OnTimer ~1s); use for proximity/display without reading terminal each time
 double g_liveBid = 0.0;
 double g_liveAsk = 0.0;
@@ -235,6 +431,7 @@ struct LevelExpandedRow
    double levelPrice;
    string tag;
    string categories;  // from CSV; used to exclude tertiary from break-check summary
+   string categoriesLower;  // lowercase copy; hot paths avoid repeated StringToLower
    int    count;      // number of bars
    double diffs[];    // newway_Diff_CloseToLevel = close - levelPrice per bar
    datetime times[];  // bar time per bar
@@ -573,6 +770,93 @@ struct AlgoDef
 AlgoSharedProfile g_algoShared;
 AlgoDef           g_algos[ALGO_FAMILY_REGISTRY_MAX];
 int               g_algoCount = 0;
+
+//--- Breakdown algo family (magic 200..299): M15 breakdown signal algos — no levels
+#define BREAKDOWN_ALGO_REGISTRY_MAX           12
+#define BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM    11  // reserve slots for planned 8+ algos before all are wired in breakdowncreator1
+#define MAGIC_BREAKDOWN_FAMILY_SLOT_MIN        200
+#define MAGIC_BREAKDOWN_FAMILY_SLOT_MAX        299
+
+struct BreakdownAlgoSharedProfile
+{
+   int    tradeSizePct;
+   string bannedRanges;
+   string tradesDays;
+   bool   babysit_enabled;
+   bool   blockPlacementIfFamilyOpenOrPending;
+   int    stop_trading_today_if_AllAlgos_losing_trades_count;
+   int    stop_trading_today_if_AllAlgos_winning_trades_count;
+   int    stop_trading_if_day_has_X_wins_0_losses;
+   double stop_trading_if_day_has_profit_factor_above;
+};
+
+struct BreakdownAlgoDef
+{
+   int            algo_id;
+   bool           enabled;
+   AlgoPerAlgoTune tune;
+   int            expiry_minutes;
+   int            max_trades_per_breakdown_per_day;
+   double         entryrange_rangespot;       // entry on low→firstGreen range: 50=midpoint, 33=lower retrace
+   int            min_breakdown_sequence_len;
+   double         min_breakdown_total_percent;
+   int            entry_max_minutes_after_bdend;
+   int            forget_about_latest_breakdown_after_x_15m_candles;  // 0=never forget; gates stop reporting breakdownEndTooOld after endTime + N*15m
+   bool           closetrade_after_some_time;
+   bool           closetrade_after_some_time_butOnlyIfProfit;
+   double         closetrade_after_some_time_but_ProfitNeeded;  // min open P/L % vs lot×one_lot_equals_xPLN
+   int            closetrade_after_x_minutes_from_breakdown;  // minutes after g_breakdown15mSnap.endTime; needs closetrade_after_some_time
+   bool           sl_enabled;
+   double         sl_points;
+   bool           secret_tp_enabled;
+   int            secret_tp_range_percent;
+   bool           tp_enabled;
+   int            tp_notsecret_range_percent;  // % of (startHigh-breakdownLow) from low; 100=start, 120/150=above start
+   int            max_open_positions;          // max simultaneous open positions + pending orders (carryover days OK)
+};
+
+BreakdownAlgoSharedProfile g_breakdownAlgoShared;
+BreakdownAlgoDef           g_breakdownAlgos[BREAKDOWN_ALGO_REGISTRY_MAX];
+int                        g_breakdownAlgoCount = 0;
+int                        g_breakdownAlgoDayWins[BREAKDOWN_ALGO_REGISTRY_MAX];
+int                        g_breakdownAlgoDayLosses[BREAKDOWN_ALGO_REGISTRY_MAX];
+int                        g_breakdownFamilyDayWins = 0;
+int                        g_breakdownFamilyDayLosses = 0;
+double                     g_breakdownFamilyDayGrossProfit = 0.0;
+double                     g_breakdownFamilyDayGrossLossAbs = 0.0;
+datetime                   g_breakdownGatesLastLoggedBarTime[BREAKDOWN_ALGO_REGISTRY_MAX];
+datetime                   g_breakdownGatesPerSecondLastLoggedTime[BREAKDOWN_ALGO_REGISTRY_MAX];
+bool                       g_breakdownFamilyHadCloseThisPipelinePass = false;
+int                        g_breakdownAlgoPlanTradeNumToday[BREAKDOWN_ALGO_REGISTRY_MAX];
+int                        g_breakdownAlgoLevelTradeNumToday[BREAKDOWN_ALGO_REGISTRY_MAX];
+datetime                   g_breakdownAlgoLastPlacedEndTime[BREAKDOWN_ALGO_REGISTRY_MAX];
+double                     g_breakdownAlgoLastPlacedStartHigh[BREAKDOWN_ALGO_REGISTRY_MAX];
+double                     g_breakdownAlgoLastPlacedBreakdownLow[BREAKDOWN_ALGO_REGISTRY_MAX];
+
+#define BREAKDOWN_OPEN_LIFETIME_MAX 32
+#define BREAKDOWN_PENDING_PLANNED_MAX 32
+
+struct BreakdownOpenTradeLifetimeRec
+{
+   ulong    positionId;
+   int      algoNumber;
+   datetime startTime;
+   datetime breakdownSequenceEndTime;
+   double   plannedPrice;
+   double   startPrice;
+   string   pendingCloseReason;
+   bool     active;
+};
+
+struct BreakdownPendingPlannedPriceRec
+{
+   long     magic;
+   double   plannedPrice;
+   bool     active;
+};
+
+BreakdownOpenTradeLifetimeRec  g_breakdownOpenLifetime[BREAKDOWN_OPEN_LIFETIME_MAX];
+BreakdownPendingPlannedPriceRec g_breakdownPendingPlannedPrice[BREAKDOWN_PENDING_PLANNED_MAX];
 
 // Base calendar overrides (YYYY.MM.DD): non-trade days block all placement; daily-only days restrict to daily/stacked levels.
 string g_falgoNonTradeDates[];
@@ -2543,7 +2827,8 @@ void PullingHistoryAlgoFamilyClearClosestFields(PullingHistoryAlgoFamilyBarSnap 
 //+------------------------------------------------------------------+
 void PullingHistoryAlgoFamilyFillClosestFields(PullingHistoryAlgoFamilyBarSnap &snap,
    const WeeklyLevelAlgoFamilyDayState &st, const int expandedIdx,
-   const double h, const double l, const datetime barTime)
+   const double h, const double l, const datetime barTime,
+   const AlgoFamilyLevelDayStatsAtBar &statsAtBar)
 {
    snap.closestWeeklyLevelToCClose = st.levelPrice;
    snap.closestWeeklyLevelExpandedIdx = expandedIdx;
@@ -2559,15 +2844,9 @@ void PullingHistoryAlgoFamilyFillClosestFields(PullingHistoryAlgoFamilyBarSnap &
    snap.closestWeeklyLevel_BounceCount_today = st.bounceCount_today;
    snap.closestWeeklyLevel_CeilingCount_today = st.ceilingCount_today;
    snap.closestWeeklyLevel_CeilingProximityCandles_today = st.ceilingProximityCandles_today;
-   snap.closestWeeklyLevel_BounceCount_recent =
-      AlgoFamilyCountEventTimesInLookbackMinutes(st.bounceEventTimes, st.bounceEventCount,
-         barTime, AlgoFamilyRecentBounceLookbackMinutes());
-   snap.closestWeeklyLevel_CeilingCount_recent =
-      AlgoFamilyCountEventTimesInLookbackMinutes(st.ceilingEventTimes, st.ceilingEventCount,
-         barTime, AlgoFamilyRecentCeilingLookbackMinutes());
-   snap.closestWeeklyLevel_CeilingProximityCandles_recent =
-      AlgoFamilyCountEventTimesInLookbackMinutes(st.ceilingProximityCandleTimes, st.ceilingProximityCandleCount,
-         barTime, AlgoFamilyRecentCeilingLookbackMinutes());
+   snap.closestWeeklyLevel_BounceCount_recent = statsAtBar.bounceCount_recent;
+   snap.closestWeeklyLevel_CeilingCount_recent = statsAtBar.ceilingCount_recent;
+   snap.closestWeeklyLevel_CeilingProximityCandles_recent = statsAtBar.ceilingProximityCandles_recent;
    snap.closestWeeklyLevel_physicalContactCount_today = st.physicalContactCount_today;
    snap.closestWeeklyLevel_contactAndProximityCount_today = st.contactAndProximityCount_today;
 }
@@ -2577,6 +2856,11 @@ void PullingHistoryAlgoFamilyFillClosestFields(PullingHistoryAlgoFamilyBarSnap &
 //+------------------------------------------------------------------+
 void UpdatePullingHistoryAlgoFamilyPerBarStats()
 {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
    g_weeklyAlgoFamilyTrackCount = 0;
    for(int levelIdx = 0; levelIdx < g_levelsTodayCount && g_weeklyAlgoFamilyTrackCount < MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS; levelIdx++)
    {
@@ -2588,10 +2872,19 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
    for(int trackIdx = 0; trackIdx < g_weeklyAlgoFamilyTrackCount; trackIdx++)
       ResetWeeklyLevelAlgoFamilyDayState(states[trackIdx], g_levelsExpanded[g_weeklyAlgoFamilyTrackExpandedIdx[trackIdx]].levelPrice);
 
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_TRACK_SETUP, profT0);
+
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
       double o = g_m1Rates[barIdx].open, h = g_m1Rates[barIdx].high, l = g_m1Rates[barIdx].low, c = g_m1Rates[barIdx].close;
       datetime barTime = g_m1Rates[barIdx].time;
+      int closestWeeklyTrackIdx = -1;
+      double closestWeeklyDist = 1e300;
+      int closestDailyTrackIdx = -1;
+      double closestDailyDist = 1e300;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       for(int trackIdx = 0; trackIdx < g_weeklyAlgoFamilyTrackCount; trackIdx++)
       {
          double lvl = states[trackIdx].levelPrice;
@@ -2689,26 +2982,24 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].anchorAbove = states[trackIdx].anchorAbove;
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].anchorBelow = states[trackIdx].anchorBelow;
          g_algoFamilyLevelStatsAtBar[trackIdx][barIdx].cleanStreakCount = states[trackIdx].cleanStreakCount;
-      }
 
-      int closestWeeklyTrackIdx = -1;
-      double closestWeeklyDist = 1e300;
-      int closestDailyTrackIdx = -1;
-      double closestDailyDist = 1e300;
-      for(int trackIdx = 0; trackIdx < g_weeklyAlgoFamilyTrackCount; trackIdx++)
-      {
          const int expandedIdx = g_weeklyAlgoFamilyTrackExpandedIdx[trackIdx];
-         const string categories = g_levelsExpanded[expandedIdx].categories;
-         const double d = MathAbs(c - states[trackIdx].levelPrice);
-         if(LevelEligibleForAlgoLevelScope(categories, true, false, barTime))
+         const string cLower = g_levelsExpanded[expandedIdx].categoriesLower;
+         const double d = MathAbs(c - lvl);
+         if(LevelEligibleForAlgoLevelScopeLower(cLower, true, false, barTime))
          {
             if(d < closestWeeklyDist) { closestWeeklyDist = d; closestWeeklyTrackIdx = trackIdx; }
          }
-         if(LevelEligibleForAlgoLevelScope(categories, false, true, barTime))
+         if(LevelEligibleForAlgoLevelScopeLower(cLower, false, true, barTime))
          {
             if(d < closestDailyDist) { closestDailyDist = d; closestDailyTrackIdx = trackIdx; }
          }
       }
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_FORWARD_PASS, profT0);
+
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       const double candleAvg = (o + h + l + c) / 4.0;
       g_pullingHistoryAlgoFamilyWeeklyAtBar[barIdx].currentCandle_AvgOf_OHLCnumbers = candleAvg;
       g_pullingHistoryAlgoFamilyDailyAtBar[barIdx].currentCandle_AvgOf_OHLCnumbers = candleAvg;
@@ -2716,12 +3007,16 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
          PullingHistoryAlgoFamilyClearClosestFields(g_pullingHistoryAlgoFamilyWeeklyAtBar[barIdx]);
       else
          PullingHistoryAlgoFamilyFillClosestFields(g_pullingHistoryAlgoFamilyWeeklyAtBar[barIdx],
-            states[closestWeeklyTrackIdx], g_weeklyAlgoFamilyTrackExpandedIdx[closestWeeklyTrackIdx], h, l, barTime);
+            states[closestWeeklyTrackIdx], g_weeklyAlgoFamilyTrackExpandedIdx[closestWeeklyTrackIdx], h, l, barTime,
+            g_algoFamilyLevelStatsAtBar[closestWeeklyTrackIdx][barIdx]);
       if(closestDailyTrackIdx < 0)
          PullingHistoryAlgoFamilyClearClosestFields(g_pullingHistoryAlgoFamilyDailyAtBar[barIdx]);
       else
          PullingHistoryAlgoFamilyFillClosestFields(g_pullingHistoryAlgoFamilyDailyAtBar[barIdx],
-            states[closestDailyTrackIdx], g_weeklyAlgoFamilyTrackExpandedIdx[closestDailyTrackIdx], h, l, barTime);
+            states[closestDailyTrackIdx], g_weeklyAlgoFamilyTrackExpandedIdx[closestDailyTrackIdx], h, l, barTime,
+            g_algoFamilyLevelStatsAtBar[closestDailyTrackIdx][barIdx]);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_CLOSEST_SNAP, profT0);
    }
 }
 
@@ -2845,6 +3140,9 @@ int CountOverlapBarsInRange(double level, int fromBar, int toBar)
 //+------------------------------------------------------------------+
 void UpdateDayM1AndLevelsExpanded()
 {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+
    datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    string dateStr = TimeToString(dayStart, TIME_DATE);  // YYYY.MM.DD (MT5 default)
    string dayKey = dateStr;  // levels stored as YYYY.MM.DD
@@ -2852,6 +3150,8 @@ void UpdateDayM1AndLevelsExpanded()
    // On new day: reload levels for this day only (by time range); close level log handles before rebuild
    if(dateStr != g_levelsLoadedForDate)
    {
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       for(int i = 0; i < ArraySize(levels); i++)
          if(levels[i].logRawEv_fileHandle != INVALID_HANDLE)
             { FileClose(levels[i].logRawEv_fileHandle); levels[i].logRawEv_fileHandle = INVALID_HANDLE; }
@@ -2862,24 +3162,35 @@ void UpdateDayM1AndLevelsExpanded()
       RefreshAlgoFamilyDayStartWeekPerspective(g_lastTimer1Time);
       dayStat_spreadHighestSeen = 0.0;  // reset for new day
       dayStat_spreadLowestSeen = 0.0;
+      for(int bsi = 0; bsi < BREAKDOWN_ALGO_REGISTRY_MAX; bsi++)
+      {
+         g_breakdownAlgoLastPlacedEndTime[bsi] = 0;
+         g_breakdownAlgoLastPlacedStartHigh[bsi] = 0.0;
+         g_breakdownAlgoLastPlacedBreakdownLow[bsi] = 0.0;
+      }
+      ZeroMemory(g_breakdown15mSnap);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_NEW_DAY, profT0);
    }
 
    MqlDateTime mtDay;
    TimeToStruct(dayStart, mtDay);
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    MqlRates m1Rates[];
    int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
-   if(barsFromDayStart < 0) { g_barsInDay = 0; g_m1DayStart = 0; return; }
+   if(barsFromDayStart < 0) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
 
    int countToCopy = barsFromDayStart + 1;
    int copied = CopyRates(_Symbol, PERIOD_M1, 0, countToCopy, m1Rates);
-   if(copied <= 0) { g_barsInDay = 0; g_m1DayStart = 0; return; }
+   if(copied <= 0) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
 
    int barsInDay = 0;
    for(int barIdx = 0; barIdx < copied; barIdx++)
       if(TimeToString(m1Rates[barIdx].time, TIME_DATE) == dateStr) barsInDay++;
 
-   if(barsInDay <= 0 || barsInDay > MAX_BARS_IN_DAY) { g_barsInDay = 0; g_m1DayStart = 0; return; }
+   if(barsInDay <= 0 || barsInDay > MAX_BARS_IN_DAY) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
 
    int idxDay = 0;
    for(int barIdx = 0; barIdx < copied && idxDay < barsInDay; barIdx++)
@@ -2890,7 +3201,11 @@ void UpdateDayM1AndLevelsExpanded()
    }
    g_barsInDay = barsInDay;
    g_m1DayStart = dayStart;
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0);
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    // No cash-style RTH open on calendar Sunday; resolving it can fatal (sparse M1 vs 14:30 desync target).
    if(IsCalendarDaySunday(dayStart))
       g_todayRTHopenValid = false;
@@ -2902,7 +3217,11 @@ void UpdateDayM1AndLevelsExpanded()
    }
 
    TryAddPDrthCloseLevel(dateStr);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_RTH_PDC, profT0);
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
    g_levelsTodayCount = 0;
    for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
@@ -2913,6 +3232,8 @@ void UpdateDayM1AndLevelsExpanded()
       g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[levelIdx].levelPrice;
       g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[levelIdx].tag;
       g_levelsExpanded[g_levelsTodayCount].categories = g_levels[levelIdx].categories;
+      g_levelsExpanded[g_levelsTodayCount].categoriesLower = g_levels[levelIdx].categories;
+      StringToLower(g_levelsExpanded[g_levelsTodayCount].categoriesLower);
       g_levelsExpanded[g_levelsTodayCount].count      = g_barsInDay;
       ArrayResize(g_levelsExpanded[g_levelsTodayCount].diffs, g_barsInDay);
       ArrayResize(g_levelsExpanded[g_levelsTodayCount].times, g_barsInDay);
@@ -2923,7 +3244,11 @@ void UpdateDayM1AndLevelsExpanded()
       }
       g_levelsTodayCount++;
    }
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_EXPAND_DIFFS, profT0);
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    // Per (level levelIdx, bar barIdx): breaksLevelDown / breaksLevelUpward from candle open/close vs level
    for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
       for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
@@ -2932,7 +3257,11 @@ void UpdateDayM1AndLevelsExpanded()
          g_breaksLevelDown[levelIdx][barIdx]   = (g_m1Rates[barIdx].open > levelPrice && g_m1Rates[barIdx].close < levelPrice);
          g_breaksLevelUpward[levelIdx][barIdx] = (g_m1Rates[barIdx].open < levelPrice && g_m1Rates[barIdx].close > levelPrice);
       }
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_BREAKS, profT0);
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    // Per (level levelIdx, bar barIdx): all level-bar stats in one forward pass (streaks and counts incremental to avoid O(bars^2))
    for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
    {
@@ -2976,7 +3305,11 @@ void UpdateDayM1AndLevelsExpanded()
          prevAbove = curAbove; prevBelow = curBelow; prevOverlap = curOverlap;
       }
    }
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_STREAKS, profT0);
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:58-22:00)
    for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
    {
@@ -2992,6 +3325,8 @@ void UpdateDayM1AndLevelsExpanded()
       g_levelBelowL[barIdx] = belowL;
       g_session[barIdx] = GetSessionForCandleTime(g_m1Rates[barIdx].time);
    }
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_ABOVE_BELOW, profT0);
 
    UpdatePullingHistoryAlgoFamilyPerBarStats();
 }
@@ -3789,6 +4124,362 @@ int g_algoRegistryIds[] =
 };
 //algocreator1end
 
+//breakdowncreator1start
+#define MAGIC_BREAKDOWN200             200
+
+int g_breakdownRegistryIds[] =
+{
+   MAGIC_BREAKDOWN200
+};
+//breakdowncreator1end
+
+//+------------------------------------------------------------------+
+void RebuildBreakdownAlgoSlotsRegistry()
+{
+   g_breakdownAlgoCount = 0;
+   const int n = ArraySize(g_breakdownRegistryIds);
+   for(int i = 0; i < n; i++)
+   {
+      if(g_breakdownAlgoCount >= BREAKDOWN_ALGO_REGISTRY_MAX)
+         FatalError("RebuildBreakdownAlgoSlotsRegistry: BREAKDOWN_ALGO_REGISTRY_MAX exceeded");
+      g_breakdownAlgos[g_breakdownAlgoCount].algo_id = g_breakdownRegistryIds[i];
+      g_breakdownAlgoCount++;
+   }
+   if(BREAKDOWN_ALGO_REGISTRY_MAX > g_breakdownAlgoCount + BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM)
+      FatalError(StringFormat(
+         "BREAKDOWN_ALGO_REGISTRY_MAX=%d exceeds wired breakdown algo count %d by more than %d",
+         BREAKDOWN_ALGO_REGISTRY_MAX, g_breakdownAlgoCount, BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM));
+}
+
+//+------------------------------------------------------------------+
+int BreakdownAlgoSlotIndexByAlgoId(const int algoNumber)
+{
+   for(int i = 0; i < g_breakdownAlgoCount; i++)
+   {
+      if(g_breakdownAlgos[i].algo_id == algoNumber)
+         return i;
+   }
+   return -1;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownAlgoDefForNumber(const int algoNumber, BreakdownAlgoDef &outDef)
+{
+   const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(idx < 0)
+      return false;
+   outDef = g_breakdownAlgos[idx];
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool IsBreakdownFamilyAlgoNumber(const int algoNumber)
+{
+   return (algoNumber >= MAGIC_BREAKDOWN_FAMILY_SLOT_MIN && algoNumber <= MAGIC_BREAKDOWN_FAMILY_SLOT_MAX);
+}
+
+//+------------------------------------------------------------------+
+bool IsLevelFamilyAlgoNumber(const int algoNumber)
+{
+   return (algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= 199);
+}
+
+//+------------------------------------------------------------------+
+bool IsBreakdownFamilyCompositeMagic(const long magic)
+{
+   return IsBreakdownFamilyAlgoNumber(AlgoFamilyMagicNumber(magic));
+}
+
+//+------------------------------------------------------------------+
+bool IsLevelFamilyCompositeMagic(const long magic)
+{
+   return IsLevelFamilyAlgoNumber(AlgoFamilyMagicNumber(magic));
+}
+
+//+------------------------------------------------------------------+
+string BreakdownAlgoCsvFileName(const string dateStr, const int algoNumber, const string suffix)
+{
+   return dateStr + "_bdalgo" + IntegerToString(algoNumber) + "_" + suffix + ".csv";
+}
+
+//+------------------------------------------------------------------+
+string BreakdownTradeLifetimeRunLogFileName(const int algoNumber)
+{
+   return "bdalgo" + IntegerToString(algoNumber) + "_alltrades_log.csv";
+}
+
+//+------------------------------------------------------------------+
+void BreakdownRememberPendingPlannedPrice(const long magic, const double plannedPrice)
+{
+   if(magic <= 0 || plannedPrice <= 0.0)
+      return;
+   for(int i = 0; i < BREAKDOWN_PENDING_PLANNED_MAX; i++)
+   {
+      if(g_breakdownPendingPlannedPrice[i].active && g_breakdownPendingPlannedPrice[i].magic == magic)
+      {
+         g_breakdownPendingPlannedPrice[i].plannedPrice = plannedPrice;
+         return;
+      }
+   }
+   for(int i = 0; i < BREAKDOWN_PENDING_PLANNED_MAX; i++)
+   {
+      if(!g_breakdownPendingPlannedPrice[i].active)
+      {
+         g_breakdownPendingPlannedPrice[i].magic = magic;
+         g_breakdownPendingPlannedPrice[i].plannedPrice = plannedPrice;
+         g_breakdownPendingPlannedPrice[i].active = true;
+         return;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+double BreakdownTakePendingPlannedPrice(const long magic)
+{
+   for(int i = 0; i < BREAKDOWN_PENDING_PLANNED_MAX; i++)
+   {
+      if(g_breakdownPendingPlannedPrice[i].active && g_breakdownPendingPlannedPrice[i].magic == magic)
+      {
+         const double p = g_breakdownPendingPlannedPrice[i].plannedPrice;
+         g_breakdownPendingPlannedPrice[i].active = false;
+         return p;
+      }
+   }
+   return 0.0;
+}
+
+//+------------------------------------------------------------------+
+void BreakdownRegisterOpenTradeLifetime(const ulong positionId, const int algoNumber,
+   const datetime startTime, const datetime breakdownSequenceEndTime, const double plannedPrice, const double startPrice)
+{
+   if(positionId == 0 || algoNumber <= 0 || startTime <= 0)
+      return;
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
+      {
+         g_breakdownOpenLifetime[i].algoNumber = algoNumber;
+         g_breakdownOpenLifetime[i].startTime = startTime;
+         g_breakdownOpenLifetime[i].breakdownSequenceEndTime = breakdownSequenceEndTime;
+         g_breakdownOpenLifetime[i].plannedPrice = plannedPrice;
+         g_breakdownOpenLifetime[i].startPrice = startPrice;
+         return;
+      }
+   }
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(!g_breakdownOpenLifetime[i].active)
+      {
+         g_breakdownOpenLifetime[i].positionId = positionId;
+         g_breakdownOpenLifetime[i].algoNumber = algoNumber;
+         g_breakdownOpenLifetime[i].startTime = startTime;
+         g_breakdownOpenLifetime[i].breakdownSequenceEndTime = breakdownSequenceEndTime;
+         g_breakdownOpenLifetime[i].plannedPrice = plannedPrice;
+         g_breakdownOpenLifetime[i].startPrice = startPrice;
+         g_breakdownOpenLifetime[i].active = true;
+         return;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownOpenLifetimeBreakdownEnd(const ulong positionId, datetime &outBreakdownEnd)
+{
+   outBreakdownEnd = 0;
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
+      {
+         outBreakdownEnd = g_breakdownOpenLifetime[i].breakdownSequenceEndTime;
+         return (outBreakdownEnd > 0);
+      }
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownTakeOpenTradeLifetime(const ulong positionId, BreakdownOpenTradeLifetimeRec &outRec)
+{
+   ZeroMemory(outRec);
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
+      {
+         outRec = g_breakdownOpenLifetime[i];
+         g_breakdownOpenLifetime[i].active = false;
+         return true;
+      }
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+void BreakdownRememberPendingCloseReason(const ulong positionId, const string reason)
+{
+   if(positionId == 0 || reason == "")
+      return;
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
+         g_breakdownOpenLifetime[i].pendingCloseReason = reason;
+   }
+}
+
+string BreakdownTradeLifetimeCloseReasonFromExit(const ENUM_DEAL_REASON dealReason,
+   const ulong positionId, const long entryMagic, const datetime startTime);
+
+//+------------------------------------------------------------------+
+void BreakdownAppendTradeLifetimeLogRow(const int algoNumber, const datetime eventTime, const datetime startTime,
+   const string eventType, const string closeReason, const double plannedPrice, const double startPrice,
+   const double endPrice, const double lifetimeHours)
+{
+   if(!bigflipper_log_breakdown_trade_lifetime)
+      return;
+   if(!IsBreakdownFamilyAlgoNumber(algoNumber))
+      return;
+
+   const string fname = BreakdownTradeLifetimeRunLogFileName(algoNumber);
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) == 0)
+   {
+      FileWrite(fh, "eventTime", "startTime", "eventType", "close_reason",
+         "plannedPrice", "startPrice", "endPrice", "priceDiff", "lifetimeHours");
+   }
+   FileSeek(fh, 0, SEEK_END);
+   const bool hasEndPrice = (endPrice > 0.0);
+   const string priceDiffStr = (hasEndPrice && startPrice > 0.0)
+      ? DoubleToString(endPrice - startPrice, _Digits)
+      : "";
+   FileWrite(fh,
+      TimeToString(eventTime, TIME_DATE|TIME_SECONDS),
+      TimeToString(startTime, TIME_DATE|TIME_SECONDS),
+      eventType,
+      closeReason,
+      DoubleToString(plannedPrice, _Digits),
+      DoubleToString(startPrice, _Digits),
+      (hasEndPrice ? DoubleToString(endPrice, _Digits) : ""),
+      priceDiffStr,
+      (eventType == "trade closed" ? DoubleToString(lifetimeHours, 2) : ""));
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void BreakdownLogTradeOpenedLifetime(const ulong positionId, const long magic, const datetime fillTime,
+   const double fillPrice, const ulong orderTicket)
+{
+   if(!bigflipper_log_breakdown_trade_lifetime || !IsBreakdownFamilyCompositeMagic(magic))
+      return;
+   const int algoNumber = AlgoFamilyMagicNumber(magic);
+   if(!IsBreakdownFamilyAlgoNumber(algoNumber))
+      return;
+
+   double plannedPrice = BreakdownTakePendingPlannedPrice(magic);
+   if(plannedPrice <= 0.0 && orderTicket > 0 && HistoryOrderSelect(orderTicket))
+      plannedPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
+   if(plannedPrice <= 0.0)
+      plannedPrice = fillPrice;
+
+   const double startPrice = (fillPrice > 0.0 ? fillPrice : plannedPrice);
+   const datetime startTime = (fillTime > 0 ? fillTime : g_lastTimer1Time);
+   RefreshGlobalBreakdown15mSnap(startTime);
+   const datetime breakdownEnd = g_breakdown15mSnap.endTime;
+   BreakdownRegisterOpenTradeLifetime(positionId, algoNumber, startTime, breakdownEnd, plannedPrice, startPrice);
+   BreakdownAppendTradeLifetimeLogRow(algoNumber, startTime, startTime, "trade opened", "",
+      plannedPrice, startPrice, 0.0, 0.0);
+}
+
+//+------------------------------------------------------------------+
+void BreakdownLogTradeClosedLifetime(const ulong positionId, const long entryMagic, const datetime closeTime,
+   const double closePriceIn, const ENUM_DEAL_REASON dealReason)
+{
+   if(!bigflipper_log_breakdown_trade_lifetime || !IsBreakdownFamilyCompositeMagic(entryMagic))
+      return;
+
+   BreakdownOpenTradeLifetimeRec openRec;
+   datetime startTime = 0;
+   double plannedPrice = 0.0;
+   double startPrice = 0.0;
+   string pendingCloseReason = "";
+   int algoNumber = AlgoFamilyMagicNumber(entryMagic);
+   if(BreakdownTakeOpenTradeLifetime(positionId, openRec))
+   {
+      algoNumber = openRec.algoNumber;
+      startTime = openRec.startTime;
+      plannedPrice = openRec.plannedPrice;
+      startPrice = openRec.startPrice;
+      pendingCloseReason = openRec.pendingCloseReason;
+   }
+   else if(HistorySelectByPosition((long)positionId))
+   {
+      for(int j = 0; j < HistoryDealsTotal(); j++)
+      {
+         const ulong dealTicket = HistoryDealGetTicket(j);
+         if(dealTicket == 0)
+            continue;
+         if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(dealTicket, DEAL_ENTRY) != DEAL_ENTRY_IN)
+            continue;
+         startTime = (datetime)HistoryDealGetInteger(dealTicket, DEAL_TIME);
+         startPrice = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
+         plannedPrice = startPrice;
+         if(!IsBreakdownFamilyAlgoNumber(algoNumber))
+            algoNumber = AlgoFamilyMagicNumber(HistoryDealGetInteger(dealTicket, DEAL_MAGIC));
+         break;
+      }
+   }
+   if(!IsBreakdownFamilyAlgoNumber(algoNumber) || startTime <= 0)
+      return;
+
+   double closePrice = closePriceIn;
+   if(closePrice <= 0.0 && HistorySelectByPosition((long)positionId))
+   {
+      for(int j = HistoryDealsTotal() - 1; j >= 0; j--)
+      {
+         const ulong dealTicket = HistoryDealGetTicket(j);
+         if(dealTicket == 0)
+            continue;
+         if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(dealTicket, DEAL_ENTRY) != DEAL_ENTRY_OUT)
+            continue;
+         closePrice = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
+         break;
+      }
+   }
+
+   const datetime eventTime = (closeTime > 0 ? closeTime : g_lastTimer1Time);
+   const double lifetimeHours = (double)MathMax(0, eventTime - startTime) / 3600.0;
+   string closeReason = pendingCloseReason;
+   if(closeReason == "")
+      closeReason = BreakdownTradeLifetimeCloseReasonFromExit(dealReason, positionId, entryMagic, startTime);
+   BreakdownAppendTradeLifetimeLogRow(algoNumber, eventTime, startTime, "trade closed", closeReason,
+      plannedPrice, startPrice, closePrice, lifetimeHours);
+}
+
+//+------------------------------------------------------------------+
+string FalgoEodTradeResultsDailyCsvName(const string dateStr, const int algoNumber)
+{
+   if(IsBreakdownFamilyAlgoNumber(algoNumber))
+      return dateStr + "_summaryZ_tradeResults_ALL_Day_bdalgo" + IntegerToString(algoNumber) + ".csv";
+   return dateStr + "_summaryZ_tradeResults_ALL_Day_algo" + IntegerToString(algoNumber) + ".csv";
+}
+
+//+------------------------------------------------------------------+
+string FalgoAllDaysSummaryFileNameForAlgo(const int algoNumber)
+{
+   if(IsBreakdownFamilyAlgoNumber(algoNumber))
+      return "summary_tradeResults_all_days_bdalgo" + IntegerToString(algoNumber) + ".tsv";
+   return "summary_tradeResults_all_days_algo" + IntegerToString(algoNumber) + ".tsv";
+}
+
+//+------------------------------------------------------------------+
+bool FalgoAlgoRegisteredForEodTradeResults(const int algoNumber)
+{
+   return (AlgoSlotIndexByAlgoId(algoNumber) >= 0 || BreakdownAlgoSlotIndexByAlgoId(algoNumber) >= 0);
+}
+
 //+------------------------------------------------------------------+
 void RebuildAlgoSlotsRegistry()
 {
@@ -3837,6 +4528,13 @@ bool AlgoSlotTradesShort(const int algoNumber)
 //+------------------------------------------------------------------+
 bool AlgoProfileEnabled(const int algoNumber)
 {
+   if(IsBreakdownFamilyAlgoNumber(algoNumber))
+   {
+      const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+      if(idx < 0)
+         return false;
+      return g_breakdownAlgos[idx].enabled;
+   }
    const int idx = AlgoSlotIndexByAlgoId(algoNumber);
    if(idx < 0)
       return false;
@@ -3852,6 +4550,14 @@ bool AlgoFamilyBlocksPlacementOnOpenOrPending()
 //+------------------------------------------------------------------+
 bool AlgoLoadTuneForAlgo(const int algoNumber, AlgoPerAlgoTune &outTune)
 {
+   if(IsBreakdownFamilyAlgoNumber(algoNumber))
+   {
+      const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+      if(idx < 0)
+         return false;
+      outTune = g_breakdownAlgos[idx].tune;
+      return true;
+   }
    const int idx = AlgoSlotIndexByAlgoId(algoNumber);
    if(idx < 0)
       return false;
@@ -3883,7 +4589,7 @@ bool IsAlgoCompositeMagic(const long magic, const int algoNumber)
 bool IsAnyAlgoFamilyCompositeMagic(const long magic)
 {
    const int algoNumber = AlgoFamilyMagicNumber(magic);
-   return (algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= MAGIC_ALGO_FAMILY_SLOT_MAX);
+   return IsLevelFamilyAlgoNumber(algoNumber) || IsBreakdownFamilyAlgoNumber(algoNumber);
 }
 
 //+------------------------------------------------------------------+
@@ -3927,6 +4633,7 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 
 #define FALGO_MAGIC_LEVEL_SLOT_RTHO          0   // todayRTHopen
 #define FALGO_MAGIC_LEVEL_SLOT_PDRTHCLOSE    1   // PDrthClose (prior day RTH close)
+#define FALGO_MAGIC_LEVEL_SLOT_BREAKDOWN     2   // breakdown midpoint (no level row)
 #define FALGO_MAGIC_LEVEL_SLOT_TERTIARY      0   // alias: todayRTHopen
 #define FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MIN   10
 #define FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MAX   35
@@ -4043,6 +4750,11 @@ bool AlgoFamilyAnyEnabled()
       if(g_algos[i].enabled)
          return true;
    }
+   for(int i = 0; i < g_breakdownAlgoCount; i++)
+   {
+      if(g_breakdownAlgos[i].enabled)
+         return true;
+   }
    return false;
 }
 
@@ -4068,7 +4780,7 @@ bool AlgoEodTradeResultsLoggingEnabled(const int algoNumber)
 {
    if(!bigflipper_log_algo_trade_results_csv)
       return false;
-   return (AlgoSlotIndexByAlgoId(algoNumber) >= 0);
+   return FalgoAlgoRegisteredForEodTradeResults(algoNumber);
 }
 
 //+------------------------------------------------------------------+
@@ -4076,7 +4788,7 @@ bool AlgoEodTradeResultsAllDaysPerAlgoLoggingEnabled(const int algoNumber)
 {
    if(!bigflipper_log_summary_tradeResults_all_days_algo)
       return false;
-   return (AlgoSlotIndexByAlgoId(algoNumber) >= 0);
+   return FalgoAlgoRegisteredForEodTradeResults(algoNumber);
 }
 
 //+------------------------------------------------------------------+
@@ -4086,12 +4798,286 @@ bool AlgoFamilyEodTradeResultsAllDaysLoggingEnabled()
 }
 
 //+------------------------------------------------------------------+
+bool BreakdownFamilyEodTradeResultsAllDaysLoggingEnabled()
+{
+   return bigflipper_log_summary_tradeResults_all_days_breakdown;
+}
+
+//+------------------------------------------------------------------+
 bool AlgoLoadPerAlgoTune(const int algoNumber, AlgoPerAlgoTune &outTune)
 {
-   const int idx = AlgoSlotIndexByAlgoId(algoNumber);
+   return AlgoLoadTuneForAlgo(algoNumber, outTune);
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownAlgoSlotEnabled(const int algoNumber)
+{
+   const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
    if(idx < 0)
       return false;
-   return AlgoLoadTuneForAlgo(algoNumber, outTune);
+   return g_breakdownAlgos[idx].enabled;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownFamilyBlocksPlacementOnOpenOrPending()
+{
+   return g_breakdownAlgoShared.blockPlacementIfFamilyOpenOrPending;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownProfileAllowsNewOrdersAtTime(const datetime t)
+{
+   bool anyEnabled = false;
+   for(int i = 0; i < g_breakdownAlgoCount; i++)
+   {
+      if(g_breakdownAlgos[i].enabled)
+      {
+         anyEnabled = true;
+         break;
+      }
+   }
+   if(!anyEnabled)
+      return false;
+   if(!FalgoIsTradingDayAllowedAtTime(t))
+      return false;
+   if(!FalgoIsTradingTimeAllowed(t))
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownProfileAllowsNewOrdersNow()
+{
+   return BreakdownProfileAllowsNewOrdersAtTime(g_lastTimer1Time);
+}
+
+//+------------------------------------------------------------------+
+double GetTradeLotForBreakdown()
+{
+   return g_global_base_trade_size * ((double)g_breakdownAlgoShared.tradeSizePct / 100.0);
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownRulesetPassesDayStops(const int algoNumber)
+{
+   AlgoPerAlgoTune tune;
+   if(!AlgoLoadPerAlgoTune(algoNumber, tune))
+      return true;
+   const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(idx >= 0)
+   {
+      if(g_breakdownAlgoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_losing_trades_count)
+         return false;
+      if(g_breakdownAlgoDayWins[idx] >= tune.stop_trading_today_if_thisAlgo_winning_trades_count)
+         return false;
+      if(g_breakdownAlgoDayWins[idx] + g_breakdownAlgoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_total_trades_count)
+         return false;
+   }
+   if(g_breakdownFamilyDayLosses >= g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count)
+      return false;
+   if(g_breakdownFamilyDayWins >= g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count)
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownRulesetPassesCommonForPlacement(const int algoNumber, const int barIdx)
+{
+   if(!FalgoRulesetPassesCloseBarForAlgo(algoNumber, barIdx))
+      return false;
+   if(!BreakdownRulesetPassesDayStops(algoNumber))
+      return false;
+   if(!BreakdownUnderMaxOpenPositionsLimit(algoNumber))
+      return false;
+   if(BreakdownFamilyBlocksPlacementOnOpenOrPending())
+   {
+      if(BreakdownHasOpenPositionOnSymbol())
+         return false;
+      if(BreakdownHasPendingOrderOnSymbol())
+         return false;
+      if(g_breakdownFamilyHadCloseThisPipelinePass)
+         return false;
+   }
+   return true;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownHasOpenPositionOnSymbol()
+{
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(i))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      if(IsBreakdownFamilyCompositeMagic(ExtPositionInfo.Magic()))
+         return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownHasPendingOrderOnSymbol()
+{
+   for(int i = OrdersTotal() - 1; i >= 0; i--)
+   {
+      if(!ExtOrderInfo.SelectByIndex(i))
+         continue;
+      if(ExtOrderInfo.Symbol() != _Symbol)
+         continue;
+      if(IsBreakdownFamilyCompositeMagic(ExtOrderInfo.Magic()))
+         return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+int BreakdownOccupiedTradeSlotsForAlgo(const int algoNumber)
+{
+   int n = 0;
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(i))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      const long m = ExtPositionInfo.Magic();
+      if(!IsBreakdownFamilyCompositeMagic(m))
+         continue;
+      if(AlgoFamilyMagicNumber(m) == algoNumber)
+         n++;
+   }
+   for(int i = OrdersTotal() - 1; i >= 0; i--)
+   {
+      if(!ExtOrderInfo.SelectByIndex(i))
+         continue;
+      if(ExtOrderInfo.Symbol() != _Symbol)
+         continue;
+      const long m = ExtOrderInfo.Magic();
+      if(!IsBreakdownFamilyCompositeMagic(m))
+         continue;
+      if(AlgoFamilyMagicNumber(m) == algoNumber)
+         n++;
+   }
+   return n;
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownUnderMaxOpenPositionsLimit(const int algoNumber)
+{
+   BreakdownAlgoDef bd;
+   if(!BreakdownAlgoDefForNumber(algoNumber, bd))
+      return true;
+   if(bd.max_open_positions <= 0)
+      return true;
+   return BreakdownOccupiedTradeSlotsForAlgo(algoNumber) < bd.max_open_positions;
+}
+
+//+------------------------------------------------------------------+
+string BreakdownMaxOpenPositionsFailLabel(const int algoNumber)
+{
+   if(BreakdownUnderMaxOpenPositionsLimit(algoNumber))
+      return "";
+   BreakdownAlgoDef bd;
+   if(!BreakdownAlgoDefForNumber(algoNumber, bd))
+      return "maxOpenPositionsReached";
+   return StringFormat("maxOpenPositionsReached(%d/%d)",
+      BreakdownOccupiedTradeSlotsForAlgo(algoNumber), bd.max_open_positions);
+}
+
+//+------------------------------------------------------------------+
+int BreakdownPlanTradeNumToday(const int algoNumber)
+{
+   const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(idx < 0)
+      return 0;
+   return g_breakdownAlgoPlanTradeNumToday[idx];
+}
+
+//+------------------------------------------------------------------+
+int BreakdownLevelTradeNumTodayAtMagicLevelSlot(const int algoNumber, const int levelSlot)
+{
+   const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(idx < 0 || levelSlot < 0 || levelSlot >= FALGO_MAGIC_LEVEL_SLOT_COUNT)
+      return 0;
+   return g_breakdownAlgoLevelTradeNumToday[idx];
+}
+
+//+------------------------------------------------------------------+
+void BreakdownBumpPlanCountersAfterPlacement(const int algoNumber, const int levelSlot)
+{
+   const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(algoIdx < 0)
+      return;
+   g_breakdownAlgoPlanTradeNumToday[algoIdx]++;
+   if(FalgoMagicLevelSlotIsValid(levelSlot))
+      g_breakdownAlgoLevelTradeNumToday[algoIdx]++;
+}
+
+//+------------------------------------------------------------------+
+void UpdateBreakdownDayTradeCounts()
+{
+   const datetime dayStart = FalgoTradingDayStart();
+   static datetime s_breakdownDayTradeCountsDayStart = 0;
+   if(dayStart != 0 && s_breakdownDayTradeCountsDayStart != dayStart)
+   {
+      s_breakdownDayTradeCountsDayStart = dayStart;
+      g_breakdownFamilyDayWins = 0;
+      g_breakdownFamilyDayLosses = 0;
+      g_breakdownFamilyDayGrossProfit = 0.0;
+      g_breakdownFamilyDayGrossLossAbs = 0.0;
+      for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
+      {
+         g_breakdownAlgoDayWins[si] = 0;
+         g_breakdownAlgoDayLosses[si] = 0;
+         g_breakdownAlgoPlanTradeNumToday[si] = 0;
+         g_breakdownAlgoLevelTradeNumToday[si] = 0;
+         g_breakdownAlgoLastPlacedEndTime[si] = 0;
+         g_breakdownAlgoLastPlacedStartHigh[si] = 0.0;
+         g_breakdownAlgoLastPlacedBreakdownLow[si] = 0.0;
+      }
+   }
+
+   SyncBreakdownPlanCountersFromTradeResults();
+
+   int histFamilyWins = 0, histFamilyLosses = 0;
+   int histAlgoWins[BREAKDOWN_ALGO_REGISTRY_MAX];
+   int histAlgoLosses[BREAKDOWN_ALGO_REGISTRY_MAX];
+   for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
+   {
+      histAlgoWins[si] = 0;
+      histAlgoLosses[si] = 0;
+   }
+   const datetime dayEnd = (dayStart != 0) ? (dayStart + 86400) : 0;
+   for(int i = 0; i < g_tradeResultsCount; i++)
+   {
+      if(!g_tradeResults[i].foundOut)
+         continue;
+      if(!IsBreakdownFamilyCompositeMagic(g_tradeResults[i].magic))
+         continue;
+      if(dayStart != 0 && (g_tradeResults[i].endTime < dayStart || g_tradeResults[i].endTime >= dayEnd))
+         continue;
+      const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(g_tradeResults[i].magic));
+      if(g_tradeResults[i].profit > 0.0)
+      {
+         histFamilyWins++;
+         if(algoIdx >= 0)
+            histAlgoWins[algoIdx]++;
+      }
+      else if(g_tradeResults[i].profit < 0.0)
+      {
+         histFamilyLosses++;
+         if(algoIdx >= 0)
+            histAlgoLosses[algoIdx]++;
+      }
+   }
+   g_breakdownFamilyDayWins = MathMax(g_breakdownFamilyDayWins, histFamilyWins);
+   g_breakdownFamilyDayLosses = MathMax(g_breakdownFamilyDayLosses, histFamilyLosses);
+   for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
+   {
+      g_breakdownAlgoDayWins[si] = MathMax(g_breakdownAlgoDayWins[si], histAlgoWins[si]);
+      g_breakdownAlgoDayLosses[si] = MathMax(g_breakdownAlgoDayLosses[si], histAlgoLosses[si]);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -4157,6 +5143,8 @@ bool AlgoFamilyDayAllowsNewTrades()
 //+------------------------------------------------------------------+
 bool AlgoRulesetPassesDayStops(const int algoSlot1)
 {
+   if(IsBreakdownFamilyAlgoNumber(algoSlot1))
+      return BreakdownRulesetPassesDayStops(algoSlot1);
    AlgoPerAlgoTune tune;
    if(!AlgoLoadPerAlgoTune(algoSlot1, tune))
       return true;
@@ -4185,12 +5173,19 @@ bool AlgoDayStopUnderLossLimit(const int algoSlot1, bool &outUnderThisAlgo, bool
    outUnderThisAlgo = true;
    outUnderAllAlgos = true;
    AlgoPerAlgoTune tune;
-   if(AlgoLoadPerAlgoTune(algoSlot1, tune))
+   if(!AlgoLoadPerAlgoTune(algoSlot1, tune))
+      return (outUnderThisAlgo && outUnderAllAlgos);
+   if(IsBreakdownFamilyAlgoNumber(algoSlot1))
    {
-      const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
+      const int idx = BreakdownAlgoSlotIndexByAlgoId(algoSlot1);
       if(idx >= 0)
-         outUnderThisAlgo = (g_algoDayLosses[idx] < tune.stop_trading_today_if_thisAlgo_losing_trades_count);
+         outUnderThisAlgo = (g_breakdownAlgoDayLosses[idx] < tune.stop_trading_today_if_thisAlgo_losing_trades_count);
+      outUnderAllAlgos = (g_breakdownFamilyDayLosses < g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count);
+      return (outUnderThisAlgo && outUnderAllAlgos);
    }
+   const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
+   if(idx >= 0)
+      outUnderThisAlgo = (g_algoDayLosses[idx] < tune.stop_trading_today_if_thisAlgo_losing_trades_count);
    outUnderAllAlgos = (g_algoFamilyDayLosses < g_algoShared.stop_trading_today_if_AllAlgos_losing_trades_count);
    return (outUnderThisAlgo && outUnderAllAlgos);
 }
@@ -4201,12 +5196,19 @@ bool AlgoDayStopUnderWinLimit(const int algoSlot1, bool &outUnderThisAlgo, bool 
    outUnderThisAlgo = true;
    outUnderAllAlgos = true;
    AlgoPerAlgoTune tune;
-   if(AlgoLoadPerAlgoTune(algoSlot1, tune))
+   if(!AlgoLoadPerAlgoTune(algoSlot1, tune))
+      return (outUnderThisAlgo && outUnderAllAlgos);
+   if(IsBreakdownFamilyAlgoNumber(algoSlot1))
    {
-      const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
+      const int idx = BreakdownAlgoSlotIndexByAlgoId(algoSlot1);
       if(idx >= 0)
-         outUnderThisAlgo = (g_algoDayWins[idx] < tune.stop_trading_today_if_thisAlgo_winning_trades_count);
+         outUnderThisAlgo = (g_breakdownAlgoDayWins[idx] < tune.stop_trading_today_if_thisAlgo_winning_trades_count);
+      outUnderAllAlgos = (g_breakdownFamilyDayWins < g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count);
+      return (outUnderThisAlgo && outUnderAllAlgos);
    }
+   const int idx = AlgoFamilySlotArrayIndex(algoSlot1);
+   if(idx >= 0)
+      outUnderThisAlgo = (g_algoDayWins[idx] < tune.stop_trading_today_if_thisAlgo_winning_trades_count);
    outUnderAllAlgos = (g_algoFamilyDayWins < g_algoShared.stop_trading_today_if_AllAlgos_winning_trades_count);
    return (outUnderThisAlgo && outUnderAllAlgos);
 }
@@ -4285,7 +5287,32 @@ struct FalgoOpenTradeTelemetry
    bool     exitModeChanged;
    string   closeDecisionReason;  // set when babysit decides to close; copied to trade-results CSV
    string   closeDecisionDetail;
+   datetime breakdownSequenceEndTime;   // M15 breakdown end (breakdown family algos)
+   datetime breakdownTimeExitDeadline;    // close open position when g_lastTimer1Time >= this
+   double   breakdownStartHigh;           // breakdown_sequence_startprice (broker TP anchor)
+   double   breakdownLow;                 // breakdown low (secret TP range anchor)
 };
+
+struct Breakdown15mState
+{
+   bool     hasBreakdown;
+   bool     sequenceActive;
+   int      activeLength;
+   int      endedLength;
+   datetime startTime;
+   double   startHigh;
+   datetime endTime;
+   double   breakdownLow;
+   double   firstGreenHigh;
+   datetime firstGreenBarEndTime;  // M15 open + 15 min; entry only after this
+   double   midpoint;
+   double   totalPercent;
+};
+
+Breakdown15mState g_breakdown15mSnap;
+
+void ComputeBreakdown15mState(const datetime dayStart, const datetime upToM1BarTime, const double strongRangePctMin,
+   const int forgetAfterMinutes, Breakdown15mState &out);
 
 struct FalgoTelemetryBarSnap
 {
@@ -4325,6 +5352,31 @@ struct FalgoClosedTradeTelemetrySummary
 
 FalgoOpenTradeTelemetry g_falgoOpenTelemetrySlots[FALGO_OPEN_TELEMETRY_MAX];
 int g_falgoOpenTelemetryCtx = -1;
+
+//+------------------------------------------------------------------+
+string BreakdownTradeLifetimeCloseReasonFromExit(const ENUM_DEAL_REASON dealReason,
+   const ulong positionId, const long entryMagic, const datetime startTime)
+{
+   if(dealReason == DEAL_REASON_TP)
+      return "realTP";
+   if(dealReason != DEAL_REASON_EXPERT)
+      return "";
+   for(int i = 0; i < FALGO_OPEN_TELEMETRY_MAX; i++)
+   {
+      if(g_falgoOpenTelemetrySlots[i].positionTicket == positionId
+         || (g_falgoOpenTelemetrySlots[i].magic == entryMagic && g_falgoOpenTelemetrySlots[i].tradeStartTime == startTime))
+      {
+         const string r = g_falgoOpenTelemetrySlots[i].closeDecisionReason;
+         if(r == "breakdown_midpoint_time_exit")
+            return "timeTrigger";
+         if(r == "breakdown_secretTPSL_tp")
+            return "secretTP";
+         break;
+      }
+   }
+   return "";
+}
+
 // Per registry slot (algo 10..16): one bar snap per M1 bar — no cross-algo overwrite.
 FalgoTelemetryBarSnap g_falgoTelemetryAtBar[MAX_BARS_IN_DAY][ALGO_FAMILY_REGISTRY_MAX];
 FalgoClosedTradeTelemetrySummary g_falgoClosedTelemetry[FALGO_CLOSED_TELEMETRY_MAX];
@@ -4511,21 +5563,79 @@ bool LevelIsDailyKind(const string &categories)
 //+------------------------------------------------------------------+
 //| Daily/stacked levels must name at least one monday..sunday in categories; true only on matching weekday. |
 //+------------------------------------------------------------------+
+bool LevelCategoriesActiveOnDayOfWeekLower(const string &cLower, const int mt5DayOfWeek)
+{
+   bool foundAnyDay = false;
+   if(StringFind(cLower, "sunday") >= 0)    { foundAnyDay = true; if(mt5DayOfWeek == 0) return true; }
+   if(StringFind(cLower, "monday") >= 0)    { foundAnyDay = true; if(mt5DayOfWeek == 1) return true; }
+   if(StringFind(cLower, "tuesday") >= 0)   { foundAnyDay = true; if(mt5DayOfWeek == 2) return true; }
+   if(StringFind(cLower, "wednesday") >= 0) { foundAnyDay = true; if(mt5DayOfWeek == 3) return true; }
+   if(StringFind(cLower, "thursday") >= 0)  { foundAnyDay = true; if(mt5DayOfWeek == 4) return true; }
+   if(StringFind(cLower, "friday") >= 0)    { foundAnyDay = true; if(mt5DayOfWeek == 5) return true; }
+   if(StringFind(cLower, "saturday") >= 0)  { foundAnyDay = true; if(mt5DayOfWeek == 6) return true; }
+   if(!foundAnyDay)
+      FatalError(StringFormat("LevelCategoriesActiveOnDayOfWeek: daily/stacked level categories missing monday..sunday token: \"%s\"", cLower));
+   return false;
+}
+
+//+------------------------------------------------------------------+
 bool LevelCategoriesActiveOnDayOfWeek(const string &categories, const int mt5DayOfWeek)
 {
    string c = categories;
    StringToLower(c);
-   bool foundAnyDay = false;
-   if(StringFind(c, "sunday") >= 0)    { foundAnyDay = true; if(mt5DayOfWeek == 0) return true; }
-   if(StringFind(c, "monday") >= 0)    { foundAnyDay = true; if(mt5DayOfWeek == 1) return true; }
-   if(StringFind(c, "tuesday") >= 0)   { foundAnyDay = true; if(mt5DayOfWeek == 2) return true; }
-   if(StringFind(c, "wednesday") >= 0) { foundAnyDay = true; if(mt5DayOfWeek == 3) return true; }
-   if(StringFind(c, "thursday") >= 0)  { foundAnyDay = true; if(mt5DayOfWeek == 4) return true; }
-   if(StringFind(c, "friday") >= 0)    { foundAnyDay = true; if(mt5DayOfWeek == 5) return true; }
-   if(StringFind(c, "saturday") >= 0)  { foundAnyDay = true; if(mt5DayOfWeek == 6) return true; }
-   if(!foundAnyDay)
-      FatalError(StringFormat("LevelCategoriesActiveOnDayOfWeek: daily/stacked level categories missing monday..sunday token: \"%s\"", categories));
+   return LevelCategoriesActiveOnDayOfWeekLower(c, mt5DayOfWeek);
+}
+
+//+------------------------------------------------------------------+
+//| Pre-lowercased categories (see LevelExpandedRow.categoriesLower). |
+//+------------------------------------------------------------------+
+bool LevelEligibleForAlgoLevelScopeLower(const string &cLower, const bool tradesWeekly, const bool tradesDaily, const datetime asOfTime)
+{
+   if(StringFind(cLower, "tertiary") >= 0)
+      return false;
+
+   const bool stacked = (StringFind(cLower, "stacked") >= 0);
+   const bool dailyKind = (StringFind(cLower, "daily") >= 0 || stacked);
+   const bool weeklyKind = (StringFind(cLower, "weekly") >= 0 || stacked);
+
+   if(FalgoIsDailyLevelsOnlyCalendarDate(asOfTime))
+   {
+      if(!dailyKind)
+         return false;
+      MqlDateTime mt;
+      TimeToStruct(asOfTime, mt);
+      if(stacked)
+      {
+         if(tradesWeekly || tradesDaily)
+            return LevelCategoriesActiveOnDayOfWeekLower(cLower, mt.day_of_week);
+         return false;
+      }
+      if(tradesDaily)
+         return LevelCategoriesActiveOnDayOfWeekLower(cLower, mt.day_of_week);
+      return false;
+   }
+
+   if(tradesWeekly && weeklyKind)
+      return true;
+
+   if(tradesDaily && dailyKind)
+   {
+      MqlDateTime mt;
+      TimeToStruct(asOfTime, mt);
+      return LevelCategoriesActiveOnDayOfWeekLower(cLower, mt.day_of_week);
+   }
+
    return false;
+}
+
+//+------------------------------------------------------------------+
+//| Stacked = weekly+daily: weekly algos / both-enabled → whole week; daily-only → weekday substrings required (FatalError if missing). |
+//+------------------------------------------------------------------+
+bool LevelEligibleForAlgoLevelScope(const string &categories, const bool tradesWeekly, const bool tradesDaily, const datetime asOfTime)
+{
+   string c = categories;
+   StringToLower(c);
+   return LevelEligibleForAlgoLevelScopeLower(c, tradesWeekly, tradesDaily, asOfTime);
 }
 
 //+------------------------------------------------------------------+
@@ -4624,49 +5734,6 @@ bool FalgoIsDailyLevelsOnlyCalendarDate(const datetime t)
 }
 
 //+------------------------------------------------------------------+
-//| Stacked = weekly+daily: weekly algos / both-enabled → whole week; daily-only → weekday substrings required (FatalError if missing). |
-//+------------------------------------------------------------------+
-bool LevelEligibleForAlgoLevelScope(const string &categories, const bool tradesWeekly, const bool tradesDaily, const datetime asOfTime)
-{
-   string c = categories;
-   StringToLower(c);
-   if(StringFind(c, "tertiary") >= 0)
-      return false;
-
-   if(FalgoIsDailyLevelsOnlyCalendarDate(asOfTime))
-   {
-      if(!LevelIsDailyKind(categories))
-         return false;
-      MqlDateTime mt;
-      TimeToStruct(asOfTime, mt);
-      if(LevelIsStacked(categories))
-      {
-         if(tradesWeekly || tradesDaily)
-            return LevelCategoriesActiveOnDayOfWeek(categories, mt.day_of_week);
-         return false;
-      }
-      if(tradesDaily)
-         return LevelCategoriesActiveOnDayOfWeek(categories, mt.day_of_week);
-      return false;
-   }
-
-   const bool weeklyKind = LevelIsWeeklyKind(categories);
-   const bool dailyKind = LevelIsDailyKind(categories);
-
-   if(tradesWeekly && weeklyKind)
-      return true;
-
-   if(tradesDaily && dailyKind)
-   {
-      MqlDateTime mt;
-      TimeToStruct(asOfTime, mt);
-      return LevelCategoriesActiveOnDayOfWeek(categories, mt.day_of_week);
-   }
-
-   return false;
-}
-
-//+------------------------------------------------------------------+
 bool AlgoTradesWeeklyLevels(const int algoNumber)
 {
    const int idx = AlgoSlotIndexByAlgoId(algoNumber);
@@ -4689,6 +5756,12 @@ bool AlgoTradesAnyLevels(const int algoNumber)
 {
    return AlgoTradesWeeklyLevels(algoNumber) || AlgoTradesDailyLevels(algoNumber)
       || AlgoTradesTertiaryTodayRTHOLevel(algoNumber);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoMagicLevelSlotIsBreakdownMidpoint(const int levelSlot)
+{
+   return (levelSlot == FALGO_MAGIC_LEVEL_SLOT_BREAKDOWN);
 }
 
 //+------------------------------------------------------------------+
@@ -5179,6 +6252,8 @@ void SyncFalgoPlanCountersFromTradeResults()
          continue;
       if(!FalgoTradeStartedOnTradingDay(g_tradeResults[i], dayStart))
          continue;
+      if(IsBreakdownFamilyCompositeMagic(g_tradeResults[i].magic))
+         continue;
       const int algoIdx = AlgoFamilySlotArrayIndex(AlgoFamilyMagicNumber(g_tradeResults[i].magic));
       if(algoIdx < 0)
          continue;
@@ -5195,6 +6270,41 @@ void SyncFalgoPlanCountersFromTradeResults()
       for(int levelSlot = 0; levelSlot < FALGO_MAGIC_LEVEL_SLOT_COUNT; levelSlot++)
          g_algoLevelTradeNumByMagicSlot[ai][levelSlot] =
             MathMax(g_algoLevelTradeNumByMagicSlot[ai][levelSlot], histLevel[ai][levelSlot]);
+   }
+}
+
+//+------------------------------------------------------------------+
+void SyncBreakdownPlanCountersFromTradeResults()
+{
+   const datetime dayStart = FalgoTradingDayStart();
+
+   int histPlan[BREAKDOWN_ALGO_REGISTRY_MAX];
+   int histLevel[BREAKDOWN_ALGO_REGISTRY_MAX];
+   for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
+   {
+      histPlan[bi] = 0;
+      histLevel[bi] = 0;
+   }
+
+   for(int i = 0; i < g_tradeResultsCount; i++)
+   {
+      if(!IsBreakdownFamilyCompositeMagic(g_tradeResults[i].magic))
+         continue;
+      if(!FalgoTradeStartedOnTradingDay(g_tradeResults[i], dayStart))
+         continue;
+      const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(g_tradeResults[i].magic));
+      if(algoIdx < 0)
+         continue;
+      histPlan[algoIdx]++;
+      FalgoMagicKey fk = ParseFalgoMagic(g_tradeResults[i].magic);
+      if(FalgoMagicLevelSlotIsValid(fk.levelSlot))
+         histLevel[algoIdx]++;
+   }
+
+   for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
+   {
+      g_breakdownAlgoPlanTradeNumToday[bi] = MathMax(g_breakdownAlgoPlanTradeNumToday[bi], histPlan[bi]);
+      g_breakdownAlgoLevelTradeNumToday[bi] = MathMax(g_breakdownAlgoLevelTradeNumToday[bi], histLevel[bi]);
    }
 }
 
@@ -5228,7 +6338,7 @@ void UpdateFalgoDayTradeCounts()
    {
       if(!g_tradeResults[i].foundOut)
          continue;
-      if(!IsAnyAlgoFamilyCompositeMagic(g_tradeResults[i].magic))
+      if(!IsLevelFamilyCompositeMagic(g_tradeResults[i].magic))
          continue;
       if(dayStart != 0 && (g_tradeResults[i].endTime < dayStart || g_tradeResults[i].endTime >= dayEnd))
          continue;
@@ -5267,7 +6377,25 @@ void AlgoFamilyDayStopBumpFromBabysitClose(const long positionMagic, const doubl
 {
    if(!IsAnyAlgoFamilyCompositeMagic(positionMagic))
       return;
-   const int algoIdx = AlgoFamilySlotArrayIndex(AlgoFamilyMagicNumber(positionMagic));
+   const int algoNumber = AlgoFamilyMagicNumber(positionMagic);
+   if(IsBreakdownFamilyAlgoNumber(algoNumber))
+   {
+      const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+      if(profitPtsBeforeClose > 0.0)
+      {
+         g_breakdownFamilyDayWins++;
+         if(algoIdx >= 0)
+            g_breakdownAlgoDayWins[algoIdx]++;
+      }
+      else if(profitPtsBeforeClose < 0.0)
+      {
+         g_breakdownFamilyDayLosses++;
+         if(algoIdx >= 0)
+            g_breakdownAlgoDayLosses[algoIdx]++;
+      }
+      return;
+   }
+   const int algoIdx = AlgoFamilySlotArrayIndex(algoNumber);
    if(profitPtsBeforeClose > 0.0)
    {
       g_algoFamilyDayWins++;
@@ -5294,13 +6422,21 @@ void FalgoAfterFamilyPositionClosed(const long positionMagic, const double profi
 
    const int closedBarIdx = FalgoBarIdxForDayTime(g_lastTimer1Time);
    const int algoNumber = AlgoFamilyMagicNumber(positionMagic);
-   const int ri = FalgoRegistrySlotForAlgoNumber(algoNumber);
-   if(ri >= 0 && closedBarIdx >= 0)
-      g_falgoLastTradeClosedBarIdx[ri] = closedBarIdx;
-   if(AlgoFamilyBlocksPlacementOnOpenOrPending() && closedBarIdx >= 0)
-      g_falgoFamilyLastClosedBarIdx = closedBarIdx;
-   if(AlgoFamilyBlocksPlacementOnOpenOrPending())
-      g_algoFamilyHadCloseThisPipelinePass = true;
+   if(IsBreakdownFamilyAlgoNumber(algoNumber))
+   {
+      if(BreakdownFamilyBlocksPlacementOnOpenOrPending())
+         g_breakdownFamilyHadCloseThisPipelinePass = true;
+   }
+   else
+   {
+      const int ri = FalgoRegistrySlotForAlgoNumber(algoNumber);
+      if(ri >= 0 && closedBarIdx >= 0)
+         g_falgoLastTradeClosedBarIdx[ri] = closedBarIdx;
+      if(AlgoFamilyBlocksPlacementOnOpenOrPending() && closedBarIdx >= 0)
+         g_falgoFamilyLastClosedBarIdx = closedBarIdx;
+      if(AlgoFamilyBlocksPlacementOnOpenOrPending())
+         g_algoFamilyHadCloseThisPipelinePass = true;
+   }
 
    if(telemetrySlotIdx >= 0)
    {
@@ -5316,6 +6452,22 @@ void FalgoAfterFamilyPositionClosed(const long positionMagic, const double profi
 double FalgoSelectedPositionAccountProfit()
 {
    return ExtPositionInfo.Profit() + ExtPositionInfo.Swap() + ExtPositionInfo.Commission();
+}
+
+//+------------------------------------------------------------------+
+//| Open P/L as % of position deposit equivalent: lot × one_lot_equals_xPLN. |
+//+------------------------------------------------------------------+
+double FalgoOpenPositionProfitPctOfPositionDeposit()
+{
+   if(one_lot_equals_xPLN <= 0.0)
+      return 0.0;
+   const double lot = ExtPositionInfo.Volume();
+   if(lot <= 0.0)
+      return 0.0;
+   const double positionDepositPln = lot * one_lot_equals_xPLN;
+   if(positionDepositPln <= 0.0)
+      return 0.0;
+   return 100.0 * FalgoSelectedPositionAccountProfit() / positionDepositPln;
 }
 
 //+------------------------------------------------------------------+
@@ -5594,6 +6746,10 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].exitModeChanged = false;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].closeDecisionReason = "";
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].closeDecisionDetail = "";
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownSequenceEndTime = 0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownTimeExitDeadline = 0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownStartHigh = 0.0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownLow = 0.0;
    ArrayInitialize(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].profitRing, 0.0);
    ArrayInitialize(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeRing, 0);
 }
@@ -5894,15 +7050,33 @@ void FalgoTryLogAlgoFamilyPerSecond()
       PullingHistoryAlgoFamilyAppendPerSecondRow(dateStr, "weekly", g_lastTimer1Time, snapBarIdx, o, h, l, c);
       PullingHistoryAlgoFamilyAppendPerSecondRow(dateStr, "daily", g_lastTimer1Time, snapBarIdx, o, h, l, c);
    }
-   if(!bigflipper_log_algo_gates_per_second)
-      return;
+   if(bigflipper_log_algo_gates_per_second)
+   {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
    const int placementBarIdx = g_barsInDay - 1;
    for(int si = 0; si < g_algoCount; si++)
    {
       const int algoNumber = g_algos[si].algo_id;
       if(!AlgoSlotEnabled(algoNumber))
          continue;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       AlgoAppendGatesLogRow(placementBarIdx, algoNumber, true);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_GATES_LOG_PER_SECOND, profT0);
+   }
+   for(int bi = 0; bi < g_breakdownAlgoCount; bi++)
+   {
+      const int algoNumber = g_breakdownAlgos[bi].algo_id;
+      if(!BreakdownAlgoSlotEnabled(algoNumber))
+         continue;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
+      BreakdownAppendGatesLogRow(placementBarIdx, algoNumber, true);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_GATES_LOG_PER_SECOND, profT0);
+   }
    }
 }
 
@@ -6131,6 +7305,28 @@ void FalgoTelemetryInitFromSelectedPosition()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime, g_lastTimer1Time);
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx = FalgoBarIdxForDayTime(g_lastTimer1Time);
+   const long posMagic = ExtPositionInfo.Magic();
+   if(IsBreakdownFamilyCompositeMagic(posMagic))
+   {
+      const int algoNumber = AlgoFamilyMagicNumber(posMagic);
+      const int bIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+      datetime breakdownEnd = 0;
+      BreakdownOpenLifetimeBreakdownEnd((ulong)ExtPositionInfo.Identifier(), breakdownEnd);
+      if(breakdownEnd > 0)
+      {
+         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownSequenceEndTime = breakdownEnd;
+         int exitMinAfterEnd = 60;
+         if(bIdx >= 0 && g_breakdownAlgos[bIdx].closetrade_after_some_time)
+            exitMinAfterEnd = g_breakdownAlgos[bIdx].closetrade_after_x_minutes_from_breakdown;
+         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownTimeExitDeadline =
+            breakdownEnd + exitMinAfterEnd * 60;
+      }
+      if(bIdx >= 0)
+      {
+         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownStartHigh = g_breakdownAlgoLastPlacedStartHigh[bIdx];
+         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownLow = g_breakdownAlgoLastPlacedBreakdownLow[bIdx];
+      }
+   }
    FalgoTelemetryPushProfitSample(g_lastTimer1Time, profitPts);
    if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx >= 0)
       FalgoTelemetrySnapOpenStateToBar(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx);
@@ -6703,6 +7899,8 @@ bool FalgoMagicLevelSlotIsValid(const int levelSlot)
       return true;
    if(levelSlot == FALGO_MAGIC_LEVEL_SLOT_PDRTHCLOSE)
       return true;
+   if(levelSlot == FALGO_MAGIC_LEVEL_SLOT_BREAKDOWN)
+      return true;
    if(levelSlot >= FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MIN && levelSlot <= FALGO_MAGIC_LEVEL_SLOT_WEEKLY_MAX)
       return true;
    if(levelSlot >= FALGO_MAGIC_LEVEL_SLOT_DAILY_MIN && levelSlot <= FALGO_MAGIC_LEVEL_SLOT_DAILY_MAX)
@@ -6807,6 +8005,8 @@ int FalgoExpandedLevelIdxForMagicLevelSlot(const int levelSlot)
 //+------------------------------------------------------------------+
 int FalgoResolveExpandedLevelIdxFromMagicKey(const FalgoMagicKey &fk)
 {
+   if(FalgoMagicLevelSlotIsBreakdownMidpoint(fk.levelSlot))
+      return -1;
    if(!FalgoMagicLevelSlotIsValid(fk.levelSlot))
       FatalError(StringFormat("FalgoResolveExpandedLevelIdxFromMagicKey: invalid levelSlot %d (00=RTHO; 01=PDC; 10..35 weekly; 50..80 daily)",
          fk.levelSlot));
@@ -6820,6 +8020,8 @@ int FalgoResolveExpandedLevelIdxFromMagicKey(const FalgoMagicKey &fk)
 //+------------------------------------------------------------------+
 double FalgoLevelPriceForMagicKey(const FalgoMagicKey &fk)
 {
+   if(FalgoMagicLevelSlotIsBreakdownMidpoint(fk.levelSlot))
+      return 0.0;
    const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk);
    return g_levelsExpanded[levelIdx].levelPrice;
 }
@@ -6851,7 +8053,16 @@ void FalgoEnrichTradeResultLevelTpSl(TradeResult &tr)
    const double levelPrice = FalgoLevelPriceForMagicKey(fk);
    double tpPts = 0.0, slPts = 0.0;
    FalgoEffectiveTpSlPointsFromMagicKey(fk, tpPts, slPts);
-   tr.level = DoubleToString(levelPrice, _Digits);
+   if(FalgoMagicLevelSlotIsBreakdownMidpoint(fk.levelSlot))
+   {
+      const double planned = BreakdownPlannedPriceForTradeResult(tr);
+      if(planned > 0.0)
+         tr.level = DoubleToString(planned, _Digits);
+      else if(StringLen(tr.level) == 0 && tr.priceStart > 0.0)
+         tr.level = DoubleToString(tr.priceStart, _Digits);
+   }
+   else
+      tr.level = DoubleToString(levelPrice, _Digits);
    tr.tp = DoubleToString(tpPts, 1);
    tr.sl = DoubleToString(slPts, 1);
 }
@@ -7244,6 +8455,8 @@ string FalgoLevelTagUneditedForTradeResult(const TradeResult &tr)
    }
    const FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
    const int levelIdx = FalgoResolveExpandedLevelIdxFromMagicKey(fk);
+   if(levelIdx < 0)
+      return "";
    return g_levelsExpanded[levelIdx].tag;
 }
 
@@ -7479,6 +8692,38 @@ void AlgoGatesAppendRulesFails(string &outFlags[], const int algoSlot1, const in
 }
 
 //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+void AlgoGatesCollectBreakdownPlacementFailFlags(const int algoNumber, const int barIdx,
+   const bool profileEnabled, const bool tradingDay, const bool tradingTime,
+   const bool underLoss, const bool underWin, const bool underOpenLimit,
+   const bool tradeCloseDedicatedBar, const bool familyBlock, const bool entryAllowed,
+   string &outFlags[], const datetime evalTime)
+{
+   ArrayResize(outFlags, 0);
+   if(!profileEnabled) AlgoGatesFailFlagsAppend(outFlags, "profileDisabled");
+   if(!tradingDay) AlgoGatesFailFlagsAppend(outFlags, "tradingDayBanned");
+   if(!tradingTime) AlgoGatesFailFlagsAppend(outFlags, "tradingTimeBanned");
+   const string familyDayStop = AlgoFamilyDayStopFirstFailLabel();
+   if(familyDayStop != "") AlgoGatesFailFlagsAppend(outFlags, familyDayStop);
+   if(!underLoss) AlgoGatesFailFlagsAppend(outFlags, "lossStopDayLimit");
+   if(!underWin) AlgoGatesFailFlagsAppend(outFlags, "winStopDayLimit");
+   if(!underOpenLimit)
+   {
+      const string openLimit = BreakdownMaxOpenPositionsFailLabel(algoNumber);
+      AlgoGatesFailFlagsAppend(outFlags, (openLimit != "" ? openLimit : "maxOpenPositionsReached"));
+   }
+   if(tradeCloseDedicatedBar) AlgoGatesFailFlagsAppend(outFlags, "tradeClosedThisBar");
+   if(familyBlock && g_algoFamilyHadCloseThisPipelinePass) AlgoGatesFailFlagsAppend(outFlags, "tradeClosedThisPipelineFam");
+   if(familyBlock && FalgoHasOpenPositionOnSymbol()) AlgoGatesFailFlagsAppend(outFlags, "openFalgoPositionFam");
+   if(familyBlock && FalgoHasPendingOrderOnSymbol()) AlgoGatesFailFlagsAppend(outFlags, "pendingFalgoOrderFam");
+
+   RefreshGlobalBreakdown15mSnap(evalTime);
+   const string entryBlock = BreakdownMidpointEntryBlockReason(algoNumber, g_breakdown15mSnap, evalTime);
+   if(entryBlock != "")
+      AlgoGatesFailFlagsAppend(outFlags, entryBlock);
+}
+
+//+------------------------------------------------------------------+
 void AlgoGatesCollectPlacementFailFlags(const int algoSlot1, const int barIdx, const int closestLevelExpandedIdx,
    const bool profileEnabled, const bool tradingDay, const bool tradingTime,
    const bool underLoss, const bool underWin, const bool noOpen, const bool noPending,
@@ -7486,7 +8731,7 @@ void AlgoGatesCollectPlacementFailFlags(const int algoSlot1, const int barIdx, c
    const string closeVs, const string direction,
    const bool weeklyOK, const bool closestLevelCategoryOK, const bool proxOK,
    const bool bounceOK, const bool ceilingOK, const bool magicFree,
-   string &outFlags[], const double proxForLabel = -1.0)
+   string &outFlags[], const datetime evalTime, const double proxForLabel = -1.0)
 {
    ArrayResize(outFlags, 0);
    if(!profileEnabled) AlgoGatesFailFlagsAppend(outFlags, "profileDisabled");
@@ -7628,7 +8873,7 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
       profileEnabled, tradingDay, tradingTime, underLoss, underWin, noOpen, noPending,
       tradeCloseDedicatedBar, familyBlock, isShortAlgo, closeVs, direction,
       weeklyOK, closestLevelCategoryOK, proxOK, bounceOK, ceilingOK, magicFree,
-      failFlags, proxForLabel);
+      failFlags, evalTime, proxForLabel);
    string firstFail = (ArraySize(failFlags) > 0 ? failFlags[0] : "");
    string secondFail = (ArraySize(failFlags) > 1 ? failFlags[1] : "");
    string thirdFail = (ArraySize(failFlags) > 2 ? failFlags[2] : "");
@@ -7770,6 +9015,143 @@ void AlgoAppendGatesLogRow(const int barIdx, const int algoSlot1, const bool per
 }
 
 //+------------------------------------------------------------------+
+void BreakdownAppendGatesLogRow(const int barIdx, const int algoNumber, const bool perSecond = false)
+{
+   if(!BreakdownAlgoSlotEnabled(algoNumber))
+      return;
+   if(!perSecond)
+   {
+      if(!bigflipper_log_algo_gates_per_minute)
+         return;
+   }
+   else if(!bigflipper_log_algo_gates_per_second)
+   {
+      return;
+   }
+   if(barIdx < 0 || barIdx >= g_barsInDay || g_m1DayStart == 0)
+      return;
+
+   const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(slotIdx < 0)
+      return;
+
+   const datetime rowTime = perSecond ? g_lastTimer1Time : g_m1Rates[barIdx].time;
+   if(perSecond)
+   {
+      if(g_falgoGatesLogDayStart != g_m1DayStart)
+      {
+         g_falgoGatesLogDayStart = g_m1DayStart;
+         for(int gi = 0; gi < ALGO_FAMILY_REGISTRY_MAX; gi++)
+         {
+            g_algoGatesLastLoggedBarTime[gi] = 0;
+            g_algoGatesPerSecondLastLoggedTime[gi] = 0;
+         }
+         for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
+         {
+            g_breakdownGatesLastLoggedBarTime[bi] = 0;
+            g_breakdownGatesPerSecondLastLoggedTime[bi] = 0;
+         }
+      }
+      if(rowTime == g_breakdownGatesPerSecondLastLoggedTime[slotIdx])
+         return;
+      g_breakdownGatesPerSecondLastLoggedTime[slotIdx] = rowTime;
+   }
+
+   const datetime evalTime = perSecond ? g_lastTimer1Time : (rowTime + 60);
+   RefreshGlobalBreakdown15mSnap(evalTime);
+
+   bool underLoss = true, underAllAlgosLoss = true;
+   AlgoDayStopUnderLossLimit(algoNumber, underLoss, underAllAlgosLoss);
+   bool underWin = true, underAllAlgosWin = true;
+   AlgoDayStopUnderWinLimit(algoNumber, underWin, underAllAlgosWin);
+   underLoss = underLoss && underAllAlgosLoss;
+   underWin = underWin && underAllAlgosWin;
+
+   const bool profileEnabled = AlgoProfileEnabled(algoNumber);
+   const bool tradingDay = FalgoIsTradingDayAllowedAtTime(evalTime);
+   const bool tradingTime = FalgoIsTradingTimeAllowed(evalTime);
+   const bool underOpenLimit = BreakdownUnderMaxOpenPositionsLimit(algoNumber);
+   const bool tradeCloseDedicatedBar = !FalgoRulesetPassesCloseBarForAlgo(algoNumber, barIdx);
+   const bool familyBlock = BreakdownFamilyBlocksPlacementOnOpenOrPending();
+   const bool entryAllowed = BreakdownMidpointEntryAllowed(algoNumber, g_breakdown15mSnap, evalTime);
+
+   string failFlags[];
+   AlgoGatesCollectBreakdownPlacementFailFlags(algoNumber, barIdx,
+      profileEnabled, tradingDay, tradingTime, underLoss, underWin, underOpenLimit,
+      tradeCloseDedicatedBar, familyBlock, entryAllowed, failFlags, evalTime);
+   string firstFail = (ArraySize(failFlags) > 0 ? failFlags[0] : "");
+   string secondFail = (ArraySize(failFlags) > 1 ? failFlags[1] : "");
+   string thirdFail = (ArraySize(failFlags) > 2 ? failFlags[2] : "");
+   if(perSecond && firstFail == "")
+   {
+      const string placementBlock = AlgoBreakdownPlacementBlockReasonFirstFail(algoNumber, barIdx);
+      if(placementBlock != "")
+         firstFail = placementBlock;
+   }
+   int failGateCount = (firstFail != "" ? ArraySize(failFlags) : 0);
+   if(perSecond && firstFail != "" && failGateCount == 0)
+      failGateCount = 1;
+   const string plannedTradePrice = BreakdownPlannedTradePriceForGates(algoNumber, evalTime, g_breakdown15mSnap);
+   const double minutesSinceEnd = (g_breakdown15mSnap.endTime > 0 && evalTime >= g_breakdown15mSnap.endTime)
+      ? (double)(evalTime - g_breakdown15mSnap.endTime) / 60.0 : 0.0;
+   const int seqLen = g_breakdown15mSnap.sequenceActive ? g_breakdown15mSnap.activeLength : g_breakdown15mSnap.endedLength;
+
+   double rowO = 0.0, rowH = 0.0, rowL = 0.0, rowC = 0.0;
+   if(perSecond)
+      PullingHistoryAlgoFamilyOhlcAsOfTime(g_lastTimer1Time, rowO, rowH, rowL, rowC);
+   else
+   {
+      rowO = g_m1Rates[barIdx].open;
+      rowH = g_m1Rates[barIdx].high;
+      rowL = g_m1Rates[barIdx].low;
+      rowC = g_m1Rates[barIdx].close;
+   }
+
+   const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   const string logSuffix = perSecond ? "gates_per_second" : "gates_per_minute";
+   const string fname = BreakdownAlgoCsvFileName(dateStr, algoNumber, logSuffix);
+   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) == 0)
+   {
+      FileWrite(fh, "barTime", "O", "H", "L", "C",
+         "breakdown_sequence_starttime", "breakdown_sequence_startprice",
+         "breakdown_endtime", "breakdown_low", "ended_length",
+         "firstGreen15mC_afterBreakdown_high", "midpoint", "minutes_since_end",
+         "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount",
+         "dayWins", "dayLosses");
+   }
+   FileSeek(fh, 0, SEEK_END);
+   const int timeFormat = perSecond ? (TIME_DATE|TIME_SECONDS) : (TIME_DATE|TIME_MINUTES);
+   FileWrite(fh,
+      TimeToString(rowTime, timeFormat),
+      DoubleToString(rowO, _Digits),
+      DoubleToString(rowH, _Digits),
+      DoubleToString(rowL, _Digits),
+      DoubleToString(rowC, _Digits),
+      (g_breakdown15mSnap.hasBreakdown && g_breakdown15mSnap.startTime > 0
+         ? TimeToString(g_breakdown15mSnap.startTime, TIME_DATE|TIME_MINUTES) : ""),
+      (g_breakdown15mSnap.hasBreakdown && g_breakdown15mSnap.startHigh > 0.0
+         ? DoubleToString(g_breakdown15mSnap.startHigh, _Digits) : ""),
+      (g_breakdown15mSnap.endTime > 0 ? TimeToString(g_breakdown15mSnap.endTime, TIME_DATE|TIME_MINUTES) : ""),
+      DoubleToString(g_breakdown15mSnap.breakdownLow, _Digits),
+      IntegerToString(seqLen),
+      (g_breakdown15mSnap.firstGreenHigh > 0.0 ? DoubleToString(g_breakdown15mSnap.firstGreenHigh, _Digits) : ""),
+      DoubleToString(g_breakdown15mSnap.midpoint, _Digits),
+      DoubleToString(minutesSinceEnd, 1),
+      plannedTradePrice,
+      firstFail, secondFail, thirdFail,
+      IntegerToString(failGateCount),
+      IntegerToString(g_breakdownAlgoDayWins[slotIdx]),
+      IntegerToString(g_breakdownAlgoDayLosses[slotIdx]));
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
 void FalgoTryLogGatesForClosedMinute()
 {
    if(!bigflipper_log_algo_gates_per_minute)
@@ -7784,11 +9166,18 @@ void FalgoTryLogGatesForClosedMinute()
          g_algoGatesLastLoggedBarTime[gi] = 0;
          g_algoGatesPerSecondLastLoggedTime[gi] = 0;
       }
+      for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
+      {
+         g_breakdownGatesLastLoggedBarTime[bi] = 0;
+         g_breakdownGatesPerSecondLastLoggedTime[bi] = 0;
+      }
    }
    int barIdx = g_barsInDay - 2;
    if(g_barsInDay < 2)
       return;
    const datetime barTime = g_m1Rates[barIdx].time;
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
    for(int si = 0; si < g_algoCount; si++)
    {
       const int algoNumber = g_algos[si].algo_id;
@@ -7797,7 +9186,25 @@ void FalgoTryLogGatesForClosedMinute()
       if(barTime == g_algoGatesLastLoggedBarTime[si])
          continue;
       g_algoGatesLastLoggedBarTime[si] = barTime;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       AlgoAppendGatesLogRow(barIdx, algoNumber);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_GATES_LOG_PER_MINUTE, profT0);
+   }
+   for(int bi = 0; bi < g_breakdownAlgoCount; bi++)
+   {
+      const int algoNumber = g_breakdownAlgos[bi].algo_id;
+      if(!BreakdownAlgoSlotEnabled(algoNumber))
+         continue;
+      if(barTime == g_breakdownGatesLastLoggedBarTime[bi])
+         continue;
+      g_breakdownGatesLastLoggedBarTime[bi] = barTime;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
+      BreakdownAppendGatesLogRow(barIdx, algoNumber);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_GATES_LOG_PER_MINUTE, profT0);
    }
 }
 
@@ -8071,6 +9478,131 @@ bool Babysitf_falgo_closeIfLossPointsAtLeast(const long positionMagic, const dou
 }
 
 //+------------------------------------------------------------------+
+double FalgoBreakdownPriceAtRangePercent(const double breakdownLow, const double rangeTop, const double rangePercent)
+{
+   if(rangeTop <= breakdownLow || rangePercent <= 0.0)
+      return 0.0;
+   return NormalizeDouble(breakdownLow + (rangePercent / 100.0) * (rangeTop - breakdownLow), _Digits);
+}
+
+//+------------------------------------------------------------------+
+double BreakdownEntryPriceForAlgo(const BreakdownAlgoDef &bd, const Breakdown15mState &st)
+{
+   if(st.firstGreenHigh <= st.breakdownLow)
+      return 0.0;
+   return FalgoBreakdownPriceAtRangePercent(st.breakdownLow, st.firstGreenHigh, bd.entryrange_rangespot);
+}
+
+//+------------------------------------------------------------------+
+bool Babysitf_falgo_runBreakdownSecretTpExit(const long posMagic)
+{
+   const int algoNumber = AlgoFamilyMagicNumber(posMagic);
+   BreakdownAlgoDef bd;
+   if(!BreakdownAlgoDefForNumber(algoNumber, bd))
+      return false;
+   if(!bd.secret_tp_enabled || bd.secret_tp_range_percent <= 0)
+      return false;
+
+   const ulong posTicket = ExtPositionInfo.Ticket();
+   const int slotIdx = FalgoOpenTelemetryFindSlotByTicket(posTicket);
+   double startHigh = 0.0;
+   double breakdownLow = 0.0;
+   if(slotIdx >= 0)
+   {
+      startHigh = g_falgoOpenTelemetrySlots[slotIdx].breakdownStartHigh;
+      breakdownLow = g_falgoOpenTelemetrySlots[slotIdx].breakdownLow;
+   }
+   const int bIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(startHigh <= 0.0 || breakdownLow <= 0.0)
+   {
+      if(bIdx >= 0)
+      {
+         startHigh = g_breakdownAlgoLastPlacedStartHigh[bIdx];
+         breakdownLow = g_breakdownAlgoLastPlacedBreakdownLow[bIdx];
+      }
+   }
+   const double secretTpPrice = FalgoBreakdownPriceAtRangePercent(breakdownLow, startHigh, bd.secret_tp_range_percent);
+   if(secretTpPrice <= 0.0)
+      return false;
+
+   const double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   if(bid < secretTpPrice)
+      return false;
+
+   if(slotIdx >= 0)
+      g_falgoOpenTelemetryCtx = slotIdx;
+   FalgoTryLogTelemetryCloseDecision("breakdown_secretTPSL_tp",
+      StringFormat("bid=%s|secretTp=%s|low=%s|start=%s|pct=%d",
+         DoubleToString(bid, _Digits), DoubleToString(secretTpPrice, _Digits),
+         DoubleToString(breakdownLow, _Digits), DoubleToString(startHigh, _Digits),
+         bd.secret_tp_range_percent));
+   BreakdownRememberPendingCloseReason((ulong)ExtPositionInfo.Identifier(), "secretTP");
+   const int telSlot = slotIdx;
+   const double profitPts = FalgoOpenPositionProfitPoints();
+   const double accountProfit = FalgoSelectedPositionAccountProfit();
+   ExtTrade.SetExpertMagicNumber((ulong)posMagic);
+   const bool closed = ExtTrade.PositionClose(posTicket);
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   if(closed)
+      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, telSlot);
+   return closed;
+}
+
+//+------------------------------------------------------------------+
+bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
+{
+   const int algoNumber = AlgoFamilyMagicNumber(posMagic);
+   BreakdownAlgoDef bd;
+   if(!BreakdownAlgoDefForNumber(algoNumber, bd))
+      return false;
+   if(!bd.closetrade_after_some_time)
+      return false;
+
+   const ulong posTicket = ExtPositionInfo.Ticket();
+   const int slotIdx = FalgoOpenTelemetryFindSlotByTicket(posTicket);
+   datetime deadline = 0;
+   datetime breakdownEnd = 0;
+   if(slotIdx >= 0)
+   {
+      deadline = g_falgoOpenTelemetrySlots[slotIdx].breakdownTimeExitDeadline;
+      breakdownEnd = g_falgoOpenTelemetrySlots[slotIdx].breakdownSequenceEndTime;
+   }
+   if(deadline <= 0)
+   {
+      BreakdownOpenLifetimeBreakdownEnd((ulong)ExtPositionInfo.Identifier(), breakdownEnd);
+      if(breakdownEnd > 0)
+         deadline = breakdownEnd + bd.closetrade_after_x_minutes_from_breakdown * 60;
+   }
+   if(deadline <= 0 || g_lastTimer1Time < deadline)
+      return false;
+
+   const double profitPct = FalgoOpenPositionProfitPctOfPositionDeposit();
+   if(bd.closetrade_after_some_time_butOnlyIfProfit
+      && profitPct < bd.closetrade_after_some_time_but_ProfitNeeded)
+      return false;
+
+   if(slotIdx >= 0)
+      g_falgoOpenTelemetryCtx = slotIdx;
+   FalgoTryLogTelemetryCloseDecision("breakdown_midpoint_time_exit",
+      StringFormat("now=%s|deadline=%s|breakdownEnd=%s|profitPct=%.2f|profitNeeded=%.2f|onlyIfProfit=%s",
+         TimeToString(g_lastTimer1Time, TIME_DATE|TIME_MINUTES),
+         TimeToString(deadline, TIME_DATE|TIME_MINUTES),
+         TimeToString(breakdownEnd, TIME_DATE|TIME_MINUTES),
+         profitPct, bd.closetrade_after_some_time_but_ProfitNeeded,
+         (bd.closetrade_after_some_time_butOnlyIfProfit ? "true" : "false")));
+   BreakdownRememberPendingCloseReason((ulong)ExtPositionInfo.Identifier(), "timeTrigger");
+   const int telSlot = slotIdx;
+   const double profitPts = FalgoOpenPositionProfitPoints();
+   const double accountProfit = FalgoSelectedPositionAccountProfit();
+   ExtTrade.SetExpertMagicNumber((ulong)posMagic);
+   const bool closed = ExtTrade.PositionClose(posTicket);
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   if(closed)
+      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, telSlot);
+   return closed;
+}
+
+//+------------------------------------------------------------------+
 void Babysitf_RunAllOpenFalgoPositionsForSymbol()
 {
    for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
@@ -8082,11 +9614,25 @@ void Babysitf_RunAllOpenFalgoPositionsForSymbol()
       const long posMagic = ExtPositionInfo.Magic();
       if(!IsAnyAlgoFamilyCompositeMagic(posMagic))
          continue;
-      if(!g_algoShared.babysit_enabled)
+      if(IsBreakdownFamilyCompositeMagic(posMagic))
+      {
+         if(!g_breakdownAlgoShared.babysit_enabled)
+            continue;
+      }
+      else if(!g_algoShared.babysit_enabled)
          continue;
       AlgoPerAlgoTune posTune;
       if(!AlgoLoadPerAlgoTuneForMagic(posMagic, posTune))
          continue;
+      const int algoSlot = AlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(posMagic));
+      if(IsBreakdownFamilyCompositeMagic(posMagic))
+      {
+         if(Babysitf_falgo_runBreakdownSecretTpExit(posMagic))
+            continue;
+         if(Babysitf_falgo_runBreakdownMidpointTimeExit(posMagic))
+            continue;
+         continue;
+      }
       FalgoMagicKey fk = ParseFalgoMagic(posMagic);
       const int babysitStartMin = fk.babysitMinute;
       const int minutesOpen = (int)((g_lastTimer1Time - ExtPositionInfo.Time()) / 60);
@@ -8156,10 +9702,294 @@ bool FalgoBuildMagicKeyForPlacement(const int algoSlot1, const int barIdx, const
 }
 
 //+------------------------------------------------------------------+
+bool FalgoBuildMagicKeyForBreakdownPlacement(const int algoNumber, const int direction, FalgoMagicKey &outKey)
+{
+   if(direction != FALGO_DIRECTION_LONG_LIMIT)
+      return false;
+   const int levelSlot = FALGO_MAGIC_LEVEL_SLOT_BREAKDOWN;
+   const int nextLevelTradeNum = BreakdownLevelTradeNumTodayAtMagicLevelSlot(algoNumber, levelSlot) + 1;
+   outKey.direction = direction;
+   outKey.dayOfWeek = FalgoDayOfWeekSlotFromTime(g_lastTimer1Time);
+   outKey.levelSlot = levelSlot;
+   outKey.bounceCount = 0;
+   outKey.ceilingCount = 0;
+   outKey.offset_tenths = 0;
+   outKey.planTradeNum = FalgoClamp0_8(BreakdownPlanTradeNumToday(algoNumber) + 1);
+   outKey.levelTradeNum = FalgoClamp0_8(nextLevelTradeNum);
+   AlgoPerAlgoTune placeTune;
+   if(!AlgoLoadPerAlgoTune(algoNumber, placeTune))
+      return false;
+   outKey.babysitMinute = FalgoClamp0_9(placeTune.babysitStart_minute);
+   const int bIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   outKey.slWhole = 0;
+   outKey.tpWhole = 0;
+   if(bIdx >= 0 && g_breakdownAlgos[bIdx].sl_enabled && g_breakdownAlgos[bIdx].sl_points > 0.0)
+      outKey.slWhole = FalgoCapWholeTpSlForMagic(g_breakdownAlgos[bIdx].sl_points);
+   if(bIdx >= 0 && g_breakdownAlgos[bIdx].tp_enabled)
+   {
+      const double entryPrice = BreakdownEntryPriceForAlgo(g_breakdownAlgos[bIdx], g_breakdown15mSnap);
+      const double brokerTp = FalgoBreakdownPriceAtRangePercent(g_breakdown15mSnap.breakdownLow, g_breakdown15mSnap.startHigh,
+         g_breakdownAlgos[bIdx].tp_notsecret_range_percent);
+      if(entryPrice > 0.0 && brokerTp > entryPrice)
+      {
+         const double tpPts = FalgoProfileOffsetPointsFromPriceDelta(brokerTp - entryPrice);
+         outKey.tpWhole = FalgoCapWholeTpSlForMagic(MathMax(0.0, tpPts));
+      }
+   }
+   return true;
+}
+
+//+------------------------------------------------------------------+
+int BreakdownForgetAfterMinutesForSnap()
+{
+   int forgetMin = 0;
+   bool any = false;
+   for(int i = 0; i < g_breakdownAlgoCount; i++)
+   {
+      if(!g_breakdownAlgos[i].enabled)
+         continue;
+      const int m = g_breakdownAlgos[i].forget_about_latest_breakdown_after_x_15m_candles * 15;
+      if(!any || m < forgetMin)
+      {
+         forgetMin = m;
+         any = true;
+      }
+   }
+   return (any ? forgetMin : 0);
+}
+
+//+------------------------------------------------------------------+
+void RefreshGlobalBreakdown15mSnap(const datetime asOfTime)
+{
+   ZeroMemory(g_breakdown15mSnap);
+   const datetime dayStart = asOfTime - (asOfTime % 86400);
+   ComputeBreakdown15mState(dayStart, asOfTime, AllCandlesLog_expanded_min_redStrongRangePct,
+      BreakdownForgetAfterMinutesForSnap(), g_breakdown15mSnap);
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownAlgoHasClosedTradeToday(const int algoNumber)
+{
+   const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(slotIdx >= 0 && (g_breakdownAlgoDayWins[slotIdx] + g_breakdownAlgoDayLosses[slotIdx]) > 0)
+      return true;
+
+   const datetime dayStart = FalgoTradingDayStart();
+   for(int i = 0; i < g_tradeResultsCount; i++)
+   {
+      if(!IsBreakdownFamilyCompositeMagic(g_tradeResults[i].magic))
+         continue;
+      if(AlgoFamilyMagicNumber(g_tradeResults[i].magic) != algoNumber)
+         continue;
+      if(!g_tradeResults[i].foundOut)
+         continue;
+      if(g_tradeResults[i].startTime > 0 && FalgoTradeStartedOnTradingDay(g_tradeResults[i], dayStart))
+         return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+string BreakdownAlgoOrderStateBlockReason(const int algoNumber)
+{
+   if(AlgoHasPendingOrderOnSymbol(algoNumber))
+      return "algoOrderPending";
+   if(AlgoHasOpenPositionOnSymbol(algoNumber))
+      return "algoOrderOpen";
+   return "";
+}
+
+//+------------------------------------------------------------------+
+string BreakdownSameBreakdownClosedBlockReason(const int algoNumber, const datetime breakdownEndTime)
+{
+   const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(slotIdx < 0 || breakdownEndTime <= 0)
+      return "";
+   if(g_breakdownAlgoLastPlacedEndTime[slotIdx] != breakdownEndTime)
+      return "";
+   if(BreakdownAlgoHasClosedTradeToday(algoNumber))
+      return "breakdownAlreadyTraded";
+   return "";
+}
+
+//+------------------------------------------------------------------+
+//| Same-breakdown placement gate: pending vs open vs closed for this breakdown sequence. |
+//+------------------------------------------------------------------+
+string BreakdownSameBreakdownPlacementBlockReason(const int algoNumber, const datetime breakdownEndTime)
+{
+   const string orderState = BreakdownAlgoOrderStateBlockReason(algoNumber);
+   if(orderState != "")
+      return orderState;
+   return BreakdownSameBreakdownClosedBlockReason(algoNumber, breakdownEndTime);
+}
+
+//+------------------------------------------------------------------+
+string BreakdownMidpointEntryBlockReason(const int algoNumber, const Breakdown15mState &st, const datetime now)
+{
+   BreakdownAlgoDef bd;
+   if(!BreakdownAlgoDefForNumber(algoNumber, bd))
+      return "algoNotRegistered";
+
+   const string orderState = BreakdownAlgoOrderStateBlockReason(algoNumber);
+   if(orderState != "")
+      return orderState;
+
+   if(!st.hasBreakdown)
+      return "noBreakdownYet";
+   if(st.sequenceActive)
+      return StringFormat("breakdownActive(len=%d)", st.activeLength);
+   if(st.endedLength < bd.min_breakdown_sequence_len)
+      return StringFormat("breakdownLengthTooShort(%d vs %d)", st.endedLength, bd.min_breakdown_sequence_len);
+   if(-st.totalPercent < bd.min_breakdown_total_percent)
+      return StringFormat("breakdownDropTooSmall(%.2f%% vs min %.2f%%)", -st.totalPercent, bd.min_breakdown_total_percent);
+   if(st.endTime <= 0)
+      return "noBreakdownEndTime";
+   if(now < st.endTime)
+      return "beforeBreakdownEnd";
+   const double entryPrice = BreakdownEntryPriceForAlgo(bd, st);
+   if(entryPrice <= 0.0)
+      return "noFirstGreenEntryPrice";
+   if(st.firstGreenBarEndTime > 0 && now < st.firstGreenBarEndTime)
+      return "beforeFirstGreenClose";
+   const int forgetMinutes = bd.forget_about_latest_breakdown_after_x_15m_candles * 15;
+   if(forgetMinutes > 0 && now - st.endTime > forgetMinutes * 60)
+      return "";
+   const string sameBdClosed = BreakdownSameBreakdownClosedBlockReason(algoNumber, st.endTime);
+   if(sameBdClosed != "")
+      return sameBdClosed;
+   if(now - st.endTime > bd.entry_max_minutes_after_bdend * 60)
+      return "breakdownEndTooOld";
+   return "";
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownMidpointEntryAllowed(const int algoNumber, const Breakdown15mState &st, const datetime now)
+{
+   return (BreakdownMidpointEntryBlockReason(algoNumber, st, now) == "");
+}
+
+//+------------------------------------------------------------------+
+string BreakdownPlannedTradePriceForGates(const int algoNumber, const datetime evalTime, const Breakdown15mState &st)
+{
+   BreakdownAlgoDef bd;
+   if(!BreakdownAlgoDefForNumber(algoNumber, bd))
+      return "";
+   if(st.firstGreenBarEndTime <= 0 || evalTime < st.firstGreenBarEndTime)
+      return "";
+   const double entryPrice = BreakdownEntryPriceForAlgo(bd, st);
+   if(entryPrice <= 0.0)
+      return "";
+   return DoubleToString(entryPrice, _Digits);
+}
+
+//+------------------------------------------------------------------+
+bool AlgoTryPlaceBreakdownMidpointOrder(const int algoNumber, const int barIdx)
+{
+   const int algoSlot = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(algoSlot < 0 || !IsBreakdownFamilyAlgoNumber(algoNumber))
+      return false;
+   if(!AlgoProfileEnabled(algoNumber))
+      return false;
+   if(!BreakdownRulesetPassesCommonForPlacement(algoNumber, barIdx))
+      return false;
+   if(BreakdownAlgoOrderStateBlockReason(algoNumber) != "")
+      return false;
+   if(!BreakdownMidpointEntryAllowed(algoNumber, g_breakdown15mSnap, g_lastTimer1Time))
+      return false;
+
+   const BreakdownAlgoDef bd = g_breakdownAlgos[algoSlot];
+   const double orderAnchor = BreakdownEntryPriceForAlgo(bd, g_breakdown15mSnap);
+   if(orderAnchor <= 0.0)
+      return false;
+   double brokerTpPrice = 0.0;
+   if(bd.tp_enabled)
+   {
+      brokerTpPrice = FalgoBreakdownPriceAtRangePercent(g_breakdown15mSnap.breakdownLow, g_breakdown15mSnap.startHigh,
+         bd.tp_notsecret_range_percent);
+      if(brokerTpPrice <= orderAnchor)
+         return false;
+   }
+
+   FalgoMagicKey planKey;
+   if(!FalgoBuildMagicKeyForBreakdownPlacement(algoNumber, FALGO_DIRECTION_LONG_LIMIT, planKey))
+      return false;
+
+   const long magic = BuildAlgoMagicNumber(algoNumber, planKey);
+   if(!BreakdownUnderMaxOpenPositionsLimit(algoNumber))
+      return false;
+
+   const double lot = GetTradeLotForBreakdown();
+   if(!PlacePendingFromFalgoMagicBreakdown(magic, orderAnchor, bd.tp_enabled, brokerTpPrice, bd.sl_enabled, bd.sl_points,
+      bd.expiry_minutes, lot))
+      return false;
+
+   g_breakdownAlgoLastPlacedEndTime[algoSlot] = g_breakdown15mSnap.endTime;
+   g_breakdownAlgoLastPlacedStartHigh[algoSlot] = g_breakdown15mSnap.startHigh;
+   g_breakdownAlgoLastPlacedBreakdownLow[algoSlot] = g_breakdown15mSnap.breakdownLow;
+   BreakdownBumpPlanCountersAfterPlacement(algoNumber, planKey.levelSlot);
+   BreakdownRememberPendingPlannedPrice(magic, orderAnchor);
+   WriteTradeLogPendingOrderBreakdown(magic, orderAnchor, bd.tp_enabled, brokerTpPrice, bd.sl_enabled, bd.sl_points, bd.expiry_minutes);
+   return true;
+}
+
+//+------------------------------------------------------------------+
+string AlgoBreakdownPlacementBlockReasonFirstFail(const int algoNumber, const int barIdx)
+{
+   if(BreakdownAlgoSlotIndexByAlgoId(algoNumber) < 0)
+      return "algoNotRegistered";
+   if(!AlgoProfileEnabled(algoNumber))
+      return "profileDisabled";
+   const string orderState = BreakdownAlgoOrderStateBlockReason(algoNumber);
+   if(orderState != "")
+      return orderState;
+   if(!BreakdownProfileAllowsNewOrdersNow())
+      return "profileNoNewOrdersNow";
+   if(!BreakdownRulesetPassesCommonForPlacement(algoNumber, barIdx))
+   {
+      if(!FalgoRulesetPassesCloseBarForAlgo(algoNumber, barIdx))
+         return "tradeClosedThisBar";
+      if(!BreakdownRulesetPassesDayStops(algoNumber))
+         return "lossStopDayLimit";
+      const string openLimit = BreakdownMaxOpenPositionsFailLabel(algoNumber);
+      if(openLimit != "")
+         return openLimit;
+      if(BreakdownFamilyBlocksPlacementOnOpenOrPending())
+      {
+         if(BreakdownHasOpenPositionOnSymbol())
+            return "openFalgoPositionFam";
+         if(BreakdownHasPendingOrderOnSymbol())
+            return "pendingFalgoOrderFam";
+         if(g_breakdownFamilyHadCloseThisPipelinePass)
+            return "tradeClosedThisPipelineFam";
+      }
+      return "rulesetFail";
+   }
+
+   RefreshGlobalBreakdown15mSnap(g_lastTimer1Time);
+   const string entryBlock = BreakdownMidpointEntryBlockReason(algoNumber, g_breakdown15mSnap, g_lastTimer1Time);
+   if(entryBlock != "")
+      return entryBlock;
+
+   BreakdownAlgoDef bdAnchor;
+   if(!BreakdownAlgoDefForNumber(algoNumber, bdAnchor))
+      return "algoNotRegistered";
+   const double orderAnchor = BreakdownEntryPriceForAlgo(bdAnchor, g_breakdown15mSnap);
+   if(orderAnchor <= 0.0)
+      return "noFirstGreenEntryPrice";
+   if(PlacePending_ShouldSkip_BidTooCloseToOrderPrice(orderAnchor, 1.0))
+      return StringFormat("bidTooCloseToOrder(%s vs %s)", DoubleToString(g_liveBid, _Digits), DoubleToString(orderAnchor, _Digits));
+
+   return "";
+}
+
+//+------------------------------------------------------------------+
 //| Mirrors AlgoTryPlaceOrderThisTick silent returns as firstFail labels (per-second gates). |
 //+------------------------------------------------------------------+
 string AlgoPlacementBlockReasonFirstFail(const int algoNumber, const int barIdx)
 {
+   if(IsBreakdownFamilyAlgoNumber(algoNumber))
+      return AlgoBreakdownPlacementBlockReasonFirstFail(algoNumber, barIdx);
+
    if(AlgoSlotIndexByAlgoId(algoNumber) < 0)
       return "algoNotRegistered";
    if(!AlgoProfileEnabled(algoNumber))
@@ -8325,9 +10155,16 @@ bool AlgoTryPlaceOrderThisTick(const int algoNumber, const int barIdx)
 //+------------------------------------------------------------------+
 void RunFalgoTradePipeline()
 {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+
    g_algoFamilyHadCloseThisPipelinePass = false;
    UpdateFalgoDayTradeCounts();
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    Babysitf_RunAllOpenFalgoPositionsForSymbol();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_BABYSIT, profT0);
    FalgoOverlayLiveDayStatsOnLastBar();
 
    if(!FalgoProfileAllowsNewOrdersNow())
@@ -8341,7 +10178,40 @@ void RunFalgoTradePipeline()
    {
       if(!g_algos[si].enabled)
          continue;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       AlgoTryPlaceOrderThisTick(g_algos[si].algo_id, barIdx);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_FALGO_PLACEMENT, profT0);
+   }
+}
+
+//+------------------------------------------------------------------+
+void RunBreakdownTradePipeline()
+{
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+
+   g_breakdownFamilyHadCloseThisPipelinePass = false;
+   UpdateBreakdownDayTradeCounts();
+
+   if(!BreakdownProfileAllowsNewOrdersNow())
+      return;
+   if(g_barsInDay < 1)
+      return;
+
+   const int barIdx = g_barsInDay - 1;
+   RefreshGlobalBreakdown15mSnap(g_lastTimer1Time);
+   RefreshOccupiedMagicsCache();
+   for(int si = 0; si < g_breakdownAlgoCount; si++)
+   {
+      if(!g_breakdownAlgos[si].enabled)
+         continue;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
+      AlgoTryPlaceBreakdownMidpointOrder(g_breakdownAlgos[si].algo_id, barIdx);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT, profT0);
    }
 }
 
@@ -8360,6 +10230,37 @@ struct FalgoTradeLegacyContextCols
    string refBelow;
    string levelCats;
 };
+
+//+------------------------------------------------------------------+
+double BreakdownPlannedPriceForTradeResult(const TradeResult &tr)
+{
+   const datetime dayStart = (tr.startTime > 0 ? tr.startTime : tr.sentTime);
+   if(dayStart > 0 && tr.sentTime > 0 && HistorySelect(dayStart - (dayStart % 86400), dayStart - (dayStart % 86400) + 86400))
+   {
+      for(int i = HistoryOrdersTotal() - 1; i >= 0; i--)
+      {
+         const ulong orderTicket = HistoryOrderGetTicket(i);
+         if(orderTicket == 0 || !HistoryOrderSelect(orderTicket))
+            continue;
+         if(HistoryOrderGetString(orderTicket, ORDER_SYMBOL) != tr.symbol)
+            continue;
+         if(HistoryOrderGetInteger(orderTicket, ORDER_MAGIC) != tr.magic)
+            continue;
+         if((datetime)HistoryOrderGetInteger(orderTicket, ORDER_TIME_SETUP) != tr.sentTime)
+            continue;
+         const double planned = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
+         if(planned > 0.0)
+            return planned;
+      }
+   }
+   if(StringLen(tr.level) > 0)
+   {
+      const double fromLevel = StringToDouble(tr.level);
+      if(fromLevel > 0.0)
+         return fromLevel;
+   }
+   return tr.priceStart;
+}
 
 //+------------------------------------------------------------------+
 double FalgoLevelPriceForTradeResult(const TradeResult &tr)
@@ -8404,10 +10305,12 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
    out.dayBrokePDL = GetDayBrokePDLAtTradeOpenTime(tr.startTime);
 
    const FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
-   if(IsAnyAlgoFamilyCompositeMagic(tr.magic))
+   if(IsAnyAlgoFamilyCompositeMagic(tr.magic) && !IsBreakdownFamilyCompositeMagic(tr.magic))
       out.levelCats = g_levelsExpanded[FalgoResolveExpandedLevelIdxFromMagicKey(fk)].categories;
 
-   const double levelPrice = FalgoLevelPriceForTradeResult(tr);
+   const double levelPrice = (IsBreakdownFamilyCompositeMagic(tr.magic)
+      ? BreakdownPlannedPriceForTradeResult(tr)
+      : FalgoLevelPriceForTradeResult(tr));
    if(levelPrice > 0.0)
    {
       GetReferencePointsAboveBelow(tr.startTime, levelPrice, out.refAbove, out.refBelow);
@@ -8443,7 +10346,8 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_COLS     47
+#define FALGO_ALLDAYS_COLS              47
+#define FALGO_BREAKDOWN_ALLDAYS_COLS    43
 
 string FalgoAllDaysTradeResultsHeader()
 {
@@ -8453,24 +10357,32 @@ string FalgoAllDaysTradeResultsHeader()
 }
 
 //+------------------------------------------------------------------+
-void FalgoFileWriteAllDaysHeader(const int fh)
+string FalgoBreakdownAllDaysTradeResultsHeader()
 {
-   FileWriteString(fh, FalgoAllDaysTradeResultsHeader() + "\r\n");
+   return "date,symbol,sentTime,startTime,endTime,sessionSent,magic,priceStart,priceEnd,priceDiff,profit,type,level,MFE,MAE,"
+      + FalgoTradeResultMaeFirstCsvColumnName()
+      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,secret_tp_range_percent,closetrade_after_x_minutes_from_breakdown";
 }
 
 //+------------------------------------------------------------------+
-void FalgoFileWriteAllDaysRowFromCells(const int fh, const string &cells[], const int base)
+void FalgoFileWriteAllDaysHeader(const int fh, const string header)
+{
+   FileWriteString(fh, header + "\r\n");
+}
+
+//+------------------------------------------------------------------+
+void FalgoFileWriteAllDaysRowFromCells(const int fh, const string &cells[], const int base, const int colCount)
 {
    string row = FalgoSanitizeCsvCell(cells[base + 0]);
-   for(int c = 1; c < FALGO_ALLDAYS_COLS; c++)
+   for(int c = 1; c < colCount; c++)
       row += "," + FalgoSanitizeCsvCell(cells[base + c]);
    FileWriteString(fh, row + "\r\n");
 }
 
 //+------------------------------------------------------------------+
-//| Read all-days trade-results file: one line = one row; exact FALGO_ALLDAYS_COLS only. |
+//| Read all-days trade-results file: one line = one row; exact colCount only. |
 //+------------------------------------------------------------------+
-void FalgoReadAllDaysTradeResultsFromFile(const string fileName, string &outCells[], int &outRowCount)
+void FalgoReadAllDaysTradeResultsFromFile(const string fileName, string &outCells[], int &outRowCount, const int colCount)
 {
    outRowCount = 0;
    ArrayResize(outCells, 0);
@@ -8490,11 +10402,11 @@ void FalgoReadAllDaysTradeResultsFromFile(const string fileName, string &outCell
             continue;
       }
       string parts[];
-      if(StringSplit(line, ',', parts) != FALGO_ALLDAYS_COLS)
+      if(StringSplit(line, ',', parts) != colCount)
          continue;
       const int base = ArraySize(outCells);
-      ArrayResize(outCells, base + FALGO_ALLDAYS_COLS);
-      for(int c = 0; c < FALGO_ALLDAYS_COLS; c++)
+      ArrayResize(outCells, base + colCount);
+      for(int c = 0; c < colCount; c++)
          outCells[base + c] = parts[c];
       outRowCount++;
    }
@@ -8502,14 +10414,15 @@ void FalgoReadAllDaysTradeResultsFromFile(const string fileName, string &outCell
 }
 
 //+------------------------------------------------------------------+
-void FalgoWriteAllDaysTradeResultsToFile(const string fileName, const string &cells[], const int rowCount)
+void FalgoWriteAllDaysTradeResultsToFile(const string fileName, const string &cells[], const int rowCount,
+   const string header, const int colCount)
 {
    int fh = FileOpen(fileName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       return;
-   FalgoFileWriteAllDaysHeader(fh);
+   FalgoFileWriteAllDaysHeader(fh, header);
    for(int ri = 0; ri < rowCount; ri++)
-      FalgoFileWriteAllDaysRowFromCells(fh, cells, ri * FALGO_ALLDAYS_COLS);
+      FalgoFileWriteAllDaysRowFromCells(fh, cells, ri * colCount, colCount);
    FileClose(fh);
 }
 
@@ -8591,13 +10504,99 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
 }
 
 //+------------------------------------------------------------------+
-bool FalgoAllDaysRowsContainTrade(const string &cells[], const int rowCount, const long magic, const datetime startTime)
+void BreakdownAllDaysAlgoConfigForMagic(const long magic, int &outSecretTpRangePct, int &outCloseAfterMinFromBd)
+{
+   outSecretTpRangePct = 0;
+   outCloseAfterMinFromBd = 0;
+   BreakdownAlgoDef bd;
+   if(!BreakdownAlgoDefForNumber(AlgoFamilyMagicNumber(magic), bd))
+      return;
+   outSecretTpRangePct = bd.secret_tp_range_percent;
+   outCloseAfterMinFromBd = bd.closetrade_after_x_minutes_from_breakdown;
+}
+
+//+------------------------------------------------------------------+
+void FalgoAppendBreakdownTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
+{
+   const int base = ArraySize(cells);
+   ArrayResize(cells, base + FALGO_BREAKDOWN_ALLDAYS_COLS);
+   cells[base + 0]  = dateStr;
+   cells[base + 1]  = tr.symbol;
+   cells[base + 2]  = TimeToString(tr.sentTime, TIME_DATE|TIME_SECONDS);
+   cells[base + 3]  = TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS);
+   cells[base + 4]  = TimeToString(tr.endTime, TIME_DATE|TIME_SECONDS);
+   cells[base + 5]  = FalgoSanitizeCsvCell(tr.sessionSent);
+   cells[base + 6]  = IntegerToString((long)tr.magic);
+   cells[base + 7]  = DoubleToString(tr.priceStart, _Digits);
+   cells[base + 8]  = DoubleToString(tr.priceEnd, _Digits);
+   cells[base + 9]  = DoubleToString(tr.priceDiff, _Digits);
+   cells[base + 10] = DoubleToString(tr.profit, 2);
+   cells[base + 11] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
+   int planNum = 0, levelNum = 0;
+   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
+   cells[base + 12] = FalgoSanitizeCsvCell(tr.level);
+   FalgoClosedTradeTelemetrySummary telSummary;
+   const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
+   FalgoTradeLegacyContextCols legacyCtx;
+   FalgoFillTradeLegacyContextCols(tr, legacyCtx);
+   if(hasTel)
+   {
+      cells[base + 13] = DoubleToString(telSummary.mfePts, 1);
+      cells[base + 14] = DoubleToString(telSummary.maePts, 1);
+      cells[base + 15] = DoubleToString(telSummary.maeFirstWindowPts, 1);
+      cells[base + 18] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 19] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 28] = DoubleToString(telSummary.greenRatioAtClose, 4);
+      cells[base + 29] = DoubleToString(telSummary.avgProfitVelocity, 3);
+      cells[base + 30] = IntegerToString(telSummary.secondsGreen);
+      cells[base + 31] = IntegerToString(telSummary.secondsRed);
+   }
+   else
+   {
+      cells[base + 13] = "";
+      cells[base + 14] = "";
+      cells[base + 15] = "";
+      cells[base + 18] = "";
+      cells[base + 19] = "";
+      cells[base + 28] = "";
+      cells[base + 29] = "";
+      cells[base + 30] = "";
+      cells[base + 31] = "";
+   }
+   cells[base + 16] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 17] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 20] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 21] = (string)tr.volume;
+   cells[base + 22] = FalgoSanitizeCsvCell(tr.bothComments);
+   cells[base + 23] = IntegerToString(planNum);
+   cells[base + 24] = IntegerToString(levelNum);
+   cells[base + 25] = FalgoOffsetPriceUnitsStrForTrade(tr);
+   cells[base + 26] = FalgoSanitizeCsvCell(tr.tp);
+   cells[base + 27] = FalgoSanitizeCsvCell(tr.sl);
+   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
+   int secretTpPct = 0, closeAfterMin = 0;
+   BreakdownAllDaysAlgoConfigForMagic(tr.magic, secretTpPct, closeAfterMin);
+   cells[base + 41] = IntegerToString(secretTpPct);
+   cells[base + 42] = IntegerToString(closeAfterMin);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoAllDaysRowsContainTrade(const string &cells[], const int rowCount, const long magic, const datetime startTime,
+   const int colCount)
 {
    const string magicStr = IntegerToString(magic);
    const string startStr = TimeToString(startTime, TIME_DATE|TIME_SECONDS);
    for(int ri = 0; ri < rowCount; ri++)
    {
-      const int base = ri * FALGO_ALLDAYS_COLS;
+      const int base = ri * colCount;
       if(cells[base + 6] == magicStr && cells[base + 3] == startStr)
          return true;
    }
@@ -8607,7 +10606,7 @@ bool FalgoAllDaysRowsContainTrade(const string &cells[], const int rowCount, con
 //+------------------------------------------------------------------+
 //| Reorder all-days flat cell rows by startTime column ascending (family summary only). |
 //+------------------------------------------------------------------+
-void FalgoSortAllDaysCellRowsByStartTimeAsc(string &cells[], const int rowCount)
+void FalgoSortAllDaysCellRowsByStartTimeAsc(string &cells[], const int rowCount, const int colCount)
 {
    if(rowCount <= 1)
       return;
@@ -8628,8 +10627,8 @@ void FalgoSortAllDaysCellRowsByStartTimeAsc(string &cells[], const int rowCount)
          int p = i0, q = m, o = i0;
          while(p < m && q < i1)
          {
-            const datetime tP = StringToTime(cells[indices[p] * FALGO_ALLDAYS_COLS + 3]);
-            const datetime tQ = StringToTime(cells[indices[q] * FALGO_ALLDAYS_COLS + 3]);
+            const datetime tP = StringToTime(cells[indices[p] * colCount + 3]);
+            const datetime tQ = StringToTime(cells[indices[q] * colCount + 3]);
             if(tP <= tQ)
                tmp[o++] = indices[p++];
             else
@@ -8645,12 +10644,12 @@ void FalgoSortAllDaysCellRowsByStartTimeAsc(string &cells[], const int rowCount)
    }
 
    string sorted[];
-   ArrayResize(sorted, rowCount * FALGO_ALLDAYS_COLS);
+   ArrayResize(sorted, rowCount * colCount);
    for(int ri = 0; ri < rowCount; ri++)
    {
-      const int srcBase = indices[ri] * FALGO_ALLDAYS_COLS;
-      const int dstBase = ri * FALGO_ALLDAYS_COLS;
-      for(int c = 0; c < FALGO_ALLDAYS_COLS; c++)
+      const int srcBase = indices[ri] * colCount;
+      const int dstBase = ri * colCount;
+      for(int c = 0; c < colCount; c++)
          sorted[dstBase + c] = cells[srcBase + c];
    }
    ArrayCopy(cells, sorted);
@@ -8671,7 +10670,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
 
    if(writeDailyCsv)
    {
-   const string csvName = dateStr + "_summaryZ_tradeResults_ALL_Day_algo" + IntegerToString(algoSlot1) + ".csv";
+   const string csvName = FalgoEodTradeResultsDailyCsvName(dateStr, algoSlot1);
    int fhDay = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fhDay != INVALID_HANDLE)
    {
@@ -8736,7 +10735,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    if(!writeAllDaysPerAlgo)
       return;
 
-   const string summaryAllName = "summary_tradeResults_all_days_algo" + IntegerToString(algoSlot1) + ".tsv";
+   const string summaryAllName = FalgoAllDaysSummaryFileNameForAlgo(algoSlot1);
    string headerParts[];
    const int schemaCols = StringSplit(FalgoAllDaysTradeResultsHeader(), ',', headerParts);
    if(schemaCols != FALGO_ALLDAYS_COLS)
@@ -8744,25 +10743,26 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
 
    string allDaysCells[];
    int existingRowCount = 0;
-   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount);
+   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount, FALGO_ALLDAYS_COLS);
 
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
       TradeResult tr = g_tradeResults[trIdx];
       if(!tr.foundOut || !IsAlgoCompositeMagic(tr.magic, algoSlot1))
          continue;
-      if(FalgoAllDaysRowsContainTrade(allDaysCells, existingRowCount, tr.magic, tr.startTime))
+      if(FalgoAllDaysRowsContainTrade(allDaysCells, existingRowCount, tr.magic, tr.startTime, FALGO_ALLDAYS_COLS))
          continue;
       FalgoAppendTradeResultCells(allDaysCells, dateStr, tr);
       existingRowCount++;
    }
 
-   FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount);
-   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount);
+   FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount, FALGO_ALLDAYS_COLS);
+   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount,
+      FalgoAllDaysTradeResultsHeader(), FALGO_ALLDAYS_COLS);
 }
 
 //+------------------------------------------------------------------+
-//| EOD: all-days TSV across algo10+11+12 — read/merge/append today's family rows. |
+//| EOD: all-days TSV across level-family algos — read/merge/append today's level rows only. |
 //+------------------------------------------------------------------+
 void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
 {
@@ -8774,7 +10774,7 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
    {
       if(!g_tradeResults[trScan].foundOut)
          continue;
-      if(IsAnyAlgoFamilyCompositeMagic(g_tradeResults[trScan].magic))
+      if(IsLevelFamilyCompositeMagic(g_tradeResults[trScan].magic))
          familyOutCount++;
    }
    if(familyOutCount <= 0)
@@ -8788,21 +10788,67 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
 
    string allDaysCells[];
    int existingRowCount = 0;
-   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount);
+   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount, FALGO_ALLDAYS_COLS);
 
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
    {
       TradeResult tr = g_tradeResults[trIdx];
-      if(!tr.foundOut || !IsAnyAlgoFamilyCompositeMagic(tr.magic))
+      if(!tr.foundOut || !IsLevelFamilyCompositeMagic(tr.magic))
          continue;
-      if(FalgoAllDaysRowsContainTrade(allDaysCells, existingRowCount, tr.magic, tr.startTime))
+      if(FalgoAllDaysRowsContainTrade(allDaysCells, existingRowCount, tr.magic, tr.startTime, FALGO_ALLDAYS_COLS))
          continue;
       FalgoAppendTradeResultCells(allDaysCells, dateStr, tr);
       existingRowCount++;
    }
 
-   FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount);
-   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount);
+   FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount, FALGO_ALLDAYS_COLS);
+   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount,
+      FalgoAllDaysTradeResultsHeader(), FALGO_ALLDAYS_COLS);
+}
+
+//+------------------------------------------------------------------+
+//| EOD: all-days TSV across breakdown-family algos. |
+//+------------------------------------------------------------------+
+void WriteBreakdownFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
+{
+   if(!BreakdownFamilyEodTradeResultsAllDaysLoggingEnabled())
+      return;
+
+   int familyOutCount = 0;
+   for(int trScan = 0; trScan < g_tradeResultsCount; trScan++)
+   {
+      if(!g_tradeResults[trScan].foundOut)
+         continue;
+      if(IsBreakdownFamilyCompositeMagic(g_tradeResults[trScan].magic))
+         familyOutCount++;
+   }
+   if(familyOutCount <= 0)
+      return;
+
+   const string summaryAllName = "summary_tradeResults_all_days_breakdown.tsv";
+   string headerParts[];
+   const int schemaCols = StringSplit(FalgoBreakdownAllDaysTradeResultsHeader(), ',', headerParts);
+   if(schemaCols != FALGO_BREAKDOWN_ALLDAYS_COLS)
+      FatalError(StringFormat("WriteBreakdownFamilyAllDaysTradeResultsSummaryIfNeeded: schemaCols %d != FALGO_BREAKDOWN_ALLDAYS_COLS %d", schemaCols, FALGO_BREAKDOWN_ALLDAYS_COLS));
+
+   string allDaysCells[];
+   int existingRowCount = 0;
+   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount, FALGO_BREAKDOWN_ALLDAYS_COLS);
+
+   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+   {
+      TradeResult tr = g_tradeResults[trIdx];
+      if(!tr.foundOut || !IsBreakdownFamilyCompositeMagic(tr.magic))
+         continue;
+      if(FalgoAllDaysRowsContainTrade(allDaysCells, existingRowCount, tr.magic, tr.startTime, FALGO_BREAKDOWN_ALLDAYS_COLS))
+         continue;
+      FalgoAppendBreakdownTradeResultCells(allDaysCells, dateStr, tr);
+      existingRowCount++;
+   }
+
+   FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount, FALGO_BREAKDOWN_ALLDAYS_COLS);
+   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount,
+      FalgoBreakdownAllDaysTradeResultsHeader(), FALGO_BREAKDOWN_ALLDAYS_COLS);
 }
 
 //+------------------------------------------------------------------+
@@ -8832,7 +10878,22 @@ void WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(const string dateStr)
       WriteAlgoEodTradeResultsCsvsIfNeeded(dateStr, algoNumber, algoOutCount);
    }
 
+   for(int bi = 0; bi < g_breakdownAlgoCount; bi++)
+   {
+      const int algoNumber = g_breakdownAlgos[bi].algo_id;
+      int algoOutCount = 0;
+      for(int trScan = 0; trScan < g_tradeResultsCount; trScan++)
+      {
+         if(!g_tradeResults[trScan].foundOut)
+            continue;
+         if(IsAlgoCompositeMagic(g_tradeResults[trScan].magic, algoNumber))
+            algoOutCount++;
+      }
+      WriteAlgoEodTradeResultsCsvsIfNeeded(dateStr, algoNumber, algoOutCount);
+   }
+
    WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(dateStr);
+   WriteBreakdownFamilyAllDaysTradeResultsSummaryIfNeeded(dateStr);
 }
 
 //+------------------------------------------------------------------+
@@ -9074,7 +11135,7 @@ void SyncAlgoFamilyProfileFromInputs()
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO102)].expiry_minutes                              =  10;
 
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO103)].trades_short                                     = ALGO_SIDE_SHORT;
-   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO103)].enabled                                         = true;
+   g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO103)].enabled                                         = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO103)].tradesWeeklyLevels                              = false;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO103)].tradesDailyLevels                               = true;
    g_algos[AlgoSlotIndexByAlgoId(MAGIC_ALGO103)].tune.stop_trading_today_if_thisAlgo_losing_trades_count      =  999;
@@ -9625,11 +11686,68 @@ void SyncAlgoFamilyProfileFromInputs()
 }
 
 //+------------------------------------------------------------------+
+//| Breakdown algo family profile (magic 200..299). |
+//+------------------------------------------------------------------+
+void SyncBreakdownFamilyProfileFromInputs()
+{
+   RebuildBreakdownAlgoSlotsRegistry();
+
+   g_breakdownAlgoShared.babysit_enabled = true;
+   g_breakdownAlgoShared.blockPlacementIfFamilyOpenOrPending = false;
+   g_breakdownAlgoShared.stop_trading_if_day_has_X_wins_0_losses = 9999;
+   g_breakdownAlgoShared.stop_trading_if_day_has_profit_factor_above = 9999;
+   g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count = 999;
+   g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
+   g_breakdownAlgoShared.tradeSizePct = 100;
+   g_breakdownAlgoShared.bannedRanges = "21,35,23,59;0,0,1,0";
+   g_breakdownAlgoShared.tradesDays = "12345";
+
+//breakdowncreator2start
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].enabled = true;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.babysitStart_minute = 0;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.neutral_trade_TP = 0.0;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.strong_trade_TP = 0.0;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.strong_trade_mode_enabled = false;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.neutral_trade_mode_enabled = false;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.badtrade_mode_enabled = false;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.terribletrade_mode_enabled = false;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.telemetry_velocity_window_seconds = 10;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.telemetry_avg_velocity_window_seconds = 10;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.start_mae_care_after_x_seconds = 90;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].expiry_minutes = 15;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].min_breakdown_sequence_len = 4; // more important starts here and below:
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].min_breakdown_total_percent = 0.40;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entry_max_minutes_after_bdend = 45;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].forget_about_latest_breakdown_after_x_15m_candles = 6;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entryrange_rangespot = 35.0;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_enabled = true;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_range_percent = 53;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tp_enabled = true;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tp_notsecret_range_percent = 100;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].sl_enabled = false;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].sl_points = 0.0;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time = true;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_butOnlyIfProfit = true;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_but_ProfitNeeded = 2.0;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_x_minutes_from_breakdown = 90;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.stop_trading_today_if_thisAlgo_total_trades_count = 3;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_trades_per_breakdown_per_day = 1;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_open_positions = 5;
+
+
+//breakdowncreator2end
+}
+
+//+------------------------------------------------------------------+
 //| OnInit: load algo family profile defaults and validate at least one algo slot is enabled. |
 //+------------------------------------------------------------------+
 void ValidateMagicCompositionOnInit()
 {
    SyncAlgoFamilyProfileFromInputs();
+   SyncBreakdownFamilyProfileFromInputs();
    if(!AlgoFamilyAnyEnabled())
       FatalError("Enable at least one algo family slot.");
 }
@@ -12708,6 +14826,65 @@ bool PlacePending_ShouldSkip_BidTooCloseToOrderPrice(const double orderPrice, co
 //| Falgo pending: direction 1=buy limit, 2=sell limit (magic slot 2). |
 //| Limit price = closestWeeklyLevel + PointSized(signed levelOffset) (FalgoPendingOrderPricesForDirection). |
 //+------------------------------------------------------------------+
+bool PlacePendingFromFalgoMagicBreakdown(const long magic, const double orderPrice, const bool tpEnabled,
+   const double tpPriceAbs, const bool slEnabled, const double slPoints, const int expirationMin, const double lot)
+{
+   if(!IsBreakdownFamilyCompositeMagic(magic))
+      return false;
+   if(orderPrice <= 0.0)
+      return false;
+
+   const double orderNorm = NormalizeDouble(orderPrice, _Digits);
+   double tpNorm = 0.0;
+   if(tpEnabled)
+   {
+      if(tpPriceAbs <= 0.0)
+         return false;
+      tpNorm = NormalizeDouble(tpPriceAbs, _Digits);
+      if(tpNorm <= orderNorm)
+         return false;
+   }
+   if(PlacePending_ShouldSkip_BidTooCloseToOrderPrice(orderNorm, 1.0))
+      return false;
+
+   double slNorm = 0.0;
+   if(slEnabled && slPoints > 0.0)
+      slNorm = NormalizeDouble(orderNorm - PointSized(slPoints), _Digits);
+
+   datetime expiration = TimeCurrent() + expirationMin * 60;
+   const string comment = "Falgo_breakdown";
+   ExtTrade.SetExpertMagicNumber(magic);
+   LogPreOrderContext(magic, orderNorm, orderNorm, "BuyLimit", expirationMin);
+   const bool ok = ExtTrade.BuyLimit(lot, orderNorm, _Symbol, slNorm, tpNorm, ORDER_TIME_SPECIFIED, expiration, comment);
+   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   return ok;
+}
+
+//+------------------------------------------------------------------+
+void WriteTradeLogPendingOrderBreakdown(const long magic, const double orderPrice, const bool tpEnabled,
+   const double tpPriceAbs, const bool slEnabled, const double slPoints, const int expirationMin)
+{
+   if(!IsBreakdownFamilyCompositeMagic(magic))
+      return;
+   string magicStrForLogFilename = GetMagicStrForLogFilename(magic);
+   if(StringLen(magicStrForLogFilename) == 0)
+      return;
+   ulong orderTicket = ExtTrade.ResultOrder();
+   datetime eventTime = g_lastTimer1Time;
+   if(orderTicket > 0 && OrderSelect(orderTicket))
+      eventTime = (datetime)OrderGetInteger(ORDER_TIME_SETUP);
+   const double orderNorm = NormalizeDouble(orderPrice, _Digits);
+   double tpNorm = 0.0;
+   if(tpEnabled && tpPriceAbs > 0.0)
+      tpNorm = NormalizeDouble(tpPriceAbs, _Digits);
+   double slNorm = 0.0;
+   if(slEnabled && slPoints > 0.0)
+      slNorm = NormalizeDouble(orderNorm - PointSized(slPoints), _Digits);
+   WriteTradeLog(magicStrForLogFilename, "pending_created", eventTime, "buy_limit", orderNorm, slNorm, tpNorm,
+      expirationMin, orderTicket, 0, 0, (ENUM_DEAL_REASON)0, "Falgo_breakdown", magic);
+}
+
+//+------------------------------------------------------------------+
 bool PlacePendingFromFalgoMagic(long magic, double anchorLevel, double offsetPoints, double slPoints, double tpPoints, int expirationMin, double lot)
 {
    if(!IsAnyAlgoFamilyCompositeMagic(magic))
@@ -12913,7 +15090,7 @@ void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
 
 
 //+------------------------------------------------------------------+
-//| At 21:57 close all open algo-family positions (so EOD write at 21:58 sees OUT). |
+//| At 21:57 close open level-family positions (so EOD write at 21:58 sees OUT). Breakdown family excluded. |
 //+------------------------------------------------------------------+
 void CloseAnyOpenTrade_atEOD_2158_falgo()
 {
@@ -12926,7 +15103,7 @@ void CloseAnyOpenTrade_atEOD_2158_falgo()
       if(!ExtPositionInfo.SelectByIndex(i)) continue;
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
       long posMagic = ExtPositionInfo.Magic();
-      if(!IsAnyAlgoFamilyCompositeMagic(posMagic)) continue;
+      if(!IsLevelFamilyCompositeMagic(posMagic)) continue;
       const ulong posTicket = ExtPositionInfo.Ticket();
       const int telSlot = FalgoOpenTelemetryFindSlotByTicket(posTicket);
       const double profitPts = FalgoOpenPositionProfitPoints();
@@ -13166,13 +15343,12 @@ void WriteTradeLog(const string magicStrForLogFilename, const string eventType, 
 //+------------------------------------------------------------------+
 void ValidateBaseTradeSizeVsAccountBudgetOnInit()
 {
-   const double one_lot = 65000.0;
    const int    max_trade_count_aim_for = 15;
-   const double requiredPln = g_global_base_trade_size * one_lot * (double)max_trade_count_aim_for;
+   const double requiredPln = g_global_base_trade_size * one_lot_equals_xPLN * (double)max_trade_count_aim_for;
    if(requiredPln > ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE)
       FatalError(StringFormat(
-         "Base trade size vs account (PLN): g_global_base_trade_size=%s × one_lot=%.0f × max_trade_count_aim_for=%d = %s exceeds ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE=%s. Lower g_global_base_trade_size or raise ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE.",
-         DoubleToString(g_global_base_trade_size, 4), one_lot, max_trade_count_aim_for,
+         "Base trade size vs account (PLN): g_global_base_trade_size=%s × one_lot_equals_xPLN=%.0f × max_trade_count_aim_for=%d = %s exceeds ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE=%s. Lower g_global_base_trade_size or raise ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE.",
+         DoubleToString(g_global_base_trade_size, 4), one_lot_equals_xPLN, max_trade_count_aim_for,
          DoubleToString(requiredPln, 2), DoubleToString(ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE, 2)));
 }
 
@@ -13299,6 +15475,8 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
    if(fillPrice == 0) fillPrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
 
    long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
+   const ulong positionId = (ulong)HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
+   BreakdownLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
    WriteTradeLog(magicStrForLogFilename, "filled", fillTime, kindStr, fillPrice, 0, 0, 0, orderTicket, trans.deal, 0, (ENUM_DEAL_REASON)0, comment, dealMagic);
 }
 
@@ -13310,6 +15488,8 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
    bool isTpSl = (reason == DEAL_REASON_TP || reason == DEAL_REASON_SL);
    bool isExpertClose = (reason == DEAL_REASON_EXPERT);
    if(!isTpSl && !isExpertClose) return;
+
+   const double closePrice = HistoryDealGetDouble(trans.deal, DEAL_PRICE);
 
    ulong posId = HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
    if(posId == 0) return;
@@ -13334,6 +15514,9 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
       break;
    }
 
+   if(IsBreakdownFamilyCompositeMagic(entryMagic))
+      BreakdownLogTradeClosedLifetime(posId, entryMagic, closeTime, closePrice, reason);
+
    string magicStrForLogFilename = GetMagicStrForLogFilename(entryMagic);
    if(StringLen(magicStrForLogFilename) == 0) return;
 
@@ -13344,6 +15527,7 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
    string eventType = "sl";
    if(reason == DEAL_REASON_TP) eventType = "tp";
    else if(reason == DEAL_REASON_EXPERT) eventType = "closed_by_ea";
+
    WriteTradeLog(magicStrForLogFilename, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment, entryMagic);
 }
 
@@ -13540,6 +15724,8 @@ void OnDeinit(const int reason)
 {
    EventKillTimer();
 
+   BacktestProfWriteRunSummary();
+
    if(current_candle_time != 0)
       FinalizeCurrentCandle();
 
@@ -13627,7 +15813,12 @@ void OnTimer_FinishDurationStatsAndMaybeLog2130(const ulong t0)
 void OnTimer()
 {
    const ulong onTimerT0 = GetMicrosecondCount();
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+
    g_lastTimer1Time = TimeCurrent();
+   if(profOn)
+      BacktestProfOnTimerDayRollover(g_lastTimer1Time - (g_lastTimer1Time % 86400));
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
    double spread = g_liveAsk - g_liveBid;
@@ -13644,9 +15835,14 @@ void OnTimer()
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    FalgoUpdateOpenTradeTelemetryEachSecond();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_TELEMETRY_PER_SEC, profT0);
 
    RunFalgoTradePipeline();
+   RunBreakdownTradePipeline();
 
    FalgoTryLogAlgoFamilyPerSecond();
 
@@ -13695,6 +15891,8 @@ void OnTimer()
    datetime barNowM1 = iTime(_Symbol, PERIOD_M1, 0);
    if(barNowM1 == g_lastBarTime)
    {
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_TOTAL, onTimerT0);
       OnTimer_FinishDurationStatsAndMaybeLog2130(onTimerT0);
       return;
    }
@@ -13704,7 +15902,7 @@ void OnTimer()
    const datetime barClosedM1 = iTime(_Symbol, PERIOD_M1, 1);
    TryFlushTradeResultsEodFallback(barNowM1, barClosedM1);
 
-   CloseAnyOpenTrade_atEOD_2158_falgo();   // algo family magics; EOD write at 21:58 sees OUT
+   CloseAnyOpenTrade_atEOD_2158_falgo();   // level family only; breakdown exits via babysit/time rules
 
    // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
    datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
@@ -13717,6 +15915,9 @@ void OnTimer()
    // Refresh day M1 and levels first; then set closed-candle OHLC from same source (or terminal fallback)
    UpdateDayM1AndLevelsExpanded();
    TryFlushTradeResultsIfLastBarOfDayInFeed();
+
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    SetClosedCandleOHLCFromDayM1OrTerminal();
 
    FinalizeCurrentCandle();
@@ -13730,12 +15931,18 @@ void OnTimer()
    // --- Gap fill so far: % of gap filled by rthLowSoFar (gap up) or rthHighSoFar (gap down); unknown before RTH open.
    UpdateGapFillSoFarAtBar();
    UpdateGapFillAttemptStatsAtBar();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_M1_BAR_CLOSE_OTHER, profT0);
 
    // --- Trade results for the day (deals IN/OUT paired by magic; available globally)
    if(InpLoadTradeResultsFromHistory)
    {
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       UpdateTradeResultsForDay();
       FalgoEnrichAllTradeResultsLevelTpSl();
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_HISTORY, profT0);
    }
    else
    {
@@ -13743,6 +15950,8 @@ void OnTimer()
       g_dealCount = 0;
    }
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    // --- Per-candle day progress (trades closed by each candle close time)
    UpdateDayProgress();
    UpdateFalgoDayTradeCounts();
@@ -13909,6 +16118,10 @@ void OnTimer()
          }
       }
    }
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_M1_BAR_CLOSE_OTHER, profT0);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_TOTAL, onTimerT0);
    OnTimer_FinishDurationStatsAndMaybeLog2130(onTimerT0);
 }
 
@@ -13980,7 +16193,7 @@ void CountRedCandlesSoFarToday(const datetime dayStart, const datetime upToM1Bar
       return;
 
    const ENUM_TIMEFRAMES tf = AllCandlesLogExpandedMinRedTimeframe(periodMinutes);
-   const int lastMinuteOffsetSec = (periodMinutes - 1) * 60;
+   const int barCompleteOffsetSec = periodMinutes * 60;  // bar open + full period (last M1 closes at open+period)
    const string dayStr = TimeToString(dayStart, TIME_DATE);
    int shiftStart = iBarShift(_Symbol, tf, dayStart, false);
    int shiftEnd = iBarShift(_Symbol, tf, upToM1BarTime, false);
@@ -14005,7 +16218,7 @@ void CountRedCandlesSoFarToday(const datetime dayStart, const datetime upToM1Bar
    {
       if(TimeToString(periodRates[barIdx].time, TIME_DATE) != dayStr)
          continue;
-      if(periodRates[barIdx].time + lastMinuteOffsetSec > upToM1BarTime)
+      if(periodRates[barIdx].time + barCompleteOffsetSec > upToM1BarTime)
          continue;
       if(periodRates[barIdx].close >= periodRates[barIdx].open)
          continue;
@@ -14027,7 +16240,7 @@ int AllCandlesLogExpandedMinCopyCompletedPeriodBarsToday(const datetime dayStart
       return 0;
 
    const ENUM_TIMEFRAMES tf = AllCandlesLogExpandedMinRedTimeframe(periodMinutes);
-   const int lastMinuteOffsetSec = (periodMinutes - 1) * 60;
+   const int barCompleteOffsetSec = periodMinutes * 60;  // include bar only after its last M1 has closed
    const string dayStr = TimeToString(dayStart, TIME_DATE);
    int shiftStart = iBarShift(_Symbol, tf, dayStart, false);
    int shiftEnd = iBarShift(_Symbol, tf, upToM1BarTime, false);
@@ -14053,7 +16266,7 @@ int AllCandlesLogExpandedMinCopyCompletedPeriodBarsToday(const datetime dayStart
    {
       if(TimeToString(rawRates[barIdx].time, TIME_DATE) != dayStr)
          continue;
-      if(rawRates[barIdx].time + lastMinuteOffsetSec > upToM1BarTime)
+      if(rawRates[barIdx].time + barCompleteOffsetSec > upToM1BarTime)
          continue;
       ArrayResize(outRates, outCount + 1);
       outRates[outCount] = rawRates[barIdx];
@@ -14076,39 +16289,19 @@ bool AllCandlesLogExpandedMinBarIsStrongRed(const MqlRates &bar, const double st
 //+------------------------------------------------------------------+
 //| First strong red M15 starts breakdown; length grows while each next M15 close is lower than previous close. |
 //+------------------------------------------------------------------+
-void ComputeBreakdown15mSequence(const datetime dayStart, const datetime upToM1BarTime, const double strongRangePctMin,
-   string &outStartTime, string &outStartPrice, int &outSequenceLength, string &outEndTime, string &outEndPrice,
-   string &outBreakdownTotalPercent, string &outFirstGreenHigh, string &outMidpoint)
+bool BreakdownBuild15mSequenceFromStart(const MqlRates &m15[], const int barCount, const int startIdx,
+   const double strongRangePctMin, Breakdown15mState &out, int &outNextScanIdx)
 {
-   outStartTime = "";
-   outStartPrice = "";
-   outSequenceLength = 0;
-   outEndTime = "";
-   outEndPrice = "";
-   outBreakdownTotalPercent = "";
-   outFirstGreenHigh = "";
-   outMidpoint = "";
+   ZeroMemory(out);
+   outNextScanIdx = barCount;
+   if(startIdx < 0 || startIdx >= barCount)
+      return false;
+   if(!AllCandlesLogExpandedMinBarIsStrongRed(m15[startIdx], strongRangePctMin))
+      return false;
 
-   MqlRates m15[];
-   const int barCount = AllCandlesLogExpandedMinCopyCompletedPeriodBarsToday(dayStart, upToM1BarTime, 15, m15);
-   if(barCount <= 0)
-      return;
-
-   int startIdx = -1;
-   for(int barIdx = 0; barIdx < barCount; barIdx++)
-   {
-      if(AllCandlesLogExpandedMinBarIsStrongRed(m15[barIdx], strongRangePctMin))
-      {
-         startIdx = barIdx;
-         break;
-      }
-   }
-   if(startIdx < 0)
-      return;
-
-   outStartTime = TimeToString(m15[startIdx].time, TIME_DATE|TIME_MINUTES);
-   const double startHigh = m15[startIdx].high;
-   outStartPrice = DoubleToString(startHigh, _Digits);
+   out.hasBreakdown = true;
+   out.startTime = m15[startIdx].time;
+   out.startHigh = m15[startIdx].high;
 
    int sequenceLen = 1;
    double streakLowest = m15[startIdx].low;
@@ -14132,25 +16325,120 @@ void ComputeBreakdown15mSequence(const datetime dayStart, const datetime upToM1B
          streakLowest = m15[barIdx].low;
    }
 
-   if(sequenceActive)
-      outSequenceLength = sequenceLen;
-   else
-      outEndTime = TimeToString(m15[sequenceEndIdx].time, TIME_DATE|TIME_MINUTES);
-   outEndPrice = DoubleToString(streakLowest, _Digits);
-   if(startHigh > 0.0)
-      outBreakdownTotalPercent = DoubleToString((streakLowest - startHigh) / startHigh * 100.0, 2);
+   out.breakdownLow = streakLowest;
+   if(out.startHigh > 0.0)
+      out.totalPercent = (streakLowest - out.startHigh) / out.startHigh * 100.0;
 
    if(sequenceActive)
-      return;
+   {
+      out.sequenceActive = true;
+      out.activeLength = sequenceLen;
+      outNextScanIdx = barCount;
+      return true;
+   }
+
+   out.sequenceActive = false;
+   out.endedLength = sequenceLen;
+   out.endTime = m15[sequenceEndIdx].time + 15 * 60;
+   outNextScanIdx = breakIdx;
 
    for(int barIdx = breakIdx; barIdx < barCount; barIdx++)
    {
       if(m15[barIdx].close <= m15[barIdx].open)
          continue;
-      const double firstGreenHigh = m15[barIdx].high;
-      outFirstGreenHigh = DoubleToString(firstGreenHigh, _Digits);
-      outMidpoint = DoubleToString((streakLowest + firstGreenHigh) / 2.0, _Digits);
+      out.firstGreenHigh = m15[barIdx].high;
+      out.firstGreenBarEndTime = m15[barIdx].time + 15 * 60;
+      out.midpoint = (streakLowest + out.firstGreenHigh) / 2.0;
       break;
+   }
+   return true;
+}
+
+//+------------------------------------------------------------------+
+//| All intraday M15 breakdown sequences; snap = latest not forgotten (so algo can hunt next breakdown). |
+//+------------------------------------------------------------------+
+void ComputeBreakdown15mState(const datetime dayStart, const datetime upToM1BarTime, const double strongRangePctMin,
+   const int forgetAfterMinutes, Breakdown15mState &out)
+{
+   ZeroMemory(out);
+   MqlRates m15[];
+   const int barCount = AllCandlesLogExpandedMinCopyCompletedPeriodBarsToday(dayStart, upToM1BarTime, 15, m15);
+   if(barCount <= 0)
+      return;
+
+   Breakdown15mState best;
+   ZeroMemory(best);
+   bool haveBest = false;
+   int scanIdx = 0;
+   while(scanIdx < barCount)
+   {
+      int startIdx = -1;
+      for(int barIdx = scanIdx; barIdx < barCount; barIdx++)
+      {
+         if(AllCandlesLogExpandedMinBarIsStrongRed(m15[barIdx], strongRangePctMin))
+         {
+            startIdx = barIdx;
+            break;
+         }
+      }
+      if(startIdx < 0)
+         break;
+
+      Breakdown15mState seq;
+      int nextScanIdx = barCount;
+      if(!BreakdownBuild15mSequenceFromStart(m15, barCount, startIdx, strongRangePctMin, seq, nextScanIdx))
+      {
+         scanIdx = startIdx + 1;
+         continue;
+      }
+
+      const bool forgotten = (!seq.sequenceActive && forgetAfterMinutes > 0 && seq.endTime > 0
+         && upToM1BarTime > seq.endTime + forgetAfterMinutes * 60);
+      if(!forgotten)
+      {
+         best = seq;
+         haveBest = true;
+      }
+
+      scanIdx = (seq.sequenceActive ? barCount : nextScanIdx);
+   }
+
+   if(haveBest)
+      out = best;
+}
+
+//+------------------------------------------------------------------+
+void ComputeBreakdown15mSequence(const datetime dayStart, const datetime upToM1BarTime, const double strongRangePctMin,
+   string &outStartTime, string &outStartPrice, int &outSequenceLength, string &outEndTime, string &outEndPrice,
+   string &outBreakdownTotalPercent, string &outFirstGreenHigh, string &outMidpoint)
+{
+   outStartTime = "";
+   outStartPrice = "";
+   outSequenceLength = 0;
+   outEndTime = "";
+   outEndPrice = "";
+   outBreakdownTotalPercent = "";
+   outFirstGreenHigh = "";
+   outMidpoint = "";
+
+   Breakdown15mState st;
+   ComputeBreakdown15mState(dayStart, upToM1BarTime, strongRangePctMin, BreakdownForgetAfterMinutesForSnap(), st);
+   if(!st.hasBreakdown)
+      return;
+
+   outStartTime = TimeToString(st.startTime, TIME_DATE|TIME_MINUTES);
+   outStartPrice = DoubleToString(st.startHigh, _Digits);
+   if(st.sequenceActive)
+      outSequenceLength = st.activeLength;
+   else
+      outEndTime = TimeToString(st.endTime, TIME_DATE|TIME_MINUTES);
+   outEndPrice = DoubleToString(st.breakdownLow, _Digits);
+   if(st.startHigh > 0.0)
+      outBreakdownTotalPercent = DoubleToString(st.totalPercent, 2);
+   if(!st.sequenceActive && st.firstGreenHigh > 0.0)
+   {
+      outFirstGreenHigh = DoubleToString(st.firstGreenHigh, _Digits);
+      outMidpoint = DoubleToString(st.midpoint, _Digits);
    }
 }
 
