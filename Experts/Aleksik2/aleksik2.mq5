@@ -79,7 +79,8 @@ int      per_second_log_start_minute                       =  33;
 int      per_second_log_end_hour                           =  10;  // shared inclusive window end (server time)
 int      per_second_log_end_minute                         =  36;
 bool     backtest_profile_enabled                          = true;   // strategy tester only: section wall-time → backtest_profile_*.tsv
-// false: M1 bar-close stats incremental on closed bars only (backtest). true: full-day rescan every M1 close incl. forming bar (live / reconnect-safe).
+// false: backtest — incremental closed bars only; full replay on new day / track change / bar shrink.
+// true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
 bool     bigflipper_pullinghistory_always_full_replay      = false; // ALGOBOOKMARKLIVE
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
@@ -886,10 +887,12 @@ struct BreakdownAlgoDef
 {
    int            algo_id;
    bool           enabled;
-   AlgoPerAlgoTune tune;
+   int            stop_trading_today_if_thisAlgo_losing_trades_count;
+   int            stop_trading_today_if_thisAlgo_winning_trades_count;
+   int            stop_trading_today_if_thisAlgo_total_trades_count;
    int            expiry_minutes;
    int            max_trades_per_breakdown_per_day;
-   double         entryrange_rangespot;       // entry on low→firstGreen range: 50=midpoint, 33=lower retrace
+   double         entryrange_range_percentspot;       // entry on low→firstGreen range: 50=midpoint, 33=lower retrace
    int            min_breakdown_sequence_len;
    int            max_breakdown_sequence_len;   // 0=no cap; red M15 streak length must be <= this
    ENUM_BREAKDOWN_STREAK_CONTINUATION breakdown_streak_continuation_mode;  // how streak extends after strong-red start
@@ -900,7 +903,7 @@ struct BreakdownAlgoDef
    int            forget_about_latest_breakdown_after_x_15m_candles;  // 0=never forget; gates stop reporting breakdownEndTooOld after endTime + N*15m
    bool           closetrade_after_some_time;
    bool           closetrade_after_some_time_butOnlyIfProfit;
-   double         closetrade_after_some_time_but_ProfitNeeded;  // min open P/L % vs lot×one_lot_equals_xPLN
+   double         closetrade_after_some_time_but_ProfitPercent_Needed;  // min open P/L % vs lot×one_lot_equals_xPLN
    int            closetrade_after_x_minutes_from_breakdown;  // minutes after g_breakdown15mSnap.endTime; needs closetrade_after_some_time
    bool           sl_enabled;
    double         sl_points;
@@ -1026,7 +1029,7 @@ struct WeeklyLevelAlgoFamilyDayState
 int g_weeklyAlgoFamilyTrackExpandedIdx[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS];  // index into g_levelsExpanded
 int g_weeklyAlgoFamilyTrackCount = 0;
 
-//--- Incremental pullinghistory forward pass: persist state across M1 closes; closed bars only unless bigflipper_pullinghistory_always_full_replay (see M1BarCloseAlwaysFullRescan).
+//--- Incremental pullinghistory forward pass: persist state across M1 closes; live-safe mode adds forming-bar scratch pass + integrity full replay.
 WeeklyLevelAlgoFamilyDayState g_pullingHistoryIncStates[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS];
 datetime g_pullingHistoryIncDayStart = 0;
 int      g_pullingHistoryIncLastBarIdx = -1;
@@ -1038,7 +1041,7 @@ double   g_pullingHistoryIncSnapHigh[MAX_BARS_IN_DAY];
 double   g_pullingHistoryIncSnapLow[MAX_BARS_IN_DAY];
 double   g_pullingHistoryIncSnapClose[MAX_BARS_IN_DAY];
 
-//--- Incremental M1 bar-close @bar stats (session H/L, IB, gap, day progress, level trades); shared bar range unless bigflipper_pullinghistory_always_full_replay.
+//--- Incremental M1 bar-close @bar stats (session H/L, IB, gap, day progress, level trades); live-safe adds forming-bar slot refresh.
 datetime g_m1BarCloseStatsIncDayStart = 0;
 int      g_m1BarCloseStatsIncLastClosedBarIdx = -1;
 bool     g_sessionHlIncFirstON = true;
@@ -1075,8 +1078,10 @@ double   g_dayProgressIncRTHprofitSum = 0.0;
 int      g_levelTradeStatsIncAppliedTradeCount = 0;
 int      g_m1BarCloseStatsIncBarStart = 0;
 int      g_m1BarCloseStatsIncBarEndInclusive = -1;
+int      g_m1BarCloseStatsFormingBarIdx = -1;
 bool     g_m1BarCloseStatsIncNeedFullRescan = false;
 bool     g_m1BarCloseStatsIncRangeActive = false;
+bool     g_m1BarCloseTerminalWasConnected = true;
 
 struct AlgoFamilyLevelDayStatsAtBar
 {
@@ -2522,9 +2527,50 @@ int PullingHistoryLastClosedBarIdx()
 }
 
 //+------------------------------------------------------------------+
-bool M1BarCloseAlwaysFullRescan()
+bool M1BarCloseLiveSafeMode()
 {
    return bigflipper_pullinghistory_always_full_replay;
+}
+
+//+------------------------------------------------------------------+
+bool M1BarCloseReconnectRequiresFullRescan()
+{
+   if(!M1BarCloseLiveSafeMode())
+      return false;
+   const bool connected = (bool)TerminalInfoInteger(TERMINAL_CONNECTED);
+   if(!connected)
+   {
+      g_m1BarCloseTerminalWasConnected = false;
+      return false;
+   }
+   if(!g_m1BarCloseTerminalWasConnected)
+   {
+      g_m1BarCloseTerminalWasConnected = true;
+      return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool M1BarCloseClosedBarsHaveGap(const int lastClosedBarIdx, const int incLastClosedBarIdx)
+{
+   if(incLastClosedBarIdx < 0)
+      return false;
+   return (lastClosedBarIdx > incLastClosedBarIdx + 1);
+}
+
+//+------------------------------------------------------------------+
+bool M1BarCloseStatsNeedsIntegrityFullRescan(const int lastClosedBarIdx)
+{
+   if(g_m1BarCloseStatsIncDayStart != g_m1DayStart)
+      return true;
+   if(g_m1BarCloseStatsIncLastClosedBarIdx > lastClosedBarIdx)
+      return true;
+   if(M1BarCloseClosedBarsHaveGap(lastClosedBarIdx, g_m1BarCloseStatsIncLastClosedBarIdx))
+      return true;
+   if(M1BarCloseReconnectRequiresFullRescan())
+      return true;
+   return false;
 }
 
 //+------------------------------------------------------------------+
@@ -2577,19 +2623,23 @@ void M1BarCloseStatsIncResetRunningState()
 //+------------------------------------------------------------------+
 bool M1BarCloseStatsPrepareBarRange(int &barStart, int &barEndInclusive, bool &needFullRescan)
 {
-   needFullRescan = M1BarCloseAlwaysFullRescan();
+   needFullRescan = false;
+   g_m1BarCloseStatsFormingBarIdx = -1;
    const int lastClosedBarIdx = PullingHistoryLastClosedBarIdx();
-   if(needFullRescan)
-   {
-      barStart = 0;
-      barEndInclusive = g_barsInDay - 1;
-      return (barEndInclusive >= 0);
-   }
    barEndInclusive = lastClosedBarIdx;
    if(barEndInclusive < 0)
       return false;
-   if(g_m1BarCloseStatsIncDayStart != g_m1DayStart || g_m1BarCloseStatsIncLastClosedBarIdx > lastClosedBarIdx)
+
+   if(M1BarCloseLiveSafeMode())
+   {
+      needFullRescan = M1BarCloseStatsNeedsIntegrityFullRescan(lastClosedBarIdx);
+      const int formingIdx = g_barsInDay - 1;
+      if(formingIdx >= 0 && AlgoBarIsFormingM1Bar(formingIdx))
+         g_m1BarCloseStatsFormingBarIdx = formingIdx;
+   }
+   else if(g_m1BarCloseStatsIncDayStart != g_m1DayStart || g_m1BarCloseStatsIncLastClosedBarIdx > lastClosedBarIdx)
       needFullRescan = true;
+
    if(needFullRescan)
    {
       M1BarCloseStatsIncResetRunningState();
@@ -2605,8 +2655,6 @@ bool M1BarCloseStatsPrepareBarRange(int &barStart, int &barEndInclusive, bool &n
 //+------------------------------------------------------------------+
 void M1BarCloseStatsCommitBarRange()
 {
-   if(M1BarCloseAlwaysFullRescan())
-      return;
    const int lastClosedBarIdx = PullingHistoryLastClosedBarIdx();
    if(lastClosedBarIdx >= 0)
       g_m1BarCloseStatsIncLastClosedBarIdx = lastClosedBarIdx;
@@ -3199,12 +3247,62 @@ bool PullingHistoryIncBarSnapshotMatches(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
+bool PullingHistoryNeedsFullReplay(const int lastClosedBarIdx)
+{
+   if(g_pullingHistoryIncDayStart != g_m1DayStart)
+      return true;
+   if(!PullingHistoryIncTrackListMatches())
+      return true;
+   if(g_pullingHistoryIncLastBarIdx > lastClosedBarIdx)
+      return true;
+
+   if(!M1BarCloseLiveSafeMode())
+      return false;
+
+   if(g_pullingHistoryIncLastBarIdx < 0)
+      return true;
+   if(M1BarCloseClosedBarsHaveGap(lastClosedBarIdx, g_pullingHistoryIncLastBarIdx))
+      return true;
+   if(M1BarCloseReconnectRequiresFullRescan())
+      return true;
+   if(lastClosedBarIdx >= 0 && !PullingHistoryIncBarSnapshotMatches(lastClosedBarIdx))
+      return true;
+   return false;
+}
+
+//+------------------------------------------------------------------+
 void PullingHistoryIncResetRunningStates()
 {
    for(int trackIdx = 0; trackIdx < g_weeklyAlgoFamilyTrackCount; trackIdx++)
       ResetWeeklyLevelAlgoFamilyDayState(g_pullingHistoryIncStates[trackIdx],
          g_levelsExpanded[g_weeklyAlgoFamilyTrackExpandedIdx[trackIdx]].levelPrice);
    g_pullingHistoryIncLastBarIdx = -1;
+}
+
+//+------------------------------------------------------------------+
+void PullingHistoryCopyStatesToScratch(WeeklyLevelAlgoFamilyDayState &scratch[])
+{
+   for(int trackIdx = 0; trackIdx < g_weeklyAlgoFamilyTrackCount; trackIdx++)
+      scratch[trackIdx] = g_pullingHistoryIncStates[trackIdx];
+}
+
+//+------------------------------------------------------------------+
+void PullingHistoryProcessFormingBarLive()
+{
+   const int formingIdx = g_barsInDay - 1;
+   if(formingIdx < 0 || !AlgoBarIsFormingM1Bar(formingIdx))
+      return;
+
+   WeeklyLevelAlgoFamilyDayState scratch[MAX_ALGOFAMILY_DAYSTART_WEEK_LEVELS];
+   PullingHistoryCopyStatesToScratch(scratch);
+   int closestWeeklyTrackIdx = -1;
+   int closestDailyTrackIdx = -1;
+   PullingHistoryAlgoFamilyProcessOneBar(formingIdx, scratch, closestWeeklyTrackIdx, closestDailyTrackIdx);
+   g_pullingHistoryIncSnapTime[formingIdx] = g_m1Rates[formingIdx].time;
+   g_pullingHistoryIncSnapOpen[formingIdx] = g_m1Rates[formingIdx].open;
+   g_pullingHistoryIncSnapHigh[formingIdx] = g_m1Rates[formingIdx].high;
+   g_pullingHistoryIncSnapLow[formingIdx] = g_m1Rates[formingIdx].low;
+   g_pullingHistoryIncSnapClose[formingIdx] = g_m1Rates[formingIdx].close;
 }
 
 //+------------------------------------------------------------------+
@@ -3349,8 +3447,7 @@ void PullingHistoryAlgoFamilyProcessOneBar(const int barIdx, WeeklyLevelAlgoFami
 
 //+------------------------------------------------------------------+
 //| Forward pass: per level day stats + per-bar closest-level snapshots (weekly + daily scopes). |
-//| bigflipper_pullinghistory_always_full_replay=true: full day every M1 close (live). |
-//| false: incremental on closed bars only; full replay on new day / track-list change only. |
+//| Live-safe mode: incremental closed bars + forming-bar scratch pass; full replay on integrity violations only. |
 //+------------------------------------------------------------------+
 void UpdatePullingHistoryAlgoFamilyPerBarStats()
 {
@@ -3377,25 +3474,16 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
       return;
    }
 
-   const bool alwaysFull = M1BarCloseAlwaysFullRescan();
    const int lastClosedBarIdx = PullingHistoryLastClosedBarIdx();
-   const int barEndInclusive = alwaysFull ? (g_barsInDay - 1) : lastClosedBarIdx;
+   const bool needFullReplay = PullingHistoryNeedsFullReplay(lastClosedBarIdx);
+   const int barEndInclusive = lastClosedBarIdx;
 
    if(barEndInclusive < 0)
    {
+      if(M1BarCloseLiveSafeMode())
+         PullingHistoryProcessFormingBarLive();
       PullingHistoryIncSaveTrackSnapshot();
       return;
-   }
-
-   bool needFullReplay = alwaysFull;
-   if(!alwaysFull)
-   {
-      if(g_pullingHistoryIncDayStart != g_m1DayStart)
-         needFullReplay = true;
-      else if(!PullingHistoryIncTrackListMatches())
-         needFullReplay = true;
-      else if(g_pullingHistoryIncLastBarIdx > lastClosedBarIdx)
-         needFullReplay = true;
    }
 
    int barStart = 0;
@@ -3408,30 +3496,28 @@ void UpdatePullingHistoryAlgoFamilyPerBarStats()
    else
       barStart = g_pullingHistoryIncLastBarIdx + 1;
 
-   if(barStart > barEndInclusive)
+   if(barStart <= barEndInclusive)
    {
-      PullingHistoryIncSaveTrackSnapshot();
-      return;
-   }
-
-   for(int barIdx = barStart; barIdx <= barEndInclusive; barIdx++)
-   {
-      int closestWeeklyTrackIdx = -1;
-      int closestDailyTrackIdx = -1;
-      if(profOn)
-         profT0 = GetMicrosecondCount();
-      PullingHistoryAlgoFamilyProcessOneBar(barIdx, g_pullingHistoryIncStates, closestWeeklyTrackIdx, closestDailyTrackIdx);
-      if(profOn)
+      for(int barIdx = barStart; barIdx <= barEndInclusive; barIdx++)
       {
-         BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_FORWARD_PASS, profT0);
-         profT0 = GetMicrosecondCount();
-         BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_CLOSEST_SNAP, profT0);
-      }
-      if(!AlgoBarIsFormingM1Bar(barIdx))
+         int closestWeeklyTrackIdx = -1;
+         int closestDailyTrackIdx = -1;
+         if(profOn)
+            profT0 = GetMicrosecondCount();
+         PullingHistoryAlgoFamilyProcessOneBar(barIdx, g_pullingHistoryIncStates, closestWeeklyTrackIdx, closestDailyTrackIdx);
+         if(profOn)
+         {
+            BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_FORWARD_PASS, profT0);
+            profT0 = GetMicrosecondCount();
+            BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_PULLINGHISTORY_CLOSEST_SNAP, profT0);
+         }
          PullingHistoryIncMarkBarSnapshot(barIdx);
+      }
    }
 
-   g_pullingHistoryIncLastBarIdx = alwaysFull ? barEndInclusive : lastClosedBarIdx;
+   g_pullingHistoryIncLastBarIdx = lastClosedBarIdx;
+   if(M1BarCloseLiveSafeMode())
+      PullingHistoryProcessFormingBarLive();
    PullingHistoryIncSaveTrackSnapshot();
 }
 
@@ -3447,7 +3533,7 @@ void UpdatePullingHistoryAlgoFamilyAccountBarStats()
    }
 
    const int barStart = g_m1BarCloseStatsIncBarStart;
-   const int barEndInclusive = M1BarCloseAlwaysFullRescan() ? (g_barsInDay - 1) : g_m1BarCloseStatsIncBarEndInclusive;
+   const int barEndInclusive = g_m1BarCloseStatsIncBarEndInclusive;
 
    for(int barIdx = barStart; barIdx <= barEndInclusive; barIdx++)
    {
@@ -3492,6 +3578,21 @@ void UpdatePullingHistoryAlgoFamilyAccountBarStats()
       g_pullingHistoryAlgoFamilyDailyAtBar[barIdx].accOpenTradeNowBool = openNow;
       g_pullingHistoryAlgoFamilyDailyAtBar[barIdx].accOpenTradeTime = openNow ? openTime : 0;
       g_pullingHistoryAlgoFamilyDailyAtBar[barIdx].accLastClosedTradeTime = lastClosed;
+   }
+
+   if(g_m1BarCloseStatsFormingBarIdx >= 0 && barEndInclusive >= 0)
+   {
+      const int formingIdx = g_m1BarCloseStatsFormingBarIdx;
+      g_pullingHistoryAlgoFamilyWeeklyAtBar[formingIdx].dayWinRate = g_dayProgress[formingIdx].dayWinRate;
+      g_pullingHistoryAlgoFamilyWeeklyAtBar[formingIdx].dayTradesCount = g_dayProgress[formingIdx].dayTradesCount;
+      g_pullingHistoryAlgoFamilyWeeklyAtBar[formingIdx].dayPointsSum = g_dayProgress[formingIdx].dayPointsSum;
+      g_pullingHistoryAlgoFamilyWeeklyAtBar[formingIdx].dayProfitSum = g_dayProgress[formingIdx].dayProfitSum;
+      g_pullingHistoryAlgoFamilyWeeklyAtBar[formingIdx].dayProfitFactor = g_dayProgress[formingIdx].dayProfitFactor;
+      g_pullingHistoryAlgoFamilyDailyAtBar[formingIdx].dayWinRate = g_dayProgress[formingIdx].dayWinRate;
+      g_pullingHistoryAlgoFamilyDailyAtBar[formingIdx].dayTradesCount = g_dayProgress[formingIdx].dayTradesCount;
+      g_pullingHistoryAlgoFamilyDailyAtBar[formingIdx].dayPointsSum = g_dayProgress[formingIdx].dayPointsSum;
+      g_pullingHistoryAlgoFamilyDailyAtBar[formingIdx].dayProfitSum = g_dayProgress[formingIdx].dayProfitSum;
+      g_pullingHistoryAlgoFamilyDailyAtBar[formingIdx].dayProfitFactor = g_dayProgress[formingIdx].dayProfitFactor;
    }
    FalgoOverlayLiveDayStatsOnLastBar();
 }
@@ -4364,7 +4465,7 @@ void UpdateDayProgress()
    }
 
    const int barStart = g_m1BarCloseStatsIncBarStart;
-   const int barEndInclusive = M1BarCloseAlwaysFullRescan() ? (g_barsInDay - 1) : g_m1BarCloseStatsIncBarEndInclusive;
+   const int barEndInclusive = g_m1BarCloseStatsIncBarEndInclusive;
 
    int p = 0;
    int wins = 0, total = 0;
@@ -4375,7 +4476,7 @@ void UpdateDayProgress()
    int RTHwins = 0, RTHtotal = 0;
    double RTHpointsSum = 0, RTHprofitSum = 0;
 
-   if(!M1BarCloseAlwaysFullRescan())
+   if(barStart > 0)
    {
       p = g_dayProgressIncP;
       wins = g_dayProgressIncWins;
@@ -4447,7 +4548,7 @@ void UpdateDayProgress()
       g_dayProgress[barIdx].RTHprofitSum = RTHprofitSum;
    }
 
-   if(!M1BarCloseAlwaysFullRescan())
+   if(barEndInclusive >= 0)
    {
       g_dayProgressIncP = p;
       g_dayProgressIncWins = wins;
@@ -4465,6 +4566,9 @@ void UpdateDayProgress()
       g_dayProgressIncRTHpointsSum = RTHpointsSum;
       g_dayProgressIncRTHprofitSum = RTHprofitSum;
    }
+
+   if(g_m1BarCloseStatsFormingBarIdx >= 0 && barEndInclusive >= 0)
+      g_dayProgress[g_m1BarCloseStatsFormingBarIdx] = g_dayProgress[barEndInclusive];
 }
 
 //+------------------------------------------------------------------+
@@ -4544,12 +4648,7 @@ void UpdateONandRTHHighLowSoFarAtBar()
    bool firstON = true, firstRTH = true;
    double runONhigh = 0, runONlow = 0, runRTHhigh = 0, runRTHlow = 0;
    double runDayHigh = 0, runDayLow = 0;
-   if(M1BarCloseAlwaysFullRescan())
-   {
-      runDayHigh = (g_barsInDay > 0) ? g_m1Rates[0].high : 0;
-      runDayLow = (g_barsInDay > 0) ? g_m1Rates[0].low : 0;
-   }
-   else
+   if(barStart > 0)
    {
       firstON = g_sessionHlIncFirstON;
       firstRTH = g_sessionHlIncFirstRTH;
@@ -4560,20 +4659,36 @@ void UpdateONandRTHHighLowSoFarAtBar()
       runDayHigh = g_sessionHlIncRunDayHigh;
       runDayLow = g_sessionHlIncRunDayLow;
    }
+   else if(g_barsInDay > 0)
+   {
+      runDayHigh = g_m1Rates[0].high;
+      runDayLow = g_m1Rates[0].low;
+   }
 
    for(int barIdx = barStart; barIdx <= barEndInclusive; barIdx++)
       UpdateONandRTHHighLowSoFarAtBarOneBar(barIdx, firstON, firstRTH, runONhigh, runONlow, runRTHhigh, runRTHlow, runDayHigh, runDayLow);
 
-   if(!M1BarCloseAlwaysFullRescan())
+   g_sessionHlIncFirstON = firstON;
+   g_sessionHlIncFirstRTH = firstRTH;
+   g_sessionHlIncRunONhigh = runONhigh;
+   g_sessionHlIncRunONlow = runONlow;
+   g_sessionHlIncRunRTHhigh = runRTHhigh;
+   g_sessionHlIncRunRTHlow = runRTHlow;
+   g_sessionHlIncRunDayHigh = runDayHigh;
+   g_sessionHlIncRunDayLow = runDayLow;
+
+   if(g_m1BarCloseStatsFormingBarIdx >= 0)
    {
-      g_sessionHlIncFirstON = firstON;
-      g_sessionHlIncFirstRTH = firstRTH;
-      g_sessionHlIncRunONhigh = runONhigh;
-      g_sessionHlIncRunONlow = runONlow;
-      g_sessionHlIncRunRTHhigh = runRTHhigh;
-      g_sessionHlIncRunRTHlow = runRTHlow;
-      g_sessionHlIncRunDayHigh = runDayHigh;
-      g_sessionHlIncRunDayLow = runDayLow;
+      bool scratchFirstON = g_sessionHlIncFirstON;
+      bool scratchFirstRTH = g_sessionHlIncFirstRTH;
+      double scratchONhigh = g_sessionHlIncRunONhigh;
+      double scratchONlow = g_sessionHlIncRunONlow;
+      double scratchRTHhigh = g_sessionHlIncRunRTHhigh;
+      double scratchRTHlow = g_sessionHlIncRunRTHlow;
+      double scratchDayHigh = g_sessionHlIncRunDayHigh;
+      double scratchDayLow = g_sessionHlIncRunDayLow;
+      UpdateONandRTHHighLowSoFarAtBarOneBar(g_m1BarCloseStatsFormingBarIdx, scratchFirstON, scratchFirstRTH,
+         scratchONhigh, scratchONlow, scratchRTHhigh, scratchRTHlow, scratchDayHigh, scratchDayLow);
    }
 }
 
@@ -4596,7 +4711,7 @@ void UpdateIBHighLowAtBar()
 
    double ibHigh = -1e300, ibLow = 1e300;
    bool ibComplete = false;
-   if(!M1BarCloseAlwaysFullRescan())
+   if(barStart > 0)
    {
       ibHigh = g_ibHlIncIbHigh;
       ibLow = g_ibHlIncIbLow;
@@ -4621,11 +4736,15 @@ void UpdateIBHighLowAtBar()
       if(hasIBlow)  g_IBlowAtBar[barIdx].value  = ibLow;
    }
 
-   if(!M1BarCloseAlwaysFullRescan())
+   g_ibHlIncIbHigh = ibHigh;
+   g_ibHlIncIbLow = ibLow;
+   g_ibHlIncIbComplete = ibComplete;
+
+   if(g_m1BarCloseStatsFormingBarIdx >= 0 && barEndInclusive >= 0)
    {
-      g_ibHlIncIbHigh = ibHigh;
-      g_ibHlIncIbLow = ibLow;
-      g_ibHlIncIbComplete = ibComplete;
+      const int formingIdx = g_m1BarCloseStatsFormingBarIdx;
+      g_IBhighAtBar[formingIdx] = g_IBhighAtBar[barEndInclusive];
+      g_IBlowAtBar[formingIdx] = g_IBlowAtBar[barEndInclusive];
    }
 }
 
@@ -4710,7 +4829,7 @@ void UpdateGapFillAttemptStatsAtBar()
    const datetime rthOpenBarTime = g_m1DayStart + GetRthOpenBarOffsetSeconds(dateStr);
    const int barStart = g_m1BarCloseStatsIncBarStart;
    const int barEndInclusive = g_m1BarCloseStatsIncBarEndInclusive;
-   const bool fullPass = (M1BarCloseAlwaysFullRescan() || g_m1BarCloseStatsIncNeedFullRescan);
+   const bool fullPass = g_m1BarCloseStatsIncNeedFullRescan;
 
    if(fullPass)
    {
@@ -4796,14 +4915,11 @@ void UpdateGapFillAttemptStatsAtBar()
    if(attemptBarIdx < 0)
       finalMaxAway = runningMaxAway;
 
-   if(!M1BarCloseAlwaysFullRescan())
-   {
-      g_gapAttemptIncRthOpenBarIdx = rthOpenBarIdx;
-      g_gapAttemptIncAttemptBarIdx = attemptBarIdx;
-      g_gapAttemptIncPrevFill = prevFill;
-      g_gapAttemptIncRunningMaxAway = runningMaxAway;
-      g_gapAttemptIncFinalMaxAway = finalMaxAway;
-   }
+   g_gapAttemptIncRthOpenBarIdx = rthOpenBarIdx;
+   g_gapAttemptIncAttemptBarIdx = attemptBarIdx;
+   g_gapAttemptIncPrevFill = prevFill;
+   g_gapAttemptIncRunningMaxAway = runningMaxAway;
+   g_gapAttemptIncFinalMaxAway = finalMaxAway;
 
    dayStat_maxBeforeGapfillAttempt_over_5 = finalMaxAway;
    dayStat_maxBeforeGapfillAttempt_valid = true;
@@ -4843,7 +4959,7 @@ void UpdateLevelTradeStats()
       return;
 
    const double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
-   const bool fullPass = (M1BarCloseAlwaysFullRescan() || g_m1BarCloseStatsIncNeedFullRescan);
+   const bool fullPass = g_m1BarCloseStatsIncNeedFullRescan;
 
    if(fullPass)
    {
@@ -5744,13 +5860,7 @@ bool AlgoFamilyBlocksPlacementOnOpenOrPending()
 bool AlgoLoadTuneForAlgo(const int algoNumber, AlgoPerAlgoTune &outTune)
 {
    if(IsBreakdownFamilyAlgoNumber(algoNumber))
-   {
-      const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
-      if(idx < 0)
-         return false;
-      outTune = g_breakdownAlgos[idx].tune;
-      return true;
-   }
+      return false;
    const int idx = AlgoSlotIndexByAlgoId(algoNumber);
    if(idx < 0)
       return false;
@@ -6055,17 +6165,15 @@ double GetTradeLotForBreakdown()
 //+------------------------------------------------------------------+
 bool BreakdownRulesetPassesDayStops(const int algoNumber)
 {
-   AlgoPerAlgoTune tune;
-   if(!AlgoLoadPerAlgoTune(algoNumber, tune))
-      return true;
    const int idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
    if(idx >= 0)
    {
-      if(g_breakdownAlgoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_losing_trades_count)
+      const BreakdownAlgoDef bd = g_breakdownAlgos[idx];
+      if(g_breakdownAlgoDayLosses[idx] >= bd.stop_trading_today_if_thisAlgo_losing_trades_count)
          return false;
-      if(g_breakdownAlgoDayWins[idx] >= tune.stop_trading_today_if_thisAlgo_winning_trades_count)
+      if(g_breakdownAlgoDayWins[idx] >= bd.stop_trading_today_if_thisAlgo_winning_trades_count)
          return false;
-      if(g_breakdownAlgoDayWins[idx] + g_breakdownAlgoDayLosses[idx] >= tune.stop_trading_today_if_thisAlgo_total_trades_count)
+      if(g_breakdownAlgoDayWins[idx] + g_breakdownAlgoDayLosses[idx] >= bd.stop_trading_today_if_thisAlgo_total_trades_count)
          return false;
    }
    if(g_breakdownFamilyDayLosses >= g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count)
@@ -6433,7 +6541,10 @@ bool AlgoDayStopUnderLossLimit(const int algoSlot1, bool &outUnderThisAlgo, bool
    {
       const int idx = BreakdownAlgoSlotIndexByAlgoId(algoSlot1);
       if(idx >= 0)
-         outUnderThisAlgo = (g_breakdownAlgoDayLosses[idx] < tune.stop_trading_today_if_thisAlgo_losing_trades_count);
+      {
+         const BreakdownAlgoDef bd = g_breakdownAlgos[idx];
+         outUnderThisAlgo = (g_breakdownAlgoDayLosses[idx] < bd.stop_trading_today_if_thisAlgo_losing_trades_count);
+      }
       outUnderAllAlgos = (g_breakdownFamilyDayLosses < g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count);
       return (outUnderThisAlgo && outUnderAllAlgos);
    }
@@ -6456,7 +6567,10 @@ bool AlgoDayStopUnderWinLimit(const int algoSlot1, bool &outUnderThisAlgo, bool 
    {
       const int idx = BreakdownAlgoSlotIndexByAlgoId(algoSlot1);
       if(idx >= 0)
-         outUnderThisAlgo = (g_breakdownAlgoDayWins[idx] < tune.stop_trading_today_if_thisAlgo_winning_trades_count);
+      {
+         const BreakdownAlgoDef bd = g_breakdownAlgos[idx];
+         outUnderThisAlgo = (g_breakdownAlgoDayWins[idx] < bd.stop_trading_today_if_thisAlgo_winning_trades_count);
+      }
       outUnderAllAlgos = (g_breakdownFamilyDayWins < g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count);
       return (outUnderThisAlgo && outUnderAllAlgos);
    }
@@ -8112,7 +8226,7 @@ void FalgoTelemetrySnapOpenStateToBar(const int barIdx, const bool tradeClosedOn
    snap.consecutiveGreen = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].consecutiveGreen;
    snap.consecutiveRed = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].consecutiveRed;
    AlgoPerAlgoTune telTune;
-   if(AlgoLoadPerAlgoTuneForMagic(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic, telTune))
+   if(FalgoLoadTelemetryTuneForMagic(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic, telTune))
       snap.profitVelocity = FalgoTelemetryProfitVelocityWindowSeconds(telTune.telemetry_velocity_window_seconds);
    else
       snap.profitVelocity = 0.0;
@@ -8594,7 +8708,7 @@ void FalgoAppendTelemetryPerSecondRow(const string eventType, const string close
    if(!FalgoIsTimeInPerSecondLogWindow(g_lastTimer1Time))
       return;
    AlgoPerAlgoTune telTune;
-   if(!AlgoLoadPerAlgoTuneForMagic(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic, telTune))
+   if(!FalgoLoadTelemetryTuneForMagic(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic, telTune))
       return;
    const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    const string dateStr = TimeToString(dayStart, TIME_DATE);
@@ -8733,6 +8847,15 @@ void FalgoTryLogVelocityParameterTesting()
 }
 
 //+------------------------------------------------------------------+
+bool FalgoLoadTelemetryTuneForMagic(const long magic, AlgoPerAlgoTune &outTune)
+{
+   ZeroMemory(outTune);
+   if(IsBreakdownFamilyCompositeMagic(magic))
+      return true;
+   return AlgoLoadPerAlgoTuneForMagic(magic, outTune);
+}
+
+//+------------------------------------------------------------------+
 void FalgoOpenTelemetryUpdateMaePostX(const AlgoPerAlgoTune &tune, const double profitPts)
 {
    const int age = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds;
@@ -8752,7 +8875,7 @@ void FalgoOpenTelemetryUpdateMaePostX(const AlgoPerAlgoTune &tune, const double 
 void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
 {
    AlgoPerAlgoTune telTune;
-   if(!AlgoLoadPerAlgoTuneForMagic(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic, telTune))
+   if(!FalgoLoadTelemetryTuneForMagic(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].magic, telTune))
       return;
    const double profitPts = FalgoOpenPositionProfitPoints();
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds++;
@@ -9808,7 +9931,7 @@ double BreakdownEntryPriceForAlgo(const BreakdownAlgoDef &bd, const Breakdown15m
       return 0.0;
    if(triggerHigh <= st.breakdownLow)
       return 0.0;
-   return FalgoBreakdownPriceAtRangePercent(st.breakdownLow, triggerHigh, bd.entryrange_rangespot);
+   return FalgoBreakdownPriceAtRangePercent(st.breakdownLow, triggerHigh, bd.entryrange_range_percentspot);
 }
 
 //+------------------------------------------------------------------+
@@ -9921,7 +10044,7 @@ bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
 
    const double profitPct = FalgoOpenPositionProfitPctOfPositionDeposit();
    if(bd.closetrade_after_some_time_butOnlyIfProfit
-      && profitPct < bd.closetrade_after_some_time_but_ProfitNeeded)
+      && profitPct < bd.closetrade_after_some_time_but_ProfitPercent_Needed)
       return false;
 
    if(slotIdx >= 0)
@@ -9931,7 +10054,7 @@ bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
          TimeToString(g_lastTimer1Time, TIME_DATE|TIME_MINUTES),
          TimeToString(deadline, TIME_DATE|TIME_MINUTES),
          TimeToString(breakdownEnd, TIME_DATE|TIME_MINUTES),
-         profitPct, bd.closetrade_after_some_time_but_ProfitNeeded,
+         profitPct, bd.closetrade_after_some_time_but_ProfitPercent_Needed,
          (bd.closetrade_after_some_time_butOnlyIfProfit ? "true" : "false")));
    BreakdownRememberPendingCloseReason((ulong)ExtPositionInfo.Identifier(), "timeTrigger");
    const int telSlot = slotIdx;
@@ -9982,10 +10105,7 @@ bool FalgoBuildMagicKeyForBreakdownPlacement(const int algoNumber, const int dir
    outKey.offset_tenths = 0;
    outKey.planTradeNum = FalgoClamp0_8(BreakdownPlanTradeNumToday(algoNumber) + 1);
    outKey.levelTradeNum = FalgoClamp0_8(nextLevelTradeNum);
-   AlgoPerAlgoTune placeTune;
-   if(!AlgoLoadPerAlgoTune(algoNumber, placeTune))
-      return false;
-   outKey.babysitMinute = FalgoClamp0_9(placeTune.babysitStart_minute);
+   outKey.babysitMinute = 0;
    const int bIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
    outKey.slWhole = 0;
    outKey.tpWhole = 0;
@@ -11074,18 +11194,8 @@ void SyncBreakdownFamilyProfileFromInputs()
 // bdbookmark
 //breakdowncreator2start
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.babysitStart_minute = 0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.neutral_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.strong_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.strong_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.neutral_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.badtrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.terribletrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.telemetry_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.telemetry_avg_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.start_mae_care_after_x_seconds = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].expiry_minutes = 15;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].min_breakdown_sequence_len = 4; // more important starts here and below:
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_breakdown_sequence_len = 9;
@@ -11095,7 +11205,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].min_breakdo
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].after_bd_need_x_15greenc = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entry_max_minutes_after_bdend = 75; // 45
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entryrange_rangespot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entryrange_range_percentspot = 60.0; // 35.0
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_enabled = true;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_range_percent = 53;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_greenguard_pricediff_at_least = 8.0;
@@ -11105,26 +11215,16 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].sl_enabled 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].sl_points = 0.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time = false;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_but_ProfitNeeded = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_trades_per_breakdown_per_day = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_open_positions = 5;
 
 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.babysitStart_minute = 0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.neutral_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.strong_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.strong_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.neutral_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.badtrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.terribletrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.telemetry_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.telemetry_avg_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.start_mae_care_after_x_seconds = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].expiry_minutes = 15;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].min_breakdown_sequence_len = 4; // more important starts here and below:
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].max_breakdown_sequence_len = 9;
@@ -11134,7 +11234,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].min_breakdo
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].after_bd_need_x_15greenc = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].entry_max_minutes_after_bdend = 75; // 45
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].entryrange_rangespot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].entryrange_range_percentspot = 60.0; // 35.0
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].secret_tp_enabled = true;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].secret_tp_range_percent = 53;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].secret_tp_greenguard_pricediff_at_least = 8.0;
@@ -11144,26 +11244,16 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].sl_enabled 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].sl_points = 0.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_some_time = false;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_some_time_but_ProfitNeeded = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tune.stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].max_trades_per_breakdown_per_day = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].max_open_positions = 5;
 
 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.babysitStart_minute = 0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.neutral_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.strong_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.strong_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.neutral_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.badtrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.terribletrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.telemetry_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.telemetry_avg_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.start_mae_care_after_x_seconds = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].expiry_minutes = 15;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].min_breakdown_sequence_len = 4; // more important starts here and below:
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].max_breakdown_sequence_len = 9;
@@ -11173,7 +11263,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].min_breakdo
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].after_bd_need_x_15greenc = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].entry_max_minutes_after_bdend = 75; // 45
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].entryrange_rangespot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].entryrange_range_percentspot = 60.0; // 35.0
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].secret_tp_enabled = true;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].secret_tp_range_percent = 53;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].secret_tp_greenguard_pricediff_at_least = 8.0;
@@ -11183,26 +11273,16 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].sl_enabled 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].sl_points = 0.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_some_time = false;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_some_time_but_ProfitNeeded = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tune.stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].max_trades_per_breakdown_per_day = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].max_open_positions = 5;
 
 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.babysitStart_minute = 0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.neutral_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.strong_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.strong_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.neutral_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.badtrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.terribletrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.telemetry_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.telemetry_avg_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.start_mae_care_after_x_seconds = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].expiry_minutes = 15;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].min_breakdown_sequence_len = 4; // more important starts here and below:
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].max_breakdown_sequence_len = 9;
@@ -11212,7 +11292,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].min_breakdo
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].after_bd_need_x_15greenc = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].entry_max_minutes_after_bdend = 75; // 45
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].entryrange_rangespot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].entryrange_range_percentspot = 60.0; // 35.0
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].secret_tp_enabled = true;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].secret_tp_range_percent = 53;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].secret_tp_greenguard_pricediff_at_least = 8.0;
@@ -11222,26 +11302,16 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].sl_enabled 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].sl_points = 0.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_some_time = false;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_some_time_but_ProfitNeeded = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tune.stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].max_trades_per_breakdown_per_day = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].max_open_positions = 5;
 
 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.babysitStart_minute = 0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.neutral_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.strong_trade_TP = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.strong_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.neutral_trade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.badtrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.terribletrade_mode_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.telemetry_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.telemetry_avg_velocity_window_seconds = 10;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.start_mae_care_after_x_seconds = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].expiry_minutes = 15;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].min_breakdown_sequence_len = 4; // more important starts here and below:
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].max_breakdown_sequence_len = 9;
@@ -11251,7 +11321,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].min_breakdo
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].after_bd_need_x_15greenc = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].entry_max_minutes_after_bdend = 75; // 45
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].entryrange_rangespot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].entryrange_range_percentspot = 60.0; // 35.0
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].secret_tp_enabled = true;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].secret_tp_range_percent = 53;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].secret_tp_greenguard_pricediff_at_least = 8.0;
@@ -11261,9 +11331,9 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].sl_enabled 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].sl_points = 0.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_some_time = false;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_some_time_but_ProfitNeeded = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tune.stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].max_trades_per_breakdown_per_day = 1;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].max_open_positions = 5;
 
@@ -14900,6 +14970,7 @@ int OnInit()
    BreakdownResetAllBreakdownsAuditLogsOnInit();
    BreakdownGatesLogInitFileHandles();
    BuyHoldBenchmarkResetOnInit();
+   g_m1BarCloseTerminalWasConnected = (bool)TerminalInfoInteger(TERMINAL_CONNECTED);
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 

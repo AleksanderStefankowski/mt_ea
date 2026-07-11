@@ -823,7 +823,7 @@ struct BreakdownAlgoDef
    AlgoPerAlgoTune tune;
    int            expiry_minutes;
    int            max_trades_per_breakdown_per_day;
-   double         entryrange_rangespot;       // entry on low→firstGreen range: 50=midpoint, 33=lower retrace
+   double         entryrange_range_percentspot;       // entry on low→firstGreen range: 50=midpoint, 33=lower retrace
    int            min_breakdown_sequence_len;
    int            max_breakdown_sequence_len;   // 0=no cap; red M15 streak length must be <= this
    ENUM_BREAKDOWN_STREAK_CONTINUATION breakdown_streak_continuation_mode;  // how streak extends after strong-red start
@@ -834,7 +834,7 @@ struct BreakdownAlgoDef
    int            forget_about_latest_breakdown_after_x_15m_candles;  // 0=never forget; gates stop reporting breakdownEndTooOld after endTime + N*15m
    bool           closetrade_after_some_time;
    bool           closetrade_after_some_time_butOnlyIfProfit;
-   double         closetrade_after_some_time_but_ProfitNeeded;  // min open P/L % vs lot×one_lot_equals_xPLN
+   double         closetrade_after_some_time_but_ProfitPercent_Needed;  // min open P/L % vs lot×one_lot_equals_xPLN
    int            closetrade_after_x_minutes_from_breakdown;  // minutes after g_breakdown15mSnap.endTime; needs closetrade_after_some_time
    bool           sl_enabled;
    double         sl_points;
@@ -10175,7 +10175,7 @@ double BreakdownEntryPriceForAlgo(const BreakdownAlgoDef &bd, const Breakdown15m
       return 0.0;
    if(triggerHigh <= st.breakdownLow)
       return 0.0;
-   return FalgoBreakdownPriceAtRangePercent(st.breakdownLow, triggerHigh, bd.entryrange_rangespot);
+   return FalgoBreakdownPriceAtRangePercent(st.breakdownLow, triggerHigh, bd.entryrange_range_percentspot);
 }
 
 //+------------------------------------------------------------------+
@@ -10288,7 +10288,7 @@ bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
 
    const double profitPct = FalgoOpenPositionProfitPctOfPositionDeposit();
    if(bd.closetrade_after_some_time_butOnlyIfProfit
-      && profitPct < bd.closetrade_after_some_time_but_ProfitNeeded)
+      && profitPct < bd.closetrade_after_some_time_but_ProfitPercent_Needed)
       return false;
 
    if(slotIdx >= 0)
@@ -10298,7 +10298,7 @@ bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
          TimeToString(g_lastTimer1Time, TIME_DATE|TIME_MINUTES),
          TimeToString(deadline, TIME_DATE|TIME_MINUTES),
          TimeToString(breakdownEnd, TIME_DATE|TIME_MINUTES),
-         profitPct, bd.closetrade_after_some_time_but_ProfitNeeded,
+         profitPct, bd.closetrade_after_some_time_but_ProfitPercent_Needed,
          (bd.closetrade_after_some_time_butOnlyIfProfit ? "true" : "false")));
    BreakdownRememberPendingCloseReason((ulong)ExtPositionInfo.Identifier(), "timeTrigger");
    const int telSlot = slotIdx;
@@ -12562,7 +12562,7 @@ void SyncBreakdownFamilyProfileFromInputs()
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].after_bd_need_x_15greenc = 1;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entry_max_minutes_after_bdend = 75; // 45
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entryrange_rangespot = 60.0; // 35.0
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entryrange_range_percentspot = 60.0; // 35.0
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_enabled = true;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_range_percent = 53;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_greenguard_pricediff_at_least = 8.0;
@@ -12572,7 +12572,7 @@ void SyncBreakdownFamilyProfileFromInputs()
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].sl_points = 0.0;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time = false;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_butOnlyIfProfit = true;
-   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_but_ProfitNeeded = 2.0;
+   g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_x_minutes_from_breakdown = 90;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tune.stop_trading_today_if_thisAlgo_total_trades_count = 3;
    g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_trades_per_breakdown_per_day = 1;
