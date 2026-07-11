@@ -3789,6 +3789,7 @@ void UpdateDayM1AndLevelsExpanded()
 //+------------------------------------------------------------------+
 void RebuildSortedLevelPricesForToday()
 {
+   const int prevLevelCount = g_sortedLevelPriceCount;
    g_sortedLevelPriceCount = g_levelsTodayCount;
    double tmp[];
    ArrayResize(tmp, g_levelsTodayCount);
@@ -3798,7 +3799,8 @@ void RebuildSortedLevelPricesForToday()
       ArraySort(tmp);
    for(int i = 0; i < g_levelsTodayCount; i++)
       g_sortedLevelPrices[i] = tmp[i];
-   g_aboveBelowIncLevelCount = -1;
+   if(g_sortedLevelPriceCount != prevLevelCount)
+      g_aboveBelowIncLevelCount = -1;
 }
 
 //+------------------------------------------------------------------+
@@ -6591,8 +6593,13 @@ struct BreakdownAuditSummaryAcc
 
 BreakdownAuditSummaryAcc g_breakdownAuditSummaryAcc[BREAKDOWN_STREAK_CONTINUATION_COUNT];
 
+datetime g_breakdownAuditScanDayStart = 0;
+datetime g_breakdownAuditLastM15CompleteTime = 0;
+
 void BreakdownResetAllBreakdownsAuditLogsOnInit();
 void BreakdownAuditLogScanDay(const datetime dayStart, const datetime upToM1BarTime);
+bool BreakdownAuditShouldScanOnM1Close(const datetime dayStart, const datetime upToM1BarTime);
+void BreakdownAuditLogScanDayIfNeeded(const datetime dayStart, const datetime upToM1BarTime, const bool force = false);
 
 void ComputeBreakdown15mState(const datetime dayStart, const datetime upToM1BarTime, const double strongRangePctMin,
    const int forgetAfterMinutes, const ENUM_BREAKDOWN_STREAK_CONTINUATION continuationMode, Breakdown15mState &out);
@@ -15264,7 +15271,7 @@ void OnDeinit(const int reason)
       datetime upToM1BarTime = g_lastTimer1Time;
       if(g_barsInDay >= 2)
          upToM1BarTime = g_m1Rates[g_barsInDay - 2].time + 60;
-      BreakdownAuditLogScanDay(g_m1DayStart, upToM1BarTime);
+      BreakdownAuditLogScanDayIfNeeded(g_m1DayStart, upToM1BarTime, true);
    }
 
    for(int i=0;i<ArraySize(levels);i++)
@@ -15457,7 +15464,7 @@ void OnTimer()
       const datetime upToM1BarTime = g_m1Rates[g_barsInDay - 2].time + 60;
       if(profOn)
          profT0 = GetMicrosecondCount();
-      BreakdownAuditLogScanDay(g_m1DayStart, upToM1BarTime);
+      BreakdownAuditLogScanDayIfNeeded(g_m1DayStart, upToM1BarTime);
       if(profOn)
          BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_AUDIT_SCAN, profT0);
    }
@@ -16130,6 +16137,8 @@ void BreakdownAuditLogAppendRow(const ENUM_BREAKDOWN_STREAK_CONTINUATION mode, c
 void BreakdownResetAllBreakdownsAuditLogsOnInit()
 {
    g_breakdownAuditLoggedCount = 0;
+   g_breakdownAuditScanDayStart = 0;
+   g_breakdownAuditLastM15CompleteTime = 0;
    BreakdownAuditSummaryReset();
    if(!bigflipper_log_all_breakdowns)
       return;
@@ -16143,6 +16152,47 @@ void BreakdownResetAllBreakdownsAuditLogsOnInit()
       FileClose(fh);
    }
    BreakdownAuditSummaryWrite();
+}
+
+//+------------------------------------------------------------------+
+//| True when a new M15 bar has fully closed since the last audit scan (M1 timer only). |
+//+------------------------------------------------------------------+
+bool BreakdownAuditShouldScanOnM1Close(const datetime dayStart, const datetime upToM1BarTime)
+{
+   if(dayStart != g_breakdownAuditScanDayStart)
+   {
+      g_breakdownAuditScanDayStart = dayStart;
+      g_breakdownAuditLastM15CompleteTime = 0;
+   }
+
+   const int shift = iBarShift(_Symbol, PERIOD_M15, upToM1BarTime, false);
+   if(shift < 0)
+      return false;
+
+   datetime m15BarOpen = iTime(_Symbol, PERIOD_M15, shift);
+   datetime m15BarComplete = m15BarOpen + 15 * 60;
+   if(upToM1BarTime < m15BarComplete)
+   {
+      if(shift + 1 >= iBars(_Symbol, PERIOD_M15))
+         return false;
+      m15BarOpen = iTime(_Symbol, PERIOD_M15, shift + 1);
+      m15BarComplete = m15BarOpen + 15 * 60;
+   }
+
+   if(m15BarComplete <= g_breakdownAuditLastM15CompleteTime)
+      return false;
+   g_breakdownAuditLastM15CompleteTime = m15BarComplete;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+void BreakdownAuditLogScanDayIfNeeded(const datetime dayStart, const datetime upToM1BarTime, const bool force)
+{
+   if(!bigflipper_log_all_breakdowns || dayStart <= 0 || upToM1BarTime < dayStart)
+      return;
+   if(!force && !BreakdownAuditShouldScanOnM1Close(dayStart, upToM1BarTime))
+      return;
+   BreakdownAuditLogScanDay(dayStart, upToM1BarTime);
 }
 
 //+------------------------------------------------------------------+
