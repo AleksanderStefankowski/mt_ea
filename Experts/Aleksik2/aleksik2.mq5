@@ -523,6 +523,8 @@ MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of 
 int g_barsInDay = 0;
 datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
 datetime g_buyHoldFirstDayStart = 0;
+double   g_buyHoldCompletedTradingMinutes = 0.0;
+int      g_buyHoldSnapshotM1BarCount = 0;
 double   g_buyHoldFirstOOD = 0.0;
 double   g_buyHoldFirstHOD = 0.0;
 double   g_buyHoldFirstLOD = 0.0;
@@ -3954,6 +3956,8 @@ string BuyHoldBenchmarkFileName()
 void BuyHoldBenchmarkResetOnInit()
 {
    g_buyHoldFirstDayStart = 0;
+   g_buyHoldCompletedTradingMinutes = 0.0;
+   g_buyHoldSnapshotM1BarCount = 0;
    g_buyHoldFirstOOD = 0.0;
    g_buyHoldFirstHOD = 0.0;
    g_buyHoldFirstLOD = 0.0;
@@ -3984,9 +3988,16 @@ void BuyHoldBenchmarkResetOnInit()
    int fh = FileOpen(BuyHoldBenchmarkFileName(), FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       return;
-   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl",
-      "max_high_since_first_ood", "min_low_since_first_ood");
+   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl_firstOpen_lastClose",
+      "max_high_since_first_ood", "min_low_since_first_ood",
+      "sum_lifetime_hours", "sum_lifetime_days", "hours_vs_pricediff_ratio");
    FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+double BuyHoldSpanTradingMinutes()
+{
+   return g_buyHoldCompletedTradingMinutes + (double)g_buyHoldSnapshotM1BarCount;
 }
 
 //+------------------------------------------------------------------+
@@ -4042,26 +4053,32 @@ void BuyHoldBenchmarkWriteFile(const datetime lastDayStart, const double lastOOD
    const double buyHoldPnl = lastCOD - g_buyHoldFirstOOD;
    const double maxHighSinceFirst = g_buyHoldRunExtremesInit ? (g_buyHoldRunMaxHigh - g_buyHoldFirstOOD) : 0.0;
    const double minLowSinceFirst = g_buyHoldRunExtremesInit ? (g_buyHoldRunMinLow - g_buyHoldFirstOOD) : 0.0;
+   const double spanMinutes = BuyHoldSpanTradingMinutes();
+   const double sumLifetimeHours = spanMinutes / 60.0;
+   const double sumLifetimeDays = sumLifetimeHours / 24.0;
+   const string hoursVsPricediffRatio = (MathAbs(buyHoldPnl) > 0.0)
+      ? DoubleToString(sumLifetimeHours / buyHoldPnl, 4) : "";
 
    int fh = FileOpen(BuyHoldBenchmarkFileName(), FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       return;
-   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl",
-      "max_high_since_first_ood", "min_low_since_first_ood");
+   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl_firstOpen_lastClose",
+      "max_high_since_first_ood", "min_low_since_first_ood",
+      "sum_lifetime_hours", "sum_lifetime_days", "hours_vs_pricediff_ratio");
    FileWrite(fh, "first_day",
       TimeToString(g_buyHoldFirstDayStart, TIME_DATE),
       DoubleToString(g_buyHoldFirstOOD, _Digits),
       DoubleToString(g_buyHoldFirstHOD, _Digits),
       DoubleToString(g_buyHoldFirstLOD, _Digits),
       DoubleToString(g_buyHoldFirstCOD, _Digits),
-      "", "", "");
+      "", "", "", "", "", "");
    FileWrite(fh, "last_day",
       TimeToString(lastDayStart, TIME_DATE),
       DoubleToString(lastOOD, _Digits),
       DoubleToString(lastHOD, _Digits),
       DoubleToString(lastLOD, _Digits),
       DoubleToString(lastCOD, _Digits),
-      "", "", "");
+      "", "", "", "", "", "");
    FileWrite(fh, "diff", "",
       DoubleToString(oodDiff, _Digits),
       DoubleToString(hodDiff, _Digits),
@@ -4069,7 +4086,10 @@ void BuyHoldBenchmarkWriteFile(const datetime lastDayStart, const double lastOOD
       DoubleToString(codDiff, _Digits),
       DoubleToString(buyHoldPnl, _Digits),
       DoubleToString(maxHighSinceFirst, _Digits),
-      DoubleToString(minLowSinceFirst, _Digits));
+      DoubleToString(minLowSinceFirst, _Digits),
+      DoubleToString(sumLifetimeHours, 1),
+      DoubleToString(sumLifetimeDays, 1),
+      hoursVsPricediffRatio);
    FileClose(fh);
 }
 
@@ -4082,6 +4102,8 @@ void BuyHoldBenchmarkOnDayRollover()
       g_buyHoldFirstDayFrozen = true;
    BuyHoldBenchmarkWriteFile(g_buyHoldSnapshotDayStart, g_buyHoldSnapshotOOD, g_buyHoldSnapshotHOD,
       g_buyHoldSnapshotLOD, g_buyHoldSnapshotCOD);
+   if(g_buyHoldSnapshotM1BarCount > 0)
+      g_buyHoldCompletedTradingMinutes += (double)g_buyHoldSnapshotM1BarCount;
 }
 
 //+------------------------------------------------------------------+
@@ -4102,6 +4124,11 @@ void BuyHoldBenchmarkUpdate(const bool forceFinalWrite)
          BacktestProfAccumulate(BACKTEST_PROF_BENCHMARK_BUY_HOLD, profT0);
       return;
    }
+
+   int codBarIdx = PullingHistoryLastClosedBarIdx();
+   if(codBarIdx < 0)
+      codBarIdx = g_barsInDay - 1;
+   g_buyHoldSnapshotM1BarCount = (codBarIdx >= 0 ? codBarIdx + 1 : 0);
 
    if(g_buyHoldFirstDayStart == 0)
    {
@@ -5312,7 +5339,8 @@ void BreakdownBenchmarkAllAlgosWrite()
       return;
 
    FileWrite(fh, "algo_id", "continuation_type", "trades_closed", "wins", "losses", "win_rate_pct",
-      "sum_priceDiff", "avg_priceDiff", "avg_mfe_pts", "avg_mae_pts", "avg_lifetime_hours");
+      "sum_priceDiff", "avg_priceDiff", "avg_mfe_pts", "avg_mae_pts", "avg_lifetime_hours",
+      "sum_lifetime_minutes", "sum_lifetime_hours", "sum_lifetime_days", "hours_vs_pricediff_ratio");
 
    for(int i = 0; i < g_breakdownAlgoCount; i++)
    {
@@ -5327,6 +5355,10 @@ void BreakdownBenchmarkAllAlgosWrite()
       const double avgMfe = (acc.telCount > 0) ? acc.sumMfePts / (double)acc.telCount : 0.0;
       const double avgMae = (acc.telCount > 0) ? acc.sumMaePts / (double)acc.telCount : 0.0;
       const double avgLifetime = (n > 0) ? acc.sumLifetimeHours / (double)n : 0.0;
+      const double sumLifetimeMinutes = acc.sumLifetimeHours * 60.0;
+      const double sumLifetimeDays = acc.sumLifetimeHours / 24.0;
+      const string hoursVsPricediffRatio = (MathAbs(acc.sumPriceDiff) > 0.0)
+         ? DoubleToString(acc.sumLifetimeHours / acc.sumPriceDiff, 4) : "";
       const ENUM_BREAKDOWN_STREAK_CONTINUATION mode = g_breakdownAlgos[slotIdx].breakdown_streak_continuation_mode;
 
       FileWrite(fh,
@@ -5340,7 +5372,11 @@ void BreakdownBenchmarkAllAlgosWrite()
          DoubleToString(avgPriceDiff, _Digits),
          (acc.telCount > 0 ? DoubleToString(avgMfe, 1) : ""),
          (acc.telCount > 0 ? DoubleToString(avgMae, 1) : ""),
-         (n > 0 ? DoubleToString(avgLifetime, 2) : ""));
+         (n > 0 ? DoubleToString(avgLifetime, 1) : ""),
+         (n > 0 ? DoubleToString(sumLifetimeMinutes, 1) : ""),
+         (n > 0 ? DoubleToString(acc.sumLifetimeHours, 1) : ""),
+         (n > 0 ? DoubleToString(sumLifetimeDays, 1) : ""),
+         hoursVsPricediffRatio);
    }
    FileClose(fh);
    if(profOn)
