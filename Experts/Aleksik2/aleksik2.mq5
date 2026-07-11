@@ -227,7 +227,8 @@ datetime g_onTimerDuration_logged2130ForDay = 0;
 #define BACKTEST_PROF_M1_BAR_CLOSE_GAPLOG       24
 #define BACKTEST_PROF_M1_BAR_CLOSE_EOD_LOGGING  25
 #define BACKTEST_PROF_ONTIMER_TOTAL             26
-#define BACKTEST_PROF_SECTION_COUNT             27
+#define BACKTEST_PROF_FALGO_DAY_TRADE_COUNTS    27
+#define BACKTEST_PROF_SECTION_COUNT             28
 
 struct BacktestProfBucket
 {
@@ -276,10 +277,11 @@ string BacktestProfSectionLabel(const int section)
       case BACKTEST_PROF_M1_BAR_CLOSE_DAY_PROGRESS: return "m1_bar_close_day_progress";
       case BACKTEST_PROF_M1_BAR_CLOSE_ACCOUNT_BAR_STATS: return "m1_bar_close_account_bar_stats";
       case BACKTEST_PROF_M1_BAR_CLOSE_LEVEL_TRADE_STATS: return "m1_bar_close_level_trade_stats";
-      case BACKTEST_PROF_M1_BAR_CLOSE_GATES_FALGO: return "m1_bar_close_gates_falgo_counts";
+      case BACKTEST_PROF_M1_BAR_CLOSE_GATES_FALGO: return "m1_bar_close_gates_log";
       case BACKTEST_PROF_M1_BAR_CLOSE_GAPLOG:      return "m1_bar_close_gaplog";
       case BACKTEST_PROF_M1_BAR_CLOSE_EOD_LOGGING: return "m1_bar_close_eod_logging";
       case BACKTEST_PROF_ONTIMER_TOTAL:            return "ontimer_total";
+      case BACKTEST_PROF_FALGO_DAY_TRADE_COUNTS:   return "falgo_day_trade_counts";
    }
    return "unknown";
 }
@@ -866,6 +868,9 @@ datetime                   g_breakdownGatesCloseTelBarTime[BREAKDOWN_ALGO_REGIST
 double                     g_breakdownGatesCloseTelMfePts[BREAKDOWN_ALGO_REGISTRY_MAX];
 double                     g_breakdownGatesCloseTelMaePts[BREAKDOWN_ALGO_REGISTRY_MAX];
 bool                       g_breakdownGatesCloseTelValid[BREAKDOWN_ALGO_REGISTRY_MAX];
+int                        g_breakdownGatesPmFileHandle[BREAKDOWN_ALGO_REGISTRY_MAX];
+int                        g_breakdownGatesPsFileHandle[BREAKDOWN_ALGO_REGISTRY_MAX];
+datetime                   g_breakdownGatesLogFileDayStart = 0;
 bool                       g_breakdownFamilyHadCloseThisPipelinePass = false;
 int                        g_breakdownAlgoPlanTradeNumToday[BREAKDOWN_ALGO_REGISTRY_MAX];
 int                        g_breakdownAlgoLevelTradeNumToday[BREAKDOWN_ALGO_REGISTRY_MAX];
@@ -13112,6 +13117,93 @@ void BreakdownRebuildAllRuleChains()
 }
 
 //+------------------------------------------------------------------+
+void BreakdownGatesLogInitFileHandles()
+{
+   for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
+   {
+      g_breakdownGatesPmFileHandle[bi] = INVALID_HANDLE;
+      g_breakdownGatesPsFileHandle[bi] = INVALID_HANDLE;
+   }
+   g_breakdownGatesLogFileDayStart = 0;
+}
+
+//+------------------------------------------------------------------+
+void BreakdownGatesLogCloseAllFileHandles()
+{
+   for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
+   {
+      if(g_breakdownGatesPmFileHandle[bi] != INVALID_HANDLE)
+      {
+         FileClose(g_breakdownGatesPmFileHandle[bi]);
+         g_breakdownGatesPmFileHandle[bi] = INVALID_HANDLE;
+      }
+      if(g_breakdownGatesPsFileHandle[bi] != INVALID_HANDLE)
+      {
+         FileClose(g_breakdownGatesPsFileHandle[bi]);
+         g_breakdownGatesPsFileHandle[bi] = INVALID_HANDLE;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void BreakdownGatesLogEnsureDay()
+{
+   if(g_m1DayStart == 0)
+      return;
+   if(g_breakdownGatesLogFileDayStart == g_m1DayStart)
+      return;
+   BreakdownGatesLogCloseAllFileHandles();
+   g_breakdownGatesLogFileDayStart = g_m1DayStart;
+}
+
+//+------------------------------------------------------------------+
+void BreakdownGatesLogWriteHeaderIfEmpty(const int fh)
+{
+   if(fh == INVALID_HANDLE)
+      return;
+   FileSeek(fh, 0, SEEK_END);
+   if(FileTell(fh) != 0)
+      return;
+   FileWrite(fh, "barTime", "O", "H", "L", "C",
+      "breakdown_sequence_starttime", "breakdown_sequence_startprice",
+      "breakdown_endtime", "breakdown_low", "ended_length",
+      "firstGreen15mC_afterBreakdown_high", "midpoint", "minutes_since_end",
+      "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount",
+      "dayWins", "dayLosses", "mfe", "mae", "trades_today", "trades_all");
+}
+
+//+------------------------------------------------------------------+
+int BreakdownGatesLogAcquireHandle(const int slotIdx, const int algoNumber, const bool perSecond, const string dateStr)
+{
+   if(slotIdx < 0 || slotIdx >= BREAKDOWN_ALGO_REGISTRY_MAX)
+      return INVALID_HANDLE;
+   BreakdownGatesLogEnsureDay();
+
+   int fhRef = perSecond ? g_breakdownGatesPsFileHandle[slotIdx] : g_breakdownGatesPmFileHandle[slotIdx];
+   if(fhRef != INVALID_HANDLE)
+   {
+      FileSeek(fhRef, 0, SEEK_END);
+      return fhRef;
+   }
+
+   const string logSuffix = perSecond ? "gates_per_second" : "gates_per_minute";
+   const string fname = BreakdownAlgoCsvFileName(dateStr, algoNumber, logSuffix);
+   fhRef = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fhRef == INVALID_HANDLE)
+      fhRef = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fhRef == INVALID_HANDLE)
+      return INVALID_HANDLE;
+
+   BreakdownGatesLogWriteHeaderIfEmpty(fhRef);
+   FileSeek(fhRef, 0, SEEK_END);
+   if(perSecond)
+      g_breakdownGatesPsFileHandle[slotIdx] = fhRef;
+   else
+      g_breakdownGatesPmFileHandle[slotIdx] = fhRef;
+   return fhRef;
+}
+
+//+------------------------------------------------------------------+
 void AlgoGatesFailFlagsAppend(string &outFlags[], const string flag)
 {
    if(flag == "")
@@ -13125,7 +13217,8 @@ void AlgoGatesFailFlagsAppend(string &outFlags[], const string flag)
 void AlgoGatesCollectBreakdownPlacementFailFlags(const int algoNumber, const int barIdx,
    const bool profileEnabled, const bool tradingDay, const bool tradingTime,
    const bool underLoss, const bool underWin, const bool underOpenLimit,
-   const bool tradeCloseDedicatedBar, const bool familyBlock, const bool entryAllowed,
+   const bool tradeCloseDedicatedBar, const bool familyBlock,
+   const Breakdown15mState &bdSnap,
    string &outFlags[], const datetime evalTime)
 {
    ArrayResize(outFlags, 0);
@@ -13146,8 +13239,6 @@ void AlgoGatesCollectBreakdownPlacementFailFlags(const int algoNumber, const int
    if(familyBlock && BreakdownHasOpenPositionOnSymbol()) AlgoGatesFailFlagsAppend(outFlags, "openFalgoPositionFam");
    if(familyBlock && BreakdownHasPendingOrderOnSymbol()) AlgoGatesFailFlagsAppend(outFlags, "pendingFalgoOrderFam");
 
-   RefreshGlobalBreakdown15mSnap(evalTime);
-   const Breakdown15mState bdSnap = Breakdown15mSnapForAlgo(algoNumber, evalTime);
    const string entryBlock = BreakdownMidpointEntryBlockReason(algoNumber, bdSnap, evalTime);
    if(entryBlock != "")
       AlgoGatesFailFlagsAppend(outFlags, entryBlock);
@@ -13193,6 +13284,7 @@ void BreakdownAppendGatesLogRow(const int barIdx, const int algoNumber, const bo
       if(g_falgoGatesLogDayStart != g_m1DayStart)
       {
          g_falgoGatesLogDayStart = g_m1DayStart;
+         BreakdownGatesLogEnsureDay();
          for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
          {
             g_breakdownGatesLastLoggedBarTime[bi] = 0;
@@ -13221,12 +13313,11 @@ void BreakdownAppendGatesLogRow(const int barIdx, const int algoNumber, const bo
    const bool underOpenLimit = BreakdownUnderMaxOpenPositionsLimit(algoNumber);
    const bool tradeCloseDedicatedBar = !FalgoRulesetPassesCloseBarForAlgo(algoNumber, barIdx);
    const bool familyBlock = BreakdownFamilyBlocksPlacementOnOpenOrPending();
-   const bool entryAllowed = BreakdownMidpointEntryAllowed(algoNumber, bdSnap, evalTime);
 
    string failFlags[];
    AlgoGatesCollectBreakdownPlacementFailFlags(algoNumber, barIdx,
       profileEnabled, tradingDay, tradingTime, underLoss, underWin, underOpenLimit,
-      tradeCloseDedicatedBar, familyBlock, entryAllowed, failFlags, evalTime);
+      tradeCloseDedicatedBar, familyBlock, bdSnap, failFlags, evalTime);
    string firstFail = (ArraySize(failFlags) > 0 ? failFlags[0] : "");
    string secondFail = (ArraySize(failFlags) > 1 ? failFlags[1] : "");
    string thirdFail = (ArraySize(failFlags) > 2 ? failFlags[2] : "");
@@ -13248,24 +13339,9 @@ void BreakdownAppendGatesLogRow(const int barIdx, const int algoNumber, const bo
    }
 
    const string dateStr = TimeToString(g_m1DayStart, TIME_DATE);
-   const string logSuffix = perSecond ? "gates_per_second" : "gates_per_minute";
-   const string fname = BreakdownAlgoCsvFileName(dateStr, algoNumber, logSuffix);
-   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fh == INVALID_HANDLE)
-      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   const int fh = BreakdownGatesLogAcquireHandle(slotIdx, algoNumber, perSecond, dateStr);
    if(fh == INVALID_HANDLE)
       return;
-   FileSeek(fh, 0, SEEK_END);
-   if(FileTell(fh) == 0)
-   {
-      FileWrite(fh, "barTime", "O", "H", "L", "C",
-         "breakdown_sequence_starttime", "breakdown_sequence_startprice",
-         "breakdown_endtime", "breakdown_low", "ended_length",
-         "firstGreen15mC_afterBreakdown_high", "midpoint", "minutes_since_end",
-         "plannedTradePrice", "firstFailGate", "2ndFailFlag", "3rdFailFlag", "failGateCount",
-         "dayWins", "dayLosses", "mfe", "mae", "trades_today", "trades_all");
-   }
-   FileSeek(fh, 0, SEEK_END);
    const int timeFormat = perSecond ? (TIME_DATE|TIME_SECONDS) : (TIME_DATE|TIME_MINUTES);
    double gatesMfePts = 0.0, gatesMaePts = 0.0;
    bool gatesCloseTelFilled = false;
@@ -13296,7 +13372,6 @@ void BreakdownAppendGatesLogRow(const int barIdx, const int algoNumber, const bo
       BreakdownLifetimeLogTelemetryPtsCol(gatesMaePts, !perSecond && gatesCloseTelFilled),
       IntegerToString(BreakdownAlgoTradesTodayForLog(algoNumber)),
       IntegerToString(BreakdownAlgoTradesAllForLog(algoNumber)));
-   FileClose(fh);
 }
 
 //+------------------------------------------------------------------+
@@ -13309,6 +13384,7 @@ void FalgoTryLogGatesForClosedMinute()
    if(g_falgoGatesLogDayStart != g_m1DayStart)
    {
       g_falgoGatesLogDayStart = g_m1DayStart;
+      BreakdownGatesLogEnsureDay();
       for(int bi = 0; bi < BREAKDOWN_ALGO_REGISTRY_MAX; bi++)
       {
          g_breakdownGatesLastLoggedBarTime[bi] = 0;
@@ -13320,6 +13396,13 @@ void FalgoTryLogGatesForClosedMinute()
    if(g_barsInDay < 2)
       return;
    const datetime barTime = g_m1Rates[barIdx].time;
+   const datetime evalTime = barTime + 60;
+   for(int si = 0; si < g_breakdownAlgoCount; si++)
+   {
+      if(!g_breakdownAlgos[si].enabled)
+         continue;
+      EnsureBreakdown15mSnapForAlgoSlot(si, evalTime);
+   }
    const bool profOn = BacktestProfileEnabled();
    ulong profT0 = 0;
    for(int bi = 0; bi < g_breakdownAlgoCount; bi++)
@@ -13501,7 +13584,19 @@ string AlgoBreakdownPlacementBlockReasonFirstFail(const int algoNumber, const in
 }
 
 //+------------------------------------------------------------------+
-void RunBreakdownTradePipeline()
+void RunBreakdownBabysitOnly()
+{
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+   Babysitf_RunBreakdownOpenPositionsForSymbol();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_BABYSIT, profT0);
+}
+
+//+------------------------------------------------------------------+
+void RunBreakdownPlacementOnM1Close(const int barIdx)
 {
    const bool profOn = BacktestProfileEnabled();
    ulong profT0 = 0;
@@ -13509,6 +13604,7 @@ void RunBreakdownTradePipeline()
    g_breakdownFamilyHadCloseThisPipelinePass = false;
    UpdateBreakdownDayTradeCounts();
 
+   // Same pipeline pass as legacy RunBreakdownTradePipeline: babysit then placement (close-this-bar gate).
    if(profOn)
       profT0 = GetMicrosecondCount();
    Babysitf_RunBreakdownOpenPositionsForSymbol();
@@ -13517,10 +13613,9 @@ void RunBreakdownTradePipeline()
 
    if(!BreakdownProfileAllowsPlacementAtTime(g_lastTimer1Time))
       return;
-   if(g_barsInDay < 1)
+   if(barIdx < 0 || barIdx >= g_barsInDay)
       return;
 
-   const int barIdx = g_barsInDay - 1;
    RefreshGlobalBreakdown15mSnap(g_lastTimer1Time);
    RefreshOccupiedMagicsCache();
    for(int si = 0; si < g_breakdownAlgoCount; si++)
@@ -14209,6 +14304,7 @@ int OnInit()
    FalgoInitPerAlgoTelemetryDayState();
    BreakdownResetTradeLifetimeRunLogsOnInit();
    BreakdownResetAllBreakdownsAuditLogsOnInit();
+   BreakdownGatesLogInitFileHandles();
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
@@ -14568,6 +14664,7 @@ void OnDeinit(const int reason)
    EventKillTimer();
 
    BacktestProfWriteRunSummary();
+   BreakdownGatesLogCloseAllFileHandles();
 
    if(current_candle_time != 0)
       FinalizeCurrentCandle();
@@ -14689,7 +14786,7 @@ void OnTimer()
    FalgoUpdateOpenTradeTelemetryEachSecond();
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_TELEMETRY_PER_SEC, profT0);
-   RunBreakdownTradePipeline();
+   RunBreakdownBabysitOnly();
 
    FalgoTryLogAlgoFamilyPerSecond();
 
@@ -14820,9 +14917,20 @@ void OnTimer()
    if(profOn)
       profT0 = GetMicrosecondCount();
    UpdateFalgoDayTradeCounts();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_FALGO_DAY_TRADE_COUNTS, profT0);
+
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    FalgoTryLogGatesForClosedMinute();
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_M1_BAR_CLOSE_GATES_FALGO, profT0);
+
+   if(g_barsInDay >= 1)
+   {
+      const int placementBarIdx = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
+      RunBreakdownPlacementOnM1Close(placementBarIdx);
+   }
 
    if(profOn)
       profT0 = GetMicrosecondCount();

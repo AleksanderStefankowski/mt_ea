@@ -64,9 +64,9 @@ int      eod_log_start_minute                              =  58;  // originally
 int      eod_log_end_hour                                  =  22;  // originally 22 EOD log window end inclusive (server time)
 int      eod_log_end_minute                                =   0;  // originally 0
 //--- Per-second logs (shared time window below)
-bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
-bool     bigflipper_log_algo_gates_per_second              = true;  // (date)_algoN_gates_per_second.csv — enabled algos only
-bool     bigflipper_log_algo_trade_telemetry_per_second    = true;  // (date)_algoN_trade_telemetry_per_second.csv
+bool     bigflipper_log_testing_algofamily_per_second      = false;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
+bool     bigflipper_log_algo_gates_per_second              = false;  // (date)_algoN_gates_per_second.csv — enabled algos only
+bool     bigflipper_log_algo_trade_telemetry_per_second    = false;  // (date)_algoN_trade_telemetry_per_second.csv
 bool     bigflipper_log_algo_velocity_parameter_testing_per_second = false;  // (date)_algoN_velocity_parameter_testing.csv
 int      per_second_log_start_hour                         =   10;  // shared inclusive window start (server time) — all 4 per-second logs above
 int      per_second_log_start_minute                       =  33;
@@ -74,7 +74,7 @@ int      per_second_log_end_hour                           =  10;  // shared inc
 int      per_second_log_end_minute                         =  36;
 bool     backtest_profile_enabled                          = true;   // strategy tester only: section wall-time → backtest_profile_*.tsv
 // false: M1 bar-close stats incremental on closed bars only (backtest). true: full-day rescan every M1 close incl. forming bar (live / reconnect-safe).
-bool     bigflipper_pullinghistory_always_full_replay      = false; // ALGOBOOKMARKLIVE
+bool     bigflipper_pullinghistory_always_full_replay      = true; // ALGOBOOKMARKLIVE
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_referencePoints_movingLookback_seconds = 180;  // bookmark moving trade-result context: bar at (startTime - this); refs, dayBrokePDH/PDL
