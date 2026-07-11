@@ -45,6 +45,7 @@ bool     finalLog_DayStatSummary      = false;  // dayPriceStat_and_gapstat_summ
 bool     finalLog_TradeLog            = false; // (date)_B_TradeLog_algoN.csv per wired algo (WriteTradeLog)
 bool     dailySpamLog_AllCandles      = true;  // (date)-AllCandlesLog_Timer1.csv
 bool     finalLog_FirstLastCandle     = true;  // InpSessionFirstLastCandleFile (OnDeinit)
+bool     finalLog_benchmark_buyAndHold = true;  // benchmark_buyAndHold.csv — first/last day OHLC + diff (OnInit truncate)
 string   InpCalendarFile        = "calendar_2026_dots.csv";  // CSV in Terminal/Common/Files: date (YYYY.MM.DD),dayofmonth,dayofweek,opex,qopex
 string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/Common/Files: start,end,levelPrice,categories,tag (multi-year OK)
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
@@ -53,8 +54,8 @@ bool     bigflipper_log_algo_trade_results_csv             = false; // (date)_su
 bool     bigflipper_log_summary_tradeResults_all_days      = true;  // summary_tradeResults_all_days.tsv (level family only)
 bool     bigflipper_log_summary_tradeResults_all_days_algo = false; // summary_tradeResults_all_days_algoN.tsv (per level algo)
 bool     bigflipper_log_summary_tradeResults_all_days_breakdown = true;  // summary_tradeResults_all_days_breakdown.tsv
-bool     bigflipper_log_breakdown_trade_lifetime             = true;  // bdalgoN_alltrades_log.csv — truncated on OnInit each run
-bool     bigflipper_log_all_breakdowns                       = true;  // all_breakdowns_{type}_streakNorMore.csv — per run, OnInit truncate
+bool     bigflipper_log_breakdown_trade_lifetime             = true;  // bdalgoN_alltrades_log.csv + benchmark_all_algos_breakdown.csv — truncated on OnInit each run
+bool     bigflipper_log_all_breakdowns                       = true;  // all_breakdowns_{type}_streakNorMore.csv + all_breakdowns_summaries.csv — per run, OnInit truncate
 #define  BREAKDOWN_AUDIT_LOG_MIN_STREAK_ARG                   3
 double   BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG = 0.20;  // strong-red M15 start gate for audit log only
 //--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
@@ -228,7 +229,15 @@ datetime g_onTimerDuration_logged2130ForDay = 0;
 #define BACKTEST_PROF_M1_BAR_CLOSE_EOD_LOGGING  25
 #define BACKTEST_PROF_ONTIMER_TOTAL             26
 #define BACKTEST_PROF_FALGO_DAY_TRADE_COUNTS    27
-#define BACKTEST_PROF_SECTION_COUNT             28
+#define BACKTEST_PROF_ALGOFAMILY_LOG_PER_SECOND 28
+#define BACKTEST_PROF_BREAKDOWN_AUDIT_SCAN      29
+#define BACKTEST_PROF_BENCHMARK_BUY_HOLD        30
+#define BACKTEST_PROF_STATIC_MARKET_CONTEXT     31
+#define BACKTEST_PROF_TRADE_RESULTS_ENRICH      32
+#define BACKTEST_PROF_TRADE_RESULTS_EOD_FLUSH   33
+#define BACKTEST_PROF_BREAKDOWN_BENCHMARK_ALGOS 34
+#define BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV 35
+#define BACKTEST_PROF_SECTION_COUNT             36
 
 struct BacktestProfBucket
 {
@@ -282,6 +291,14 @@ string BacktestProfSectionLabel(const int section)
       case BACKTEST_PROF_M1_BAR_CLOSE_EOD_LOGGING: return "m1_bar_close_eod_logging";
       case BACKTEST_PROF_ONTIMER_TOTAL:            return "ontimer_total";
       case BACKTEST_PROF_FALGO_DAY_TRADE_COUNTS:   return "falgo_day_trade_counts";
+      case BACKTEST_PROF_ALGOFAMILY_LOG_PER_SECOND: return "algofamily_log_per_second";
+      case BACKTEST_PROF_BREAKDOWN_AUDIT_SCAN:    return "breakdown_audit_scan";
+      case BACKTEST_PROF_BENCHMARK_BUY_HOLD:      return "benchmark_buy_hold";
+      case BACKTEST_PROF_STATIC_MARKET_CONTEXT:   return "static_market_context";
+      case BACKTEST_PROF_TRADE_RESULTS_ENRICH:    return "trade_results_enrich";
+      case BACKTEST_PROF_TRADE_RESULTS_EOD_FLUSH: return "trade_results_eod_flush";
+      case BACKTEST_PROF_BREAKDOWN_BENCHMARK_ALGOS: return "breakdown_benchmark_algos";
+      case BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV: return "summary_trade_results_tsv";
    }
    return "unknown";
 }
@@ -317,9 +334,40 @@ void BacktestProfAccumulate(const int section, const ulong t0)
 ulong BacktestProfSumProfiledUsExceptOnTimer(const BacktestProfBucket &buckets[])
 {
    ulong sum = 0;
-   for(int i = 0; i < BACKTEST_PROF_ONTIMER_TOTAL; i++)
+   for(int i = 0; i < BACKTEST_PROF_SECTION_COUNT; i++)
+   {
+      if(i == BACKTEST_PROF_ONTIMER_TOTAL)
+         continue;
       sum += buckets[i].totalUs;
+   }
    return sum;
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfWriteOneBucketRow(const int fh, const string datePrefix, const int section,
+   const BacktestProfBucket &buckets[], const ulong denomUs)
+{
+   if(buckets[section].calls <= 0 && buckets[section].totalUs == 0)
+      return;
+   const double totalMs = (double)buckets[section].totalUs / 1000.0;
+   const double totalS = (double)buckets[section].totalUs / 1000000.0;
+   const double totalMin = totalS / 60.0;
+   const double avgMs = (buckets[section].calls > 0) ? totalMs / (double)buckets[section].calls : 0.0;
+   const double maxMs = (double)buckets[section].maxUs / 1000.0;
+   const double pct = (section == BACKTEST_PROF_ONTIMER_TOTAL || denomUs == 0) ? 0.0 :
+      100.0 * (double)buckets[section].totalUs / (double)denomUs;
+   if(StringLen(datePrefix) > 0)
+   {
+      FileWrite(fh, datePrefix, BacktestProfSectionLabel(section),
+         DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(buckets[section].calls),
+         DoubleToString(avgMs, 3), DoubleToString(maxMs, 3), DoubleToString(pct, 1));
+   }
+   else
+   {
+      FileWrite(fh, BacktestProfSectionLabel(section),
+         DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(buckets[section].calls),
+         DoubleToString(avgMs, 3), DoubleToString(maxMs, 3), DoubleToString(pct, 1));
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -328,28 +376,11 @@ void BacktestProfWriteBucketRows(const int fh, const string datePrefix, const Ba
    const ulong denomUs = BacktestProfSumProfiledUsExceptOnTimer(buckets);
    for(int i = 0; i < BACKTEST_PROF_SECTION_COUNT; i++)
    {
-      if(buckets[i].calls <= 0 && buckets[i].totalUs == 0)
+      if(i == BACKTEST_PROF_ONTIMER_TOTAL)
          continue;
-      const double totalMs = (double)buckets[i].totalUs / 1000.0;
-      const double totalS = (double)buckets[i].totalUs / 1000000.0;
-      const double totalMin = totalS / 60.0;
-      const double avgMs = (buckets[i].calls > 0) ? totalMs / (double)buckets[i].calls : 0.0;
-      const double maxMs = (double)buckets[i].maxUs / 1000.0;
-      const double pct = (i == BACKTEST_PROF_ONTIMER_TOTAL || denomUs == 0) ? 0.0 :
-         100.0 * (double)buckets[i].totalUs / (double)denomUs;
-      if(StringLen(datePrefix) > 0)
-      {
-         FileWrite(fh, datePrefix, BacktestProfSectionLabel(i),
-            DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(buckets[i].calls),
-            DoubleToString(avgMs, 3), DoubleToString(maxMs, 3), DoubleToString(pct, 1));
-      }
-      else
-      {
-         FileWrite(fh, BacktestProfSectionLabel(i),
-            DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(buckets[i].calls),
-            DoubleToString(avgMs, 3), DoubleToString(maxMs, 3), DoubleToString(pct, 1));
-      }
+      BacktestProfWriteOneBucketRow(fh, datePrefix, i, buckets, denomUs);
    }
+   BacktestProfWriteOneBucketRow(fh, datePrefix, BACKTEST_PROF_ONTIMER_TOTAL, buckets, denomUs);
 }
 
 //+------------------------------------------------------------------+
@@ -490,6 +521,36 @@ double g_RTHprofitSum_L[MAX_LEVELS_EXPANDED][MAX_BARS_IN_DAY];
 MqlRates g_m1Rates[MAX_BARS_IN_DAY];  // day's bars only, index k = k-th bar of day
 int g_barsInDay = 0;
 datetime g_m1DayStart = 0;  // which day g_m1Rates is for (0 = not set)
+datetime g_buyHoldFirstDayStart = 0;
+double   g_buyHoldFirstOOD = 0.0;
+double   g_buyHoldFirstHOD = 0.0;
+double   g_buyHoldFirstLOD = 0.0;
+double   g_buyHoldFirstCOD = 0.0;
+bool     g_buyHoldFirstDayFrozen = false;
+double   g_buyHoldRunMaxHigh = 0.0;
+double   g_buyHoldRunMinLow = 0.0;
+bool     g_buyHoldRunExtremesInit = false;
+datetime g_buyHoldSnapshotDayStart = 0;
+double   g_buyHoldSnapshotOOD = 0.0;
+double   g_buyHoldSnapshotHOD = 0.0;
+double   g_buyHoldSnapshotLOD = 0.0;
+double   g_buyHoldSnapshotCOD = 0.0;
+bool     g_buyHoldSnapshotValid = false;
+datetime g_buyHoldDayOhlcDayStart = 0;
+int      g_buyHoldDayOhlcBarsDone = 0;
+double   g_buyHoldDayCachedOOD = 0.0;
+double   g_buyHoldDayCachedHOD = 0.0;
+double   g_buyHoldDayCachedLOD = 0.0;
+
+double   g_sortedLevelPrices[MAX_LEVELS_EXPANDED];
+int      g_sortedLevelPriceCount = 0;
+datetime g_aboveBelowIncDayStart = 0;
+int      g_aboveBelowIncLevelCount = 0;
+int      g_aboveBelowIncBarsDone = 0;
+
+datetime g_pullingHistoryPsFileDayStart = 0;
+int      g_pullingHistoryPsWeeklyFh = INVALID_HANDLE;
+int      g_pullingHistoryPsDailyFh = INVALID_HANDLE;
 double g_ONopen = 0.0;      // Open of first (oldest) candle of the day; set when we have at least 1 bar for the day
 double g_todayRTHopen = 0.0;       // RTH open (14:30 or 15:30 bar open) for current day when available
 bool   g_todayRTHopenValid = false; // true once we have the RTH open bar for the day (set in UpdateDayM1AndLevelsExpanded; log as "unknown" when false)
@@ -878,6 +939,20 @@ int                        g_breakdownAlgoTradesAll[BREAKDOWN_ALGO_REGISTRY_MAX]
 datetime                   g_breakdownAlgoLastPlacedEndTime[BREAKDOWN_ALGO_REGISTRY_MAX];
 double                     g_breakdownAlgoLastPlacedStartHigh[BREAKDOWN_ALGO_REGISTRY_MAX];
 double                     g_breakdownAlgoLastPlacedBreakdownLow[BREAKDOWN_ALGO_REGISTRY_MAX];
+
+struct BreakdownAlgoBenchmarkAcc
+{
+   int    tradesClosed;
+   int    wins;
+   int    losses;
+   double sumPriceDiff;
+   double sumMfePts;
+   double sumMaePts;
+   int    telCount;
+   double sumLifetimeHours;
+};
+
+BreakdownAlgoBenchmarkAcc g_breakdownAlgoBenchmarkAcc[BREAKDOWN_ALGO_REGISTRY_MAX];
 
 #define BREAKDOWN_OPEN_LIFETIME_MAX 32
 #define BREAKDOWN_PENDING_PLANNED_MAX 32
@@ -3487,6 +3562,14 @@ int CountOverlapBarsInRange(double level, int fromBar, int toBar)
 //+------------------------------------------------------------------+
 //| Pull 1M for current day into g_m1Rates and build g_levelsExpanded. Call every new bar so data is always in memory. |
 //+------------------------------------------------------------------+
+void BuyHoldBenchmarkUpdate(const bool forceFinalWrite = false);
+void BuyHoldBenchmarkResetOnInit();
+void BuyHoldBenchmarkOnDayRollover();
+void RebuildSortedLevelPricesForToday();
+int SortedLevelFirstAboveIdx(const double high);
+int SortedLevelLastBelowIdx(const double low);
+void PullingHistoryPsLogCloseHandles();
+
 void UpdateDayM1AndLevelsExpanded()
 {
    const bool profOn = BacktestProfileEnabled();
@@ -3499,6 +3582,7 @@ void UpdateDayM1AndLevelsExpanded()
    // On new day: reload levels for this day only (by time range); close level log handles before rebuild
    if(dateStr != g_levelsLoadedForDate)
    {
+      BuyHoldBenchmarkOnDayRollover();
       if(profOn)
          profT0 = GetMicrosecondCount();
       for(int i = 0; i < ArraySize(levels); i++)
@@ -3596,6 +3680,7 @@ void UpdateDayM1AndLevelsExpanded()
       }
       g_levelsTodayCount++;
    }
+   RebuildSortedLevelPricesForToday();
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_EXPAND_DIFFS, profT0);
 
@@ -3662,25 +3747,320 @@ void UpdateDayM1AndLevelsExpanded()
 
    if(profOn)
       profT0 = GetMicrosecondCount();
-   // Per-bar: level above candle high, level below candle low, session (available globally; logged in 21:58-22:00)
-   for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+   // Per-bar: level above candle high, level below candle low, session (sorted levels + binary search; incremental on new bars).
+   int aboveBelowBarStart = 0;
+   if(g_aboveBelowIncDayStart == g_m1DayStart && g_aboveBelowIncLevelCount == g_levelsTodayCount && g_barsInDay > 0)
    {
-      double aboveH = 0;
-      double belowL = 0;
-      for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
-      {
-         double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
-         if(levelPrice > g_m1Rates[barIdx].high && (aboveH == 0 || levelPrice < aboveH)) aboveH = levelPrice;
-         if(levelPrice < g_m1Rates[barIdx].low  && (belowL == 0 || levelPrice > belowL)) belowL = levelPrice;
-      }
+      if(g_barsInDay > g_aboveBelowIncBarsDone)
+         aboveBelowBarStart = g_aboveBelowIncBarsDone;
+      else if(g_barsInDay == g_aboveBelowIncBarsDone)
+         aboveBelowBarStart = g_barsInDay - 1;
+   }
+   else
+   {
+      g_aboveBelowIncDayStart = g_m1DayStart;
+      g_aboveBelowIncLevelCount = g_levelsTodayCount;
+      aboveBelowBarStart = 0;
+   }
+   for(int barIdx = aboveBelowBarStart; barIdx < g_barsInDay; barIdx++)
+   {
+      const double barHigh = g_m1Rates[barIdx].high;
+      const double barLow = g_m1Rates[barIdx].low;
+      double aboveH = 0.0;
+      double belowL = 0.0;
+      const int aboveIdx = SortedLevelFirstAboveIdx(barHigh);
+      if(aboveIdx >= 0)
+         aboveH = g_sortedLevelPrices[aboveIdx];
+      const int belowIdx = SortedLevelLastBelowIdx(barLow);
+      if(belowIdx >= 0)
+         belowL = g_sortedLevelPrices[belowIdx];
       g_levelAboveH[barIdx] = aboveH;
       g_levelBelowL[barIdx] = belowL;
       g_session[barIdx] = GetSessionForCandleTime(g_m1Rates[barIdx].time);
    }
+   g_aboveBelowIncBarsDone = g_barsInDay;
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_ABOVE_BELOW, profT0);
 
    UpdatePullingHistoryAlgoFamilyPerBarStats();
+   BuyHoldBenchmarkUpdate();
+}
+
+//+------------------------------------------------------------------+
+void RebuildSortedLevelPricesForToday()
+{
+   g_sortedLevelPriceCount = g_levelsTodayCount;
+   double tmp[];
+   ArrayResize(tmp, g_levelsTodayCount);
+   for(int i = 0; i < g_levelsTodayCount; i++)
+      tmp[i] = g_levelsExpanded[i].levelPrice;
+   if(g_sortedLevelPriceCount > 1)
+      ArraySort(tmp);
+   for(int i = 0; i < g_levelsTodayCount; i++)
+      g_sortedLevelPrices[i] = tmp[i];
+   g_aboveBelowIncLevelCount = -1;
+}
+
+//+------------------------------------------------------------------+
+int SortedLevelFirstAboveIdx(const double high)
+{
+   if(g_sortedLevelPriceCount <= 0)
+      return -1;
+   int lo = 0;
+   int hi = g_sortedLevelPriceCount;
+   while(lo < hi)
+   {
+      const int mid = (lo + hi) / 2;
+      if(g_sortedLevelPrices[mid] <= high)
+         lo = mid + 1;
+      else
+         hi = mid;
+   }
+   if(lo >= g_sortedLevelPriceCount)
+      return -1;
+   return lo;
+}
+
+//+------------------------------------------------------------------+
+int SortedLevelLastBelowIdx(const double low)
+{
+   if(g_sortedLevelPriceCount <= 0)
+      return -1;
+   int lo = 0;
+   int hi = g_sortedLevelPriceCount;
+   while(lo < hi)
+   {
+      const int mid = (lo + hi) / 2;
+      if(g_sortedLevelPrices[mid] < low)
+         lo = mid + 1;
+      else
+         hi = mid;
+   }
+   if(lo <= 0)
+      return -1;
+   return lo - 1;
+}
+
+//+------------------------------------------------------------------+
+string BuyHoldBenchmarkFileName()
+{
+   return "benchmark_buyAndHold.csv";
+}
+
+//+------------------------------------------------------------------+
+void BuyHoldBenchmarkResetOnInit()
+{
+   g_buyHoldFirstDayStart = 0;
+   g_buyHoldFirstOOD = 0.0;
+   g_buyHoldFirstHOD = 0.0;
+   g_buyHoldFirstLOD = 0.0;
+   g_buyHoldFirstCOD = 0.0;
+   g_buyHoldFirstDayFrozen = false;
+   g_buyHoldRunMaxHigh = 0.0;
+   g_buyHoldRunMinLow = 0.0;
+   g_buyHoldRunExtremesInit = false;
+   g_buyHoldSnapshotDayStart = 0;
+   g_buyHoldSnapshotOOD = 0.0;
+   g_buyHoldSnapshotHOD = 0.0;
+   g_buyHoldSnapshotLOD = 0.0;
+   g_buyHoldSnapshotCOD = 0.0;
+   g_buyHoldSnapshotValid = false;
+   g_buyHoldDayOhlcDayStart = 0;
+   g_buyHoldDayOhlcBarsDone = 0;
+   g_buyHoldDayCachedOOD = 0.0;
+   g_buyHoldDayCachedHOD = 0.0;
+   g_buyHoldDayCachedLOD = 0.0;
+   g_aboveBelowIncDayStart = 0;
+   g_aboveBelowIncLevelCount = 0;
+   g_aboveBelowIncBarsDone = 0;
+   g_sortedLevelPriceCount = 0;
+   PullingHistoryPsLogCloseHandles();
+
+   if(!finalLog_benchmark_buyAndHold)
+      return;
+   int fh = FileOpen(BuyHoldBenchmarkFileName(), FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl",
+      "max_high_since_first_ood", "min_low_since_first_ood");
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+bool BuyHoldDayOhlcFromM1(double &ood, double &hod, double &lod, double &cod)
+{
+   if(g_barsInDay <= 0 || g_m1DayStart == 0)
+      return false;
+
+   if(g_m1DayStart != g_buyHoldDayOhlcDayStart || g_buyHoldDayOhlcBarsDone <= 0)
+   {
+      g_buyHoldDayCachedOOD = g_m1Rates[0].open;
+      g_buyHoldDayCachedHOD = g_m1Rates[0].high;
+      g_buyHoldDayCachedLOD = g_m1Rates[0].low;
+      for(int barIdx = 1; barIdx < g_barsInDay; barIdx++)
+      {
+         g_buyHoldDayCachedHOD = MathMax(g_buyHoldDayCachedHOD, g_m1Rates[barIdx].high);
+         g_buyHoldDayCachedLOD = MathMin(g_buyHoldDayCachedLOD, g_m1Rates[barIdx].low);
+      }
+      g_buyHoldDayOhlcDayStart = g_m1DayStart;
+      g_buyHoldDayOhlcBarsDone = g_barsInDay;
+   }
+   else if(g_barsInDay > g_buyHoldDayOhlcBarsDone)
+   {
+      for(int barIdx = g_buyHoldDayOhlcBarsDone; barIdx < g_barsInDay; barIdx++)
+      {
+         g_buyHoldDayCachedHOD = MathMax(g_buyHoldDayCachedHOD, g_m1Rates[barIdx].high);
+         g_buyHoldDayCachedLOD = MathMin(g_buyHoldDayCachedLOD, g_m1Rates[barIdx].low);
+      }
+      g_buyHoldDayOhlcBarsDone = g_barsInDay;
+   }
+
+   ood = g_buyHoldDayCachedOOD;
+   hod = g_buyHoldDayCachedHOD;
+   lod = g_buyHoldDayCachedLOD;
+   int codIdx = PullingHistoryLastClosedBarIdx();
+   if(codIdx < 0)
+      codIdx = g_barsInDay - 1;
+   cod = g_m1Rates[codIdx].close;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+void BuyHoldBenchmarkWriteFile(const datetime lastDayStart, const double lastOOD, const double lastHOD,
+   const double lastLOD, const double lastCOD)
+{
+   if(!finalLog_benchmark_buyAndHold || g_buyHoldFirstDayStart == 0)
+      return;
+
+   const double oodDiff = lastOOD - g_buyHoldFirstOOD;
+   const double hodDiff = lastHOD - g_buyHoldFirstHOD;
+   const double lodDiff = lastLOD - g_buyHoldFirstLOD;
+   const double codDiff = lastCOD - g_buyHoldFirstCOD;
+   const double buyHoldPnl = lastCOD - g_buyHoldFirstOOD;
+   const double maxHighSinceFirst = g_buyHoldRunExtremesInit ? (g_buyHoldRunMaxHigh - g_buyHoldFirstOOD) : 0.0;
+   const double minLowSinceFirst = g_buyHoldRunExtremesInit ? (g_buyHoldRunMinLow - g_buyHoldFirstOOD) : 0.0;
+
+   int fh = FileOpen(BuyHoldBenchmarkFileName(), FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl",
+      "max_high_since_first_ood", "min_low_since_first_ood");
+   FileWrite(fh, "first_day",
+      TimeToString(g_buyHoldFirstDayStart, TIME_DATE),
+      DoubleToString(g_buyHoldFirstOOD, _Digits),
+      DoubleToString(g_buyHoldFirstHOD, _Digits),
+      DoubleToString(g_buyHoldFirstLOD, _Digits),
+      DoubleToString(g_buyHoldFirstCOD, _Digits),
+      "", "", "");
+   FileWrite(fh, "last_day",
+      TimeToString(lastDayStart, TIME_DATE),
+      DoubleToString(lastOOD, _Digits),
+      DoubleToString(lastHOD, _Digits),
+      DoubleToString(lastLOD, _Digits),
+      DoubleToString(lastCOD, _Digits),
+      "", "", "");
+   FileWrite(fh, "diff", "",
+      DoubleToString(oodDiff, _Digits),
+      DoubleToString(hodDiff, _Digits),
+      DoubleToString(lodDiff, _Digits),
+      DoubleToString(codDiff, _Digits),
+      DoubleToString(buyHoldPnl, _Digits),
+      DoubleToString(maxHighSinceFirst, _Digits),
+      DoubleToString(minLowSinceFirst, _Digits));
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void BuyHoldBenchmarkOnDayRollover()
+{
+   if(!finalLog_benchmark_buyAndHold || !g_buyHoldSnapshotValid || g_buyHoldFirstDayStart == 0)
+      return;
+   if(!g_buyHoldFirstDayFrozen)
+      g_buyHoldFirstDayFrozen = true;
+   BuyHoldBenchmarkWriteFile(g_buyHoldSnapshotDayStart, g_buyHoldSnapshotOOD, g_buyHoldSnapshotHOD,
+      g_buyHoldSnapshotLOD, g_buyHoldSnapshotCOD);
+}
+
+//+------------------------------------------------------------------+
+void BuyHoldBenchmarkUpdate(const bool forceFinalWrite)
+{
+   if(!finalLog_benchmark_buyAndHold || g_m1DayStart == 0)
+      return;
+
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
+   double dayOOD = 0.0, dayHOD = 0.0, dayLOD = 0.0, dayCOD = 0.0;
+   if(!BuyHoldDayOhlcFromM1(dayOOD, dayHOD, dayLOD, dayCOD))
+   {
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_BENCHMARK_BUY_HOLD, profT0);
+      return;
+   }
+
+   if(g_buyHoldFirstDayStart == 0)
+   {
+      g_buyHoldFirstDayStart = g_m1DayStart;
+      g_buyHoldFirstOOD = dayOOD;
+      g_buyHoldFirstHOD = dayHOD;
+      g_buyHoldFirstLOD = dayLOD;
+      g_buyHoldFirstCOD = dayCOD;
+      g_buyHoldRunMaxHigh = dayHOD;
+      g_buyHoldRunMinLow = dayLOD;
+      g_buyHoldRunExtremesInit = true;
+      g_buyHoldSnapshotDayStart = g_m1DayStart;
+      g_buyHoldSnapshotOOD = dayOOD;
+      g_buyHoldSnapshotHOD = dayHOD;
+      g_buyHoldSnapshotLOD = dayLOD;
+      g_buyHoldSnapshotCOD = dayCOD;
+      g_buyHoldSnapshotValid = true;
+      if(forceFinalWrite)
+         BuyHoldBenchmarkWriteFile(g_m1DayStart, dayOOD, dayHOD, dayLOD, dayCOD);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_BENCHMARK_BUY_HOLD, profT0);
+      return;
+   }
+
+   if(!g_buyHoldFirstDayFrozen)
+   {
+      if(g_m1DayStart == g_buyHoldFirstDayStart)
+      {
+         g_buyHoldFirstOOD = dayOOD;
+         g_buyHoldFirstHOD = dayHOD;
+         g_buyHoldFirstLOD = dayLOD;
+         g_buyHoldFirstCOD = dayCOD;
+         g_buyHoldRunMaxHigh = MathMax(g_buyHoldRunMaxHigh, dayHOD);
+         g_buyHoldRunMinLow = MathMin(g_buyHoldRunMinLow, dayLOD);
+         g_buyHoldSnapshotDayStart = g_m1DayStart;
+         g_buyHoldSnapshotOOD = dayOOD;
+         g_buyHoldSnapshotHOD = dayHOD;
+         g_buyHoldSnapshotLOD = dayLOD;
+         g_buyHoldSnapshotCOD = dayCOD;
+         g_buyHoldSnapshotValid = true;
+         if(forceFinalWrite)
+            BuyHoldBenchmarkWriteFile(g_m1DayStart, dayOOD, dayHOD, dayLOD, dayCOD);
+         if(profOn)
+            BacktestProfAccumulate(BACKTEST_PROF_BENCHMARK_BUY_HOLD, profT0);
+         return;
+      }
+      g_buyHoldFirstDayFrozen = true;
+   }
+
+   g_buyHoldRunMaxHigh = MathMax(g_buyHoldRunMaxHigh, dayHOD);
+   g_buyHoldRunMinLow = MathMin(g_buyHoldRunMinLow, dayLOD);
+   g_buyHoldSnapshotDayStart = g_m1DayStart;
+   g_buyHoldSnapshotOOD = dayOOD;
+   g_buyHoldSnapshotHOD = dayHOD;
+   g_buyHoldSnapshotLOD = dayLOD;
+   g_buyHoldSnapshotCOD = dayCOD;
+   g_buyHoldSnapshotValid = true;
+
+   if(forceFinalWrite)
+      BuyHoldBenchmarkWriteFile(g_m1DayStart, dayOOD, dayHOD, dayLOD, dayCOD);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_BENCHMARK_BUY_HOLD, profT0);
 }
 
 //+------------------------------------------------------------------+
@@ -4774,6 +5154,110 @@ string BreakdownTradeLifetimeRunLogFileName(const int algoNumber)
    return "bdalgo" + IntegerToString(algoNumber) + "_alltrades_log.csv";
 }
 
+//+------------------------------------------------------------------+
+string BreakdownContinuationModeLogSlug(const ENUM_BREAKDOWN_STREAK_CONTINUATION mode);
+
+string BreakdownBenchmarkAllAlgosFileName()
+{
+   return "benchmark_all_algos_breakdown.csv";
+}
+
+//+------------------------------------------------------------------+
+void BreakdownBenchmarkAllAlgosReset()
+{
+   for(int i = 0; i < BREAKDOWN_ALGO_REGISTRY_MAX; i++)
+   {
+      g_breakdownAlgoBenchmarkAcc[i].tradesClosed = 0;
+      g_breakdownAlgoBenchmarkAcc[i].wins = 0;
+      g_breakdownAlgoBenchmarkAcc[i].losses = 0;
+      g_breakdownAlgoBenchmarkAcc[i].sumPriceDiff = 0.0;
+      g_breakdownAlgoBenchmarkAcc[i].sumMfePts = 0.0;
+      g_breakdownAlgoBenchmarkAcc[i].sumMaePts = 0.0;
+      g_breakdownAlgoBenchmarkAcc[i].telCount = 0;
+      g_breakdownAlgoBenchmarkAcc[i].sumLifetimeHours = 0.0;
+   }
+}
+
+//+------------------------------------------------------------------+
+void BreakdownBenchmarkAllAlgosWrite()
+{
+   if(!bigflipper_log_breakdown_trade_lifetime)
+      return;
+
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
+   int fh = FileOpen(BreakdownBenchmarkAllAlgosFileName(), FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+
+   FileWrite(fh, "algo_id", "continuation_type", "trades_closed", "wins", "losses", "win_rate_pct",
+      "sum_priceDiff", "avg_priceDiff", "avg_mfe_pts", "avg_mae_pts", "avg_lifetime_hours");
+
+   for(int i = 0; i < g_breakdownAlgoCount; i++)
+   {
+      const int algoNumber = g_breakdownAlgos[i].algo_id;
+      const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+      if(slotIdx < 0)
+         continue;
+      const BreakdownAlgoBenchmarkAcc acc = g_breakdownAlgoBenchmarkAcc[slotIdx];
+      const int n = acc.tradesClosed;
+      const double avgPriceDiff = (n > 0) ? acc.sumPriceDiff / (double)n : 0.0;
+      const double winRate = (n > 0) ? (100.0 * (double)acc.wins / (double)n) : 0.0;
+      const double avgMfe = (acc.telCount > 0) ? acc.sumMfePts / (double)acc.telCount : 0.0;
+      const double avgMae = (acc.telCount > 0) ? acc.sumMaePts / (double)acc.telCount : 0.0;
+      const double avgLifetime = (n > 0) ? acc.sumLifetimeHours / (double)n : 0.0;
+      const ENUM_BREAKDOWN_STREAK_CONTINUATION mode = g_breakdownAlgos[slotIdx].breakdown_streak_continuation_mode;
+
+      FileWrite(fh,
+         IntegerToString(algoNumber),
+         BreakdownContinuationModeLogSlug(mode),
+         IntegerToString(n),
+         IntegerToString(acc.wins),
+         IntegerToString(acc.losses),
+         DoubleToString(winRate, 2),
+         DoubleToString(acc.sumPriceDiff, _Digits),
+         DoubleToString(avgPriceDiff, _Digits),
+         (acc.telCount > 0 ? DoubleToString(avgMfe, 1) : ""),
+         (acc.telCount > 0 ? DoubleToString(avgMae, 1) : ""),
+         (n > 0 ? DoubleToString(avgLifetime, 2) : ""));
+   }
+   FileClose(fh);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_BENCHMARK_ALGOS, profT0);
+}
+
+//+------------------------------------------------------------------+
+void BreakdownBenchmarkAllAlgosAccumulateClose(const int algoNumber, const double startPrice, const double endPrice,
+   const double lifetimeHours, const double mfePts, const double maePts, const bool hasTel)
+{
+   if(!bigflipper_log_breakdown_trade_lifetime || startPrice <= 0.0 || endPrice <= 0.0)
+      return;
+   const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(slotIdx < 0)
+      return;
+
+   BreakdownAlgoBenchmarkAcc acc = g_breakdownAlgoBenchmarkAcc[slotIdx];
+   const double priceDiff = endPrice - startPrice;
+   acc.tradesClosed++;
+   acc.sumPriceDiff += priceDiff;
+   acc.sumLifetimeHours += lifetimeHours;
+   if(priceDiff > 0.0)
+      acc.wins++;
+   else if(priceDiff < 0.0)
+      acc.losses++;
+   if(hasTel)
+   {
+      acc.sumMfePts += mfePts;
+      acc.sumMaePts += maePts;
+      acc.telCount++;
+   }
+   g_breakdownAlgoBenchmarkAcc[slotIdx] = acc;
+   BreakdownBenchmarkAllAlgosWrite();
+}
+
 void BreakdownWriteTradeLifetimeRunLogHeader(const int fh)
 {
    FileWrite(fh, "eventTime", "startTime", "eventType", "close_reason",
@@ -4783,6 +5267,7 @@ void BreakdownWriteTradeLifetimeRunLogHeader(const int fh)
 
 void BreakdownResetTradeLifetimeRunLogsOnInit()
 {
+   BreakdownBenchmarkAllAlgosReset();
    if(!bigflipper_log_breakdown_trade_lifetime)
       return;
    for(int i = 0; i < g_breakdownAlgoCount; i++)
@@ -4797,6 +5282,7 @@ void BreakdownResetTradeLifetimeRunLogsOnInit()
       BreakdownWriteTradeLifetimeRunLogHeader(fh);
       FileClose(fh);
    }
+   BreakdownBenchmarkAllAlgosWrite();
 }
 
 //+------------------------------------------------------------------+
@@ -5158,6 +5644,8 @@ void BreakdownLogTradeClosedLifetime(const ulong positionId, const long entryMag
    BreakdownStashGatesCloseTelemetry(algoNumber, eventTime, entryMagic, startTime);
    BreakdownAppendTradeLifetimeLogRow(algoNumber, eventTime, startTime, "trade closed", closeReason,
       plannedPrice, startPrice, realSLprice, realTPprice, closePrice, lifetimeHours,
+      telSummary.mfePts, telSummary.maePts, hasTel);
+   BreakdownBenchmarkAllAlgosAccumulateClose(algoNumber, startPrice, closePrice, lifetimeHours,
       telSummary.mfePts, telSummary.maePts, hasTel);
 }
 
@@ -6089,6 +6577,19 @@ struct BreakdownAuditLogDedupKey
 };
 BreakdownAuditLogDedupKey g_breakdownAuditLoggedKeys[BREAKDOWN_AUDIT_LOG_DEDUP_MAX];
 int                       g_breakdownAuditLoggedCount = 0;
+
+struct BreakdownAuditSummaryAcc
+{
+   int    count;
+   double sumStreak;
+   double sumFirstCandlePct;
+   double sumTotalPercent;
+   double minTotalPercent;
+   double maxTotalPercent;
+   bool   hasTotalPercent;
+};
+
+BreakdownAuditSummaryAcc g_breakdownAuditSummaryAcc[BREAKDOWN_STREAK_CONTINUATION_COUNT];
 
 void BreakdownResetAllBreakdownsAuditLogsOnInit();
 void BreakdownAuditLogScanDay(const datetime dayStart, const datetime upToM1BarTime);
@@ -8566,8 +9067,14 @@ void FalgoEnrichTradeResultLevelTpSl(TradeResult &tr)
 //+------------------------------------------------------------------+
 void FalgoEnrichAllTradeResultsLevelTpSl()
 {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
       FalgoEnrichTradeResultLevelTpSl(g_tradeResults[trIdx]);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_ENRICH, profT0);
 }
 
 //+------------------------------------------------------------------+
@@ -8909,25 +9416,69 @@ void PullingHistoryAlgoFamilyWriteEodCsv(const string dateStr, const string scop
 }
 
 //+------------------------------------------------------------------+
+void PullingHistoryPsLogCloseHandles()
+{
+   if(g_pullingHistoryPsWeeklyFh != INVALID_HANDLE)
+   {
+      FileClose(g_pullingHistoryPsWeeklyFh);
+      g_pullingHistoryPsWeeklyFh = INVALID_HANDLE;
+   }
+   if(g_pullingHistoryPsDailyFh != INVALID_HANDLE)
+   {
+      FileClose(g_pullingHistoryPsDailyFh);
+      g_pullingHistoryPsDailyFh = INVALID_HANDLE;
+   }
+   g_pullingHistoryPsFileDayStart = 0;
+}
+
+//+------------------------------------------------------------------+
+int PullingHistoryPsAcquireHandle(const string dateStr, const string scopeSuffix)
+{
+   const datetime dayStart = StringToTime(dateStr);
+   if(dayStart != g_pullingHistoryPsFileDayStart)
+   {
+      PullingHistoryPsLogCloseHandles();
+      g_pullingHistoryPsFileDayStart = dayStart;
+   }
+
+   int fhRef = (scopeSuffix == "daily") ? g_pullingHistoryPsDailyFh : g_pullingHistoryPsWeeklyFh;
+   if(fhRef != INVALID_HANDLE)
+   {
+      FileSeek(fhRef, 0, SEEK_END);
+      return fhRef;
+   }
+
+   const string fname = dateStr + "_pullinghistory_b_algofamily_per_second_" + scopeSuffix + ".csv";
+   fhRef = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fhRef == INVALID_HANDLE)
+      fhRef = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fhRef == INVALID_HANDLE)
+      return INVALID_HANDLE;
+
+   FileSeek(fhRef, 0, SEEK_END);
+   if(FileTell(fhRef) == 0)
+      PullingHistoryAlgoFamilyWriteCsvHeader(fhRef);
+   FileSeek(fhRef, 0, SEEK_END);
+   if(scopeSuffix == "daily")
+      g_pullingHistoryPsDailyFh = fhRef;
+   else
+      g_pullingHistoryPsWeeklyFh = fhRef;
+   return fhRef;
+}
+
+//+------------------------------------------------------------------+
 void PullingHistoryAlgoFamilyAppendPerSecondRow(const string dateStr, const string scopeSuffix,
    const datetime rowTime, const int snapBarIdx, const double o, const double h, const double l, const double c)
 {
-   const string fname = dateStr + "_pullinghistory_b_algofamily_per_second_" + scopeSuffix + ".csv";
-   int fh = FileOpen(fname, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fh == INVALID_HANDLE)
-      fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   const int fh = PullingHistoryPsAcquireHandle(dateStr, scopeSuffix);
    if(fh == INVALID_HANDLE)
       return;
-   FileSeek(fh, 0, SEEK_END);
-   if(FileTell(fh) == 0)
-      PullingHistoryAlgoFamilyWriteCsvHeader(fh);
    PullingHistoryAlgoFamilyBarSnap snap;
    if(scopeSuffix == "daily")
       snap = g_pullingHistoryAlgoFamilyDailyAtBar[snapBarIdx];
    else
       snap = g_pullingHistoryAlgoFamilyWeeklyAtBar[snapBarIdx];
    PullingHistoryAlgoFamilyWriteCsvRowFromSnap(fh, rowTime, snap, snapBarIdx, o, h, l, c, TIME_DATE|TIME_SECONDS);
-   FileClose(fh);
 }
 
 //+------------------------------------------------------------------+
@@ -10236,6 +10787,11 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
    if(!AlgoFamilyEodTradeResultsAllDaysLoggingEnabled())
       return;
 
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
    int familyOutCount = 0;
    for(int trScan = 0; trScan < g_tradeResultsCount; trScan++)
    {
@@ -10245,7 +10801,11 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
          familyOutCount++;
    }
    if(familyOutCount <= 0)
+   {
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV, profT0);
       return;
+   }
 
    const string summaryAllName = "summary_tradeResults_all_days.tsv";
    string headerParts[];
@@ -10271,6 +10831,8 @@ void WriteAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
    FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount, FALGO_ALLDAYS_COLS);
    FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount,
       FalgoAllDaysTradeResultsHeader(), FALGO_ALLDAYS_COLS);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV, profT0);
 }
 
 //+------------------------------------------------------------------+
@@ -10281,6 +10843,11 @@ void WriteBreakdownFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr
    if(!BreakdownFamilyEodTradeResultsAllDaysLoggingEnabled())
       return;
 
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
    int familyOutCount = 0;
    for(int trScan = 0; trScan < g_tradeResultsCount; trScan++)
    {
@@ -10290,7 +10857,11 @@ void WriteBreakdownFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr
          familyOutCount++;
    }
    if(familyOutCount <= 0)
+   {
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV, profT0);
       return;
+   }
 
    const string summaryAllName = "summary_tradeResults_all_days_breakdown.tsv";
    string headerParts[];
@@ -10316,6 +10887,8 @@ void WriteBreakdownFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr
    FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount, FALGO_BREAKDOWN_ALLDAYS_COLS);
    FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount,
       FalgoBreakdownAllDaysTradeResultsHeader(), FALGO_BREAKDOWN_ALLDAYS_COLS);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV, profT0);
 }
 
 //+------------------------------------------------------------------+
@@ -10382,11 +10955,19 @@ void FlushTradeResultsForDayIfNeeded(const datetime dayStart)
    if(TradeResultsEodAlreadyFlushedForDay(dayStart))
       return;
 
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
    const string dateStr = TimeToString(dayStart, TIME_DATE);
    UpdateTradeResultsForDayStart(dayStart);
    FalgoEnrichAllTradeResultsLevelTpSl();
    WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(dateStr);
    MarkTradeResultsEodFlushedForDay(dayStart);
+
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_EOD_FLUSH, profT0);
 }
 
 //+------------------------------------------------------------------+
@@ -13437,10 +14018,16 @@ void FalgoTryLogAlgoFamilyPerSecond()
    const string dateStr = TimeToString(dayStart, TIME_DATE);
    if(bigflipper_log_testing_algofamily_per_second)
    {
+      const bool profOn = BacktestProfileEnabled();
+      ulong profT0 = 0;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       double o = 0.0, h = 0.0, l = 0.0, c = 0.0;
       PullingHistoryAlgoFamilyOhlcAsOfTime(g_lastTimer1Time, o, h, l, c);
       PullingHistoryAlgoFamilyAppendPerSecondRow(dateStr, "weekly", g_lastTimer1Time, snapBarIdx, o, h, l, c);
       PullingHistoryAlgoFamilyAppendPerSecondRow(dateStr, "daily", g_lastTimer1Time, snapBarIdx, o, h, l, c);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_ALGOFAMILY_LOG_PER_SECOND, profT0);
    }
    if(bigflipper_log_algo_gates_per_second)
    {
@@ -14305,6 +14892,7 @@ int OnInit()
    BreakdownResetTradeLifetimeRunLogsOnInit();
    BreakdownResetAllBreakdownsAuditLogsOnInit();
    BreakdownGatesLogInitFileHandles();
+   BuyHoldBenchmarkResetOnInit();
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
@@ -14665,6 +15253,8 @@ void OnDeinit(const int reason)
 
    BacktestProfWriteRunSummary();
    BreakdownGatesLogCloseAllFileHandles();
+   PullingHistoryPsLogCloseHandles();
+   BuyHoldBenchmarkUpdate(true);
 
    if(current_candle_time != 0)
       FinalizeCurrentCandle();
@@ -14850,7 +15440,11 @@ void OnTimer()
    datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    if(g_staticMarketContextPulledForDate != dayStartForContext)
    {
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       UpdateStaticMarketContext(dayStartForContext);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_STATIC_MARKET_CONTEXT, profT0);
       g_staticMarketContextPulledForDate = dayStartForContext;
    }
 
@@ -14861,7 +15455,11 @@ void OnTimer()
    if(bigflipper_log_all_breakdowns && g_m1DayStart > 0 && g_barsInDay >= 2)
    {
       const datetime upToM1BarTime = g_m1Rates[g_barsInDay - 2].time + 60;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
       BreakdownAuditLogScanDay(g_m1DayStart, upToM1BarTime);
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_AUDIT_SCAN, profT0);
    }
 
    if(profOn)
@@ -14897,9 +15495,9 @@ void OnTimer()
       if(profOn)
          profT0 = GetMicrosecondCount();
       UpdateTradeResultsForDay();
-      FalgoEnrichAllTradeResultsLevelTpSl();
       if(profOn)
          BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_HISTORY, profT0);
+      FalgoEnrichAllTradeResultsLevelTpSl();
    }
    else
    {
@@ -15370,6 +15968,93 @@ string BreakdownAuditLogFileName(const ENUM_BREAKDOWN_STREAK_CONTINUATION mode)
 }
 
 //+------------------------------------------------------------------+
+string BreakdownAuditSummaryFileName()
+{
+   return "all_breakdowns_summaries.csv";
+}
+
+//+------------------------------------------------------------------+
+void BreakdownAuditSummaryReset()
+{
+   for(int modeIdx = 0; modeIdx < BREAKDOWN_STREAK_CONTINUATION_COUNT; modeIdx++)
+   {
+      g_breakdownAuditSummaryAcc[modeIdx].count = 0;
+      g_breakdownAuditSummaryAcc[modeIdx].sumStreak = 0.0;
+      g_breakdownAuditSummaryAcc[modeIdx].sumFirstCandlePct = 0.0;
+      g_breakdownAuditSummaryAcc[modeIdx].sumTotalPercent = 0.0;
+      g_breakdownAuditSummaryAcc[modeIdx].minTotalPercent = 0.0;
+      g_breakdownAuditSummaryAcc[modeIdx].maxTotalPercent = 0.0;
+      g_breakdownAuditSummaryAcc[modeIdx].hasTotalPercent = false;
+   }
+}
+
+//+------------------------------------------------------------------+
+void BreakdownAuditSummaryAccumulate(const int modeIdx, const Breakdown15mState &seq, const double firstCandlePct)
+{
+   if(modeIdx < 0 || modeIdx >= BREAKDOWN_STREAK_CONTINUATION_COUNT)
+      return;
+   BreakdownAuditSummaryAcc acc = g_breakdownAuditSummaryAcc[modeIdx];
+   acc.count++;
+   acc.sumStreak += (double)seq.endedLength;
+   acc.sumFirstCandlePct += firstCandlePct;
+   acc.sumTotalPercent += seq.totalPercent;
+   if(!acc.hasTotalPercent)
+   {
+      acc.minTotalPercent = seq.totalPercent;
+      acc.maxTotalPercent = seq.totalPercent;
+      acc.hasTotalPercent = true;
+   }
+   else
+   {
+      acc.minTotalPercent = MathMin(acc.minTotalPercent, seq.totalPercent);
+      acc.maxTotalPercent = MathMax(acc.maxTotalPercent, seq.totalPercent);
+   }
+   g_breakdownAuditSummaryAcc[modeIdx] = acc;
+}
+
+//+------------------------------------------------------------------+
+void BreakdownAuditSummaryWrite()
+{
+   if(!bigflipper_log_all_breakdowns)
+      return;
+
+   const string fname = BreakdownAuditSummaryFileName();
+   int fh = FileOpen(fname, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+      return;
+
+   const string col1stArg = BreakdownAuditLogFirstCandlePctColName(BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG);
+   const string colStreakArg = StringFormat("streak_arg_%d", BREAKDOWN_AUDIT_LOG_MIN_STREAK_ARG);
+   FileWrite(fh, "breakdown_type", colStreakArg, col1stArg, "count",
+      "avg_streak_length", "avg_1st_candle_breakdown_percent", "avg_breakdown_total_percent",
+      "min_breakdown_total_percent", "max_breakdown_total_percent");
+
+   for(int modeIdx = 0; modeIdx < BREAKDOWN_STREAK_CONTINUATION_COUNT; modeIdx++)
+   {
+      const ENUM_BREAKDOWN_STREAK_CONTINUATION mode = (ENUM_BREAKDOWN_STREAK_CONTINUATION)modeIdx;
+      const BreakdownAuditSummaryAcc acc = g_breakdownAuditSummaryAcc[modeIdx];
+      const int n = acc.count;
+      const double avgStreak = (n > 0) ? acc.sumStreak / (double)n : 0.0;
+      const double avg1stPct = (n > 0) ? acc.sumFirstCandlePct / (double)n : 0.0;
+      const double avgTotalPct = (n > 0) ? acc.sumTotalPercent / (double)n : 0.0;
+      const string minTotalStr = (n > 0 && acc.hasTotalPercent) ? DoubleToString(acc.minTotalPercent, 2) : "";
+      const string maxTotalStr = (n > 0 && acc.hasTotalPercent) ? DoubleToString(acc.maxTotalPercent, 2) : "";
+
+      FileWrite(fh,
+         BreakdownContinuationModeLogSlug(mode),
+         IntegerToString(BREAKDOWN_AUDIT_LOG_MIN_STREAK_ARG),
+         DoubleToString(BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG, 2),
+         IntegerToString(n),
+         DoubleToString(avgStreak, 2),
+         DoubleToString(avg1stPct, 2),
+         DoubleToString(avgTotalPct, 2),
+         minTotalStr,
+         maxTotalStr);
+   }
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
 string BreakdownAuditLogHeader()
 {
    return StringFormat("breakdown_start,breakdown_end,%s,streak_arg_%d,breakdown_start_price,breakdown_end_price,breakdown_total_percent",
@@ -15445,6 +16130,7 @@ void BreakdownAuditLogAppendRow(const ENUM_BREAKDOWN_STREAK_CONTINUATION mode, c
 void BreakdownResetAllBreakdownsAuditLogsOnInit()
 {
    g_breakdownAuditLoggedCount = 0;
+   BreakdownAuditSummaryReset();
    if(!bigflipper_log_all_breakdowns)
       return;
    for(int modeIdx = 0; modeIdx < BREAKDOWN_STREAK_CONTINUATION_COUNT; modeIdx++)
@@ -15456,6 +16142,7 @@ void BreakdownResetAllBreakdownsAuditLogsOnInit()
       BreakdownAuditLogWriteHeader(fh);
       FileClose(fh);
    }
+   BreakdownAuditSummaryWrite();
 }
 
 //+------------------------------------------------------------------+
@@ -15506,11 +16193,13 @@ void BreakdownAuditLogScanDay(const datetime dayStart, const datetime upToM1BarT
             const double firstCandlePct = BreakdownFirstCandleRangePctFromM15(m15, barCount, seq.startTime);
             BreakdownAuditLogAppendRow(mode, seq, firstCandlePct);
             BreakdownAuditLogMarkLogged(seq.startTime, modeIdx);
+            BreakdownAuditSummaryAccumulate(modeIdx, seq, firstCandlePct);
          }
 
          scanIdx = (seq.sequenceActive ? barCount : nextScanIdx);
       }
    }
+   BreakdownAuditSummaryWrite();
 }
 
 //+------------------------------------------------------------------+
