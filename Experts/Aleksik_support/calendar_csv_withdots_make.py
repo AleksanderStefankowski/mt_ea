@@ -3,8 +3,8 @@ from datetime import date
 
 # Output: date column in YYYY.MM.DD (dots) to match MT5 TimeToString(..., TIME_DATE)
 out_path = r"c:\Users\Aleks\AppData\Roaming\MetaQuotes\Terminal\47AEB69EDDAD4D73097816C71FB25856\MQL5\Experts\Aleksik_support\calendar_2026_dots.csv"
-start = date(2024, 1, 1)
-end = date(2026, 12, 31)
+start = date(2018, 1, 1)
+end = date(2027, 12, 31)
 
 def is_third_friday(d):
     # Friday = 4 (Monday=0), 3rd week of month = (day-1)//7 == 2

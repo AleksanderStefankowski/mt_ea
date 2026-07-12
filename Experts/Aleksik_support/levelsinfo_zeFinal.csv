@@ -4374,3 +4374,9 @@ start,end,levelPrice,categories,tag
 2026.07.10,2026.07.10,7632,daily_friday,dailyUp2
 2026.07.10,2026.07.10,7648,daily_friday,dailyUp3
 2026.07.10,2026.07.10,7534,daily_friday,dailyDown2
+2026.07.13,2026.07.17,7605,weekly_pivot,weeklyPivot
+2026.07.13,2026.07.17,7648,weekly,weeklyUp1
+2026.07.13,2026.07.17,7735,weekly,weeklyUp2
+2026.07.13,2026.07.17,7765,weekly,weeklyUp3
+2026.07.13,2026.07.17,7800,weekly,weeklyUp4
+2026.07.13,2026.07.17,7840,weekly,weeklyUp5
