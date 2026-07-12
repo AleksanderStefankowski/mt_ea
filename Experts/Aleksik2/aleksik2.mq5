@@ -86,7 +86,7 @@ bool     bigflipper_pullinghistory_always_full_replay      = false; // ALGOBOOKM
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_referencePoints_movingLookback_seconds = 180;  // bookmark moving trade-result context: bar at (startTime - this); refs, dayBrokePDH/PDL
-int      tradeResult_maeFirst_window_seconds = 15;  // bookmark // trade-results CSV column MAEfirst{N}: worst MAE in first N seconds (telemetry per-second)
+int      tradeResult_maeFirst_window_seconds = 15;  // bookmark // trade-results CSV column MAEfirst{N}: worst MAE in first N seconds (lifetime per-second)
 
 int FalgoTradeResultMaeFirstWindowSeconds()
 {
@@ -239,7 +239,12 @@ datetime g_onTimerDuration_logged2130ForDay = 0;
 #define BACKTEST_PROF_TRADE_RESULTS_EOD_FLUSH   33
 #define BACKTEST_PROF_BREAKDOWN_BENCHMARK_ALGOS 34
 #define BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV 35
-#define BACKTEST_PROF_SECTION_COUNT             36
+#define BACKTEST_PROF_TELEMETRY_PER_M1          36
+#define BACKTEST_PROF_ONTIMER_PREAMBLE          37
+#define BACKTEST_PROF_ROLLOVER_ON_M1            38
+#define BACKTEST_PROF_ONTIMER_BAR_DETECT        39
+#define BACKTEST_PROF_ONTIMER_PER_SEC_TAIL      40
+#define BACKTEST_PROF_SECTION_COUNT             41
 
 struct BacktestProfBucket
 {
@@ -251,6 +256,7 @@ struct BacktestProfBucket
 BacktestProfBucket g_backtestProfRunTotals[BACKTEST_PROF_SECTION_COUNT];
 BacktestProfBucket g_backtestProfDayTotals[BACKTEST_PROF_SECTION_COUNT];
 datetime           g_backtestProfTrackingDayStart = 0;
+bool               g_backtestProfArmed = false;
 
 //+------------------------------------------------------------------+
 bool BacktestProfileEnabled()
@@ -301,6 +307,11 @@ string BacktestProfSectionLabel(const int section)
       case BACKTEST_PROF_TRADE_RESULTS_EOD_FLUSH: return "trade_results_eod_flush";
       case BACKTEST_PROF_BREAKDOWN_BENCHMARK_ALGOS: return "breakdown_benchmark_algos";
       case BACKTEST_PROF_SUMMARY_TRADE_RESULTS_TSV: return "summary_trade_results_tsv";
+      case BACKTEST_PROF_TELEMETRY_PER_M1:        return "telemetry_per_m1";
+      case BACKTEST_PROF_ONTIMER_PREAMBLE:        return "ontimer_preamble";
+      case BACKTEST_PROF_ROLLOVER_ON_M1:          return "rollover_on_m1";
+      case BACKTEST_PROF_ONTIMER_BAR_DETECT:      return "ontimer_bar_detect";
+      case BACKTEST_PROF_ONTIMER_PER_SEC_TAIL:    return "ontimer_per_sec_tail";
    }
    return "unknown";
 }
@@ -320,6 +331,8 @@ void BacktestProfZeroBuckets(BacktestProfBucket &buckets[])
 void BacktestProfAccumulate(const int section, const ulong t0)
 {
    if(section < 0 || section >= BACKTEST_PROF_SECTION_COUNT)
+      return;
+   if(!BacktestProfileEnabled() || !g_backtestProfArmed)
       return;
    const ulong elapsed = GetMicrosecondCount() - t0;
    g_backtestProfRunTotals[section].totalUs += elapsed;
@@ -343,6 +356,33 @@ ulong BacktestProfSumProfiledUsExceptOnTimer(const BacktestProfBucket &buckets[]
       sum += buckets[i].totalUs;
    }
    return sum;
+}
+
+//+------------------------------------------------------------------+
+ulong BacktestProfUnaccountedOnTimerUs(const BacktestProfBucket &buckets[])
+{
+   const ulong onTimerUs = buckets[BACKTEST_PROF_ONTIMER_TOTAL].totalUs;
+   const ulong subUs = BacktestProfSumProfiledUsExceptOnTimer(buckets);
+   return (onTimerUs > subUs) ? (onTimerUs - subUs) : 0;
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfWriteUnaccountedOnTimerRow(const int fh, const string datePrefix,
+   const BacktestProfBucket &buckets[])
+{
+   const ulong unaccountedUs = BacktestProfUnaccountedOnTimerUs(buckets);
+   if(unaccountedUs == 0)
+      return;
+   const double totalS = (double)unaccountedUs / 1000000.0;
+   const double totalMin = totalS / 60.0;
+   const ulong denomUs = BacktestProfSumProfiledUsExceptOnTimer(buckets);
+   const double pct = (denomUs == 0) ? 0.0 : 100.0 * (double)unaccountedUs / (double)denomUs;
+   if(StringLen(datePrefix) > 0)
+      FileWrite(fh, datePrefix, "ontimer_unaccounted",
+         DoubleToString(totalS, 2), DoubleToString(totalMin, 2), "0", "0.000", "0.000", DoubleToString(pct, 1));
+   else
+      FileWrite(fh, "ontimer_unaccounted",
+         DoubleToString(totalS, 2), DoubleToString(totalMin, 2), "0", "0.000", "0.000", DoubleToString(pct, 1));
 }
 
 //+------------------------------------------------------------------+
@@ -382,6 +422,7 @@ void BacktestProfWriteBucketRows(const int fh, const string datePrefix, const Ba
          continue;
       BacktestProfWriteOneBucketRow(fh, datePrefix, i, buckets, denomUs);
    }
+   BacktestProfWriteUnaccountedOnTimerRow(fh, datePrefix, buckets);
    BacktestProfWriteOneBucketRow(fh, datePrefix, BACKTEST_PROF_ONTIMER_TOTAL, buckets, denomUs);
 }
 
@@ -545,6 +586,12 @@ int      g_buyHoldDayOhlcBarsDone = 0;
 double   g_buyHoldDayCachedOOD = 0.0;
 double   g_buyHoldDayCachedHOD = 0.0;
 double   g_buyHoldDayCachedLOD = 0.0;
+double   g_buyHoldSumRolloverPricediff = 0.0;
+// Quarterly broker rollover (Mar/Jun/Sep/Dec): one slot per rollover Wednesday for the whole backtest run.
+#define BACKTEST_ROLLOVER_QUARTERS_CAPACITY 128  // 4/year → 128 quarters ≈ 32 years (20y backtest + headroom)
+#define BROKER_CUSTOM_QOPEX_ROLLOVER_TRACKED_MAX BACKTEST_ROLLOVER_QUARTERS_CAPACITY
+datetime g_buyHoldAppliedRolloverWed[BROKER_CUSTOM_QOPEX_ROLLOVER_TRACKED_MAX];
+int      g_buyHoldAppliedRolloverWedCount = 0;
 
 double   g_sortedLevelPrices[MAX_LEVELS_EXPANDED];
 int      g_sortedLevelPriceCount = 0;
@@ -943,6 +990,7 @@ bool                       g_breakdownFamilyHadCloseThisPipelinePass = false;
 int                        g_breakdownAlgoPlanTradeNumToday[BREAKDOWN_ALGO_REGISTRY_MAX];
 int                        g_breakdownAlgoLevelTradeNumToday[BREAKDOWN_ALGO_REGISTRY_MAX];
 int                        g_breakdownAlgoTradesAll[BREAKDOWN_ALGO_REGISTRY_MAX];
+int                        g_breakdownAlgoNextTradeCustomId[BREAKDOWN_ALGO_REGISTRY_MAX];
 datetime                   g_breakdownAlgoLastPlacedEndTime[BREAKDOWN_ALGO_REGISTRY_MAX];
 double                     g_breakdownAlgoLastPlacedStartHigh[BREAKDOWN_ALGO_REGISTRY_MAX];
 double                     g_breakdownAlgoLastPlacedBreakdownLow[BREAKDOWN_ALGO_REGISTRY_MAX];
@@ -950,11 +998,14 @@ double                     g_breakdownAlgoLastPlacedBreakdownLow[BREAKDOWN_ALGO_
 struct BreakdownAlgoBenchmarkAcc
 {
    int    tradesClosed;
-   int    wins;
-   int    losses;
+   int    winsWithRoll;
+   int    lossesWithRoll;
    double sumPriceDiff;
+   double sumPriceDiffWithRoll;
    double sumMfePts;
    double sumMaePts;
+   double sumMfePtsWithRoll;
+   double sumMaePtsWithRoll;
    int    telCount;
    double sumLifetimeHours;
 };
@@ -1001,6 +1052,7 @@ int                   g_timeAlgoCount = 0;
 bool                  g_timeAlgoMarketBuyDoneToday[TIME_ALGO_REGISTRY_MAX];
 int                   g_timeAlgoDayTradesToday[TIME_ALGO_REGISTRY_MAX];
 int                   g_timeAlgoTradesAll[TIME_ALGO_REGISTRY_MAX];
+int                   g_timeAlgoNextTradeCustomId[TIME_ALGO_REGISTRY_MAX];
 
 #define TIME_ALGO_OPEN_LIFETIME_MAX 32
 
@@ -1008,21 +1060,36 @@ struct TimeAlgoOpenTradeLifetimeRec
 {
    ulong    positionId;
    int      algoNumber;
+   int      tradeCustomId;
    datetime startTime;
    double   plannedPrice;
    double   startPrice;
    string   pendingCloseReason;
+   string   closeDecisionReason;
+   string   closeDecisionDetail;
+   double   mfePts;
+   double   maePts;
+   double   maeFirstWindowPts;
+   int      mfeCandle1Based;
+   int      maeCandle1Based;
+   bool     mfeMaeInitialized;
+   datetime rolloverWedDayStart;
+   bool     withRolloverFee;
+   double   rolloverPricediff;
    bool     active;
 };
 
 struct TimeAlgoBenchmarkAcc
 {
    int    tradesClosed;
-   int    wins;
-   int    losses;
+   int    winsWithRoll;
+   int    lossesWithRoll;
    double sumPriceDiff;
+   double sumPriceDiffWithRoll;
    double sumMfePts;
    double sumMaePts;
+   double sumMfePtsWithRoll;
+   double sumMaePtsWithRoll;
    int    telCount;
    double sumLifetimeHours;
 };
@@ -1037,6 +1104,7 @@ struct BreakdownOpenTradeLifetimeRec
 {
    ulong    positionId;
    int      algoNumber;
+   int      tradeCustomId;
    datetime startTime;
    datetime breakdownSequenceEndTime;
    double   plannedPrice;
@@ -1044,6 +1112,17 @@ struct BreakdownOpenTradeLifetimeRec
    double   realSLprice;
    double   realTPprice;
    string   pendingCloseReason;
+   string   closeDecisionReason;
+   string   closeDecisionDetail;
+   double   mfePts;
+   double   maePts;
+   double   maeFirstWindowPts;
+   int      mfeCandle1Based;
+   int      maeCandle1Based;
+   bool     mfeMaeInitialized;
+   datetime rolloverWedDayStart;
+   bool     withRolloverFee;
+   double   rolloverPricediff;
    bool     active;
 };
 
@@ -1056,6 +1135,288 @@ struct BreakdownPendingPlannedPriceRec
 
 BreakdownOpenTradeLifetimeRec  g_breakdownOpenLifetime[BREAKDOWN_OPEN_LIFETIME_MAX];
 BreakdownPendingPlannedPriceRec g_breakdownPendingPlannedPrice[BREAKDOWN_PENDING_PLANNED_MAX];
+
+#define FALGO_BT_CLOSED_STATS_MAX 1024  // per calendar day only (reset at day rollover); closed-trade MFE/close_decision stash until EOD CSV
+
+struct FalgoBtClosedTradeStats
+{
+   long     magic;
+   datetime startTime;
+   double   mfePts;
+   double   maePts;
+   double   maeFirstWindowPts;
+   int      mfeCandle1Based;
+   int      maeCandle1Based;
+   string   closeDecision;
+   string   closeDetail;
+   bool     withRolloverFee;
+   double   rolloverPricediff;
+};
+
+FalgoBtClosedTradeStats g_falgoBtClosedStats[FALGO_BT_CLOSED_STATS_MAX];
+int g_falgoBtClosedStatsCount = 0;
+
+//+------------------------------------------------------------------+
+void FalgoBtResetClosedStatsIfNewDay(const datetime dayStart)
+{
+   static datetime s_lastDayStart = 0;
+   if(dayStart == 0 || dayStart == s_lastDayStart)
+      return;
+   s_lastDayStart = dayStart;
+   g_falgoBtClosedStatsCount = 0;
+}
+
+//+------------------------------------------------------------------+
+void FalgoLifetimeRecUpdateMfeMae(double &mfePts, double &maePts, double &maeFirstWindowPts,
+   int &mfeCandle1Based, int &maeCandle1Based, bool &mfeMaeInitialized,
+   const datetime startTime, const double profitPts)
+{
+   if(!mfeMaeInitialized)
+   {
+      mfePts = profitPts;
+      maePts = profitPts;
+      maeFirstWindowPts = profitPts;
+      mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(startTime, g_lastTimer1Time);
+      maeCandle1Based = mfeCandle1Based;
+      mfeMaeInitialized = true;
+      return;
+   }
+   if(profitPts > mfePts)
+   {
+      mfePts = profitPts;
+      mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(startTime, g_lastTimer1Time);
+   }
+   if(profitPts < maePts)
+   {
+      maePts = profitPts;
+      maeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(startTime, g_lastTimer1Time);
+   }
+   const int tradeAgeSeconds = (int)MathMax(0, g_lastTimer1Time - startTime);
+   if(tradeAgeSeconds <= FalgoTradeResultMaeFirstWindowSeconds() && profitPts < maeFirstWindowPts)
+      maeFirstWindowPts = profitPts;
+}
+
+//+------------------------------------------------------------------+
+void FalgoBtPushClosedStats(const long magic, const datetime startTime, const double mfePts, const double maePts,
+   const double maeFirstWindowPts, const int mfeCandle1Based, const int maeCandle1Based,
+   const string closeDecision, const string closeDetail, const bool withRolloverFee, const double rolloverPricediff)
+{
+   if(magic == 0 || startTime <= 0)
+      return;
+   if(g_falgoBtClosedStatsCount >= FALGO_BT_CLOSED_STATS_MAX)
+   {
+      FatalError(StringFormat("FalgoBtPushClosedStats: per-day closed-stats full (%d); raise FALGO_BT_CLOSED_STATS_MAX",
+         FALGO_BT_CLOSED_STATS_MAX));
+      return;
+   }
+   for(int i = 0; i < g_falgoBtClosedStatsCount; i++)
+   {
+      if(g_falgoBtClosedStats[i].magic == magic && g_falgoBtClosedStats[i].startTime == startTime)
+         return;
+   }
+   FalgoBtClosedTradeStats s;
+   s.magic = magic;
+   s.startTime = startTime;
+   s.mfePts = mfePts;
+   s.maePts = maePts;
+   s.maeFirstWindowPts = maeFirstWindowPts;
+   s.mfeCandle1Based = mfeCandle1Based;
+   s.maeCandle1Based = maeCandle1Based;
+   s.closeDecision = closeDecision;
+   s.closeDetail = closeDetail;
+   s.withRolloverFee = withRolloverFee;
+   s.rolloverPricediff = rolloverPricediff;
+   g_falgoBtClosedStats[g_falgoBtClosedStatsCount++] = s;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoBtFindClosedStats(const long magic, const datetime startTime, FalgoBtClosedTradeStats &outStats)
+{
+   for(int i = 0; i < g_falgoBtClosedStatsCount; i++)
+   {
+      if(g_falgoBtClosedStats[i].magic == magic && g_falgoBtClosedStats[i].startTime == startTime)
+      {
+         outStats = g_falgoBtClosedStats[i];
+         return true;
+      }
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoBtFindOpenBreakdownStats(const long magic, const datetime startTime, FalgoBtClosedTradeStats &outStats)
+{
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(!g_breakdownOpenLifetime[i].active)
+         continue;
+      if(g_breakdownOpenLifetime[i].startTime != startTime)
+         continue;
+      ZeroMemory(outStats);
+      outStats.magic = magic;
+      outStats.startTime = startTime;
+      outStats.mfePts = g_breakdownOpenLifetime[i].mfePts;
+      outStats.maePts = g_breakdownOpenLifetime[i].maePts;
+      outStats.maeFirstWindowPts = g_breakdownOpenLifetime[i].maeFirstWindowPts;
+      outStats.mfeCandle1Based = g_breakdownOpenLifetime[i].mfeCandle1Based;
+      outStats.maeCandle1Based = g_breakdownOpenLifetime[i].maeCandle1Based;
+      outStats.closeDecision = g_breakdownOpenLifetime[i].closeDecisionReason;
+      outStats.closeDetail = g_breakdownOpenLifetime[i].closeDecisionDetail;
+      outStats.withRolloverFee = g_breakdownOpenLifetime[i].withRolloverFee;
+      outStats.rolloverPricediff = g_breakdownOpenLifetime[i].rolloverPricediff;
+      return g_breakdownOpenLifetime[i].mfeMaeInitialized;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoBtFindOpenTimeAlgoStats(const long magic, const datetime startTime, FalgoBtClosedTradeStats &outStats)
+{
+   for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(!g_timeAlgoOpenLifetime[i].active)
+         continue;
+      if(g_timeAlgoOpenLifetime[i].startTime != startTime)
+         continue;
+      ZeroMemory(outStats);
+      outStats.magic = magic;
+      outStats.startTime = startTime;
+      outStats.mfePts = g_timeAlgoOpenLifetime[i].mfePts;
+      outStats.maePts = g_timeAlgoOpenLifetime[i].maePts;
+      outStats.maeFirstWindowPts = g_timeAlgoOpenLifetime[i].maeFirstWindowPts;
+      outStats.mfeCandle1Based = g_timeAlgoOpenLifetime[i].mfeCandle1Based;
+      outStats.maeCandle1Based = g_timeAlgoOpenLifetime[i].maeCandle1Based;
+      outStats.closeDecision = g_timeAlgoOpenLifetime[i].closeDecisionReason;
+      outStats.closeDetail = g_timeAlgoOpenLifetime[i].closeDecisionDetail;
+      outStats.withRolloverFee = g_timeAlgoOpenLifetime[i].withRolloverFee;
+      outStats.rolloverPricediff = g_timeAlgoOpenLifetime[i].rolloverPricediff;
+      return g_timeAlgoOpenLifetime[i].mfeMaeInitialized;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoGetBreakdownTimeTradeStats(const long magic, const datetime startTime, FalgoBtClosedTradeStats &outStats)
+{
+   if(FalgoBtFindClosedStats(magic, startTime, outStats))
+      return true;
+   if(IsBreakdownFamilyCompositeMagic(magic))
+      return FalgoBtFindOpenBreakdownStats(magic, startTime, outStats);
+   if(IsTimeFamilyCompositeMagic(magic))
+      return FalgoBtFindOpenTimeAlgoStats(magic, startTime, outStats);
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| One position scan/sec: MFE/MAE on lifetime records + breakdown/time babysit. |
+//+------------------------------------------------------------------+
+void FalgoBreakdownTimePerSecondAndBabysit()
+{
+   if(g_lastTimer1Time == 0 || FalgoTelemetryUsePerSecondUpdates())
+      return;
+
+   const bool profOn = BacktestProfileEnabled();
+   const bool bdBabysit = g_breakdownAlgoShared.babysit_enabled;
+   const bool taBabysit = g_timeAlgoShared.babysit_enabled;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   FalgoBtResetClosedStatsIfNewDay(dayStart);
+
+   for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(pi))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      const long magic = ExtPositionInfo.Magic();
+      if(!IsBreakdownFamilyCompositeMagic(magic) && !IsTimeFamilyCompositeMagic(magic))
+         continue;
+
+      const ulong positionId = (ulong)ExtPositionInfo.Identifier();
+      const datetime openTime = ExtPositionInfo.Time();
+      const double profitPts = FalgoOpenPositionProfitPoints();
+
+      ulong profT0 = 0;
+      if(profOn)
+         profT0 = GetMicrosecondCount();
+
+      if(IsBreakdownFamilyCompositeMagic(magic))
+      {
+         const int lifeIdx = BreakdownOpenLifetimeSlotByPositionId(positionId);
+         if(lifeIdx >= 0)
+         {
+            FalgoLifetimeRecUpdateMfeMae(g_breakdownOpenLifetime[lifeIdx].mfePts, g_breakdownOpenLifetime[lifeIdx].maePts,
+               g_breakdownOpenLifetime[lifeIdx].maeFirstWindowPts, g_breakdownOpenLifetime[lifeIdx].mfeCandle1Based,
+               g_breakdownOpenLifetime[lifeIdx].maeCandle1Based, g_breakdownOpenLifetime[lifeIdx].mfeMaeInitialized,
+               g_breakdownOpenLifetime[lifeIdx].startTime, profitPts);
+         }
+         if(profOn)
+            BacktestProfAccumulate(BACKTEST_PROF_TELEMETRY_PER_SEC, profT0);
+
+         if(bdBabysit)
+         {
+            if(profOn)
+               profT0 = GetMicrosecondCount();
+            const double rolloverForGuard = (lifeIdx >= 0)
+               ? FalgoGreenguardRolloverPricediff(openTime, g_breakdownOpenLifetime[lifeIdx].rolloverWedDayStart,
+                  g_breakdownOpenLifetime[lifeIdx].withRolloverFee, g_breakdownOpenLifetime[lifeIdx].rolloverPricediff)
+               : FalgoGreenguardRolloverPricediff(openTime, 0, false, 0.0);
+            if(!Babysitf_falgo_runBreakdownSecretTpExit(magic, rolloverForGuard))
+               Babysitf_falgo_runBreakdownMidpointTimeExit(magic, lifeIdx);
+            if(profOn)
+               BacktestProfAccumulate(BACKTEST_PROF_BABYSIT, profT0);
+         }
+      }
+      else
+      {
+         const int lifeIdx = TimeAlgoOpenLifetimeSlotByPositionId(positionId);
+         if(lifeIdx >= 0)
+         {
+            FalgoLifetimeRecUpdateMfeMae(g_timeAlgoOpenLifetime[lifeIdx].mfePts, g_timeAlgoOpenLifetime[lifeIdx].maePts,
+               g_timeAlgoOpenLifetime[lifeIdx].maeFirstWindowPts, g_timeAlgoOpenLifetime[lifeIdx].mfeCandle1Based,
+               g_timeAlgoOpenLifetime[lifeIdx].maeCandle1Based, g_timeAlgoOpenLifetime[lifeIdx].mfeMaeInitialized,
+               g_timeAlgoOpenLifetime[lifeIdx].startTime, profitPts);
+         }
+         if(profOn)
+            BacktestProfAccumulate(BACKTEST_PROF_TELEMETRY_PER_SEC, profT0);
+
+         if(taBabysit)
+         {
+            if(profOn)
+               profT0 = GetMicrosecondCount();
+            const double rolloverForGuard = (lifeIdx >= 0)
+               ? FalgoGreenguardRolloverPricediff(openTime, g_timeAlgoOpenLifetime[lifeIdx].rolloverWedDayStart,
+                  g_timeAlgoOpenLifetime[lifeIdx].withRolloverFee, g_timeAlgoOpenLifetime[lifeIdx].rolloverPricediff)
+               : FalgoGreenguardRolloverPricediff(openTime, 0, false, 0.0);
+            Babysitf_falgo_runTimeAlgoSecretTpExit(magic, rolloverForGuard);
+            if(profOn)
+               BacktestProfAccumulate(BACKTEST_PROF_BABYSIT, profT0);
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoCustomQopexApplyRolloverToBreakdownTimeLifetimes(const datetime rolloverWedDayStart, const double rolloverPricediff)
+{
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(!g_breakdownOpenLifetime[i].active)
+         continue;
+      if(g_breakdownOpenLifetime[i].rolloverWedDayStart != rolloverWedDayStart)
+         continue;
+      g_breakdownOpenLifetime[i].withRolloverFee = true;
+      g_breakdownOpenLifetime[i].rolloverPricediff = rolloverPricediff;
+   }
+   for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(!g_timeAlgoOpenLifetime[i].active)
+         continue;
+      if(g_timeAlgoOpenLifetime[i].rolloverWedDayStart != rolloverWedDayStart)
+         continue;
+      g_timeAlgoOpenLifetime[i].withRolloverFee = true;
+      g_timeAlgoOpenLifetime[i].rolloverPricediff = rolloverPricediff;
+   }
+}
 
 // Base calendar overrides (YYYY.MM.DD): non-trade days block all placement; daily-only days restrict to daily/stacked levels.
 string g_falgoNonTradeDates[];
@@ -1389,6 +1750,357 @@ string GetCalendarDayOfWeek(datetime dt)
    for(int calIdx = 0; calIdx < g_calendarCount; calIdx++)
       if(g_calendar[calIdx].dateStr == key) return g_calendar[calIdx].dayofweek;
    return "";
+}
+
+//+------------------------------------------------------------------+
+//| Broker custom QOPEX rollover (core): months 3/6/9/12, Wed EOD two days before 3rd Friday. |
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexQuarterMonth(const int month)
+{
+   return (month == 3 || month == 6 || month == 9 || month == 12);
+}
+
+//+------------------------------------------------------------------+
+datetime BrokerCustomQopexMonthDayStart(const int year, const int month)
+{
+   MqlDateTime dt;
+   dt.year = year;
+   dt.mon = month;
+   dt.day = 1;
+   dt.hour = 0;
+   dt.min = 0;
+   dt.sec = 0;
+   dt.day_of_week = 0;
+   return StructToTime(dt);
+}
+
+//+------------------------------------------------------------------+
+datetime BrokerCustomQopexThirdFridayDayStart(const int year, const int month)
+{
+   if(!BrokerCustomQopexQuarterMonth(month))
+      return 0;
+   datetime dayStart = BrokerCustomQopexMonthDayStart(year, month);
+   MqlDateTime dt;
+   TimeToStruct(dayStart, dt);
+   int fridays = 0;
+   while(dt.mon == month)
+   {
+      if(dt.day_of_week == 5)
+      {
+         fridays++;
+         if(fridays == 3)
+            return dayStart;
+      }
+      dayStart += 86400;
+      TimeToStruct(dayStart, dt);
+   }
+   return 0;
+}
+
+//+------------------------------------------------------------------+
+datetime BrokerCustomQopexRolloverWednesdayDayStart(const int year, const int month)
+{
+   const datetime thirdFriday = BrokerCustomQopexThirdFridayDayStart(year, month);
+   if(thirdFriday == 0)
+      return 0;
+   return thirdFriday - 2 * 86400;
+}
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexIsRolloverWednesdayDayStart(const datetime dayStart)
+{
+   if(dayStart <= 0)
+      return false;
+   MqlDateTime dt;
+   TimeToStruct(dayStart, dt);
+   if(!BrokerCustomQopexQuarterMonth(dt.mon))
+      return false;
+   return (BrokerCustomQopexRolloverWednesdayDayStart(dt.year, dt.mon) == dayStart);
+}
+
+//+------------------------------------------------------------------+
+datetime BrokerCustomQopexNextRolloverWednesdayForOpenTime(const datetime openTime)
+{
+   if(openTime <= 0)
+      return 0;
+   MqlDateTime dt;
+   TimeToStruct(openTime, dt);
+   const int year = dt.year;
+   for(int monthOffset = 0; monthOffset < 12; monthOffset++)
+   {
+      int month = dt.mon + monthOffset;
+      int y = year;
+      while(month > 12)
+      {
+         month -= 12;
+         y++;
+      }
+      if(!BrokerCustomQopexQuarterMonth(month))
+         continue;
+      const datetime rolloverWed = BrokerCustomQopexRolloverWednesdayDayStart(y, month);
+      if(rolloverWed == 0)
+         continue;
+      if(openTime < rolloverWed + 86400)
+         return rolloverWed;
+   }
+   return 0;
+}
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexTradeOpenedBeforeRollover(const datetime openTime, const datetime rolloverWedDayStart)
+{
+   return (rolloverWedDayStart > 0 && openTime < rolloverWedDayStart + 86400);
+}
+
+//+------------------------------------------------------------------+
+datetime BrokerCustomQopexRolloverEarliestApplyTime(const datetime rolloverWedDayStart)
+{
+   if(rolloverWedDayStart <= 0)
+      return 0;
+   return rolloverWedDayStart + 86400;
+}
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexTradeEarnedRolloverAtClose(const datetime openTime, const datetime closeTime,
+   const datetime rolloverWedDayStart)
+{
+   if(rolloverWedDayStart <= 0 || openTime <= 0 || closeTime <= 0)
+      return false;
+   if(!BrokerCustomQopexTradeOpenedBeforeRollover(openTime, rolloverWedDayStart))
+      return false;
+   return (closeTime >= BrokerCustomQopexRolloverEarliestApplyTime(rolloverWedDayStart));
+}
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexRolloverIsActiveInSimulation(const datetime rolloverWedDayStart)
+{
+   if(rolloverWedDayStart <= 0 || g_lastTimer1Time <= 0)
+      return false;
+   return (g_lastTimer1Time >= BrokerCustomQopexRolloverEarliestApplyTime(rolloverWedDayStart));
+}
+
+//+------------------------------------------------------------------+
+void FalgoLifetimeResolveRolloverForClose(const datetime startTime, const datetime closeTime,
+   const datetime rolloverWedDayStart, const bool storedWithRoll, const double storedPricediff,
+   bool &outWithRoll, double &outPricediff)
+{
+   outWithRoll = false;
+   outPricediff = 0.0;
+   if(!BrokerCustomQopexTradeEarnedRolloverAtClose(startTime, closeTime, rolloverWedDayStart))
+      return;
+   if(storedWithRoll && storedPricediff > 0.0)
+   {
+      outWithRoll = true;
+      outPricediff = storedPricediff;
+      return;
+   }
+   double cached = 0.0;
+   if(BrokerCustomQopexRolloverPricediffCachedLookup(rolloverWedDayStart, cached))
+   {
+      outWithRoll = true;
+      outPricediff = cached;
+   }
+}
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexRolloverPriceDiffFromM1(const datetime rolloverWedDayStart, double &outPricediff)
+{
+   outPricediff = 0.0;
+   if(rolloverWedDayStart <= 0)
+      return false;
+
+   MqlRates wedRates[];
+   const datetime wedEnd = rolloverWedDayStart + 86400 - 60;
+   const int wedCopied = CopyRates(_Symbol, PERIOD_M1, rolloverWedDayStart, wedEnd, wedRates);
+   if(wedCopied <= 0)
+      return false;
+   const double wedEodClose = wedRates[wedCopied - 1].close;
+
+   const datetime thuDayStart = rolloverWedDayStart + 86400;
+   MqlRates thuRates[];
+   const datetime thuEnd = thuDayStart + 86400 - 60;
+   int thuCopied = CopyRates(_Symbol, PERIOD_M1, thuDayStart, thuEnd, thuRates);
+   if(thuCopied < 2 && g_m1DayStart == thuDayStart && g_barsInDay >= 2)
+   {
+      thuCopied = 2;
+      thuRates[0] = g_m1Rates[0];
+      thuRates[1] = g_m1Rates[1];
+   }
+   if(thuCopied < 2)
+      return false;
+
+   const double thuSecondHigh = thuRates[1].high;
+   const double rawDiff = thuSecondHigh - wedEodClose;
+   outPricediff = (rawDiff > 0.0 ? rawDiff : 0.0);
+   return true;
+}
+
+#define BROKER_ROLLOVER_PRICEDIFF_CACHE_MAX BROKER_CUSTOM_QOPEX_ROLLOVER_TRACKED_MAX  // same Wed→pricediff map; lives whole backtest
+datetime g_brokerRolloverPricediffCacheWed[BROKER_ROLLOVER_PRICEDIFF_CACHE_MAX];
+double   g_brokerRolloverPricediffCacheVal[BROKER_ROLLOVER_PRICEDIFF_CACHE_MAX];
+int      g_brokerRolloverPricediffCacheCount = 0;
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexRolloverPricediffCachedLookup(const datetime rolloverWedDayStart, double &outPricediff)
+{
+   outPricediff = 0.0;
+   if(rolloverWedDayStart <= 0)
+      return false;
+   for(int i = 0; i < g_brokerRolloverPricediffCacheCount; i++)
+   {
+      if(g_brokerRolloverPricediffCacheWed[i] == rolloverWedDayStart)
+      {
+         outPricediff = g_brokerRolloverPricediffCacheVal[i];
+         return true;
+      }
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+void BrokerCustomQopexRolloverPricediffCacheStore(const datetime rolloverWedDayStart, const double rolloverPricediff)
+{
+   if(rolloverWedDayStart <= 0)
+      return;
+   for(int i = 0; i < g_brokerRolloverPricediffCacheCount; i++)
+   {
+      if(g_brokerRolloverPricediffCacheWed[i] == rolloverWedDayStart)
+      {
+         g_brokerRolloverPricediffCacheVal[i] = rolloverPricediff;
+         return;
+      }
+   }
+   if(g_brokerRolloverPricediffCacheCount >= BROKER_ROLLOVER_PRICEDIFF_CACHE_MAX)
+   {
+      FatalError(StringFormat("BrokerCustomQopexRolloverPricediffCacheStore: cache full (%d quarters); raise BACKTEST_ROLLOVER_QUARTERS_CAPACITY",
+         BROKER_ROLLOVER_PRICEDIFF_CACHE_MAX));
+      return;
+   }
+   g_brokerRolloverPricediffCacheWed[g_brokerRolloverPricediffCacheCount] = rolloverWedDayStart;
+   g_brokerRolloverPricediffCacheVal[g_brokerRolloverPricediffCacheCount] = rolloverPricediff;
+   g_brokerRolloverPricediffCacheCount++;
+}
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexTryEnsureRolloverPricediffCached(const datetime rolloverWedDayStart)
+{
+   if(rolloverWedDayStart <= 0)
+      return false;
+   double cached = 0.0;
+   if(BrokerCustomQopexRolloverPricediffCachedLookup(rolloverWedDayStart, cached))
+      return true;
+   if(g_m1DayStart < rolloverWedDayStart + 86400)
+      return false;
+   double rolloverPricediff = 0.0;
+   if(!BrokerCustomQopexRolloverPriceDiffFromM1(rolloverWedDayStart, rolloverPricediff))
+      return false;
+   BrokerCustomQopexRolloverPricediffCacheStore(rolloverWedDayStart, rolloverPricediff);
+   return true;
+}
+
+//+------------------------------------------------------------------+
+double BrokerCustomQopexRolloverPricediffForTradeOpenTime(const datetime openTime)
+{
+   if(openTime <= 0)
+      return 0.0;
+   const datetime rolloverWed = BrokerCustomQopexNextRolloverWednesdayForOpenTime(openTime);
+   if(!BrokerCustomQopexTradeOpenedBeforeRollover(openTime, rolloverWed))
+      return 0.0;
+   if(!BrokerCustomQopexRolloverIsActiveInSimulation(rolloverWed))
+      return 0.0;
+   BrokerCustomQopexTryEnsureRolloverPricediffCached(rolloverWed);
+   double pricediff = 0.0;
+   if(!BrokerCustomQopexRolloverPricediffCachedLookup(rolloverWed, pricediff))
+      return 0.0;
+   return MathMax(0.0, pricediff);
+}
+
+//+------------------------------------------------------------------+
+//| Greenguard rollover: use lifetime stamp when set; else sim-active cache lookup. |
+//+------------------------------------------------------------------+
+double FalgoGreenguardRolloverPricediff(const datetime openTime, const datetime rolloverWedDayStart,
+   const bool withRolloverFee, const double rolloverPricediff)
+{
+   if(withRolloverFee)
+      return MathMax(0.0, rolloverPricediff);
+   if(rolloverWedDayStart <= 0 || !BrokerCustomQopexRolloverIsActiveInSimulation(rolloverWedDayStart))
+      return 0.0;
+   return BrokerCustomQopexRolloverPricediffForTradeOpenTime(openTime);
+}
+
+//+------------------------------------------------------------------+
+void FalgoLifetimeInitRolloverEligibility(const datetime tradeStartTime, datetime &outRolloverWedDayStart,
+   bool &outWithRolloverFee, double &outRolloverPricediff)
+{
+   outRolloverWedDayStart = 0;
+   outWithRolloverFee = false;
+   outRolloverPricediff = 0.0;
+   const datetime rolloverWed = BrokerCustomQopexNextRolloverWednesdayForOpenTime(tradeStartTime);
+   if(rolloverWed > 0 && BrokerCustomQopexTradeOpenedBeforeRollover(tradeStartTime, rolloverWed))
+      outRolloverWedDayStart = rolloverWed;
+}
+
+//+------------------------------------------------------------------+
+bool BrokerCustomQopexBuyHoldRolloverAlreadyApplied(const datetime rolloverWedDayStart)
+{
+   for(int i = 0; i < g_buyHoldAppliedRolloverWedCount; i++)
+      if(g_buyHoldAppliedRolloverWed[i] == rolloverWedDayStart)
+         return true;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+void BrokerCustomQopexMarkBuyHoldRolloverApplied(const datetime rolloverWedDayStart)
+{
+   if(rolloverWedDayStart <= 0 || BrokerCustomQopexBuyHoldRolloverAlreadyApplied(rolloverWedDayStart))
+      return;
+   if(g_buyHoldAppliedRolloverWedCount < BROKER_CUSTOM_QOPEX_ROLLOVER_TRACKED_MAX)
+      g_buyHoldAppliedRolloverWed[g_buyHoldAppliedRolloverWedCount++] = rolloverWedDayStart;
+   else
+      FatalError(StringFormat("BrokerCustomQopexMarkBuyHoldRolloverApplied: rollover track full (%d); raise BACKTEST_ROLLOVER_QUARTERS_CAPACITY",
+         BROKER_CUSTOM_QOPEX_ROLLOVER_TRACKED_MAX));
+}
+
+//+------------------------------------------------------------------+
+void BuyHoldCustomQopexTryAccumulateRollover(const datetime rolloverWedDayStart, const double rolloverPricediff)
+{
+   if(!finalLog_benchmark_buyAndHold || g_buyHoldFirstDayStart == 0)
+      return;
+   if(rolloverWedDayStart <= 0 || BrokerCustomQopexBuyHoldRolloverAlreadyApplied(rolloverWedDayStart))
+      return;
+   if(g_buyHoldFirstDayStart >= rolloverWedDayStart + 86400)
+      return;
+   g_buyHoldSumRolloverPricediff += rolloverPricediff;
+   BrokerCustomQopexMarkBuyHoldRolloverApplied(rolloverWedDayStart);
+   if(g_buyHoldSnapshotValid)
+      BuyHoldBenchmarkWriteFile(g_buyHoldSnapshotDayStart, g_buyHoldSnapshotOOD, g_buyHoldSnapshotHOD,
+         g_buyHoldSnapshotLOD, g_buyHoldSnapshotCOD);
+}
+
+//+------------------------------------------------------------------+
+void FalgoTradeLifetimeWithRollCols(const bool withRolloverFee, const double rolloverPricediff,
+   const double startPrice, const double endPrice, const bool hasEndPrice,
+   const double mfePts, const double maePts, const bool fillMaeMfe,
+   string &outWithRollover, string &outRolloverFee,
+   string &outPriceEndWithRoll, string &outPriceDiffWithRoll,
+   string &outMfeWithRoll, string &outMaeWithRoll)
+{
+   const double rollCost = (withRolloverFee ? MathMax(0.0, rolloverPricediff) : 0.0);
+   outWithRollover = (withRolloverFee ? "true" : "false");
+   outRolloverFee = (withRolloverFee ? DoubleToString(rolloverPricediff, _Digits) : "");
+   outPriceEndWithRoll = "";
+   outPriceDiffWithRoll = "";
+   outMfeWithRoll = "";
+   outMaeWithRoll = "";
+   if(hasEndPrice && endPrice > 0.0)
+      outPriceEndWithRoll = DoubleToString(endPrice - rollCost, _Digits);
+   if(hasEndPrice && startPrice > 0.0)
+      outPriceDiffWithRoll = DoubleToString((endPrice - startPrice) - rollCost, _Digits);
+   if(fillMaeMfe)
+   {
+      outMfeWithRoll = DoubleToString(mfePts - rollCost, 1);
+      outMaeWithRoll = DoubleToString(maePts - rollCost, 1);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -4054,6 +4766,8 @@ void BuyHoldBenchmarkResetOnInit()
    g_buyHoldDayCachedOOD = 0.0;
    g_buyHoldDayCachedHOD = 0.0;
    g_buyHoldDayCachedLOD = 0.0;
+   g_buyHoldSumRolloverPricediff = 0.0;
+   g_buyHoldAppliedRolloverWedCount = 0;
    g_aboveBelowIncDayStart = 0;
    g_aboveBelowIncLevelCount = 0;
    g_aboveBelowIncBarsDone = 0;
@@ -4065,9 +4779,10 @@ void BuyHoldBenchmarkResetOnInit()
    int fh = FileOpen(BuyHoldBenchmarkFileName(), FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       return;
-   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl_firstOpen_lastClose",
-      "max_high_since_first_ood", "min_low_since_first_ood",
-      "sum_lifetime_hours", "sum_lifetime_days", "hours_vs_pricediff_ratio");
+   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "pricediff_firstOpen_lastClose",
+      "pricediff_firstOpen_lastClose_with_roll", "max_high_since_first_ood", "min_low_since_first_ood",
+      "sum_lifetime_hours", "sum_lifetime_days", "pricediff_vs_hours_ratio", "pricediff_vs_hours_ratio_with_roll",
+      "sum_rollover_pricediff");
    FileClose(fh);
 }
 
@@ -4128,45 +4843,52 @@ void BuyHoldBenchmarkWriteFile(const datetime lastDayStart, const double lastOOD
    const double lodDiff = lastLOD - g_buyHoldFirstLOD;
    const double codDiff = lastCOD - g_buyHoldFirstCOD;
    const double buyHoldPnl = lastCOD - g_buyHoldFirstOOD;
+   const double buyHoldPnlWithRoll = buyHoldPnl - g_buyHoldSumRolloverPricediff;
    const double maxHighSinceFirst = g_buyHoldRunExtremesInit ? (g_buyHoldRunMaxHigh - g_buyHoldFirstOOD) : 0.0;
    const double minLowSinceFirst = g_buyHoldRunExtremesInit ? (g_buyHoldRunMinLow - g_buyHoldFirstOOD) : 0.0;
    const double spanMinutes = BuyHoldSpanTradingMinutes();
    const double sumLifetimeHours = spanMinutes / 60.0;
    const double sumLifetimeDays = sumLifetimeHours / 24.0;
-   const string hoursVsPricediffRatio = (MathAbs(buyHoldPnl) > 0.0)
-      ? DoubleToString(sumLifetimeHours / buyHoldPnl, 4) : "";
+   const string pricediffVsHoursRatio = (sumLifetimeHours > 0.0)
+      ? DoubleToString(buyHoldPnl / sumLifetimeHours, 4) : "";
+   const string pricediffVsHoursRatioWithRoll = (sumLifetimeHours > 0.0)
+      ? DoubleToString(buyHoldPnlWithRoll / sumLifetimeHours, 4) : "";
 
    int fh = FileOpen(BuyHoldBenchmarkFileName(), FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fh == INVALID_HANDLE)
       return;
-   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "buy_hold_pnl_firstOpen_lastClose",
-      "max_high_since_first_ood", "min_low_since_first_ood",
-      "sum_lifetime_hours", "sum_lifetime_days", "hours_vs_pricediff_ratio");
+   FileWrite(fh, "row", "date", "OOD", "HOD", "LOD", "COD", "pricediff_firstOpen_lastClose",
+      "pricediff_firstOpen_lastClose_with_roll", "max_high_since_first_ood", "min_low_since_first_ood",
+      "sum_lifetime_hours", "sum_lifetime_days", "pricediff_vs_hours_ratio", "pricediff_vs_hours_ratio_with_roll",
+      "sum_rollover_pricediff");
    FileWrite(fh, "first_day",
       TimeToString(g_buyHoldFirstDayStart, TIME_DATE),
       DoubleToString(g_buyHoldFirstOOD, _Digits),
       DoubleToString(g_buyHoldFirstHOD, _Digits),
       DoubleToString(g_buyHoldFirstLOD, _Digits),
       DoubleToString(g_buyHoldFirstCOD, _Digits),
-      "", "", "", "", "", "");
+      "", "", "", "", "", "", "", "");
    FileWrite(fh, "last_day",
       TimeToString(lastDayStart, TIME_DATE),
       DoubleToString(lastOOD, _Digits),
       DoubleToString(lastHOD, _Digits),
       DoubleToString(lastLOD, _Digits),
       DoubleToString(lastCOD, _Digits),
-      "", "", "", "", "", "");
+      "", "", "", "", "", "", "", "");
    FileWrite(fh, "diff", "",
       DoubleToString(oodDiff, _Digits),
       DoubleToString(hodDiff, _Digits),
       DoubleToString(lodDiff, _Digits),
       DoubleToString(codDiff, _Digits),
       DoubleToString(buyHoldPnl, _Digits),
+      DoubleToString(buyHoldPnlWithRoll, _Digits),
       DoubleToString(maxHighSinceFirst, _Digits),
       DoubleToString(minLowSinceFirst, _Digits),
       DoubleToString(sumLifetimeHours, 1),
       DoubleToString(sumLifetimeDays, 1),
-      hoursVsPricediffRatio);
+      pricediffVsHoursRatio,
+      pricediffVsHoursRatioWithRoll,
+      DoubleToString(g_buyHoldSumRolloverPricediff, _Digits));
    FileClose(fh);
 }
 
@@ -5448,11 +6170,14 @@ void BreakdownBenchmarkAllAlgosReset()
    for(int i = 0; i < BREAKDOWN_ALGO_REGISTRY_MAX; i++)
    {
       g_breakdownAlgoBenchmarkAcc[i].tradesClosed = 0;
-      g_breakdownAlgoBenchmarkAcc[i].wins = 0;
-      g_breakdownAlgoBenchmarkAcc[i].losses = 0;
+      g_breakdownAlgoBenchmarkAcc[i].winsWithRoll = 0;
+      g_breakdownAlgoBenchmarkAcc[i].lossesWithRoll = 0;
       g_breakdownAlgoBenchmarkAcc[i].sumPriceDiff = 0.0;
+      g_breakdownAlgoBenchmarkAcc[i].sumPriceDiffWithRoll = 0.0;
       g_breakdownAlgoBenchmarkAcc[i].sumMfePts = 0.0;
       g_breakdownAlgoBenchmarkAcc[i].sumMaePts = 0.0;
+      g_breakdownAlgoBenchmarkAcc[i].sumMfePtsWithRoll = 0.0;
+      g_breakdownAlgoBenchmarkAcc[i].sumMaePtsWithRoll = 0.0;
       g_breakdownAlgoBenchmarkAcc[i].telCount = 0;
       g_breakdownAlgoBenchmarkAcc[i].sumLifetimeHours = 0.0;
    }
@@ -5473,9 +6198,13 @@ void BreakdownBenchmarkAllAlgosWrite()
    if(fh == INVALID_HANDLE)
       return;
 
-   FileWrite(fh, "algo_id", "continuation_type", "trades_closed", "wins", "losses", "win_rate_pct",
-      "sum_priceDiff", "avg_priceDiff", "avg_mfe_pts", "avg_mae_pts", "avg_lifetime_hours",
-      "sum_lifetime_minutes", "sum_lifetime_hours", "sum_lifetime_days", "hours_vs_pricediff_ratio");
+   FileWrite(fh, "algo_id", "continuation_type", "trades_closed",
+      "wins_with_roll", "losses_with_roll", "win_rate_pct_with_roll",
+      "sum_priceDiff", "avg_priceDiff",
+      "sum_priceDiff_with_roll", "avg_priceDiff_with_roll",
+      "avg_mfe_pts", "avg_mae_pts", "avg_mfe_pts_with_roll", "avg_mae_pts_with_roll",
+      "avg_lifetime_hours", "sum_lifetime_minutes", "sum_lifetime_hours", "sum_lifetime_days",
+      "pricediff_vs_hours_ratio", "pricediff_vs_hours_ratio_with_roll");
 
    for(int i = 0; i < g_breakdownAlgoCount; i++)
    {
@@ -5486,32 +6215,42 @@ void BreakdownBenchmarkAllAlgosWrite()
       const BreakdownAlgoBenchmarkAcc acc = g_breakdownAlgoBenchmarkAcc[slotIdx];
       const int n = acc.tradesClosed;
       const double avgPriceDiff = (n > 0) ? acc.sumPriceDiff / (double)n : 0.0;
-      const double winRate = (n > 0) ? (100.0 * (double)acc.wins / (double)n) : 0.0;
+      const double avgPriceDiffWithRoll = (n > 0) ? acc.sumPriceDiffWithRoll / (double)n : 0.0;
+      const double winRateWithRoll = (n > 0) ? (100.0 * (double)acc.winsWithRoll / (double)n) : 0.0;
       const double avgMfe = (acc.telCount > 0) ? acc.sumMfePts / (double)acc.telCount : 0.0;
       const double avgMae = (acc.telCount > 0) ? acc.sumMaePts / (double)acc.telCount : 0.0;
+      const double avgMfeWithRoll = (acc.telCount > 0) ? acc.sumMfePtsWithRoll / (double)acc.telCount : 0.0;
+      const double avgMaeWithRoll = (acc.telCount > 0) ? acc.sumMaePtsWithRoll / (double)acc.telCount : 0.0;
       const double avgLifetime = (n > 0) ? acc.sumLifetimeHours / (double)n : 0.0;
       const double sumLifetimeMinutes = acc.sumLifetimeHours * 60.0;
       const double sumLifetimeDays = acc.sumLifetimeHours / 24.0;
-      const string hoursVsPricediffRatio = (MathAbs(acc.sumPriceDiff) > 0.0)
-         ? DoubleToString(acc.sumLifetimeHours / acc.sumPriceDiff, 4) : "";
+      const string pricediffVsHoursRatio = (acc.sumLifetimeHours > 0.0)
+         ? DoubleToString(acc.sumPriceDiff / acc.sumLifetimeHours, 4) : "";
+      const string pricediffVsHoursRatioWithRoll = (acc.sumLifetimeHours > 0.0)
+         ? DoubleToString(acc.sumPriceDiffWithRoll / acc.sumLifetimeHours, 4) : "";
       const ENUM_BREAKDOWN_STREAK_CONTINUATION mode = g_breakdownAlgos[slotIdx].breakdown_streak_continuation_mode;
 
       FileWrite(fh,
          IntegerToString(algoNumber),
          BreakdownContinuationModeLogSlug(mode),
          IntegerToString(n),
-         IntegerToString(acc.wins),
-         IntegerToString(acc.losses),
-         DoubleToString(winRate, 2),
+         IntegerToString(acc.winsWithRoll),
+         IntegerToString(acc.lossesWithRoll),
+         DoubleToString(winRateWithRoll, 2),
          DoubleToString(acc.sumPriceDiff, _Digits),
          DoubleToString(avgPriceDiff, _Digits),
+         DoubleToString(acc.sumPriceDiffWithRoll, _Digits),
+         DoubleToString(avgPriceDiffWithRoll, _Digits),
          (acc.telCount > 0 ? DoubleToString(avgMfe, 1) : ""),
          (acc.telCount > 0 ? DoubleToString(avgMae, 1) : ""),
+         (acc.telCount > 0 ? DoubleToString(avgMfeWithRoll, 1) : ""),
+         (acc.telCount > 0 ? DoubleToString(avgMaeWithRoll, 1) : ""),
          (n > 0 ? DoubleToString(avgLifetime, 1) : ""),
          (n > 0 ? DoubleToString(sumLifetimeMinutes, 1) : ""),
          (n > 0 ? DoubleToString(acc.sumLifetimeHours, 1) : ""),
          (n > 0 ? DoubleToString(sumLifetimeDays, 1) : ""),
-         hoursVsPricediffRatio);
+         pricediffVsHoursRatio,
+         pricediffVsHoursRatioWithRoll);
    }
    FileClose(fh);
    if(profOn)
@@ -5520,7 +6259,8 @@ void BreakdownBenchmarkAllAlgosWrite()
 
 //+------------------------------------------------------------------+
 void BreakdownBenchmarkAllAlgosAccumulateClose(const int algoNumber, const double startPrice, const double endPrice,
-   const double lifetimeHours, const double mfePts, const double maePts, const bool hasTel)
+   const double lifetimeHours, const double mfePts, const double maePts, const bool hasTel,
+   const double rolloverPricediff = 0.0)
 {
    if(!bigflipper_log_breakdown_trade_lifetime || startPrice <= 0.0 || endPrice <= 0.0)
       return;
@@ -5529,18 +6269,23 @@ void BreakdownBenchmarkAllAlgosAccumulateClose(const int algoNumber, const doubl
       return;
 
    BreakdownAlgoBenchmarkAcc acc = g_breakdownAlgoBenchmarkAcc[slotIdx];
+   const double rollCost = MathMax(0.0, rolloverPricediff);
    const double priceDiff = endPrice - startPrice;
+   const double priceDiffWithRoll = priceDiff - rollCost;
    acc.tradesClosed++;
    acc.sumPriceDiff += priceDiff;
+   acc.sumPriceDiffWithRoll += priceDiffWithRoll;
    acc.sumLifetimeHours += lifetimeHours;
-   if(priceDiff > 0.0)
-      acc.wins++;
-   else if(priceDiff < 0.0)
-      acc.losses++;
+   if(priceDiffWithRoll > 0.0)
+      acc.winsWithRoll++;
+   else if(priceDiffWithRoll < 0.0)
+      acc.lossesWithRoll++;
    if(hasTel)
    {
       acc.sumMfePts += mfePts;
       acc.sumMaePts += maePts;
+      acc.sumMfePtsWithRoll += mfePts - rollCost;
+      acc.sumMaePtsWithRoll += maePts - rollCost;
       acc.telCount++;
    }
    g_breakdownAlgoBenchmarkAcc[slotIdx] = acc;
@@ -5551,12 +6296,15 @@ void BreakdownWriteTradeLifetimeRunLogHeader(const int fh)
 {
    FileWrite(fh, "eventTime", "startTime", "eventType", "close_reason",
       "plannedPrice", "startPrice", "realSLprice", "realTPprice", "endPrice", "priceDiff", "lifetimeHours",
-      "mfe", "mae", "trades_today", "trades_all");
+      "trade_customID", "trades_today", "currently_concurrent_trades", "trades_all", "with_rollover_fee", "rollover_pricediff",
+      "priceEnd_with_roll", "priceDiff_with_roll", "mfe_with_roll", "mae_with_roll");
 }
 
 void BreakdownResetTradeLifetimeRunLogsOnInit()
 {
    BreakdownBenchmarkAllAlgosReset();
+   for(int i = 0; i < BREAKDOWN_ALGO_REGISTRY_MAX; i++)
+      g_breakdownAlgoNextTradeCustomId[i] = 0;
    if(!bigflipper_log_breakdown_trade_lifetime)
       return;
    for(int i = 0; i < g_breakdownAlgoCount; i++)
@@ -5615,12 +6363,12 @@ double BreakdownTakePendingPlannedPrice(const long magic)
 }
 
 //+------------------------------------------------------------------+
-void BreakdownRegisterOpenTradeLifetime(const ulong positionId, const int algoNumber,
+int BreakdownRegisterOpenTradeLifetime(const ulong positionId, const int algoNumber,
    const datetime startTime, const datetime breakdownSequenceEndTime, const double plannedPrice, const double startPrice,
    const double realSLprice, const double realTPprice)
 {
    if(positionId == 0 || algoNumber <= 0 || startTime <= 0)
-      return;
+      return 0;
    for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
    {
       if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
@@ -5632,15 +6380,26 @@ void BreakdownRegisterOpenTradeLifetime(const ulong positionId, const int algoNu
          g_breakdownOpenLifetime[i].startPrice = startPrice;
          g_breakdownOpenLifetime[i].realSLprice = realSLprice;
          g_breakdownOpenLifetime[i].realTPprice = realTPprice;
-         return;
+         FalgoLifetimeInitRolloverEligibility(startTime, g_breakdownOpenLifetime[i].rolloverWedDayStart,
+            g_breakdownOpenLifetime[i].withRolloverFee, g_breakdownOpenLifetime[i].rolloverPricediff);
+         return g_breakdownOpenLifetime[i].tradeCustomId;
       }
+   }
+   int tradeCustomId = 0;
+   const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(algoIdx >= 0)
+   {
+      g_breakdownAlgoNextTradeCustomId[algoIdx]++;
+      tradeCustomId = g_breakdownAlgoNextTradeCustomId[algoIdx];
    }
    for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
    {
       if(!g_breakdownOpenLifetime[i].active)
       {
+         ZeroMemory(g_breakdownOpenLifetime[i]);
          g_breakdownOpenLifetime[i].positionId = positionId;
          g_breakdownOpenLifetime[i].algoNumber = algoNumber;
+         g_breakdownOpenLifetime[i].tradeCustomId = tradeCustomId;
          g_breakdownOpenLifetime[i].startTime = startTime;
          g_breakdownOpenLifetime[i].breakdownSequenceEndTime = breakdownSequenceEndTime;
          g_breakdownOpenLifetime[i].plannedPrice = plannedPrice;
@@ -5648,24 +6407,45 @@ void BreakdownRegisterOpenTradeLifetime(const ulong positionId, const int algoNu
          g_breakdownOpenLifetime[i].realSLprice = realSLprice;
          g_breakdownOpenLifetime[i].realTPprice = realTPprice;
          g_breakdownOpenLifetime[i].active = true;
-         return;
+         FalgoLifetimeInitRolloverEligibility(startTime, g_breakdownOpenLifetime[i].rolloverWedDayStart,
+            g_breakdownOpenLifetime[i].withRolloverFee, g_breakdownOpenLifetime[i].rolloverPricediff);
+         return tradeCustomId;
       }
    }
+   return 0;
+}
+
+//+------------------------------------------------------------------+
+int BreakdownOpenLifetimeSlotByPositionId(const ulong positionId)
+{
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
+         return i;
+   }
+   return -1;
+}
+
+//+------------------------------------------------------------------+
+int TimeAlgoOpenLifetimeSlotByPositionId(const ulong positionId)
+{
+   for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_timeAlgoOpenLifetime[i].active && g_timeAlgoOpenLifetime[i].positionId == positionId)
+         return i;
+   }
+   return -1;
 }
 
 //+------------------------------------------------------------------+
 bool BreakdownOpenLifetimeBreakdownEnd(const ulong positionId, datetime &outBreakdownEnd)
 {
    outBreakdownEnd = 0;
-   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
-   {
-      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
-      {
-         outBreakdownEnd = g_breakdownOpenLifetime[i].breakdownSequenceEndTime;
-         return (outBreakdownEnd > 0);
-      }
-   }
-   return false;
+   const int slot = BreakdownOpenLifetimeSlotByPositionId(positionId);
+   if(slot < 0)
+      return false;
+   outBreakdownEnd = g_breakdownOpenLifetime[slot].breakdownSequenceEndTime;
+   return (outBreakdownEnd > 0);
 }
 
 //+------------------------------------------------------------------+
@@ -5693,6 +6473,23 @@ void BreakdownRememberPendingCloseReason(const ulong positionId, const string re
    {
       if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
          g_breakdownOpenLifetime[i].pendingCloseReason = reason;
+   }
+}
+
+//+------------------------------------------------------------------+
+void BreakdownRememberCloseDecision(const ulong positionId, const string decision, const string detail)
+{
+   if(positionId == 0)
+      return;
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
+      {
+         if(decision != "")
+            g_breakdownOpenLifetime[i].closeDecisionReason = decision;
+         if(detail != "")
+            g_breakdownOpenLifetime[i].closeDecisionDetail = detail;
+      }
    }
 }
 
@@ -5736,12 +6533,12 @@ void BreakdownStashGatesCloseTelemetry(const int algoNumber, const datetime clos
    const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
    if(slotIdx < 0 || closeTime <= 0 || startTime <= 0)
       return;
-   FalgoClosedTradeTelemetrySummary telSummary;
-   if(!FalgoGetTelemetrySummaryForTrade(entryMagic, startTime, telSummary))
+   FalgoBtClosedTradeStats stats;
+   if(!FalgoGetBreakdownTimeTradeStats(entryMagic, startTime, stats))
       return;
    g_breakdownGatesCloseTelBarTime[slotIdx] = closeTime - (closeTime % 60);
-   g_breakdownGatesCloseTelMfePts[slotIdx] = telSummary.mfePts;
-   g_breakdownGatesCloseTelMaePts[slotIdx] = telSummary.maePts;
+   g_breakdownGatesCloseTelMfePts[slotIdx] = stats.mfePts;
+   g_breakdownGatesCloseTelMaePts[slotIdx] = stats.maePts;
    g_breakdownGatesCloseTelValid[slotIdx] = true;
 }
 
@@ -5778,10 +6575,35 @@ int BreakdownAlgoTradesAllForLog(const int algoNumber)
 }
 
 //+------------------------------------------------------------------+
+int BreakdownAlgoConcurrentOpenTradesForLog(const int algoNumber)
+{
+   int n = 0;
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].algoNumber == algoNumber)
+         n++;
+   }
+   return n;
+}
+
+//+------------------------------------------------------------------+
+int TimeAlgoConcurrentOpenTradesForLog(const int algoNumber)
+{
+   int n = 0;
+   for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_timeAlgoOpenLifetime[i].active && g_timeAlgoOpenLifetime[i].algoNumber == algoNumber)
+         n++;
+   }
+   return n;
+}
+
+//+------------------------------------------------------------------+
 void BreakdownAppendTradeLifetimeLogRow(const int algoNumber, const datetime eventTime, const datetime startTime,
    const string eventType, const string closeReason, const double plannedPrice, const double startPrice,
    const double realSLprice, const double realTPprice, const double endPrice, const double lifetimeHours,
-   const double mfePts = 0.0, const double maePts = 0.0, const bool fillMaeMfe = false)
+   const double mfePts = 0.0, const double maePts = 0.0, const bool fillMaeMfe = false,
+   const bool withRolloverFee = false, const double rolloverPricediff = 0.0, const int tradeCustomId = 0)
 {
    if(!bigflipper_log_breakdown_trade_lifetime)
       return;
@@ -5797,6 +6619,15 @@ void BreakdownAppendTradeLifetimeLogRow(const int algoNumber, const datetime eve
    const string priceDiffStr = (hasEndPrice && startPrice > 0.0)
       ? DoubleToString(endPrice - startPrice, _Digits)
       : "";
+   string withRolloverCol = "";
+   string rolloverFeeCol = "";
+   string priceEndWithRollCol = "";
+   string priceDiffWithRollCol = "";
+   string mfeWithRollCol = "";
+   string maeWithRollCol = "";
+   FalgoTradeLifetimeWithRollCols(withRolloverFee, rolloverPricediff, startPrice, endPrice, hasEndPrice,
+      mfePts, maePts, fillMaeMfe, withRolloverCol, rolloverFeeCol, priceEndWithRollCol, priceDiffWithRollCol,
+      mfeWithRollCol, maeWithRollCol);
    FileWrite(fh,
       TimeToString(eventTime, TIME_DATE|TIME_SECONDS),
       TimeToString(startTime, TIME_DATE|TIME_SECONDS),
@@ -5809,10 +6640,11 @@ void BreakdownAppendTradeLifetimeLogRow(const int algoNumber, const datetime eve
       (hasEndPrice ? DoubleToString(endPrice, _Digits) : ""),
       priceDiffStr,
       (eventType == "trade closed" ? DoubleToString(lifetimeHours, 2) : ""),
-      BreakdownLifetimeLogTelemetryPtsCol(mfePts, fillMaeMfe),
-      BreakdownLifetimeLogTelemetryPtsCol(maePts, fillMaeMfe),
+      (tradeCustomId > 0 ? IntegerToString(tradeCustomId) : ""),
       IntegerToString(BreakdownAlgoTradesTodayForLog(algoNumber)),
-      IntegerToString(BreakdownAlgoTradesAllForLog(algoNumber)));
+      IntegerToString(BreakdownAlgoConcurrentOpenTradesForLog(algoNumber)),
+      IntegerToString(BreakdownAlgoTradesAllForLog(algoNumber)),
+      withRolloverCol, rolloverFeeCol, priceEndWithRollCol, priceDiffWithRollCol, mfeWithRollCol, maeWithRollCol);
    FileClose(fh);
 }
 
@@ -5845,13 +6677,13 @@ void BreakdownLogTradeOpenedLifetime(const ulong positionId, const long magic, c
    RefreshGlobalBreakdown15mSnap(startTime);
    const Breakdown15mState bdSnap = Breakdown15mSnapForAlgo(algoNumber, startTime);
    const datetime breakdownEnd = bdSnap.endTime;
-   BreakdownRegisterOpenTradeLifetime(positionId, algoNumber, startTime, breakdownEnd, plannedPrice, startPrice,
+   const int tradeCustomId = BreakdownRegisterOpenTradeLifetime(positionId, algoNumber, startTime, breakdownEnd, plannedPrice, startPrice,
       realSLprice, realTPprice);
    const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
    if(algoIdx >= 0)
       g_breakdownAlgoTradesAll[algoIdx]++;
    BreakdownAppendTradeLifetimeLogRow(algoNumber, startTime, startTime, "trade opened", "",
-      plannedPrice, startPrice, realSLprice, realTPprice, 0.0, 0.0);
+      plannedPrice, startPrice, realSLprice, realTPprice, 0.0, 0.0, 0.0, 0.0, false, false, 0.0, tradeCustomId);
 }
 
 //+------------------------------------------------------------------+
@@ -5868,17 +6700,24 @@ void BreakdownLogTradeClosedLifetime(const ulong positionId, const long entryMag
    double realSLprice = 0.0;
    double realTPprice = 0.0;
    string pendingCloseReason = "";
+   bool withRolloverFee = false;
+   double rolloverPricediff = 0.0;
+   int tradeCustomId = 0;
    int algoNumber = AlgoFamilyMagicNumber(entryMagic);
    ulong entryOrderTicket = 0;
-   if(BreakdownTakeOpenTradeLifetime(positionId, openRec))
+   const bool gotOpenRec = BreakdownTakeOpenTradeLifetime(positionId, openRec);
+   if(gotOpenRec)
    {
       algoNumber = openRec.algoNumber;
+      tradeCustomId = openRec.tradeCustomId;
       startTime = openRec.startTime;
       plannedPrice = openRec.plannedPrice;
       startPrice = openRec.startPrice;
       realSLprice = openRec.realSLprice;
       realTPprice = openRec.realTPprice;
       pendingCloseReason = openRec.pendingCloseReason;
+      withRolloverFee = openRec.withRolloverFee;
+      rolloverPricediff = openRec.rolloverPricediff;
    }
    else if(HistorySelectByPosition((long)positionId))
    {
@@ -5928,14 +6767,26 @@ void BreakdownLogTradeClosedLifetime(const ulong positionId, const long entryMag
    string closeReason = pendingCloseReason;
    if(closeReason == "")
       closeReason = BreakdownTradeLifetimeCloseReasonFromExit(dealReason, positionId, entryMagic, startTime);
-   FalgoClosedTradeTelemetrySummary telSummary;
-   const bool hasTel = FalgoGetTelemetrySummaryForTrade(entryMagic, startTime, telSummary);
+   double mfePts = 0.0;
+   double maePts = 0.0;
+   bool hasMfeMae = false;
+   if(gotOpenRec)
+   {
+      mfePts = openRec.mfePts;
+      maePts = openRec.maePts;
+      hasMfeMae = openRec.mfeMaeInitialized;
+      FalgoLifetimeResolveRolloverForClose(startTime, eventTime, openRec.rolloverWedDayStart,
+         openRec.withRolloverFee, openRec.rolloverPricediff, withRolloverFee, rolloverPricediff);
+      FalgoBtPushClosedStats(entryMagic, startTime, openRec.mfePts, openRec.maePts, openRec.maeFirstWindowPts,
+         openRec.mfeCandle1Based, openRec.maeCandle1Based, openRec.closeDecisionReason, openRec.closeDecisionDetail,
+         withRolloverFee, rolloverPricediff);
+   }
    BreakdownStashGatesCloseTelemetry(algoNumber, eventTime, entryMagic, startTime);
    BreakdownAppendTradeLifetimeLogRow(algoNumber, eventTime, startTime, "trade closed", closeReason,
       plannedPrice, startPrice, realSLprice, realTPprice, closePrice, lifetimeHours,
-      telSummary.mfePts, telSummary.maePts, hasTel);
+      mfePts, maePts, hasMfeMae, withRolloverFee, rolloverPricediff, tradeCustomId);
    BreakdownBenchmarkAllAlgosAccumulateClose(algoNumber, startPrice, closePrice, lifetimeHours,
-      telSummary.mfePts, telSummary.maePts, hasTel);
+      mfePts, maePts, hasMfeMae, rolloverPricediff);
 }
 
 //+------------------------------------------------------------------+
@@ -5962,11 +6813,14 @@ void TimeAlgoBenchmarkAllAlgosReset()
    for(int i = 0; i < TIME_ALGO_REGISTRY_MAX; i++)
    {
       g_timeAlgoBenchmarkAcc[i].tradesClosed = 0;
-      g_timeAlgoBenchmarkAcc[i].wins = 0;
-      g_timeAlgoBenchmarkAcc[i].losses = 0;
+      g_timeAlgoBenchmarkAcc[i].winsWithRoll = 0;
+      g_timeAlgoBenchmarkAcc[i].lossesWithRoll = 0;
       g_timeAlgoBenchmarkAcc[i].sumPriceDiff = 0.0;
+      g_timeAlgoBenchmarkAcc[i].sumPriceDiffWithRoll = 0.0;
       g_timeAlgoBenchmarkAcc[i].sumMfePts = 0.0;
       g_timeAlgoBenchmarkAcc[i].sumMaePts = 0.0;
+      g_timeAlgoBenchmarkAcc[i].sumMfePtsWithRoll = 0.0;
+      g_timeAlgoBenchmarkAcc[i].sumMaePtsWithRoll = 0.0;
       g_timeAlgoBenchmarkAcc[i].telCount = 0;
       g_timeAlgoBenchmarkAcc[i].sumLifetimeHours = 0.0;
    }
@@ -5982,9 +6836,13 @@ void TimeAlgoBenchmarkAllAlgosWrite()
    if(fh == INVALID_HANDLE)
       return;
 
-   FileWrite(fh, "algo_id", "entry_schedule", "trades_closed", "wins", "losses", "win_rate_pct",
-      "sum_priceDiff", "avg_priceDiff", "avg_mfe_pts", "avg_mae_pts", "avg_lifetime_hours",
-      "sum_lifetime_minutes", "sum_lifetime_hours", "sum_lifetime_days", "hours_vs_pricediff_ratio");
+   FileWrite(fh, "algo_id", "entry_schedule", "trades_closed",
+      "wins_with_roll", "losses_with_roll", "win_rate_pct_with_roll",
+      "sum_priceDiff", "avg_priceDiff",
+      "sum_priceDiff_with_roll", "avg_priceDiff_with_roll",
+      "avg_mfe_pts", "avg_mae_pts", "avg_mfe_pts_with_roll", "avg_mae_pts_with_roll",
+      "avg_lifetime_hours", "sum_lifetime_minutes", "sum_lifetime_hours", "sum_lifetime_days",
+      "pricediff_vs_hours_ratio", "pricediff_vs_hours_ratio_with_roll");
 
    for(int i = 0; i < g_timeAlgoCount; i++)
    {
@@ -5995,38 +6853,49 @@ void TimeAlgoBenchmarkAllAlgosWrite()
       const TimeAlgoBenchmarkAcc acc = g_timeAlgoBenchmarkAcc[slotIdx];
       const int n = acc.tradesClosed;
       const double avgPriceDiff = (n > 0) ? acc.sumPriceDiff / (double)n : 0.0;
-      const double winRate = (n > 0) ? (100.0 * (double)acc.wins / (double)n) : 0.0;
+      const double avgPriceDiffWithRoll = (n > 0) ? acc.sumPriceDiffWithRoll / (double)n : 0.0;
+      const double winRateWithRoll = (n > 0) ? (100.0 * (double)acc.winsWithRoll / (double)n) : 0.0;
       const double avgMfe = (acc.telCount > 0) ? acc.sumMfePts / (double)acc.telCount : 0.0;
       const double avgMae = (acc.telCount > 0) ? acc.sumMaePts / (double)acc.telCount : 0.0;
+      const double avgMfeWithRoll = (acc.telCount > 0) ? acc.sumMfePtsWithRoll / (double)acc.telCount : 0.0;
+      const double avgMaeWithRoll = (acc.telCount > 0) ? acc.sumMaePtsWithRoll / (double)acc.telCount : 0.0;
       const double avgLifetime = (n > 0) ? acc.sumLifetimeHours / (double)n : 0.0;
       const double sumLifetimeMinutes = acc.sumLifetimeHours * 60.0;
       const double sumLifetimeDays = acc.sumLifetimeHours / 24.0;
-      const string hoursVsPricediffRatio = (MathAbs(acc.sumPriceDiff) > 0.0)
-         ? DoubleToString(acc.sumLifetimeHours / acc.sumPriceDiff, 4) : "";
+      const string pricediffVsHoursRatio = (acc.sumLifetimeHours > 0.0)
+         ? DoubleToString(acc.sumPriceDiff / acc.sumLifetimeHours, 4) : "";
+      const string pricediffVsHoursRatioWithRoll = (acc.sumLifetimeHours > 0.0)
+         ? DoubleToString(acc.sumPriceDiffWithRoll / acc.sumLifetimeHours, 4) : "";
 
       FileWrite(fh,
          IntegerToString(algoNumber),
          TimeAlgoEntryScheduleLogCol(g_timeAlgos[slotIdx]),
          IntegerToString(n),
-         IntegerToString(acc.wins),
-         IntegerToString(acc.losses),
-         DoubleToString(winRate, 2),
+         IntegerToString(acc.winsWithRoll),
+         IntegerToString(acc.lossesWithRoll),
+         DoubleToString(winRateWithRoll, 2),
          DoubleToString(acc.sumPriceDiff, _Digits),
          DoubleToString(avgPriceDiff, _Digits),
+         DoubleToString(acc.sumPriceDiffWithRoll, _Digits),
+         DoubleToString(avgPriceDiffWithRoll, _Digits),
          (acc.telCount > 0 ? DoubleToString(avgMfe, 1) : ""),
          (acc.telCount > 0 ? DoubleToString(avgMae, 1) : ""),
+         (acc.telCount > 0 ? DoubleToString(avgMfeWithRoll, 1) : ""),
+         (acc.telCount > 0 ? DoubleToString(avgMaeWithRoll, 1) : ""),
          (n > 0 ? DoubleToString(avgLifetime, 1) : ""),
          (n > 0 ? DoubleToString(sumLifetimeMinutes, 1) : ""),
          (n > 0 ? DoubleToString(acc.sumLifetimeHours, 1) : ""),
          (n > 0 ? DoubleToString(sumLifetimeDays, 1) : ""),
-         hoursVsPricediffRatio);
+         pricediffVsHoursRatio,
+         pricediffVsHoursRatioWithRoll);
    }
    FileClose(fh);
 }
 
 //+------------------------------------------------------------------+
 void TimeAlgoBenchmarkAllAlgosAccumulateClose(const int algoNumber, const double startPrice, const double endPrice,
-   const double lifetimeHours, const double mfePts, const double maePts, const bool hasTel)
+   const double lifetimeHours, const double mfePts, const double maePts, const bool hasTel,
+   const double rolloverPricediff = 0.0)
 {
    if(!bigflipper_log_time_algo_trade_lifetime || startPrice <= 0.0 || endPrice <= 0.0)
       return;
@@ -6035,18 +6904,23 @@ void TimeAlgoBenchmarkAllAlgosAccumulateClose(const int algoNumber, const double
       return;
 
    TimeAlgoBenchmarkAcc acc = g_timeAlgoBenchmarkAcc[slotIdx];
+   const double rollCost = MathMax(0.0, rolloverPricediff);
    const double priceDiff = endPrice - startPrice;
+   const double priceDiffWithRoll = priceDiff - rollCost;
    acc.tradesClosed++;
    acc.sumPriceDiff += priceDiff;
+   acc.sumPriceDiffWithRoll += priceDiffWithRoll;
    acc.sumLifetimeHours += lifetimeHours;
-   if(priceDiff > 0.0)
-      acc.wins++;
-   else if(priceDiff < 0.0)
-      acc.losses++;
+   if(priceDiffWithRoll > 0.0)
+      acc.winsWithRoll++;
+   else if(priceDiffWithRoll < 0.0)
+      acc.lossesWithRoll++;
    if(hasTel)
    {
       acc.sumMfePts += mfePts;
       acc.sumMaePts += maePts;
+      acc.sumMfePtsWithRoll += mfePts - rollCost;
+      acc.sumMaePtsWithRoll += maePts - rollCost;
       acc.telCount++;
    }
    g_timeAlgoBenchmarkAcc[slotIdx] = acc;
@@ -6057,6 +6931,8 @@ void TimeAlgoBenchmarkAllAlgosAccumulateClose(const int algoNumber, const double
 void TimeAlgoResetTradeLifetimeRunLogsOnInit()
 {
    TimeAlgoBenchmarkAllAlgosReset();
+   for(int i = 0; i < TIME_ALGO_REGISTRY_MAX; i++)
+      g_timeAlgoNextTradeCustomId[i] = 0;
    if(!bigflipper_log_time_algo_trade_lifetime)
       return;
    for(int i = 0; i < g_timeAlgoCount; i++)
@@ -6075,11 +6951,11 @@ void TimeAlgoResetTradeLifetimeRunLogsOnInit()
 }
 
 //+------------------------------------------------------------------+
-void TimeAlgoRegisterOpenTradeLifetime(const ulong positionId, const int algoNumber,
+int TimeAlgoRegisterOpenTradeLifetime(const ulong positionId, const int algoNumber,
    const datetime startTime, const double plannedPrice, const double startPrice)
 {
    if(positionId == 0 || algoNumber <= 0 || startTime <= 0)
-      return;
+      return 0;
    for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
    {
       if(g_timeAlgoOpenLifetime[i].active && g_timeAlgoOpenLifetime[i].positionId == positionId)
@@ -6088,22 +6964,36 @@ void TimeAlgoRegisterOpenTradeLifetime(const ulong positionId, const int algoNum
          g_timeAlgoOpenLifetime[i].startTime = startTime;
          g_timeAlgoOpenLifetime[i].plannedPrice = plannedPrice;
          g_timeAlgoOpenLifetime[i].startPrice = startPrice;
-         return;
+         FalgoLifetimeInitRolloverEligibility(startTime, g_timeAlgoOpenLifetime[i].rolloverWedDayStart,
+            g_timeAlgoOpenLifetime[i].withRolloverFee, g_timeAlgoOpenLifetime[i].rolloverPricediff);
+         return g_timeAlgoOpenLifetime[i].tradeCustomId;
       }
+   }
+   int tradeCustomId = 0;
+   const int algoIdx = TimeAlgoSlotIndexByAlgoId(algoNumber);
+   if(algoIdx >= 0)
+   {
+      g_timeAlgoNextTradeCustomId[algoIdx]++;
+      tradeCustomId = g_timeAlgoNextTradeCustomId[algoIdx];
    }
    for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
    {
       if(!g_timeAlgoOpenLifetime[i].active)
       {
+         ZeroMemory(g_timeAlgoOpenLifetime[i]);
          g_timeAlgoOpenLifetime[i].positionId = positionId;
          g_timeAlgoOpenLifetime[i].algoNumber = algoNumber;
+         g_timeAlgoOpenLifetime[i].tradeCustomId = tradeCustomId;
          g_timeAlgoOpenLifetime[i].startTime = startTime;
          g_timeAlgoOpenLifetime[i].plannedPrice = plannedPrice;
          g_timeAlgoOpenLifetime[i].startPrice = startPrice;
          g_timeAlgoOpenLifetime[i].active = true;
-         return;
+         FalgoLifetimeInitRolloverEligibility(startTime, g_timeAlgoOpenLifetime[i].rolloverWedDayStart,
+            g_timeAlgoOpenLifetime[i].withRolloverFee, g_timeAlgoOpenLifetime[i].rolloverPricediff);
+         return tradeCustomId;
       }
    }
+   return 0;
 }
 
 //+------------------------------------------------------------------+
@@ -6131,6 +7021,23 @@ void TimeAlgoRememberPendingCloseReason(const ulong positionId, const string rea
    {
       if(g_timeAlgoOpenLifetime[i].active && g_timeAlgoOpenLifetime[i].positionId == positionId)
          g_timeAlgoOpenLifetime[i].pendingCloseReason = reason;
+   }
+}
+
+//+------------------------------------------------------------------+
+void TimeAlgoRememberCloseDecision(const ulong positionId, const string decision, const string detail)
+{
+   if(positionId == 0)
+      return;
+   for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_timeAlgoOpenLifetime[i].active && g_timeAlgoOpenLifetime[i].positionId == positionId)
+      {
+         if(decision != "")
+            g_timeAlgoOpenLifetime[i].closeDecisionReason = decision;
+         if(detail != "")
+            g_timeAlgoOpenLifetime[i].closeDecisionDetail = detail;
+      }
    }
 }
 
@@ -6167,7 +7074,8 @@ string TimeAlgoTradeLifetimeCloseReasonFromExit(const ENUM_DEAL_REASON dealReaso
 void TimeAlgoAppendTradeLifetimeLogRow(const int algoNumber, const datetime eventTime, const datetime startTime,
    const string eventType, const string closeReason, const double plannedPrice, const double startPrice,
    const double endPrice, const double lifetimeHours,
-   const double mfePts = 0.0, const double maePts = 0.0, const bool fillMaeMfe = false)
+   const double mfePts = 0.0, const double maePts = 0.0, const bool fillMaeMfe = false,
+   const bool withRolloverFee = false, const double rolloverPricediff = 0.0, const int tradeCustomId = 0)
 {
    if(!bigflipper_log_time_algo_trade_lifetime)
       return;
@@ -6183,6 +7091,15 @@ void TimeAlgoAppendTradeLifetimeLogRow(const int algoNumber, const datetime even
    const string priceDiffStr = (hasEndPrice && startPrice > 0.0)
       ? DoubleToString(endPrice - startPrice, _Digits)
       : "";
+   string withRolloverCol = "";
+   string rolloverFeeCol = "";
+   string priceEndWithRollCol = "";
+   string priceDiffWithRollCol = "";
+   string mfeWithRollCol = "";
+   string maeWithRollCol = "";
+   FalgoTradeLifetimeWithRollCols(withRolloverFee, rolloverPricediff, startPrice, endPrice, hasEndPrice,
+      mfePts, maePts, fillMaeMfe, withRolloverCol, rolloverFeeCol, priceEndWithRollCol, priceDiffWithRollCol,
+      mfeWithRollCol, maeWithRollCol);
    FileWrite(fh,
       TimeToString(eventTime, TIME_DATE|TIME_SECONDS),
       TimeToString(startTime, TIME_DATE|TIME_SECONDS),
@@ -6195,10 +7112,11 @@ void TimeAlgoAppendTradeLifetimeLogRow(const int algoNumber, const datetime even
       (hasEndPrice ? DoubleToString(endPrice, _Digits) : ""),
       priceDiffStr,
       (eventType == "trade closed" ? DoubleToString(lifetimeHours, 2) : ""),
-      BreakdownLifetimeLogTelemetryPtsCol(mfePts, fillMaeMfe),
-      BreakdownLifetimeLogTelemetryPtsCol(maePts, fillMaeMfe),
+      (tradeCustomId > 0 ? IntegerToString(tradeCustomId) : ""),
       IntegerToString(TimeAlgoTradesTodayForLog(algoNumber)),
-      IntegerToString(TimeAlgoTradesAllForLog(algoNumber)));
+      IntegerToString(TimeAlgoConcurrentOpenTradesForLog(algoNumber)),
+      IntegerToString(TimeAlgoTradesAllForLog(algoNumber)),
+      withRolloverCol, rolloverFeeCol, priceEndWithRollCol, priceDiffWithRollCol, mfeWithRollCol, maeWithRollCol);
    FileClose(fh);
 }
 
@@ -6220,12 +7138,12 @@ void TimeAlgoLogTradeOpenedLifetime(const ulong positionId, const long magic, co
 
    const double startPrice = (fillPrice > 0.0 ? fillPrice : plannedPrice);
    const datetime startTime = (fillTime > 0 ? fillTime : g_lastTimer1Time);
-   TimeAlgoRegisterOpenTradeLifetime(positionId, algoNumber, startTime, plannedPrice, startPrice);
+   const int tradeCustomId = TimeAlgoRegisterOpenTradeLifetime(positionId, algoNumber, startTime, plannedPrice, startPrice);
    const int algoIdx = TimeAlgoSlotIndexByAlgoId(algoNumber);
    if(algoIdx >= 0)
       g_timeAlgoTradesAll[algoIdx]++;
    TimeAlgoAppendTradeLifetimeLogRow(algoNumber, startTime, startTime, "trade opened", "",
-      plannedPrice, startPrice, 0.0, 0.0);
+      plannedPrice, startPrice, 0.0, 0.0, 0.0, 0.0, false, false, 0.0, tradeCustomId);
 }
 
 //+------------------------------------------------------------------+
@@ -6240,14 +7158,21 @@ void TimeAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMagi
    double plannedPrice = 0.0;
    double startPrice = 0.0;
    string pendingCloseReason = "";
+   bool withRolloverFee = false;
+   double rolloverPricediff = 0.0;
+   int tradeCustomId = 0;
    int algoNumber = AlgoFamilyMagicNumber(entryMagic);
-   if(TimeAlgoTakeOpenTradeLifetime(positionId, openRec))
+   const bool gotOpenRec = TimeAlgoTakeOpenTradeLifetime(positionId, openRec);
+   if(gotOpenRec)
    {
       algoNumber = openRec.algoNumber;
+      tradeCustomId = openRec.tradeCustomId;
       startTime = openRec.startTime;
       plannedPrice = openRec.plannedPrice;
       startPrice = openRec.startPrice;
       pendingCloseReason = openRec.pendingCloseReason;
+      withRolloverFee = openRec.withRolloverFee;
+      rolloverPricediff = openRec.rolloverPricediff;
    }
    else if(HistorySelectByPosition((long)positionId))
    {
@@ -6289,13 +7214,25 @@ void TimeAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMagi
    string closeReason = pendingCloseReason;
    if(closeReason == "")
       closeReason = TimeAlgoTradeLifetimeCloseReasonFromExit(dealReason, positionId, entryMagic, startTime);
-   FalgoClosedTradeTelemetrySummary telSummary;
-   const bool hasTel = FalgoGetTelemetrySummaryForTrade(entryMagic, startTime, telSummary);
+   double mfePts = 0.0;
+   double maePts = 0.0;
+   bool hasMfeMae = false;
+   if(gotOpenRec)
+   {
+      mfePts = openRec.mfePts;
+      maePts = openRec.maePts;
+      hasMfeMae = openRec.mfeMaeInitialized;
+      FalgoLifetimeResolveRolloverForClose(startTime, eventTime, openRec.rolloverWedDayStart,
+         openRec.withRolloverFee, openRec.rolloverPricediff, withRolloverFee, rolloverPricediff);
+      FalgoBtPushClosedStats(entryMagic, startTime, openRec.mfePts, openRec.maePts, openRec.maeFirstWindowPts,
+         openRec.mfeCandle1Based, openRec.maeCandle1Based, openRec.closeDecisionReason, openRec.closeDecisionDetail,
+         withRolloverFee, rolloverPricediff);
+   }
    TimeAlgoAppendTradeLifetimeLogRow(algoNumber, eventTime, startTime, "trade closed", closeReason,
       plannedPrice, startPrice, closePrice, lifetimeHours,
-      telSummary.mfePts, telSummary.maePts, hasTel);
+      mfePts, maePts, hasMfeMae, withRolloverFee, rolloverPricediff, tradeCustomId);
    TimeAlgoBenchmarkAllAlgosAccumulateClose(algoNumber, startPrice, closePrice, lifetimeHours,
-      telSummary.mfePts, telSummary.maePts, hasTel);
+      mfePts, maePts, hasMfeMae, rolloverPricediff);
 }
 
 //+------------------------------------------------------------------+
@@ -7259,6 +8196,7 @@ int g_velocityParameterTestedSec[FALGO_VELOCITY_PARAM_TEST_COUNT] = {3, 5, 8, 10
 #define FALGO_EXIT_MODE_BAD_TRADE         "bad_trade"
 #define FALGO_EXIT_MODE_TERRIBLE_TRADE    "terrible_trade"
 #define FALGO_TELEMETRY_EVENT_TICK        "telemetry"
+#define FALGO_TELEMETRY_EVENT_M1_BAR      "m1_bar"
 #define FALGO_TELEMETRY_EVENT_CLOSE       "close_decision"
 
 struct FalgoOpenTradeTelemetry
@@ -7301,6 +8239,11 @@ struct FalgoOpenTradeTelemetry
    datetime breakdownTimeExitDeadline;    // close open position when g_lastTimer1Time >= this
    double   breakdownStartHigh;           // breakdown_sequence_startprice (broker TP anchor)
    double   breakdownLow;                 // breakdown low (secret TP range anchor)
+   bool     rolloverEligible;
+   bool     withRolloverFee;
+   double   rolloverPricediff;
+   bool     rolloverFeeComputed;
+   datetime rolloverWedDayStart;
 };
 
 struct Breakdown15mState
@@ -7395,10 +8338,151 @@ struct FalgoClosedTradeTelemetrySummary
    int      timeToReachNeutralTpSeconds;
    string   closeDecision;
    string   closeDetail;
+   bool     withRolloverFee;
+   double   rolloverPricediff;
 };
 
 FalgoOpenTradeTelemetry g_falgoOpenTelemetrySlots[FALGO_OPEN_TELEMETRY_MAX];
 int g_falgoOpenTelemetryCtx = -1;
+
+//+------------------------------------------------------------------+
+void FalgoCustomQopexInitRolloverForOpenTrade(const datetime tradeStartTime)
+{
+   if(g_falgoOpenTelemetryCtx < 0 || g_falgoOpenTelemetryCtx >= FALGO_OPEN_TELEMETRY_MAX)
+      return;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].withRolloverFee = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverPricediff = 0.0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverFeeComputed = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverEligible = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverWedDayStart = 0;
+   const datetime rolloverWed = BrokerCustomQopexNextRolloverWednesdayForOpenTime(tradeStartTime);
+   if(rolloverWed > 0 && BrokerCustomQopexTradeOpenedBeforeRollover(tradeStartTime, rolloverWed))
+   {
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverEligible = true;
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverWedDayStart = rolloverWed;
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoCustomQopexApplyRolloverToOpenLifetimeRecs(const ulong positionId, const bool withRolloverFee,
+   const double rolloverPricediff)
+{
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
+      {
+         g_breakdownOpenLifetime[i].withRolloverFee = withRolloverFee;
+         g_breakdownOpenLifetime[i].rolloverPricediff = rolloverPricediff;
+      }
+   }
+   for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_timeAlgoOpenLifetime[i].active && g_timeAlgoOpenLifetime[i].positionId == positionId)
+      {
+         g_timeAlgoOpenLifetime[i].withRolloverFee = withRolloverFee;
+         g_timeAlgoOpenLifetime[i].rolloverPricediff = rolloverPricediff;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoCustomQopexApplyRolloverToTelemetrySlot(const int slotIdx, const datetime rolloverWedDayStart,
+   const double rolloverPricediff)
+{
+   if(slotIdx < 0 || slotIdx >= FALGO_OPEN_TELEMETRY_MAX)
+      return;
+   if(!g_falgoOpenTelemetrySlots[slotIdx].active || g_falgoOpenTelemetrySlots[slotIdx].rolloverFeeComputed)
+      return;
+   if(rolloverWedDayStart > 0)
+   {
+      g_falgoOpenTelemetrySlots[slotIdx].rolloverEligible = true;
+      g_falgoOpenTelemetrySlots[slotIdx].rolloverWedDayStart = rolloverWedDayStart;
+   }
+   g_falgoOpenTelemetrySlots[slotIdx].withRolloverFee = true;
+   g_falgoOpenTelemetrySlots[slotIdx].rolloverPricediff = rolloverPricediff;
+   g_falgoOpenTelemetrySlots[slotIdx].rolloverFeeComputed = true;
+   if(ExtPositionInfo.SelectByTicket(g_falgoOpenTelemetrySlots[slotIdx].positionTicket))
+   {
+      const ulong positionId = (ulong)ExtPositionInfo.Identifier();
+      if(positionId > 0)
+         FalgoCustomQopexApplyRolloverToOpenLifetimeRecs(positionId, true, rolloverPricediff);
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoCustomQopexTryComputeRolloverForTelemetrySlot(const int slotIdx)
+{
+   if(slotIdx < 0 || slotIdx >= FALGO_OPEN_TELEMETRY_MAX)
+      return;
+   if(!g_falgoOpenTelemetrySlots[slotIdx].active || g_falgoOpenTelemetrySlots[slotIdx].rolloverFeeComputed)
+      return;
+   if(!g_falgoOpenTelemetrySlots[slotIdx].rolloverEligible)
+      return;
+   const datetime rolloverWed = g_falgoOpenTelemetrySlots[slotIdx].rolloverWedDayStart;
+   if(rolloverWed <= 0 || g_m1DayStart < rolloverWed + 86400)
+      return;
+   double rolloverPricediff = 0.0;
+   if(!BrokerCustomQopexRolloverPriceDiffFromM1(rolloverWed, rolloverPricediff))
+      return;
+   FalgoCustomQopexApplyRolloverToTelemetrySlot(slotIdx, rolloverWed, rolloverPricediff);
+}
+
+//+------------------------------------------------------------------+
+double FalgoCustomQopexRolloverPricediffForTelemetrySlot(const int slotIdx)
+{
+   if(slotIdx < 0 || slotIdx >= FALGO_OPEN_TELEMETRY_MAX)
+      return 0.0;
+   if(!g_falgoOpenTelemetrySlots[slotIdx].withRolloverFee || !g_falgoOpenTelemetrySlots[slotIdx].rolloverFeeComputed)
+      return 0.0;
+   return MathMax(0.0, g_falgoOpenTelemetrySlots[slotIdx].rolloverPricediff);
+}
+
+//+------------------------------------------------------------------+
+double FalgoCustomQopexRolloverPricediffForGreenguard(const int slotIdx)
+{
+   FalgoCustomQopexTryComputeRolloverForTelemetrySlot(slotIdx);
+   return FalgoCustomQopexRolloverPricediffForTelemetrySlot(slotIdx);
+}
+
+//+------------------------------------------------------------------+
+void FalgoCustomQopexRolloverOnM1Close()
+{
+   if(g_m1DayStart == 0 || g_barsInDay < 2)
+      return;
+   const datetime rolloverWedDayStart = g_m1DayStart - 86400;
+   if(!BrokerCustomQopexIsRolloverWednesdayDayStart(rolloverWedDayStart))
+      return;
+
+   double rolloverPricediff = 0.0;
+   if(!BrokerCustomQopexRolloverPriceDiffFromM1(rolloverWedDayStart, rolloverPricediff))
+      return;
+
+   BrokerCustomQopexRolloverPricediffCacheStore(rolloverWedDayStart, rolloverPricediff);
+   BuyHoldCustomQopexTryAccumulateRollover(rolloverWedDayStart, rolloverPricediff);
+   FalgoCustomQopexApplyRolloverToBreakdownTimeLifetimes(rolloverWedDayStart, rolloverPricediff);
+
+   if(g_algoCount <= 0)
+      return;
+
+   for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(pi))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      const long magic = ExtPositionInfo.Magic();
+      if(IsBreakdownFamilyCompositeMagic(magic) || IsTimeFamilyCompositeMagic(magic))
+         continue;
+      if(!IsAnyAlgoFamilyCompositeMagic(magic))
+         continue;
+      const datetime openTime = (datetime)ExtPositionInfo.Time();
+      if(!BrokerCustomQopexTradeOpenedBeforeRollover(openTime, rolloverWedDayStart))
+         continue;
+      const int telSlot = FalgoOpenTelemetryFindSlotByTicket(ExtPositionInfo.Ticket());
+      if(telSlot >= 0)
+         FalgoCustomQopexApplyRolloverToTelemetrySlot(telSlot, rolloverWedDayStart, rolloverPricediff);
+   }
+}
 
 //+------------------------------------------------------------------+
 string BreakdownTradeLifetimeCloseReasonFromExit(const ENUM_DEAL_REASON dealReason,
@@ -7408,15 +8492,21 @@ string BreakdownTradeLifetimeCloseReasonFromExit(const ENUM_DEAL_REASON dealReas
       return "realTP";
    if(dealReason != DEAL_REASON_EXPERT)
       return "";
-   for(int i = 0; i < FALGO_OPEN_TELEMETRY_MAX; i++)
+   FalgoBtClosedTradeStats stats;
+   if(FalgoBtFindClosedStats(entryMagic, startTime, stats))
    {
-      if(g_falgoOpenTelemetrySlots[i].positionTicket == positionId
-         || (g_falgoOpenTelemetrySlots[i].magic == entryMagic && g_falgoOpenTelemetrySlots[i].tradeStartTime == startTime))
+      if(stats.closeDecision == "breakdown_midpoint_time_exit")
+         return "timeTrigger";
+      if(stats.closeDecision == "breakdown_secretTPSL_tp")
+         return "secretTP";
+   }
+   for(int i = 0; i < BREAKDOWN_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_breakdownOpenLifetime[i].active && g_breakdownOpenLifetime[i].positionId == positionId)
       {
-         const string r = g_falgoOpenTelemetrySlots[i].closeDecisionReason;
-         if(r == "breakdown_midpoint_time_exit")
+         if(g_breakdownOpenLifetime[i].closeDecisionReason == "breakdown_midpoint_time_exit")
             return "timeTrigger";
-         if(r == "breakdown_secretTPSL_tp")
+         if(g_breakdownOpenLifetime[i].closeDecisionReason == "breakdown_secretTPSL_tp")
             return "secretTP";
          break;
       }
@@ -8725,7 +9815,19 @@ int FalgoGetRecentCeilingCountForClosestWeeklyLevel(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-//| Open Falgo trade telemetry (1s OnTimer): green/red time, velocity, peak profit. |
+//| Open Falgo trade telemetry: per-second when level-family algos wired; else per-M1 for breakdown/time. |
+//+------------------------------------------------------------------+
+bool FalgoTelemetryUsePerSecondUpdates()
+{
+   return (g_algoCount > 0);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoTelemetryMagicUsesM1Updates(const long magic)
+{
+   return IsBreakdownFamilyCompositeMagic(magic) || IsTimeFamilyCompositeMagic(magic);
+}
+
 //+------------------------------------------------------------------+
 int FalgoOpenTelemetryFindSlotByTicket(const ulong ticket)
 {
@@ -8816,6 +9918,11 @@ void FalgoTelemetryClearOpenState()
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownTimeExitDeadline = 0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownStartHigh = 0.0;
    g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownLow = 0.0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverEligible = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].withRolloverFee = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverPricediff = 0.0;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverFeeComputed = false;
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverWedDayStart = 0;
    ArrayInitialize(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].profitRing, 0.0);
    ArrayInitialize(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeRing, 0);
 }
@@ -9099,6 +10206,8 @@ void FalgoTelemetryInitFromSelectedPosition()
          g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].breakdownLow = g_breakdownAlgoLastPlacedBreakdownLow[bIdx];
       }
    }
+   FalgoCustomQopexInitRolloverForOpenTrade(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime);
+   FalgoCustomQopexTryComputeRolloverForTelemetrySlot(g_falgoOpenTelemetryCtx);
    FalgoTelemetryPushProfitSample(g_lastTimer1Time, profitPts);
    if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx >= 0)
       FalgoTelemetrySnapOpenStateToBar(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx);
@@ -9121,6 +10230,10 @@ void FalgoTelemetryFillSummaryFromOpen(FalgoClosedTradeTelemetrySummary &outSumm
    outSummary.timeToReachNeutralTpSeconds = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].timeToReachNeutralTpSeconds;
    outSummary.closeDecision = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].closeDecisionReason;
    outSummary.closeDetail = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].closeDecisionDetail;
+   outSummary.withRolloverFee = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].withRolloverFee
+      && g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverFeeComputed;
+   outSummary.rolloverPricediff = (outSummary.withRolloverFee
+      ? g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].rolloverPricediff : 0.0);
 }
 
 //+------------------------------------------------------------------+
@@ -9158,6 +10271,24 @@ bool FalgoFindClosedTelemetrySummary(const long magic, const datetime startTime,
 //+------------------------------------------------------------------+
 bool FalgoGetTelemetrySummaryForTrade(const long magic, const datetime startTime, FalgoClosedTradeTelemetrySummary &outSummary)
 {
+   if(IsBreakdownFamilyCompositeMagic(magic) || IsTimeFamilyCompositeMagic(magic))
+   {
+      FalgoBtClosedTradeStats btStats;
+      if(!FalgoGetBreakdownTimeTradeStats(magic, startTime, btStats))
+         return false;
+      outSummary.magic = magic;
+      outSummary.startTime = startTime;
+      outSummary.mfePts = btStats.mfePts;
+      outSummary.maePts = btStats.maePts;
+      outSummary.maeFirstWindowPts = btStats.maeFirstWindowPts;
+      outSummary.mfeCandle1Based = btStats.mfeCandle1Based;
+      outSummary.maeCandle1Based = btStats.maeCandle1Based;
+      outSummary.closeDecision = btStats.closeDecision;
+      outSummary.closeDetail = btStats.closeDetail;
+      outSummary.withRolloverFee = btStats.withRolloverFee;
+      outSummary.rolloverPricediff = btStats.rolloverPricediff;
+      return true;
+   }
    if(FalgoFindClosedTelemetrySummary(magic, startTime, outSummary))
       return true;
    const int slotIdx = FalgoOpenTelemetryFindSlotByMagicStart(magic, startTime);
@@ -9422,6 +10553,12 @@ void FalgoTryLogTelemetryPerSecond()
 }
 
 //+------------------------------------------------------------------+
+void FalgoTryLogTelemetryPerM1Bar()
+{
+   FalgoAppendTelemetryPerSecondRow(FALGO_TELEMETRY_EVENT_M1_BAR, "", "");
+}
+
+//+------------------------------------------------------------------+
 string FalgoVelocityParamTestHeaderLine()
 {
    string hdr = "time,magic,positionTicket,openProfitPts,MFE,MAE,tradeAgeSeconds,profitFromPeak";
@@ -9591,16 +10728,35 @@ void FalgoTelemetryUpdateOneSecondFromSelectedPosition()
 }
 
 //+------------------------------------------------------------------+
-void FalgoUpdateOpenTradeTelemetryEachSecond()
+void FalgoTelemetryUpdateOneBarFromSelectedPosition()
 {
-   if(g_lastTimer1Time == 0)
+   if(g_falgoOpenTelemetryCtx < 0)
       return;
-   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
-   FalgoResetTelemetryIfNewDay(dayStart);
-   if(g_falgoTelemetryLastUpdateTime == g_lastTimer1Time)
-      return;
-   g_falgoTelemetryLastUpdateTime = g_lastTimer1Time;
+   const datetime startTime = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeStartTime;
+   const double profitPts = FalgoOpenPositionProfitPoints();
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds = (int)MathMax(0, g_lastTimer1Time - startTime);
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = profitPts;
+   if(profitPts > g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts)
+   {
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts = profitPts;
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(startTime, g_lastTimer1Time);
+   }
+   if(profitPts < g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts)
+   {
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePts = profitPts;
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeCandle1Based = FalgoTradeMinuteCandle1BasedFromStart(startTime, g_lastTimer1Time);
+   }
+   if(g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].tradeAgeSeconds <= FalgoTradeResultMaeFirstWindowSeconds() &&
+      profitPts < g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirstWindowPts)
+      g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maeFirstWindowPts = profitPts;
+   FalgoCustomQopexTryComputeRolloverForTelemetrySlot(g_falgoOpenTelemetryCtx);
+   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].lastBarIdx = FalgoBarIdxForDayTime(g_lastTimer1Time);
+   FalgoTryLogTelemetryPerM1Bar();
+}
 
+//+------------------------------------------------------------------+
+void FalgoTelemetryPurgeClosedOpenSlots()
+{
    for(int si = 0; si < FALGO_OPEN_TELEMETRY_MAX; si++)
    {
       if(!g_falgoOpenTelemetrySlots[si].active)
@@ -9612,6 +10768,104 @@ void FalgoUpdateOpenTradeTelemetryEachSecond()
       FalgoTelemetryPushClosedSummaryFromOpen();
       FalgoTelemetryClearOpenState();
    }
+   g_falgoOpenTelemetryCtx = -1;
+}
+
+//+------------------------------------------------------------------+
+void FalgoEnsureOpenTelemetrySlotForSelectedPosition()
+{
+   if(!FalgoTelemetryMagicUsesM1Updates(ExtPositionInfo.Magic()))
+      return;
+   const ulong ticket = ExtPositionInfo.Ticket();
+   int slotIdx = FalgoOpenTelemetryFindSlotByTicket(ticket);
+   if(slotIdx < 0)
+   {
+      slotIdx = FalgoOpenTelemetryAllocSlot();
+      if(slotIdx < 0)
+         return;
+      g_falgoOpenTelemetryCtx = slotIdx;
+      FalgoTelemetryInitFromSelectedPosition();
+      g_falgoOpenTelemetryCtx = -1;
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoEnsureOpenTelemetryAfterEntry(const ulong positionId, const long dealMagic)
+{
+   if(FalgoTelemetryUsePerSecondUpdates() || !FalgoTelemetryMagicUsesM1Updates(dealMagic))
+      return;
+   for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(pi))
+         continue;
+      if((ulong)ExtPositionInfo.Identifier() != positionId)
+         continue;
+      FalgoEnsureOpenTelemetrySlotForSelectedPosition();
+      return;
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoUpdateOpenTradeTelemetryOnM1Close()
+{
+   if(g_lastTimer1Time == 0 || FalgoTelemetryUsePerSecondUpdates())
+      return;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   FalgoResetTelemetryIfNewDay(dayStart);
+   FalgoTelemetryPurgeClosedOpenSlots();
+
+   for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
+   {
+      if(!ExtPositionInfo.SelectByIndex(positionIdx))
+         continue;
+      if(ExtPositionInfo.Symbol() != _Symbol)
+         continue;
+      if(!FalgoTelemetryMagicUsesM1Updates(ExtPositionInfo.Magic()))
+         continue;
+
+      const ulong ticket = ExtPositionInfo.Ticket();
+      const long magic = ExtPositionInfo.Magic();
+      const datetime startTime = ExtPositionInfo.Time();
+      int slotIdx = FalgoOpenTelemetryFindSlotByTicket(ticket);
+      if(slotIdx < 0)
+      {
+         slotIdx = FalgoOpenTelemetryAllocSlot();
+         if(slotIdx < 0)
+            continue;
+         g_falgoOpenTelemetryCtx = slotIdx;
+         FalgoTelemetryInitFromSelectedPosition();
+         g_falgoOpenTelemetryCtx = -1;
+         continue;
+      }
+
+      g_falgoOpenTelemetryCtx = slotIdx;
+      if(g_falgoOpenTelemetrySlots[slotIdx].magic != magic ||
+         g_falgoOpenTelemetrySlots[slotIdx].tradeStartTime != startTime)
+      {
+         FalgoOnFalgoTradeClosedThisBar();
+         FalgoTelemetryPushClosedSummaryFromOpen();
+         FalgoTelemetryInitFromSelectedPosition();
+         g_falgoOpenTelemetryCtx = -1;
+         continue;
+      }
+
+      FalgoTelemetryUpdateOneBarFromSelectedPosition();
+      g_falgoOpenTelemetryCtx = -1;
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoUpdateOpenTradeTelemetryEachSecond()
+{
+   if(g_lastTimer1Time == 0 || !FalgoTelemetryUsePerSecondUpdates())
+      return;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   FalgoResetTelemetryIfNewDay(dayStart);
+   if(g_falgoTelemetryLastUpdateTime == g_lastTimer1Time)
+      return;
+   g_falgoTelemetryLastUpdateTime = g_lastTimer1Time;
+
+   FalgoTelemetryPurgeClosedOpenSlots();
 
    for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
    {
@@ -10296,269 +11550,6 @@ double GetTradeLotForFalgo()
 }
 
 //+------------------------------------------------------------------+
-//+------------------------------------------------------------------+
-bool FalgoBabysitPositionMatchesOpenTelemetry()
-{
-   const int slotIdx = FalgoOpenTelemetryFindSlotByTicket(ExtPositionInfo.Ticket());
-   if(slotIdx < 0)
-      return false;
-   if(g_falgoOpenTelemetrySlots[slotIdx].magic != ExtPositionInfo.Magic())
-      return false;
-   g_falgoOpenTelemetryCtx = slotIdx;
-   return true;
-}
-
-//+------------------------------------------------------------------+
-void FalgoTryLogTelemetryCloseDecision(const string closeReason, const string closeDetail)
-{
-   if(closeReason == "")
-      return;
-   if(!FalgoBabysitPositionMatchesOpenTelemetry())
-      return;
-   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts = FalgoOpenPositionProfitPoints();
-   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].closeDecisionReason = closeReason;
-   g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].closeDecisionDetail = closeDetail;
-   FalgoAppendTelemetryPerSecondRow(FALGO_TELEMETRY_EVENT_CLOSE, closeReason, closeDetail);
-}
-
-//+------------------------------------------------------------------+
-void FalgoStrongMomentumStallFlagsVelocity(const AlgoPerAlgoTune &tune,
-   bool &outVelocityStall, bool &outGivebackStall)
-{
-   outVelocityStall = false;
-   outGivebackStall = false;
-   const double profitPts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts;
-   const double giveback = profitPts - g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts;
-   const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
-   if(vel <= tune.strong_trade_stall_velocity_max_trigger)
-      outVelocityStall = true;
-   if(tune.strong_trade_stall_giveback_pts_trigger > 0.0 &&
-      giveback <= -PointSized(tune.strong_trade_stall_giveback_pts_trigger))
-      outGivebackStall = true;
-}
-
-//+------------------------------------------------------------------+
-bool FalgoStrongMomentumAvgVelocityWeakenStall(const AlgoPerAlgoTune &tune)
-{
-   if(tune.strong_trade_stall_avgvelocity_weaken_pct <= 0.0)
-      return false;
-   const double peak = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].strongMomentumPeakAvgVelocity;
-   const double avg = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].avgProfitVelocity;
-   if(peak <= 0.0)
-      return false;
-   const double floor = peak * (1.0 - tune.strong_trade_stall_avgvelocity_weaken_pct / 100.0);
-   return (avg < floor);
-}
-
-//+------------------------------------------------------------------+
-bool FalgoStrongMomentumDetectStall(const AlgoPerAlgoTune &tune)
-{
-   if(tune.strong_trade_stall_mode_uses_avgvelocity_weakening)
-      return FalgoStrongMomentumAvgVelocityWeakenStall(tune);
-   bool velocityStall = false;
-   bool givebackStall = false;
-   FalgoStrongMomentumStallFlagsVelocity(tune, velocityStall, givebackStall);
-   return velocityStall || givebackStall;
-}
-
-//+------------------------------------------------------------------+
-string FalgoStrongMomentumStallReasonDetail(const AlgoPerAlgoTune &tune)
-{
-   if(tune.strong_trade_stall_mode_uses_avgvelocity_weakening)
-   {
-      const double peak = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].strongMomentumPeakAvgVelocity;
-      const double avg = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].avgProfitVelocity;
-      const double floor = (peak > 0.0 && tune.strong_trade_stall_avgvelocity_weaken_pct > 0.0)
-         ? peak * (1.0 - tune.strong_trade_stall_avgvelocity_weaken_pct / 100.0) : 0.0;
-      return StringFormat("avgvelocity_stall|avg=%.4f|peak=%.4f|floor=%.4f|weakenPct=%.1f",
-         avg, peak, floor, tune.strong_trade_stall_avgvelocity_weaken_pct);
-   }
-   bool velocityStall = false;
-   bool givebackStall = false;
-   FalgoStrongMomentumStallFlagsVelocity(tune, velocityStall, givebackStall);
-   string reasons = "";
-   if(velocityStall)
-      reasons = (reasons == "" ? "stall_velocity" : reasons + "|stall_velocity");
-   if(givebackStall)
-      reasons = (reasons == "" ? "stall_giveback" : reasons + "|stall_giveback");
-   const double profitPts = g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].openProfitPts;
-   const double giveback = profitPts - g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].mfePts;
-   const double vel = FalgoTelemetryProfitVelocityWindowSeconds(FalgoStrongMomentumVelocityWindowSeconds(tune));
-   return StringFormat("%s|vel=%.3f|velMax=%.3f|giveback=%.1f|givebackMax=%.1f",
-      reasons,
-      vel, tune.strong_trade_stall_velocity_max_trigger,
-      giveback, PointSized(tune.strong_trade_stall_giveback_pts_trigger));
-}
-
-//+------------------------------------------------------------------+
-//| Strong-momentum babysit: latch aimStrongTp when accelerating near neutral TP; |
-//| skip neutral TP while aiming for strong_trade_TP; close on stall or strong TP. |
-//| Returns true if position closed. Sets outSkipNeutralTp when still holding for strong TP. |
-//+------------------------------------------------------------------+
-bool Babysitf_falgo_runStrongMomentumBabysit(const long posMagic, bool &outSkipNeutralTp)
-{
-   outSkipNeutralTp = false;
-   AlgoPerAlgoTune tune;
-   if(!AlgoLoadPerAlgoTuneForMagic(posMagic, tune))
-      return false;
-   if(!AlgoStrongTradeModeActive(tune) || !FalgoBabysitPositionMatchesOpenTelemetry())
-      return false;
-
-   const double profitPts = FalgoOpenPositionProfitPoints();
-   const double stallMinClosePts = PointSized(tune.strong_trade_stall_min_close_profit_pts);
-
-   if(!g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].aimStrongTp)
-   {
-      FalgoTryLatchStrongMomentumIfNeeded(tune, profitPts);
-   }
-
-   if(!g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].aimStrongTp)
-      return false;
-
-   FalgoStrongMomentumUpdatePeakAvgIfAiming();
-   outSkipNeutralTp = true;
-   const double strongTpPts = PointSized(tune.strong_trade_TP);
-   if(profitPts >= strongTpPts)
-   {
-      return Babysitf_falgo_closeIfProfitTargetTune(posMagic, tune.strong_trade_TP, "strong_momentum_strong_tp",
-         StringFormat("profit=%.1f|threshold=%.1f", profitPts, strongTpPts));
-   }
-   if(FalgoStrongMomentumDetectStall(tune) && profitPts >= stallMinClosePts)
-   {
-      return Babysitf_falgo_closeIfProfitPointsAtLeast(posMagic, stallMinClosePts, "strong_momentum_stall",
-         StringFormat("profit=%.1f|stallMinClose=%.1f|%s", profitPts, stallMinClosePts,
-            FalgoStrongMomentumStallReasonDetail(tune)));
-   }
-   return false;
-}
-
-//+------------------------------------------------------------------+
-bool Babysitf_falgo_closeIfProfitPointsAtLeast(const long positionMagic, const double minProfitPoints,
-   const string closeReason = "", const string closeDetail = "")
-{
-   if(minProfitPoints <= 0.0)
-      return false;
-   const double profitPts = FalgoOpenPositionProfitPoints();
-   if(profitPts < minProfitPoints)
-      return false;
-   FalgoTryLogTelemetryCloseDecision(closeReason,
-      (closeDetail == "" ? StringFormat("profit=%.1f|threshold=%.1f", profitPts, minProfitPoints) : closeDetail));
-   const ulong posTicket = ExtPositionInfo.Ticket();
-   const int telSlot = FalgoOpenTelemetryFindSlotByTicket(posTicket);
-   const double accountProfit = FalgoSelectedPositionAccountProfit();
-   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
-   const bool closed = ExtTrade.PositionClose(posTicket);
-   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
-   if(closed)
-      FalgoAfterFamilyPositionClosed(positionMagic, profitPts, accountProfit, telSlot);
-   return closed;
-}
-
-//+------------------------------------------------------------------+
-bool Babysitf_falgo_closeIfProfitPointsAtOrAbove(const long positionMagic, const double minProfitPointsThreshold,
-   const string closeReason = "", const string closeDetail = "")
-{
-   const double profitPts = FalgoOpenPositionProfitPoints();
-   if(profitPts < minProfitPointsThreshold)
-      return false;
-   FalgoTryLogTelemetryCloseDecision(closeReason,
-      (closeDetail == "" ? StringFormat("profit=%.1f|threshold=%.1f", profitPts, minProfitPointsThreshold) : closeDetail));
-   const ulong posTicket = ExtPositionInfo.Ticket();
-   const int telSlot = FalgoOpenTelemetryFindSlotByTicket(posTicket);
-   const double accountProfit = FalgoSelectedPositionAccountProfit();
-   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
-   const bool closed = ExtTrade.PositionClose(posTicket);
-   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
-   if(closed)
-      FalgoAfterFamilyPositionClosed(positionMagic, profitPts, accountProfit, telSlot);
-   return closed;
-}
-
-//+------------------------------------------------------------------+
-//| Tune target in points (signed); 0=breakeven. Close when open profit >= PointSized(target). |
-//+------------------------------------------------------------------+
-bool Babysitf_falgo_closeIfProfitTargetTune(const long positionMagic, const double targetPointsTune,
-   const string closeReason = "", const string closeDetail = "")
-{
-   const double targetPts = PointSized(targetPointsTune);
-   return Babysitf_falgo_closeIfProfitPointsAtOrAbove(positionMagic, targetPts, closeReason,
-      (closeDetail == "" ? StringFormat("profit=%.1f|threshold=%.1f", FalgoOpenPositionProfitPoints(), targetPts) : closeDetail));
-}
-
-//+------------------------------------------------------------------+
-//| terribleTrade: latch when mae depth + consecutive red seconds + avgProfitVelocity10 all met; |
-//| close when open profit >= terribletrade_try_smaller_loss_TP. |
-//+------------------------------------------------------------------+
-bool Babysitf_falgo_runTerribleTradeBabysit(const long posMagic)
-{
-   AlgoPerAlgoTune tune;
-   if(!AlgoLoadPerAlgoTuneForMagic(posMagic, tune))
-      return false;
-   if(!AlgoTerribleTradeModeActive(tune))
-      return false;
-   if(!FalgoBabysitPositionMatchesOpenTelemetry())
-      return false;
-
-   FalgoTryLatchTradeRecoveryModes(tune);
-   if(!g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].terribleTradeMode)
-      return false;
-
-   const double targetPts = PointSized(tune.terribletrade_try_smaller_loss_TP);
-   return Babysitf_falgo_closeIfProfitTargetTune(posMagic, tune.terribletrade_try_smaller_loss_TP,
-      "terribletrade_try_smaller_loss_TP",
-      StringFormat("profit=%.1f|target=%.1f|MAE_post=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
-         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts));
-}
-
-//+------------------------------------------------------------------+
-//| badTrade: latch when mae depth + total red seconds both met; |
-//| close when open profit >= badtrade_try_save_TP. |
-//+------------------------------------------------------------------+
-bool Babysitf_falgo_runBadTradeBabysit(const long posMagic)
-{
-   AlgoPerAlgoTune tune;
-   if(!AlgoLoadPerAlgoTuneForMagic(posMagic, tune))
-      return false;
-   if(!AlgoBadTradeModeActive(tune))
-      return false;
-   if(!FalgoBabysitPositionMatchesOpenTelemetry())
-      return false;
-
-   FalgoTryLatchTradeRecoveryModes(tune);
-   if(!g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].badTradeMode || g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].terribleTradeMode)
-      return false;
-
-   const double targetPts = PointSized(tune.badtrade_try_save_TP);
-   return Babysitf_falgo_closeIfProfitTargetTune(posMagic, tune.badtrade_try_save_TP, "badtrade_try_save_TP",
-      StringFormat("profit=%.1f|target=%.1f|MAE_post=%.1f", FalgoOpenPositionProfitPoints(), targetPts,
-         g_falgoOpenTelemetrySlots[g_falgoOpenTelemetryCtx].maePostXPts));
-}
-
-//+------------------------------------------------------------------+
-//| secretTPSL SL leg: close when floating loss >= minLossPoints (mirror of TP profit rule). |
-//+------------------------------------------------------------------+
-bool Babysitf_falgo_closeIfLossPointsAtLeast(const long positionMagic, const double minLossPoints,
-   const string closeReason = "", const string closeDetail = "")
-{
-   if(minLossPoints <= 0.0)
-      return false;
-   const double profitPts = FalgoOpenPositionProfitPoints();
-   if(profitPts > -minLossPoints)
-      return false;
-   FalgoTryLogTelemetryCloseDecision(closeReason,
-      (closeDetail == "" ? StringFormat("profit=%.1f|lossThreshold=-%.1f", profitPts, minLossPoints) : closeDetail));
-   const ulong posTicket = ExtPositionInfo.Ticket();
-   const int telSlot = FalgoOpenTelemetryFindSlotByTicket(posTicket);
-   const double accountProfit = FalgoSelectedPositionAccountProfit();
-   ExtTrade.SetExpertMagicNumber((ulong)positionMagic);
-   const bool closed = ExtTrade.PositionClose(posTicket);
-   ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
-   if(closed)
-      FalgoAfterFamilyPositionClosed(positionMagic, profitPts, accountProfit, telSlot);
-   return closed;
-}
-
-//+------------------------------------------------------------------+
 double FalgoBreakdownPriceAtRangePercent(const double breakdownLow, const double rangeTop, const double rangePercent)
 {
    if(rangeTop <= breakdownLow || rangePercent <= 0.0)
@@ -10601,30 +11592,31 @@ double BreakdownEntryPriceForAlgo(const BreakdownAlgoDef &bd, const Breakdown15m
 
 //+------------------------------------------------------------------+
 bool FalgoSecretTpGreenGuardPriceDiffAllowsClose(const double greenguardPricediffAtLeast,
-   const double entryPrice, const double bidPrice)
+   const double entryPrice, const double bidPrice, const double rolloverPricediff = 0.0)
 {
    if(greenguardPricediffAtLeast <= 0.0)
       return true;
    if(entryPrice <= 0.0 || bidPrice <= 0.0)
       return false;
-   return ((bidPrice - entryPrice) >= greenguardPricediffAtLeast);
+   const double priceDiffWithRoll = (bidPrice - entryPrice) - MathMax(0.0, rolloverPricediff);
+   return (priceDiffWithRoll >= greenguardPricediffAtLeast);
 }
 
 //+------------------------------------------------------------------+
 //| Long breakdown: secret TP only when bid reached secretTp above entry; greenguard only then. |
 //+------------------------------------------------------------------+
 bool BreakdownSecretTpGreenGuardAllowsClose(const BreakdownAlgoDef &bd, const double entryPrice,
-   const double secretTpPrice, const double bidPrice)
+   const double secretTpPrice, const double bidPrice, const double rolloverPricediff = 0.0)
 {
    if(entryPrice <= 0.0 || secretTpPrice <= 0.0 || bidPrice <= 0.0)
       return false;
    if(secretTpPrice <= entryPrice)
       return false;
-   return FalgoSecretTpGreenGuardPriceDiffAllowsClose(bd.secret_tp_greenguard_pricediff_at_least, entryPrice, bidPrice);
+   return FalgoSecretTpGreenGuardPriceDiffAllowsClose(bd.secret_tp_greenguard_pricediff_at_least, entryPrice, bidPrice, rolloverPricediff);
 }
 
 //+------------------------------------------------------------------+
-bool Babysitf_falgo_runBreakdownSecretTpExit(const long posMagic)
+bool Babysitf_falgo_runBreakdownSecretTpExit(const long posMagic, const double rolloverForGuard)
 {
    const int algoNumber = AlgoFamilyMagicNumber(posMagic);
    BreakdownAlgoDef bd;
@@ -10634,22 +11626,13 @@ bool Babysitf_falgo_runBreakdownSecretTpExit(const long posMagic)
       return false;
 
    const ulong posTicket = ExtPositionInfo.Ticket();
-   const int slotIdx = FalgoOpenTelemetryFindSlotByTicket(posTicket);
+   const int bIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
    double startHigh = 0.0;
    double breakdownLow = 0.0;
-   if(slotIdx >= 0)
+   if(bIdx >= 0)
    {
-      startHigh = g_falgoOpenTelemetrySlots[slotIdx].breakdownStartHigh;
-      breakdownLow = g_falgoOpenTelemetrySlots[slotIdx].breakdownLow;
-   }
-   const int bIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
-   if(startHigh <= 0.0 || breakdownLow <= 0.0)
-   {
-      if(bIdx >= 0)
-      {
-         startHigh = g_breakdownAlgoLastPlacedStartHigh[bIdx];
-         breakdownLow = g_breakdownAlgoLastPlacedBreakdownLow[bIdx];
-      }
+      startHigh = g_breakdownAlgoLastPlacedStartHigh[bIdx];
+      breakdownLow = g_breakdownAlgoLastPlacedBreakdownLow[bIdx];
    }
    const double secretTpPrice = FalgoBreakdownPriceAtRangePercent(breakdownLow, startHigh, bd.secret_tp_range_percent);
    if(secretTpPrice <= 0.0)
@@ -10661,35 +11644,35 @@ bool Babysitf_falgo_runBreakdownSecretTpExit(const long posMagic)
    if(secretTpPrice <= entryPrice)
       return false;
 
-   const double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   const double bid = g_liveBid;
    if(bid < secretTpPrice)
       return false;
 
-   if(!BreakdownSecretTpGreenGuardAllowsClose(bd, entryPrice, secretTpPrice, bid))
+   if(!BreakdownSecretTpGreenGuardAllowsClose(bd, entryPrice, secretTpPrice, bid, rolloverForGuard))
       return false;
 
-   if(slotIdx >= 0)
-      g_falgoOpenTelemetryCtx = slotIdx;
-   FalgoTryLogTelemetryCloseDecision("breakdown_secretTPSL_tp",
-      StringFormat("bid=%s|secretTp=%s|low=%s|start=%s|pct=%d",
-         DoubleToString(bid, _Digits), DoubleToString(secretTpPrice, _Digits),
-         DoubleToString(breakdownLow, _Digits), DoubleToString(startHigh, _Digits),
-         bd.secret_tp_range_percent));
-   BreakdownRememberPendingCloseReason((ulong)ExtPositionInfo.Identifier(), "secretTP");
-   const int telSlot = slotIdx;
+   const ulong positionId = (ulong)ExtPositionInfo.Identifier();
+   const string closeDetail = StringFormat("bid=%s|secretTp=%s|low=%s|start=%s|pct=%d",
+      DoubleToString(bid, _Digits), DoubleToString(secretTpPrice, _Digits),
+      DoubleToString(breakdownLow, _Digits), DoubleToString(startHigh, _Digits),
+      bd.secret_tp_range_percent);
+   BreakdownRememberCloseDecision(positionId, "breakdown_secretTPSL_tp", closeDetail);
+   BreakdownRememberPendingCloseReason(positionId, "secretTP");
    const double profitPts = FalgoOpenPositionProfitPoints();
    const double accountProfit = FalgoSelectedPositionAccountProfit();
    ExtTrade.SetExpertMagicNumber((ulong)posMagic);
    const bool closed = ExtTrade.PositionClose(posTicket);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
    if(closed)
-      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, telSlot);
+      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, -1);
    return closed;
 }
 
 //+------------------------------------------------------------------+
-bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
+bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic, const int lifeIdx)
 {
+   if(lifeIdx < 0)
+      return false;
    const int algoNumber = AlgoFamilyMagicNumber(posMagic);
    BreakdownAlgoDef bd;
    if(!BreakdownAlgoDefForNumber(algoNumber, bd))
@@ -10698,20 +11681,11 @@ bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
       return false;
 
    const ulong posTicket = ExtPositionInfo.Ticket();
-   const int slotIdx = FalgoOpenTelemetryFindSlotByTicket(posTicket);
+   const ulong positionId = (ulong)ExtPositionInfo.Identifier();
+   const datetime breakdownEnd = g_breakdownOpenLifetime[lifeIdx].breakdownSequenceEndTime;
    datetime deadline = 0;
-   datetime breakdownEnd = 0;
-   if(slotIdx >= 0)
-   {
-      deadline = g_falgoOpenTelemetrySlots[slotIdx].breakdownTimeExitDeadline;
-      breakdownEnd = g_falgoOpenTelemetrySlots[slotIdx].breakdownSequenceEndTime;
-   }
-   if(deadline <= 0)
-   {
-      BreakdownOpenLifetimeBreakdownEnd((ulong)ExtPositionInfo.Identifier(), breakdownEnd);
-      if(breakdownEnd > 0)
-         deadline = breakdownEnd + bd.closetrade_after_x_minutes_from_breakdown * 60;
-   }
+   if(breakdownEnd > 0)
+      deadline = breakdownEnd + bd.closetrade_after_x_minutes_from_breakdown * 60;
    if(deadline <= 0 || g_lastTimer1Time < deadline)
       return false;
 
@@ -10720,47 +11694,22 @@ bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic)
       && profitPct < bd.closetrade_after_some_time_but_ProfitPercent_Needed)
       return false;
 
-   if(slotIdx >= 0)
-      g_falgoOpenTelemetryCtx = slotIdx;
-   FalgoTryLogTelemetryCloseDecision("breakdown_midpoint_time_exit",
-      StringFormat("now=%s|deadline=%s|breakdownEnd=%s|profitPct=%.2f|profitNeeded=%.2f|onlyIfProfit=%s",
-         TimeToString(g_lastTimer1Time, TIME_DATE|TIME_MINUTES),
-         TimeToString(deadline, TIME_DATE|TIME_MINUTES),
-         TimeToString(breakdownEnd, TIME_DATE|TIME_MINUTES),
-         profitPct, bd.closetrade_after_some_time_but_ProfitPercent_Needed,
-         (bd.closetrade_after_some_time_butOnlyIfProfit ? "true" : "false")));
-   BreakdownRememberPendingCloseReason((ulong)ExtPositionInfo.Identifier(), "timeTrigger");
-   const int telSlot = slotIdx;
+   const string closeDetail = StringFormat("now=%s|deadline=%s|breakdownEnd=%s|profitPct=%.2f|profitNeeded=%.2f|onlyIfProfit=%s",
+      TimeToString(g_lastTimer1Time, TIME_DATE|TIME_MINUTES),
+      TimeToString(deadline, TIME_DATE|TIME_MINUTES),
+      TimeToString(breakdownEnd, TIME_DATE|TIME_MINUTES),
+      profitPct, bd.closetrade_after_some_time_but_ProfitPercent_Needed,
+      (bd.closetrade_after_some_time_butOnlyIfProfit ? "true" : "false"));
+   BreakdownRememberCloseDecision(positionId, "breakdown_midpoint_time_exit", closeDetail);
+   BreakdownRememberPendingCloseReason(positionId, "timeTrigger");
    const double profitPts = FalgoOpenPositionProfitPoints();
    const double accountProfit = FalgoSelectedPositionAccountProfit();
    ExtTrade.SetExpertMagicNumber((ulong)posMagic);
    const bool closed = ExtTrade.PositionClose(posTicket);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
    if(closed)
-      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, telSlot);
+      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, -1);
    return closed;
-}
-
-//+------------------------------------------------------------------+
-//| Breakdown open positions: secret TP, time exit — not gated by tradingTimeBanned. |
-//+------------------------------------------------------------------+
-void Babysitf_RunBreakdownOpenPositionsForSymbol()
-{
-   if(!g_breakdownAlgoShared.babysit_enabled)
-      return;
-   for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
-   {
-      if(!ExtPositionInfo.SelectByIndex(positionIdx))
-         continue;
-      if(ExtPositionInfo.Symbol() != _Symbol)
-         continue;
-      const long posMagic = ExtPositionInfo.Magic();
-      if(!IsBreakdownFamilyCompositeMagic(posMagic))
-         continue;
-      if(Babysitf_falgo_runBreakdownSecretTpExit(posMagic))
-         continue;
-      Babysitf_falgo_runBreakdownMidpointTimeExit(posMagic);
-   }
 }
 
 //+------------------------------------------------------------------+
@@ -10811,7 +11760,7 @@ bool TimeAlgoBarIsEntryTrigger(const TimeAlgoDef &ta, const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-bool Babysitf_falgo_runTimeAlgoSecretTpExit(const long posMagic)
+bool Babysitf_falgo_runTimeAlgoSecretTpExit(const long posMagic, const double rolloverForGuard)
 {
    const int algoNumber = AlgoFamilyMagicNumber(posMagic);
    TimeAlgoDef ta;
@@ -10825,44 +11774,23 @@ bool Babysitf_falgo_runTimeAlgoSecretTpExit(const long posMagic)
       return false;
 
    const double entryPrice = ExtPositionInfo.PriceOpen();
-   const double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-   if(!FalgoSecretTpGreenGuardPriceDiffAllowsClose(ta.secret_tp_greenguard_pricediff_at_least, entryPrice, bid))
+   const double bid = g_liveBid;
+   const ulong posTicket = ExtPositionInfo.Ticket();
+   const ulong positionId = (ulong)ExtPositionInfo.Identifier();
+   if(!FalgoSecretTpGreenGuardPriceDiffAllowsClose(ta.secret_tp_greenguard_pricediff_at_least, entryPrice, bid, rolloverForGuard))
       return false;
 
-   const ulong posTicket = ExtPositionInfo.Ticket();
-   const int slotIdx = FalgoOpenTelemetryFindSlotByTicket(posTicket);
-   if(slotIdx >= 0)
-      g_falgoOpenTelemetryCtx = slotIdx;
-   FalgoTryLogTelemetryCloseDecision("time_algo_secretTPSL_tp",
-      StringFormat("profitPct=%.2f|min=%.2f", profitPct, ta.secret_tp_profit_percent_min));
-   TimeAlgoRememberPendingCloseReason((ulong)ExtPositionInfo.Identifier(), "secretTP");
-   const int telSlot = slotIdx;
+   const string closeDetail = StringFormat("profitPct=%.2f|min=%.2f", profitPct, ta.secret_tp_profit_percent_min);
+   TimeAlgoRememberCloseDecision(positionId, "time_algo_secretTPSL_tp", closeDetail);
+   TimeAlgoRememberPendingCloseReason(positionId, "secretTP");
    const double profitPts = FalgoOpenPositionProfitPoints();
    const double accountProfit = FalgoSelectedPositionAccountProfit();
    ExtTrade.SetExpertMagicNumber((ulong)posMagic);
    const bool closed = ExtTrade.PositionClose(posTicket);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
    if(closed)
-      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, telSlot);
+      FalgoAfterFamilyPositionClosed(posMagic, profitPts, accountProfit, -1);
    return closed;
-}
-
-//+------------------------------------------------------------------+
-void Babysitf_RunTimeAlgoOpenPositionsForSymbol()
-{
-   if(!g_timeAlgoShared.babysit_enabled)
-      return;
-   for(int positionIdx = PositionsTotal() - 1; positionIdx >= 0; positionIdx--)
-   {
-      if(!ExtPositionInfo.SelectByIndex(positionIdx))
-         continue;
-      if(ExtPositionInfo.Symbol() != _Symbol)
-         continue;
-      const long posMagic = ExtPositionInfo.Magic();
-      if(!IsTimeFamilyCompositeMagic(posMagic))
-         continue;
-      Babysitf_falgo_runTimeAlgoSecretTpExit(posMagic);
-   }
 }
 
 //+------------------------------------------------------------------+
@@ -10925,7 +11853,6 @@ bool AlgoTryPlaceTimeAlgoMarketBuy(const int algoNumber, const int barIdx)
 void RunTimeAlgoPlacementOnM1Close(const int barIdx)
 {
    UpdateTimeAlgoDayState();
-   Babysitf_RunTimeAlgoOpenPositionsForSymbol();
    if(!TimeAlgoProfileAllowsPlacementAtTime(g_lastTimer1Time))
       return;
    if(barIdx < 0 || barIdx >= g_barsInDay)
@@ -11342,14 +12269,14 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_COLS              47
-#define FALGO_BREAKDOWN_ALLDAYS_COLS    42
+#define FALGO_ALLDAYS_COLS              43
+#define FALGO_BREAKDOWN_ALLDAYS_COLS    38
 
 string FalgoAllDaysTradeResultsHeader()
 {
    return "date,symbol,sentTime,startTime,endTime,sessionSent,magic,priceStart,priceEnd,priceDiff,profit,type,level,levelTag,levelSlot,MFE,MAE,"
       + FalgoTradeResultMaeFirstCsvColumnName()
-      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC";
+      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC";
 }
 
 //+------------------------------------------------------------------+
@@ -11357,7 +12284,7 @@ string FalgoBreakdownAllDaysTradeResultsHeader()
 {
    return "date,symbol,sentTime,startTime,endTime,sessionSent,magic,priceStart,priceEnd,priceDiff,profit,type,level,MFE,MAE,"
       + FalgoTradeResultMaeFirstCsvColumnName()
-      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,greenRatio_at_close,avg_profitVelocity_5,secondsGreen,secondsRed,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,secret_tp_range_percent,closetrade_after_x_minutes_from_breakdown";
+      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,secret_tp_range_percent,closetrade_after_x_minutes_from_breakdown";
 }
 
 //+------------------------------------------------------------------+
@@ -11455,10 +12382,6 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
       cells[base + 17] = DoubleToString(telSummary.maeFirstWindowPts, 1);
       cells[base + 20] = FalgoSanitizeCsvCell(telSummary.closeDecision);
       cells[base + 21] = FalgoSanitizeCsvCell(telSummary.closeDetail);
-      cells[base + 30] = DoubleToString(telSummary.greenRatioAtClose, 4);
-      cells[base + 31] = DoubleToString(telSummary.avgProfitVelocity, 3);
-      cells[base + 32] = IntegerToString(telSummary.secondsGreen);
-      cells[base + 33] = IntegerToString(telSummary.secondsRed);
    }
    else
    {
@@ -11467,10 +12390,6 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
       cells[base + 17] = "";
       cells[base + 20] = "";
       cells[base + 21] = "";
-      cells[base + 30] = "";
-      cells[base + 31] = "";
-      cells[base + 32] = "";
-      cells[base + 33] = "";
    }
    cells[base + 18] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
    cells[base + 19] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
@@ -11482,21 +12401,21 @@ void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const Tr
    cells[base + 27] = FalgoOffsetPriceUnitsStrForTrade(tr);
    cells[base + 28] = FalgoSanitizeCsvCell(tr.tp);
    cells[base + 29] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 41] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
-   cells[base + 42] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
+   cells[base + 30] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
    int wBounceC = 0, dBounceC = 0, wCeilingC = 0, dCeilingC = 0;
    FalgoFillTradeBounceCeilingCountsAtStart(tr, wBounceC, dBounceC, wCeilingC, dCeilingC);
-   cells[base + 43] = IntegerToString(wCeilingC);
-   cells[base + 44] = IntegerToString(dCeilingC);
-   cells[base + 45] = IntegerToString(wBounceC);
-   cells[base + 46] = IntegerToString(dBounceC);
+   cells[base + 39] = IntegerToString(wCeilingC);
+   cells[base + 40] = IntegerToString(dCeilingC);
+   cells[base + 41] = IntegerToString(wBounceC);
+   cells[base + 42] = IntegerToString(dBounceC);
 }
 
 //+------------------------------------------------------------------+
@@ -11542,10 +12461,6 @@ void FalgoAppendBreakdownTradeResultCells(string &cells[], const string dateStr,
       cells[base + 15] = DoubleToString(telSummary.maeFirstWindowPts, 1);
       cells[base + 18] = FalgoSanitizeCsvCell(telSummary.closeDecision);
       cells[base + 19] = FalgoSanitizeCsvCell(telSummary.closeDetail);
-      cells[base + 28] = DoubleToString(telSummary.greenRatioAtClose, 4);
-      cells[base + 29] = DoubleToString(telSummary.avgProfitVelocity, 3);
-      cells[base + 30] = IntegerToString(telSummary.secondsGreen);
-      cells[base + 31] = IntegerToString(telSummary.secondsRed);
    }
    else
    {
@@ -11554,10 +12469,6 @@ void FalgoAppendBreakdownTradeResultCells(string &cells[], const string dateStr,
       cells[base + 15] = "";
       cells[base + 18] = "";
       cells[base + 19] = "";
-      cells[base + 28] = "";
-      cells[base + 29] = "";
-      cells[base + 30] = "";
-      cells[base + 31] = "";
    }
    cells[base + 16] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
    cells[base + 17] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
@@ -11569,18 +12480,18 @@ void FalgoAppendBreakdownTradeResultCells(string &cells[], const string dateStr,
    cells[base + 25] = FalgoOffsetPriceUnitsStrForTrade(tr);
    cells[base + 26] = FalgoSanitizeCsvCell(tr.tp);
    cells[base + 27] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 28] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 29] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 30] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
    int secretTpPct = 0, closeAfterMin = 0;
    BreakdownAllDaysAlgoConfigForMagic(tr.magic, secretTpPct, closeAfterMin);
-   cells[base + 40] = IntegerToString(secretTpPct);
-   cells[base + 41] = IntegerToString(closeAfterMin);
+   cells[base + 36] = IntegerToString(secretTpPct);
+   cells[base + 37] = IntegerToString(closeAfterMin);
 }
 
 //+------------------------------------------------------------------+
@@ -11673,7 +12584,6 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
          "level", "levelTag", "levelSlot",
          "MFE", "MAE", FalgoTradeResultMaeFirstCsvColumnName(), "mfeCandle", "maeCandle", "close_decision", "close_detail",
          "reason", "volume", "bothComments", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
-         "greenRatio_at_close", AlgoGatesColAvgProfitVelocity(algoSlot1), "secondsGreen", "secondsRed",
          "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL",
          "referencePointsAbove", "referencePointsBelow", "levelCats",
          "wCeilingC", "dCeilingC", "wBounceC", "dBounceC");
@@ -11712,10 +12622,6 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             tr.volume, tr.bothComments,
             IntegerToString(planNum), IntegerToString(levelNum),
             FalgoOffsetPriceUnitsStrForTrade(tr), FalgoSanitizeCsvCell(tr.tp), FalgoSanitizeCsvCell(tr.sl),
-            (hasTel ? DoubleToString(telSummary.greenRatioAtClose, 4) : ""),
-            (hasTel ? DoubleToString(telSummary.avgProfitVelocity, 3) : ""),
-            (hasTel ? IntegerToString(telSummary.secondsGreen) : ""),
-            (hasTel ? IntegerToString(telSummary.secondsRed) : ""),
             legacyCtx.breakevenC,
             legacyCtx.gapFillPc, legacyCtx.openGapInfo, legacyCtx.pdTrend,
             legacyCtx.dayBrokePDH, legacyCtx.dayBrokePDL,
@@ -12210,7 +13116,7 @@ void SyncTimeAlgoFamilyProfileFromInputs()
    g_timeAlgoShared.bannedRanges = "21,35,23,59;0,0,1,0";
    g_timeAlgoShared.tradesDays = "12345";
 
-//bookmark
+//timebookmark
 //timealgocreator2start
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(SPECIFIC_TIME_ALGO)].enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(SPECIFIC_TIME_ALGO)].entry_hour = 15;   // 15:29
@@ -15132,24 +16038,6 @@ string AlgoBreakdownPlacementBlockReasonFirstFail(const int algoNumber, const in
 }
 
 //+------------------------------------------------------------------+
-void RunBreakdownBabysitOnly()
-{
-   const bool profOn = BacktestProfileEnabled();
-   ulong profT0 = 0;
-   if(profOn)
-      profT0 = GetMicrosecondCount();
-   Babysitf_RunBreakdownOpenPositionsForSymbol();
-   if(profOn)
-      BacktestProfAccumulate(BACKTEST_PROF_BABYSIT, profT0);
-}
-
-//+------------------------------------------------------------------+
-void RunTimeAlgoBabysitOnly()
-{
-   Babysitf_RunTimeAlgoOpenPositionsForSymbol();
-}
-
-//+------------------------------------------------------------------+
 void RunBreakdownPlacementOnM1Close(const int barIdx)
 {
    const bool profOn = BacktestProfileEnabled();
@@ -15157,13 +16045,6 @@ void RunBreakdownPlacementOnM1Close(const int barIdx)
 
    g_breakdownFamilyHadCloseThisPipelinePass = false;
    UpdateBreakdownDayTradeCounts();
-
-   // Same pipeline pass as legacy RunBreakdownTradePipeline: babysit then placement (close-this-bar gate).
-   if(profOn)
-      profT0 = GetMicrosecondCount();
-   Babysitf_RunBreakdownOpenPositionsForSymbol();
-   if(profOn)
-      BacktestProfAccumulate(BACKTEST_PROF_BABYSIT, profT0);
 
    if(!BreakdownProfileAllowsPlacementAtTime(g_lastTimer1Time))
       return;
@@ -15954,6 +16835,14 @@ int OnInit()
    BuyHoldBenchmarkResetOnInit();
    g_m1BarCloseTerminalWasConnected = (bool)TerminalInfoInteger(TERMINAL_CONNECTED);
 
+   if(BacktestProfileEnabled())
+   {
+      BacktestProfZeroBuckets(g_backtestProfRunTotals);
+      BacktestProfZeroBuckets(g_backtestProfDayTotals);
+      g_backtestProfTrackingDayStart = 0;
+      g_backtestProfArmed = false;
+   }
+
    EventSetTimer(1);   // 1 second timer for candle-close detection
 
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
@@ -16415,7 +17304,12 @@ void OnTimer()
    const bool profOn = BacktestProfileEnabled();
    ulong profT0 = 0;
 
+   if(profOn && !g_backtestProfArmed)
+      g_backtestProfArmed = true;
+
    g_lastTimer1Time = TimeCurrent();
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    if(profOn)
       BacktestProfOnTimerDayRollover(g_lastTimer1Time - (g_lastTimer1Time % 86400));
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
@@ -16433,16 +17327,19 @@ void OnTimer()
 
    if(maemfe_testing)
       CloseAnyEAPositionThatIsXMinutesOld(10);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_PREAMBLE, profT0);
+
+   if(FalgoTelemetryUsePerSecondUpdates())
+      FalgoUpdateOpenTradeTelemetryEachSecond();
+   else
+      FalgoBreakdownTimePerSecondAndBabysit();
 
    if(profOn)
       profT0 = GetMicrosecondCount();
-   FalgoUpdateOpenTradeTelemetryEachSecond();
-   if(profOn)
-      BacktestProfAccumulate(BACKTEST_PROF_TELEMETRY_PER_SEC, profT0);
-   RunBreakdownBabysitOnly();
-   RunTimeAlgoBabysitOnly();
-
    FalgoTryLogAlgoFamilyPerSecond();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_PER_SEC_TAIL, profT0);
 
    MqlDateTime mqlTime;
    TimeToStruct(g_lastTimer1Time, mqlTime);
@@ -16486,9 +17383,13 @@ void OnTimer()
    }
 
    // Candle-close detection: use M1 so "new candle" is always one closed M1 bar; bar that just closed = last bar of day M1 (g_m1Rates) after refresh
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    datetime barNowM1 = iTime(_Symbol, PERIOD_M1, 0);
    if(barNowM1 == g_lastBarTime)
    {
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_BAR_DETECT, profT0);
       if(profOn)
          BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_TOTAL, onTimerT0);
       OnTimer_FinishDurationStatsAndMaybeLog2130(onTimerT0);
@@ -16499,6 +17400,8 @@ void OnTimer()
 
    const datetime barClosedM1 = iTime(_Symbol, PERIOD_M1, 1);
    TryFlushTradeResultsEodFallback(barNowM1, barClosedM1);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_BAR_DETECT, profT0);
 
    // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
    datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
@@ -16515,6 +17418,11 @@ void OnTimer()
    // Refresh day M1 and levels first; then set closed-candle OHLC from same source (or terminal fallback)
    UpdateDayM1AndLevelsExpanded();
    TryFlushTradeResultsIfLastBarOfDayInFeed();
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+   FalgoCustomQopexRolloverOnM1Close();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_ROLLOVER_ON_M1, profT0);
 
    if(bigflipper_log_all_breakdowns && g_m1DayStart > 0 && g_barsInDay >= 2)
    {
