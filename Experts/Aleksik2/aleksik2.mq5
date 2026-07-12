@@ -3,8 +3,8 @@
 //+------------------------------------------------------------------+
 //|                   MetaTrader 5 Only (MT5-specific code)          |
 //|        Copyright 2026, Aleksander Stefankowski                   |
-// COMPOSITE MAGIC: 18-digit fixed-width magics; first 3 digits = algo number (100..999). Never paste full magic in comments.
-// aleksik2: breakdown algo family (200..299) + time algo family (300..399) + level/market data logging. Level-family trade algos (100..199) and open-trade telemetry removed.
+// COMPOSITE MAGIC: 18-digit fixed-width magics; first 5 digits = algo id (10000..99999; must not start with 0). Never paste full magic in comments.
+// aleksik2: breakdown algo family (20000..29999) + time algo family (30000..39999) + level/market data logging.
 // Future algo families (e.g. open-gap) wire their own registry + Run*TradePipeline.
 
 
@@ -51,8 +51,6 @@ string   InpLevelsFile          = "levelsinfo_zeFinal.csv";  // CSV in Terminal/
 double   InpBreakCheckMaxDistPoints = 9.0;  // levels_breakCheck: first candle beyond this distance in price (and all newer) excluded
 bool     maemfe_testing             = false; // if tru: all trades use TP=SL=3000.0 and close any position open >20 min (OnTimer)
 bool     bigflipper_log_algo_trade_results_csv             = false; // (date)_summaryZ_tradeResults_ALL_Day_algoN.csv
-bool     bigflipper_log_summary_tradeResults_all_days      = false;  // removed: level-family all-days TSV (aleksik2 has no level trade algos)
-bool     bigflipper_log_summary_tradeResults_all_days_algo = false; // summary_tradeResults_all_days_algoN.tsv (per level algo)
 bool     bigflipper_log_summary_tradeResults_all_days_breakdown = true;  // summary_tradeResults_all_days_breakdown.tsv
 bool     bigflipper_log_summary_tradeResults_all_days_time = true;  // summary_tradeResults_all_days_time.tsv
 bool     bigflipper_log_breakdown_trade_lifetime             = true;  // bdalgoN_alltrades_log.csv + benchmark_all_algos_breakdown.csv — truncated on OnInit each run
@@ -74,9 +72,7 @@ int      eod_log_end_minute                                =   0;  // originally
 //--- Per-second logs (shared time window below)
 bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
 bool     bigflipper_log_algo_gates_per_second              = true;  // (date)_algoN_gates_per_second.csv — enabled algos only
-bool     bigflipper_log_algo_trade_telemetry_per_second    = false;  // removed: level-family per-second telemetry
-bool     bigflipper_log_algo_velocity_parameter_testing_per_second = false;  // removed with telemetry stack
-int      per_second_log_start_hour                         =   10;  // shared inclusive window start (server time) — all 4 per-second logs above
+int      per_second_log_start_hour                         =   10;  // shared inclusive window start (server time) — per-second logs above
 int      per_second_log_start_minute                       =  33;
 int      per_second_log_end_hour                           =  10;  // shared inclusive window end (server time)
 int      per_second_log_end_minute                         =  36;
@@ -120,7 +116,6 @@ const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000000.0; //  5000000.0/ PLN bu
 double   DepositLoadFatalThresholdPct = 0.0; // ≤ 0 disables the check
 
 //--- Algo family pipeline: per-algo open/pending on _Symbol (refreshed once per tick via RefreshOccupiedMagicsCache).
-bool   g_occupiedAlgoFamilySlots[1000];  // index = algo number 100..999: open position or pending on _Symbol
 #define MAX_BANNED_RANGES 20
 int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges
 int g_bannedRangesCount = 0;
@@ -146,8 +141,10 @@ Level levels[];
 //--- Algo-family composite magic (18 digits); B_TradeLog groups by algo prefix (algo10, algo16, …)
 const long DEFAULT_ORDER_MAGIC = 47001; // restore CTrade magic when not using an algo composite magic
 
-// First 3 digits = algo number 100..999.
+// First 5 digits = algo id (10000..99999; composite magic must not start with 0).
 #define COMPOSITE_MAGIC_STRING_LEN   18
+#define MAGIC_ALGO_ID_MIN            10000
+#define MAGIC_ALGO_ID_MAX            99999
 CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
 CPositionInfo ExtPositionInfo;
@@ -503,7 +500,7 @@ struct CalendarRow
    bool   opex;
    bool   qopex;
 };
-#define MAX_CALENDAR_ROWS 1100
+#define MAX_CALENDAR_ROWS 24000  // decades  of daily rows; LoadCalendar FatalErrors if CSV exceeds this
 CalendarRow g_calendar[MAX_CALENDAR_ROWS];
 int g_calendarCount = 0;
 
@@ -710,11 +707,6 @@ struct AlgoSharedProfile
    int    tradeSizePct;
    string bannedRanges;
    bool   babysit_enabled;
-   bool   mode_switching_enabled;  // master: when false, no neutral/strong/bad/terrible modes (secretTPSL + broker TP/SL only)
-   bool   strong_trade_mode_enabled;     // family: strong momentum; per-algo tune applies only when master + this true
-   bool   neutral_trade_mode_enabled;    // family: neutral TP exit
-   bool   badtrade_mode_enabled;         // family: bad-trade recovery latch/exit
-   bool   terribletrade_mode_enabled;    // family: terrible-trade recovery latch/exit
    string tradesDays;              // e.g. "12345" = Mon..Fri
    bool   secretTPSL;
    int    secretTPSL_percent;
@@ -745,31 +737,6 @@ struct AlgoPerAlgoTune
    int    stop_trading_today_if_thisAlgo_losing_trades_count;  // stop when losses >= this
    int    stop_trading_today_if_thisAlgo_winning_trades_count;  // stop when wins >= this
    int    stop_trading_today_if_thisAlgo_total_trades_count;  // stop when wins+losses >= this
-   int    babysitStart_minute;
-   double neutral_trade_TP;                    // signed; 0=breakeven; close when profit >= target
-   double strong_trade_TP;                     // signed; 0=breakeven; close when profit >= target
-   bool   strong_trade_mode_enabled;
-   bool   neutral_trade_mode_enabled;
-   bool   badtrade_mode_enabled;
-   bool   terribletrade_mode_enabled;
-   double strong_trade_eval_min_profit_pts;
-   double strong_trade_min_velocity_trigger;
-   int    strong_trade_velocity_window_seconds;
-   bool   strong_trade_stall_mode_uses_avgvelocity_weakening; // true: avg weaken pct; false: instant vel <= max (+ giveback)
-   double strong_trade_stall_velocity_max_trigger;
-   double strong_trade_stall_giveback_pts_trigger;
-   double strong_trade_stall_avgvelocity_weaken_pct; // avgvelocity_stall: fire when avg < peak*(1-pct/100)
-   double strong_trade_stall_min_close_profit_pts;
-   int    telemetry_velocity_window_seconds;
-   int    telemetry_avg_velocity_window_seconds;
-   int    start_mae_care_after_x_seconds;      // MAE_post_xx: 0 until this trade age; then track min profit from that second
-   double badtrade_MaePostX_trigger;           // negative MAE_post_xx latch depth when badtrade_mode_enabled
-   int    badtrade_totalRedSeconds_minTrigger; // min total red seconds required to latch bad trade
-   double badtrade_try_save_TP;                // signed; 0=breakeven; close when profit >= target
-   double terribletrade_MaePostX_trigger;      // negative MAE_post_xx latch depth when terribletrade_mode_enabled
-   int    terribletrade_consecutiveRedSeconds_minTrigger;  // min consecutive red seconds required to latch terrible trade
-   double terribletrade_avgProfitVelocity10_trigger;       // avg profit velocity (10s window) must be < this to latch
-   double terribletrade_try_smaller_loss_TP;   // signed; 0=breakeven; close when profit >= target
 };
 
 enum ENUM_ALGO_RULE
@@ -903,11 +870,11 @@ AlgoSharedProfile g_algoShared;
 AlgoDef           g_algos[ALGO_FAMILY_REGISTRY_MAX];
 int               g_algoCount = 0;
 
-//--- Breakdown algo family (magic 200..299): M15 breakdown signal algos — no levels
+//--- Breakdown algo family (magic 20000..29999): M15 breakdown signal algos — no levels
 #define BREAKDOWN_ALGO_REGISTRY_MAX           12
 #define BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM    11  // reserve slots for planned 8+ algos before all are wired in breakdowncreator1
-#define MAGIC_BREAKDOWN_FAMILY_SLOT_MIN        200
-#define MAGIC_BREAKDOWN_FAMILY_SLOT_MAX        299
+#define MAGIC_BREAKDOWN_FAMILY_SLOT_MIN        20000
+#define MAGIC_BREAKDOWN_FAMILY_SLOT_MAX        29999
 
 struct BreakdownAlgoSharedProfile
 {
@@ -1013,11 +980,14 @@ struct BreakdownAlgoBenchmarkAcc
 
 BreakdownAlgoBenchmarkAcc g_breakdownAlgoBenchmarkAcc[BREAKDOWN_ALGO_REGISTRY_MAX];
 
-//--- Time algo family (magic 300..399): scheduled market entries + secret TP on profit %
+//--- Time algo family (magic 30000..39999): scheduled market entries + secret TP on profit %
 #define TIME_ALGO_REGISTRY_MAX                4
 #define TIME_ALGO_REGISTRY_MAX_HEADROOM         3
-#define TIME_ALGO_FAMILY_SLOT_MIN            300
-#define TIME_ALGO_FAMILY_SLOT_MAX            399
+#define TIME_ALGO_FAMILY_SLOT_MIN            30000
+#define TIME_ALGO_FAMILY_SLOT_MAX            39999
+
+#define ALGO_OCCUPIED_CACHE_MAX (ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + TIME_ALGO_REGISTRY_MAX)
+bool   g_occupiedAlgoFamilySlots[ALGO_OCCUPIED_CACHE_MAX];  // compact registry slot index
 
 struct TimeAlgoSharedProfile
 {
@@ -1748,7 +1718,11 @@ bool LoadCalendar()
       g_calendar[g_calendarCount].qopex      = (StringFind(parts[4], "True") == 0);
       g_calendarCount++;
    }
+   const bool truncated = (!FileIsEnding(fileHandle) && g_calendarCount >= MAX_CALENDAR_ROWS);
    FileClose(fileHandle);
+   if(truncated)
+      FatalError(StringFormat("LoadCalendar: %s has more than MAX_CALENDAR_ROWS=%d — increase #define or shorten CSV",
+         InpCalendarFile, MAX_CALENDAR_ROWS));
    return (g_calendarCount > 0);
 }
 
@@ -5986,56 +5960,64 @@ int EncodeMagicTwoDigitTenths(double v)
 }
 
 //+------------------------------------------------------------------+
-//| Magic long → exactly COMPOSITE_MAGIC_STRING_LEN decimal chars (left-pad with zeros). |
+//| Magic long → exactly COMPOSITE_MAGIC_STRING_LEN decimal chars; no leading-zero padding. |
+//+------------------------------------------------------------------+
+void FalgoFatalIfCompositeMagicStringInvalid(const string s, const string context)
+{
+   if(StringLen(s) != COMPOSITE_MAGIC_STRING_LEN)
+      FatalError(StringFormat("%s: composite magic must be %d decimal digits (got %d)", context, COMPOSITE_MAGIC_STRING_LEN, StringLen(s)));
+   if(StringGetCharacter(s, 0) == '0')
+      FatalError(StringFormat("%s: composite magic must not start with 0 (value %s)", context, s));
+}
+
 //+------------------------------------------------------------------+
 string MagicNumberToFixedWidthString(long magic)
 {
    string s = IntegerToString(magic);
    if(StringLen(s) > COMPOSITE_MAGIC_STRING_LEN)
       FatalError(StringFormat("MagicNumberToFixedWidthString: value has %d digits, max %d", StringLen(s), COMPOSITE_MAGIC_STRING_LEN));
-   while(StringLen(s) < COMPOSITE_MAGIC_STRING_LEN)
-      s = "0" + s;
+   FalgoFatalIfCompositeMagicStringInvalid(s, "MagicNumberToFixedWidthString");
    return s;
 }
 
 
 
 //+------------------------------------------------------------------+
-//| Algo family magic: first 3 digits = algo number 100..999 (shared helpers)
+//| Algo family magic: first 5 digits = algo id (10000..99999; must not start with 0).
 //+------------------------------------------------------------------+
 
-#define MAGIC_ALGO_FAMILY_SLOT_MIN  100
-#define MAGIC_ALGO_FAMILY_SLOT_MAX  999
+#define MAGIC_ALGO_FAMILY_SLOT_MIN  10000
+#define MAGIC_ALGO_FAMILY_SLOT_MAX  99999
+#define MAGIC_LEVEL_FAMILY_SLOT_MAX 19999
 
-#define FALGO_MAGIC_LENGTH_ALGO     3
+#define FALGO_MAGIC_LENGTH_ALGO     5
 
 #define ALGO_SIDE_LONG   false   // buy limit above weekly level
 #define ALGO_SIDE_SHORT  true    // sell limit below weekly level
 
 //algocreator1start
-   // Level-family trade algos (100..199) not wired in aleksik2.
 int g_algoRegistryIds[] = { };
 //algocreator1end
 
 //breakdowncreator1start
-#define MAGIC_BREAKDOWN200             200
-#define MAGIC_BREAKDOWN201             201
-#define MAGIC_BREAKDOWN202             202
-#define MAGIC_BREAKDOWN203             203
-#define MAGIC_BREAKDOWN204             204
+#define MAGIC_BREAKDOWN20000             20000
+#define MAGIC_BREAKDOWN20001             20001
+#define MAGIC_BREAKDOWN20002             20002
+#define MAGIC_BREAKDOWN20003             20003
+#define MAGIC_BREAKDOWN20004             20004
 
 int g_breakdownRegistryIds[] =
 {
-   MAGIC_BREAKDOWN200,
-   MAGIC_BREAKDOWN201,
-   MAGIC_BREAKDOWN202,
-   MAGIC_BREAKDOWN203,
-   MAGIC_BREAKDOWN204
+   MAGIC_BREAKDOWN20000,
+   MAGIC_BREAKDOWN20001,
+   MAGIC_BREAKDOWN20002,
+   MAGIC_BREAKDOWN20003,
+   MAGIC_BREAKDOWN20004
 };
 //breakdowncreator1end
 
 //timealgocreator1start
-#define SPECIFIC_TIME_ALGO             300
+#define SPECIFIC_TIME_ALGO             30001
 
 int g_timeAlgoRegistryIds[] =
 {
@@ -6091,7 +6073,7 @@ bool IsBreakdownFamilyAlgoNumber(const int algoNumber)
 //+------------------------------------------------------------------+
 bool IsLevelFamilyAlgoNumber(const int algoNumber)
 {
-   return (algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= 199);
+   return (algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= MAGIC_LEVEL_FAMILY_SLOT_MAX);
 }
 
 //+------------------------------------------------------------------+
@@ -7255,14 +7237,6 @@ string FalgoEodTradeResultsDailyCsvName(const string dateStr, const int algoNumb
 }
 
 //+------------------------------------------------------------------+
-string FalgoAllDaysSummaryFileNameForAlgo(const int algoNumber)
-{
-   if(IsBreakdownFamilyAlgoNumber(algoNumber))
-      return "summary_tradeResults_all_days_bdalgo" + IntegerToString(algoNumber) + ".tsv";
-   return "summary_tradeResults_all_days_algo" + IntegerToString(algoNumber) + ".tsv";
-}
-
-//+------------------------------------------------------------------+
 bool FalgoAlgoRegisteredForEodTradeResults(const int algoNumber)
 {
    return (AlgoSlotIndexByAlgoId(algoNumber) >= 0 || BreakdownAlgoSlotIndexByAlgoId(algoNumber) >= 0);
@@ -7354,8 +7328,26 @@ bool AlgoLoadTuneForAlgo(const int algoNumber, AlgoPerAlgoTune &outTune)
    return true;
 }
 
+//+------------------------------------------------------------------+
+long FalgoCompositeMagicMinValue()
+{
+   long scale = 1;
+   for(int i = FALGO_MAGIC_LENGTH_ALGO; i < COMPOSITE_MAGIC_STRING_LEN; i++)
+      scale *= 10;
+   return (long)MAGIC_ALGO_ID_MIN * scale;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoIsCompositeMagicLong(const long magic)
+{
+   return (magic >= FalgoCompositeMagicMinValue());
+}
+
+//+------------------------------------------------------------------+
 int AlgoFamilyMagicNumber(const long magic)
 {
+   if(!FalgoIsCompositeMagicLong(magic))
+      return -1;
    string s = MagicNumberToFixedWidthString(magic);
    if(StringLen(s) < FALGO_MAGIC_LENGTH_ALGO)
       return -1;
@@ -7392,28 +7384,27 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 
 
 //+------------------------------------------------------------------+
-//| Algo family (algo 100..999): Falgo* helpers, pipelines, telemetry, EOD logs (inline below). |
+//| Algo family (algo 10000..99999): Falgo* helpers, pipelines, telemetry, EOD logs (inline below). |
 //+------------------------------------------------------------------+
 
 
 //--- Falgo magic layout (18 decimal digits; index 0 = digit 1)
-#define FALGO_MAGIC_INDEX_ALGO            0   // 100..999
-#define FALGO_MAGIC_INDEX_DIRECTION       3   // 1|2|3|4 long/short variants
-#define FALGO_MAGIC_LENGTH_DIRECTION      1
-#define FALGO_MAGIC_INDEX_DAY_OF_WEEK     4   // 1..5 Mon..Fri
-#define FALGO_MAGIC_LENGTH_DAY_OF_WEEK    1
-#define FALGO_MAGIC_INDEX_LEVEL_SLOT      5   // unused (reserved; always 00)
+//| AAAAA | unused (2) | D | W | B | C | OO | babysit | TP | SL |
+#define FALGO_MAGIC_INDEX_ALGO            0   // 5-digit algo id (10000..99999)
+#define FALGO_MAGIC_INDEX_UNUSED          5   // 2 digits reserved (always 00); absorbs former level/plan/level# slots
+#define FALGO_MAGIC_LENGTH_UNUSED         2
+#define FALGO_MAGIC_INDEX_LEVEL_SLOT      5   // unused (within reserved block; always 00)
 #define FALGO_MAGIC_LENGTH_LEVEL_SLOT     2
-#define FALGO_MAGIC_INDEX_BOUNCE          7   // 0..8 capped
+#define FALGO_MAGIC_INDEX_DIRECTION       7   // 1|2|3|4 long/short variants
+#define FALGO_MAGIC_LENGTH_DIRECTION      1
+#define FALGO_MAGIC_INDEX_DAY_OF_WEEK     8   // 1..5 Mon..Fri
+#define FALGO_MAGIC_LENGTH_DAY_OF_WEEK    1
+#define FALGO_MAGIC_INDEX_BOUNCE          9   // 0..8 capped
 #define FALGO_MAGIC_LENGTH_BOUNCE         1
-#define FALGO_MAGIC_INDEX_CEILING         8   // 0..8 capped
+#define FALGO_MAGIC_INDEX_CEILING         10  // 0..8 capped
 #define FALGO_MAGIC_LENGTH_CEILING        1
-#define FALGO_MAGIC_INDEX_OFFSET          9   // %02d tenths (long or short offset for this plan)
+#define FALGO_MAGIC_INDEX_OFFSET          11  // %02d tenths (long or short offset for this plan)
 #define FALGO_MAGIC_LENGTH_OFFSET         2
-#define FALGO_MAGIC_INDEX_PLAN_TRADE_NUM  11  // unused (reserved; always 0)
-#define FALGO_MAGIC_LENGTH_PLAN_TRADE_NUM 1
-#define FALGO_MAGIC_INDEX_LEVEL_TRADE_NUM 12  // unused (reserved; always 0)
-#define FALGO_MAGIC_LENGTH_LEVEL_TRADE_NUM 1
 #define FALGO_MAGIC_INDEX_BABYSIT_MIN     13  // 0..9
 #define FALGO_MAGIC_LENGTH_BABYSIT_MIN    1
 #define FALGO_MAGIC_INDEX_TP              14  // %02d whole points
@@ -7575,14 +7566,6 @@ bool AlgoDailySpamLogGatesEnabled(const int algoNumber)
 bool AlgoEodTradeResultsLoggingEnabled(const int algoNumber)
 {
    if(!bigflipper_log_algo_trade_results_csv)
-      return false;
-   return FalgoAlgoRegisteredForEodTradeResults(algoNumber);
-}
-
-//+------------------------------------------------------------------+
-bool AlgoEodTradeResultsAllDaysPerAlgoLoggingEnabled(const int algoNumber)
-{
-   if(!bigflipper_log_summary_tradeResults_all_days_algo)
       return false;
    return FalgoAlgoRegisteredForEodTradeResults(algoNumber);
 }
@@ -8372,21 +8355,20 @@ int FalgoCapWholeTpSlForMagic(const double points)
 //+------------------------------------------------------------------+
 long BuildAlgoMagicNumber(const int algoNumber, const FalgoMagicKey &k)
 {
-   string s = StringFormat("%03d%d%d%02d%d%d%02d%d%d%d%02d%02d",
+   if(algoNumber < MAGIC_ALGO_ID_MIN || algoNumber > MAGIC_ALGO_ID_MAX)
+      FatalError(StringFormat("BuildAlgoMagicNumber: algo %d outside %d..%d", algoNumber, MAGIC_ALGO_ID_MIN, MAGIC_ALGO_ID_MAX));
+   string s = StringFormat("%05d%02d%d%d%d%d%02d%d%02d%02d",
       algoNumber,
+      0,
       k.direction,
       k.dayOfWeek,
-      0,
       FalgoClamp0_8(k.bounceCount),
       FalgoClamp0_8(k.ceilingCount),
       k.offset_tenths,
-      0,
-      0,
       FalgoClamp0_9(k.babysitMinute),
       k.tpWhole,
       k.slWhole);
-   if(StringLen(s) != COMPOSITE_MAGIC_STRING_LEN)
-      FatalError(StringFormat("BuildAlgoMagicNumber: algo%d len %d != %d", algoNumber, StringLen(s), COMPOSITE_MAGIC_STRING_LEN));
+   FalgoFatalIfCompositeMagicStringInvalid(s, StringFormat("BuildAlgoMagicNumber algo%d", algoNumber));
    return (long)StringToInteger(s);
 }
 
@@ -8415,8 +8397,8 @@ FalgoMagicKey ParseFalgoMagic(const long magic)
    k.bounceCount = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_BOUNCE, FALGO_MAGIC_LENGTH_BOUNCE));
    k.ceilingCount = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_CEILING, FALGO_MAGIC_LENGTH_CEILING));
    k.offset_tenths = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_OFFSET, FALGO_MAGIC_LENGTH_OFFSET));
-   k.planTradeNum = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_PLAN_TRADE_NUM, FALGO_MAGIC_LENGTH_PLAN_TRADE_NUM));
-   k.levelTradeNum = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_LEVEL_TRADE_NUM, FALGO_MAGIC_LENGTH_LEVEL_TRADE_NUM));
+   k.planTradeNum = 0;
+   k.levelTradeNum = 0;
    k.babysitMinute = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_BABYSIT_MIN, FALGO_MAGIC_LENGTH_BABYSIT_MIN));
    k.tpWhole = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_TP, FALGO_MAGIC_LENGTH_TP));
    k.slWhole = (int)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_SL, FALGO_MAGIC_LENGTH_SL));
@@ -9477,11 +9459,38 @@ bool FalgoHasPendingOrderOnSymbol()
 }
 
 //+------------------------------------------------------------------+
-//| Core algo-family rule: this algo slot (10..15) has an open position on _Symbol. |
+bool AlgoIsRegisteredFamilyAlgoNumber(const int algoNumber)
+{
+   if(AlgoSlotIndexByAlgoId(algoNumber) >= 0)
+      return true;
+   if(BreakdownAlgoSlotIndexByAlgoId(algoNumber) >= 0)
+      return true;
+   if(TimeAlgoSlotIndexByAlgoId(algoNumber) >= 0)
+      return true;
+   return false;
+}
+
+//+------------------------------------------------------------------+
+int AlgoOccupiedCacheIndex(const int algoNumber)
+{
+   int idx = AlgoSlotIndexByAlgoId(algoNumber);
+   if(idx >= 0)
+      return idx;
+   idx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(idx >= 0)
+      return ALGO_FAMILY_REGISTRY_MAX + idx;
+   idx = TimeAlgoSlotIndexByAlgoId(algoNumber);
+   if(idx >= 0)
+      return ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + idx;
+   return -1;
+}
+
+//+------------------------------------------------------------------+
+//| Core algo-family rule: this algo has an open position on _Symbol. |
 //+------------------------------------------------------------------+
 bool AlgoHasOpenPositionOnSymbol(const int algoNumber)
 {
-   if(algoNumber < MAGIC_ALGO_FAMILY_SLOT_MIN || algoNumber > MAGIC_ALGO_FAMILY_SLOT_MAX)
+   if(!AlgoIsRegisteredFamilyAlgoNumber(algoNumber))
       return false;
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
@@ -9496,7 +9505,7 @@ bool AlgoHasOpenPositionOnSymbol(const int algoNumber)
 //+------------------------------------------------------------------+
 bool AlgoHasPendingOrderOnSymbol(const int algoNumber)
 {
-   if(algoNumber < MAGIC_ALGO_FAMILY_SLOT_MIN || algoNumber > MAGIC_ALGO_FAMILY_SLOT_MAX)
+   if(!AlgoIsRegisteredFamilyAlgoNumber(algoNumber))
       return false;
    for(int i = OrdersTotal() - 1; i >= 0; i--)
    {
@@ -9605,9 +9614,6 @@ int FalgoGetRecentCeilingCountForClosestWeeklyLevel(const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-//| Open Falgo trade telemetry: per-second when level-family algos wired; else per-M1 for breakdown/time. |
-//+------------------------------------------------------------------+
-//+------------------------------------------------------------------+
 //| Trade-results CSV summary (breakdown/time lifetime stats). |
 //+------------------------------------------------------------------+
 bool FalgoGetTelemetrySummaryForTrade(const long magic, const datetime startTime, FalgoClosedTradeTelemetrySummary &outSummary)
@@ -9648,24 +9654,6 @@ string FalgoSanitizeCsvCell(const string s)
    StringReplace(out, "\r", " ");
    StringReplace(out, "\n", " ");
    return out;
-}
-
-//+------------------------------------------------------------------+
-string AlgoGatesColProfitVelocity(const int algoSlot1)
-{
-   return "profitVelocity_0";
-}
-
-//+------------------------------------------------------------------+
-string AlgoGatesColAvgProfitVelocity(const int algoSlot1)
-{
-   return "avg_profitVelocity_0";
-}
-
-//+------------------------------------------------------------------+
-string AlgoGatesColMaePostX(const int algoSlot1)
-{
-   return "MAE_post_0";
 }
 
 //+------------------------------------------------------------------+
@@ -10667,7 +10655,7 @@ Breakdown15mState Breakdown15mSnapForAlgo(const int algoNumber, const datetime a
 //+------------------------------------------------------------------+
 void RefreshGlobalBreakdown15mSnap(const datetime asOfTime)
 {
-   int slot = BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200);
+   int slot = BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000);
    if(slot < 0)
    {
       for(int i = 0; i < g_breakdownAlgoCount; i++)
@@ -10964,16 +10952,8 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_ALLDAYS_COLS              43
 #define FALGO_BREAKDOWN_ALLDAYS_COLS    38
 #define FALGO_TIME_ALGO_ALLDAYS_COLS    40
-
-string FalgoAllDaysTradeResultsHeader()
-{
-   return "date,symbol,sentTime,startTime,endTime,sessionSent,magic,priceStart,priceEnd,priceDiff,profit,type,level,levelTag,levelSlot,MFE,MAE,"
-      + FalgoTradeResultMaeFirstCsvColumnName()
-      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,levelCats,wCeilingC,dCeilingC,wBounceC,dBounceC";
-}
 
 //+------------------------------------------------------------------+
 string FalgoBreakdownAllDaysTradeResultsHeader()
@@ -11051,75 +11031,6 @@ void FalgoWriteAllDaysTradeResultsToFile(const string fileName, const string &ce
    for(int ri = 0; ri < rowCount; ri++)
       FalgoFileWriteAllDaysRowFromCells(fh, cells, ri * colCount, colCount);
    FileClose(fh);
-}
-
-//+------------------------------------------------------------------+
-void FalgoAppendTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
-{
-   const int base = ArraySize(cells);
-   ArrayResize(cells, base + FALGO_ALLDAYS_COLS);
-   cells[base + 0]  = dateStr;
-   cells[base + 1]  = tr.symbol;
-   cells[base + 2]  = TimeToString(tr.sentTime, TIME_DATE|TIME_SECONDS);
-   cells[base + 3]  = TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS);
-   cells[base + 4]  = TimeToString(tr.endTime, TIME_DATE|TIME_SECONDS);
-   cells[base + 5]  = FalgoSanitizeCsvCell(tr.sessionSent);
-   cells[base + 6]  = IntegerToString((long)tr.magic);
-   cells[base + 7]  = DoubleToString(tr.priceStart, _Digits);
-   cells[base + 8]  = DoubleToString(tr.priceEnd, _Digits);
-   cells[base + 9]  = DoubleToString(tr.priceDiff, _Digits);
-   cells[base + 10] = DoubleToString(tr.profit, 2);
-   cells[base + 11] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
-   int planNum = 0, levelNum = 0;
-   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
-   cells[base + 12] = FalgoSanitizeCsvCell(tr.level);
-   cells[base + 13] = FalgoSanitizeCsvCell(FalgoLevelTagUneditedForTradeResult(tr));
-   cells[base + 14] = FalgoSanitizeCsvCell(FalgoLevelSlotStrForMagic(tr.magic));
-   FalgoClosedTradeTelemetrySummary telSummary;
-   const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
-   FalgoTradeLegacyContextCols legacyCtx;
-   FalgoFillTradeLegacyContextCols(tr, legacyCtx);
-   if(hasTel)
-   {
-      cells[base + 15] = DoubleToString(telSummary.mfePts, 1);
-      cells[base + 16] = DoubleToString(telSummary.maePts, 1);
-      cells[base + 17] = DoubleToString(telSummary.maeFirstWindowPts, 1);
-      cells[base + 20] = FalgoSanitizeCsvCell(telSummary.closeDecision);
-      cells[base + 21] = FalgoSanitizeCsvCell(telSummary.closeDetail);
-   }
-   else
-   {
-      cells[base + 15] = "";
-      cells[base + 16] = "";
-      cells[base + 17] = "";
-      cells[base + 20] = "";
-      cells[base + 21] = "";
-   }
-   cells[base + 18] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
-   cells[base + 19] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
-   cells[base + 22] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 23] = (string)tr.volume;
-   cells[base + 24] = FalgoSanitizeCsvCell(tr.bothComments);
-   cells[base + 25] = IntegerToString(planNum);
-   cells[base + 26] = IntegerToString(levelNum);
-   cells[base + 27] = FalgoOffsetPriceUnitsStrForTrade(tr);
-   cells[base + 28] = FalgoSanitizeCsvCell(tr.tp);
-   cells[base + 29] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 30] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
-   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.levelCats);
-   int wBounceC = 0, dBounceC = 0, wCeilingC = 0, dCeilingC = 0;
-   FalgoFillTradeBounceCeilingCountsAtStart(tr, wBounceC, dBounceC, wCeilingC, dCeilingC);
-   cells[base + 39] = IntegerToString(wCeilingC);
-   cells[base + 40] = IntegerToString(dCeilingC);
-   cells[base + 41] = IntegerToString(wBounceC);
-   cells[base + 42] = IntegerToString(dBounceC);
 }
 
 //+------------------------------------------------------------------+
@@ -11350,20 +11261,16 @@ void FalgoSortAllDaysCellRowsByStartTimeAsc(string &cells[], const int rowCount,
 }
 
 //+------------------------------------------------------------------+
-//| EOD: per-day algoN CSV (rewrite) + all-days TSV (read/merge/append today's rows for that algo only). |
+//| EOD: per-day algoN CSV (rewrite). |
 //+------------------------------------------------------------------+
 void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSlot1, const int algoOutCount)
 {
    if(algoOutCount <= 0)
       return;
 
-   const bool writeDailyCsv = AlgoEodTradeResultsLoggingEnabled(algoSlot1);
-   const bool writeAllDaysPerAlgo = AlgoEodTradeResultsAllDaysPerAlgoLoggingEnabled(algoSlot1);
-   if(!writeDailyCsv && !writeAllDaysPerAlgo)
+   if(!AlgoEodTradeResultsLoggingEnabled(algoSlot1))
       return;
 
-   if(writeDailyCsv)
-   {
    const string csvName = FalgoEodTradeResultsDailyCsvName(dateStr, algoSlot1);
    int fhDay = FileOpen(csvName, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_CSV | FILE_SHARE_READ | FILE_SHARE_WRITE);
    if(fhDay != INVALID_HANDLE)
@@ -11419,35 +11326,6 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
       }
       FileClose(fhDay);
    }
-   }
-
-   if(!writeAllDaysPerAlgo)
-      return;
-
-   const string summaryAllName = FalgoAllDaysSummaryFileNameForAlgo(algoSlot1);
-   string headerParts[];
-   const int schemaCols = StringSplit(FalgoAllDaysTradeResultsHeader(), ',', headerParts);
-   if(schemaCols != FALGO_ALLDAYS_COLS)
-      FatalError(StringFormat("WriteAlgoEodTradeResultsCsvsIfNeeded: schemaCols %d != FALGO_ALLDAYS_COLS %d", schemaCols, FALGO_ALLDAYS_COLS));
-
-   string allDaysCells[];
-   int existingRowCount = 0;
-   FalgoReadAllDaysTradeResultsFromFile(summaryAllName, allDaysCells, existingRowCount, FALGO_ALLDAYS_COLS);
-
-   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
-   {
-      TradeResult tr = g_tradeResults[trIdx];
-      if(!tr.foundOut || !IsAlgoCompositeMagic(tr.magic, algoSlot1))
-         continue;
-      if(FalgoAllDaysRowsContainTrade(allDaysCells, existingRowCount, tr.magic, tr.startTime, FALGO_ALLDAYS_COLS))
-         continue;
-      FalgoAppendTradeResultCells(allDaysCells, dateStr, tr);
-      existingRowCount++;
-   }
-
-   FalgoSortAllDaysCellRowsByStartTimeAsc(allDaysCells, existingRowCount, FALGO_ALLDAYS_COLS);
-   FalgoWriteAllDaysTradeResultsToFile(summaryAllName, allDaysCells, existingRowCount,
-      FalgoAllDaysTradeResultsHeader(), FALGO_ALLDAYS_COLS);
 }
 
 //+------------------------------------------------------------------+
@@ -11507,7 +11385,7 @@ void WriteBreakdownFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr
 }
 
 //+------------------------------------------------------------------+
-//| EOD: all-days TSV across time-algo family (300..399). |
+//| EOD: all-days TSV across time-algo family (30000..39999). |
 //+------------------------------------------------------------------+
 void WriteTimeAlgoFamilyAllDaysTradeResultsSummaryIfNeeded(const string dateStr)
 {
@@ -11685,7 +11563,7 @@ void TryFlushTradeResultsEodFallback(const datetime barOpen, const datetime barC
 //| Algo family profile defaults (shared + wired algos 10–14). |
 //+------------------------------------------------------------------+
 void SyncAlgoFamilyProfileFromInputs()
-{  // algobookmark1 — level DATA COLLECTION profile (bounce/ceiling/proximity); no level-family trade algos in aleksik2
+{  // algobookmark1 — level DATA COLLECTION profile (bounce/ceiling/proximity)
    RebuildAlgoSlotsRegistry();
    RebuildFalgoCalendarOverrideDateLists();
 
@@ -11704,7 +11582,7 @@ void SyncAlgoFamilyProfileFromInputs()
    RebuildFalgoBannedRangesCache();
 }
 //+------------------------------------------------------------------+
-//| Breakdown algo family profile (magic 200..299). |
+//| Breakdown algo family profile (magic 20000..29999). |
 //+------------------------------------------------------------------+
 void SyncBreakdownFamilyProfileFromInputs()
 {
@@ -11728,156 +11606,156 @@ void SyncBreakdownFamilyProfileFromInputs()
 
 // bdbookmark
 //breakdowncreator2start
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].expiry_minutes = 15;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].min_breakdown_sequence_len = 4; // more important starts here and below:
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_breakdown_sequence_len = 9;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_CLOSES;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].bd_start_min_breakdown_percent = 0.20;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].min_breakdown_total_percent = 0.40;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].after_bd_need_x_15greenc = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entry_max_minutes_after_bdend = 75; // 45
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].entryrange_range_percentspot = 60.0; // 35.0
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_range_percent = 53;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].secret_tp_greenguard_pricediff_at_least = 8.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].tp_notsecret_range_percent = 100;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].sl_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].sl_points = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_trades_per_breakdown_per_day = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN200)].max_open_positions = 5;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].expiry_minutes = 15;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].min_breakdown_sequence_len = 4; // more important starts here and below:
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].max_breakdown_sequence_len = 9;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_CLOSES;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].bd_start_min_breakdown_percent = 0.20;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].min_breakdown_total_percent = 0.40;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].after_bd_need_x_15greenc = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].entry_max_minutes_after_bdend = 75; // 45
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].forget_about_latest_breakdown_after_x_15m_candles = 6;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].entryrange_range_percentspot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].secret_tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].secret_tp_range_percent = 53;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].tp_notsecret_range_percent = 100;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].sl_enabled = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].sl_points = 0.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].closetrade_after_some_time = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].closetrade_after_some_time_butOnlyIfProfit = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].closetrade_after_x_minutes_from_breakdown = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].max_trades_per_breakdown_per_day = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000)].max_open_positions = 5;
 
 
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].expiry_minutes = 15;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].min_breakdown_sequence_len = 4; // more important starts here and below:
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].max_breakdown_sequence_len = 9;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_OHLC_AVG;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].bd_start_min_breakdown_percent = 0.20;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].min_breakdown_total_percent = 0.40;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].after_bd_need_x_15greenc = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].entry_max_minutes_after_bdend = 75; // 45
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].entryrange_range_percentspot = 60.0; // 35.0
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].secret_tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].secret_tp_range_percent = 53;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].secret_tp_greenguard_pricediff_at_least = 8.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].tp_notsecret_range_percent = 100;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].sl_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].sl_points = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_some_time = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].max_trades_per_breakdown_per_day = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN201)].max_open_positions = 5;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].expiry_minutes = 15;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].min_breakdown_sequence_len = 4; // more important starts here and below:
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].max_breakdown_sequence_len = 9;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_OHLC_AVG;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].bd_start_min_breakdown_percent = 0.20;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].min_breakdown_total_percent = 0.40;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].after_bd_need_x_15greenc = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].entry_max_minutes_after_bdend = 75; // 45
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].forget_about_latest_breakdown_after_x_15m_candles = 6;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].entryrange_range_percentspot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].secret_tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].secret_tp_range_percent = 53;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].tp_notsecret_range_percent = 100;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].sl_enabled = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].sl_points = 0.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].closetrade_after_some_time = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].closetrade_after_some_time_butOnlyIfProfit = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].closetrade_after_x_minutes_from_breakdown = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].max_trades_per_breakdown_per_day = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001)].max_open_positions = 5;
 
 
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].expiry_minutes = 15;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].min_breakdown_sequence_len = 4; // more important starts here and below:
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].max_breakdown_sequence_len = 9;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_LOW;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].bd_start_min_breakdown_percent = 0.20;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].min_breakdown_total_percent = 0.40;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].after_bd_need_x_15greenc = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].entry_max_minutes_after_bdend = 75; // 45
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].entryrange_range_percentspot = 60.0; // 35.0
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].secret_tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].secret_tp_range_percent = 53;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].secret_tp_greenguard_pricediff_at_least = 8.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].tp_notsecret_range_percent = 100;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].sl_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].sl_points = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_some_time = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].max_trades_per_breakdown_per_day = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN202)].max_open_positions = 5;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].expiry_minutes = 15;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].min_breakdown_sequence_len = 4; // more important starts here and below:
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].max_breakdown_sequence_len = 9;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_LOW;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].bd_start_min_breakdown_percent = 0.20;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].min_breakdown_total_percent = 0.40;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].after_bd_need_x_15greenc = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].entry_max_minutes_after_bdend = 75; // 45
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].forget_about_latest_breakdown_after_x_15m_candles = 6;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].entryrange_range_percentspot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].secret_tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].secret_tp_range_percent = 53;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].tp_notsecret_range_percent = 100;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].sl_enabled = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].sl_points = 0.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].closetrade_after_some_time = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].closetrade_after_some_time_butOnlyIfProfit = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].closetrade_after_x_minutes_from_breakdown = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].max_trades_per_breakdown_per_day = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20002)].max_open_positions = 5;
 
 
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].expiry_minutes = 15;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].min_breakdown_sequence_len = 4; // more important starts here and below:
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].max_breakdown_sequence_len = 9;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_OC_MID;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].bd_start_min_breakdown_percent = 0.20;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].min_breakdown_total_percent = 0.40;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].after_bd_need_x_15greenc = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].entry_max_minutes_after_bdend = 75; // 45
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].entryrange_range_percentspot = 60.0; // 35.0
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].secret_tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].secret_tp_range_percent = 53;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].secret_tp_greenguard_pricediff_at_least = 8.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].tp_notsecret_range_percent = 100;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].sl_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].sl_points = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_some_time = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].max_trades_per_breakdown_per_day = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN203)].max_open_positions = 5;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].expiry_minutes = 15;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].min_breakdown_sequence_len = 4; // more important starts here and below:
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].max_breakdown_sequence_len = 9;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_OC_MID;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].bd_start_min_breakdown_percent = 0.20;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].min_breakdown_total_percent = 0.40;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].after_bd_need_x_15greenc = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].entry_max_minutes_after_bdend = 75; // 45
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].forget_about_latest_breakdown_after_x_15m_candles = 6;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].entryrange_range_percentspot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].secret_tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].secret_tp_range_percent = 53;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].tp_notsecret_range_percent = 100;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].sl_enabled = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].sl_points = 0.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].closetrade_after_some_time = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].closetrade_after_some_time_butOnlyIfProfit = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].closetrade_after_x_minutes_from_breakdown = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].max_trades_per_breakdown_per_day = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20003)].max_open_positions = 5;
 
 
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].expiry_minutes = 15;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].min_breakdown_sequence_len = 4; // more important starts here and below:
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].max_breakdown_sequence_len = 9;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_HL_MID;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].bd_start_min_breakdown_percent = 0.20;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].min_breakdown_total_percent = 0.40;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].after_bd_need_x_15greenc = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].entry_max_minutes_after_bdend = 75; // 45
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].forget_about_latest_breakdown_after_x_15m_candles = 6;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].entryrange_range_percentspot = 60.0; // 35.0
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].secret_tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].secret_tp_range_percent = 53;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].secret_tp_greenguard_pricediff_at_least = 8.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tp_enabled = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].tp_notsecret_range_percent = 100;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].sl_enabled = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].sl_points = 0.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_some_time = false;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_some_time_butOnlyIfProfit = true;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].closetrade_after_x_minutes_from_breakdown = 90;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].max_trades_per_breakdown_per_day = 1;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN204)].max_open_positions = 5;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].expiry_minutes = 15;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].min_breakdown_sequence_len = 4; // more important starts here and below:
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].max_breakdown_sequence_len = 9;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].breakdown_streak_continuation_mode = BREAKDOWN_STREAK_CONTINUATION_HL_MID;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].bd_start_min_breakdown_percent = 0.20;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].min_breakdown_total_percent = 0.40;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].after_bd_need_x_15greenc = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].entry_max_minutes_after_bdend = 75; // 45
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].forget_about_latest_breakdown_after_x_15m_candles = 6;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].entryrange_range_percentspot = 60.0; // 35.0
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].secret_tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].secret_tp_range_percent = 53;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].tp_enabled = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].tp_notsecret_range_percent = 100;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].sl_enabled = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].sl_points = 0.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].closetrade_after_some_time = false;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].closetrade_after_some_time_butOnlyIfProfit = true;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].closetrade_after_x_minutes_from_breakdown = 90;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].stop_trading_today_if_thisAlgo_total_trades_count = 3;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].max_trades_per_breakdown_per_day = 1;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20004)].max_open_positions = 5;
 
 //breakdowncreator2end
    BreakdownRebuildAllRuleChains();
 }
 
 //+------------------------------------------------------------------+
-//| Time algo family profile (magic 300..399). |
+//| Time algo family profile (magic 30000..39999). |
 //+------------------------------------------------------------------+
 void SyncTimeAlgoFamilyProfileFromInputs()
 {
@@ -14314,19 +14192,19 @@ void BreakdownRebuildRuleChainForSlot(const int slotIdx)
    {
       // algobookmark breakdown rules
 //breakdowncreator4start
-      case MAGIC_BREAKDOWN200:
+      case MAGIC_BREAKDOWN20000:
          // wire breakdown gates vs planned trade price here (AlgoRuleAdd_LevelBelowONH etc.)
          break;
-      case MAGIC_BREAKDOWN201:
+      case MAGIC_BREAKDOWN20001:
          // wire breakdown gates vs planned trade price here (AlgoRuleAdd_LevelBelowONH etc.)
          break;
-      case MAGIC_BREAKDOWN202:
+      case MAGIC_BREAKDOWN20002:
          // wire breakdown gates vs planned trade price here (AlgoRuleAdd_LevelBelowONH etc.)
          break;
-      case MAGIC_BREAKDOWN203:
+      case MAGIC_BREAKDOWN20003:
          // wire breakdown gates vs planned trade price here (AlgoRuleAdd_LevelBelowONH etc.)
          break;
-      case MAGIC_BREAKDOWN204:
+      case MAGIC_BREAKDOWN20004:
          // wire breakdown gates vs planned trade price here (AlgoRuleAdd_LevelBelowONH etc.)
          break;
 //breakdowncreator4end
@@ -15202,11 +15080,11 @@ int OpenOrCreateForAppend(string path)
 }
 
 //+------------------------------------------------------------------+
-//| One terminal pass: mark algo slots 100..999 with open position or pending on _Symbol. Call once per timer tick before placement. |
+//| One terminal pass: mark wired algo registry slots with open position or pending on _Symbol. |
 //+------------------------------------------------------------------+
 void RefreshOccupiedMagicsCache()
 {
-   for(int a = MAGIC_ALGO_FAMILY_SLOT_MIN; a <= MAGIC_ALGO_FAMILY_SLOT_MAX; a++)
+   for(int a = 0; a < ALGO_OCCUPIED_CACHE_MAX; a++)
       g_occupiedAlgoFamilySlots[a] = false;
 
    for(int posIdx = PositionsTotal() - 1; posIdx >= 0; posIdx--)
@@ -15215,9 +15093,9 @@ void RefreshOccupiedMagicsCache()
       if(ExtPositionInfo.Symbol() != _Symbol) continue;
       const long m = ExtPositionInfo.Magic();
       if(!IsAnyAlgoFamilyCompositeMagic(m)) continue;
-      const int algoNumber = AlgoFamilyMagicNumber(m);
-      if(algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= MAGIC_ALGO_FAMILY_SLOT_MAX)
-         g_occupiedAlgoFamilySlots[algoNumber] = true;
+      const int cacheIdx = AlgoOccupiedCacheIndex(AlgoFamilyMagicNumber(m));
+      if(cacheIdx >= 0 && cacheIdx < ALGO_OCCUPIED_CACHE_MAX)
+         g_occupiedAlgoFamilySlots[cacheIdx] = true;
    }
    for(int orderIdx = OrdersTotal() - 1; orderIdx >= 0; orderIdx--)
    {
@@ -15225,9 +15103,9 @@ void RefreshOccupiedMagicsCache()
       if(ExtOrderInfo.Symbol() != _Symbol) continue;
       const long m = ExtOrderInfo.Magic();
       if(!IsAnyAlgoFamilyCompositeMagic(m)) continue;
-      const int algoNumber = AlgoFamilyMagicNumber(m);
-      if(algoNumber >= MAGIC_ALGO_FAMILY_SLOT_MIN && algoNumber <= MAGIC_ALGO_FAMILY_SLOT_MAX)
-         g_occupiedAlgoFamilySlots[algoNumber] = true;
+      const int cacheIdx = AlgoOccupiedCacheIndex(AlgoFamilyMagicNumber(m));
+      if(cacheIdx >= 0 && cacheIdx < ALGO_OCCUPIED_CACHE_MAX)
+         g_occupiedAlgoFamilySlots[cacheIdx] = true;
    }
 }
 
@@ -15236,9 +15114,10 @@ void RefreshOccupiedMagicsCache()
 //+------------------------------------------------------------------+
 bool CanPlaceNewOrderForAlgo_Cached(const int algoNumber)
 {
-   if(algoNumber < MAGIC_ALGO_FAMILY_SLOT_MIN || algoNumber > MAGIC_ALGO_FAMILY_SLOT_MAX)
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx < 0 || cacheIdx >= ALGO_OCCUPIED_CACHE_MAX)
       return false;
-   return !g_occupiedAlgoFamilySlots[algoNumber];
+   return !g_occupiedAlgoFamilySlots[cacheIdx];
 }
 
 //+------------------------------------------------------------------+
