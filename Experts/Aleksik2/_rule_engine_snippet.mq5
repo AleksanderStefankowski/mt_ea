@@ -598,7 +598,7 @@ void BreakdownRebuildRuleChainForSlot(const int slotIdx)
    {
       // algobookmark breakdown rules
 //breakdowncreator4start
-      case MAGIC_BREAKDOWN20000:
+      case MAGIC_BREAKDOWN20000000:
          // wire breakdown gates vs planned trade price here (BreakdownRuleAdd_*)
          break;
 //breakdowncreator4end
