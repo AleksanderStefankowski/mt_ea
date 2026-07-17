@@ -125,6 +125,34 @@ def rules_cell(rules)
   rules.join(" | ")
 end
 
+def enabled?(raw)
+  strip_mq5_value(raw.to_s).casecmp("true").zero?
+end
+
+def print_summary(rows)
+  all_count = rows.size
+  enabled_rows = rows.select { |row| enabled?(row[:enabled]) }
+  disabled_count = all_count - enabled_rows.size
+
+  enabled_by_mode = enabled_rows.group_by { |row| row[:breakdown_streak_continuation_mode].to_s }
+  enabled_by_mode.transform_values!(&:size)
+
+  puts "--- summary ---"
+  puts "count all:      #{all_count}"
+  puts "count enabled:  #{enabled_rows.size}"
+  puts "count disabled: #{disabled_count}"
+  puts "enabled by breakdown_streak_continuation_mode:"
+  if enabled_by_mode.empty?
+    puts "  (none)"
+  else
+    enabled_by_mode.sort_by { |mode, _| mode }.each do |mode, count|
+      label = mode.empty? ? "(unknown)" : mode
+      puts "  #{label}: #{count}"
+    end
+  end
+  puts
+end
+
 src = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
 params_by_algo = params_by_algo_from_src(src)
 algo_ids = registry_algo_ids(src)
@@ -168,3 +196,4 @@ CSV.open(OUT_CSV, "w") do |csv|
 end
 
 puts OUT_CSV
+print_summary(rows)

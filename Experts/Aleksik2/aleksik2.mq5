@@ -33,7 +33,7 @@ input bool     InpLoadTradeResultsFromHistory = true;
 bool     InpEODLogging = true;  // if true: write EOD logs in eod_log_start/end window (pullinghistory, trade results, levels, etc.)
 //--- Log to file: set false to disable that log (optimization)
 //    finalLog_ = one file across whole run; dailyEODlog_ = daily once at EOD; dailySpamLog_ = daily and frequent
-bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account, orders, deals (WriteDailySummary)
+bool     dailyEODlog_DailySummary     = true;  // Day_activeLevels, account (WriteDailySummary); orders/deals separate flipper below
 bool     dailyEODlog_EodTradesSummary = false;  // (date)_summary_EOD_tradesSummary1line.csv
 bool     dailyEODlog_BreakCheck       = true;  // levels_breakCheck files + summary
 bool     dailySpamLog_LivePrice       = false;  // (date)_testing_liveprice.csv 21:35-21:37
@@ -55,25 +55,26 @@ bool     bigflipper_log_summary_tradeResults_all_days_breakdown = true;  // summ
 bool     bigflipper_log_summary_tradeResults_all_days_time = true;  // summary_tradeResults_all_days_time.tsv — truncated on OnInit; append on close
 bool     bigflipper_log_summary_tradeResults_all_days2_breakdown = true;  // summary_tradeResults_all_days2_breakdown.csv — same data as all_days; OnInit truncate; append on close
 bool     bigflipper_log_summary_tradeResults_all_days2_time = true;  // summary_tradeResults_all_days2_time.csv — same data as all_days; OnInit truncate; append on close
-bool     bigflipper_log_breakdown_trade_lifetime             = true;  // bdalgoN_alltrades_log.csv + benchmark_all_algos_breakdown.csv — truncated on OnInit each run
-bool     bigflipper_log_time_algo_trade_lifetime             = true;  // timealgoN_alltrades_log.csv + benchmark_all_algos_time.csv — truncated on OnInit each run
+bool     bigflipper_log_breakdown_trade_lifetime             = false;  // bdalgoN_alltrades_log.csv + benchmark_all_algos_breakdown.csv — truncated on OnInit each run
+bool     bigflipper_log_time_algo_trade_lifetime             = false;  // timealgoN_alltrades_log.csv + benchmark_all_algos_time.csv — truncated on OnInit each run
 bool     bigflipper_log_all_breakdowns                       = true;  // all_breakdowns_{type}_streakNorMore.csv + all_breakdowns_summaries.csv — per run, OnInit truncate
 #define  BREAKDOWN_AUDIT_LOG_MIN_STREAK_ARG                   3
 double   BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG = 0.20;  // strong-red M15 start gate for audit log only
 //--- Big flippers bookmark: master off for heavy algo logs (when false, no write for any registered algo)
 bool     dailyLog_algoFamilyDayStartWeekPerspective = true;  // (date)_algofamily_dayStart_weekPerspective.csv — today-loaded levels vs week M1 at day start only
 bool     dailyEODlog_PullingHistoryAlgoFamily = false;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
+bool     bigflipper_log_not_from_globals_AllHistoryOrders_and_deals = false;  // (date)-not_from_globals_AllHistoryOrders.csv + _AllHistoryDeals.csv (WriteDailySummary EOD)
 bool     bigflipper_log_B_TradeLog                        = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
-bool     bigflipper_log_algo_gates_per_minute              = true;  // (date)_algoN_gates_per_minute.csv — enabled algos only
+bool     bigflipper_log_algo_gates_per_minute              = false;  // (date)_algoN_gates_per_minute.csv — enabled algos only
 int      eod_log_start_hour                                =  21;  // originally 21 // EOD log window start (server time; broker clock incl. DST)
 int      eod_log_start_minute                              =  58;  // originally 58
 int      eod_log_end_hour                                  =  22;  // originally 22 EOD log window end inclusive (server time)
 int      eod_log_end_minute                                =   0;  // originally 0
 //--- Per-second logs (shared time window below)
-bool     bigflipper_log_testing_algofamily_per_second      = true;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
-bool     bigflipper_log_algo_gates_per_second              = true;  // (date)_algoN_gates_per_second.csv — enabled algos only
+bool     bigflipper_log_testing_algofamily_per_second      = false;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
+bool     bigflipper_log_algo_gates_per_second              = false;  // (date)_algoN_gates_per_second.csv — enabled algos only
 int      per_second_log_start_hour                         =   10;  // shared inclusive window start (server time) — per-second logs above
 int      per_second_log_start_minute                       =  33;
 int      per_second_log_end_hour                           =  10;  // shared inclusive window end (server time)
@@ -101,6 +102,7 @@ string FalgoTradeResultMaeFirstCsvColumnName()
 
 bool     babysit_global_flipper = true; // bookmark3. when true, OnTimer may run per-row SL babysit for positions whose variant has babysit_enabled
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
+int      babysit_telemetry_interval_seconds = 60; // bookmark // MFE/MAE open-position scan + babysit; OnTimer stays 1s
 
 //--- Global base trade size: actual lot = base × (trade_size_percentage/100). Each ruleset has its own percentage (10,20,...,100).
 // base lot; 100% trade type = this full size; 50% = half, for example 0.1, tradesize 10 is 0.01, size 30 is 0.03
@@ -995,6 +997,10 @@ BreakdownAlgoBenchmarkAcc g_breakdownAlgoBenchmarkAcc[BREAKDOWN_ALGO_REGISTRY_MA
 
 #define ALGO_OCCUPIED_CACHE_MAX (ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + TIME_ALGO_REGISTRY_MAX)
 bool   g_occupiedAlgoFamilySlots[ALGO_OCCUPIED_CACHE_MAX];  // compact registry slot index
+bool   g_breakdownPlacementPassActive = false;              // set during RunBreakdownPlacementOnM1Close after RefreshOccupiedMagicsCache
+bool   g_breakdownPlacementPassFamilyOccupied = false;      // hoisted: any breakdown algo open/pending on _Symbol
+int    g_breakdownPlacementCandidateSlots[BREAKDOWN_ALGO_REGISTRY_MAX];
+int    g_breakdownPlacementCandidateCount = 0;
 
 struct TimeAlgoSharedProfile
 {
@@ -1296,18 +1302,28 @@ bool FalgoGetBreakdownTimeTradeStats(const long magic, const datetime startTime,
 }
 
 //+------------------------------------------------------------------+
-//| One position scan/sec: MFE/MAE on lifetime records + breakdown/time babysit. |
+//| Open-position scan: MFE/MAE on lifetime records + breakdown/time babysit (interval = babysit_telemetry_interval_seconds). |
 //+------------------------------------------------------------------+
 void FalgoBreakdownTimePerSecondAndBabysit()
 {
    if(g_lastTimer1Time == 0)
       return;
 
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   FalgoBtResetClosedStatsIfNewDay(dayStart);
+
+   static datetime s_falgoBabysitTelemetryLastRunTime = 0;
+   int intervalSec = babysit_telemetry_interval_seconds;
+   if(intervalSec < 1)
+      intervalSec = 1;
+   if(s_falgoBabysitTelemetryLastRunTime > 0
+      && (g_lastTimer1Time - s_falgoBabysitTelemetryLastRunTime) < intervalSec)
+      return;
+   s_falgoBabysitTelemetryLastRunTime = g_lastTimer1Time;
+
    const bool profOn = BacktestProfileEnabled();
    const bool bdBabysit = g_breakdownAlgoShared.babysit_enabled;
    const bool taBabysit = g_timeAlgoShared.babysit_enabled;
-   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
-   FalgoBtResetClosedStatsIfNewDay(dayStart);
 
    for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
    {
@@ -8394,10 +8410,18 @@ bool BreakdownRulesetPassesCommonForPlacement(const int algoNumber, const int ba
       return false;
    if(BreakdownFamilyBlocksPlacementOnOpenOrPending())
    {
-      if(BreakdownHasOpenPositionOnSymbol())
-         return false;
-      if(BreakdownHasPendingOrderOnSymbol())
-         return false;
+      if(g_breakdownPlacementPassActive)
+      {
+         if(g_breakdownPlacementPassFamilyOccupied)
+            return false;
+      }
+      else
+      {
+         if(BreakdownHasOpenPositionOnSymbol())
+            return false;
+         if(BreakdownHasPendingOrderOnSymbol())
+            return false;
+      }
       if(g_breakdownFamilyHadCloseThisPipelinePass)
          return false;
    }
@@ -8473,6 +8497,8 @@ bool BreakdownUnderMaxOpenPositionsLimit(const int algoNumber)
       return true;
    if(bd.max_open_positions <= 0)
       return true;
+   if(bd.max_open_positions == 1)
+      return CanPlaceNewOrderForAlgo_Cached(algoNumber);
    return BreakdownOccupiedTradeSlotsForAlgo(algoNumber) < bd.max_open_positions;
 }
 
@@ -8822,6 +8848,19 @@ struct FalgoClosedTradeTelemetrySummary
    bool     withRolloverFee;
    double   rolloverPricediff;
 };
+
+//+------------------------------------------------------------------+
+void FalgoTradeResultMfeMaeWithRollStr(const bool hasTel, const double mfePts, const double maePts,
+   const bool withRolloverFee, const double rolloverPricediff, string &outMfeWithRoll, string &outMaeWithRoll)
+{
+   outMfeWithRoll = "";
+   outMaeWithRoll = "";
+   if(!hasTel)
+      return;
+   const double rollCost = (withRolloverFee ? MathMax(0.0, rolloverPricediff) : 0.0);
+   outMfeWithRoll = DoubleToString(mfePts - rollCost, 1);
+   outMaeWithRoll = DoubleToString(maePts - rollCost, 1);
+}
 
 void FalgoCustomQopexApplyRolloverToOpenLifetimeRecs(const ulong positionId, const bool withRolloverFee,
    const double rolloverPricediff)
@@ -10478,10 +10517,107 @@ string FalgoLevelTagUneditedForTradeResult(const TradeResult &tr)
 }
 
 //+------------------------------------------------------------------+
+datetime FalgoTradePlanTime(const TradeResult &tr)
+{
+   if(tr.sentTime > 0)
+      return tr.sentTime;
+   return tr.startTime;
+}
+
+//+------------------------------------------------------------------+
+datetime FalgoCalendarDayStartForTime(const datetime t)
+{
+   if(t <= 0)
+      return 0;
+   return t - (t % 86400);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoTradeOnCalendarDay(const TradeResult &tr, const datetime dayStart)
+{
+   if(dayStart == 0)
+      return false;
+   const datetime t = FalgoTradePlanTime(tr);
+   return (t >= dayStart && t < dayStart + 86400);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoTradePlanSortsBefore(const TradeResult &a, const int idxA, const TradeResult &b, const int idxB)
+{
+   const datetime ta = FalgoTradePlanTime(a);
+   const datetime tb = FalgoTradePlanTime(b);
+   if(ta != tb)
+      return ta < tb;
+   if(a.startTime != b.startTime)
+      return a.startTime < b.startTime;
+   if(a.magic != b.magic)
+      return a.magic < b.magic;
+   return idxA < idxB;
+}
+
+//+------------------------------------------------------------------+
+void FalgoPlanAndLevelTradeNumsForTrade(const TradeResult &tr, int &outPlanTradeNumToday, int &outLevelTradeNumToday)
+{
+   outPlanTradeNumToday = 0;
+   outLevelTradeNumToday = 0;
+   if(!IsAnyAlgoFamilyCompositeMagic(tr.magic))
+      return;
+
+   const int algoNumber = AlgoFamilyMagicNumber(tr.magic);
+   const datetime dayStart = FalgoCalendarDayStartForTime(FalgoTradePlanTime(tr));
+   if(dayStart == 0)
+      return;
+
+   int trIdx = -1;
+   for(int i = 0; i < g_tradeResultsCount; i++)
+   {
+      if(g_tradeResults[i].magic != tr.magic)
+         continue;
+      if(g_tradeResults[i].sentTime != tr.sentTime)
+         continue;
+      if(g_tradeResults[i].startTime != tr.startTime)
+         continue;
+      if(g_tradeResults[i].endTime != tr.endTime)
+         continue;
+      trIdx = i;
+      break;
+   }
+   if(trIdx < 0)
+      trIdx = g_tradeResultsCount;
+
+   int planPrior = 0;
+   int levelPrior = 0;
+   for(int i = 0; i < g_tradeResultsCount; i++)
+   {
+      if(i == trIdx)
+         continue;
+      const TradeResult other = g_tradeResults[i];
+      if(!IsAlgoCompositeMagic(other.magic, algoNumber))
+         continue;
+      if(!FalgoTradeOnCalendarDay(other, dayStart))
+         continue;
+      if(FalgoTradePlanSortsBefore(other, i, tr, trIdx))
+         planPrior++;
+      if(other.level == tr.level && FalgoTradePlanSortsBefore(other, i, tr, trIdx))
+         levelPrior++;
+   }
+
+   outPlanTradeNumToday = planPrior + 1;
+   outLevelTradeNumToday = levelPrior + 1;
+}
+
+//+------------------------------------------------------------------+
 void FalgoPlanAndLevelTradeNumsFromMagic(const long magic, int &outPlanTradeNumToday, int &outLevelTradeNumToday)
 {
    outPlanTradeNumToday = 0;
    outLevelTradeNumToday = 0;
+   for(int i = 0; i < g_tradeResultsCount; i++)
+   {
+      if(g_tradeResults[i].magic != magic)
+         continue;
+      FalgoPlanAndLevelTradeNumsForTrade(g_tradeResults[i], outPlanTradeNumToday, outLevelTradeNumToday);
+      return;
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -11267,11 +11403,13 @@ bool BreakdownAlgoHasClosedTradeToday(const int algoNumber)
 //+------------------------------------------------------------------+
 string BreakdownAlgoOrderStateBlockReason(const int algoNumber)
 {
+   if(!BreakdownAlgoIsOccupiedOnSymbolCached(algoNumber))
+      return "";
    if(AlgoHasPendingOrderOnSymbol(algoNumber))
       return "algoOrderPending";
    if(AlgoHasOpenPositionOnSymbol(algoNumber))
       return "algoOrderOpen";
-   return "";
+   return "algoOrderOccupied";
 }
 
 //+------------------------------------------------------------------+
@@ -11518,23 +11656,30 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 }
 
 //+------------------------------------------------------------------+
-#define FALGO_BREAKDOWN_ALLDAYS_COLS    40
-#define FALGO_TIME_ALGO_ALLDAYS_COLS    42
+#define FALGO_BREAKDOWN_ALLDAYS_COLS    44
+#define FALGO_TIME_ALGO_ALLDAYS_COLS    46
+
+//+------------------------------------------------------------------+
+string FalgoTradeDurationHoursStr(const datetime startTime, const datetime endTime)
+{
+   if(startTime <= 0 || endTime <= 0 || endTime < startTime)
+      return "";
+   const double hours = (double)(endTime - startTime) / 3600.0;
+   return DoubleToString(hours, 3);
+}
 
 //+------------------------------------------------------------------+
 string FalgoBreakdownAllDaysTradeResultsHeader()
 {
-   return "date,symbol,trade_customID,sentTime,startTime,endTime,sessionSent,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,type,level,MFE,MAE,"
-      + FalgoTradeResultMaeFirstCsvColumnName()
-      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,secret_tp_range_percent,closetrade_after_x_minutes_from_breakdown";
+   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
+      + "mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,secret_tp_range_percent,closetrade_after_x_minutes_from_breakdown";
 }
 
 //+------------------------------------------------------------------+
 string FalgoTimeAlgoAllDaysTradeResultsHeader()
 {
-   return "date,symbol,trade_customID,sentTime,startTime,endTime,sessionSent,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,type,level,MFE,MAE,"
-      + FalgoTradeResultMaeFirstCsvColumnName()
-      + ",mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,entry_hour,entry_minute,secret_tp_profit_percent_min,secret_tp_greenguard_pricediff_at_least";
+   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
+      + "mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,entry_hour,entry_minute,secret_tp_profit_percent_min,secret_tp_greenguard_pricediff_at_least";
 }
 
 //+------------------------------------------------------------------+
@@ -11625,59 +11770,65 @@ void FalgoAppendBreakdownTradeResultCells(string &cells[], const string dateStr,
    cells[base + 3]  = TimeToString(tr.sentTime, TIME_DATE|TIME_SECONDS);
    cells[base + 4]  = TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS);
    cells[base + 5]  = TimeToString(tr.endTime, TIME_DATE|TIME_SECONDS);
-   cells[base + 6]  = FalgoSanitizeCsvCell(tr.sessionSent);
-   cells[base + 7]  = IntegerToString((long)tr.magic);
-   cells[base + 8]  = DoubleToString(tr.priceStart, _Digits);
-   cells[base + 9]  = DoubleToString(tr.priceEnd, _Digits);
-   cells[base + 10] = DoubleToString(tr.priceDiff, _Digits);
-   cells[base + 11] = DoubleToString(tr.profit, 2);
-   cells[base + 12] = DoubleToString(tr.profitCustomWithRoll, 2);
-   cells[base + 13] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
+   cells[base + 6]  = FalgoTradeDurationHoursStr(tr.startTime, tr.endTime);
+   cells[base + 7]  = FalgoSanitizeCsvCell(tr.sessionSent);
+   cells[base + 8]  = IntegerToString(AlgoFamilyMagicNumber(tr.magic));
+   cells[base + 9]  = IntegerToString((long)tr.magic);
+   cells[base + 10] = DoubleToString(tr.priceStart, _Digits);
+   cells[base + 11] = DoubleToString(tr.priceEnd, _Digits);
+   cells[base + 12] = DoubleToString(tr.priceDiff, _Digits);
+   cells[base + 13] = DoubleToString(tr.profit, 2);
+   cells[base + 14] = DoubleToString(tr.profitCustomWithRoll, 2);
+   cells[base + 15] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
    int planNum = 0, levelNum = 0;
-   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
-   cells[base + 14] = FalgoSanitizeCsvCell(tr.level);
+   FalgoPlanAndLevelTradeNumsForTrade(tr, planNum, levelNum);
+   cells[base + 16] = FalgoSanitizeCsvCell(tr.level);
    FalgoClosedTradeTelemetrySummary telSummary;
    const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
    FalgoTradeLegacyContextCols legacyCtx;
    FalgoFillTradeLegacyContextCols(tr, legacyCtx);
    if(hasTel)
    {
-      cells[base + 15] = DoubleToString(telSummary.mfePts, 1);
-      cells[base + 16] = DoubleToString(telSummary.maePts, 1);
-      cells[base + 17] = DoubleToString(telSummary.maeFirstWindowPts, 1);
-      cells[base + 20] = FalgoSanitizeCsvCell(telSummary.closeDecision);
-      cells[base + 21] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 17] = DoubleToString(telSummary.mfePts, 1);
+      cells[base + 18] = DoubleToString(telSummary.maePts, 1);
+      FalgoTradeResultMfeMaeWithRollStr(hasTel, telSummary.mfePts, telSummary.maePts,
+         telSummary.withRolloverFee, telSummary.rolloverPricediff, cells[base + 19], cells[base + 20]);
+      cells[base + 21] = FalgoBoolCsv(telSummary.withRolloverFee);
+      cells[base + 24] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 25] = FalgoSanitizeCsvCell(telSummary.closeDetail);
    }
    else
    {
-      cells[base + 15] = "";
-      cells[base + 16] = "";
       cells[base + 17] = "";
+      cells[base + 18] = "";
+      cells[base + 19] = "";
       cells[base + 20] = "";
       cells[base + 21] = "";
+      cells[base + 24] = "";
+      cells[base + 25] = "";
    }
-   cells[base + 18] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
-   cells[base + 19] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
-   cells[base + 22] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 23] = (string)tr.volume;
-   cells[base + 24] = FalgoSanitizeCsvCell(tr.bothComments);
-   cells[base + 25] = IntegerToString(planNum);
-   cells[base + 26] = IntegerToString(levelNum);
-   cells[base + 27] = FalgoOffsetPriceUnitsStrForTrade(tr);
-   cells[base + 28] = FalgoSanitizeCsvCell(tr.tp);
-   cells[base + 29] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 30] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 22] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 23] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 26] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 27] = (string)tr.volume;
+   cells[base + 28] = FalgoSanitizeCsvCell(tr.bothComments);
+   cells[base + 29] = IntegerToString(planNum);
+   cells[base + 30] = IntegerToString(levelNum);
+   cells[base + 31] = FalgoOffsetPriceUnitsStrForTrade(tr);
+   cells[base + 32] = FalgoSanitizeCsvCell(tr.tp);
+   cells[base + 33] = FalgoSanitizeCsvCell(tr.sl);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 41] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
    int secretTpPct = 0, closeAfterMin = 0;
    BreakdownAllDaysAlgoConfigForMagic(tr.magic, secretTpPct, closeAfterMin);
-   cells[base + 38] = IntegerToString(secretTpPct);
-   cells[base + 39] = IntegerToString(closeAfterMin);
+   cells[base + 42] = IntegerToString(secretTpPct);
+   cells[base + 43] = IntegerToString(closeAfterMin);
 }
 
 //+------------------------------------------------------------------+
@@ -11708,62 +11859,68 @@ void FalgoAppendTimeAlgoTradeResultCells(string &cells[], const string dateStr, 
    cells[base + 3]  = TimeToString(tr.sentTime, TIME_DATE|TIME_SECONDS);
    cells[base + 4]  = TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS);
    cells[base + 5]  = TimeToString(tr.endTime, TIME_DATE|TIME_SECONDS);
-   cells[base + 6]  = FalgoSanitizeCsvCell(tr.sessionSent);
-   cells[base + 7]  = IntegerToString((long)tr.magic);
-   cells[base + 8]  = DoubleToString(tr.priceStart, _Digits);
-   cells[base + 9]  = DoubleToString(tr.priceEnd, _Digits);
-   cells[base + 10] = DoubleToString(tr.priceDiff, _Digits);
-   cells[base + 11] = DoubleToString(tr.profit, 2);
-   cells[base + 12] = DoubleToString(tr.profitCustomWithRoll, 2);
-   cells[base + 13] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
+   cells[base + 6]  = FalgoTradeDurationHoursStr(tr.startTime, tr.endTime);
+   cells[base + 7]  = FalgoSanitizeCsvCell(tr.sessionSent);
+   cells[base + 8]  = IntegerToString(AlgoFamilyMagicNumber(tr.magic));
+   cells[base + 9]  = IntegerToString((long)tr.magic);
+   cells[base + 10] = DoubleToString(tr.priceStart, _Digits);
+   cells[base + 11] = DoubleToString(tr.priceEnd, _Digits);
+   cells[base + 12] = DoubleToString(tr.priceDiff, _Digits);
+   cells[base + 13] = DoubleToString(tr.profit, 2);
+   cells[base + 14] = DoubleToString(tr.profitCustomWithRoll, 2);
+   cells[base + 15] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
    int planNum = 0, levelNum = 0;
-   FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
-   cells[base + 14] = FalgoSanitizeCsvCell(tr.level);
+   FalgoPlanAndLevelTradeNumsForTrade(tr, planNum, levelNum);
+   cells[base + 16] = FalgoSanitizeCsvCell(tr.level);
    FalgoClosedTradeTelemetrySummary telSummary;
    const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
    FalgoTradeLegacyContextCols legacyCtx;
    FalgoFillTradeLegacyContextCols(tr, legacyCtx);
    if(hasTel)
    {
-      cells[base + 15] = DoubleToString(telSummary.mfePts, 1);
-      cells[base + 16] = DoubleToString(telSummary.maePts, 1);
-      cells[base + 17] = DoubleToString(telSummary.maeFirstWindowPts, 1);
-      cells[base + 20] = FalgoSanitizeCsvCell(telSummary.closeDecision);
-      cells[base + 21] = FalgoSanitizeCsvCell(telSummary.closeDetail);
+      cells[base + 17] = DoubleToString(telSummary.mfePts, 1);
+      cells[base + 18] = DoubleToString(telSummary.maePts, 1);
+      FalgoTradeResultMfeMaeWithRollStr(hasTel, telSummary.mfePts, telSummary.maePts,
+         telSummary.withRolloverFee, telSummary.rolloverPricediff, cells[base + 19], cells[base + 20]);
+      cells[base + 21] = FalgoBoolCsv(telSummary.withRolloverFee);
+      cells[base + 24] = FalgoSanitizeCsvCell(telSummary.closeDecision);
+      cells[base + 25] = FalgoSanitizeCsvCell(telSummary.closeDetail);
    }
    else
    {
-      cells[base + 15] = "";
-      cells[base + 16] = "";
       cells[base + 17] = "";
+      cells[base + 18] = "";
+      cells[base + 19] = "";
       cells[base + 20] = "";
       cells[base + 21] = "";
+      cells[base + 24] = "";
+      cells[base + 25] = "";
    }
-   cells[base + 18] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
-   cells[base + 19] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
-   cells[base + 22] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 23] = (string)tr.volume;
-   cells[base + 24] = FalgoSanitizeCsvCell(tr.bothComments);
-   cells[base + 25] = IntegerToString(planNum);
-   cells[base + 26] = IntegerToString(levelNum);
-   cells[base + 27] = FalgoOffsetPriceUnitsStrForTrade(tr);
-   cells[base + 28] = FalgoSanitizeCsvCell(tr.tp);
-   cells[base + 29] = FalgoSanitizeCsvCell(tr.sl);
-   cells[base + 30] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
-   cells[base + 31] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
-   cells[base + 32] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
-   cells[base + 33] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
-   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
-   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
-   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
-   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
+   cells[base + 22] = FalgoSanitizeCsvCell(legacyCtx.mfeCandle);
+   cells[base + 23] = FalgoSanitizeCsvCell(legacyCtx.maeCandle);
+   cells[base + 26] = FalgoSanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 27] = (string)tr.volume;
+   cells[base + 28] = FalgoSanitizeCsvCell(tr.bothComments);
+   cells[base + 29] = IntegerToString(planNum);
+   cells[base + 30] = IntegerToString(levelNum);
+   cells[base + 31] = FalgoOffsetPriceUnitsStrForTrade(tr);
+   cells[base + 32] = FalgoSanitizeCsvCell(tr.tp);
+   cells[base + 33] = FalgoSanitizeCsvCell(tr.sl);
+   cells[base + 34] = FalgoSanitizeCsvCell(legacyCtx.breakevenC);
+   cells[base + 35] = FalgoSanitizeCsvCell(legacyCtx.gapFillPc);
+   cells[base + 36] = FalgoSanitizeCsvCell(legacyCtx.openGapInfo);
+   cells[base + 37] = FalgoSanitizeCsvCell(legacyCtx.pdTrend);
+   cells[base + 38] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDH);
+   cells[base + 39] = FalgoSanitizeCsvCell(legacyCtx.dayBrokePDL);
+   cells[base + 40] = FalgoSanitizeCsvCell(legacyCtx.refAbove);
+   cells[base + 41] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
    int entryHour = 0, entryMinute = 0;
    double secretTpProfitPctMin = 0.0, secretTpGreenguardPricediff = 0.0;
    TimeAlgoAllDaysAlgoConfigForMagic(tr.magic, entryHour, entryMinute, secretTpProfitPctMin, secretTpGreenguardPricediff);
-   cells[base + 38] = IntegerToString(entryHour);
-   cells[base + 39] = IntegerToString(entryMinute);
-   cells[base + 40] = DoubleToString(secretTpProfitPctMin, 2);
-   cells[base + 41] = DoubleToString(secretTpGreenguardPricediff, _Digits);
+   cells[base + 42] = IntegerToString(entryHour);
+   cells[base + 43] = IntegerToString(entryMinute);
+   cells[base + 44] = DoubleToString(secretTpProfitPctMin, 2);
+   cells[base + 45] = DoubleToString(secretTpGreenguardPricediff, _Digits);
 }
 
 //+------------------------------------------------------------------+
@@ -11851,7 +12008,7 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
    {
       FileWrite(fhDay, "symbol", "sentTime", "startTime", "endTime", "sessionSent", "magic", "priceStart", "priceEnd", "priceDiff", "profit", "type",
          "level", "levelTag", "levelSlot",
-         "MFE", "MAE", FalgoTradeResultMaeFirstCsvColumnName(), "mfeCandle", "maeCandle", "close_decision", "close_detail",
+         "MFE", "MAE", "MFE_w_roll", "MAE_w_roll", "hasRollover", "mfeCandle", "maeCandle", "close_decision", "close_detail",
          "reason", "volume", "bothComments", "planTradeNumToday", "levelTradeNumToday", "offset", "tp", "sl",
          "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend", "dayBrokePDH", "dayBrokePDL",
          "referencePointsAbove", "referencePointsBelow", "levelCats",
@@ -11862,13 +12019,17 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
          if(!tr.foundOut || !IsAlgoCompositeMagic(tr.magic, algoSlot1))
             continue;
          int planNum = 0, levelNum = 0;
-         FalgoPlanAndLevelTradeNumsFromMagic(tr.magic, planNum, levelNum);
+         FalgoPlanAndLevelTradeNumsForTrade(tr, planNum, levelNum);
          FalgoClosedTradeTelemetrySummary telSummary;
          const bool hasTel = FalgoGetTelemetrySummaryForTrade(tr.magic, tr.startTime, telSummary);
          FalgoTradeLegacyContextCols legacyCtx;
          FalgoFillTradeLegacyContextCols(tr, legacyCtx);
          int wBounceC = 0, dBounceC = 0, wCeilingC = 0, dCeilingC = 0;
          FalgoFillTradeBounceCeilingCountsAtStart(tr, wBounceC, dBounceC, wCeilingC, dCeilingC);
+         string mfeWithRoll = "";
+         string maeWithRoll = "";
+         FalgoTradeResultMfeMaeWithRollStr(hasTel, telSummary.mfePts, telSummary.maePts,
+            telSummary.withRolloverFee, telSummary.rolloverPricediff, mfeWithRoll, maeWithRoll);
          FileWrite(fhDay, tr.symbol,
             TimeToString(tr.sentTime, TIME_DATE|TIME_SECONDS),
             TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS),
@@ -11883,7 +12044,8 @@ void WriteAlgoEodTradeResultsCsvsIfNeeded(const string dateStr, const int algoSl
             tr.level, FalgoLevelTagUneditedForTradeResult(tr), FalgoLevelSlotStrForMagic(tr.magic),
             (hasTel ? DoubleToString(telSummary.mfePts, 1) : ""),
             (hasTel ? DoubleToString(telSummary.maePts, 1) : ""),
-            (hasTel ? DoubleToString(telSummary.maeFirstWindowPts, 1) : ""),
+            mfeWithRoll, maeWithRoll,
+            (hasTel ? FalgoBoolCsv(telSummary.withRolloverFee) : ""),
             legacyCtx.mfeCandle, legacyCtx.maeCandle,
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDecision) : ""),
             (hasTel ? FalgoSanitizeCsvCell(telSummary.closeDetail) : ""),
@@ -18989,6 +19151,38 @@ string AlgoBreakdownPlacementBlockReasonFirstFail(const int algoNumber, const in
 }
 
 //+------------------------------------------------------------------+
+//| Cheap per-algo gates only (no 15m snap, rules, or order placement). |
+//+------------------------------------------------------------------+
+bool BreakdownPlacementPassesCheapCandidateChecks(const int slotIdx, const int barIdx)
+{
+   if(slotIdx < 0 || slotIdx >= g_breakdownAlgoCount)
+      return false;
+   if(!g_breakdownAlgos[slotIdx].enabled)
+      return false;
+   const int algoNumber = g_breakdownAlgos[slotIdx].algo_id;
+   if(!AlgoProfileEnabled(algoNumber))
+      return false;
+   if(!BreakdownRulesetPassesCommonForPlacement(algoNumber, barIdx))
+      return false;
+   if(BreakdownAlgoIsOccupiedOnSymbolCached(algoNumber))
+      return false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+int BuildBreakdownPlacementCandidates(const int barIdx)
+{
+   g_breakdownPlacementCandidateCount = 0;
+   for(int si = 0; si < g_breakdownAlgoCount; si++)
+   {
+      if(!BreakdownPlacementPassesCheapCandidateChecks(si, barIdx))
+         continue;
+      g_breakdownPlacementCandidateSlots[g_breakdownPlacementCandidateCount++] = si;
+   }
+   return g_breakdownPlacementCandidateCount;
+}
+
+//+------------------------------------------------------------------+
 void RunBreakdownPlacementOnM1Close(const int barIdx)
 {
    const bool profOn = BacktestProfileEnabled();
@@ -19004,16 +19198,28 @@ void RunBreakdownPlacementOnM1Close(const int barIdx)
 
    RefreshGlobalBreakdown15mSnap(g_lastTimer1Time);
    RefreshOccupiedMagicsCache();
-   for(int si = 0; si < g_breakdownAlgoCount; si++)
+   g_breakdownPlacementPassActive = true;
+   g_breakdownPlacementPassFamilyOccupied = false;
+   if(BreakdownFamilyBlocksPlacementOnOpenOrPending())
    {
-      if(!g_breakdownAlgos[si].enabled)
-         continue;
+      g_breakdownPlacementPassFamilyOccupied = BreakdownAnyFamilyOccupiedOnSymbolCached();
+      if(g_breakdownPlacementPassFamilyOccupied || g_breakdownFamilyHadCloseThisPipelinePass)
+      {
+         g_breakdownPlacementPassActive = false;
+         return;
+      }
+   }
+   const int candidateCount = BuildBreakdownPlacementCandidates(barIdx);
+   for(int ci = 0; ci < candidateCount; ci++)
+   {
+      const int si = g_breakdownPlacementCandidateSlots[ci];
       if(profOn)
          profT0 = GetMicrosecondCount();
       AlgoTryPlaceBreakdownMidpointOrder(g_breakdownAlgos[si].algo_id, barIdx);
       if(profOn)
          BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT, profT0);
    }
+   g_breakdownPlacementPassActive = false;
 }
 
 //+------------------------------------------------------------------+
@@ -19416,6 +19622,28 @@ bool CanPlaceNewOrderForAlgo_Cached(const int algoNumber)
 }
 
 //+------------------------------------------------------------------+
+//| After RefreshOccupiedMagicsCache: true when this algo has open/pending on _Symbol. |
+//+------------------------------------------------------------------+
+bool BreakdownAlgoIsOccupiedOnSymbolCached(const int algoNumber)
+{
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx < 0 || cacheIdx >= ALGO_OCCUPIED_CACHE_MAX)
+      return AlgoHasOpenOrPendingOnSymbol(algoNumber);
+   return g_occupiedAlgoFamilySlots[cacheIdx];
+}
+
+//+------------------------------------------------------------------+
+bool BreakdownAnyFamilyOccupiedOnSymbolCached()
+{
+   for(int si = 0; si < g_breakdownAlgoCount; si++)
+   {
+      if(BreakdownAlgoIsOccupiedOnSymbolCached(g_breakdownAlgos[si].algo_id))
+         return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
 //| Close any algo-family position open longer than minutes. Sets trade magic so OUT deal pairs with IN. |
 //+------------------------------------------------------------------+
 void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
@@ -19632,91 +19860,94 @@ void WriteDailySummary()
       FileClose(fileHandle2);
    }
    
-   HistorySelect(0, g_lastTimer1Time);
-
-   string ordersFile = dateStr + "-not_from_globals_AllHistoryOrders.csv";
-   int fileHandle3 = FileOpen(ordersFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fileHandle3 == INVALID_HANDLE)
-      FatalError("WriteDailySummary: could not open " + ordersFile);
-   FileWrite(fileHandle3, "rowKind", "ticket", "symbol", "magic", "timeSetup", "state", "type", "reason", "volume", "priceOpen", "priceCurrent", "priceStopLoss", "priceTakeProfit", "timeExpiration", "activationPrice", "amount", "comment");
-   int totalHist = HistoryOrdersTotal();
-   for(int i = 0; i < totalHist; i++)
+   if(bigflipper_log_not_from_globals_AllHistoryOrders_and_deals)
    {
-      ulong ticket = HistoryOrderGetTicket(i);
-      if(ticket == 0) continue;
+      HistorySelect(0, g_lastTimer1Time);
 
-      datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
-      if(orderTime < dateWhenAlgoTradeStarted) continue;
-
-      FileWrite(fileHandle3, "order", IntegerToString((long)ticket), HistoryOrderGetString(ticket, ORDER_SYMBOL),
-                IntegerToString((long)HistoryOrderGetInteger(ticket, ORDER_MAGIC)),
-                TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP), TIME_DATE | TIME_SECONDS),
-                EnumToString((ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE)),
-                EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)),
-                EnumToString((ENUM_ORDER_REASON)HistoryOrderGetInteger(ticket, ORDER_REASON)),
-                DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2),
-                DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits),
-                DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits),
-                DoubleToString(HistoryOrderGetDouble(ticket, ORDER_SL), _Digits),
-                DoubleToString(HistoryOrderGetDouble(ticket, ORDER_TP), _Digits),
-                TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_EXPIRATION), TIME_DATE | TIME_SECONDS),
-                DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_STOPLIMIT), _Digits),
-                "", HistoryOrderGetString(ticket, ORDER_COMMENT));
-   }
-
-   string dealsFile = dateStr + "-not_from_globals_AllHistoryDeals.csv";
-   int fileHandle4 = FileOpen(dealsFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fileHandle4 == INVALID_HANDLE)
-      FatalError("WriteDailySummary: could not open " + dealsFile);
-   FileWrite(fileHandle4, "rowKind", "ticket", "symbol", "magic", "time", "entry", "type", "reason", "volume", "price", "profit", "ticketOrder", "comment", "swap", "commission", "fee", "sourceDealTicket");
-   int totalDeals = HistoryDealsTotal();
-   for(int i = 0; i < totalDeals; i++)
-   {
-      ulong ticket = HistoryDealGetTicket(i);
-      if(ticket == 0) continue;
-
-      datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
-      if(dealTime < dateWhenAlgoTradeStarted) continue;
-
-      string symbol = HistoryDealGetString(ticket, DEAL_SYMBOL);
-      long magic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
-      ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY);
-      ENUM_DEAL_TYPE dealType = (ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE);
-      ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(ticket, DEAL_REASON);
-      double volume = HistoryDealGetDouble(ticket, DEAL_VOLUME);
-      double price = HistoryDealGetDouble(ticket, DEAL_PRICE);
-      double profit = HistoryDealGetDouble(ticket, DEAL_PROFIT);
-      double swap = HistoryDealGetDouble(ticket, DEAL_SWAP);
-      double commission = HistoryDealGetDouble(ticket, DEAL_COMMISSION);
-      double fee = HistoryDealGetDouble(ticket, DEAL_FEE);
-      ulong orderTicket = HistoryDealGetInteger(ticket, DEAL_ORDER);
-      string comment = HistoryDealGetString(ticket, DEAL_COMMENT);
-      string ticketStr = IntegerToString((long)ticket);
-      string rowKind = AllHistoryDealIsOvernightSwapRollover(entry, reason) ? "swap_rollover" : "deal";
-
-      FileWrite(fileHandle4, rowKind, ticketStr, symbol, IntegerToString((long)magic),
-                TimeToString(dealTime, TIME_DATE | TIME_SECONDS),
-                EnumToString(entry), EnumToString(dealType), EnumToString(reason),
-                DoubleToString(volume, 2), DoubleToString(price, _Digits), DoubleToString(profit, 2),
-                IntegerToString((long)orderTicket), comment,
-                DoubleToString(swap, 2), DoubleToString(commission, 2), DoubleToString(fee, 2), "");
-
-      if(AllHistoryDealIsOvernightSwapRollover(entry, reason))
+      string ordersFile = dateStr + "-not_from_globals_AllHistoryOrders.csv";
+      int fileHandle3 = FileOpen(ordersFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+      if(fileHandle3 == INVALID_HANDLE)
+         FatalError("WriteDailySummary: could not open " + ordersFile);
+      FileWrite(fileHandle3, "rowKind", "ticket", "symbol", "magic", "timeSetup", "state", "type", "reason", "volume", "priceOpen", "priceCurrent", "priceStopLoss", "priceTakeProfit", "timeExpiration", "activationPrice", "amount", "comment");
+      int totalHist = HistoryOrdersTotal();
+      for(int i = 0; i < totalHist; i++)
       {
-         double overnightAmount = profit;
-         if(!AllHistoryDealAmountIsNonZero(overnightAmount))
-            overnightAmount = swap;
-         WriteAllHistoryOrderSwapRolloverSupplementRow(fileHandle3, "swap_rollover", ticketStr,
-            symbol, magic, dealTime, overnightAmount, ticket, orderTicket);
+         ulong ticket = HistoryOrderGetTicket(i);
+         if(ticket == 0) continue;
+
+         datetime orderTime = (datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP);
+         if(orderTime < dateWhenAlgoTradeStarted) continue;
+
+         FileWrite(fileHandle3, "order", IntegerToString((long)ticket), HistoryOrderGetString(ticket, ORDER_SYMBOL),
+                   IntegerToString((long)HistoryOrderGetInteger(ticket, ORDER_MAGIC)),
+                   TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_SETUP), TIME_DATE | TIME_SECONDS),
+                   EnumToString((ENUM_ORDER_STATE)HistoryOrderGetInteger(ticket, ORDER_STATE)),
+                   EnumToString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(ticket, ORDER_TYPE)),
+                   EnumToString((ENUM_ORDER_REASON)HistoryOrderGetInteger(ticket, ORDER_REASON)),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_VOLUME_INITIAL), 2),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_OPEN), _Digits),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_CURRENT), _Digits),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_SL), _Digits),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_TP), _Digits),
+                   TimeToString((datetime)HistoryOrderGetInteger(ticket, ORDER_TIME_EXPIRATION), TIME_DATE | TIME_SECONDS),
+                   DoubleToString(HistoryOrderGetDouble(ticket, ORDER_PRICE_STOPLIMIT), _Digits),
+                   "", HistoryOrderGetString(ticket, ORDER_COMMENT));
       }
-      else if(entry == DEAL_ENTRY_OUT)
+
+      string dealsFile = dateStr + "-not_from_globals_AllHistoryDeals.csv";
+      int fileHandle4 = FileOpen(dealsFile, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+      if(fileHandle4 == INVALID_HANDLE)
+         FatalError("WriteDailySummary: could not open " + dealsFile);
+      FileWrite(fileHandle4, "rowKind", "ticket", "symbol", "magic", "time", "entry", "type", "reason", "volume", "price", "profit", "ticketOrder", "comment", "swap", "commission", "fee", "sourceDealTicket");
+      int totalDeals = HistoryDealsTotal();
+      for(int i = 0; i < totalDeals; i++)
       {
-         WriteAllHistoryDealSwapRolloverSupplementRows(fileHandle4, fileHandle3, ticket, symbol, magic,
-            dealTime, swap, commission, fee, orderTicket);
+         ulong ticket = HistoryDealGetTicket(i);
+         if(ticket == 0) continue;
+
+         datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+         if(dealTime < dateWhenAlgoTradeStarted) continue;
+
+         string symbol = HistoryDealGetString(ticket, DEAL_SYMBOL);
+         long magic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
+         ENUM_DEAL_ENTRY entry = (ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY);
+         ENUM_DEAL_TYPE dealType = (ENUM_DEAL_TYPE)HistoryDealGetInteger(ticket, DEAL_TYPE);
+         ENUM_DEAL_REASON reason = (ENUM_DEAL_REASON)HistoryDealGetInteger(ticket, DEAL_REASON);
+         double volume = HistoryDealGetDouble(ticket, DEAL_VOLUME);
+         double price = HistoryDealGetDouble(ticket, DEAL_PRICE);
+         double profit = HistoryDealGetDouble(ticket, DEAL_PROFIT);
+         double swap = HistoryDealGetDouble(ticket, DEAL_SWAP);
+         double commission = HistoryDealGetDouble(ticket, DEAL_COMMISSION);
+         double fee = HistoryDealGetDouble(ticket, DEAL_FEE);
+         ulong orderTicket = HistoryDealGetInteger(ticket, DEAL_ORDER);
+         string comment = HistoryDealGetString(ticket, DEAL_COMMENT);
+         string ticketStr = IntegerToString((long)ticket);
+         string rowKind = AllHistoryDealIsOvernightSwapRollover(entry, reason) ? "swap_rollover" : "deal";
+
+         FileWrite(fileHandle4, rowKind, ticketStr, symbol, IntegerToString((long)magic),
+                   TimeToString(dealTime, TIME_DATE | TIME_SECONDS),
+                   EnumToString(entry), EnumToString(dealType), EnumToString(reason),
+                   DoubleToString(volume, 2), DoubleToString(price, _Digits), DoubleToString(profit, 2),
+                   IntegerToString((long)orderTicket), comment,
+                   DoubleToString(swap, 2), DoubleToString(commission, 2), DoubleToString(fee, 2), "");
+
+         if(AllHistoryDealIsOvernightSwapRollover(entry, reason))
+         {
+            double overnightAmount = profit;
+            if(!AllHistoryDealAmountIsNonZero(overnightAmount))
+               overnightAmount = swap;
+            WriteAllHistoryOrderSwapRolloverSupplementRow(fileHandle3, "swap_rollover", ticketStr,
+               symbol, magic, dealTime, overnightAmount, ticket, orderTicket);
+         }
+         else if(entry == DEAL_ENTRY_OUT)
+         {
+            WriteAllHistoryDealSwapRolloverSupplementRows(fileHandle4, fileHandle3, ticket, symbol, magic,
+               dealTime, swap, commission, fee, orderTicket);
+         }
       }
+      FileClose(fileHandle3);
+      FileClose(fileHandle4);
    }
-   FileClose(fileHandle3);
-   FileClose(fileHandle4);
 }
 
 //| magicStrForLogFilename: algo tag (algo10, …) → (date)_B_TradeLog_<tag>.csv (see GetMagicStrForLogFilename). |

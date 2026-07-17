@@ -85,15 +85,27 @@ include BreakdownCombinationsDeleter
 if __FILE__ == $PROGRAM_NAME
   preserve_ids = parse_id_list(PRESERVE_ALGO_IDS_TEXT).uniq.sort
   content = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
+  registry_max = breakdown_registry_max(content)
+  registry_headroom = breakdown_registry_max_headroom(content)
   wired_ids = registry_algo_ids(content)
   delete_ids = delete_ids_for(wired_ids, preserve_ids).sort
   keep_ids = wired_ids - delete_ids
+  required_registry_max = compute_registry_max_for_wired_count(keep_ids.size)
 
+  puts "Registry slot capacity:    #{registry_max} (BREAKDOWN_ALGO_REGISTRY_MAX in aleksik2.mq5)"
+  puts "Registry headroom:         #{registry_headroom} (max unused slots above wired count)"
   puts "Wired breakdown algos:     #{wired_ids.empty? ? '(none)' : wired_ids.join(', ')}"
   puts "Preserve list:             #{preserve_ids.empty? ? '(none)' : preserve_ids.join(', ')}"
   puts
   puts "Will delete:               #{delete_ids.empty? ? '(none)' : delete_ids.join(', ')}"
   puts "Will keep:                 #{keep_ids.empty? ? '(none)' : keep_ids.join(', ')}"
+  if delete_ids.any?
+    puts "Required registry slots:   #{required_registry_max} (after delete)"
+    if required_registry_max != registry_max
+      verb = required_registry_max > registry_max ? "raise" : "lower"
+      puts "Will #{verb} BREAKDOWN_ALGO_REGISTRY_MAX: #{registry_max} -> #{required_registry_max}"
+    end
+  end
   puts
 
   if delete_ids.empty?
@@ -115,10 +127,13 @@ if __FILE__ == $PROGRAM_NAME
   end
 
   updated = delete_algos!(content, delete_ids)
+  updated = set_breakdown_registry_max(updated, required_registry_max) if required_registry_max != registry_max
   File.write(MQ5_FILE, updated)
 
   remaining = registry_algo_ids(updated)
+  final_registry_max = breakdown_registry_max(updated)
   puts "Deleted #{delete_ids.size} breakdown algo(s): #{delete_ids.join(', ')}"
   puts "Remaining wired algos (#{remaining.size}): #{remaining.join(', ')}"
+  puts "BREAKDOWN_ALGO_REGISTRY_MAX: #{registry_max} -> #{final_registry_max}" if required_registry_max != registry_max
   puts MQ5_FILE
 end
