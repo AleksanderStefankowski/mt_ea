@@ -19,7 +19,7 @@ EXCLUDE_PREFIXES = [
     "11"
 ]
 
-INCLUDE_PREFIXES_MODE = true # one magic prefix per line below (no commas)
+INCLUDE_PREFIXES_MODE = false # one magic prefix per line below (no commas)
 INCLUDE_PREFIXES = <<~INCLUDE_PREFIXES
 121
 124
@@ -48,7 +48,7 @@ INCLUDE_PREFIXES = <<~INCLUDE_PREFIXES
 183
 INCLUDE_PREFIXES
 
-CHECK_ONLY_A_DATERANGE = true
+CHECK_ONLY_A_DATERANGE = false
 CHECK_ONLY_A_DATERANGE_LATEST_X_WEEKS = 15
 
 def excluded_prefixes
