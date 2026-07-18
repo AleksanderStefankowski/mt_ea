@@ -21,7 +21,7 @@ EXCLUDE_PREFIXES = [
 ]
 # EXCLUDE_PREFIXES = ["11" "12 13  14 15 16 17 18 19', '20', '21', '22',  "23" '25', '26', '27', "30] #  10 24  28 29
 
-INCLUDE_PREFIXES_MODE = true # one magic prefix per line below (no commas)
+INCLUDE_PREFIXES_MODE = false # one magic prefix per line below (no commas)
 INCLUDE_PREFIXES = <<~INCLUDE_PREFIXES
 130
 183
@@ -45,7 +45,7 @@ INCLUDE_PREFIXES = <<~INCLUDE_PREFIXES
 INCLUDE_PREFIXES
 
 CHECK_ONLY_A_DATERANGE = false
-CHECK_ONLY_A_DATERANGE_LATEST_X_WEEKS = 30
+CHECK_ONLY_A_DATERANGE_LATEST_X_WEEKS = 40
 
 CSV_HEADERS = %w[
   magicprefix
@@ -344,6 +344,15 @@ def build_csv_row(magic_prefix, trades, initial_tp, initial_sl, first_date, last
   }
 end
 
+def print_all_row_summary(all_row, io: $stderr)
+  io.puts
+  io.puts 'ALL row summary:'
+  io.puts format('  profit factor: %s', all_row[:profitfactor])
+  io.puts format('  start date: %s', all_row[:allDays_startDate])
+  io.puts format('  end date: %s', all_row[:allDays_endDate])
+  io.puts format('  weekly trade rate: %s', all_row[:weekly_traderate])
+end
+
 # =========================================================
 # LOAD FILE
 # =========================================================
@@ -457,4 +466,5 @@ CSV.open(OUTPUT_CSV_PATH, 'w', write_headers: true, headers: CSV_HEADERS) do |ou
 end
 
 $stderr.puts "Wrote #{csv_rows.size} rows to #{OUTPUT_CSV_PATH}"
+print_all_row_summary(csv_rows.first)
 $stderr.puts 'DONE'

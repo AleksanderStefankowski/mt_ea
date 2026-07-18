@@ -1,19 +1,21 @@
 
-# desired_min_breakdown_sequence_len = [4, 3, 6, 8]
-# desired_max_breakdown_sequence_len = [9, 14, 21]
-
 # desired_bd_start_min_breakdown_percent = [0.20, 0.30, 0.40, 0.60, 0.80]
-# desired_min_breakdown_total_percent = [0.40, 0.60, 0.80, 1.00, 2.00]
+
+# desired_expiry_minutes = [15, 30, 45]
 
 # desired_after_bd_need_x_15greenc = [1, 2, 3, 4, 5]
 # desired_entry_max_minutes_after_bdend = [75, 50, 90]
 
-# desired_entryrange_range_percentspot = [20, 33, 50, 66, 75]
-# desired_secret_tp_range_percent = [0, 20, 33, 50, 66, 75, 100] # 0 is disabled secret tp
+# desired_forget_about_latest_breakdown_after_x_15m_candles = [6, 8, 12]
 
 # desired_tp_notsecret_range_percent = [150]
 
-# desired_closetrade_after_x_minutes_from_breakdown = [0, 15, 30, 45, 60, 75, 90] #  0 is disabled
+# desired_closetrade_after_some_time = [false, true]
+# desired_closetrade_after_some_time_but_ProfitPercent_Needed = [2.0]
+# desired_closetrade_after_x_minutes_from_breakdown = [0, 15, 30, 45, 60, 75, 90] # only used when closetrade_after_some_time is true
+
+# desired_stop_trading_today_if_thisAlgo_total_trades_count = [3, 5, 10]
+# desired_max_open_positions = [5, 10, 2]
 
 # desired_breakdowntypes = [
 #     "CLOSES",
@@ -23,7 +25,6 @@
 #     "HL_MID",
 # ]
 
-# desired_max_open_positions = [5, 10, 2]
 
 
 #!/usr/bin/env ruby
@@ -52,28 +53,38 @@ BREAKDOWN_TYPE_TO_MODE = {
 }.freeze
 
 # --- edit combination grids here ---
-DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [4].freeze
-DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [9].freeze # , 21
+DESIRED_EXPIRY_MINUTES = [15, 45].freeze # 15
+DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT = [3].freeze # 3   [3, 6]
 
-DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20].freeze
-DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.40].freeze
+DESIRED_CLOSETRADE_AFTER_SOME_TIME = [false].freeze # for noww focus on TP mode algos, not time escape algos
+DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0].freeze
+DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [90].freeze # only used when closetrade_after_some_time is true
 
-DESIRED_AFTER_BD_NEED_X_15GREENC = [1].freeze
-DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [75].freeze
+DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3, 4, 5].freeze # 3   [4, 3, 6, 8] 
+DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [9, 21].freeze # 9   [9, 14, 21]
 
-DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [20].freeze
-DESIRED_SECRET_TP_RANGE_PERCENT = [0, 20].freeze # 0 is disabled secret tp
+DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.15, 0.20, 0.35].freeze #  0.20 # [0.40, 0.60, 0.80, 1.00, 2.00]
+
+DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.40, 0.60].freeze
+
+DESIRED_AFTER_BD_NEED_X_15GREENC = [1, 2, 3].freeze
+DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [75].freeze # 75
+
+DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [6, 9].freeze # 6
+
+DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [20, 33, 50, 66, 75].freeze # [20, 33, 50, 66, 75]
+DESIRED_SECRET_TP_RANGE_PERCENT = [0, 20, 45].freeze # 0 is disabled secret tp #  [0, 20, 33, 50, 66, 75, 100] 
 
 DESIRED_TP_NOTSECRET_RANGE_PERCENT = [150].freeze
 
-DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [90].freeze # 0 is disabled
-DESIRED_MAX_OPEN_POSITIONS = [5].freeze
+
+DESIRED_MAX_OPEN_POSITIONS = [10].freeze
 DESIRED_BREAKDOWNTYPES = [
   "CLOSES",
-  "OHLC_AVG"
-  # "LOW",
-  # "OC_MID",
-  # "HL_MID",
+  "OHLC_AVG",
+  "LOW",
+  "OC_MID",
+  "HL_MID",
 ].freeze
 
 module BreakdownCombinationsCreator
@@ -116,6 +127,30 @@ module BreakdownCombinationsCreator
     m[1].to_i
   end
 
+  def breakdown_registry_max_headroom(content)
+    m = content.match(/#define\s+BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM\s+(\d+)/)
+    raise "BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM not found in #{MQ5_FILE}" unless m
+
+    m[1].to_i
+  end
+
+  def compute_registry_max_for_wired_count(wired_count)
+    raise "Need at least one wired breakdown algo" if wired_count <= 0
+
+    wired_count
+  end
+
+  def set_breakdown_registry_max(content, new_max)
+    unless content.sub!(
+      /#define\s+BREAKDOWN_ALGO_REGISTRY_MAX\s+\d+/,
+      format("#define BREAKDOWN_ALGO_REGISTRY_MAX           %d", new_max)
+    )
+      raise "Failed to update BREAKDOWN_ALGO_REGISTRY_MAX in #{MQ5_FILE}"
+    end
+
+    content
+  end
+
   def registry_algo_ids(content)
     block = extract_inner(content, 1)
     block.scan(/MAGIC_BREAKDOWN(\d+)/).flatten.map(&:to_i).uniq.sort
@@ -129,21 +164,30 @@ module BreakdownCombinationsCreator
     format("%.2f", value.to_f)
   end
 
+  def format_mq5_bool(value)
+    value ? "true" : "false"
+  end
+
   def build_combinations
     combos = []
     DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN.product(
       DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN,
       DESIRED_BD_START_MIN_BREAKDOWN_PERCENT,
       DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT,
+      DESIRED_EXPIRY_MINUTES,
       DESIRED_AFTER_BD_NEED_X_15GREENC,
       DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND,
+      DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES,
       DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT,
       DESIRED_SECRET_TP_RANGE_PERCENT,
       DESIRED_TP_NOTSECRET_RANGE_PERCENT,
+      DESIRED_CLOSETRADE_AFTER_SOME_TIME,
+      DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED,
       DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN,
+      DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT,
       DESIRED_BREAKDOWNTYPES,
       DESIRED_MAX_OPEN_POSITIONS
-    ) do |min_len, max_len, bd_start_pct, min_total_pct, after_greenc, entry_min, entryrange_pct, secret_tp, tp_notsecret, close_after_min, bd_type, max_open|
+    ) do |min_len, max_len, bd_start_pct, min_total_pct, expiry_min, after_greenc, entry_min, forget_bd_candles, entryrange_pct, secret_tp, tp_notsecret, close_after_some_time, close_profit_pct_needed, close_after_min, stop_total_trades, bd_type, max_open|
       next if min_len > max_len
 
       mode = BREAKDOWN_TYPE_TO_MODE[bd_type]
@@ -154,12 +198,17 @@ module BreakdownCombinationsCreator
         max_breakdown_sequence_len: max_len,
         bd_start_min_breakdown_percent: bd_start_pct,
         min_breakdown_total_percent: min_total_pct,
+        expiry_minutes: expiry_min,
         after_bd_need_x_15greenc: after_greenc,
         entry_max_minutes_after_bdend: entry_min,
+        forget_about_latest_breakdown_after_x_15m_candles: forget_bd_candles,
         entryrange_range_percentspot: entryrange_pct,
         secret_tp_range_percent: secret_tp,
         tp_notsecret_range_percent: tp_notsecret,
+        closetrade_after_some_time: close_after_some_time,
+        closetrade_after_some_time_but_ProfitPercent_Needed: close_profit_pct_needed,
         closetrade_after_x_minutes_from_breakdown: close_after_min,
+        stop_trading_today_if_thisAlgo_total_trades_count: stop_total_trades,
         breakdown_streak_continuation_mode: mode,
         max_open_positions: max_open
       }
@@ -175,12 +224,17 @@ module BreakdownCombinationsCreator
       min_max_breakdown_sequence_len: valid_min_max_pairs,
       bd_start_min_breakdown_percent: DESIRED_BD_START_MIN_BREAKDOWN_PERCENT.size,
       min_breakdown_total_percent: DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT.size,
+      expiry_minutes: DESIRED_EXPIRY_MINUTES.size,
       after_bd_need_x_15greenc: DESIRED_AFTER_BD_NEED_X_15GREENC.size,
       entry_max_minutes_after_bdend: DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND.size,
+      forget_about_latest_breakdown_after_x_15m_candles: DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES.size,
       entryrange_range_percentspot: DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT.size,
       secret_tp_range_percent: DESIRED_SECRET_TP_RANGE_PERCENT.size,
       tp_notsecret_range_percent: DESIRED_TP_NOTSECRET_RANGE_PERCENT.size,
+      closetrade_after_some_time: DESIRED_CLOSETRADE_AFTER_SOME_TIME.size,
+      closetrade_after_some_time_but_ProfitPercent_Needed: DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED.size,
       closetrade_after_x_minutes_from_breakdown: DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN.size,
+      stop_trading_today_if_thisAlgo_total_trades_count: DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT.size,
       breakdowntypes: DESIRED_BREAKDOWNTYPES.size,
       max_open_positions: DESIRED_MAX_OPEN_POSITIONS.size
     }
@@ -212,7 +266,7 @@ module BreakdownCombinationsCreator
       g_breakdownAlgos[#{slot}].enabled = true;
       g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
       g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
-      g_breakdownAlgos[#{slot}].expiry_minutes = 15;
+      g_breakdownAlgos[#{slot}].expiry_minutes = #{combo[:expiry_minutes]};
       g_breakdownAlgos[#{slot}].min_breakdown_sequence_len = #{combo[:min_breakdown_sequence_len]}; // more important starts here and below:
       g_breakdownAlgos[#{slot}].max_breakdown_sequence_len = #{combo[:max_breakdown_sequence_len]};
       g_breakdownAlgos[#{slot}].breakdown_streak_continuation_mode = #{combo[:breakdown_streak_continuation_mode]};
@@ -220,7 +274,7 @@ module BreakdownCombinationsCreator
       g_breakdownAlgos[#{slot}].min_breakdown_total_percent = #{format_mq5_double(combo[:min_breakdown_total_percent])};
       g_breakdownAlgos[#{slot}].after_bd_need_x_15greenc = #{combo[:after_bd_need_x_15greenc]};
       g_breakdownAlgos[#{slot}].entry_max_minutes_after_bdend = #{combo[:entry_max_minutes_after_bdend]};
-      g_breakdownAlgos[#{slot}].forget_about_latest_breakdown_after_x_15m_candles = 6;
+      g_breakdownAlgos[#{slot}].forget_about_latest_breakdown_after_x_15m_candles = #{combo[:forget_about_latest_breakdown_after_x_15m_candles]};
       g_breakdownAlgos[#{slot}].entryrange_range_percentspot = #{format_mq5_double(combo[:entryrange_range_percentspot])};
       g_breakdownAlgos[#{slot}].secret_tp_enabled = #{secret_tp_enabled ? 'true' : 'false'};
       g_breakdownAlgos[#{slot}].secret_tp_range_percent = #{secret_tp_percent};
@@ -229,12 +283,12 @@ module BreakdownCombinationsCreator
       g_breakdownAlgos[#{slot}].tp_notsecret_range_percent = #{combo[:tp_notsecret_range_percent]};
       g_breakdownAlgos[#{slot}].sl_enabled = false;
       g_breakdownAlgos[#{slot}].sl_points = 0.0;
-      g_breakdownAlgos[#{slot}].closetrade_after_some_time = false;
+      g_breakdownAlgos[#{slot}].closetrade_after_some_time = #{format_mq5_bool(combo[:closetrade_after_some_time])};
       g_breakdownAlgos[#{slot}].closetrade_after_some_time_butOnlyIfProfit = true;
-      g_breakdownAlgos[#{slot}].closetrade_after_some_time_but_ProfitPercent_Needed = 2.0;
+      g_breakdownAlgos[#{slot}].closetrade_after_some_time_but_ProfitPercent_Needed = #{format_mq5_double(combo[:closetrade_after_some_time_but_ProfitPercent_Needed])};
       g_breakdownAlgos[#{slot}].closetrade_after_x_minutes_from_breakdown = #{combo[:closetrade_after_x_minutes_from_breakdown]};
-      g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_total_trades_count = 3;
-      g_breakdownAlgos[#{slot}].max_trades_per_breakdown_per_day = 1;
+      g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_total_trades_count = #{combo[:stop_trading_today_if_thisAlgo_total_trades_count]};
+      g_breakdownAlgos[#{slot}].this_algo_max_concurrent_pending_trades = 1;
       g_breakdownAlgos[#{slot}].max_open_positions = #{combo[:max_open_positions]};
     MQL5
   end
@@ -313,19 +367,23 @@ if __FILE__ == $PROGRAM_NAME
 
   content = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
   registry_max = breakdown_registry_max(content)
+  registry_headroom = breakdown_registry_max_headroom(content)
   wired_ids = registry_algo_ids(content)
   empty_slots = registry_max - wired_ids.size
+  next_algo_id = wired_ids.empty? ? BREAKDOWN_ID_MIN : wired_ids.max + 1
+  required_registry_max = compute_registry_max_for_wired_count(wired_ids.size + total_combinations)
 
-  puts "Breakdown registry capacity: #{registry_max}"
+  puts "Registry slot capacity:    #{registry_max} (BREAKDOWN_ALGO_REGISTRY_MAX in aleksik2.mq5)"
+  puts "Registry headroom:         #{registry_headroom} (max unused slots above wired count)"
   puts "Wired breakdown algos:       #{wired_ids.size} (#{wired_ids.join(', ')})"
-  puts "Empty slots:                 #{empty_slots}"
-  puts
-
-  if total_combinations > empty_slots
-    puts "NOT ENOUGH SLOTS: need #{total_combinations} empty slot(s), have #{empty_slots}."
-    puts "Raise BREAKDOWN_ALGO_REGISTRY_MAX in aleksik2.mq5 or reduce combination grid."
-    exit 1
+  puts "Empty registry slots:        #{empty_slots}"
+  puts "Required registry slots:     #{required_registry_max} (after creating #{total_combinations})"
+  puts "Breakdown algo ID range:     #{BREAKDOWN_ID_MIN}..#{BREAKDOWN_ID_MAX}"
+  puts "Next new algo ID would be:   #{next_algo_id}"
+  if required_registry_max > registry_max
+    puts "Will raise BREAKDOWN_ALGO_REGISTRY_MAX: #{registry_max} -> #{required_registry_max}"
   end
+  puts
 
   if total_combinations.zero?
     puts "No combinations to create."
@@ -342,10 +400,13 @@ if __FILE__ == $PROGRAM_NAME
   combinations = build_combinations
   raise "Combination build mismatch: #{combinations.size} != #{total_combinations}" if combinations.size != total_combinations
 
+  content = set_breakdown_registry_max(content, required_registry_max) if required_registry_max > registry_max
   updated = apply_combinations!(content, combinations)
   File.write(MQ5_FILE, updated)
 
   new_ids = registry_algo_ids(updated).last(total_combinations)
+  final_registry_max = breakdown_registry_max(updated)
   puts "Created #{total_combinations} breakdown algo(s): #{new_ids.join(', ')}"
+  puts "BREAKDOWN_ALGO_REGISTRY_MAX: #{registry_max} -> #{final_registry_max}" if required_registry_max > registry_max
   puts MQ5_FILE
 end
