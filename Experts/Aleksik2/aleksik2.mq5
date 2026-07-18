@@ -34,6 +34,7 @@
 //--- Breakdown algo family
 #define BREAKDOWN_ALGO_REGISTRY_MAX           40000
 #define BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM    40000
+#define BREAKDOWN_15M_SNAP_GROUP_MAX            8192
 #define BREAKDOWN_GREENS_AFTER_BD_MAX  ((MAX_BARS_IN_DAY + 14) / 15)  // completed M15 bars per day
 #define BREAKDOWN_OPEN_LIFETIME_MAX             20000
 #define BREAKDOWN_AUDIT_LOG_DEDUP_MAX         1000000
@@ -314,11 +315,22 @@ datetime g_onTimerDuration_logged2130ForDay = 0;
 #define BACKTEST_PROF_ONTIMER_BAR_DETECT        39
 #define BACKTEST_PROF_ONTIMER_PER_SEC_TAIL      40
 #define BACKTEST_PROF_OCCUPIED_MAGICS_CACHE      41  // RefreshOccupiedMagicsCache: one terminal pass for per-algo open/pending counts
-#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP 42  // 15m snap + family gates + BuildBreakdownPlacementCandidates (excludes cache + orders)
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP 42  // family gates only (excludes 15m snap, candidates, orders)
 #define BACKTEST_PROF_BREAKDOWN_DAY_TRADE_COUNTS  43
 #define BACKTEST_PROF_TIME_ALGO_PLACEMENT         44
 #define BACKTEST_PROF_TRADE_RESULTS_FLUSH         45
-#define BACKTEST_PROF_SECTION_COUNT             46
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_15M_SNAP          46
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_CHEAP  47
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_SNAP   48
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_MIDPOINT_RULES    49
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_ORDERS              50
+#define BACKTEST_PROF_BD_STAT_CHEAP_SURVIVORS                 51  // counter: algos passing cheap filter per M1 (sum)
+#define BACKTEST_PROF_BD_STAT_SNAP_SURVIVORS                  52  // counter: algos passing snap filter per M1 (sum)
+#define BACKTEST_PROF_BD_STAT_FINAL_CANDIDATES                53  // counter: final candidate count per M1 (sum)
+#define BACKTEST_PROF_BD_STAT_RULES_EVAL                      54  // counter: rules chains evaluated
+#define BACKTEST_PROF_BD_STAT_MIDPOINT_BLOCKED                55  // counter: midpoint gate rejects
+#define BACKTEST_PROF_BD_STAT_SNAP_GROUPS_COMPUTED            56  // counter: 15m snap groups computed (not cache-hit)
+#define BACKTEST_PROF_SECTION_COUNT             57
 
 struct BacktestProfBucket
 {
@@ -391,6 +403,17 @@ string BacktestProfSectionLabel(const int section)
       case BACKTEST_PROF_BREAKDOWN_DAY_TRADE_COUNTS: return "breakdown_day_trade_counts";
       case BACKTEST_PROF_TIME_ALGO_PLACEMENT:       return "time_algo_placement";
       case BACKTEST_PROF_TRADE_RESULTS_FLUSH:       return "trade_results_flush";
+      case BACKTEST_PROF_BREAKDOWN_PLACEMENT_15M_SNAP:         return "breakdown_placement_15m_snap";
+      case BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_CHEAP: return "breakdown_placement_candidates_cheap";
+      case BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_SNAP:  return "breakdown_placement_candidates_snap";
+      case BACKTEST_PROF_BREAKDOWN_PLACEMENT_MIDPOINT_RULES:   return "breakdown_placement_midpoint_rules";
+      case BACKTEST_PROF_BREAKDOWN_PLACEMENT_ORDERS:           return "breakdown_placement_orders";
+      case BACKTEST_PROF_BD_STAT_CHEAP_SURVIVORS:              return "bd_stat_cheap_survivors";
+      case BACKTEST_PROF_BD_STAT_SNAP_SURVIVORS:               return "bd_stat_snap_survivors";
+      case BACKTEST_PROF_BD_STAT_FINAL_CANDIDATES:             return "bd_stat_final_candidates";
+      case BACKTEST_PROF_BD_STAT_RULES_EVAL:                   return "bd_stat_rules_eval";
+      case BACKTEST_PROF_BD_STAT_MIDPOINT_BLOCKED:             return "bd_stat_midpoint_blocked";
+      case BACKTEST_PROF_BD_STAT_SNAP_GROUPS_COMPUTED:         return "bd_stat_snap_groups_computed";
    }
    return "unknown";
 }
@@ -422,6 +445,64 @@ void BacktestProfAccumulate(const int section, const ulong t0)
    g_backtestProfDayTotals[section].calls++;
    if(elapsed > g_backtestProfDayTotals[section].maxUs)
       g_backtestProfDayTotals[section].maxUs = elapsed;
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfAddCounter(const int section, const int count = 1)
+{
+   if(section < 0 || section >= BACKTEST_PROF_SECTION_COUNT || count <= 0)
+      return;
+   if(!BacktestProfileEnabled() || !g_backtestProfArmed)
+      return;
+   g_backtestProfRunTotals[section].calls += count;
+   g_backtestProfDayTotals[section].calls += count;
+}
+
+//+------------------------------------------------------------------+
+ulong BacktestProfBreakdownPlacementRollupUs(const BacktestProfBucket &buckets[])
+{
+   return buckets[BACKTEST_PROF_BREAKDOWN_PLACEMENT_15M_SNAP].totalUs
+      + buckets[BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_CHEAP].totalUs
+      + buckets[BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_SNAP].totalUs
+      + buckets[BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP].totalUs
+      + buckets[BACKTEST_PROF_BREAKDOWN_PLACEMENT_MIDPOINT_RULES].totalUs
+      + buckets[BACKTEST_PROF_BREAKDOWN_PLACEMENT_ORDERS].totalUs;
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfWriteBreakdownPlacementRollupRow(const int fh, const string datePrefix,
+   const BacktestProfBucket &buckets[], const ulong denomUs)
+{
+   const ulong rollupUs = BacktestProfBreakdownPlacementRollupUs(buckets);
+   if(rollupUs == 0)
+      return;
+   const double totalS = (double)rollupUs / 1000000.0;
+   const double totalMin = totalS / 60.0;
+   const double pct = (denomUs == 0) ? 0.0 : 100.0 * (double)rollupUs / (double)denomUs;
+   const int candidateCalls = buckets[BACKTEST_PROF_BD_STAT_FINAL_CANDIDATES].calls;
+   if(StringLen(datePrefix) > 0)
+      FileWrite(fh, datePrefix, "breakdown_placement_rollup",
+         DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(candidateCalls),
+         "0.000", "0.000", DoubleToString(pct, 1));
+   else
+      FileWrite(fh, "breakdown_placement_rollup",
+         DoubleToString(totalS, 2), DoubleToString(totalMin, 2), IntegerToString(candidateCalls),
+         "0.000", "0.000", DoubleToString(pct, 1));
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfWriteBreakdownMetaRows(const int fh, const string datePrefix)
+{
+   if(StringLen(datePrefix) > 0)
+   {
+      FileWrite(fh, datePrefix, "meta_bd_algo_count", "", "", IntegerToString(g_breakdownAlgoCount), "", "", "");
+      FileWrite(fh, datePrefix, "meta_bd_snap_group_count", "", "", IntegerToString(g_breakdown15mSnapGroupCount), "", "", "");
+   }
+   else
+   {
+      FileWrite(fh, "meta_bd_algo_count", "", "", IntegerToString(g_breakdownAlgoCount), "", "", "");
+      FileWrite(fh, "meta_bd_snap_group_count", "", "", IntegerToString(g_breakdown15mSnapGroupCount), "", "", "");
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -499,8 +580,12 @@ void BacktestProfWriteBucketRows(const int fh, const string datePrefix, const Ba
    {
       if(i == BACKTEST_PROF_ONTIMER_TOTAL)
          continue;
+      if(i == BACKTEST_PROF_BREAKDOWN_PLACEMENT)
+         continue;  // replaced by breakdown_placement_rollup (sum of sub-buckets)
       BacktestProfWriteOneBucketRow(fh, datePrefix, i, buckets, denomUs);
    }
+   BacktestProfWriteBreakdownPlacementRollupRow(fh, datePrefix, buckets, denomUs);
+   BacktestProfWriteBreakdownMetaRows(fh, datePrefix);
    BacktestProfWriteUnaccountedOnTimerRow(fh, datePrefix, buckets);
    BacktestProfWriteOneBucketRow(fh, datePrefix, BACKTEST_PROF_ONTIMER_TOTAL, buckets, denomUs);
 }
@@ -560,6 +645,18 @@ void BacktestProfWriteRunSummary()
    BacktestProfWriteBucketRows(fh, "", g_backtestProfRunTotals);
    FileClose(fh);
    Print("Backtest profile: ", fileName, " and backtest_profile_by_day.csv (Tester Files folder)");
+   if(g_breakdown15mSnapGroupCount > 0)
+   {
+      Print(StringFormat("Breakdown snap dedup: %d algos -> %d groups (%.1fx)",
+         g_breakdownAlgoCount, g_breakdown15mSnapGroupCount,
+         (double)g_breakdownAlgoCount / (double)g_breakdown15mSnapGroupCount));
+   }
+   const ulong bdRollupUs = BacktestProfBreakdownPlacementRollupUs(g_backtestProfRunTotals);
+   if(bdRollupUs > 0)
+   {
+      Print(StringFormat("Breakdown placement rollup: %.1fs (compare to prior breakdown_placement bucket)",
+         (double)bdRollupUs / 1000000.0));
+   }
 }
 
 //--- Live price (updated every OnTimer ~1s); use for proximity/display without reading terminal each time
@@ -4783,7 +4880,12 @@ void UpdateDayM1AndLevelsExpanded()
       ZeroMemory(g_breakdown15mSnap);
       g_breakdown15mSnapByAlgoAsOf = 0;
       for(int bdci = 0; bdci < BREAKDOWN_ALGO_REGISTRY_MAX; bdci++)
+      {
          g_breakdown15mSnapByAlgoSlotReady[bdci] = false;
+         g_breakdownAlgo15mSnapGroupIdx[bdci] = -1;
+      }
+      for(int bdgi = 0; bdgi < g_breakdown15mSnapGroupCount; bdgi++)
+         g_breakdown15mSnapGroupReady[bdgi] = false;
       DayM1LevelsIncResetAll();
       if(profOn)
          BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_NEW_DAY, profT0);
@@ -9773,6 +9875,13 @@ Breakdown15mState g_breakdown15mSnap;
 Breakdown15mState g_breakdown15mSnapByAlgoSlot[BREAKDOWN_ALGO_REGISTRY_MAX];
 bool              g_breakdown15mSnapByAlgoSlotReady[BREAKDOWN_ALGO_REGISTRY_MAX];
 datetime          g_breakdown15mSnapByAlgoAsOf = 0;
+int               g_breakdown15mSnapGroupCount = 0;
+Breakdown15mState g_breakdown15mSnapGroupState[BREAKDOWN_15M_SNAP_GROUP_MAX];
+bool              g_breakdown15mSnapGroupReady[BREAKDOWN_15M_SNAP_GROUP_MAX];
+double            g_breakdown15mSnapGroupStartPct[BREAKDOWN_15M_SNAP_GROUP_MAX];
+int               g_breakdown15mSnapGroupForgetMin[BREAKDOWN_15M_SNAP_GROUP_MAX];
+int               g_breakdown15mSnapGroupMode[BREAKDOWN_15M_SNAP_GROUP_MAX];
+int               g_breakdownAlgo15mSnapGroupIdx[BREAKDOWN_ALGO_REGISTRY_MAX];
 
 struct BreakdownAuditLogDedupKey
 {
@@ -9806,6 +9915,10 @@ void BreakdownAuditLogScanDayIfNeeded(const datetime dayStart, const datetime up
 void ComputeBreakdown15mState(const datetime dayStart, const datetime upToM1BarTime, const double strongRangePctMin,
    const int forgetAfterMinutes, const ENUM_BREAKDOWN_STREAK_CONTINUATION continuationMode, Breakdown15mState &out);
 Breakdown15mState Breakdown15mSnapForAlgo(const int algoNumber, const datetime asOfTime);
+Breakdown15mState Breakdown15mSnapForAlgoSlot(const int algoSlot, const datetime asOfTime);
+void BreakdownInvalidate15mSnapCache(const datetime asOfTime);
+void RebuildBreakdown15mSnapGroups();
+void BreakdownEnsureAll15mSnapGroupsComputed(const datetime asOfTime);
 
 struct FalgoClosedTradeTelemetrySummary
 {
@@ -12306,25 +12419,121 @@ double BreakdownStartMinPercentForAlgoDef(const BreakdownAlgoDef &bd)
 }
 
 //+------------------------------------------------------------------+
+void BreakdownInvalidate15mSnapCache(const datetime asOfTime)
+{
+   if(g_breakdown15mSnapByAlgoAsOf == asOfTime)
+      return;
+   g_breakdown15mSnapByAlgoAsOf = asOfTime;
+   for(int gi = 0; gi < g_breakdown15mSnapGroupCount; gi++)
+      g_breakdown15mSnapGroupReady[gi] = false;
+   for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
+      g_breakdown15mSnapByAlgoSlotReady[si] = false;
+}
+
+//+------------------------------------------------------------------+
+int Breakdown15mSnapGroupIndexForSlot(const int algoSlot)
+{
+   if(algoSlot < 0 || algoSlot >= g_breakdownAlgoCount)
+      return -1;
+   if(g_breakdownAlgo15mSnapGroupIdx[algoSlot] >= 0)
+      return g_breakdownAlgo15mSnapGroupIdx[algoSlot];
+
+   const BreakdownAlgoDef bd = g_breakdownAlgos[algoSlot];
+   const double startPct = BreakdownStartMinPercentForAlgoDef(bd);
+   const int forgetMin = bd.forget_about_latest_breakdown_after_x_15m_candles * 15;
+   const int mode = (int)bd.breakdown_streak_continuation_mode;
+
+   for(int gi = 0; gi < g_breakdown15mSnapGroupCount; gi++)
+   {
+      if(g_breakdown15mSnapGroupStartPct[gi] == startPct
+         && g_breakdown15mSnapGroupForgetMin[gi] == forgetMin
+         && g_breakdown15mSnapGroupMode[gi] == mode)
+      {
+         g_breakdownAlgo15mSnapGroupIdx[algoSlot] = gi;
+         return gi;
+      }
+   }
+
+   if(g_breakdown15mSnapGroupCount >= BREAKDOWN_15M_SNAP_GROUP_MAX)
+      return -1;
+
+   const int gi = g_breakdown15mSnapGroupCount++;
+   g_breakdown15mSnapGroupStartPct[gi] = startPct;
+   g_breakdown15mSnapGroupForgetMin[gi] = forgetMin;
+   g_breakdown15mSnapGroupMode[gi] = mode;
+   g_breakdown15mSnapGroupReady[gi] = false;
+   ZeroMemory(g_breakdown15mSnapGroupState[gi]);
+   g_breakdownAlgo15mSnapGroupIdx[algoSlot] = gi;
+   return gi;
+}
+
+//+------------------------------------------------------------------+
 void EnsureBreakdown15mSnapForAlgoSlot(const int algoSlot, const datetime asOfTime)
 {
    if(algoSlot < 0 || algoSlot >= BREAKDOWN_ALGO_REGISTRY_MAX)
       return;
-   if(g_breakdown15mSnapByAlgoAsOf != asOfTime)
-   {
-      g_breakdown15mSnapByAlgoAsOf = asOfTime;
-      for(int i = 0; i < BREAKDOWN_ALGO_REGISTRY_MAX; i++)
-         g_breakdown15mSnapByAlgoSlotReady[i] = false;
-   }
-   if(g_breakdown15mSnapByAlgoSlotReady[algoSlot])
+
+   BreakdownInvalidate15mSnapCache(asOfTime);
+
+   const int groupIdx = Breakdown15mSnapGroupIndexForSlot(algoSlot);
+   if(groupIdx < 0)
       return;
-   const BreakdownAlgoDef bd = g_breakdownAlgos[algoSlot];
-   const datetime dayStart = asOfTime - (asOfTime % 86400);
-   const double startPct = BreakdownStartMinPercentForAlgoDef(bd);
-   const int forgetMin = bd.forget_about_latest_breakdown_after_x_15m_candles * 15;
-   ComputeBreakdown15mState(dayStart, asOfTime, startPct, forgetMin, bd.breakdown_streak_continuation_mode,
-      g_breakdown15mSnapByAlgoSlot[algoSlot]);
+
+   if(!g_breakdown15mSnapGroupReady[groupIdx])
+   {
+      const BreakdownAlgoDef bd = g_breakdownAlgos[algoSlot];
+      const datetime dayStart = asOfTime - (asOfTime % 86400);
+      ComputeBreakdown15mState(dayStart, asOfTime, g_breakdown15mSnapGroupStartPct[groupIdx],
+         g_breakdown15mSnapGroupForgetMin[groupIdx], (ENUM_BREAKDOWN_STREAK_CONTINUATION)g_breakdown15mSnapGroupMode[groupIdx],
+         g_breakdown15mSnapGroupState[groupIdx]);
+      g_breakdown15mSnapGroupReady[groupIdx] = true;
+   }
+
+   g_breakdown15mSnapByAlgoSlot[algoSlot] = g_breakdown15mSnapGroupState[groupIdx];
    g_breakdown15mSnapByAlgoSlotReady[algoSlot] = true;
+}
+
+//+------------------------------------------------------------------+
+Breakdown15mState Breakdown15mSnapForAlgoSlot(const int algoSlot, const datetime asOfTime)
+{
+   Breakdown15mState empty;
+   ZeroMemory(empty);
+   if(algoSlot < 0)
+      return empty;
+   EnsureBreakdown15mSnapForAlgoSlot(algoSlot, asOfTime);
+   if(!g_breakdown15mSnapByAlgoSlotReady[algoSlot])
+      return empty;
+   return g_breakdown15mSnapByAlgoSlot[algoSlot];
+}
+
+//+------------------------------------------------------------------+
+void RebuildBreakdown15mSnapGroups()
+{
+   g_breakdown15mSnapGroupCount = 0;
+   for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
+      g_breakdownAlgo15mSnapGroupIdx[si] = -1;
+   for(int si = 0; si < g_breakdownAlgoCount; si++)
+      Breakdown15mSnapGroupIndexForSlot(si);
+}
+
+//+------------------------------------------------------------------+
+void BreakdownEnsureAll15mSnapGroupsComputed(const datetime asOfTime)
+{
+   BreakdownInvalidate15mSnapCache(asOfTime);
+   const datetime dayStart = asOfTime - (asOfTime % 86400);
+   int groupsComputed = 0;
+   for(int gi = 0; gi < g_breakdown15mSnapGroupCount; gi++)
+   {
+      if(g_breakdown15mSnapGroupReady[gi])
+         continue;
+      ComputeBreakdown15mState(dayStart, asOfTime, g_breakdown15mSnapGroupStartPct[gi],
+         g_breakdown15mSnapGroupForgetMin[gi], (ENUM_BREAKDOWN_STREAK_CONTINUATION)g_breakdown15mSnapGroupMode[gi],
+         g_breakdown15mSnapGroupState[gi]);
+      g_breakdown15mSnapGroupReady[gi] = true;
+      groupsComputed++;
+   }
+   if(groupsComputed > 0 && BacktestProfileEnabled() && g_backtestProfArmed)
+      BacktestProfAddCounter(BACKTEST_PROF_BD_STAT_SNAP_GROUPS_COMPUTED, groupsComputed);
 }
 
 //+------------------------------------------------------------------+
@@ -12342,6 +12551,7 @@ Breakdown15mState Breakdown15mSnapForAlgo(const int algoNumber, const datetime a
 //+------------------------------------------------------------------+
 void RefreshGlobalBreakdown15mSnap(const datetime asOfTime)
 {
+   BreakdownEnsureAll15mSnapGroupsComputed(asOfTime);
    int slot = BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000000);
    if(slot < 0)
    {
@@ -22076,6 +22286,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000304)].closet
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20000304)].max_open_positions = 10;
 //breakdowncreator2end
    BreakdownRebuildAllRuleChains();
+   RebuildBreakdown15mSnapGroups();
 }
 
 //+------------------------------------------------------------------+
@@ -24490,15 +24701,18 @@ string EvalAlgoRule(const int algoId, const AlgoRuleEntry &rule, const int barId
 }
 
 //+------------------------------------------------------------------+
-string BreakdownRunRulesFirstFail(const int slotIdx, const int barIdx, const datetime evalTime)
+string BreakdownRunRulesFirstFail(const int slotIdx, const int barIdx, const datetime evalTime, const Breakdown15mState &bdSnap)
 {
    if(slotIdx < 0 || slotIdx >= g_breakdownAlgoCount)
       return "unknownAlgo";
    if(barIdx < 0 || barIdx >= g_barsInDay)
       return "invalidBar";
-   const double plannedTradePrice = BreakdownPlannedTradePriceAtEval(g_breakdownAlgos[slotIdx].algo_id, barIdx, evalTime);
-   if(plannedTradePrice <= 0.0)
+   const string plannedStr = BreakdownPlannedTradePriceForGates(g_breakdownAlgos[slotIdx].algo_id, evalTime, bdSnap);
+   if(StringLen(plannedStr) == 0)
       return "";  // no planned price yet — skip rule chain (entry gates handle timing)
+   const double plannedTradePrice = StringToDouble(plannedStr);
+   if(plannedTradePrice <= 0.0)
+      return "";
    for(int r = 0; r < g_breakdownAlgos[slotIdx].rule_count; r++)
    {
       const string f = EvalAlgoRule(g_breakdownAlgos[slotIdx].algo_id,
@@ -25811,6 +26025,11 @@ void FalgoTryLogAlgoFamilyPerSecond()
 //+------------------------------------------------------------------+
 bool AlgoTryPlaceBreakdownMidpointOrder(const int algoNumber, const int barIdx)
 {
+   const bool profOn = BacktestProfileEnabled() && g_backtestProfArmed;
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
    const int algoSlot = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
    if(algoSlot < 0 || !IsBreakdownFamilyAlgoNumber(algoNumber))
       return false;
@@ -25818,11 +26037,23 @@ bool AlgoTryPlaceBreakdownMidpointOrder(const int algoNumber, const int barIdx)
       return false;
    if(!BreakdownRulesetPassesCommonForPlacement(algoNumber, barIdx))
       return false;
-   const string ruleFail = BreakdownRunRulesFirstFail(algoSlot, barIdx, g_lastTimer1Time);
-   if(ruleFail != "")
-      return false;
    const Breakdown15mState bdSnap = Breakdown15mSnapForAlgo(algoNumber, g_lastTimer1Time);
    if(!BreakdownMidpointEntryAllowed(algoNumber, bdSnap, g_lastTimer1Time))
+   {
+      if(profOn)
+      {
+         BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_MIDPOINT_RULES, profT0);
+         BacktestProfAddCounter(BACKTEST_PROF_BD_STAT_MIDPOINT_BLOCKED, 1);
+      }
+      return false;
+   }
+   const string ruleFail = BreakdownRunRulesFirstFail(algoSlot, barIdx, g_lastTimer1Time, bdSnap);
+   if(profOn)
+   {
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_MIDPOINT_RULES, profT0);
+      BacktestProfAddCounter(BACKTEST_PROF_BD_STAT_RULES_EVAL, 1);
+   }
+   if(ruleFail != "")
       return false;
 
    const BreakdownAlgoDef bd = g_breakdownAlgos[algoSlot];
@@ -25845,9 +26076,13 @@ bool AlgoTryPlaceBreakdownMidpointOrder(const int algoNumber, const int barIdx)
    const long magic = BuildAlgoMagicNumber(algoNumber, planKey);
 
    const double lot = GetTradeLotForBreakdown();
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    if(!PlacePendingFromFalgoMagicBreakdown(magic, orderAnchor, bd.tp_enabled, brokerTpPrice, bd.sl_enabled, bd.sl_points,
       bd.expiry_minutes, lot))
       return false;
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_ORDERS, profT0);
 
    g_breakdownAlgoLastPlacedEndTime[algoSlot] = bdSnap.endTime;
    g_breakdownAlgoLastPlacedStartHigh[algoSlot] = bdSnap.startHigh;
@@ -25895,13 +26130,6 @@ string AlgoBreakdownPlacementBlockReasonFirstFail(const int algoNumber, const in
          if(g_breakdownFamilyHadCloseThisPipelinePass)
             return "tradeClosedThisPipelineFam";
       }
-      const int ruleSlotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
-      if(ruleSlotIdx >= 0)
-      {
-         const string ruleFail = BreakdownRunRulesFirstFail(ruleSlotIdx, barIdx, g_lastTimer1Time);
-         if(ruleFail != "")
-            return ruleFail;
-      }
       return "rulesetFail";
    }
 
@@ -25909,6 +26137,13 @@ string AlgoBreakdownPlacementBlockReasonFirstFail(const int algoNumber, const in
    const string entryBlock = BreakdownMidpointEntryBlockReason(algoNumber, bdSnap, g_lastTimer1Time);
    if(entryBlock != "")
       return entryBlock;
+   const int ruleSlotIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
+   if(ruleSlotIdx >= 0)
+   {
+      const string ruleFail = BreakdownRunRulesFirstFail(ruleSlotIdx, barIdx, g_lastTimer1Time, bdSnap);
+      if(ruleFail != "")
+         return ruleFail;
+   }
 
    BreakdownAlgoDef bdAnchor;
    if(!BreakdownAlgoDefForNumber(algoNumber, bdAnchor))
@@ -25934,23 +26169,74 @@ bool BreakdownPlacementPassesCheapCandidateChecks(const int slotIdx, const int b
    const int algoNumber = g_breakdownAlgos[slotIdx].algo_id;
    if(!AlgoProfileEnabled(algoNumber))
       return false;
+   if(!BreakdownRulesetPassesDayStops(algoNumber))
+      return false;
    if(!BreakdownRulesetPassesCommonForPlacement(algoNumber, barIdx))
       return false;
    return true;
 }
 
 //+------------------------------------------------------------------+
+//| Snap-dependent cheap filters (after shared 15m group precompute). |
+//+------------------------------------------------------------------+
+bool BreakdownPlacementPassesSnapCandidateChecks(const int slotIdx, const Breakdown15mState &snap)
+{
+   if(slotIdx < 0 || slotIdx >= g_breakdownAlgoCount)
+      return false;
+   if(snap.endTime <= 0)
+      return true;
+   const int algoNumber = g_breakdownAlgos[slotIdx].algo_id;
+   // Match BreakdownMidpointEntryBlockReason: block only when this breakdown was already closed today,
+   // not merely because a pending was placed earlier (expired/cancelled pendings may retry).
+   return (BreakdownSameBreakdownClosedBlockReason(algoNumber, snap.endTime) == "");
+}
+
+//+------------------------------------------------------------------+
 int BuildBreakdownPlacementCandidates(const int barIdx)
 {
+   const bool profOn = BacktestProfileEnabled() && g_backtestProfArmed;
+   ulong profT0 = 0;
+
    g_breakdownPlacementCandidateCount = 0;
+   const datetime evalTime = g_lastTimer1Time;
+   int cheapPassCount = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    for(int si = 0; si < g_breakdownAlgoCount; si++)
    {
       if(!BreakdownPlacementPassesCheapCandidateChecks(si, barIdx))
          continue;
+      if(FalgoFatalIfCapacityFull("BuildBreakdownPlacementCandidates", cheapPassCount,
+         BREAKDOWN_ALGO_REGISTRY_MAX, "BREAKDOWN_ALGO_REGISTRY_MAX"))
+         return g_breakdownPlacementCandidateCount;
+      g_breakdownPlacementCandidateSlots[cheapPassCount++] = si;
+   }
+   if(profOn)
+   {
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_CHEAP, profT0);
+      BacktestProfAddCounter(BACKTEST_PROF_BD_STAT_CHEAP_SURVIVORS, cheapPassCount);
+   }
+
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+   int snapPassCount = 0;
+   for(int ci = 0; ci < cheapPassCount; ci++)
+   {
+      const int si = g_breakdownPlacementCandidateSlots[ci];
+      const Breakdown15mState bdSnap = Breakdown15mSnapForAlgoSlot(si, evalTime);
+      if(!BreakdownPlacementPassesSnapCandidateChecks(si, bdSnap))
+         continue;
+      snapPassCount++;
       if(FalgoFatalIfCapacityFull("BuildBreakdownPlacementCandidates", g_breakdownPlacementCandidateCount,
          BREAKDOWN_ALGO_REGISTRY_MAX, "BREAKDOWN_ALGO_REGISTRY_MAX"))
          return g_breakdownPlacementCandidateCount;
       g_breakdownPlacementCandidateSlots[g_breakdownPlacementCandidateCount++] = si;
+   }
+   if(profOn)
+   {
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_CANDIDATES_SNAP, profT0);
+      BacktestProfAddCounter(BACKTEST_PROF_BD_STAT_SNAP_SURVIVORS, snapPassCount);
+      BacktestProfAddCounter(BACKTEST_PROF_BD_STAT_FINAL_CANDIDATES, g_breakdownPlacementCandidateCount);
    }
    return g_breakdownPlacementCandidateCount;
 }
@@ -25973,8 +26259,12 @@ void RunBreakdownPlacementOnM1Close(const int barIdx)
       profT0 = GetMicrosecondCount();
    RefreshGlobalBreakdown15mSnap(g_lastTimer1Time);
    if(profOn)
-      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP, profT0);
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_15M_SNAP, profT0);
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    EnsureOccupiedMagicsCacheInitialized();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_OCCUPIED_MAGICS_CACHE, profT0);
    if(profOn)
       profT0 = GetMicrosecondCount();
    g_breakdownPlacementPassActive = true;
@@ -25996,11 +26286,7 @@ void RunBreakdownPlacementOnM1Close(const int barIdx)
    for(int ci = 0; ci < candidateCount; ci++)
    {
       const int si = g_breakdownPlacementCandidateSlots[ci];
-      if(profOn)
-         profT0 = GetMicrosecondCount();
       AlgoTryPlaceBreakdownMidpointOrder(g_breakdownAlgos[si].algo_id, barIdx);
-      if(profOn)
-         BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT, profT0);
    }
    g_breakdownPlacementPassActive = false;
 }
