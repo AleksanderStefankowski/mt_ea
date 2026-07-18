@@ -36,7 +36,6 @@
 #define BREAKDOWN_ALGO_REGISTRY_MAX_HEADROOM    40000
 #define BREAKDOWN_GREENS_AFTER_BD_MAX  ((MAX_BARS_IN_DAY + 14) / 15)  // completed M15 bars per day
 #define BREAKDOWN_OPEN_LIFETIME_MAX             20000
-#define BREAKDOWN_PENDING_PLANNED_MAX           40000
 #define BREAKDOWN_AUDIT_LOG_DEDUP_MAX         1000000
 //--- Time algo family
 #define TIME_ALGO_REGISTRY_MAX                    4
@@ -179,7 +178,7 @@ const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000000.0; //  5000000.0/ PLN bu
 // OnTimer (1s): FatalError if (used margin / equity)×100 exceeds this (terminal-style deposit load as % of equity locked in margin). 0 = disabled.
 double   DepositLoadFatalThresholdPct = 0.0; // ≤ 0 disables the check
 
-//--- Algo family pipeline: per-algo open/pending on _Symbol (refreshed once per tick via RefreshOccupiedMagicsCache).
+//--- Algo family pipeline: per-algo open/pending counts on _Symbol (refreshed once per placement/gates pass via RefreshOccupiedMagicsCache).
 int g_bannedRangesBuffer[][4];       // dynamic, filled by ParseBannedRanges
 int g_bannedRangesCount = 0;
 
@@ -314,7 +313,12 @@ datetime g_onTimerDuration_logged2130ForDay = 0;
 #define BACKTEST_PROF_ROLLOVER_ON_M1            38
 #define BACKTEST_PROF_ONTIMER_BAR_DETECT        39
 #define BACKTEST_PROF_ONTIMER_PER_SEC_TAIL      40
-#define BACKTEST_PROF_SECTION_COUNT             41
+#define BACKTEST_PROF_OCCUPIED_MAGICS_CACHE      41  // RefreshOccupiedMagicsCache: one terminal pass for per-algo open/pending counts
+#define BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP 42  // 15m snap + family gates + BuildBreakdownPlacementCandidates (excludes cache + orders)
+#define BACKTEST_PROF_BREAKDOWN_DAY_TRADE_COUNTS  43
+#define BACKTEST_PROF_TIME_ALGO_PLACEMENT         44
+#define BACKTEST_PROF_TRADE_RESULTS_FLUSH         45
+#define BACKTEST_PROF_SECTION_COUNT             46
 
 struct BacktestProfBucket
 {
@@ -382,6 +386,11 @@ string BacktestProfSectionLabel(const int section)
       case BACKTEST_PROF_ROLLOVER_ON_M1:          return "rollover_on_m1";
       case BACKTEST_PROF_ONTIMER_BAR_DETECT:      return "ontimer_bar_detect";
       case BACKTEST_PROF_ONTIMER_PER_SEC_TAIL:    return "ontimer_per_sec_tail";
+      case BACKTEST_PROF_OCCUPIED_MAGICS_CACHE:   return "occupied_magics_cache";
+      case BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP: return "breakdown_placement_setup";
+      case BACKTEST_PROF_BREAKDOWN_DAY_TRADE_COUNTS: return "breakdown_day_trade_counts";
+      case BACKTEST_PROF_TIME_ALGO_PLACEMENT:       return "time_algo_placement";
+      case BACKTEST_PROF_TRADE_RESULTS_FLUSH:       return "trade_results_flush";
    }
    return "unknown";
 }
@@ -662,6 +671,15 @@ int      g_sortedLevelPriceCount = 0;
 datetime g_aboveBelowIncDayStart = 0;
 int      g_aboveBelowIncLevelCount = 0;
 int      g_aboveBelowIncBarsDone = 0;
+datetime g_m1CopyIncDayStart = 0;
+int      g_m1CopyIncLastCountToCopy = 0;
+datetime g_levelExpandIncDayStart = 0;
+int      g_levelExpandIncLevelCount = -1;
+int      g_levelExpandIncBarsDone = 0;
+datetime g_levelStatsIncDayStart = 0;
+int      g_levelStatsIncLevelCount = -1;
+int      g_levelStatsIncBarsDone = 0;
+int      g_tradeResultsEnrichDoneCount = 0;
 
 datetime g_pullingHistoryPsFileDayStart = 0;
 int      g_pullingHistoryPsWeeklyFh = INVALID_HANDLE;
@@ -1041,6 +1059,8 @@ BreakdownAlgoBenchmarkAcc g_breakdownAlgoBenchmarkAcc[BREAKDOWN_ALGO_REGISTRY_MA
 
 //--- Time algo family (leading digit 1): scheduled market entries + secret TP on profit %
 bool   g_occupiedAlgoFamilySlots[ALGO_OCCUPIED_CACHE_MAX];  // compact registry slot index
+int    g_algoFamilyOpenCount[ALGO_OCCUPIED_CACHE_MAX];      // per-algo open positions on _Symbol (refreshed with occupied cache)
+int    g_algoFamilyPendingCount[ALGO_OCCUPIED_CACHE_MAX];   // per-algo pending orders on _Symbol (refreshed with occupied cache)
 bool   g_breakdownPlacementPassActive = false;              // set during RunBreakdownPlacementOnM1Close after RefreshOccupiedMagicsCache
 bool   g_breakdownPlacementPassFamilyOccupied = false;      // hoisted: any breakdown algo open/pending on _Symbol
 int    g_breakdownPlacementCandidateSlots[BREAKDOWN_ALGO_REGISTRY_MAX];
@@ -1152,14 +1172,13 @@ struct BreakdownOpenTradeLifetimeRec
 
 struct BreakdownPendingPlannedPriceRec
 {
-   long     magic;
    double   plannedPrice;
    datetime sentTime;     // pending ORDER_TIME_SETUP when placed
    bool     active;
 };
 
 BreakdownOpenTradeLifetimeRec  g_breakdownOpenLifetime[BREAKDOWN_OPEN_LIFETIME_MAX];
-BreakdownPendingPlannedPriceRec g_breakdownPendingPlannedPrice[BREAKDOWN_PENDING_PLANNED_MAX];
+BreakdownPendingPlannedPriceRec g_breakdownPendingPlannedBySlot[BREAKDOWN_ALGO_REGISTRY_MAX];
 
 struct FalgoBtClosedTradeStats
 {
@@ -1665,9 +1684,13 @@ struct TradeResult
    string sessionSent;    // ON|RTH-IB|RTH-afterIB|sleep from sentTime (GetSessionForTradeTime)
    bool foundOut;
    int tradeCustomId;
+   bool closedPipelineDone;  // enrich + day-count + level-stats applied for this closed trade
 };
 TradeResult g_tradeResults[MAX_TRADE_RESULTS];
 int g_tradeResultsCount = 0;
+datetime g_tradeResultsIncrementalDayStart = 0;
+bool     g_occupiedMagicsCacheInitialized = false;
+datetime g_occupiedMagicsCacheDayStart = 0;
 datetime g_tradeResultsEodFlushedForDayStart = 0;  // calendar day (00:00) for which EOD trade-results CSV flush already ran
 // Temp deal buffers for UpdateTradeResultsForDay (sort by magic then time)
 datetime g_dealTime[MAX_DEALS_DAY];
@@ -4628,6 +4651,104 @@ int SortedLevelFirstAboveIdx(const double high);
 int SortedLevelLastBelowIdx(const double low);
 void PullingHistoryPsLogCloseHandles();
 
+void FalgoInvalidateOccupiedMagicsCache();
+
+void DayM1LevelsIncResetAll()
+{
+   g_m1CopyIncDayStart = 0;
+   g_m1CopyIncLastCountToCopy = 0;
+   g_levelExpandIncDayStart = 0;
+   g_levelExpandIncLevelCount = -1;
+   g_levelExpandIncBarsDone = 0;
+   g_levelStatsIncDayStart = 0;
+   g_levelStatsIncLevelCount = -1;
+   g_levelStatsIncBarsDone = 0;
+   g_aboveBelowIncDayStart = 0;
+   g_aboveBelowIncLevelCount = 0;
+   g_aboveBelowIncBarsDone = 0;
+   FalgoInvalidateOccupiedMagicsCache();
+}
+
+//+------------------------------------------------------------------+
+bool DayM1CopyRatesIncremental(const datetime dayStart, const string dateStr, int &barsInDay)
+{
+   if(g_m1DayStart != dayStart || g_barsInDay <= 0)
+      return false;
+
+   const int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
+   if(barsFromDayStart < 0)
+      return false;
+
+   const int countToCopy = barsFromDayStart + 1;
+   if(g_m1CopyIncDayStart != dayStart)
+      return false;
+
+   MqlRates tail[];
+   if(countToCopy == g_m1CopyIncLastCountToCopy)
+   {
+      if(CopyRates(_Symbol, PERIOD_M1, 0, 1, tail) != 1)
+         return false;
+      if(TimeToString(tail[0].time, TIME_DATE) != dateStr)
+         return false;
+      g_m1Rates[g_barsInDay - 1] = tail[0];
+      barsInDay = g_barsInDay;
+      return true;
+   }
+
+   if(countToCopy != g_m1CopyIncLastCountToCopy + 1)
+      return false;
+   if(CopyRates(_Symbol, PERIOD_M1, 0, 2, tail) != 2)
+      return false;
+   if(TimeToString(tail[0].time, TIME_DATE) != dateStr || TimeToString(tail[1].time, TIME_DATE) != dateStr)
+      return false;
+
+   if(g_barsInDay >= MAX_BARS_IN_DAY)
+      return false;
+
+   g_m1Rates[g_barsInDay - 1] = tail[1];
+   g_m1Rates[g_barsInDay] = tail[0];
+   g_barsInDay++;
+   g_m1CopyIncLastCountToCopy = countToCopy;
+   barsInDay = g_barsInDay;
+   return true;
+}
+
+//+------------------------------------------------------------------+
+void LevelBarStatsSeedFromPriorBar(const int levelIdx, const int barStart,
+   int &prevAbove, int &prevBelow, int &prevOverlap,
+   int &runAbove, int &runBelow, int &runOverlap,
+   int &sumAbove, int &sumBelow, int &sumOverlap)
+{
+   prevAbove = 0;
+   prevBelow = 0;
+   prevOverlap = 0;
+   runAbove = 0;
+   runBelow = 0;
+   runOverlap = 0;
+   sumAbove = 0;
+   sumBelow = 0;
+   sumOverlap = 0;
+   if(barStart <= 0)
+      return;
+
+   const int p = barStart - 1;
+   const double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
+   const double open_ = g_m1Rates[p].open;
+   const double high_ = g_m1Rates[p].high;
+   const double low_ = g_m1Rates[p].low;
+   const double close_ = g_m1Rates[p].close;
+   prevAbove = IsBarCleanAbove(open_, high_, low_, close_, levelPrice) ? 1 : 0;
+   prevBelow = IsBarCleanBelow(open_, high_, low_, close_, levelPrice) ? 1 : 0;
+   prevOverlap = IsBarOverlap(low_, high_, levelPrice) ? 1 : 0;
+   runAbove = prevAbove ? g_cleanStreakAbove[levelIdx][p] : 0;
+   runBelow = prevBelow ? g_cleanStreakBelow[levelIdx][p] : 0;
+   runOverlap = prevOverlap ? g_overlapStreak[levelIdx][p] : 0;
+   sumAbove = g_aboveCnt[levelIdx][p];
+   sumBelow = g_belowCnt[levelIdx][p];
+   sumOverlap = g_overlapC[levelIdx][p];
+}
+
+//+------------------------------------------------------------------+
 void UpdateDayM1AndLevelsExpanded()
 {
    const bool profOn = BacktestProfileEnabled();
@@ -4663,6 +4784,7 @@ void UpdateDayM1AndLevelsExpanded()
       g_breakdown15mSnapByAlgoAsOf = 0;
       for(int bdci = 0; bdci < BREAKDOWN_ALGO_REGISTRY_MAX; bdci++)
          g_breakdown15mSnapByAlgoSlotReady[bdci] = false;
+      DayM1LevelsIncResetAll();
       if(profOn)
          BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_NEW_DAY, profT0);
    }
@@ -4670,31 +4792,37 @@ void UpdateDayM1AndLevelsExpanded()
    MqlDateTime mtDay;
    TimeToStruct(dayStart, mtDay);
 
+   int barsInDay = 0;
    if(profOn)
       profT0 = GetMicrosecondCount();
-   MqlRates m1Rates[];
-   int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
-   if(barsFromDayStart < 0) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
-
-   int countToCopy = barsFromDayStart + 1;
-   int copied = CopyRates(_Symbol, PERIOD_M1, 0, countToCopy, m1Rates);
-   if(copied <= 0) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
-
-   int barsInDay = 0;
-   for(int barIdx = 0; barIdx < copied; barIdx++)
-      if(TimeToString(m1Rates[barIdx].time, TIME_DATE) == dateStr) barsInDay++;
-
-   if(barsInDay <= 0 || barsInDay > MAX_BARS_IN_DAY) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
-
-   int idxDay = 0;
-   for(int barIdx = 0; barIdx < copied && idxDay < barsInDay; barIdx++)
+   if(!DayM1CopyRatesIncremental(dayStart, dateStr, barsInDay))
    {
-      if(TimeToString(m1Rates[barIdx].time, TIME_DATE) != dateStr) continue;
-      g_m1Rates[idxDay] = m1Rates[barIdx];
-      idxDay++;
+      MqlRates m1Rates[];
+      int barsFromDayStart = iBarShift(_Symbol, PERIOD_M1, dayStart, false);
+      if(barsFromDayStart < 0) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
+
+      int countToCopy = barsFromDayStart + 1;
+      int copied = CopyRates(_Symbol, PERIOD_M1, 0, countToCopy, m1Rates);
+      if(copied <= 0) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
+
+      barsInDay = 0;
+      for(int barIdx = 0; barIdx < copied; barIdx++)
+         if(TimeToString(m1Rates[barIdx].time, TIME_DATE) == dateStr) barsInDay++;
+
+      if(barsInDay <= 0 || barsInDay > MAX_BARS_IN_DAY) { g_barsInDay = 0; g_m1DayStart = 0; if(profOn) BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0); return; }
+
+      int idxDay = 0;
+      for(int barIdx = copied - 1; barIdx >= 0 && idxDay < barsInDay; barIdx--)
+      {
+         if(TimeToString(m1Rates[barIdx].time, TIME_DATE) != dateStr) continue;
+         g_m1Rates[idxDay] = m1Rates[barIdx];
+         idxDay++;
+      }
+      g_barsInDay = barsInDay;
+      g_m1DayStart = dayStart;
+      g_m1CopyIncDayStart = dayStart;
+      g_m1CopyIncLastCountToCopy = countToCopy;
    }
-   g_barsInDay = barsInDay;
-   g_m1DayStart = dayStart;
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_COPY_RATES, profT0);
 
@@ -4716,37 +4844,80 @@ void UpdateDayM1AndLevelsExpanded()
 
    if(profOn)
       profT0 = GetMicrosecondCount();
-   // Build levelsExpanded from g_levels (full-day bars; todayRTHopen is in g_levels like any other level)
-   g_levelsTodayCount = 0;
-   for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+   bool expandIncremental = false;
+   int expandBarStart = 0;
+   if(g_levelExpandIncDayStart == g_m1DayStart && g_levelExpandIncLevelCount == g_levelsTodayCount && g_barsInDay > 0)
    {
-      if(g_levels[levelIdx].startStr > dayKey || dayKey > g_levels[levelIdx].endStr) continue;
-      if(g_levelsTodayCount >= MAX_LEVELS_EXPANDED)
-         FatalError("UpdateDayM1AndLevelsExpanded: too many expanded levels for " + dayKey + " (max " + IntegerToString(MAX_LEVELS_EXPANDED) + ")");
-      g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[levelIdx].levelPrice;
-      g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[levelIdx].tag;
-      g_levelsExpanded[g_levelsTodayCount].categories = g_levels[levelIdx].categories;
-      g_levelsExpanded[g_levelsTodayCount].categoriesLower = g_levels[levelIdx].categories;
-      StringToLower(g_levelsExpanded[g_levelsTodayCount].categoriesLower);
-      g_levelsExpanded[g_levelsTodayCount].count      = g_barsInDay;
-      ArrayResize(g_levelsExpanded[g_levelsTodayCount].diffs, g_barsInDay);
-      ArrayResize(g_levelsExpanded[g_levelsTodayCount].times, g_barsInDay);
-      for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
-      {
-         g_levelsExpanded[g_levelsTodayCount].times[barIdx] = g_m1Rates[barIdx].time;
-         g_levelsExpanded[g_levelsTodayCount].diffs[barIdx] = g_m1Rates[barIdx].close - g_levelsExpanded[g_levelsTodayCount].levelPrice;
-      }
-      g_levelsTodayCount++;
+      if(g_barsInDay > g_levelExpandIncBarsDone)
+         expandBarStart = g_levelExpandIncBarsDone;
+      else if(g_barsInDay == g_levelExpandIncBarsDone)
+         expandBarStart = g_barsInDay - 1;
+      expandIncremental = (expandBarStart < g_barsInDay);
    }
+
+   if(!expandIncremental)
+   {
+      g_levelsTodayCount = 0;
+      for(int levelIdx = 0; levelIdx < g_levelsTotalCount; levelIdx++)
+      {
+         if(g_levels[levelIdx].startStr > dayKey || dayKey > g_levels[levelIdx].endStr) continue;
+         if(g_levelsTodayCount >= MAX_LEVELS_EXPANDED)
+            FatalError("UpdateDayM1AndLevelsExpanded: too many expanded levels for " + dayKey + " (max " + IntegerToString(MAX_LEVELS_EXPANDED) + ")");
+         g_levelsExpanded[g_levelsTodayCount].levelPrice = g_levels[levelIdx].levelPrice;
+         g_levelsExpanded[g_levelsTodayCount].tag        = g_levels[levelIdx].tag;
+         g_levelsExpanded[g_levelsTodayCount].categories = g_levels[levelIdx].categories;
+         g_levelsExpanded[g_levelsTodayCount].categoriesLower = g_levels[levelIdx].categories;
+         StringToLower(g_levelsExpanded[g_levelsTodayCount].categoriesLower);
+         g_levelsExpanded[g_levelsTodayCount].count      = g_barsInDay;
+         ArrayResize(g_levelsExpanded[g_levelsTodayCount].diffs, g_barsInDay);
+         ArrayResize(g_levelsExpanded[g_levelsTodayCount].times, g_barsInDay);
+         for(int barIdx = 0; barIdx < g_barsInDay; barIdx++)
+         {
+            g_levelsExpanded[g_levelsTodayCount].times[barIdx] = g_m1Rates[barIdx].time;
+            g_levelsExpanded[g_levelsTodayCount].diffs[barIdx] = g_m1Rates[barIdx].close - g_levelsExpanded[g_levelsTodayCount].levelPrice;
+         }
+         g_levelsTodayCount++;
+      }
+      g_levelExpandIncDayStart = g_m1DayStart;
+      g_levelExpandIncLevelCount = g_levelsTodayCount;
+   }
+   else
+   {
+      for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
+      {
+         g_levelsExpanded[levelIdx].count = g_barsInDay;
+         ArrayResize(g_levelsExpanded[levelIdx].diffs, g_barsInDay);
+         ArrayResize(g_levelsExpanded[levelIdx].times, g_barsInDay);
+         for(int barIdx = expandBarStart; barIdx < g_barsInDay; barIdx++)
+         {
+            g_levelsExpanded[levelIdx].times[barIdx] = g_m1Rates[barIdx].time;
+            g_levelsExpanded[levelIdx].diffs[barIdx] = g_m1Rates[barIdx].close - g_levelsExpanded[levelIdx].levelPrice;
+         }
+      }
+   }
+   g_levelExpandIncBarsDone = g_barsInDay;
    RebuildSortedLevelPricesForToday();
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_EXPAND_DIFFS, profT0);
 
    if(profOn)
       profT0 = GetMicrosecondCount();
-   // Per (level levelIdx, bar barIdx): breaksLevelDown / breaksLevelUpward from candle open/close vs level
+   int breaksBarStart = 0;
+   if(g_levelStatsIncDayStart == g_m1DayStart && g_levelStatsIncLevelCount == g_levelsTodayCount && g_barsInDay > 0)
+   {
+      if(g_barsInDay > g_levelStatsIncBarsDone)
+         breaksBarStart = g_levelStatsIncBarsDone;
+      else if(g_barsInDay == g_levelStatsIncBarsDone)
+         breaksBarStart = g_barsInDay - 1;
+   }
+   else
+   {
+      g_levelStatsIncDayStart = g_m1DayStart;
+      g_levelStatsIncLevelCount = g_levelsTodayCount;
+      breaksBarStart = 0;
+   }
    for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
-      for(int barIdx = 0; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
+      for(int barIdx = breaksBarStart; barIdx < g_levelsExpanded[levelIdx].count; barIdx++)
       {
          double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
          g_breaksLevelDown[levelIdx][barIdx]   = (g_m1Rates[barIdx].open > levelPrice && g_m1Rates[barIdx].close < levelPrice);
@@ -4757,15 +4928,17 @@ void UpdateDayM1AndLevelsExpanded()
 
    if(profOn)
       profT0 = GetMicrosecondCount();
-   // Per (level levelIdx, bar barIdx): all level-bar stats in one forward pass (streaks and counts incremental to avoid O(bars^2))
+   int streaksBarStart = breaksBarStart;
    for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
    {
       double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
       int barCount = g_levelsExpanded[levelIdx].count;
-      int prevAbove = 0, prevBelow = 0, prevOverlap = 0;  // bar barIdx-1 state
-      int runAbove = 0, runBelow = 0, runOverlap = 0;     // running streaks
-      int sumAbove = 0, sumBelow = 0, sumOverlap = 0;     // running counts 0..barIdx
-      for(int barIdx = 0; barIdx < barCount; barIdx++)
+      int prevAbove = 0, prevBelow = 0, prevOverlap = 0;
+      int runAbove = 0, runBelow = 0, runOverlap = 0;
+      int sumAbove = 0, sumBelow = 0, sumOverlap = 0;
+      LevelBarStatsSeedFromPriorBar(levelIdx, streaksBarStart, prevAbove, prevBelow, prevOverlap,
+         runAbove, runBelow, runOverlap, sumAbove, sumBelow, sumOverlap);
+      for(int barIdx = streaksBarStart; barIdx < barCount; barIdx++)
       {
          double open_ = g_m1Rates[barIdx].open, high_ = g_m1Rates[barIdx].high, low_ = g_m1Rates[barIdx].low, close_ = g_m1Rates[barIdx].close;
          int curAbove  = IsBarCleanAbove(open_, high_, low_, close_, levelPrice) ? 1 : 0;
@@ -4800,6 +4973,7 @@ void UpdateDayM1AndLevelsExpanded()
          prevAbove = curAbove; prevBelow = curBelow; prevOverlap = curOverlap;
       }
    }
+   g_levelStatsIncBarsDone = g_barsInDay;
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_UPDATE_DAY_M1_LEVELS_STREAKS, profT0);
 
@@ -4937,6 +5111,7 @@ void BuyHoldBenchmarkResetOnInit()
    g_aboveBelowIncDayStart = 0;
    g_aboveBelowIncLevelCount = 0;
    g_aboveBelowIncBarsDone = 0;
+   DayM1LevelsIncResetAll();
    g_sortedLevelPriceCount = 0;
    PullingHistoryPsLogCloseHandles();
 
@@ -5620,9 +5795,25 @@ void FalgoAppendClosedTradeToAllDaysSummaryFromLifetime(const ulong positionId, 
 //+------------------------------------------------------------------+
 //| Load deals for [dayStart, dayStart+86400), pair IN/OUT into g_tradeResults. |
 //+------------------------------------------------------------------+
+void BreakdownDayTradeCountsResetIfNewDay();
+void BreakdownApplyOneClosedTradeCounts(const TradeResult &tr);
+void LevelTradeStatsApplyOneClosedTrade(const TradeResult &tr);
+void LevelTradeStatsReplayAllClosedTradesForDay();
+void FalgoProcessNewClosedTradeAtIndex(const int trIdx, const bool includeLevelStats = true);
+void AppendNewClosedTradeResultsFromHistory(const datetime dayStart);
+void EnsureOccupiedMagicsCacheInitialized();
+void AlgoFamilyOccupiedCacheNotePendingPlaced(const int algoNumber);
+void AlgoFamilyOccupiedCacheNotePendingRemoved(const int algoNumber);
+void AlgoFamilyOccupiedCacheNoteOpenFilled(const int algoNumber);
+void AlgoFamilyOccupiedCacheNotePositionClosed(const int algoNumber);
+void FalgoTryProcessClosedTradeFromCloseDeal(const ulong closeDealTicket);
+void FalgoInvalidateOccupiedMagicsCache();
+
+//+------------------------------------------------------------------+
 void UpdateTradeResultsForDayStart(const datetime dayStart)
 {
    g_tradeResultsCount = 0;
+   g_tradeResultsEnrichDoneCount = 0;
    g_dealCount = 0;
    datetime dayEnd = dayStart + 86400;
    if(!HistorySelect(dayStart, dayEnd)) return;
@@ -5727,8 +5918,337 @@ void UpdateTradeResultsForDayStart(const datetime dayStart)
 //+------------------------------------------------------------------+
 void UpdateTradeResultsForDay()
 {
+   if(!InpLoadTradeResultsFromHistory)
+   {
+      g_tradeResultsCount = 0;
+      g_dealCount = 0;
+      return;
+   }
+
    const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
-   UpdateTradeResultsForDayStart(dayStart);
+   if(dayStart != g_tradeResultsIncrementalDayStart)
+   {
+      BreakdownDayTradeCountsResetIfNewDay();
+      FalgoInvalidateOccupiedMagicsCache();
+      UpdateTradeResultsForDayStart(dayStart);
+      g_tradeResultsIncrementalDayStart = dayStart;
+      SyncBreakdownPlanCountersFromTradeResults();
+      LevelTradeStatsReplayAllClosedTradesForDay();
+      for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+         FalgoProcessNewClosedTradeAtIndex(trIdx, false);
+      g_tradeResultsEnrichDoneCount = g_tradeResultsCount;
+      return;
+   }
+
+   AppendNewClosedTradeResultsFromHistory(dayStart);
+}
+
+//+------------------------------------------------------------------+
+void BreakdownDayTradeCountsResetIfNewDay()
+{
+   const datetime dayStart = FalgoTradingDayStart();
+   static datetime s_breakdownDayTradeCountsDayStart = 0;
+   if(dayStart != 0 && s_breakdownDayTradeCountsDayStart != dayStart)
+   {
+      s_breakdownDayTradeCountsDayStart = dayStart;
+      g_breakdownFamilyDayWins = 0;
+      g_breakdownFamilyDayLosses = 0;
+      g_breakdownFamilyDayGrossProfit = 0.0;
+      g_breakdownFamilyDayGrossLossAbs = 0.0;
+      for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
+      {
+         g_breakdownAlgoDayWins[si] = 0;
+         g_breakdownAlgoDayLosses[si] = 0;
+         g_breakdownAlgoPlanTradeNumToday[si] = 0;
+         g_breakdownAlgoLevelTradeNumToday[si] = 0;
+         g_breakdownAlgoLastPlacedEndTime[si] = 0;
+         g_breakdownAlgoLastPlacedStartHigh[si] = 0.0;
+         g_breakdownAlgoLastPlacedBreakdownLow[si] = 0.0;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void BreakdownApplyOneClosedTradeCounts(const TradeResult &tr)
+{
+   if(!tr.foundOut || !IsBreakdownFamilyCompositeMagic(tr.magic))
+      return;
+   const datetime dayStart = FalgoTradingDayStart();
+   const datetime dayEnd = (dayStart != 0) ? (dayStart + 86400) : 0;
+   if(dayStart != 0 && (tr.endTime < dayStart || tr.endTime >= dayEnd))
+      return;
+   const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(tr.magic));
+   if(tr.profit > 0.0)
+   {
+      g_breakdownFamilyDayWins++;
+      if(algoIdx >= 0)
+         g_breakdownAlgoDayWins[algoIdx]++;
+   }
+   else if(tr.profit < 0.0)
+   {
+      g_breakdownFamilyDayLosses++;
+      if(algoIdx >= 0)
+         g_breakdownAlgoDayLosses[algoIdx]++;
+   }
+}
+
+//+------------------------------------------------------------------+
+void LevelTradeStatsApplyOneClosedTrade(const TradeResult &tr)
+{
+   if(!tr.foundOut || g_levelsTodayCount <= 0)
+      return;
+
+   TradeResult work = tr;
+   if(StringLen(work.level) == 0)
+      FalgoEnrichTradeResultLevelTpSl(work);
+   if(StringLen(work.level) == 0)
+      return;
+
+   const double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   const double levelVal = StringToDouble(work.level);
+   int levelIdx = -1;
+   for(int idx = 0; idx < g_levelsTodayCount; idx++)
+   {
+      if(MathAbs(g_levelsExpanded[idx].levelPrice - levelVal) < tolerance)
+      {
+         levelIdx = idx;
+         break;
+      }
+   }
+   if(levelIdx < 0)
+      return;
+
+   const string endSession = GetSessionForCandleTime(work.endTime);
+   const int barCount = g_levelsExpanded[levelIdx].count;
+   if(barCount <= 0)
+      return;
+   const int firstBar = LevelExpandedFirstBarWhereCloseAfter(g_levelsExpanded[levelIdx].times, barCount, work.endTime);
+   if(firstBar >= barCount)
+      return;
+
+   const int lastBar = PullingHistoryLastClosedBarIdx();
+   const int barEnd = (lastBar >= 0) ? MathMin(lastBar, barCount - 1) : (barCount - 1);
+   for(int barIdx = firstBar; barIdx <= barEnd; barIdx++)
+   {
+      if(endSession == "ON")
+      {
+         g_ONtradeCount_L[levelIdx][barIdx]++;
+         if(work.profit > 0.0)
+            g_ONwins_L[levelIdx][barIdx]++;
+         g_ONpointsSum_L[levelIdx][barIdx] += work.priceDiff;
+         g_ONprofitSum_L[levelIdx][barIdx] += work.profit;
+      }
+      else if(endSession == "RTH")
+      {
+         g_RTHtradeCount_L[levelIdx][barIdx]++;
+         if(work.profit > 0.0)
+            g_RTHwins_L[levelIdx][barIdx]++;
+         g_RTHpointsSum_L[levelIdx][barIdx] += work.priceDiff;
+         g_RTHprofitSum_L[levelIdx][barIdx] += work.profit;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void LevelTradeStatsReplayAllClosedTradesForDay()
+{
+   for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
+   {
+      const int barCount = g_levelsExpanded[levelIdx].count;
+      for(int barIdx = 0; barIdx < barCount; barIdx++)
+      {
+         g_ONtradeCount_L[levelIdx][barIdx] = 0;
+         g_ONwins_L[levelIdx][barIdx] = 0;
+         g_ONpointsSum_L[levelIdx][barIdx] = 0.0;
+         g_ONprofitSum_L[levelIdx][barIdx] = 0.0;
+         g_RTHtradeCount_L[levelIdx][barIdx] = 0;
+         g_RTHwins_L[levelIdx][barIdx] = 0;
+         g_RTHpointsSum_L[levelIdx][barIdx] = 0.0;
+         g_RTHprofitSum_L[levelIdx][barIdx] = 0.0;
+      }
+   }
+   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+   {
+      if(!g_tradeResults[trIdx].foundOut)
+         continue;
+      LevelTradeStatsApplyOneClosedTrade(g_tradeResults[trIdx]);
+   }
+   g_levelTradeStatsIncAppliedTradeCount = g_tradeResultsCount;
+}
+
+//+------------------------------------------------------------------+
+void FalgoProcessNewClosedTradeAtIndex(const int trIdx, const bool includeLevelStats)
+{
+   if(trIdx < 0 || trIdx >= g_tradeResultsCount)
+      return;
+   if(!g_tradeResults[trIdx].foundOut || g_tradeResults[trIdx].closedPipelineDone)
+      return;
+
+   FalgoEnrichTradeResultLevelTpSl(g_tradeResults[trIdx]);
+   BreakdownApplyOneClosedTradeCounts(g_tradeResults[trIdx]);
+   if(includeLevelStats)
+      LevelTradeStatsApplyOneClosedTrade(g_tradeResults[trIdx]);
+   if(IsAnyAlgoFamilyCompositeMagic(g_tradeResults[trIdx].magic))
+      AlgoFamilyOccupiedCacheNotePositionClosed(AlgoFamilyMagicNumber(g_tradeResults[trIdx].magic));
+   g_tradeResults[trIdx].closedPipelineDone = true;
+   if(trIdx >= g_tradeResultsEnrichDoneCount)
+      g_tradeResultsEnrichDoneCount = trIdx + 1;
+}
+
+//+------------------------------------------------------------------+
+void AppendNewClosedTradeResultsFromHistory(const datetime dayStart)
+{
+   const datetime dayEnd = dayStart + 86400;
+   if(!HistorySelect(dayStart, dayEnd))
+      return;
+
+   const int total = HistoryDealsTotal();
+   for(int dealIdx = 0; dealIdx < total; dealIdx++)
+   {
+      const ulong ticket = HistoryDealGetTicket(dealIdx);
+      if(ticket == 0)
+         continue;
+      if(HistoryDealGetString(ticket, DEAL_SYMBOL) != _Symbol)
+         continue;
+      if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY) != DEAL_ENTRY_OUT)
+         continue;
+      const long magic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
+      if(!IsAnyAlgoFamilyCompositeMagic(magic))
+         continue;
+      const datetime endTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+      if(endTime < dayStart || endTime >= dayEnd)
+         continue;
+
+      bool alreadyListed = false;
+      for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+      {
+         if(!g_tradeResults[trIdx].foundOut)
+            continue;
+         if(g_tradeResults[trIdx].magic == magic && g_tradeResults[trIdx].endTime == endTime)
+         {
+            alreadyListed = true;
+            if(!g_tradeResults[trIdx].closedPipelineDone)
+               FalgoProcessNewClosedTradeAtIndex(trIdx);
+            break;
+         }
+      }
+      if(alreadyListed)
+         continue;
+
+      TradeResult tr;
+      if(!FalgoTryBuildTradeResultFromCloseDeal(ticket, tr))
+         continue;
+      if(FalgoFatalIfCapacityFull("AppendNewClosedTradeResultsFromHistory", g_tradeResultsCount, MAX_TRADE_RESULTS,
+         "MAX_TRADE_RESULTS"))
+         return;
+      g_tradeResults[g_tradeResultsCount] = tr;
+      FalgoProcessNewClosedTradeAtIndex(g_tradeResultsCount);
+      g_tradeResultsCount++;
+   }
+}
+
+//+------------------------------------------------------------------+
+void FalgoTryProcessClosedTradeFromCloseDeal(const ulong closeDealTicket)
+{
+   TradeResult tr;
+   if(!FalgoTryBuildTradeResultFromCloseDeal(closeDealTicket, tr))
+      return;
+
+   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+   {
+      if(!g_tradeResults[trIdx].foundOut)
+         continue;
+      if(g_tradeResults[trIdx].magic == tr.magic && g_tradeResults[trIdx].endTime == tr.endTime)
+      {
+         if(!g_tradeResults[trIdx].closedPipelineDone)
+            FalgoProcessNewClosedTradeAtIndex(trIdx);
+         return;
+      }
+   }
+
+   if(FalgoFatalIfCapacityFull("FalgoTryProcessClosedTradeFromCloseDeal", g_tradeResultsCount, MAX_TRADE_RESULTS,
+      "MAX_TRADE_RESULTS"))
+      return;
+   g_tradeResults[g_tradeResultsCount] = tr;
+   FalgoProcessNewClosedTradeAtIndex(g_tradeResultsCount);
+   g_tradeResultsCount++;
+}
+
+//+------------------------------------------------------------------+
+void FalgoInvalidateOccupiedMagicsCache()
+{
+   g_occupiedMagicsCacheInitialized = false;
+   g_occupiedMagicsCacheDayStart = 0;
+}
+
+//+------------------------------------------------------------------+
+void EnsureOccupiedMagicsCacheInitialized()
+{
+   const datetime dayStart = (g_m1DayStart > 0)
+      ? g_m1DayStart
+      : (g_lastTimer1Time - (g_lastTimer1Time % 86400));
+   if(g_occupiedMagicsCacheInitialized && g_occupiedMagicsCacheDayStart == dayStart)
+      return;
+   RefreshOccupiedMagicsCache();
+   g_occupiedMagicsCacheInitialized = true;
+   g_occupiedMagicsCacheDayStart = dayStart;
+}
+
+//+------------------------------------------------------------------+
+void AlgoFamilyOccupiedCacheRefreshSlotFlag(const int cacheIdx)
+{
+   if(cacheIdx < 0 || cacheIdx >= ALGO_OCCUPIED_CACHE_MAX)
+      return;
+   g_occupiedAlgoFamilySlots[cacheIdx] =
+      (g_algoFamilyOpenCount[cacheIdx] > 0 || g_algoFamilyPendingCount[cacheIdx] > 0);
+}
+
+//+------------------------------------------------------------------+
+void AlgoFamilyOccupiedCacheNotePendingPlaced(const int algoNumber)
+{
+   EnsureOccupiedMagicsCacheInitialized();
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx < 0 || cacheIdx >= ALGO_OCCUPIED_CACHE_MAX)
+      return;
+   g_algoFamilyPendingCount[cacheIdx]++;
+   AlgoFamilyOccupiedCacheRefreshSlotFlag(cacheIdx);
+}
+
+//+------------------------------------------------------------------+
+void AlgoFamilyOccupiedCacheNotePendingRemoved(const int algoNumber)
+{
+   EnsureOccupiedMagicsCacheInitialized();
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx < 0 || cacheIdx >= ALGO_OCCUPIED_CACHE_MAX)
+      return;
+   if(g_algoFamilyPendingCount[cacheIdx] > 0)
+      g_algoFamilyPendingCount[cacheIdx]--;
+   AlgoFamilyOccupiedCacheRefreshSlotFlag(cacheIdx);
+}
+
+//+------------------------------------------------------------------+
+void AlgoFamilyOccupiedCacheNoteOpenFilled(const int algoNumber)
+{
+   EnsureOccupiedMagicsCacheInitialized();
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx < 0 || cacheIdx >= ALGO_OCCUPIED_CACHE_MAX)
+      return;
+   if(g_algoFamilyPendingCount[cacheIdx] > 0)
+      g_algoFamilyPendingCount[cacheIdx]--;
+   g_algoFamilyOpenCount[cacheIdx]++;
+   AlgoFamilyOccupiedCacheRefreshSlotFlag(cacheIdx);
+}
+
+//+------------------------------------------------------------------+
+void AlgoFamilyOccupiedCacheNotePositionClosed(const int algoNumber)
+{
+   EnsureOccupiedMagicsCacheInitialized();
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx < 0 || cacheIdx >= ALGO_OCCUPIED_CACHE_MAX)
+      return;
+   if(g_algoFamilyOpenCount[cacheIdx] > 0)
+      g_algoFamilyOpenCount[cacheIdx]--;
+   AlgoFamilyOccupiedCacheRefreshSlotFlag(cacheIdx);
 }
 
 //+------------------------------------------------------------------+
@@ -6288,75 +6808,23 @@ void UpdateLevelTradeStats()
    if(!M1BarCloseStatsBarRangeActive())
       return;
 
-   const double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
-   const bool fullPass = g_m1BarCloseStatsIncNeedFullRescan;
-
-   if(fullPass)
+   if(g_m1BarCloseStatsIncNeedFullRescan)
    {
-      for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
-      {
-         int barCount = g_levelsExpanded[levelIdx].count;
-         for(int barIdx = 0; barIdx < barCount; barIdx++)
-         {
-            g_ONtradeCount_L[levelIdx][barIdx] = 0;
-            g_ONwins_L[levelIdx][barIdx] = 0;
-            g_ONpointsSum_L[levelIdx][barIdx] = 0.0;
-            g_ONprofitSum_L[levelIdx][barIdx] = 0.0;
-            g_RTHtradeCount_L[levelIdx][barIdx] = 0;
-            g_RTHwins_L[levelIdx][barIdx] = 0;
-            g_RTHpointsSum_L[levelIdx][barIdx] = 0.0;
-            g_RTHprofitSum_L[levelIdx][barIdx] = 0.0;
-         }
-      }
-      for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
-      {
-         TradeResult tradeResult = g_tradeResults[trIdx];
-         if(StringLen(tradeResult.level) == 0 || !tradeResult.foundOut) continue;
-         double levelVal = StringToDouble(tradeResult.level);
-         int levelIdx = -1;
-         for(int idx = 0; idx < g_levelsTodayCount; idx++)
-         {
-            if(MathAbs(g_levelsExpanded[idx].levelPrice - levelVal) < tolerance) { levelIdx = idx; break; }
-         }
-         if(levelIdx < 0) continue;
-         string endSession = GetSessionForCandleTime(tradeResult.endTime);
-         int barCount = g_levelsExpanded[levelIdx].count;
-         int firstBar = LevelExpandedFirstBarWhereCloseAfter(g_levelsExpanded[levelIdx].times, barCount, tradeResult.endTime);
-         if(firstBar >= barCount) continue;
-         if(endSession == "ON")
-         {
-            for(int barIdx = firstBar; barIdx < barCount; barIdx++)
-            {
-               g_ONtradeCount_L[levelIdx][barIdx]++;
-               if(tradeResult.profit > 0) g_ONwins_L[levelIdx][barIdx]++;
-               g_ONpointsSum_L[levelIdx][barIdx] += tradeResult.priceDiff;
-               g_ONprofitSum_L[levelIdx][barIdx] += tradeResult.profit;
-            }
-         }
-         else if(endSession == "RTH")
-         {
-            for(int barIdx = firstBar; barIdx < barCount; barIdx++)
-            {
-               g_RTHtradeCount_L[levelIdx][barIdx]++;
-               if(tradeResult.profit > 0) g_RTHwins_L[levelIdx][barIdx]++;
-               g_RTHpointsSum_L[levelIdx][barIdx] += tradeResult.priceDiff;
-               g_RTHprofitSum_L[levelIdx][barIdx] += tradeResult.profit;
-            }
-         }
-      }
-      g_levelTradeStatsIncAppliedTradeCount = g_tradeResultsCount;
+      LevelTradeStatsReplayAllClosedTradesForDay();
       return;
    }
 
    const int barStart = g_m1BarCloseStatsIncBarStart;
    const int barEndInclusive = g_m1BarCloseStatsIncBarEndInclusive;
+   if(barEndInclusive < barStart)
+      return;
+
    for(int levelIdx = 0; levelIdx < g_levelsTodayCount; levelIdx++)
    {
       const int barCount = g_levelsExpanded[levelIdx].count;
       const int levelBarEnd = MathMin(barEndInclusive, barCount - 1);
       if(levelBarEnd < barStart)
          continue;
-      const double levelPrice = g_levelsExpanded[levelIdx].levelPrice;
 
       for(int barIdx = barStart; barIdx <= levelBarEnd; barIdx++)
       {
@@ -6382,48 +6850,8 @@ void UpdateLevelTradeStats()
             g_RTHpointsSum_L[levelIdx][barIdx] = g_RTHpointsSum_L[levelIdx][barIdx - 1];
             g_RTHprofitSum_L[levelIdx][barIdx] = g_RTHprofitSum_L[levelIdx][barIdx - 1];
          }
-
-         datetime candleCloseTime;
-         if(barIdx + 1 < barCount)
-            candleCloseTime = g_levelsExpanded[levelIdx].times[barIdx + 1];
-         else
-            candleCloseTime = g_levelsExpanded[levelIdx].times[barIdx] + 60;
-         datetime prevCloseTime = 0;
-         if(barIdx > 0)
-         {
-            if(barIdx < barCount)
-               prevCloseTime = g_levelsExpanded[levelIdx].times[barIdx];
-            else
-               prevCloseTime = g_levelsExpanded[levelIdx].times[barIdx - 1] + 60;
-         }
-
-         for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
-         {
-            TradeResult tradeResult = g_tradeResults[trIdx];
-            if(StringLen(tradeResult.level) == 0 || !tradeResult.foundOut) continue;
-            if(MathAbs(StringToDouble(tradeResult.level) - levelPrice) >= tolerance) continue;
-            if(tradeResult.endTime >= candleCloseTime) continue;
-            if(barIdx > 0 && tradeResult.endTime < prevCloseTime) continue;
-
-            string endSession = GetSessionForCandleTime(tradeResult.endTime);
-            if(endSession == "ON")
-            {
-               g_ONtradeCount_L[levelIdx][barIdx]++;
-               if(tradeResult.profit > 0) g_ONwins_L[levelIdx][barIdx]++;
-               g_ONpointsSum_L[levelIdx][barIdx] += tradeResult.priceDiff;
-               g_ONprofitSum_L[levelIdx][barIdx] += tradeResult.profit;
-            }
-            else if(endSession == "RTH")
-            {
-               g_RTHtradeCount_L[levelIdx][barIdx]++;
-               if(tradeResult.profit > 0) g_RTHwins_L[levelIdx][barIdx]++;
-               g_RTHpointsSum_L[levelIdx][barIdx] += tradeResult.priceDiff;
-               g_RTHprofitSum_L[levelIdx][barIdx] += tradeResult.profit;
-            }
-         }
       }
    }
-   g_levelTradeStatsIncAppliedTradeCount = g_tradeResultsCount;
 }
 
 //+------------------------------------------------------------------+
@@ -7477,29 +7905,14 @@ void BreakdownRememberPendingPlannedPrice(const long magic, const double planned
 {
    if(magic <= 0 || plannedPrice <= 0.0)
       return;
-   for(int i = 0; i < BREAKDOWN_PENDING_PLANNED_MAX; i++)
-   {
-      if(g_breakdownPendingPlannedPrice[i].active && g_breakdownPendingPlannedPrice[i].magic == magic)
-      {
-         g_breakdownPendingPlannedPrice[i].plannedPrice = plannedPrice;
-         if(sentTime > 0)
-            g_breakdownPendingPlannedPrice[i].sentTime = sentTime;
-         return;
-      }
-   }
-   for(int i = 0; i < BREAKDOWN_PENDING_PLANNED_MAX; i++)
-   {
-      if(!g_breakdownPendingPlannedPrice[i].active)
-      {
-         g_breakdownPendingPlannedPrice[i].magic = magic;
-         g_breakdownPendingPlannedPrice[i].plannedPrice = plannedPrice;
-         g_breakdownPendingPlannedPrice[i].sentTime = sentTime;
-         g_breakdownPendingPlannedPrice[i].active = true;
-         return;
-      }
-   }
-   FatalError(StringFormat("BreakdownRememberPendingPlannedPrice: full (%d); raise BREAKDOWN_PENDING_PLANNED_MAX",
-      BREAKDOWN_PENDING_PLANNED_MAX));
+   if(!IsBreakdownFamilyCompositeMagic(magic))
+      return;
+   const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(magic));
+   if(slotIdx < 0)
+      return;
+   g_breakdownPendingPlannedBySlot[slotIdx].plannedPrice = plannedPrice;
+   g_breakdownPendingPlannedBySlot[slotIdx].sentTime = sentTime;
+   g_breakdownPendingPlannedBySlot[slotIdx].active = true;
 }
 
 //+------------------------------------------------------------------+
@@ -7507,17 +7920,15 @@ bool BreakdownTakePendingOrderContext(const long magic, double &outPlannedPrice,
 {
    outPlannedPrice = 0.0;
    outSentTime = 0;
-   for(int i = 0; i < BREAKDOWN_PENDING_PLANNED_MAX; i++)
-   {
-      if(g_breakdownPendingPlannedPrice[i].active && g_breakdownPendingPlannedPrice[i].magic == magic)
-      {
-         outPlannedPrice = g_breakdownPendingPlannedPrice[i].plannedPrice;
-         outSentTime = g_breakdownPendingPlannedPrice[i].sentTime;
-         g_breakdownPendingPlannedPrice[i].active = false;
-         return true;
-      }
-   }
-   return false;
+   if(!IsBreakdownFamilyCompositeMagic(magic))
+      return false;
+   const int slotIdx = BreakdownAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(magic));
+   if(slotIdx < 0 || !g_breakdownPendingPlannedBySlot[slotIdx].active)
+      return false;
+   outPlannedPrice = g_breakdownPendingPlannedBySlot[slotIdx].plannedPrice;
+   outSentTime = g_breakdownPendingPlannedBySlot[slotIdx].sentTime;
+   g_breakdownPendingPlannedBySlot[slotIdx].active = false;
+   return true;
 }
 
 //+------------------------------------------------------------------+
@@ -9073,6 +9484,24 @@ int BreakdownPendingTradeSlotsForAlgo(const int algoNumber)
 }
 
 //+------------------------------------------------------------------+
+int BreakdownCachedPendingTradeSlotsForAlgo(const int algoNumber)
+{
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx >= 0 && cacheIdx < ALGO_OCCUPIED_CACHE_MAX)
+      return g_algoFamilyPendingCount[cacheIdx];
+   return BreakdownPendingTradeSlotsForAlgo(algoNumber);
+}
+
+//+------------------------------------------------------------------+
+int BreakdownCachedOccupiedTradeSlotsForAlgo(const int algoNumber)
+{
+   const int cacheIdx = AlgoOccupiedCacheIndex(algoNumber);
+   if(cacheIdx >= 0 && cacheIdx < ALGO_OCCUPIED_CACHE_MAX)
+      return g_algoFamilyOpenCount[cacheIdx] + g_algoFamilyPendingCount[cacheIdx];
+   return BreakdownOccupiedTradeSlotsForAlgo(algoNumber);
+}
+
+//+------------------------------------------------------------------+
 bool BreakdownUnderMaxConcurrentPendingTradesLimit(const int algoNumber)
 {
    BreakdownAlgoDef bd;
@@ -9080,19 +9509,22 @@ bool BreakdownUnderMaxConcurrentPendingTradesLimit(const int algoNumber)
       return true;
    if(bd.this_algo_max_concurrent_pending_trades <= 0)
       return true;
-   return BreakdownPendingTradeSlotsForAlgo(algoNumber) < bd.this_algo_max_concurrent_pending_trades;
+   return BreakdownCachedPendingTradeSlotsForAlgo(algoNumber) < bd.this_algo_max_concurrent_pending_trades;
 }
 
 //+------------------------------------------------------------------+
 string BreakdownMaxConcurrentPendingTradesFailLabel(const int algoNumber)
 {
-   if(BreakdownUnderMaxConcurrentPendingTradesLimit(algoNumber))
-      return "";
    BreakdownAlgoDef bd;
    if(!BreakdownAlgoDefForNumber(algoNumber, bd))
-      return "maxConcurrentPendingReached";
+      return "";
+   if(bd.this_algo_max_concurrent_pending_trades <= 0)
+      return "";
+   const int pending = BreakdownCachedPendingTradeSlotsForAlgo(algoNumber);
+   if(pending < bd.this_algo_max_concurrent_pending_trades)
+      return "";
    return StringFormat("maxConcurrentPendingReached(%d/%d)",
-      BreakdownPendingTradeSlotsForAlgo(algoNumber), bd.this_algo_max_concurrent_pending_trades);
+      pending, bd.this_algo_max_concurrent_pending_trades);
 }
 
 //+------------------------------------------------------------------+
@@ -9103,19 +9535,22 @@ bool BreakdownUnderMaxOpenPositionsLimit(const int algoNumber)
       return true;
    if(bd.max_open_positions <= 0)
       return true;
-   return BreakdownOccupiedTradeSlotsForAlgo(algoNumber) < bd.max_open_positions;
+   return BreakdownCachedOccupiedTradeSlotsForAlgo(algoNumber) < bd.max_open_positions;
 }
 
 //+------------------------------------------------------------------+
 string BreakdownMaxOpenPositionsFailLabel(const int algoNumber)
 {
-   if(BreakdownUnderMaxOpenPositionsLimit(algoNumber))
-      return "";
    BreakdownAlgoDef bd;
    if(!BreakdownAlgoDefForNumber(algoNumber, bd))
-      return "maxOpenPositionsReached";
+      return "";
+   if(bd.max_open_positions <= 0)
+      return "";
+   const int occupied = BreakdownCachedOccupiedTradeSlotsForAlgo(algoNumber);
+   if(occupied < bd.max_open_positions)
+      return "";
    return StringFormat("maxOpenPositionsReached(%d/%d)",
-      BreakdownOccupiedTradeSlotsForAlgo(algoNumber), bd.max_open_positions);
+      occupied, bd.max_open_positions);
 }
 
 //+------------------------------------------------------------------+
@@ -9149,65 +9584,7 @@ void BreakdownBumpPlanCountersAfterPlacement(const int algoNumber)
 //+------------------------------------------------------------------+
 void UpdateBreakdownDayTradeCounts()
 {
-   const datetime dayStart = FalgoTradingDayStart();
-   static datetime s_breakdownDayTradeCountsDayStart = 0;
-   if(dayStart != 0 && s_breakdownDayTradeCountsDayStart != dayStart)
-   {
-      s_breakdownDayTradeCountsDayStart = dayStart;
-      g_breakdownFamilyDayWins = 0;
-      g_breakdownFamilyDayLosses = 0;
-      g_breakdownFamilyDayGrossProfit = 0.0;
-      g_breakdownFamilyDayGrossLossAbs = 0.0;
-      for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
-      {
-         g_breakdownAlgoDayWins[si] = 0;
-         g_breakdownAlgoDayLosses[si] = 0;
-         g_breakdownAlgoPlanTradeNumToday[si] = 0;
-         g_breakdownAlgoLevelTradeNumToday[si] = 0;
-         g_breakdownAlgoLastPlacedEndTime[si] = 0;
-         g_breakdownAlgoLastPlacedStartHigh[si] = 0.0;
-         g_breakdownAlgoLastPlacedBreakdownLow[si] = 0.0;
-      }
-   }
-
-   SyncBreakdownPlanCountersFromTradeResults();
-
-   int histFamilyWins = 0, histFamilyLosses = 0;
-   for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
-   {
-      g_breakdownDayHistAlgoWins[si] = 0;
-      g_breakdownDayHistAlgoLosses[si] = 0;
-   }
-   const datetime dayEnd = (dayStart != 0) ? (dayStart + 86400) : 0;
-   for(int i = 0; i < g_tradeResultsCount; i++)
-   {
-      if(!g_tradeResults[i].foundOut)
-         continue;
-      if(!IsBreakdownFamilyCompositeMagic(g_tradeResults[i].magic))
-         continue;
-      if(dayStart != 0 && (g_tradeResults[i].endTime < dayStart || g_tradeResults[i].endTime >= dayEnd))
-         continue;
-      const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(g_tradeResults[i].magic));
-      if(g_tradeResults[i].profit > 0.0)
-      {
-         histFamilyWins++;
-         if(algoIdx >= 0)
-            g_breakdownDayHistAlgoWins[algoIdx]++;
-      }
-      else if(g_tradeResults[i].profit < 0.0)
-      {
-         histFamilyLosses++;
-         if(algoIdx >= 0)
-            g_breakdownDayHistAlgoLosses[algoIdx]++;
-      }
-   }
-   g_breakdownFamilyDayWins = MathMax(g_breakdownFamilyDayWins, histFamilyWins);
-   g_breakdownFamilyDayLosses = MathMax(g_breakdownFamilyDayLosses, histFamilyLosses);
-   for(int si = 0; si < BREAKDOWN_ALGO_REGISTRY_MAX; si++)
-   {
-      g_breakdownAlgoDayWins[si] = MathMax(g_breakdownAlgoDayWins[si], g_breakdownDayHistAlgoWins[si]);
-      g_breakdownAlgoDayLosses[si] = MathMax(g_breakdownAlgoDayLosses[si], g_breakdownDayHistAlgoLosses[si]);
-   }
+   BreakdownDayTradeCountsResetIfNewDay();
 }
 
 //+------------------------------------------------------------------+
@@ -10496,19 +10873,8 @@ void AlgoFamilyDayStopBumpFromBabysitClose(const long positionMagic, const doubl
    const int algoNumber = AlgoFamilyMagicNumber(positionMagic);
    if(IsBreakdownFamilyAlgoNumber(algoNumber))
    {
-      const int algoIdx = BreakdownAlgoSlotIndexByAlgoId(algoNumber);
-      if(profitPtsBeforeClose > 0.0)
-      {
-         g_breakdownFamilyDayWins++;
-         if(algoIdx >= 0)
-            g_breakdownAlgoDayWins[algoIdx]++;
-      }
-      else if(profitPtsBeforeClose < 0.0)
-      {
-         g_breakdownFamilyDayLosses++;
-         if(algoIdx >= 0)
-            g_breakdownAlgoDayLosses[algoIdx]++;
-      }
+      if(BreakdownFamilyBlocksPlacementOnOpenOrPending())
+         g_breakdownFamilyHadCloseThisPipelinePass = true;
       return;
    }
    if(IsTimeFamilyAlgoNumber(algoNumber))
@@ -11041,8 +11407,11 @@ void FalgoEnrichAllTradeResultsLevelTpSl()
    ulong profT0 = 0;
    if(profOn)
       profT0 = GetMicrosecondCount();
-   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+   if(g_tradeResultsEnrichDoneCount > g_tradeResultsCount)
+      g_tradeResultsEnrichDoneCount = 0;
+   for(int trIdx = g_tradeResultsEnrichDoneCount; trIdx < g_tradeResultsCount; trIdx++)
       FalgoEnrichTradeResultLevelTpSl(g_tradeResults[trIdx]);
+   g_tradeResultsEnrichDoneCount = g_tradeResultsCount;
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_ENRICH, profT0);
 }
@@ -11841,18 +12210,33 @@ bool AlgoTryPlaceTimeAlgoMarketBuy(const int algoNumber, const int barIdx)
 //+------------------------------------------------------------------+
 void RunTimeAlgoPlacementOnM1Close(const int barIdx)
 {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
    UpdateTimeAlgoDayState();
    if(!TimeAlgoProfileAllowsPlacementAtTime(g_lastTimer1Time))
+   {
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_TIME_ALGO_PLACEMENT, profT0);
       return;
+   }
    if(barIdx < 0 || barIdx >= g_barsInDay)
+   {
+      if(profOn)
+         BacktestProfAccumulate(BACKTEST_PROF_TIME_ALGO_PLACEMENT, profT0);
       return;
-   RefreshOccupiedMagicsCache();
+   }
+   EnsureOccupiedMagicsCacheInitialized();
    for(int si = 0; si < g_timeAlgoCount; si++)
    {
       if(!g_timeAlgos[si].enabled)
          continue;
       AlgoTryPlaceTimeAlgoMarketBuy(g_timeAlgos[si].algo_id, barIdx);
    }
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_TIME_ALGO_PLACEMENT, profT0);
 }
 
 //+------------------------------------------------------------------+
@@ -12739,7 +13123,14 @@ void FlushTradeResultsForDayIfNeeded(const datetime dayStart)
 
    const string dateStr = TimeToString(dayStart, TIME_DATE);
    UpdateTradeResultsForDayStart(dayStart);
-   FalgoEnrichAllTradeResultsLevelTpSl();
+   g_tradeResultsIncrementalDayStart = dayStart;
+   LevelTradeStatsReplayAllClosedTradesForDay();
+   for(int trIdx = 0; trIdx < g_tradeResultsCount; trIdx++)
+   {
+      g_tradeResults[trIdx].closedPipelineDone = false;
+      FalgoProcessNewClosedTradeAtIndex(trIdx, false);
+   }
+   g_tradeResultsEnrichDoneCount = g_tradeResultsCount;
    WriteAlgoFamilyEodTradeResultsCsvsIfNeeded(dateStr);
    MarkTradeResultsEodFlushedForDay(dayStart);
 
@@ -25174,11 +25565,9 @@ void AlgoGatesCollectBreakdownPlacementFailFlags(const int algoNumber, const int
       const string openLimit = BreakdownMaxOpenPositionsFailLabel(algoNumber);
       AlgoGatesFailFlagsAppend(outFlags, (openLimit != "" ? openLimit : "maxOpenPositionsReached"));
    }
-   if(!BreakdownUnderMaxConcurrentPendingTradesLimit(algoNumber))
-   {
-      const string pendingLimit = BreakdownMaxConcurrentPendingTradesFailLabel(algoNumber);
-      AlgoGatesFailFlagsAppend(outFlags, (pendingLimit != "" ? pendingLimit : "maxConcurrentPendingReached"));
-   }
+   const string pendingLimit = BreakdownMaxConcurrentPendingTradesFailLabel(algoNumber);
+   if(pendingLimit != "")
+      AlgoGatesFailFlagsAppend(outFlags, pendingLimit);
    if(tradeCloseDedicatedBar) AlgoGatesFailFlagsAppend(outFlags, "tradeClosedThisBar");
    if(familyBlock && g_breakdownFamilyHadCloseThisPipelinePass) AlgoGatesFailFlagsAppend(outFlags, "tradeClosedThisPipelineFam");
    if(familyBlock && BreakdownHasOpenPositionOnSymbol()) AlgoGatesFailFlagsAppend(outFlags, "openFalgoPositionFam");
@@ -25342,6 +25731,7 @@ void FalgoTryLogGatesForClosedMinute()
       return;
    const datetime barTime = g_m1Rates[barIdx].time;
    const datetime evalTime = barTime + 60;
+   EnsureOccupiedMagicsCacheInitialized();
    for(int si = 0; si < g_breakdownAlgoCount; si++)
    {
       if(!g_breakdownAlgos[si].enabled)
@@ -25398,6 +25788,7 @@ void FalgoTryLogAlgoFamilyPerSecond()
       const bool profOn = BacktestProfileEnabled();
       ulong profT0 = 0;
       const int placementBarIdx = g_barsInDay - 1;
+      EnsureOccupiedMagicsCacheInitialized();
       for(int bi = 0; bi < g_breakdownAlgoCount; bi++)
       {
          const int algoNumber = g_breakdownAlgos[bi].algo_id;
@@ -25430,8 +25821,6 @@ bool AlgoTryPlaceBreakdownMidpointOrder(const int algoNumber, const int barIdx)
    const string ruleFail = BreakdownRunRulesFirstFail(algoSlot, barIdx, g_lastTimer1Time);
    if(ruleFail != "")
       return false;
-   if(BreakdownAlgoOrderStateBlockReason(algoNumber) != "")
-      return false;
    const Breakdown15mState bdSnap = Breakdown15mSnapForAlgo(algoNumber, g_lastTimer1Time);
    if(!BreakdownMidpointEntryAllowed(algoNumber, bdSnap, g_lastTimer1Time))
       return false;
@@ -25454,8 +25843,6 @@ bool AlgoTryPlaceBreakdownMidpointOrder(const int algoNumber, const int barIdx)
       return false;
 
    const long magic = BuildAlgoMagicNumber(algoNumber, planKey);
-   if(!BreakdownUnderMaxOpenPositionsLimit(algoNumber))
-      return false;
 
    const double lot = GetTradeLotForBreakdown();
    if(!PlacePendingFromFalgoMagicBreakdown(magic, orderAnchor, bd.tp_enabled, brokerTpPrice, bd.sl_enabled, bd.sl_points,
@@ -25466,8 +25853,8 @@ bool AlgoTryPlaceBreakdownMidpointOrder(const int algoNumber, const int barIdx)
    g_breakdownAlgoLastPlacedStartHigh[algoSlot] = bdSnap.startHigh;
    g_breakdownAlgoLastPlacedBreakdownLow[algoSlot] = bdSnap.breakdownLow;
    BreakdownBumpPlanCountersAfterPlacement(algoNumber);
-   const datetime pendingSentTime = FalgoPendingOrderSentTimeFromTicket(ExtTrade.ResultOrder(), g_lastTimer1Time);
-   BreakdownRememberPendingPlannedPrice(magic, orderAnchor, pendingSentTime);
+   BreakdownOccupiedCacheNotePendingPlaced(algoNumber);
+   BreakdownRememberPendingPlannedPrice(magic, orderAnchor, g_lastTimer1Time);
    WriteTradeLogPendingOrderBreakdown(magic, orderAnchor, bd.tp_enabled, brokerTpPrice, bd.sl_enabled, bd.sl_points, bd.expiry_minutes);
    return true;
 }
@@ -25549,10 +25936,6 @@ bool BreakdownPlacementPassesCheapCandidateChecks(const int slotIdx, const int b
       return false;
    if(!BreakdownRulesetPassesCommonForPlacement(algoNumber, barIdx))
       return false;
-   if(!BreakdownUnderMaxOpenPositionsLimit(algoNumber))
-      return false;
-   if(!BreakdownUnderMaxConcurrentPendingTradesLimit(algoNumber))
-      return false;
    return true;
 }
 
@@ -25579,15 +25962,21 @@ void RunBreakdownPlacementOnM1Close(const int barIdx)
    ulong profT0 = 0;
 
    g_breakdownFamilyHadCloseThisPipelinePass = false;
-   UpdateBreakdownDayTradeCounts();
+   BreakdownDayTradeCountsResetIfNewDay();
 
    if(!BreakdownProfileAllowsPlacementAtTime(g_lastTimer1Time))
       return;
    if(barIdx < 0 || barIdx >= g_barsInDay)
       return;
 
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    RefreshGlobalBreakdown15mSnap(g_lastTimer1Time);
-   RefreshOccupiedMagicsCache();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP, profT0);
+   EnsureOccupiedMagicsCacheInitialized();
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    g_breakdownPlacementPassActive = true;
    g_breakdownPlacementPassFamilyOccupied = false;
    if(BreakdownFamilyBlocksPlacementOnOpenOrPending())
@@ -25596,10 +25985,14 @@ void RunBreakdownPlacementOnM1Close(const int barIdx)
       if(g_breakdownPlacementPassFamilyOccupied || g_breakdownFamilyHadCloseThisPipelinePass)
       {
          g_breakdownPlacementPassActive = false;
+         if(profOn)
+            BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP, profT0);
          return;
       }
    }
    const int candidateCount = BuildBreakdownPlacementCandidates(barIdx);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_BREAKDOWN_PLACEMENT_SETUP, profT0);
    for(int ci = 0; ci < candidateCount; ci++)
    {
       const int si = g_breakdownPlacementCandidateSlots[ci];
@@ -25975,8 +26368,17 @@ int OpenOrCreateForAppend(string path)
 //+------------------------------------------------------------------+
 void RefreshOccupiedMagicsCache()
 {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+
    for(int a = 0; a < ALGO_OCCUPIED_CACHE_MAX; a++)
+   {
       g_occupiedAlgoFamilySlots[a] = false;
+      g_algoFamilyOpenCount[a] = 0;
+      g_algoFamilyPendingCount[a] = 0;
+   }
 
    for(int posIdx = PositionsTotal() - 1; posIdx >= 0; posIdx--)
    {
@@ -25986,7 +26388,10 @@ void RefreshOccupiedMagicsCache()
       if(!IsAnyAlgoFamilyCompositeMagic(m)) continue;
       const int cacheIdx = AlgoOccupiedCacheIndex(AlgoFamilyMagicNumber(m));
       if(cacheIdx >= 0 && cacheIdx < ALGO_OCCUPIED_CACHE_MAX)
+      {
          g_occupiedAlgoFamilySlots[cacheIdx] = true;
+         g_algoFamilyOpenCount[cacheIdx]++;
+      }
    }
    for(int orderIdx = OrdersTotal() - 1; orderIdx >= 0; orderIdx--)
    {
@@ -25996,8 +26401,20 @@ void RefreshOccupiedMagicsCache()
       if(!IsAnyAlgoFamilyCompositeMagic(m)) continue;
       const int cacheIdx = AlgoOccupiedCacheIndex(AlgoFamilyMagicNumber(m));
       if(cacheIdx >= 0 && cacheIdx < ALGO_OCCUPIED_CACHE_MAX)
+      {
          g_occupiedAlgoFamilySlots[cacheIdx] = true;
+         g_algoFamilyPendingCount[cacheIdx]++;
+      }
    }
+
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_OCCUPIED_MAGICS_CACHE, profT0);
+}
+
+//+------------------------------------------------------------------+
+void BreakdownOccupiedCacheNotePendingPlaced(const int algoNumber)
+{
+   AlgoFamilyOccupiedCacheNotePendingPlaced(algoNumber);
 }
 
 //+------------------------------------------------------------------+
@@ -26417,6 +26834,7 @@ int OnInit()
    }
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
+   EnsureOccupiedMagicsCacheInitialized();
 
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
@@ -26467,14 +26885,21 @@ void HandleOrderUpdate(const MqlTradeTransaction& trans)
 {
    if(!HistoryOrderSelect(trans.order)) return;
    if(HistoryOrderGetString(trans.order, ORDER_SYMBOL) != _Symbol) return;
-   if((ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE) != ORDER_STATE_FILLED) return;
+   const long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
+   const ENUM_ORDER_STATE orderState = (ENUM_ORDER_STATE)HistoryOrderGetInteger(trans.order, ORDER_STATE);
+   if(IsAnyAlgoFamilyCompositeMagic(orderMagic))
+   {
+      const int algoNumber = AlgoFamilyMagicNumber(orderMagic);
+      if(orderState == ORDER_STATE_CANCELED || orderState == ORDER_STATE_EXPIRED || orderState == ORDER_STATE_REJECTED)
+         AlgoFamilyOccupiedCacheNotePendingRemoved(algoNumber);
+   }
+   if(orderState != ORDER_STATE_FILLED) return;
 
-   string magicStrForLogFilename = GetMagicStrForLogFilename(HistoryOrderGetInteger(trans.order, ORDER_MAGIC));
+   string magicStrForLogFilename = GetMagicStrForLogFilename(orderMagic);
    if(StringLen(magicStrForLogFilename) == 0) return;
 
    datetime fillTime = (datetime)HistoryOrderGetInteger(trans.order, ORDER_TIME_DONE);
    string kindStr = OrderTypeToKindString((ENUM_ORDER_TYPE)HistoryOrderGetInteger(trans.order, ORDER_TYPE));
-   long orderMagic = HistoryOrderGetInteger(trans.order, ORDER_MAGIC);
    WriteTradeLog(magicStrForLogFilename, "filled", fillTime, kindStr, 0, 0, 0, 0, trans.order, 0, 0, (ENUM_DEAL_REASON)0, "", orderMagic);
 }
 
@@ -26522,6 +26947,8 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
 
    long dealMagic = HistoryDealGetInteger(trans.deal, DEAL_MAGIC);
    const ulong positionId = (ulong)HistoryDealGetInteger(trans.deal, DEAL_POSITION_ID);
+   if(IsAnyAlgoFamilyCompositeMagic(dealMagic))
+      AlgoFamilyOccupiedCacheNoteOpenFilled(AlgoFamilyMagicNumber(dealMagic));
    BreakdownLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
    TimeAlgoLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
 
@@ -26582,6 +27009,7 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
    else if(reason == DEAL_REASON_EXPERT) eventType = "closed_by_ea";
 
    WriteTradeLog(magicStrForLogFilename, eventType, closeTime, kindStr, 0, 0, 0, 0, entryOrderTicket, trans.deal, posId, reason, comment, entryMagic);
+   FalgoTryProcessClosedTradeFromCloseDeal(trans.deal);
 }
 
 //+------------------------------------------------------------------+
@@ -26968,13 +27396,16 @@ void OnTimer()
    }
 
    g_lastBarTime = barNowM1;
-
-   const datetime barClosedM1 = iTime(_Symbol, PERIOD_M1, 1);
-   TryFlushTradeResultsEodFallback(barNowM1, barClosedM1);
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_BAR_DETECT, profT0);
 
-   // Pull static context for today before refresh so PDC is available when building levels (single UpdateDayM1AndLevelsExpanded per bar)
+   const datetime barClosedM1 = iTime(_Symbol, PERIOD_M1, 1);
+   if(profOn)
+      profT0 = GetMicrosecondCount();
+   TryFlushTradeResultsEodFallback(barNowM1, barClosedM1);
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_FLUSH, profT0);
+
    datetime dayStartForContext = g_lastTimer1Time - (g_lastTimer1Time % 86400);
    if(g_staticMarketContextPulledForDate != dayStartForContext)
    {
@@ -26988,7 +27419,11 @@ void OnTimer()
 
    // Refresh day M1 and levels first; then set closed-candle OHLC from same source (or terminal fallback)
    UpdateDayM1AndLevelsExpanded();
+   if(profOn)
+      profT0 = GetMicrosecondCount();
    TryFlushTradeResultsIfLastBarOfDayInFeed();
+   if(profOn)
+      BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_FLUSH, profT0);
    if(profOn)
       profT0 = GetMicrosecondCount();
    FalgoCustomQopexRolloverOnM1Close();
@@ -27040,7 +27475,6 @@ void OnTimer()
       UpdateTradeResultsForDay();
       if(profOn)
          BacktestProfAccumulate(BACKTEST_PROF_TRADE_RESULTS_HISTORY, profT0);
-      FalgoEnrichAllTradeResultsLevelTpSl();
    }
    else
    {
@@ -27121,7 +27555,6 @@ void OnTimer()
          if(dailyEODlog_PullingHistoryAlgoFamily)
          {
             UpdateTradeResultsForDay();
-            FalgoEnrichAllTradeResultsLevelTpSl();
             UpdateDayProgress();
             UpdatePullingHistoryAlgoFamilyAccountBarStats();
             PullingHistoryAlgoFamilyWriteEodCsv(dateStr, "weekly");
