@@ -19,6 +19,9 @@ MAIN_FIELDS = %w[
   entryrange_range_percentspot
   secret_tp_range_percent
   tp_notsecret_range_percent
+  closetrade_after_some_time
+  closetrade_after_some_time_butOnlyIfProfit
+  closetrade_after_some_time_but_ProfitPercent_Needed
   closetrade_after_x_minutes_from_breakdown
   max_open_positions
 ].freeze

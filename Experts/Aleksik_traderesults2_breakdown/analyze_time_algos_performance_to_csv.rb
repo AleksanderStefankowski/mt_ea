@@ -7,11 +7,11 @@ require 'set'
 require_relative '../Aleksik_traderesults/analyze_traderate_common'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
-INPUT_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_breakdown.tsv')
-OUTPUT_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.csv')
+INPUT_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_time.tsv')
+OUTPUT_PATH = File.join(SCRIPT_DIR, 'analyze_time_algos_performance_output.csv')
 FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
-  'analyze_breakdown_algos_performance_output_2025flashcrash.csv'
+  'analyze_time_algos_performance_output_2025flashcrash.csv'
 )
 
 FLASHCRASH_TRADE_BEFORE = Date.new(2025, 2, 14)
@@ -114,7 +114,6 @@ end
 def fill_delay_seconds(trade)
   return nil unless trade[:sent_time] && trade[:start_time]
 
-  # sentTime = pending ORDER_TIME_SETUP; startTime = IN deal fill time
   (trade[:start_time] - trade[:sent_time]) * 86_400
 end
 
