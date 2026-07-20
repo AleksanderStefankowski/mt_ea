@@ -39,7 +39,7 @@
 #define BREAKDOWN_OPEN_LIFETIME_MAX             20000
 #define BREAKDOWN_AUDIT_LOG_DEDUP_MAX         1000000
 //--- Time algo family
-#define TIME_ALGO_REGISTRY_MAX                    4
+#define TIME_ALGO_REGISTRY_MAX                    8
 #define TIME_ALGO_REGISTRY_MAX_HEADROOM           3
 #define TIME_ALGO_OPEN_LIFETIME_MAX             20000
 //--- Cross-family
@@ -143,7 +143,7 @@ bool     backtest_profile_enabled                          = true;   // strategy
 // false: backtest — incremental closed bars only; full replay on new day / track change / bar shrink.
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
 bool     bigflipper_pullinghistory_always_full_replay      = false; // ALGOBOOKMARKLIVE
-bool     bigflipper_friday_api_pull_all_trades            = true;  // 1st Fri of month 14:00 server: History deals → API_friday_pull_all_trades.csv
+bool     bigflipper_friday_api_pull_all_trades            = false;  // 1st Fri of month 14:00 server: History deals → API_friday_pull_all_trades.csv
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_referencePoints_movingLookback_seconds = 180;  // bookmark moving trade-result context: bar at (startTime - this); refs, dayBrokePDH/PDL
@@ -333,7 +333,7 @@ datetime g_fridayApiPullDoneForDayStart = 0;
 #define BACKTEST_PROF_BD_STAT_MIDPOINT_BLOCKED                55  // counter: midpoint gate rejects
 #define BACKTEST_PROF_BD_STAT_SNAP_GROUPS_COMPUTED            56  // counter: 15m snap groups computed (not cache-hit)
 #define BACKTEST_PROF_ONINIT                                  57  // OnInit wall time (load CSV, levels, etc.)
-#define BACKTEST_PROF_OUTSIDE_ONTIMER                         58  // tester/tick gaps between OnInit/OnTimer/OnDeinit
+#define BACKTEST_PROF_OUTSIDE_ONTIMER                         58  // legacy rollup slot (sum of outside_* subs; not written to CSV)
 #define BACKTEST_PROF_ONDEINIT                                59  // OnDeinit wall time (flush logs, close files)
 #define BACKTEST_PROF_FRIDAY_API_PULL                         60  // 1st Fri 14:00: HistorySelect → API_friday_pull_all_trades.csv
 #define BACKTEST_PROF_BREAKDOWN_CHEAP_CLOSE_BAR               61  // FalgoRulesetPassesCloseBarForAlgo per algo
@@ -345,7 +345,25 @@ datetime g_fridayApiPullDoneForDayStart = 0;
 #define BACKTEST_PROF_BREAKDOWN_CHEAP_FAMILY_HAD_CLOSE        67  // family had-close-this-pass per algo
 #define BACKTEST_PROF_BREAKDOWN_CHEAP_RECENCY                 68  // allow_new_trades_after_x_minutes_of_latest_open_time
 #define BACKTEST_PROF_BREAKDOWN_CHEAP_MAX_VOLUME              69  // max_open_volume_of_bdfamily per algo
-#define BACKTEST_PROF_SECTION_COUNT                           70
+#define BACKTEST_PROF_OUTSIDE_AFTER_ONINIT                    70  // wall gap: OnInit end -> first OnTimer
+#define BACKTEST_PROF_OUTSIDE_BETWEEN_ONTIMERS                71  // wall gap: OnTimer/OnTrade end -> next OnTimer (tester idle)
+#define BACKTEST_PROF_OUTSIDE_BEFORE_ONDEINIT                  72  // wall gap: last scoped end -> OnDeinit
+#define BACKTEST_PROF_OUTSIDE_ONTRADE                         73  // OnTradeTransaction handler wall time
+#define BACKTEST_PROF_SECTION_COUNT                           74
+
+#define BACKTEST_PROF_SCOPE_NONE                              0
+#define BACKTEST_PROF_SCOPE_ONINIT                            1
+#define BACKTEST_PROF_SCOPE_ONTIMER                           2
+#define BACKTEST_PROF_SCOPE_ONDEINIT                          3
+#define BACKTEST_PROF_SCOPE_ONTRADE                           4
+
+const int BACKTEST_PROF_OUTSIDE_ONTIMER_SUB_SECTIONS[] =
+{
+   BACKTEST_PROF_OUTSIDE_AFTER_ONINIT,
+   BACKTEST_PROF_OUTSIDE_BETWEEN_ONTIMERS,
+   BACKTEST_PROF_OUTSIDE_BEFORE_ONDEINIT,
+   BACKTEST_PROF_OUTSIDE_ONTRADE
+};
 
 const int BACKTEST_PROF_BD_PLACEMENT_SUB_SECTIONS[] =
 {
@@ -379,6 +397,7 @@ bool               g_backtestProfArmed = false;
 ulong              g_backtestProfRunWallStartUs = 0;   // GetMicrosecondCount at OnInit (true backtest wall clock)
 ulong              g_backtestProfDayWallStartUs = 0;   // reset on simulated day rollover
 ulong              g_backtestProfLastScopedEndUs = 0;  // end of last init/timer/deinit scope (for gap profiling)
+int                g_backtestProfLastScopeKind = BACKTEST_PROF_SCOPE_NONE;
 
 //+------------------------------------------------------------------+
 bool BacktestProfileEnabled()
@@ -471,6 +490,10 @@ string BacktestProfSectionLabel(const int section)
       case BACKTEST_PROF_BREAKDOWN_CHEAP_FAMILY_HAD_CLOSE:     return "breakdown_placement_cheap_family_had_close";
       case BACKTEST_PROF_BREAKDOWN_CHEAP_RECENCY:              return "breakdown_placement_cheap_recency";
       case BACKTEST_PROF_BREAKDOWN_CHEAP_MAX_VOLUME:           return "breakdown_placement_cheap_max_volume";
+      case BACKTEST_PROF_OUTSIDE_AFTER_ONINIT:                 return "outside_after_oninit";
+      case BACKTEST_PROF_OUTSIDE_BETWEEN_ONTIMERS:             return "outside_between_ontimers";
+      case BACKTEST_PROF_OUTSIDE_BEFORE_ONDEINIT:              return "outside_before_ondeinit";
+      case BACKTEST_PROF_OUTSIDE_ONTRADE:                      return "outside_ontrade";
    }
    return "unknown";
 }
@@ -523,14 +546,45 @@ void BacktestProfAccumulateLifecycle(const int section, const ulong t0)
 }
 
 //+------------------------------------------------------------------+
-void BacktestProfMarkScopeEnd()
+void BacktestProfAccumulateGap(const int section, const ulong elapsed)
 {
-   if(BacktestProfileEnabled())
-      g_backtestProfLastScopedEndUs = GetMicrosecondCount();
+   if(section < 0 || section >= BACKTEST_PROF_SECTION_COUNT || elapsed == 0)
+      return;
+   g_backtestProfRunTotals[section].totalUs += elapsed;
+   g_backtestProfRunTotals[section].calls++;
+   if(elapsed > g_backtestProfRunTotals[section].maxUs)
+      g_backtestProfRunTotals[section].maxUs = elapsed;
+   g_backtestProfDayTotals[section].totalUs += elapsed;
+   g_backtestProfDayTotals[section].calls++;
+   if(elapsed > g_backtestProfDayTotals[section].maxUs)
+      g_backtestProfDayTotals[section].maxUs = elapsed;
 }
 
 //+------------------------------------------------------------------+
-void BacktestProfRecordOutsideGapSinceLastScopeEnd()
+void BacktestProfMarkScopeEnd(const int scopeKind = BACKTEST_PROF_SCOPE_ONTIMER)
+{
+   if(BacktestProfileEnabled())
+   {
+      g_backtestProfLastScopeKind = scopeKind;
+      g_backtestProfLastScopedEndUs = GetMicrosecondCount();
+   }
+}
+
+//+------------------------------------------------------------------+
+int BacktestProfOutsideGapSectionForEntry(const int enteringScopeKind)
+{
+   if(enteringScopeKind == BACKTEST_PROF_SCOPE_ONDEINIT)
+      return BACKTEST_PROF_OUTSIDE_BEFORE_ONDEINIT;
+   if(enteringScopeKind == BACKTEST_PROF_SCOPE_ONTRADE)
+      return BACKTEST_PROF_OUTSIDE_BETWEEN_ONTIMERS;
+   if(enteringScopeKind == BACKTEST_PROF_SCOPE_ONTIMER &&
+      g_backtestProfLastScopeKind == BACKTEST_PROF_SCOPE_ONINIT)
+      return BACKTEST_PROF_OUTSIDE_AFTER_ONINIT;
+   return BACKTEST_PROF_OUTSIDE_BETWEEN_ONTIMERS;
+}
+
+//+------------------------------------------------------------------+
+void BacktestProfRecordOutsideGapSinceLastScopeEnd(const int enteringScopeKind)
 {
    if(!BacktestProfileEnabled() || g_backtestProfLastScopedEndUs == 0)
       return;
@@ -538,14 +592,16 @@ void BacktestProfRecordOutsideGapSinceLastScopeEnd()
    if(now <= g_backtestProfLastScopedEndUs)
       return;
    const ulong elapsed = now - g_backtestProfLastScopedEndUs;
-   g_backtestProfRunTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].totalUs += elapsed;
-   g_backtestProfRunTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].calls++;
-   if(elapsed > g_backtestProfRunTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].maxUs)
-      g_backtestProfRunTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].maxUs = elapsed;
-   g_backtestProfDayTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].totalUs += elapsed;
-   g_backtestProfDayTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].calls++;
-   if(elapsed > g_backtestProfDayTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].maxUs)
-      g_backtestProfDayTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].maxUs = elapsed;
+   BacktestProfAccumulateGap(BacktestProfOutsideGapSectionForEntry(enteringScopeKind), elapsed);
+}
+
+//+------------------------------------------------------------------+
+ulong BacktestProfSumOutsideOntimerUs(const BacktestProfBucket &buckets[])
+{
+   ulong sum = 0;
+   for(int i = 0; i < ArraySize(BACKTEST_PROF_OUTSIDE_ONTIMER_SUB_SECTIONS); i++)
+      sum += buckets[BACKTEST_PROF_OUTSIDE_ONTIMER_SUB_SECTIONS[i]].totalUs;
+   return sum;
 }
 
 //+------------------------------------------------------------------+
@@ -693,6 +749,14 @@ bool BacktestProfSectionExcludedFromOntimerInteriorSum(const int section)
       return true;
    if(section == BACKTEST_PROF_OUTSIDE_ONTIMER)
       return true;
+   if(section == BACKTEST_PROF_OUTSIDE_AFTER_ONINIT)
+      return true;
+   if(section == BACKTEST_PROF_OUTSIDE_BETWEEN_ONTIMERS)
+      return true;
+   if(section == BACKTEST_PROF_OUTSIDE_BEFORE_ONDEINIT)
+      return true;
+   if(section == BACKTEST_PROF_OUTSIDE_ONTRADE)
+      return true;
    if(section == BACKTEST_PROF_ONDEINIT)
       return true;
    return false;
@@ -706,6 +770,8 @@ bool BacktestProfSectionExcludedFromCsvWrite(const int section)
    if(section == BACKTEST_PROF_BREAKDOWN_PLACEMENT)
       return true;
    if(BacktestProfSectionIsBreakdownPlacementSubBucket(section))
+      return true;
+   if(section == BACKTEST_PROF_OUTSIDE_ONTIMER)
       return true;
    return false;
 }
@@ -728,7 +794,7 @@ ulong BacktestProfSumOntimerInteriorUs(const BacktestProfBucket &buckets[])
 ulong BacktestProfSumWallPartitionUs(const BacktestProfBucket &buckets[])
 {
    return buckets[BACKTEST_PROF_ONINIT].totalUs
-      + buckets[BACKTEST_PROF_OUTSIDE_ONTIMER].totalUs
+      + BacktestProfSumOutsideOntimerUs(buckets)
       + buckets[BACKTEST_PROF_ONTIMER_TOTAL].totalUs
       + buckets[BACKTEST_PROF_ONDEINIT].totalUs;
 }
@@ -740,7 +806,7 @@ ulong BacktestProfSumCsvAccountableUs(const BacktestProfBucket &buckets[])
    const ulong interiorUs = BacktestProfSumOntimerInteriorUs(buckets);
    const ulong unprofiledUs = (ontimerUs > interiorUs) ? (ontimerUs - interiorUs) : 0;
    return buckets[BACKTEST_PROF_ONINIT].totalUs
-      + buckets[BACKTEST_PROF_OUTSIDE_ONTIMER].totalUs
+      + BacktestProfSumOutsideOntimerUs(buckets)
       + interiorUs
       + unprofiledUs
       + buckets[BACKTEST_PROF_ONDEINIT].totalUs;
@@ -960,13 +1026,24 @@ void BacktestProfWriteRunSummary()
    {
       const ulong accountedUs = BacktestProfSumCsvAccountableUs(g_backtestProfRunTotals);
       Print(StringFormat(
-         "Backtest wall runtime: %.1fs; residual %.1fs; oninit %.1fs outside_ontimer %.1fs ontimer %.1fs ondeinit %.1fs",
+         "Backtest wall runtime: %.1fs; residual %.1fs; oninit %.1fs outside %.1fs ontimer %.1fs ondeinit %.1fs",
          (double)runWallUs / 1000000.0,
          (runWallUs > accountedUs) ? (double)(runWallUs - accountedUs) / 1000000.0 : 0.0,
          (double)g_backtestProfRunTotals[BACKTEST_PROF_ONINIT].totalUs / 1000000.0,
-         (double)g_backtestProfRunTotals[BACKTEST_PROF_OUTSIDE_ONTIMER].totalUs / 1000000.0,
+         (double)BacktestProfSumOutsideOntimerUs(g_backtestProfRunTotals) / 1000000.0,
          (double)ontimerUs / 1000000.0,
          (double)g_backtestProfRunTotals[BACKTEST_PROF_ONDEINIT].totalUs / 1000000.0));
+      for(int i = 0; i < ArraySize(BACKTEST_PROF_OUTSIDE_ONTIMER_SUB_SECTIONS); i++)
+      {
+         const int section = BACKTEST_PROF_OUTSIDE_ONTIMER_SUB_SECTIONS[i];
+         const ulong us = g_backtestProfRunTotals[section].totalUs;
+         if(us == 0 && g_backtestProfRunTotals[section].calls <= 0)
+            continue;
+         const double pctRuntime = (runWallUs == 0) ? 0.0 : 100.0 * (double)us / (double)runWallUs;
+         Print(StringFormat("  %s: %.1fs (%.1f%% of runtime) calls=%d",
+            BacktestProfSectionLabel(section), (double)us / 1000000.0, pctRuntime,
+            g_backtestProfRunTotals[section].calls));
+      }
    }
 }
 
@@ -1508,6 +1585,7 @@ struct TimeAlgoDef
    int     max_trades_per_day;
    int     max_open_positions;                  // max simultaneous open positions + pending orders (carryover days OK)
    int     stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count;
+   int     rule_switch_map;                     // magic R digit: 0=default close; 1=secret-TP close only 14:30-15:29
 };
 
 TimeAlgoSharedProfile g_timeAlgoShared;
@@ -1540,6 +1618,8 @@ struct TimeAlgoOpenTradeLifetimeRec
    double   rolloverPricediff;
    double   secretTpPrice;
    double   secretTpGreenguardPricediffAtLeast;
+   int      ruleSwitchMap;                      // hydrated once from magic at open/boot; babysit reads only this
+   bool     ruleSwitchHydrated;
    bool     active;
 };
 
@@ -9056,12 +9136,22 @@ int g_breakdownRegistryIds[] =
 #define TIME_ALGO_10000001             10000001
 #define TIME_ALGO_10000002             10000002
 #define TIME_ALGO_10000003             10000003
+#define TIME_ALGO_10000004             10000004
+#define TIME_ALGO_10000005             10000005
+#define TIME_ALGO_10000006             10000006
+#define TIME_ALGO_10000007             10000007
+#define TIME_ALGO_10000008             10000008
 
 int g_timeAlgoRegistryIds[] =
 {
    TIME_ALGO_10000001,
    TIME_ALGO_10000002,
-   TIME_ALGO_10000003
+   TIME_ALGO_10000003,
+   TIME_ALGO_10000004,
+   TIME_ALGO_10000005,
+   TIME_ALGO_10000006,
+   TIME_ALGO_10000007,
+   TIME_ALGO_10000008
 };
 //timealgocreator1end
 
@@ -10457,7 +10547,7 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 //| AAAAAAAA | D | OO | SSSS | R | uu |
 //  SSSS = secret TP points above planned open (round(secretTp - plannedPrice), 0000=none)
 //  OO   = breakdown: plan offset tenths; time algo: greenguard pricediff tenths (e.g. 8.0 -> 80)
-//  R    = custom rule switch map (0..9). breakdown: always 0. time algo: babysit-close mode (future); wired algos use 0 today
+//  R    = custom rule switch map (0..9). breakdown: always 0. time algo: 0=default babysit close; 1=secret-TP close only 14:30-15:29
 //  uu   = reserved tail (always 00 today)
 #define FALGO_MAGIC_INDEX_ALGO            0   // 8-digit algo id (10000000..99999999)
 #define FALGO_MAGIC_INDEX_DIRECTION       8   // 1|2|3|4 long/short variants
@@ -11893,10 +11983,22 @@ int TimeAlgoEnsureSecretTpLifetimeSlot(const ulong positionId, const long magic,
 }
 
 //+------------------------------------------------------------------+
+void TimeAlgoHydrateLifetimeRuleSwitchFromMagic(const int lifeIdx, const long magic)
+{
+   if(lifeIdx < 0 || lifeIdx >= TIME_ALGO_OPEN_LIFETIME_MAX || !g_timeAlgoOpenLifetime[lifeIdx].active)
+      return;
+   if(g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchHydrated)
+      return;
+   g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchMap = FalgoRuleSwitchMapFromMagic(magic);
+   g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchHydrated = true;
+}
+
+//+------------------------------------------------------------------+
 bool TimeAlgoHydrateLifetimeSecretTpFromMagic(const int lifeIdx, const ulong positionId, const long magic)
 {
    if(lifeIdx < 0 || lifeIdx >= TIME_ALGO_OPEN_LIFETIME_MAX || !g_timeAlgoOpenLifetime[lifeIdx].active)
       return false;
+   TimeAlgoHydrateLifetimeRuleSwitchFromMagic(lifeIdx, magic);
    if(g_timeAlgoOpenLifetime[lifeIdx].secretTpPrice > 0.0)
       return true;
 
@@ -14114,7 +14216,7 @@ bool FalgoBuildMagicKeyForTimeAlgoPlacement(const int algoNumber, const int dire
    outKey.tpWhole = 0;
    outKey.slWhole = 0;
    outKey.secretTpPointsAbovePlanned = 0;
-   outKey.ruleSwitchMap = 0; // time algo babysit-close mode (future); wired algos 10000001..10000003 stay 0
+   outKey.ruleSwitchMap = FalgoClampRuleSwitchMap(ta.rule_switch_map);
 
    if(ta.secret_tp_enabled && ta.secret_tp_profit_percent_min > 0.0)
    {
@@ -14165,9 +14267,33 @@ bool TimeAlgoBarIsEntryTrigger(const TimeAlgoDef &ta, const int barIdx)
 }
 
 //+------------------------------------------------------------------+
+bool TimeAlgoRuleSwitchAllowsSecretTpCloseNow(const int ruleSwitchMap, const datetime evalTime)
+{
+   if(ruleSwitchMap == 0)
+      return true;
+   if(ruleSwitchMap == 1)
+   {
+      if(evalTime <= 0)
+         return false;
+      MqlDateTime dt;
+      TimeToStruct(evalTime, dt);
+      const int minOfDay = dt.hour * 60 + dt.min;
+      const int windowStart = 14 * 60 + 30;
+      const int windowEnd = 15 * 60 + 29;
+      return (minOfDay >= windowStart && minOfDay <= windowEnd);
+   }
+   return true;
+}
+
+//+------------------------------------------------------------------+
 bool Babysitf_falgo_runTimeAlgoSecretTpExit(const long posMagic, const double rolloverForGuard, const int lifeIdx)
 {
    if(lifeIdx < 0)
+      return false;
+
+   if(!g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchHydrated)
+      TimeAlgoHydrateLifetimeRuleSwitchFromMagic(lifeIdx, posMagic);
+   if(!TimeAlgoRuleSwitchAllowsSecretTpCloseNow(g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchMap, g_lastTimer1Time))
       return false;
 
    const ulong posTicket = ExtPositionInfo.Ticket();
@@ -36469,30 +36595,83 @@ void SyncTimeAlgoFamilyProfileFromInputs()
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_hour = 15;   // 15:29
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_minute = 29;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].rule_switch_map = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_profit_percent_min = 5.0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_greenguard_pricediff_at_least = 8.0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].enabled = false;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].entry_hour = 21;   // 21:58
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].entry_minute = 58;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].rule_switch_map = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].secret_tp_enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].secret_tp_profit_percent_min = 5.0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].secret_tp_greenguard_pricediff_at_least = 8.0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].enabled = false;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].entry_hour = 2;    // 02:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].entry_minute = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].rule_switch_map = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].secret_tp_enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].secret_tp_profit_percent_min = 5.0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].secret_tp_greenguard_pricediff_at_least = 8.0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].entry_hour = 15;   // 15:29, rule 1
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].entry_minute = 29;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].rule_switch_map = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].secret_tp_enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].secret_tp_profit_percent_min = 5.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].max_trades_per_day = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].max_open_positions = 10;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].entry_hour = 21;   // 21:58, rule 1
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].entry_minute = 58;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].rule_switch_map = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].secret_tp_enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].secret_tp_profit_percent_min = 5.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].max_trades_per_day = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].max_open_positions = 10;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].entry_hour = 2;    // 02:00, rule 1
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].entry_minute = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].rule_switch_map = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].secret_tp_enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].secret_tp_profit_percent_min = 5.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].max_trades_per_day = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].max_open_positions = 10;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].entry_hour = 16;   // 16:00
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].entry_minute = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].rule_switch_map = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].secret_tp_enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].secret_tp_profit_percent_min = 5.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].max_trades_per_day = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].max_open_positions = 10;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].entry_hour = 16;   // 16:25
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].entry_minute = 25;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].rule_switch_map = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].secret_tp_enabled = true;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].secret_tp_profit_percent_min = 5.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].secret_tp_greenguard_pricediff_at_least = 8.0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].max_trades_per_day = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].max_open_positions = 10;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
 //timealgocreator2end
    RebuildTimeAlgoBannedRangesCache();
 }
@@ -42724,6 +42903,7 @@ int OnInit()
       g_backtestProfTrackingDayStart = 0;
       g_backtestProfArmed = false;
       g_backtestProfLastScopedEndUs = 0;
+      g_backtestProfLastScopeKind = BACKTEST_PROF_SCOPE_NONE;
    }
 
    EventSetTimer(1);   // 1 second timer for candle-close detection
@@ -42755,7 +42935,7 @@ int OnInit()
    if(BacktestProfileEnabled())
    {
       BacktestProfAccumulateLifecycle(BACKTEST_PROF_ONINIT, g_backtestProfRunWallStartUs);
-      BacktestProfMarkScopeEnd();
+      BacktestProfMarkScopeEnd(BACKTEST_PROF_SCOPE_ONINIT);
    }
 
    return(INIT_SUCCEEDED);
@@ -42769,16 +42949,40 @@ void OnTradeTransaction(const MqlTradeTransaction& trans,
                         const MqlTradeRequest& request,
                         const MqlTradeResult& result)
 {
+   const bool profOn = BacktestProfileEnabled();
+   ulong profT0 = 0;
+   if(profOn)
+   {
+      BacktestProfRecordOutsideGapSinceLastScopeEnd(BACKTEST_PROF_SCOPE_ONTRADE);
+      profT0 = GetMicrosecondCount();
+   }
+
    if(trans.type == TRADE_TRANSACTION_ORDER_UPDATE && trans.order > 0)
    {
       HandleOrderUpdate(trans);
+      if(profOn)
+      {
+         BacktestProfAccumulateLifecycle(BACKTEST_PROF_OUTSIDE_ONTRADE, profT0);
+         BacktestProfMarkScopeEnd(BACKTEST_PROF_SCOPE_ONTRADE);
+      }
       return;
    }
 
    if(trans.type == TRADE_TRANSACTION_DEAL_ADD && trans.deal > 0)
    {
       HandleDealAdd(trans);
+      if(profOn)
+      {
+         BacktestProfAccumulateLifecycle(BACKTEST_PROF_OUTSIDE_ONTRADE, profT0);
+         BacktestProfMarkScopeEnd(BACKTEST_PROF_SCOPE_ONTRADE);
+      }
       return;
+   }
+
+   if(profOn)
+   {
+      BacktestProfAccumulateLifecycle(BACKTEST_PROF_OUTSIDE_ONTRADE, profT0);
+      BacktestProfMarkScopeEnd(BACKTEST_PROF_SCOPE_ONTRADE);
    }
 }
 
@@ -43108,7 +43312,7 @@ void OnDeinit(const int reason)
    EventKillTimer();
 
    if(BacktestProfileEnabled())
-      BacktestProfRecordOutsideGapSinceLastScopeEnd();
+      BacktestProfRecordOutsideGapSinceLastScopeEnd(BACKTEST_PROF_SCOPE_ONDEINIT);
    const ulong deinitT0 = BacktestProfileEnabled() ? GetMicrosecondCount() : 0;
 
    BreakdownGatesLogCloseAllFileHandles();
@@ -43218,7 +43422,7 @@ void OnTimer()
    if(profOn && !g_backtestProfArmed)
       g_backtestProfArmed = true;
    if(profOn)
-      BacktestProfRecordOutsideGapSinceLastScopeEnd();
+      BacktestProfRecordOutsideGapSinceLastScopeEnd(BACKTEST_PROF_SCOPE_ONTIMER);
 
    g_lastTimer1Time = TimeCurrent();
    if(profOn)
@@ -43310,7 +43514,7 @@ void OnTimer()
          BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_TOTAL, onTimerT0);
       OnTimer_FinishDurationStatsAndMaybeLog2130(onTimerT0);
       if(profOn)
-         BacktestProfMarkScopeEnd();
+         BacktestProfMarkScopeEnd(BACKTEST_PROF_SCOPE_ONTIMER);
       return;
    }
 
@@ -43609,7 +43813,7 @@ void OnTimer()
       BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_TOTAL, onTimerT0);
    OnTimer_FinishDurationStatsAndMaybeLog2130(onTimerT0);
    if(profOn)
-      BacktestProfMarkScopeEnd();
+      BacktestProfMarkScopeEnd(BACKTEST_PROF_SCOPE_ONTIMER);
 }
 
 //+------------------------------------------------------------------+
