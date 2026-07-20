@@ -8,6 +8,7 @@ require_relative '../Aleksik_traderesults/analyze_traderate_common'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 INPUT_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_breakdown.tsv')
+ALGO_CONFIG_PATH = File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.csv', SCRIPT_DIR)
 OUTPUT_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.csv')
 FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
@@ -19,8 +20,13 @@ FLASHCRASH_TRADE_AFTER = Date.new(2025, 7, 1)
 FLASHCRASH_ANALYSIS_START = Date.new(2025, 1, 1)
 FLASHCRASH_ANALYSIS_END = Date.new(2025, 7, 17)
 
+# Big run only (not 2025flashcrash): drop algos below this % of the highest tradesCount algo.
+# e.g. 6 with max 100 trades → exclude algos with <= 6 trades.
+exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo = 6 ############################################### variable
+
 CSV_HEADERS = %w[
   algoID
+  pattern
   firstTradeDate
   lastTradeDate
   tradesCount
@@ -34,6 +40,7 @@ CSV_HEADERS = %w[
   longestDurationDays
   avgFillDelaySeconds
   avg_profit_custom_with_roll
+  percentSum_w_roll
   avg_time_at_peak_exposure_hours
   timeVSprofit
   max_time_at_peak_exposure_hours
@@ -74,6 +81,26 @@ def format_date(date)
   date.strftime('%Y.%m.%d')
 end
 
+def load_breakdown_pattern_by_algo_id(path)
+  unless File.file?(path)
+    warn "WARNING: algo config not found: #{path}"
+    return {}
+  end
+
+  raw = File.read(path, encoding: 'bom|utf-8')
+  table = CSV.parse(raw, headers: true)
+  table.each_with_object({}) do |row, out|
+    algo_id = row['algo_id'].to_s.strip
+    next if algo_id.empty?
+
+    out[algo_id] = row['breakdown_streak_continuation_mode'].to_s.strip
+  end
+end
+
+def breakdown_pattern_for_algo(algo_id, pattern_by_algo)
+  pattern_by_algo[algo_id.to_s].to_s
+end
+
 def load_trades(path)
   raw = File.read(path, encoding: 'bom|utf-8')
   table = CSV.parse(raw, headers: true, col_sep: ',')
@@ -96,12 +123,28 @@ def load_trades(path)
       end_time: end_time,
       duration_hours: parse_float(row['durationHours']),
       profit_custom_with_roll: parse_float(row['profit_custom_with_roll']) || 0.0,
+      percent_increase_w_roll: percent_increase_w_roll(row),
       mfe_w_roll: parse_float(row['MFE_w_roll']),
       mae_w_roll: parse_float(row['MAE_w_roll'])
     }
   end
 
   trades
+end
+
+def percent_increase_w_roll(row)
+  parsed = parse_float(row['percentIncrease_w_roll'])
+  return parsed unless parsed.nil?
+
+  price_start = parse_float(row['priceStart'])
+  price_diff = parse_float(row['priceDiff'])
+  return nil if price_start.nil? || price_diff.nil? || price_start <= 0.0
+
+  100.0 * price_diff / price_start
+end
+
+def percent_sum(trades)
+  trades.sum { |trade| trade[:percent_increase_w_roll].to_f }
 end
 
 def average(values)
@@ -278,7 +321,7 @@ def peak_open_exposure(trades)
   daily_peaks.max
 end
 
-def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_trading_day_count, global_full_week_mondays)
+def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_trading_day_count, global_full_week_mondays, pattern_by_algo)
   first_date, last_date, = trade_date_range(trades)
   exposure_stats = peak_exposure_time_stats(trades)
   durations = trades.filter_map { |t| duration_hours_from_column(t) }
@@ -286,6 +329,7 @@ def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_
 
   {
     algoID: algo_id,
+    pattern: breakdown_pattern_for_algo(algo_id, pattern_by_algo),
     firstTradeDate: format_date(first_date),
     lastTradeDate: format_date(last_date),
     tradesCount: trades.size,
@@ -299,6 +343,7 @@ def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_
     longestDurationDays: format_float(longest_duration_hours.nil? ? nil : longest_duration_hours / 24.0, 2),
     avgFillDelaySeconds: format_float(average(trades.map { |t| fill_delay_seconds(t) }), 2),
     avg_profit_custom_with_roll: format_float(average(trades.map { |t| t[:profit_custom_with_roll] }), 2),
+    percentSum_w_roll: format_float(percent_sum(trades), 2),
     avg_time_at_peak_exposure_hours: format_float(exposure_stats[:avg_hours], 2),
     timeVSprofit: format_float(time_vs_profit(trades), 3),
     max_time_at_peak_exposure_hours: format_float(exposure_stats[:max_hours], 2),
@@ -374,7 +419,7 @@ def flashcrash_global_context
   ]
 end
 
-def build_rows(trades, global_first_date, global_last_date, global_trading_day_count, global_full_week_mondays)
+def build_rows(trades, global_first_date, global_last_date, global_trading_day_count, global_full_week_mondays, pattern_by_algo)
   trades
     .group_by { |trade| trade[:algo_id] }
     .sort_by { |algo_id, _| algo_id.to_i }
@@ -385,9 +430,22 @@ def build_rows(trades, global_first_date, global_last_date, global_trading_day_c
         global_first_date,
         global_last_date,
         global_trading_day_count,
-        global_full_week_mondays
+        global_full_week_mondays,
+        pattern_by_algo
       )
     end
+end
+
+def exclude_low_trade_count_algos(rows, min_percent_of_highest)
+  return rows if min_percent_of_highest.nil? || min_percent_of_highest <= 0
+  return rows if rows.empty?
+
+  highest_trade_count = rows.map { |row| row[:tradesCount].to_i }.max
+  return rows if highest_trade_count <= 0
+
+  rows.reject do |row|
+    row[:tradesCount].to_i * 100 <= highest_trade_count * min_percent_of_highest
+  end
 end
 
 def write_rows(path, rows)
@@ -398,7 +456,7 @@ def write_rows(path, rows)
   end
 end
 
-def build_flashcrash_rows(trades)
+def build_flashcrash_rows(trades, pattern_by_algo)
   trades_by_algo = trades.group_by { |trade| trade[:algo_id] }
   eligible_algo_ids =
     trades_by_algo
@@ -421,7 +479,8 @@ def build_flashcrash_rows(trades)
       global_first_date,
       global_last_date,
       global_trading_day_count,
-      global_full_week_mondays
+      global_full_week_mondays,
+      pattern_by_algo
     )
   end
 end
@@ -429,6 +488,8 @@ end
 # =========================================================
 # MAIN
 # =========================================================
+
+if __FILE__ == $PROGRAM_NAME
 
 unless File.file?(INPUT_PATH)
   warn "ERROR: input file not found: #{INPUT_PATH}"
@@ -441,6 +502,8 @@ if trades.empty?
   warn 'ERROR: no trades loaded.'
   exit 1
 end
+
+pattern_by_algo = load_breakdown_pattern_by_algo_id(ALGO_CONFIG_PATH)
 
 global_first_date, global_last_date, global_trading_day_count = trade_date_range(trades)
 global_full_week_mondays = countable_mon_fri_weeks_in_date_range(global_first_date, global_last_date)
@@ -459,13 +522,28 @@ rows = build_rows(
   global_first_date,
   global_last_date,
   global_trading_day_count,
-  global_full_week_mondays
+  global_full_week_mondays,
+  pattern_by_algo
 )
+
+if exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo.positive?
+  before_count = rows.size
+  highest_trade_count = rows.map { |row| row[:tradesCount].to_i }.max
+  rows = exclude_low_trade_count_algos(
+    rows,
+    exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo
+  )
+  excluded_count = before_count - rows.size
+  min_keep = (highest_trade_count * exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo) / 100.0
+  warn "Excluded #{excluded_count} algos with tradesCount <= #{min_keep.round(2)} " \
+       "(#{exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo}% of highest #{highest_trade_count}); " \
+       "#{rows.size} algos remain"
+end
 
 write_rows(OUTPUT_PATH, rows)
 warn "Wrote #{rows.size} algo rows to #{OUTPUT_PATH}"
 
-flashcrash_rows = build_flashcrash_rows(trades)
+flashcrash_rows = build_flashcrash_rows(trades, pattern_by_algo)
 if flashcrash_rows.empty?
   warn "Skipped #{FLASHCRASH_OUTPUT_PATH}: no algos with a trade before " \
        "#{format_date(FLASHCRASH_TRADE_BEFORE)} and after #{format_date(FLASHCRASH_TRADE_AFTER)}"
@@ -476,3 +554,5 @@ else
 end
 
 warn 'DONE'
+
+end

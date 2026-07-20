@@ -14,7 +14,7 @@
 # desired_closetrade_after_some_time_but_ProfitPercent_Needed = [2.0]
 # desired_closetrade_after_x_minutes_from_breakdown = [0, 15, 30, 45, 60, 75, 90] # only used when closetrade_after_some_time is true
 
-# desired_stop_trading_today_if_thisAlgo_total_trades_count = [3, 5, 10]
+# desired_stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = [3, 5, 10]
 # desired_max_open_positions = [5, 10, 2]
 
 # desired_breakdowntypes = [
@@ -54,7 +54,7 @@ BREAKDOWN_TYPE_TO_MODE = {
 
 # --- edit combination grids here ---
 DESIRED_EXPIRY_MINUTES = [15, 45].freeze # 15
-DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT = [3].freeze # 3   [3, 6]
+DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze # 3   [3, 6]
 
 DESIRED_CLOSETRADE_AFTER_SOME_TIME = [false].freeze # for noww focus on TP mode algos, not time escape algos
 DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0].freeze
@@ -184,7 +184,7 @@ module BreakdownCombinationsCreator
       DESIRED_CLOSETRADE_AFTER_SOME_TIME,
       DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED,
       DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN,
-      DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT,
+      DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT,
       DESIRED_BREAKDOWNTYPES,
       DESIRED_MAX_OPEN_POSITIONS
     ) do |min_len, max_len, bd_start_pct, min_total_pct, expiry_min, after_greenc, entry_min, forget_bd_candles, entryrange_pct, secret_tp, tp_notsecret, close_after_some_time, close_profit_pct_needed, close_after_min, stop_total_trades, bd_type, max_open|
@@ -208,7 +208,7 @@ module BreakdownCombinationsCreator
         closetrade_after_some_time: close_after_some_time,
         closetrade_after_some_time_but_ProfitPercent_Needed: close_profit_pct_needed,
         closetrade_after_x_minutes_from_breakdown: close_after_min,
-        stop_trading_today_if_thisAlgo_total_trades_count: stop_total_trades,
+        stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: stop_total_trades,
         breakdown_streak_continuation_mode: mode,
         max_open_positions: max_open
       }
@@ -234,7 +234,7 @@ module BreakdownCombinationsCreator
       closetrade_after_some_time: DESIRED_CLOSETRADE_AFTER_SOME_TIME.size,
       closetrade_after_some_time_but_ProfitPercent_Needed: DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED.size,
       closetrade_after_x_minutes_from_breakdown: DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN.size,
-      stop_trading_today_if_thisAlgo_total_trades_count: DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT.size,
+      stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT.size,
       breakdowntypes: DESIRED_BREAKDOWNTYPES.size,
       max_open_positions: DESIRED_MAX_OPEN_POSITIONS.size
     }
@@ -287,7 +287,7 @@ module BreakdownCombinationsCreator
       g_breakdownAlgos[#{slot}].closetrade_after_some_time_butOnlyIfProfit = true;
       g_breakdownAlgos[#{slot}].closetrade_after_some_time_but_ProfitPercent_Needed = #{format_mq5_double(combo[:closetrade_after_some_time_but_ProfitPercent_Needed])};
       g_breakdownAlgos[#{slot}].closetrade_after_x_minutes_from_breakdown = #{combo[:closetrade_after_x_minutes_from_breakdown]};
-      g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_total_trades_count = #{combo[:stop_trading_today_if_thisAlgo_total_trades_count]};
+      g_breakdownAlgos[#{slot}].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = #{combo[:stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count]};
       g_breakdownAlgos[#{slot}].this_algo_max_concurrent_pending_trades = 1;
       g_breakdownAlgos[#{slot}].max_open_positions = #{combo[:max_open_positions]};
     MQL5

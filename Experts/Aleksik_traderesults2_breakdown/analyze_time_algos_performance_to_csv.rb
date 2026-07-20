@@ -21,6 +21,7 @@ FLASHCRASH_ANALYSIS_END = Date.new(2025, 7, 17)
 
 CSV_HEADERS = %w[
   algoID
+  pattern
   firstTradeDate
   lastTradeDate
   tradesCount
@@ -34,6 +35,7 @@ CSV_HEADERS = %w[
   longestDurationDays
   avgFillDelaySeconds
   avg_profit_custom_with_roll
+  percentSum_w_roll
   avg_time_at_peak_exposure_hours
   timeVSprofit
   max_time_at_peak_exposure_hours
@@ -96,12 +98,28 @@ def load_trades(path)
       end_time: end_time,
       duration_hours: parse_float(row['durationHours']),
       profit_custom_with_roll: parse_float(row['profit_custom_with_roll']) || 0.0,
+      percent_increase_w_roll: percent_increase_w_roll(row),
       mfe_w_roll: parse_float(row['MFE_w_roll']),
       mae_w_roll: parse_float(row['MAE_w_roll'])
     }
   end
 
   trades
+end
+
+def percent_increase_w_roll(row)
+  parsed = parse_float(row['percentIncrease_w_roll'])
+  return parsed unless parsed.nil?
+
+  price_start = parse_float(row['priceStart'])
+  price_diff = parse_float(row['priceDiff'])
+  return nil if price_start.nil? || price_diff.nil? || price_start <= 0.0
+
+  100.0 * price_diff / price_start
+end
+
+def percent_sum(trades)
+  trades.sum { |trade| trade[:percent_increase_w_roll].to_f }
 end
 
 def average(values)
@@ -285,6 +303,7 @@ def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_
 
   {
     algoID: algo_id,
+    pattern: 'TIME',
     firstTradeDate: format_date(first_date),
     lastTradeDate: format_date(last_date),
     tradesCount: trades.size,
@@ -298,6 +317,7 @@ def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_
     longestDurationDays: format_float(longest_duration_hours.nil? ? nil : longest_duration_hours / 24.0, 2),
     avgFillDelaySeconds: format_float(average(trades.map { |t| fill_delay_seconds(t) }), 2),
     avg_profit_custom_with_roll: format_float(average(trades.map { |t| t[:profit_custom_with_roll] }), 2),
+    percentSum_w_roll: format_float(percent_sum(trades), 2),
     avg_time_at_peak_exposure_hours: format_float(exposure_stats[:avg_hours], 2),
     timeVSprofit: format_float(time_vs_profit(trades), 3),
     max_time_at_peak_exposure_hours: format_float(exposure_stats[:max_hours], 2),
@@ -429,6 +449,8 @@ end
 # MAIN
 # =========================================================
 
+if __FILE__ == $PROGRAM_NAME
+
 unless File.file?(INPUT_PATH)
   warn "ERROR: input file not found: #{INPUT_PATH}"
   exit 1
@@ -475,3 +497,5 @@ else
 end
 
 warn 'DONE'
+
+end

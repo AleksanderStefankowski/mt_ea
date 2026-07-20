@@ -15,7 +15,7 @@ COMBINATION_MAP_FIELDS = %w[
   enabled
   stop_trading_today_if_thisAlgo_losing_trades_count
   stop_trading_today_if_thisAlgo_winning_trades_count
-  stop_trading_today_if_thisAlgo_total_trades_count
+  stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
   expiry_minutes
   this_algo_max_concurrent_pending_trades
   min_breakdown_sequence_len
@@ -173,7 +173,7 @@ module BreakdownCombinationsMapCreator
       g_breakdownAlgos[#{slot}].enabled = true;
       g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_losing_trades_count = #{row["stop_trading_today_if_thisAlgo_losing_trades_count"].to_i};
       g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_winning_trades_count = #{row["stop_trading_today_if_thisAlgo_winning_trades_count"].to_i};
-      g_breakdownAlgos[#{slot}].stop_trading_today_if_thisAlgo_total_trades_count = #{row["stop_trading_today_if_thisAlgo_total_trades_count"].to_i};
+      g_breakdownAlgos[#{slot}].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = #{row["stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count"].to_i};
       g_breakdownAlgos[#{slot}].expiry_minutes = #{row["expiry_minutes"].to_i};
       g_breakdownAlgos[#{slot}].this_algo_max_concurrent_pending_trades = #{row["this_algo_max_concurrent_pending_trades"].to_i};
       g_breakdownAlgos[#{slot}].min_breakdown_sequence_len = #{row["min_breakdown_sequence_len"].to_i}; // more important starts here and below:

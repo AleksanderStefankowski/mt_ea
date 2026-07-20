@@ -9,7 +9,26 @@ CONFIG_PATH = File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.
 PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.csv')
 
 # Change this to compare algos that differ only in another config field.
-COMPARE_VARIABLE = 'after_bd_need_x_15greenc'
+# Supported COMPARE_VARIABLE values (any column in aleksik2_r_read_breakdown_algos_csv.csv except algo_id):
+#   enabled
+#   quant_rules
+#   rules
+#   breakdown_streak_continuation_mode
+#   min_breakdown_sequence_len
+#   max_breakdown_sequence_len
+#   bd_start_min_breakdown_percent
+#   min_breakdown_total_percent
+#   after_bd_need_x_15greenc
+#   entry_max_minutes_after_bdend
+#   entryrange_range_percentspot
+#   secret_tp_range_percent
+#   tp_notsecret_range_percent
+#   closetrade_after_some_time
+#   closetrade_after_some_time_butOnlyIfProfit
+#   closetrade_after_some_time_but_ProfitPercent_Needed
+#   closetrade_after_x_minutes_from_breakdown
+#   max_open_positions
+COMPARE_VARIABLE = 'entryrange_range_percentspot'
 
 CLOSETRADE_CONFIG_COLUMNS = %w[
   closetrade_after_some_time
@@ -35,8 +54,8 @@ def config_signature(row, compare_variable)
      .join("\x1f")
 end
 
-def merged_row(pair_id, config_row, perf_row)
-  out = { 'pair_id' => pair_id }
+def merged_row(group_id, pair_id, config_row, perf_row)
+  out = { 'group_id' => group_id, 'pair_id' => pair_id }
   config_row.headers.each { |header| out["config_#{header}"] = config_row[header] }
   perf_row.headers.each { |header| out["perf_#{header}"] = perf_row[header] }
   out
@@ -70,12 +89,34 @@ def average(values)
   nums.sum.to_f / nums.size
 end
 
-def format_relative_percent_difference(base, other)
-  return 'n/a' if base.nil? || other.nil? || base.zero?
+def percent_better_than(better, worse)
+  return nil if better.nil? || worse.nil? || worse.zero?
 
-  diff = ((other - base) / base.abs) * 100.0
-  sign = diff.positive? ? '+' : ''
-  "#{sign}#{format('%.1f%%', diff)}"
+  ((better - worse) / worse.abs) * 100.0
+end
+
+def puts_better_than_worse_line(prefix:, field_name:, left_value:, left_avg:, right_value:, right_avg:, decimals: 3, label: nil)
+  return if left_avg.nil? || right_avg.nil?
+
+  metric_prefix = label ? "#{label}: " : ''
+
+  if left_avg == right_avg
+    puts "#{prefix}#{metric_prefix}#{field_name}=#{left_value} and #{field_name}=#{right_value} tie " \
+         "(#{format_float(left_avg, decimals)})"
+    return
+  end
+
+  if left_avg > right_avg
+    better_value, better_avg = left_value, left_avg
+    worse_value, worse_avg = right_value, right_avg
+  else
+    better_value, better_avg = right_value, right_avg
+    worse_value, worse_avg = left_value, left_avg
+  end
+
+  pct = percent_better_than(better_avg, worse_avg)
+  puts "#{prefix}#{metric_prefix}#{field_name}=#{better_value} (#{format_float(better_avg, decimals)}) is " \
+       "#{format('%.1f%%', pct)} better than #{field_name}=#{worse_value} (#{format_float(worse_avg, decimals)})"
 end
 
 def build_variable_pair_stats(pairs, compare_variable, perf_field)
@@ -134,16 +175,19 @@ def print_grouped_config_comparison(entries, group_field)
 
   grouped.sort_by { |value, _| value }.each do |value, group|
     time_vs_profit_avg = average(group.map { |entry| parse_float(entry[:perf]['timeVSprofit']) })
+    percent_sum_avg = average(group.map { |entry| parse_float(entry[:perf]['percentSum_w_roll']) })
     duration_avg = average(group.map { |entry| parse_float(entry[:perf]['avgDurationHours']) })
     trades_avg = average(group.map { |entry| parse_float(entry[:perf]['tradesCount']) })
     metric_averages[value] = {
       timeVSprofit: time_vs_profit_avg,
+      percentSum_w_roll: percent_sum_avg,
       avgDurationHours: duration_avg,
       tradesCount: trades_avg
     }
 
     puts "    #{group_field}=#{value}: count=#{group.size}, " \
          "avg perf_timeVSprofit=#{format_float(time_vs_profit_avg)}, " \
+         "avg perf_percentSum_w_roll=#{format_float(percent_sum_avg, 2)}, " \
          "avg perf_avgDurationHours=#{format_float(duration_avg)}, " \
          "avg perf_tradesCount=#{format_float(trades_avg, 2)}"
   end
@@ -155,18 +199,30 @@ def print_grouped_config_comparison(entries, group_field)
   left_metrics = metric_averages[left_value]
   right_metrics = metric_averages[right_value]
 
-  puts "    avg vs avg perf_timeVSprofit: " \
-       "#{format_float(left_metrics[:timeVSprofit])} vs #{format_float(right_metrics[:timeVSprofit])} " \
-       "(#{format_relative_percent_difference(left_metrics[:timeVSprofit], right_metrics[:timeVSprofit])} " \
-       "for #{group_field}=#{right_value} vs #{left_value})"
-  puts "    avg vs avg perf_avgDurationHours: " \
-       "#{format_float(left_metrics[:avgDurationHours])} vs #{format_float(right_metrics[:avgDurationHours])} " \
-       "(#{format_relative_percent_difference(left_metrics[:avgDurationHours], right_metrics[:avgDurationHours])} " \
-       "for #{group_field}=#{right_value} vs #{left_value})"
-  puts "    avg vs avg perf_tradesCount: " \
-       "#{format_float(left_metrics[:tradesCount], 2)} vs #{format_float(right_metrics[:tradesCount], 2)} " \
-       "(#{format_relative_percent_difference(left_metrics[:tradesCount], right_metrics[:tradesCount])} " \
-       "for #{group_field}=#{right_value} vs #{left_value})"
+  puts_better_than_worse_line(
+    prefix: '    ', field_name: group_field,
+    left_value: left_value, left_avg: left_metrics[:timeVSprofit],
+    right_value: right_value, right_avg: right_metrics[:timeVSprofit],
+    label: 'perf_timeVSprofit'
+  )
+  puts_better_than_worse_line(
+    prefix: '    ', field_name: group_field,
+    left_value: left_value, left_avg: left_metrics[:percentSum_w_roll],
+    right_value: right_value, right_avg: right_metrics[:percentSum_w_roll],
+    decimals: 2, label: 'perf_percentSum_w_roll'
+  )
+  puts_better_than_worse_line(
+    prefix: '    ', field_name: group_field,
+    left_value: left_value, left_avg: left_metrics[:avgDurationHours],
+    right_value: right_value, right_avg: right_metrics[:avgDurationHours],
+    label: 'perf_avgDurationHours'
+  )
+  puts_better_than_worse_line(
+    prefix: '    ', field_name: group_field,
+    left_value: left_value, left_avg: left_metrics[:tradesCount],
+    right_value: right_value, right_avg: right_metrics[:tradesCount],
+    decimals: 2, label: 'perf_tradesCount'
+  )
 end
 
 def print_closetrade_conditional_comparisons(pairs)
@@ -190,34 +246,56 @@ def print_closetrade_conditional_comparisons(pairs)
   end
 end
 
-def print_variable_pair_stats(label, compare_variable, stats, show_avg_comparison: false, avg_decimals: 3)
+def print_variable_pair_stats(label, compare_variable, stats, paired_entries, perf_field, show_avg_comparison: false, avg_decimals: 3)
   puts "#{label} higher in head-to-head pairs:"
   if stats.empty?
     puts '  (no pairs)'
     return
   end
 
-  averages = {}
-  stats.sort_by { |value, _| value }.each do |value, row|
+  per_algo_averages = {}
+  paired_entries.group_by { |entry| entry[:config][compare_variable].to_s }.each do |value, group|
+    per_algo_averages[value] = average(group.map { |entry| parse_float(entry[:perf][perf_field]) })
+  end
+
+  stats.sort_by { |value, _| compare_variable_sort_key(value) }.each do |value, row|
     comparable = row[:appearances] - row[:missing]
-    avg = average(row[:values])
-    averages[value] = avg
-    avg_text = show_avg_comparison ? ", avg #{label}=#{format_float(avg, avg_decimals)}" : ''
+    avg = per_algo_averages[value]
+    avg_text = show_avg_comparison ? ", avg #{label}=#{format_float(avg, avg_decimals)} (per algo)" : ''
     puts "  #{compare_variable}=#{value}: #{row[:wins]}/#{comparable} (#{format_percent(row[:wins], comparable)})#{avg_text}"
   end
 
   return unless show_avg_comparison
 
-  sorted_values = averages.keys.sort
-  return unless sorted_values.size == 2
+  sorted_values = per_algo_averages.keys.sort_by { |value| compare_variable_sort_key(value) }
+  return if sorted_values.size < 2
 
-  left_value, right_value = sorted_values
-  left_avg = averages[left_value]
-  right_avg = averages[right_value]
-  return if left_avg.nil? || right_avg.nil?
+  sorted_values.combination(2).each do |left_value, right_value|
+    puts_better_than_worse_line(
+      prefix: '  ', field_name: compare_variable,
+      left_value: left_value, left_avg: per_algo_averages[left_value],
+      right_value: right_value, right_avg: per_algo_averages[right_value],
+      decimals: avg_decimals, label: label
+    )
+  end
+end
 
-  puts "  avg vs avg: #{format_float(left_avg, avg_decimals)} vs #{format_float(right_avg, avg_decimals)} " \
-       "(#{format_relative_percent_difference(left_avg, right_avg)} for #{compare_variable}=#{right_value} vs #{left_value})"
+def compare_output_group_sort_key(group_id)
+  text = group_id.to_s
+  if (match = text.match(/\Aunpaired-(\d+)\z/))
+    [2, match[1].to_i]
+  elsif text.match?(/\A\d+\z/)
+    [0, text.to_i]
+  else
+    [1, text]
+  end
+end
+
+def compare_variable_sort_key(value)
+  text = value.to_s
+  return [0, text.to_i, text] if text.match?(/\A-?\d+\z/)
+
+  [1, text]
 end
 
 unless File.file?(CONFIG_PATH)
@@ -275,37 +353,62 @@ end
 output_rows = []
 pairs = []
 paired_algo_ids = Set.new
-pair_id = 0
+group_id = 0
+total_pairs = 0
 
-groups.each_value do |entries|
+sorted_groups =
+  groups.sort_by do |_signature, entries|
+    entries.map { |entry| entry[:algo_id].to_i }.min
+  end
+
+sorted_groups.each do |_signature, entries|
   next unless entries.size >= 2
 
   variable_values = entries.map { |entry| entry[:config][COMPARE_VARIABLE].to_s }.uniq
   next if variable_values.size < 2
 
+  group_id += 1
+  pair_id = 0
+
   entries.combination(2).each do |left, right|
     next if left[:config][COMPARE_VARIABLE].to_s == right[:config][COMPARE_VARIABLE].to_s
 
     pair_id += 1
+    total_pairs += 1
     paired_algo_ids << left[:algo_id]
     paired_algo_ids << right[:algo_id]
-    pairs << { left: left, right: right }
+    pairs << { group_id: group_id, pair_id: pair_id, left: left, right: right }
 
-    output_rows << merged_row(pair_id, left[:config], left[:perf])
-    output_rows << merged_row(pair_id, right[:config], right[:perf])
+    output_rows << merged_row(group_id, pair_id, left[:config], left[:perf])
+    output_rows << merged_row(group_id, pair_id, right[:config], right[:perf])
   end
 end
 
+unpaired_id = 0
+matched_rows
+  .reject { |entry| paired_algo_ids.include?(entry[:algo_id]) }
+  .sort_by { |entry| entry[:algo_id].to_i }
+  .each do |entry|
+    unpaired_id += 1
+    output_rows << merged_row("unpaired-#{unpaired_id}", '', entry[:config], entry[:perf])
+  end
+
 output_rows.sort_by! do |row|
-  [row['pair_id'].to_i, row['perf_algoID'].to_i]
+  [
+    compare_output_group_sort_key(row['group_id']),
+    row['pair_id'].to_s.empty? ? 0 : row['pair_id'].to_i,
+    row['perf_algoID'].to_i
+  ]
 end
 
 leading_columns = [
+  'group_id',
   'pair_id',
   "config_#{COMPARE_VARIABLE}",
   'config_algo_id',
   'perf_avgDurationHours',
   'perf_timeVSprofit',
+  'perf_percentSum_w_roll',
   *CLOSETRADE_CONFIG_COLUMNS.map { |column| "config_#{column}" }
 ]
 all_headers = output_rows.flat_map(&:keys).uniq
@@ -318,17 +421,22 @@ CSV.open(OUTPUT_PATH, 'w', write_headers: true, headers: headers) do |csv|
 end
 
 unpaired_count = perf_rows.size - paired_algo_ids.size
+paired_entries = paired_entries_from_pairs(pairs)
 
 time_vs_profit_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'timeVSprofit')
+percent_sum_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'percentSum_w_roll')
 avg_duration_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'avgDurationHours')
 trade_count_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'tradesCount')
 
 puts "compare variable: #{COMPARE_VARIABLE}"
 puts "algos in analyze_breakdown_algos_performance_output: #{perf_rows.size}"
 puts "algos without a pair: #{unpaired_count} (#{format_percent(unpaired_count, perf_rows.size)} of all)"
-puts "pairs found: #{pair_id}"
-print_variable_pair_stats('perf_timeVSprofit', COMPARE_VARIABLE, time_vs_profit_stats, show_avg_comparison: true)
-print_variable_pair_stats('perf_avgDurationHours', COMPARE_VARIABLE, avg_duration_stats, show_avg_comparison: true)
-print_variable_pair_stats('perf_tradesCount', COMPARE_VARIABLE, trade_count_stats, show_avg_comparison: true, avg_decimals: 2)
+puts "groups found: #{group_id}"
+puts "pairs found: #{total_pairs}"
+puts "unpaired groups written: #{unpaired_id}"
+print_variable_pair_stats('perf_timeVSprofit', COMPARE_VARIABLE, time_vs_profit_stats, paired_entries, 'timeVSprofit', show_avg_comparison: true)
+print_variable_pair_stats('perf_percentSum_w_roll', COMPARE_VARIABLE, percent_sum_stats, paired_entries, 'percentSum_w_roll', show_avg_comparison: true, avg_decimals: 2)
+print_variable_pair_stats('perf_avgDurationHours', COMPARE_VARIABLE, avg_duration_stats, paired_entries, 'avgDurationHours', show_avg_comparison: true)
+print_variable_pair_stats('perf_tradesCount', COMPARE_VARIABLE, trade_count_stats, paired_entries, 'tradesCount', show_avg_comparison: true, avg_decimals: 2)
 print_closetrade_conditional_comparisons(pairs)
 puts "wrote #{output_rows.size} rows to #{OUTPUT_PATH}"

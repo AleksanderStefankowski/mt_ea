@@ -25,7 +25,7 @@ COMBINATION_MAP_FIELDS = %w[
   enabled
   stop_trading_today_if_thisAlgo_losing_trades_count
   stop_trading_today_if_thisAlgo_winning_trades_count
-  stop_trading_today_if_thisAlgo_total_trades_count
+  stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
   expiry_minutes
   this_algo_max_concurrent_pending_trades
   min_breakdown_sequence_len
@@ -55,26 +55,34 @@ COMBINATION_MAP_FIELDS = %w[
 COMBINATION_SIGNATURE_FIELDS = (COMBINATION_MAP_FIELDS - ["tested?"]).freeze
 
 # --- edit combination grids here ---
-DESIRED_EXPIRY_MINUTES = [15].freeze #  [15, 45]
-DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT = [3].freeze # 3 5 10
+DESIRED_EXPIRY_MINUTES = [15, 45].freeze #  [15, 45]
+DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3, 6].freeze # 3 5 10
 
 DESIRED_CLOSETRADE_AFTER_SOME_TIME = [false].freeze
 DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0].freeze
 DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [90].freeze
 
-DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3].freeze # 3  [3, 4, 5]
+DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3, 4, 6, 8].freeze # 3  [3, 4, 5]
 DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [9].freeze # 9 [9]
 
 DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20].freeze # 0.20  [0.20, 0.35]
 DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.60].freeze  #  [0.40, 0.60, 0.85, 1.50]
 
-DESIRED_AFTER_BD_NEED_X_15GREENC = [1, 2, 4].freeze #  [1, 2, 3]
+DESIRED_AFTER_BD_NEED_X_15GREENC = [1].freeze #  [1, 2, 3] # Aleksik2_traderesults2_variable_comparisons shows 1 is much better due to more trades
 DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [75].freeze
 
 DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [6].freeze # 6 [6, 9]
 
-DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [20, 33, 50, 66, 75].freeze #  [20, 33, 50, 66, 75]
-DESIRED_SECRET_TP_RANGE_PERCENT = [0, 20, 45, 75].freeze
+DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [20, 66, 75].freeze #  [20, 33, 50, 66, 75]
+# bez duzej roznicy, to na razie usune 33, 55
+# perf_percentSum_w_roll higher in head-to-head pairs:
+#   entryrange_range_percentspot=20.00: 6/80 (7.5%), avg perf_percentSum_w_roll=26.46 (per algo)
+#   entryrange_range_percentspot=33.00: 31/92 (33.7%), avg perf_percentSum_w_roll=28.73 (per algo)
+#   entryrange_range_percentspot=50.00: 47/124 (37.9%), avg perf_percentSum_w_roll=25.69 (per algo)
+#   entryrange_range_percentspot=66.00: 87/124 (70.2%), avg perf_percentSum_w_roll=35.21 (per algo)
+#   entryrange_range_percentspot=75.00: 101/124 (81.5%), avg perf_percentSum_w_roll=36.34 (per algo)
+
+DESIRED_SECRET_TP_RANGE_PERCENT = [0, 20, 75].freeze # 45 mialo najslabszy result w big run, na razie usuwam
 
 DESIRED_TP_NOTSECRET_RANGE_PERCENT = [150].freeze
 DESIRED_MAX_OPEN_POSITIONS = [10].freeze
@@ -117,7 +125,7 @@ module BreakdownCombinationsMap
       DESIRED_CLOSETRADE_AFTER_SOME_TIME,
       DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED,
       DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN,
-      DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT,
+      DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT,
       DESIRED_BREAKDOWNTYPES,
       DESIRED_MAX_OPEN_POSITIONS
     ) do |min_len, max_len, bd_start_pct, min_total_pct, expiry_min, after_greenc, entry_min, forget_bd_candles, entryrange_pct, secret_tp, tp_notsecret, close_after_some_time, close_profit_pct_needed, close_after_min, stop_total_trades, bd_type, max_open|
@@ -141,7 +149,7 @@ module BreakdownCombinationsMap
         closetrade_after_some_time: close_after_some_time,
         closetrade_after_some_time_but_ProfitPercent_Needed: close_profit_pct_needed,
         closetrade_after_x_minutes_from_breakdown: close_after_min,
-        stop_trading_today_if_thisAlgo_total_trades_count: stop_total_trades,
+        stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: stop_total_trades,
         breakdown_streak_continuation_mode: mode,
         breakdowntype: bd_type,
         max_open_positions: max_open
@@ -168,7 +176,7 @@ module BreakdownCombinationsMap
       closetrade_after_some_time: DESIRED_CLOSETRADE_AFTER_SOME_TIME.size,
       closetrade_after_some_time_but_ProfitPercent_Needed: DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED.size,
       closetrade_after_x_minutes_from_breakdown: DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN.size,
-      stop_trading_today_if_thisAlgo_total_trades_count: DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TOTAL_TRADES_COUNT.size,
+      stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT.size,
       breakdowntypes: DESIRED_BREAKDOWNTYPES.size,
       max_open_positions: DESIRED_MAX_OPEN_POSITIONS.size
     }
@@ -273,7 +281,7 @@ module BreakdownCombinationsMap
       enabled: "true",
       stop_trading_today_if_thisAlgo_losing_trades_count: 999,
       stop_trading_today_if_thisAlgo_winning_trades_count: 999,
-      stop_trading_today_if_thisAlgo_total_trades_count: combo[:stop_trading_today_if_thisAlgo_total_trades_count],
+      stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: combo[:stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count],
       expiry_minutes: combo[:expiry_minutes],
       this_algo_max_concurrent_pending_trades: 1,
       min_breakdown_sequence_len: combo[:min_breakdown_sequence_len],
