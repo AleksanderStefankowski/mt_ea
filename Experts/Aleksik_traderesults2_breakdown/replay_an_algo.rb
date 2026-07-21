@@ -5,8 +5,8 @@ require 'csv'
 require 'date'
 
 # ============ INPUT (edit these) ============
-ALGO_ID = 20000086
-ALGO_TYPE = :breakdown # :breakdown or :time
+ALGO_ID = 10000001 # 10000001 20000086
+ALGO_TYPE = :time # :breakdown or :time
 # ============================================
 
 SOURCE_FILES = {

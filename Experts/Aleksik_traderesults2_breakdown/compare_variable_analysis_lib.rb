@@ -243,6 +243,23 @@ module CompareVariableAnalysisLib
     pairs.flat_map { |pair| [pair[:left], pair[:right]] }.uniq { |entry| entry[:algo_id] }
   end
 
+  SECRET_TP_CONFIG_FIELD = 'secret_tp_range_percent'
+
+  def secret_tp_zero?(entry)
+    value = parse_float(entry[:config][SECRET_TP_CONFIG_FIELD])
+    return true if value.nil?
+
+    value.zero?
+  end
+
+  def pairs_for_secret_tp_group(pairs, zero_group:)
+    pairs.select do |pair|
+      left_zero = secret_tp_zero?(pair[:left])
+      right_zero = secret_tp_zero?(pair[:right])
+      zero_group ? (left_zero && right_zero) : (!left_zero && !right_zero)
+    end
+  end
+
   def metrics_for_entries(entries)
     {
       timeVSprofit: average(entries.map { |entry| parse_float(entry[:perf]['timeVSprofit']) }),
@@ -289,6 +306,34 @@ module CompareVariableAnalysisLib
     lines
   end
 
+  def perf_field_analysis_lines_with_secret_tp_split(label, perf_field, pairs, compare_variable, avg_decimals: 3)
+    lines = []
+    lines.concat(variable_pair_stats_lines(label, compare_variable,
+                                           build_variable_pair_stats(pairs, compare_variable, perf_field),
+                                           paired_entries_from_pairs(pairs), perf_field,
+                                           avg_decimals: avg_decimals))
+
+    zero_secret_tp_pairs = pairs_for_secret_tp_group(pairs, zero_group: true)
+    unless zero_secret_tp_pairs.empty?
+      lines << ''
+      lines.concat(variable_pair_stats_lines("#{label} group 0 secret TP", compare_variable,
+                                             build_variable_pair_stats(zero_secret_tp_pairs, compare_variable, perf_field),
+                                             paired_entries_from_pairs(zero_secret_tp_pairs), perf_field,
+                                             avg_decimals: avg_decimals))
+    end
+
+    non_zero_secret_tp_pairs = pairs_for_secret_tp_group(pairs, zero_group: false)
+    unless non_zero_secret_tp_pairs.empty?
+      lines << ''
+      lines.concat(variable_pair_stats_lines("#{label} group non 0 secret TP", compare_variable,
+                                             build_variable_pair_stats(non_zero_secret_tp_pairs, compare_variable, perf_field),
+                                             paired_entries_from_pairs(non_zero_secret_tp_pairs), perf_field,
+                                             avg_decimals: avg_decimals))
+    end
+
+    lines
+  end
+
   def compare_analysis_lines(pairs, compare_variable)
     return ['(no pairs)'] if pairs.empty?
 
@@ -298,19 +343,14 @@ module CompareVariableAnalysisLib
                                            build_variable_pair_stats(pairs, compare_variable, 'timeVSprofit'),
                                            paired_entries, 'timeVSprofit'))
     lines << ''
-    lines.concat(variable_pair_stats_lines('perf_percentSum_w_roll', compare_variable,
-                                           build_variable_pair_stats(pairs, compare_variable, 'percentSum_w_roll'),
-                                           paired_entries, 'percentSum_w_roll',
-                                           avg_decimals: 2))
+    lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_percentSum_w_roll', 'percentSum_w_roll',
+                                                                pairs, compare_variable, avg_decimals: 2))
     lines << ''
-    lines.concat(variable_pair_stats_lines('perf_avgDurationHours', compare_variable,
-                                           build_variable_pair_stats(pairs, compare_variable, 'avgDurationHours'),
-                                           paired_entries, 'avgDurationHours'))
+    lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_avgDurationHours', 'avgDurationHours',
+                                                                pairs, compare_variable))
     lines << ''
-    lines.concat(variable_pair_stats_lines('perf_tradesCount', compare_variable,
-                                           build_variable_pair_stats(pairs, compare_variable, 'tradesCount'),
-                                           paired_entries, 'tradesCount',
-                                           avg_decimals: 2))
+    lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_tradesCount', 'tradesCount',
+                                                                pairs, compare_variable, avg_decimals: 2))
     lines
   end
 

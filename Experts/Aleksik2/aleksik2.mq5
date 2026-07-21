@@ -1480,7 +1480,7 @@ struct BreakdownAlgoDef
    double         min_breakdown_total_percent;
    int            after_bd_need_x_15greenc;   // entry after Nth green M15 after breakdown end (1=first green)
    int            entry_max_minutes_after_bdend;
-   int            forget_about_latest_breakdown_after_x_15m_candles;  // 0=never forget; gates stop reporting breakdownEndTooOld after endTime + N*15m
+   int            forget_about_latest_breakdown_after_x_15m_candles;  // required >=1; 15m snap drops breakdown after endTime + N*15m
    bool           closetrade_after_some_time;
    bool           closetrade_after_some_time_butOnlyIfProfit;
    double         closetrade_after_some_time_but_ProfitPercent_Needed;  // min open P/L % vs lot×one_lot_equals_xPLN
@@ -29273,12 +29273,52 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].stop_trading_TODAY_if
 //+------------------------------------------------------------------+
 //| OnInit: load algo family profile defaults and validate at least one algo slot is enabled. |
 //+------------------------------------------------------------------+
+#define BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES 30
+
+int BreakdownForgetWindowMinutes(const BreakdownAlgoDef &bd)
+{
+   return bd.forget_about_latest_breakdown_after_x_15m_candles * 15;
+}
+
+//+------------------------------------------------------------------+
+//| entry_max is capped by 15m snap forget; keep >=30 min room before forget. |
+//+------------------------------------------------------------------+
+void ValidateBreakdownEntryForgetTimingOnInit()
+{
+   for(int si = 0; si < g_breakdownAlgoCount; si++)
+   {
+      const BreakdownAlgoDef bd = g_breakdownAlgos[si];
+      if(!bd.enabled)
+         continue;
+      if(bd.forget_about_latest_breakdown_after_x_15m_candles <= 0)
+      {
+         FatalError(StringFormat(
+            "Breakdown algo %d: forget_about_latest_breakdown_after_x_15m_candles must be >= 1 (got %d)",
+            bd.algo_id, bd.forget_about_latest_breakdown_after_x_15m_candles));
+      }
+      const int forgetMin = BreakdownForgetWindowMinutes(bd);
+      const int entryMax = bd.entry_max_minutes_after_bdend;
+      const int roomMin = forgetMin - entryMax;
+      if(roomMin < BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES)
+      {
+         FatalError(StringFormat(
+            "Breakdown algo %d: forget_about_latest_breakdown_after_x_15m_candles=%d => %d min snap window; "
+            "entry_max_minutes_after_bdend=%d needs >=%d min room before forget (room=%d). "
+            "Effective entry cap is min(entry_max, forget_min); values above forget are unreachable.",
+            bd.algo_id, bd.forget_about_latest_breakdown_after_x_15m_candles, forgetMin, entryMax,
+            BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES, roomMin));
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
 void ValidateMagicCompositionOnInit()
 {
    FalgoValidateAlgoFamilyDigitConfig();
    SyncAlgoFamilyProfileFromInputs();
    SyncBreakdownFamilyProfileFromInputs();
    SyncTimeAlgoFamilyProfileFromInputs();
+   ValidateBreakdownEntryForgetTimingOnInit();
    if(!AlgoFamilyAnyEnabled())
       FatalError("Enable at least one algo family slot.");
 }

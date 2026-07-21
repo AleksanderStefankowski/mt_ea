@@ -22,7 +22,7 @@ FLASHCRASH_ANALYSIS_END = Date.new(2025, 7, 17)
 
 # Big run only (not 2025flashcrash): drop algos below this % of the highest tradesCount algo.
 # e.g. 6 with max 100 trades → exclude algos with <= 6 trades.
-exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo = 6 ############################################### variable
+exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo = 19 ############################################### variable
 
 CSV_HEADERS = %w[
   algoID

@@ -3,6 +3,7 @@
 
 require 'csv'
 require 'set'
+require_relative 'compare_variable_analysis_lib'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 CONFIG_PATH = File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.csv', SCRIPT_DIR)
@@ -13,6 +14,8 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 #   enabled
 #   quant_rules
 #   rules
+#   stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
+#   expiry_minutes
 #   breakdown_streak_continuation_mode
 #   min_breakdown_sequence_len
 #   max_breakdown_sequence_len
@@ -28,7 +31,7 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 #   closetrade_after_some_time_but_ProfitPercent_Needed
 #   closetrade_after_x_minutes_from_breakdown
 #   max_open_positions
-COMPARE_VARIABLE = 'entryrange_range_percentspot'
+COMPARE_VARIABLE = 'tp_notsecret_range_percent'
 
 CLOSETRADE_CONFIG_COLUMNS = %w[
   closetrade_after_some_time
@@ -308,13 +311,16 @@ unless File.file?(PERF_PATH)
   exit 1
 end
 
-unless read_csv(CONFIG_PATH).headers.include?(COMPARE_VARIABLE)
+config_table = read_csv(CONFIG_PATH)
+unless config_table.headers.include?(COMPARE_VARIABLE)
+  available = config_table.headers.reject { |header| header == 'algo_id' }
   warn "ERROR: compare variable not found in config: #{COMPARE_VARIABLE}"
+  warn "Available config columns: #{available.join(', ')}"
   exit 1
 end
 
 config_by_algo_id =
-  read_csv(CONFIG_PATH).each_with_object({}) do |row, memo|
+  config_table.each_with_object({}) do |row, memo|
     algo_id = row['algo_id'].to_s.strip
     next if algo_id.empty?
 
@@ -421,12 +427,6 @@ CSV.open(OUTPUT_PATH, 'w', write_headers: true, headers: headers) do |csv|
 end
 
 unpaired_count = perf_rows.size - paired_algo_ids.size
-paired_entries = paired_entries_from_pairs(pairs)
-
-time_vs_profit_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'timeVSprofit')
-percent_sum_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'percentSum_w_roll')
-avg_duration_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'avgDurationHours')
-trade_count_stats = build_variable_pair_stats(pairs, COMPARE_VARIABLE, 'tradesCount')
 
 puts "compare variable: #{COMPARE_VARIABLE}"
 puts "algos in analyze_breakdown_algos_performance_output: #{perf_rows.size}"
@@ -434,9 +434,6 @@ puts "algos without a pair: #{unpaired_count} (#{format_percent(unpaired_count, 
 puts "groups found: #{group_id}"
 puts "pairs found: #{total_pairs}"
 puts "unpaired groups written: #{unpaired_id}"
-print_variable_pair_stats('perf_timeVSprofit', COMPARE_VARIABLE, time_vs_profit_stats, paired_entries, 'timeVSprofit', show_avg_comparison: true)
-print_variable_pair_stats('perf_percentSum_w_roll', COMPARE_VARIABLE, percent_sum_stats, paired_entries, 'percentSum_w_roll', show_avg_comparison: true, avg_decimals: 2)
-print_variable_pair_stats('perf_avgDurationHours', COMPARE_VARIABLE, avg_duration_stats, paired_entries, 'avgDurationHours', show_avg_comparison: true)
-print_variable_pair_stats('perf_tradesCount', COMPARE_VARIABLE, trade_count_stats, paired_entries, 'tradesCount', show_avg_comparison: true, avg_decimals: 2)
+CompareVariableAnalysisLib.compare_analysis_lines(pairs, COMPARE_VARIABLE).each { |line| puts line }
 print_closetrade_conditional_comparisons(pairs)
 puts "wrote #{output_rows.size} rows to #{OUTPUT_PATH}"

@@ -9,6 +9,8 @@ MQ5_FILE = File.expand_path("aleksik2.mq5", __dir__)
 OUT_CSV  = File.expand_path("aleksik2_r_read_breakdown_algos_csv.csv", __dir__)
 
 MAIN_FIELDS = %w[
+  stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
+  expiry_minutes
   breakdown_streak_continuation_mode
   min_breakdown_sequence_len
   max_breakdown_sequence_len
@@ -174,15 +176,6 @@ rows = algo_ids.map do |id|
   }
   MAIN_FIELDS.each { |f| row[f.to_sym] = field_value(p, f) }
   row
-end
-
-rows.each do |row|
-  puts "--- breakdown algo #{row[:algo_id]} ---"
-  puts "enabled: #{row[:enabled]}"
-  puts "quant rules: #{row[:quant_rules].empty? ? '(none)' : row[:quant_rules]}"
-  puts "all rules: #{row[:rules].empty? ? '(none)' : row[:rules]}"
-  MAIN_FIELDS.each { |f| puts "#{f}: #{row[f.to_sym]}" }
-  puts
 end
 
 CSV.open(OUT_CSV, "w") do |csv|
