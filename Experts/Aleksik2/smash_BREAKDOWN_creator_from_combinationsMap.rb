@@ -28,7 +28,6 @@ COMBINATION_MAP_FIELDS = %w[
   entry_max_minutes_after_bdend
   forget_about_latest_breakdown_after_x_15m_candles
   entryrange_range_percentspot
-  secret_tp_enabled
   secret_tp_range_percent
   secret_tp_greenguard_pricediff_at_least
   tp_enabled
@@ -61,7 +60,6 @@ DOUBLE_SIGNATURE_FIELDS = %w[
 
 BOOL_SIGNATURE_FIELDS = %w[
   enabled
-  secret_tp_enabled
   tp_enabled
   sl_enabled
   closetrade_after_some_time
@@ -185,7 +183,6 @@ module BreakdownCombinationsMapCreator
       g_breakdownAlgos[#{slot}].entry_max_minutes_after_bdend = #{row["entry_max_minutes_after_bdend"].to_i};
       g_breakdownAlgos[#{slot}].forget_about_latest_breakdown_after_x_15m_candles = #{row["forget_about_latest_breakdown_after_x_15m_candles"].to_i};
       g_breakdownAlgos[#{slot}].entryrange_range_percentspot = #{format_mq5_double(row["entryrange_range_percentspot"])};
-      g_breakdownAlgos[#{slot}].secret_tp_enabled = #{row["secret_tp_enabled"].downcase};
       g_breakdownAlgos[#{slot}].secret_tp_range_percent = #{row["secret_tp_range_percent"].to_i};
       g_breakdownAlgos[#{slot}].secret_tp_greenguard_pricediff_at_least = #{format_mq5_double(row["secret_tp_greenguard_pricediff_at_least"])};
       g_breakdownAlgos[#{slot}].tp_enabled = #{row["tp_enabled"].downcase};

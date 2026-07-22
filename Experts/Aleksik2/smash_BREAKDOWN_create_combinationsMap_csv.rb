@@ -38,7 +38,6 @@ COMBINATION_MAP_FIELDS = %w[
   entry_max_minutes_after_bdend
   forget_about_latest_breakdown_after_x_15m_candles
   entryrange_range_percentspot
-  secret_tp_enabled
   secret_tp_range_percent
   secret_tp_greenguard_pricediff_at_least
   tp_enabled
@@ -127,18 +126,19 @@ DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3].freeze # 3  # [3, 4, 6, 8] the less, th
 
 DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [9].freeze # 9 [9]
 
-DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20].freeze # 0.20  [0.20, 0.35]
+DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20, 0.35, 0.15].freeze # 0.20  [0.20, 0.35]
 DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.60].freeze  #  [0.40, 0.60, 0.85, 1.50]
 
 DESIRED_AFTER_BD_NEED_X_15GREENC = [1].freeze #  [1, 2, 3] # Aleksik2_traderesults2_variable_comparisons shows 1 is much better due to more trades
 
-ENTRY_FORGET_MIN_ROOM_MINUTES = 30 # match aleksik2.mq5 BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES
-SKIP_INVALIDCOMBOS_OF_FORGETBD_VS_ENTRY_MAX_MINUTES = false # if false, error and dont create any. if true, only skip invalid combos
-DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [6].freeze # 6 [6, 9]
+ENTRY_FORGET_MIN_ROOM_MINUTES = 15 # match aleksik2.mq5 BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES
+SKIP_INVALIDCOMBOS_OF_FORGETBD_VS_ENTRY_MAX_MINUTES = true # if false, error and dont create any. if true, only skip invalid combos
+DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [6, 11, 14].freeze # 6 [6, 9]
 DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [75, 50, 110].freeze # 75
 
 
-DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [66, 75, 90, 99].freeze #    [20, 66, 75]   [20, 33, 50, 66, 75], the higher the better. test 90, 100
+DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [75, 90].freeze #  66  [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
+# 90 has more trades as it is close enough to fill more often?
 # bez duzej roznicy, to na razie usune 33, 55
 # perf_percentSum_w_roll higher in head-to-head pairs:
 #   entryrange_range_percentspot=20.00: 6/80 (7.5%), avg perf_percentSum_w_roll=26.46 (per algo)
@@ -155,7 +155,18 @@ DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [66, 75, 90, 99].freeze #    [20, 66, 75]
 DESIRED_SECRET_TP_RANGE_PERCENT = [0, 75].freeze # 45 mialo najslabszy result w big run, na razie usuwam. usuwam tez 20 ale mozna retest
 
 DESIRED_TP_NOTSECRET_RANGE_PERCENT = [110, 150].freeze # 150
-DESIRED_MAX_OPEN_POSITIONS = [5, 10].freeze # 10
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   tp_notsecret_range_percent=110: 24/30 (80.0%), avg perf_percentSum_w_roll group 0 secret TP=57.45 (per algo)
+#   tp_notsecret_range_percent=150: 6/30 (20.0%), avg perf_percentSum_w_roll group 0 secret TP=29.45 (per algo)
+#   perf_percentSum_w_roll group 0 secret TP: tp_notsecret_range_percent=110 (57.45) is 95.1% better than tp_notsecret_range_percent=150 (29.45)
+
+# perf_percentSum_w_roll group non 0 secret TP higher in head-to-head pairs:
+#   tp_notsecret_range_percent=110: 15/20 (75.0%), avg perf_percentSum_w_roll group non 0 secret TP=60.34 (per algo)
+#   tp_notsecret_range_percent=150: 5/20 (25.0%), avg perf_percentSum_w_roll group non 0 secret TP=32.41 (per algo)
+#   perf_percentSum_w_roll group non 0 secret TP: tp_notsecret_range_percent=110 (60.34) is 86.2% better than tp_notsecret_range_percent=150 (32.41)
+
+
+DESIRED_MAX_OPEN_POSITIONS = [10].freeze # 10 also test 5
 DESIRED_BREAKDOWNTYPES = %w[
   CLOSES
   OHLC_AVG
@@ -403,8 +414,6 @@ module BreakdownCombinationsMap
   end
 
   def combo_to_map_row(combo)
-    secret_tp_enabled = combo[:secret_tp_range_percent] != 0
-
     {
       "tested?" => "false",
       enabled: "true",
@@ -423,7 +432,6 @@ module BreakdownCombinationsMap
       entry_max_minutes_after_bdend: combo[:entry_max_minutes_after_bdend],
       forget_about_latest_breakdown_after_x_15m_candles: combo[:forget_about_latest_breakdown_after_x_15m_candles],
       entryrange_range_percentspot: format_csv_double(combo[:entryrange_range_percentspot]),
-      secret_tp_enabled: format_csv_bool(secret_tp_enabled),
       secret_tp_range_percent: combo[:secret_tp_range_percent],
       secret_tp_greenguard_pricediff_at_least: format_csv_double(8.0),
       tp_enabled: "true",

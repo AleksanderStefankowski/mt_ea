@@ -12,7 +12,8 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 # When comparing COMPARE_VARIABLE_2, grouping ignores both var2 and var1 (so var1 does not split groups).
 # Supported values: any column in aleksik2_r_read_breakdown_algos_csv.csv except algo_id, e.g.
 #   stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count, expiry_minutes,
-#   after_bd_need_x_15greenc, secret_tp_range_percent, entryrange_range_percentspot, ...
+#   after_bd_need_x_15greenc, entry_max_minutes_after_bdend,
+#   forget_about_latest_breakdown_after_x_15m_candles, secret_tp_range_percent, ...
 COMPARE_VARIABLE_1 = 'after_bd_need_x_15greenc'
 COMPARE_VARIABLE_2 = 'secret_tp_range_percent'
 

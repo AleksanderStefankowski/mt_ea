@@ -23,6 +23,7 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 #   min_breakdown_total_percent
 #   after_bd_need_x_15greenc
 #   entry_max_minutes_after_bdend
+#   forget_about_latest_breakdown_after_x_15m_candles
 #   entryrange_range_percentspot
 #   secret_tp_range_percent
 #   tp_notsecret_range_percent
@@ -31,7 +32,7 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 #   closetrade_after_some_time_but_ProfitPercent_Needed
 #   closetrade_after_x_minutes_from_breakdown
 #   max_open_positions
-COMPARE_VARIABLE = 'tp_notsecret_range_percent'
+COMPARE_VARIABLE = 'forget_about_latest_breakdown_after_x_15m_candles'
 
 CLOSETRADE_CONFIG_COLUMNS = %w[
   closetrade_after_some_time

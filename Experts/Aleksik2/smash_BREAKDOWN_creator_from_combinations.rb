@@ -258,7 +258,6 @@ module BreakdownCombinationsCreator
   def build_algo_params_block(algo_id, combo)
     const = magic_const(algo_id)
     slot = "BreakdownAlgoSlotIndexByAlgoId(#{const})"
-    secret_tp_enabled = combo[:secret_tp_range_percent] != 0
     secret_tp_percent = combo[:secret_tp_range_percent]
 
     <<~MQL5.rstrip
@@ -276,7 +275,6 @@ module BreakdownCombinationsCreator
       g_breakdownAlgos[#{slot}].entry_max_minutes_after_bdend = #{combo[:entry_max_minutes_after_bdend]};
       g_breakdownAlgos[#{slot}].forget_about_latest_breakdown_after_x_15m_candles = #{combo[:forget_about_latest_breakdown_after_x_15m_candles]};
       g_breakdownAlgos[#{slot}].entryrange_range_percentspot = #{format_mq5_double(combo[:entryrange_range_percentspot])};
-      g_breakdownAlgos[#{slot}].secret_tp_enabled = #{secret_tp_enabled ? 'true' : 'false'};
       g_breakdownAlgos[#{slot}].secret_tp_range_percent = #{secret_tp_percent};
       g_breakdownAlgos[#{slot}].secret_tp_greenguard_pricediff_at_least = 8.0;
       g_breakdownAlgos[#{slot}].tp_enabled = true;

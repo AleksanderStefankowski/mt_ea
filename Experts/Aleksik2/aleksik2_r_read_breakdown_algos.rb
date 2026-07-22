@@ -18,6 +18,7 @@ MAIN_FIELDS = %w[
   min_breakdown_total_percent
   after_bd_need_x_15greenc
   entry_max_minutes_after_bdend
+  forget_about_latest_breakdown_after_x_15m_candles
   entryrange_range_percentspot
   secret_tp_range_percent
   tp_notsecret_range_percent
