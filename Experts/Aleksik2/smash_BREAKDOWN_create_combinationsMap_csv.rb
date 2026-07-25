@@ -83,9 +83,24 @@ DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze # 3 
 # TESTED ALREADY
 # TESTED ALREADY
 
+### It does not need secret TP != 0. The time-based close is independent of secret_tp_range_percent.
+# profit/minutes arrays are only expanded in the grid when closetrade_after_some_time=true.
 DESIRED_CLOSETRADE_AFTER_SOME_TIME = [false].freeze
-DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0].freeze # 0.2 0.4 0.7 1.0 1.5 2.0
-DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [90].freeze
+DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0, 8.0, 12].freeze # 0.2 0.4 0.7 1.0 1.5 2.0
+DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [200, 350, 500].freeze
+# NEEDED = [2.0, 5.0, 8.0]  # niezle durations, tylko 64 avg a wciaz 114 % gain?
+#   closetrade_after_some_time_but_ProfitPercent_Needed=2.00: 0/576 (0.0%), avg perf_percentSum_w_roll=114.26 (per algo)
+#   closetrade_after_some_time_but_ProfitPercent_Needed=5.00: 348/576 (60.4%), avg perf_percentSum_w_roll=143.01 (per algo)
+#   closetrade_after_some_time_but_ProfitPercent_Needed=8.00: 516/576 (89.6%), avg perf_percentSum_w_roll=156.77 (per algo)
+#   closetrade_after_some_time_but_ProfitPercent_Needed=2.00: 0/576 (0.0%), avg perf_avgDurationHours=64.939 (per algo)
+#   closetrade_after_some_time_but_ProfitPercent_Needed=5.00: 288/576 (50.0%), avg perf_avgDurationHours=90.689 (per algo)
+#   closetrade_after_some_time_but_ProfitPercent_Needed=8.00: 576/576 (100.0%), avg perf_avgDurationHours=150.206 (per algo)
+# FROM_BREAKDOWN = [90, 200, 350] # im dluzej tym wiecej czasu na gains? 
+# perf_percentSum_w_roll higher in head-to-head pairs:
+#   closetrade_after_x_minutes_from_breakdown=90: 84/576 (14.6%), avg perf_percentSum_w_roll=127.46 (per algo)
+#   closetrade_after_x_minutes_from_breakdown=200: 228/576 (39.6%), avg perf_percentSum_w_roll=137.17 (per algo)
+#   closetrade_after_x_minutes_from_breakdown=350: 552/576 (95.8%), avg perf_percentSum_w_roll=149.41 (per algo)
+
 
 DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3].freeze # 3  # [3, 4, 6, 8] the less, the more trades the more profit (of course limt 10 orders). can test 2 3 4 later 
 # compare variable: min_breakdown_sequence_len
@@ -124,20 +139,75 @@ DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3].freeze # 3  # [3, 4, 6, 8] the less, th
 #   perf_tradesCount: min_breakdown_sequence_len=4 (60.86) is 73.2% better than min_breakdown_sequence_len=6 (35.14)
 
 
-DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [9].freeze # 9 [9]
+DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [21, 42].freeze # 9 [9]
+# [9, 21] not much diff, but 21 better
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   max_breakdown_sequence_len=9: 0/432 (0.0%), avg perf_percentSum_w_roll group 0 secret TP=136.07 (per algo)
+#   max_breakdown_sequence_len=21: 432/432 (100.0%), avg perf_percentSum_w_roll group 0 secret TP=139.95 (per algo)
+# perf_tradesCount higher in head-to-head pairs:
+#   max_breakdown_sequence_len=9: 0/432 (0.0%), avg perf_tradesCount=299.04 (per algo)
+#   max_breakdown_sequence_len=21: 432/432 (100.0%), avg perf_tradesCount=307.18 (per algo)
 
-DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20, 0.35, 0.15].freeze # 0.20  [0.20, 0.35]
-DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.60].freeze  #  [0.40, 0.60, 0.85, 1.50]
+
+DESIRED_BD_START_MIN_BREAKDOWN_PERCENT =  [0.10].freeze # 0.20   [0.20, 0.35, 0.15] the less the more trades obviously, turns out for mmore profit?  tested with 10 trades limit
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   bd_start_min_breakdown_percent=0.15: 191/280 (68.2%), avg perf_percentSum_w_roll group 0 secret TP=78.68 (per algo)
+#   bd_start_min_breakdown_percent=0.20: 113/280 (40.4%), avg perf_percentSum_w_roll group 0 secret TP=76.07 (per algo)
+#   bd_start_min_breakdown_percent=0.35: 116/280 (41.4%), avg perf_percentSum_w_roll group 0 secret TP=75.81 (per algo)
+
+# [0.15, 0.10] not much diff in gan or tradesC
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   bd_start_min_breakdown_percent=0.10: 242/432 (56.0%), avg perf_percentSum_w_roll group 0 secret TP=138.53 (per algo)
+#   bd_start_min_breakdown_percent=0.15: 190/432 (44.0%), avg perf_percentSum_w_roll group 0 secret TP=137.49 (per algo)
+#   perf_percentSum_w_roll group 0 secret TP: bd_start_min_breakdown_percent=0.10 (138.53) is 0.8% better
+
+DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.30].freeze  #  0.60, [0.40, 0.60, 0.85, 1.50]  # again easier rule = more trades = more profit
+# perf_percentSum_w_roll higher in head-to-head pairs:
+#   min_breakdown_total_percent=0.45: 374/384 (97.4%), avg perf_percentSum_w_roll=140.89 (per algo)
+#   min_breakdown_total_percent=0.60: 10/384 (2.6%), avg perf_percentSum_w_roll=118.90 (per algo)
+# [0.30, 0.45] # gains 34% better but through 64% more tradess
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   min_breakdown_total_percent=0.30: 432/432 (100.0%), avg perf_percentSum_w_roll group 0 secret TP=158.09 (per algo)
+#   min_breakdown_total_percent=0.45: 0/432 (0.0%), avg perf_percentSum_w_roll group 0 secret TP=117.94 (per algo)
+#   perf_percentSum_w_roll group 0 secret TP: min_breakdown_total_percent=0.30 (158.09) is 34.0% better
+# perf_tradesCount higher in head-to-head pairs:
+#   min_breakdown_total_percent=0.30: 432/432 (100.0%), avg perf_tradesCount=377.03 (per algo)
+#   min_breakdown_total_percent=0.45: 0/432 (0.0%), avg perf_tradesCount=229.20 (per algo)
+#   perf_tradesCount: min_breakdown_total_percent=0.30 (377.03) is 64.5% better
+
 
 DESIRED_AFTER_BD_NEED_X_15GREENC = [1].freeze #  [1, 2, 3] # Aleksik2_traderesults2_variable_comparisons shows 1 is much better due to more trades
 
 ENTRY_FORGET_MIN_ROOM_MINUTES = 15 # match aleksik2.mq5 BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES
-SKIP_INVALIDCOMBOS_OF_FORGETBD_VS_ENTRY_MAX_MINUTES = true # if false, error and dont create any. if true, only skip invalid combos
-DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [6, 11, 14].freeze # 6 [6, 9]
-DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [75, 50, 110].freeze # 75
+SKIP_INVALIDCOMBOS_OF_FORGETBD_VS_ENTRY_MAX_MINUTES = false # if false, error and dont create any. if true, only skip invalid combos
+DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [18].freeze # 6    [6, 11, 14] 
+DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [150].freeze # 75  [75, 110]   # not much change in profit (110 higher than 75 tho), but 110 had more trades than 75 thanks to 
+# more room for trade (more trades = more profit).  btw big diff between secretTP or no. tested with 10 trades limit
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   entry_max_minutes_after_bdend=50: 38/240 (15.8%), avg perf_percentSum_w_roll group 0 secret TP=74.51 (per algo)
+#   entry_max_minutes_after_bdend=75: 110/240 (45.8%), avg perf_percentSum_w_roll group 0 secret TP=77.64 (per algo)
+#   entry_max_minutes_after_bdend=110: 192/240 (80.0%), avg perf_percentSum_w_roll group 0 secret TP=79.59 (per algo)
+# perf_percentSum_w_roll group non 0 secret TP higher in head-to-head pairs:
+#   entry_max_minutes_after_bdend=50: 1/240 (0.4%), avg perf_percentSum_w_roll group non 0 secret TP=43.66 (per algo)
+#   entry_max_minutes_after_bdend=75: 105/240 (43.8%), avg perf_percentSum_w_roll group non 0 secret TP=45.72 (per algo)
+#   entry_max_minutes_after_bdend=110: 232/240 (96.7%), avg perf_percentSum_w_roll group non 0 secret TP=47.85 (per algo)
+# perf_tradesCount higher in head-to-head pairs:
+#   entry_max_minutes_after_bdend=50: 27/480 (5.6%), avg perf_tradesCount=83.47 (per algo)
+#   entry_max_minutes_after_bdend=75: 205/480 (42.7%), avg perf_tradesCount=88.39 (per algo)
+#   entry_max_minutes_after_bdend=110: 436/480 (90.8%), avg perf_tradesCount=93.07 (per algo)
+
+# perf_tradesCount higher in head-to-head pairs: again higher meant a more trades and profit, but huge falloff, not much effect 110 vs 150. so this doesnt need to be too high 
+#   entry_max_minutes_after_bdend=110: 8/384 (2.1%), avg perf_tradesCount=129.86 (per algo)
+#   entry_max_minutes_after_bdend=150: 274/384 (71.4%), avg perf_tradesCount=133.81 (per algo)
+#   perf_tradesCount: entry_max_minutes_after_bdend=150 (133.81) is 3.0% better than entry_max_minutes_after_bdend=110 (129.86)
 
 
-DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [75, 90].freeze #  66  [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
+
+# 23.6%  38.2%  50.0% — Midpoint Benchmark Not a mathematical Fibonacci ratio, but universally included on charting platforms based on Dow Theory price behavior.
+# 61.8% — The Golden Ratio ($1 / 1.618 \approx 0.618$)
+# 78.6%
+# 88.6% — Harmonic Level Calculated as $\sqrt{0.786}$ (or $\sqrt[4]{0.618}$). Popularized in Harmonic trading (e.g., Bat patterns)
+DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [78].freeze #  66  [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
 # 90 has more trades as it is close enough to fill more often?
 # bez duzej roznicy, to na razie usune 33, 55
 # perf_percentSum_w_roll higher in head-to-head pairs:
@@ -150,30 +220,92 @@ DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [75, 90].freeze #  66  [20, 66, 75].    [
 #   entryrange_range_percentspot=20.00: 20/216 (9.3%), avg perf_percentSum_w_roll=37.30 (per algo)
 #   entryrange_range_percentspot=66.00: 208/264 (78.8%), avg perf_percentSum_w_roll=63.00 (per algo)
 #   entryrange_range_percentspot=75.00: 142/264 (53.8%), avg perf_percentSum_w_roll=60.80 (per algo)
+# perf_tradesCount higher in head-to-head pairs: # ok so 88 better than 95. prevous run had 75 better than 65. so gotta retest 61 66 78 88   <======================= !
+#   entryrange_range_percentspot=88.00: 384/384 (100.0%), avg perf_tradesCount=146.81 (per algo)
+#   entryrange_range_percentspot=95.00: 0/384 (0.0%), avg perf_tradesCount=116.86 (per algo)
 
-
-DESIRED_SECRET_TP_RANGE_PERCENT = [0, 75].freeze # 45 mialo najslabszy result w big run, na razie usuwam. usuwam tez 20 ale mozna retest
-
-DESIRED_TP_NOTSECRET_RANGE_PERCENT = [110, 150].freeze # 150
+# [78, 88] 78 has more trades, shorter trades, more profit! nice and clean
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
-#   tp_notsecret_range_percent=110: 24/30 (80.0%), avg perf_percentSum_w_roll group 0 secret TP=57.45 (per algo)
-#   tp_notsecret_range_percent=150: 6/30 (20.0%), avg perf_percentSum_w_roll group 0 secret TP=29.45 (per algo)
-#   perf_percentSum_w_roll group 0 secret TP: tp_notsecret_range_percent=110 (57.45) is 95.1% better than tp_notsecret_range_percent=150 (29.45)
+#   entryrange_range_percentspot=78.00: 412/432 (95.4%), avg perf_percentSum_w_roll group 0 secret TP=150.68 (per algo)
+#   entryrange_range_percentspot=88.00: 20/432 (4.6%), avg perf_percentSum_w_roll group 0 secret TP=125.35 (per algo)
+#   perf_percentSum_w_roll group 0 secret TP: entryrange_range_percentspot=78.00 (150.68) is 20.2% better
+# perf_tradesCount higher in head-to-head pairs:
+#   entryrange_range_percentspot=78.00: 432/432 (100.0%), avg perf_tradesCount=334.68 (per algo)
+#   entryrange_range_percentspot=88.00: 0/432 (0.0%), avg perf_tradesCount=271.54 (per algo)
+#   perf_tradesCount: entryrange_range_percentspot=78.00 (334.68) is 23.3% better
+# perf_avgDurationHours group 0 secret TP higher in head-to-head pairs:
+#   entryrange_range_percentspot=78.00: 162/432 (37.5%), avg perf_avgDurationHours group 0 secret TP=99.985 (per algo)
+#   entryrange_range_percentspot=88.00: 270/432 (62.5%), avg perf_avgDurationHours group 0 secret TP=103.904 (per algo)
 
+DESIRED_SECRET_TP_RANGE_PERCENT = [0].freeze # [45, 75, 125]  45 mialo najslabszy result w big run, na razie usuwam. usuwam tez 20 ale mozna retest. 
+# perf_percentSum_w_roll higher in head-to-head pairs:
+#   secret_tp_range_percent=0: 420/420 (100.0%), avg perf_percentSum_w_roll=76.85 (per algo)
+#   secret_tp_range_percent=75: 0/420 (0.0%), avg perf_percentSum_w_roll=45.44 (per algo)
+# ! ! ! ^ ^ ensure secret TP cannot be higher than non secret TP
+# perf_percentSum_w_roll higher in head-to-head pairs: # looks like secret TP always less profit than just aimng for higher real TP. so for real, can run really high secret TP  
+#   secret_tp_range_percent=0: 384/384 (100.0%), avg perf_percentSum_w_roll=153.31 (per algo)
+#   secret_tp_range_percent=125: 0/384 (0.0%), avg perf_percentSum_w_roll=106.48 (per algo)
+
+DESIRED_TP_NOTSECRET_RANGE_PERCENT = [250, 450, 600].freeze # 150 outperforms 110. [175, 250]  let's try even higher. 250 still better than 175, can try even 350, 500?
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   tp_notsecret_range_percent=110: 2/210 (1.0%), avg perf_percentSum_w_roll group 0 secret TP=65.11 (per algo)
+#   tp_notsecret_range_percent=150: 208/210 (99.0%), avg perf_percentSum_w_roll group 0 secret TP=88.60 (per algo)
+#   perf_percentSum_w_roll group 0 secret TP: tp_notsecret_range_percent=150 (88.60) is 36.1% better than tp_notsecret_range_percent=110 (65.11)
 # perf_percentSum_w_roll group non 0 secret TP higher in head-to-head pairs:
-#   tp_notsecret_range_percent=110: 15/20 (75.0%), avg perf_percentSum_w_roll group non 0 secret TP=60.34 (per algo)
-#   tp_notsecret_range_percent=150: 5/20 (25.0%), avg perf_percentSum_w_roll group non 0 secret TP=32.41 (per algo)
-#   perf_percentSum_w_roll group non 0 secret TP: tp_notsecret_range_percent=110 (60.34) is 86.2% better than tp_notsecret_range_percent=150 (32.41)
+#   tp_notsecret_range_percent=110: 1/210 (0.5%), avg perf_percentSum_w_roll group non 0 secret TP=43.63 (per algo)
+#   tp_notsecret_range_percent=150: 209/210 (99.5%), avg perf_percentSum_w_roll group non 0 secret TP=47.26 (per algo)
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   tp_notsecret_range_percent=175: 0/192 (0.0%), avg perf_percentSum_w_roll group 0 secret TP=136.38 (per algo)
+#   tp_notsecret_range_percent=250: 192/192 (100.0%), avg perf_percentSum_w_roll group 0 secret TP=170.24 (per algo)
 
 
-DESIRED_MAX_OPEN_POSITIONS = [10].freeze # 10 also test 5
-DESIRED_BREAKDOWNTYPES = %w[
-  CLOSES
+DESIRED_MAX_OPEN_POSITIONS = [5].freeze # 15 is better than 10 I think (put 10 to have quicker sim)? 10 also test 5.  could even test 20, beecause 15 is more trades so more proft, but also has better durations
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   max_open_positions=10: 0/192 (0.0%), avg perf_percentSum_w_roll group 0 secret TP=131.34 (per algo)
+#   max_open_positions=15: 192/192 (100.0%), avg perf_percentSum_w_roll group 0 secret TP=175.28 (per algo)
+#   perf_percentSum_w_roll group 0 secret TP: max_open_positions=15 (175.28) is 33.4% better than max_open_positions=10 (131.34)
+# [10, 15] perf_avgDurationHours group 0 secret TP higher in head-to-head pairs:
+#   max_open_positions=10: 180/192 (93.8%), avg perf_avgDurationHours group 0 secret TP=442.625 (per algo)
+#   max_open_positions=15: 12/192 (6.2%), avg perf_avgDurationHours group 0 secret TP=396.513 (per algo)
+#   perf_avgDurationHours group 0 secret TP: max_open_positions=10 (442.625) is 11.6% better than max_open_positions=15 (396.513)
+
+
+# removed LOW and  CLOSES
+DESIRED_BREAKDOWNTYPES = %w[ 
   OHLC_AVG
-  LOW
   OC_MID
   HL_MID
 ].freeze
+# looks like OC_MID and OHLC_AVG perform the best profit. But HL_MID has lowest durations, 2nd place is OHLC_AVG. 
+# but basically LOW is the worst by far, CLOSES is very weak too, both have low trade count 
+# tested with max trades 10
+# perf_timeVSprofit higher in head-to-head pairs:
+#   breakdown_streak_continuation_mode=OHLC_AVG: 469/676 (69.4%), avg perf_timeVSprofit=0.055 (per algo)
+#   breakdown_streak_continuation_mode=HL_MID: 446/676 (66.0%), avg perf_timeVSprofit=0.054 (per algo)
+#   breakdown_streak_continuation_mode=OC_MID: 250/676 (37.0%), avg perf_timeVSprofit=0.048 (per algo)
+#   breakdown_streak_continuation_mode=CLOSES: 245/676 (36.2%), avg perf_timeVSprofit=0.047 (per algo)
+# perf_percentSum_w_roll higher in head-to-head pairs: 
+#   breakdown_streak_continuation_mode=OC_MID: 538/676 (79.6%), avg perf_percentSum_w_roll=65.00 (per algo)
+#   breakdown_streak_continuation_mode=OHLC_AVG: 468/676 (69.2%), avg perf_percentSum_w_roll=64.87 (per algo)
+#   breakdown_streak_continuation_mode=CLOSES: 351/676 (51.9%), avg perf_percentSum_w_roll=62.10 (per algo)
+#   breakdown_streak_continuation_mode=HL_MID: 301/676 (44.5%), avg perf_percentSum_w_roll=61.91 (per algo)
+#   breakdown_streak_continuation_mode=LOW: 32/676 (4.7%), avg perf_percentSum_w_roll=50.96 (per algo)
+# perf_avgDurationHours higher in head-to-head pairs:
+#   breakdown_streak_continuation_mode=CLOSES: 569/676 (84.2%), avg perf_avgDurationHours=217.963 (per algo)
+#   breakdown_streak_continuation_mode=OC_MID: 394/676 (58.3%), avg perf_avgDurationHours=192.951 (per algo)
+#   breakdown_streak_continuation_mode=LOW: 344/676 (50.9%), avg perf_avgDurationHours=183.016 (per algo)
+#   breakdown_streak_continuation_mode=OHLC_AVG: 237/676 (35.1%), avg perf_avgDurationHours=171.174 (per algo)
+#   breakdown_streak_continuation_mode=HL_MID: 146/676 (21.6%), avg perf_avgDurationHours=162.973 (per algo)
+# perf_tradesCount higher in head-to-head pairs:
+#   breakdown_streak_continuation_mode=OC_MID: 566/676 (83.7%), avg perf_tradesCount=96.44 (per algo)
+#   breakdown_streak_continuation_mode=OHLC_AVG: 488/676 (72.2%), avg perf_tradesCount=94.46 (per algo)
+#   breakdown_streak_continuation_mode=HL_MID: 424/676 (62.7%), avg perf_tradesCount=93.15 (per algo)
+#   breakdown_streak_continuation_mode=LOW: 99/676 (14.6%), avg perf_tradesCount=77.85 (per algo)
+#   breakdown_streak_continuation_mode=CLOSES: 90/676 (13.3%), avg perf_tradesCount=76.79 (per algo)
+
+
+
+
 
 module BreakdownCombinationsMap
   module_function
@@ -227,6 +359,36 @@ module BreakdownCombinationsMap
     end
   end
 
+  # When closetrade_after_some_time is false, profit/minutes are inactive in mq5 — emit one placeholder leg only.
+  def closetrade_after_some_time_combo_legs(
+    some_time_values = DESIRED_CLOSETRADE_AFTER_SOME_TIME,
+    profit_values = DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED,
+    minutes_values = DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN
+  )
+    raise "DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED must not be empty" if profit_values.empty?
+    raise "DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN must not be empty" if minutes_values.empty?
+
+    legs = []
+    some_time_values.each do |enabled|
+      if enabled
+        profit_values.product(minutes_values).each do |profit, minutes|
+          legs << [true, profit, minutes]
+        end
+      else
+        legs << [false, profit_values.first, minutes_values.first]
+      end
+    end
+    legs
+  end
+
+  def closetrade_after_some_time_leg_count(
+    some_time_values = DESIRED_CLOSETRADE_AFTER_SOME_TIME,
+    profit_values = DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED,
+    minutes_values = DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN
+  )
+    closetrade_after_some_time_combo_legs(some_time_values, profit_values, minutes_values).size
+  end
+
   def validate_entry_forget_desired_grid!
     invalid_pairs = invalid_entry_forget_pairs
     return if invalid_pairs.empty?
@@ -251,6 +413,7 @@ module BreakdownCombinationsMap
 
   def build_combinations
     combos = []
+    closetrade_legs = closetrade_after_some_time_combo_legs
     DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN.product(
       DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN,
       DESIRED_BD_START_MIN_BREAKDOWN_PERCENT,
@@ -262,39 +425,38 @@ module BreakdownCombinationsMap
       DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT,
       DESIRED_SECRET_TP_RANGE_PERCENT,
       DESIRED_TP_NOTSECRET_RANGE_PERCENT,
-      DESIRED_CLOSETRADE_AFTER_SOME_TIME,
-      DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED,
-      DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN,
       DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT,
       DESIRED_BREAKDOWNTYPES,
       DESIRED_MAX_OPEN_POSITIONS
-    ) do |min_len, max_len, bd_start_pct, min_total_pct, expiry_min, after_greenc, entry_min, forget_bd_candles, entryrange_pct, secret_tp, tp_notsecret, close_after_some_time, close_profit_pct_needed, close_after_min, stop_total_trades, bd_type, max_open|
+    ) do |min_len, max_len, bd_start_pct, min_total_pct, expiry_min, after_greenc, entry_min, forget_bd_candles, entryrange_pct, secret_tp, tp_notsecret, stop_total_trades, bd_type, max_open|
       next if min_len > max_len
       next unless entry_forget_combo_valid?(entry_min, forget_bd_candles)
 
       mode = BREAKDOWN_TYPE_TO_MODE[bd_type]
       raise "Unknown breakdowntype #{bd_type.inspect}" unless mode
 
-      combos << {
-        min_breakdown_sequence_len: min_len,
-        max_breakdown_sequence_len: max_len,
-        bd_start_min_breakdown_percent: bd_start_pct,
-        min_breakdown_total_percent: min_total_pct,
-        expiry_minutes: expiry_min,
-        after_bd_need_x_15greenc: after_greenc,
-        entry_max_minutes_after_bdend: entry_min,
-        forget_about_latest_breakdown_after_x_15m_candles: forget_bd_candles,
-        entryrange_range_percentspot: entryrange_pct,
-        secret_tp_range_percent: secret_tp,
-        tp_notsecret_range_percent: tp_notsecret,
-        closetrade_after_some_time: close_after_some_time,
-        closetrade_after_some_time_but_ProfitPercent_Needed: close_profit_pct_needed,
-        closetrade_after_x_minutes_from_breakdown: close_after_min,
-        stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: stop_total_trades,
-        breakdown_streak_continuation_mode: mode,
-        breakdowntype: bd_type,
-        max_open_positions: max_open
-      }
+      closetrade_legs.each do |close_after_some_time, close_profit_pct_needed, close_after_min|
+        combos << {
+          min_breakdown_sequence_len: min_len,
+          max_breakdown_sequence_len: max_len,
+          bd_start_min_breakdown_percent: bd_start_pct,
+          min_breakdown_total_percent: min_total_pct,
+          expiry_minutes: expiry_min,
+          after_bd_need_x_15greenc: after_greenc,
+          entry_max_minutes_after_bdend: entry_min,
+          forget_about_latest_breakdown_after_x_15m_candles: forget_bd_candles,
+          entryrange_range_percentspot: entryrange_pct,
+          secret_tp_range_percent: secret_tp,
+          tp_notsecret_range_percent: tp_notsecret,
+          closetrade_after_some_time: close_after_some_time,
+          closetrade_after_some_time_but_ProfitPercent_Needed: close_profit_pct_needed,
+          closetrade_after_x_minutes_from_breakdown: close_after_min,
+          stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: stop_total_trades,
+          breakdown_streak_continuation_mode: mode,
+          breakdowntype: bd_type,
+          max_open_positions: max_open
+        }
+      end
     end
     combos
   end
@@ -313,9 +475,7 @@ module BreakdownCombinationsMap
       entryrange_range_percentspot: DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT.size,
       secret_tp_range_percent: DESIRED_SECRET_TP_RANGE_PERCENT.size,
       tp_notsecret_range_percent: DESIRED_TP_NOTSECRET_RANGE_PERCENT.size,
-      closetrade_after_some_time: DESIRED_CLOSETRADE_AFTER_SOME_TIME.size,
-      closetrade_after_some_time_but_ProfitPercent_Needed: DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED.size,
-      closetrade_after_x_minutes_from_breakdown: DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN.size,
+      closetrade_after_some_time_legs: closetrade_after_some_time_leg_count,
       stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT.size,
       breakdowntypes: DESIRED_BREAKDOWNTYPES.size,
       max_open_positions: DESIRED_MAX_OPEN_POSITIONS.size

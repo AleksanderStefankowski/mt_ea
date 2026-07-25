@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 # Read combinationsMap.csv (tested?=false) -> new enabled breakdown algos in aleksik2.mq5.
 
-count_of_created_algos_limit = 1000
+count_of_created_algos_limit = 1300
 
 require "csv"
 require_relative "smash_BREAKDOWN_creator_from_combinations"

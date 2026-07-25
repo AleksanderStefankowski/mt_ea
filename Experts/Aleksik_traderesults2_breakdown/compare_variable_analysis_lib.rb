@@ -59,12 +59,14 @@ module CompareVariableAnalysisLib
     [1, text]
   end
 
-  def better_than_worse_line(prefix:, field_name:, left_value:, left_avg:, right_value:, right_avg:, decimals: 3, label: nil)
+  def better_than_worse_line(prefix:, field_name:, left_value:, left_avg:, right_value:, right_avg:, decimals: 3, label: nil, min_percent_diff: nil)
     return nil if left_avg.nil? || right_avg.nil?
 
     metric_prefix = label ? "#{label}: " : ''
 
     if left_avg == right_avg
+      return nil if min_percent_diff
+
       return "#{prefix}#{metric_prefix}#{field_name}=#{left_value} and #{field_name}=#{right_value} tie " \
              "(#{format_float(left_avg, decimals)})"
     end
@@ -78,6 +80,8 @@ module CompareVariableAnalysisLib
     end
 
     pct = percent_better_than(better_avg, worse_avg)
+    return nil if min_percent_diff && pct < min_percent_diff
+
     "#{prefix}#{metric_prefix}#{field_name}=#{better_value} (#{format_float(better_avg, decimals)}) is " \
       "#{format('%.1f%%', pct)} better than #{field_name}=#{worse_value} (#{format_float(worse_avg, decimals)})"
   end
@@ -275,12 +279,23 @@ module CompareVariableAnalysisLib
       .transform_values { |group| average(group.map { |entry| parse_float(entry[:perf][perf_field]) }) }
   end
 
-  def variable_pair_stats_lines(label, compare_variable, stats, paired_entries, perf_field, show_avg_comparison: true, avg_decimals: 3)
+  def variable_pair_stats_lines(label, compare_variable, stats, paired_entries, perf_field, show_avg_comparison: true, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil)
+    sort_key ||= method(:compare_variable_sort_key)
     lines = ["#{label} higher in head-to-head pairs:"]
     return lines if stats.empty?
 
     per_algo_averages = per_algo_averages_by_value(paired_entries, compare_variable, perf_field)
-    stats.sort_by { |value, _| compare_variable_sort_key(value) }.each do |value, row|
+    sorted_stats =
+      if sort_by_avg
+        stats.sort_by do |value, _|
+          avg = per_algo_averages[value]
+          [avg.nil? ? 1 : 0, -(avg || 0), value]
+        end
+      else
+        stats.sort_by { |value, _| sort_key.call(value) }
+      end
+
+    sorted_stats.each do |value, row|
       comparable = row[:appearances] - row[:missing]
       avg = per_algo_averages[value]
       avg_text = show_avg_comparison ? ", avg #{label}=#{format_float(avg, avg_decimals)} (per algo)" : ''
@@ -290,7 +305,7 @@ module CompareVariableAnalysisLib
 
     return lines unless show_avg_comparison
 
-    sorted_values = per_algo_averages.keys.sort_by { |value| compare_variable_sort_key(value) }
+    sorted_values = per_algo_averages.keys.sort_by { |value| sort_key.call(value) }
     return lines if sorted_values.size < 2
 
     sorted_values.combination(2).each do |left_value, right_value|
@@ -298,7 +313,7 @@ module CompareVariableAnalysisLib
         prefix: '  ', field_name: compare_variable,
         left_value: left_value, left_avg: per_algo_averages[left_value],
         right_value: right_value, right_avg: per_algo_averages[right_value],
-        decimals: avg_decimals, label: label
+        decimals: avg_decimals, label: label, min_percent_diff: min_percent_diff
       )
       lines << line if line
     end
@@ -306,12 +321,16 @@ module CompareVariableAnalysisLib
     lines
   end
 
-  def perf_field_analysis_lines_with_secret_tp_split(label, perf_field, pairs, compare_variable, avg_decimals: 3)
+  def perf_field_analysis_lines_with_secret_tp_split(label, perf_field, pairs, compare_variable, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil)
+    line_opts = {}
+    line_opts[:sort_key] = sort_key if sort_key
+    line_opts[:sort_by_avg] = true if sort_by_avg
+    line_opts[:min_percent_diff] = min_percent_diff if min_percent_diff
     lines = []
     lines.concat(variable_pair_stats_lines(label, compare_variable,
                                            build_variable_pair_stats(pairs, compare_variable, perf_field),
                                            paired_entries_from_pairs(pairs), perf_field,
-                                           avg_decimals: avg_decimals))
+                                           avg_decimals: avg_decimals, **line_opts))
 
     zero_secret_tp_pairs = pairs_for_secret_tp_group(pairs, zero_group: true)
     unless zero_secret_tp_pairs.empty?
@@ -319,7 +338,7 @@ module CompareVariableAnalysisLib
       lines.concat(variable_pair_stats_lines("#{label} group 0 secret TP", compare_variable,
                                              build_variable_pair_stats(zero_secret_tp_pairs, compare_variable, perf_field),
                                              paired_entries_from_pairs(zero_secret_tp_pairs), perf_field,
-                                             avg_decimals: avg_decimals))
+                                             avg_decimals: avg_decimals, **line_opts))
     end
 
     non_zero_secret_tp_pairs = pairs_for_secret_tp_group(pairs, zero_group: false)
@@ -328,29 +347,49 @@ module CompareVariableAnalysisLib
       lines.concat(variable_pair_stats_lines("#{label} group non 0 secret TP", compare_variable,
                                              build_variable_pair_stats(non_zero_secret_tp_pairs, compare_variable, perf_field),
                                              paired_entries_from_pairs(non_zero_secret_tp_pairs), perf_field,
-                                             avg_decimals: avg_decimals))
+                                             avg_decimals: avg_decimals, **line_opts))
     end
 
     lines
   end
 
-  def compare_analysis_lines(pairs, compare_variable)
+  def compare_analysis_lines(pairs, compare_variable, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, include_secret_tp_split: true)
     return ['(no pairs)'] if pairs.empty?
 
+    line_opts = {}
+    line_opts[:sort_key] = sort_key if sort_key
+    line_opts[:sort_by_avg] = true if sort_by_avg
+    line_opts[:min_percent_diff] = min_percent_diff if min_percent_diff
     paired_entries = paired_entries_from_pairs(pairs)
     lines = []
     lines.concat(variable_pair_stats_lines('perf_timeVSprofit', compare_variable,
                                            build_variable_pair_stats(pairs, compare_variable, 'timeVSprofit'),
-                                           paired_entries, 'timeVSprofit'))
+                                           paired_entries, 'timeVSprofit', **line_opts))
     lines << ''
-    lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_percentSum_w_roll', 'percentSum_w_roll',
-                                                                pairs, compare_variable, avg_decimals: 2))
-    lines << ''
-    lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_avgDurationHours', 'avgDurationHours',
-                                                                pairs, compare_variable))
-    lines << ''
-    lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_tradesCount', 'tradesCount',
-                                                                pairs, compare_variable, avg_decimals: 2))
+    if include_secret_tp_split
+      lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_percentSum_w_roll', 'percentSum_w_roll',
+                                                                  pairs, compare_variable, avg_decimals: 2,
+                                                                  **line_opts))
+      lines << ''
+      lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_avgDurationHours', 'avgDurationHours',
+                                                                  pairs, compare_variable, **line_opts))
+      lines << ''
+      lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_tradesCount', 'tradesCount',
+                                                                  pairs, compare_variable, avg_decimals: 2,
+                                                                  **line_opts))
+    else
+      lines.concat(variable_pair_stats_lines('perf_percentSum_w_roll', compare_variable,
+                                             build_variable_pair_stats(pairs, compare_variable, 'percentSum_w_roll'),
+                                             paired_entries, 'percentSum_w_roll', avg_decimals: 2, **line_opts))
+      lines << ''
+      lines.concat(variable_pair_stats_lines('perf_avgDurationHours', compare_variable,
+                                             build_variable_pair_stats(pairs, compare_variable, 'avgDurationHours'),
+                                             paired_entries, 'avgDurationHours', **line_opts))
+      lines << ''
+      lines.concat(variable_pair_stats_lines('perf_tradesCount', compare_variable,
+                                             build_variable_pair_stats(pairs, compare_variable, 'tradesCount'),
+                                             paired_entries, 'tradesCount', avg_decimals: 2, **line_opts))
+    end
     lines
   end
 

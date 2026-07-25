@@ -32,7 +32,7 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 #   closetrade_after_some_time_but_ProfitPercent_Needed
 #   closetrade_after_x_minutes_from_breakdown
 #   max_open_positions
-COMPARE_VARIABLE = 'forget_about_latest_breakdown_after_x_15m_candles'
+COMPARE_VARIABLE = 'entryrange_range_percentspot'
 
 CLOSETRADE_CONFIG_COLUMNS = %w[
   closetrade_after_some_time

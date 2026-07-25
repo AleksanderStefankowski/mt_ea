@@ -135,6 +135,10 @@ def enabled?(raw)
   strip_mq5_value(raw.to_s).casecmp("true").zero?
 end
 
+def secret_tp_zero?(row)
+  row[:secret_tp_range_percent].to_s.strip.to_f.zero?
+end
+
 def print_summary(rows)
   all_count = rows.size
   enabled_rows = rows.select { |row| enabled?(row[:enabled]) }
@@ -143,10 +147,16 @@ def print_summary(rows)
   enabled_by_mode = enabled_rows.group_by { |row| row[:breakdown_streak_continuation_mode].to_s }
   enabled_by_mode.transform_values!(&:size)
 
+  secret_tp_zero_count = enabled_rows.count { |row| secret_tp_zero?(row) }
+  secret_tp_nonzero_count = enabled_rows.size - secret_tp_zero_count
+
   puts "--- summary ---"
   puts "count all:      #{all_count}"
   puts "count enabled:  #{enabled_rows.size}"
   puts "count disabled: #{disabled_count}"
+  puts "enabled by secret_tp_range_percent:"
+  puts "  0: #{secret_tp_zero_count}"
+  puts "  non-zero: #{secret_tp_nonzero_count}"
   puts "enabled by breakdown_streak_continuation_mode:"
   if enabled_by_mode.empty?
     puts "  (none)"

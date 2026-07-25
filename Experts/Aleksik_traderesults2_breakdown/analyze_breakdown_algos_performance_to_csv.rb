@@ -14,6 +14,10 @@ FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
   'analyze_breakdown_algos_performance_output_2025flashcrash.csv'
 )
+EXCEPT_FLASHCRASH_OUTPUT_PATH = File.join(
+  SCRIPT_DIR,
+  'analyze_breakdown_algos_performance_output_except_2025flashcrash.csv'
+)
 
 FLASHCRASH_TRADE_BEFORE = Date.new(2025, 2, 14)
 FLASHCRASH_TRADE_AFTER = Date.new(2025, 7, 1)
@@ -410,6 +414,10 @@ def trade_in_flashcrash_analysis_range?(trade)
   date >= FLASHCRASH_ANALYSIS_START && date <= FLASHCRASH_ANALYSIS_END
 end
 
+def trades_except_flashcrash_analysis_range(trades)
+  trades.reject { |trade| trade_in_flashcrash_analysis_range?(trade) }
+end
+
 def flashcrash_global_context
   [
     FLASHCRASH_ANALYSIS_START,
@@ -551,6 +559,41 @@ else
   write_rows(FLASHCRASH_OUTPUT_PATH, flashcrash_rows)
   warn "Wrote #{flashcrash_rows.size} algo rows to #{FLASHCRASH_OUTPUT_PATH} " \
        "(analysis range #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
+end
+
+except_flashcrash_trades = trades_except_flashcrash_analysis_range(trades)
+if except_flashcrash_trades.empty?
+  warn "Skipped #{EXCEPT_FLASHCRASH_OUTPUT_PATH}: no trades outside flashcrash analysis range " \
+       "#{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)}"
+else
+  except_first_date, except_last_date, except_trading_day_count = trade_date_range(except_flashcrash_trades)
+  except_full_week_mondays = countable_mon_fri_weeks_in_date_range(except_first_date, except_last_date)
+  except_rows = build_rows(
+    except_flashcrash_trades,
+    except_first_date,
+    except_last_date,
+    except_trading_day_count,
+    except_full_week_mondays,
+    pattern_by_algo
+  )
+
+  if exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo.positive?
+    before_count = except_rows.size
+    highest_trade_count = except_rows.map { |row| row[:tradesCount].to_i }.max
+    except_rows = exclude_low_trade_count_algos(
+      except_rows,
+      exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo
+    )
+    excluded_count = before_count - except_rows.size
+    min_keep = (highest_trade_count * exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo) / 100.0
+    warn "Except-flashcrash: excluded #{excluded_count} algos with tradesCount <= #{min_keep.round(2)} " \
+         "(#{exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo}% of highest #{highest_trade_count}); " \
+         "#{except_rows.size} algos remain"
+  end
+
+  write_rows(EXCEPT_FLASHCRASH_OUTPUT_PATH, except_rows)
+  warn "Wrote #{except_rows.size} algo rows to #{EXCEPT_FLASHCRASH_OUTPUT_PATH} " \
+       "(all trades except #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
 end
 
 warn 'DONE'
