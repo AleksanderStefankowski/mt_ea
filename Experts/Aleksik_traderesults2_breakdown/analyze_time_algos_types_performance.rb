@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Head-to-head performance comparison for time algos:
-#   1) rule_switch_map=0 algos compared by entry time
-#   2) rule_switch_map=1 algos compared by entry time
-#   3) same entry time algos compared by rule_switch_map
+# Head-to-head performance comparison for time algos.
+# Each section pairs algos whose config matches on every field except one:
+#   entry_time, secret_tp_profit_percent_min, rule_switch_map, max_open_positions
 #
 # Uses all trades (no flash-crash split). Console output only.
 
@@ -16,14 +15,45 @@ CONFIG_PATH = File.expand_path('../Aleksik2/aleksik2_r_read_time_algos_csv.csv',
 PERF_PATH = File.join(SCRIPT_DIR, 'analyze_time_algos_performance_output.csv')
 
 COMPARE_FIELD_ENTRY_TIME = 'entry_time'
-COMPARE_FIELD_RULE_SWITCH_MAP = 'rule_switch_map'
 
-OPTIONAL_COMPARE_FIELDS = %w[
-  secret_tp_profit_percent_min
-  secret_tp_greenguard_pricediff_at_least
+COMPARE_SECTIONS = [
+  {
+    variable: COMPARE_FIELD_ENTRY_TIME,
+    title: 'compare entry_time (all other config equal)',
+    signature_exclude_variables: %w[entry_hour entry_minute],
+    sort_key: :entry_time_sort_key
+  },
+  {
+    variable: 'secret_tp_profit_percent_min',
+    title: 'compare secret_tp_profit_percent_min (all other config equal)',
+    signature_exclude_variables: []
+  },
+  {
+    variable: 'rule_switch_map',
+    title: 'compare rule_switch_map (all other config equal)',
+    signature_exclude_variables: []
+  },
+  {
+    variable: 'max_open_positions',
+    title: 'compare max_open_positions (all other config equal)',
+    signature_exclude_variables: []
+  }
 ].freeze
 
-MIN_BETTER_THAN_PERCENT_DIFF = 15.0
+DISPLAY_CONFIG_FIELDS = %w[
+  entry_time
+  rule_switch_map
+  secret_tp_profit_percent_min
+  secret_tp_greenguard_pricediff_at_least
+  max_open_positions
+  max_trades_per_day
+  stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
+].freeze
+
+COMPARE_METRICS = [
+  ['perf_percentSum_w_roll', 'percentSum_w_roll', 2],
+  ['perf_avgDurationHours', 'avgDurationHours', 2]
+].freeze
 
 Lib = CompareVariableAnalysisLib
 
@@ -101,11 +131,183 @@ def load_matched_rows
   [matched_rows, perf_rows.size]
 end
 
-def filter_rows(matched_rows, compare_variable, value)
-  matched_rows.select { |entry| entry[:config][compare_variable].to_s == value.to_s }
+def format_config_summary(config)
+  DISPLAY_CONFIG_FIELDS
+    .map do |field|
+      value = config[field]
+      next if value.nil? || value.to_s.strip.empty?
+
+      "#{field}=#{value}"
+    end
+    .compact
+    .join(', ')
 end
 
-def print_comparison_section(title, matched_rows, compare_variable, sort_key: nil, signature_exclude_variables: [])
+def unpaired_entries(matched_rows, run_result)
+  matched_rows
+    .reject { |entry| run_result[:paired_algo_ids].include?(entry[:algo_id]) }
+    .sort_by { |entry| entry[:algo_id].to_i }
+end
+
+def metric_values(entry)
+  COMPARE_METRICS.to_h { |_, field, _| [field, Lib.parse_float(entry[:perf][field])] }
+end
+
+def percent_change(base, value)
+  return nil if base.nil? || value.nil?
+  return nil if base.zero?
+
+  100.0 * (value - base) / base.abs
+end
+
+def format_metric_change_part(label, pct, avg: false)
+  prefix = avg ? 'avg ' : ''
+  return "#{prefix}#{label} n/a" if pct.nil?
+  return "#{prefix}#{label} same" if pct.abs < 0.05
+
+  direction = pct.positive? ? 'higher' : 'lower'
+  "#{prefix}#{format('%.1f', pct.abs)}% #{direction} #{label}"
+end
+
+def format_right_vs_left_pct_line(compare_variable, right_value, left_metrics, right_metrics, left_value: nil, avg: false)
+  metric_parts =
+    COMPARE_METRICS.map do |label, field, _decimals|
+      format_metric_change_part(label, percent_change(left_metrics[field], right_metrics[field]), avg: avg)
+    end
+
+  value_part =
+    if avg && !left_value.nil?
+      "#{compare_variable} #{right_value} vs #{left_value}"
+    else
+      "#{compare_variable} #{right_value}"
+    end
+
+  "right has #{value_part} has #{metric_parts.join(' and ')}"
+end
+
+def format_side_summary(entry, compare_variable)
+  perf_parts =
+    COMPARE_METRICS.map do |label, field, decimals|
+      value = Lib.format_float(Lib.parse_float(entry[:perf][field]), decimals)
+      "#{label} #{value}"
+    end
+
+  "#{compare_variable}=#{entry[:config][compare_variable]}, algo #{entry[:algo_id]}   #{perf_parts.join(' ')}"
+end
+
+def combined_percent_sum(pair)
+  left = Lib.parse_float(pair[:left][:perf]['percentSum_w_roll']) || 0.0
+  right = Lib.parse_float(pair[:right][:perf]['percentSum_w_roll']) || 0.0
+  left + right
+end
+
+def sorted_pairs(pairs, _compare_variable = nil, sort_key: nil)
+  pairs.sort_by do |pair|
+    [
+      -combined_percent_sum(pair),
+      pair[:group_id],
+      pair[:pair_id]
+    ]
+  end
+end
+
+def compare_value_sort_key(value, sort_key: nil)
+  return sort_key.call(value) if sort_key
+
+  text = value.to_s.strip
+  if text.match?(/\A-?\d+(?:\.\d+)?\z/)
+    return [0, Float(text), text]
+  end
+
+  Lib.compare_variable_sort_key(text)
+rescue ArgumentError
+  Lib.compare_variable_sort_key(value.to_s)
+end
+
+def ordered_value_pair(left_val, right_val, sort_key: nil)
+  [left_val, right_val].sort_by { |value| compare_value_sort_key(value, sort_key: sort_key) }
+end
+
+def averages_by_compare_value(pairs, compare_variable)
+  entries_by_value = Hash.new { |hash, key| hash[key] = [] }
+  seen_by_value = Hash.new { |hash, key| hash[key] = Set.new }
+
+  pairs.each do |pair|
+    [pair[:left], pair[:right]].each do |entry|
+      value = entry[:config][compare_variable].to_s
+      next if seen_by_value[value].include?(entry[:algo_id])
+
+      seen_by_value[value] << entry[:algo_id]
+      entries_by_value[value] << entry
+    end
+  end
+
+  entries_by_value.transform_values do |entries|
+    COMPARE_METRICS.to_h do |_, field, _|
+      [field, Lib.average(entries.map { |entry| Lib.parse_float(entry[:perf][field]) })]
+    end
+  end
+end
+
+def compared_value_pairs(pairs, compare_variable, sort_key: nil)
+  pairs.each_with_object(Set.new) do |pair, memo|
+    left_val = pair[:left][:config][compare_variable].to_s
+    right_val = pair[:right][:config][compare_variable].to_s
+    next if left_val == right_val
+
+    memo << ordered_value_pair(left_val, right_val, sort_key: sort_key)
+  end
+end
+
+def print_pair_comparisons(pairs, compare_variable, sort_key: nil)
+  if pairs.empty?
+    puts '(no pairs)'
+    return
+  end
+
+  sorted_pairs(pairs, compare_variable, sort_key: sort_key).each do |pair|
+    left = pair[:left]
+    right = pair[:right]
+    right_value = right[:config][compare_variable].to_s
+
+    puts "--- pair #{pair[:group_id]}.#{pair[:pair_id]} ---"
+    puts "  left:  #{format_side_summary(left, compare_variable)}"
+    puts "  right: #{format_side_summary(right, compare_variable)}"
+    puts "  #{format_right_vs_left_pct_line(
+      compare_variable,
+      right_value,
+      metric_values(left),
+      metric_values(right)
+    )}"
+    puts
+  end
+
+  averages = averages_by_compare_value(pairs, compare_variable)
+  value_pairs =
+    compared_value_pairs(pairs, compare_variable, sort_key: sort_key).sort_by do |left_val, right_val|
+      [
+        compare_value_sort_key(left_val, sort_key: sort_key),
+        compare_value_sort_key(right_val, sort_key: sort_key)
+      ]
+    end
+
+  return if value_pairs.empty?
+
+  puts '--- section avg ---'
+  value_pairs.each do |left_val, right_val|
+    puts "  #{format_right_vs_left_pct_line(
+      compare_variable,
+      right_val,
+      averages[left_val],
+      averages[right_val],
+      left_value: left_val,
+      avg: true
+    )}"
+  end
+  puts
+end
+
+def print_comparison_section(title, matched_rows, compare_variable, signature_exclude_variables: [], sort_key: nil)
   puts '=' * 72
   puts title
   puts '=' * 72
@@ -113,7 +315,7 @@ def print_comparison_section(title, matched_rows, compare_variable, sort_key: ni
   if matched_rows.size < 2
     puts "algos: #{matched_rows.size} (need at least 2 for head-to-head comparison)"
     puts
-    return
+    return unpaired_entries(matched_rows, { paired_algo_ids: Set.new })
   end
 
   run_result =
@@ -123,36 +325,43 @@ def print_comparison_section(title, matched_rows, compare_variable, sort_key: ni
       signature_exclude_variables: signature_exclude_variables
     )
   compared_count = run_result[:paired_algo_ids].size
-  unpaired_count = matched_rows.size - compared_count
+  unpaired = unpaired_entries(matched_rows, run_result)
 
   puts "algos: #{matched_rows.size}"
   puts "algos in head-to-head pairs: #{compared_count}"
-  puts "algos without a pair: #{unpaired_count}"
+  puts "algos without a pair: #{unpaired.size}"
   puts "groups found: #{run_result[:group_count]}"
   puts "pairs found: #{run_result[:pair_count]}"
   puts
 
-  line_opts = {
-    sort_by_avg: true,
-    min_percent_diff: MIN_BETTER_THAN_PERCENT_DIFF,
-    include_secret_tp_split: false
-  }
-  line_opts[:sort_key] = sort_key if sort_key
-  Lib.compare_analysis_lines(run_result[:pairs], compare_variable, **line_opts).each { |line| puts line }
-  puts
+  print_pair_comparisons(run_result[:pairs], compare_variable, sort_key: sort_key)
+
+  unpaired
 end
 
-def maybe_print_optional_field_comparisons(matched_rows)
-  OPTIONAL_COMPARE_FIELDS.each do |field|
-    values = matched_rows.map { |entry| entry[:config][field].to_s }.reject(&:empty?).uniq
-    next if values.size < 2
+def print_unpaired_configs(unpaired_by_section)
+  puts '=' * 72
+  puts 'UNPAIRED CONFIGS (no head-to-head pair found)'
+  puts '=' * 72
+  puts
 
-    print_comparison_section(
-      "OPTIONAL: compare by #{field}",
-      matched_rows,
-      field
-    )
+  any_unpaired = false
+
+  COMPARE_SECTIONS.each do |section|
+    unpaired = unpaired_by_section[section[:variable]] || []
+    puts "--- #{section[:title]} ---"
+    if unpaired.empty?
+      puts '(none)'
+    else
+      any_unpaired = true
+      unpaired.each do |entry|
+        puts "  algo #{entry[:algo_id]}: #{format_config_summary(entry[:config])}"
+      end
+    end
+    puts
   end
+
+  puts '(all comparisons had pairs for every algo)' unless any_unpaired
 end
 
 unless File.file?(CONFIG_PATH)
@@ -176,41 +385,25 @@ puts "performance file: #{PERF_PATH}"
 puts "config file: #{CONFIG_PATH}"
 puts "algos in analyze_time_algos_performance_output: #{perf_row_count}"
 puts "matched config algos: #{matched_rows.size}"
+puts "grouping rule: all config fields equal except the compared variable"
 puts
 
-rule0_rows = filter_rows(matched_rows, COMPARE_FIELD_RULE_SWITCH_MAP, 0)
-rule1_rows = filter_rows(matched_rows, COMPARE_FIELD_RULE_SWITCH_MAP, 1)
+unpaired_by_section = {}
 
-print_comparison_section(
-  'GROUP 1: rule_switch_map=0 — compare entry times',
-  rule0_rows,
-  COMPARE_FIELD_ENTRY_TIME,
-  sort_key: method(:entry_time_sort_key),
-  signature_exclude_variables: %w[entry_hour entry_minute]
-)
+COMPARE_SECTIONS.each do |section|
+  sort_key =
+    if section[:sort_key] == :entry_time_sort_key
+      method(:entry_time_sort_key)
+    end
 
-print_comparison_section(
-  'GROUP 2: rule_switch_map=1 — compare entry times',
-  rule1_rows,
-  COMPARE_FIELD_ENTRY_TIME,
-  sort_key: method(:entry_time_sort_key),
-  signature_exclude_variables: %w[entry_hour entry_minute]
-)
-
-entry_times =
-  matched_rows
-  .map { |entry| entry[:config][COMPARE_FIELD_ENTRY_TIME].to_s }
-  .uniq
-  .sort_by { |entry_time| entry_time_sort_key(entry_time) }
-
-entry_times.each do |entry_time|
-  rows_at_time = filter_rows(matched_rows, COMPARE_FIELD_ENTRY_TIME, entry_time)
-  print_comparison_section(
-    "GROUP 3: entry_time=#{entry_time} — compare rule_switch_map",
-    rows_at_time,
-    COMPARE_FIELD_RULE_SWITCH_MAP,
-    signature_exclude_variables: [COMPARE_FIELD_ENTRY_TIME, 'entry_hour', 'entry_minute']
-  )
+  unpaired_by_section[section[:variable]] =
+    print_comparison_section(
+      section[:title].upcase,
+      matched_rows,
+      section[:variable],
+      signature_exclude_variables: section[:signature_exclude_variables],
+      sort_key: sort_key
+    )
 end
 
-maybe_print_optional_field_comparisons(matched_rows)
+print_unpaired_configs(unpaired_by_section)

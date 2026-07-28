@@ -86,6 +86,28 @@ def entry_time_label(row)
   "#{hour}:#{minute}"
 end
 
+def numeric_sort_key(value)
+  text = value.to_s.strip
+  return [0, text.to_f, text] if text.match?(/\A-?\d+(?:\.\d+)?\z/)
+
+  [1, text]
+end
+
+def print_grouped_counts(label, enabled_rows, field)
+  grouped = enabled_rows.group_by { |row| row[field].to_s }
+  grouped.transform_values!(&:size)
+
+  puts label
+  if grouped.empty?
+    puts "  (none)"
+  else
+    grouped.sort_by { |value, _| numeric_sort_key(value) }.each do |value, count|
+      display = value.empty? ? "(unknown)" : value
+      puts "  #{display}: #{count}"
+    end
+  end
+end
+
 def print_summary(rows)
   all_count = rows.size
   enabled_rows = rows.select { |row| enabled?(row[:enabled]) }
@@ -93,9 +115,6 @@ def print_summary(rows)
 
   enabled_by_entry = enabled_rows.group_by { |row| entry_time_label(row) }
   enabled_by_entry.transform_values!(&:size)
-
-  enabled_by_rule = enabled_rows.group_by { |row| row[:rule_switch_map].to_s }
-  enabled_by_rule.transform_values!(&:size)
 
   puts "--- summary ---"
   puts "count all:      #{all_count}"
@@ -109,14 +128,9 @@ def print_summary(rows)
       puts "  #{entry}: #{count}"
     end
   end
-  puts "enabled by rule_switch_map:"
-  if enabled_by_rule.empty?
-    puts "  (none)"
-  else
-    enabled_by_rule.sort_by { |rule, _| rule.to_i }.each do |rule, count|
-      puts "  #{rule}: #{count}"
-    end
-  end
+  print_grouped_counts("enabled by rule_switch_map:", enabled_rows, :rule_switch_map)
+  print_grouped_counts("enabled by secret_tp_profit_percent_min:", enabled_rows, :secret_tp_profit_percent_min)
+  print_grouped_counts("enabled by max_open_positions:", enabled_rows, :max_open_positions)
   puts
 end
 

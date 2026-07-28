@@ -6,10 +6,6 @@ require_relative "smash_BREAKDOWN_creator_from_combinations"
 
 PRESERVE_ALGO_IDS_TEXT = <<~TEXT
   20000000
-  20000001
-  20000002
-  20000003
-  20000004
 TEXT
 
 module BreakdownCombinationsDeleter

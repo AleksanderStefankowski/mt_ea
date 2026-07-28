@@ -54,13 +54,11 @@ COMBINATION_MAP_FIELDS = %w[
 COMBINATION_SIGNATURE_FIELDS = (COMBINATION_MAP_FIELDS - ["tested?"]).freeze
 
 # --- edit combination grids here ---
-DESIRED_EXPIRY_MINUTES = [45].freeze # 15  [15, 45] # obviously longer expiry means more trades fill. can test 30 45 60 90
+DESIRED_EXPIRY_MINUTES = [45].freeze # 15  [15, 45] # obviously longer expiry means more trades fill. | 45 is best ✅
+# [45, 90]
+# perf_percentSum_w_roll: expiry_minutes=90 (182.72) is 1.1% better than expiry_minutes=45 (180.71)
+
 # compare variable: expiry_minutes
-# algos in analyze_breakdown_algos_performance_output: 425
-# algos without a pair: 41 (9.6% of all)
-# groups found: 192
-# pairs found: 192
-# unpaired groups written: 41
 # perf_timeVSprofit higher in head-to-head pairs:
 #   expiry_minutes=15: 25/192 (13.0%), avg perf_timeVSprofit=0.048 (per algo)
 #   expiry_minutes=45: 141/192 (73.4%), avg perf_timeVSprofit=0.052 (per algo)
@@ -78,7 +76,7 @@ DESIRED_EXPIRY_MINUTES = [45].freeze # 15  [15, 45] # obviously longer expiry me
 #   expiry_minutes=45: 192/192 (100.0%), avg perf_tradesCount=71.58 (per algo)
 #   perf_tradesCount: expiry_minutes=45 (71.58) is 21.5% better than expiry_minutes=15 (58.92)
 
-DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze # 3 # TESTED ALREADY  [3 6] is no diff. maybe test 1, 2, 3, but it is low prio
+DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze # 3 # TESTED ALREADY  [3 6] is no diff. ✅ maybe test 1, 2, 3, but it is low prio
 # TESTED ALREADY
 # TESTED ALREADY
 # TESTED ALREADY
@@ -102,7 +100,7 @@ DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [200, 350, 500].freeze
 #   closetrade_after_x_minutes_from_breakdown=350: 552/576 (95.8%), avg perf_percentSum_w_roll=149.41 (per algo)
 
 
-DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3].freeze # 3  # [3, 4, 6, 8] the less, the more trades the more profit (of course limt 10 orders). can test 2 3 4 later 
+DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3, 7].freeze # 3 ✅  # [3, 4, 6, 8] the less, the more trades the more profit (of course limt 10 orders). can test 2 3 4 later 
 # compare variable: min_breakdown_sequence_len
 # algos in analyze_breakdown_algos_performance_output: 425
 # algos without a pair: 29 (6.8% of all)
@@ -139,7 +137,8 @@ DESIRED_MIN_BREAKDOWN_SEQUENCE_LEN = [3].freeze # 3  # [3, 4, 6, 8] the less, th
 #   perf_tradesCount: min_breakdown_sequence_len=4 (60.86) is 73.2% better than min_breakdown_sequence_len=6 (35.14)
 
 
-DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [21, 42].freeze # 9 [9]
+DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [21].freeze # 9  ✅ 21 best from tested
+# [21, 42, 64] no diff, probably after min bd satisfied it always fills before it matters for max bd length
 # [9, 21] not much diff, but 21 better
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
 #   max_breakdown_sequence_len=9: 0/432 (0.0%), avg perf_percentSum_w_roll group 0 secret TP=136.07 (per algo)
@@ -149,7 +148,7 @@ DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [21, 42].freeze # 9 [9]
 #   max_breakdown_sequence_len=21: 432/432 (100.0%), avg perf_tradesCount=307.18 (per algo)
 
 
-DESIRED_BD_START_MIN_BREAKDOWN_PERCENT =  [0.10].freeze # 0.20   [0.20, 0.35, 0.15] the less the more trades obviously, turns out for mmore profit?  tested with 10 trades limit
+DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20].freeze # 0.20   [0.20, 0.35, 0.15] the less the more trades obviously, turns out for mmore profit?  tested with 10 trades limit
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
 #   bd_start_min_breakdown_percent=0.15: 191/280 (68.2%), avg perf_percentSum_w_roll group 0 secret TP=78.68 (per algo)
 #   bd_start_min_breakdown_percent=0.20: 113/280 (40.4%), avg perf_percentSum_w_roll group 0 secret TP=76.07 (per algo)
@@ -179,9 +178,13 @@ DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.30].freeze  #  0.60, [0.40, 0.60, 0.85,
 DESIRED_AFTER_BD_NEED_X_15GREENC = [1].freeze #  [1, 2, 3] # Aleksik2_traderesults2_variable_comparisons shows 1 is much better due to more trades
 
 ENTRY_FORGET_MIN_ROOM_MINUTES = 15 # match aleksik2.mq5 BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES
-SKIP_INVALIDCOMBOS_OF_FORGETBD_VS_ENTRY_MAX_MINUTES = false # if false, error and dont create any. if true, only skip invalid combos
-DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [18].freeze # 6    [6, 11, 14] 
-DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [150].freeze # 75  [75, 110]   # not much change in profit (110 higher than 75 tho), but 110 had more trades than 75 thanks to 
+SKIP_INVALIDCOMBOS_OF_FORGETBD_VS_ENTRY_MAX_MINUTES = true # if false, error and dont create any. if true, only skip invalid combos
+
+### this set had no diffs at all, for non secret TP run
+# DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [11, 18, 30].freeze 
+# DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [150, 250, 400].freeze
+DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [6, 11].freeze # 6    [6, 11, 14] 
+DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [75, 150].freeze # 75  [75, 110]   # not much change in profit (110 higher than 75 tho), but 110 had more trades than 75 thanks to 
 # more room for trade (more trades = more profit).  btw big diff between secretTP or no. tested with 10 trades limit
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
 #   entry_max_minutes_after_bdend=50: 38/240 (15.8%), avg perf_percentSum_w_roll group 0 secret TP=74.51 (per algo)
@@ -207,7 +210,9 @@ DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [150].freeze # 75  [75, 110]   # not muc
 # 61.8% — The Golden Ratio ($1 / 1.618 \approx 0.618$)
 # 78.6%
 # 88.6% — Harmonic Level Calculated as $\sqrt{0.786}$ (or $\sqrt[4]{0.618}$). Popularized in Harmonic trading (e.g., Bat patterns)
-DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [78].freeze #  66  [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
+DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [66, 88].freeze #  66  [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
+# [66, 78] in this run almost no diff, but 66 better
+
 # 90 has more trades as it is close enough to fill more often?
 # bez duzej roznicy, to na razie usune 33, 55
 # perf_percentSum_w_roll higher in head-to-head pairs:
@@ -246,7 +251,25 @@ DESIRED_SECRET_TP_RANGE_PERCENT = [0].freeze # [45, 75, 125]  45 mialo najslabsz
 #   secret_tp_range_percent=0: 384/384 (100.0%), avg perf_percentSum_w_roll=153.31 (per algo)
 #   secret_tp_range_percent=125: 0/384 (0.0%), avg perf_percentSum_w_roll=106.48 (per algo)
 
-DESIRED_TP_NOTSECRET_RANGE_PERCENT = [250, 450, 600].freeze # 150 outperforms 110. [175, 250]  let's try even higher. 250 still better than 175, can try even 350, 500?
+
+# DESIRED_TP_NOTSECRET_RANGE_PERCENT = [250].freeze # [250, 450, 600, 800] 250 best in this run, bo najwiecej trejdow i krotsze, to bylo rpzy max position 8
+# perf_timeVSprofit: tp_notsecret_range_percent=250 (0.033) is 20.6% better than tp_notsecret_range_percent=450 (0.027)
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+# tp_notsecret_range_percent=250: 477/612 (77.9%), avg perf_percentSum_w_roll group 0 secret TP=187.23 (per algo)
+# tp_notsecret_range_percent=450: 460/612 (75.2%), avg perf_percentSum_w_roll group 0 secret TP=184.95 (per algo)
+# tp_notsecret_range_percent=600: 167/612 (27.3%), avg perf_percentSum_w_roll group 0 secret TP=177.84 (per algo)
+# tp_notsecret_range_percent=800: 84/540 (15.6%), avg perf_percentSum_w_roll group 0 secret TP=175.87 (per algo)
+# perf_avgDurationHours higher in head-to-head pairs:
+# tp_notsecret_range_percent=250: 0/612 (0.0%), avg perf_avgDurationHours=412.403 (per algo)
+# tp_notsecret_range_percent=450: 216/612 (35.3%), avg perf_avgDurationHours=945.249 (per algo)
+# tp_notsecret_range_percent=600: 432/612 (70.6%), avg perf_avgDurationHours=1380.481 (per algo)
+# tp_notsecret_range_percent=800: 540/540 (100.0%), avg perf_avgDurationHours=1911.563 (per algo)
+# perf_tradesCount higher in head-to-head pairs:
+# tp_notsecret_range_percent=250: 612/612 (100.0%), avg perf_tradesCount=170.05 (per algo)
+# tp_notsecret_range_percent=450: 396/612 (64.7%), avg perf_tradesCount=86.24 (per algo)
+# tp_notsecret_range_percent=600: 180/612 (29.4%), avg perf_tradesCount=62.56 (per algo)
+# tp_notsecret_range_percent=800: 0/540 (0.0%), avg perf_tradesCount=46.41 (per algo)
+DESIRED_TP_NOTSECRET_RANGE_PERCENT = [110, 150, 250].freeze # 150 outperforms 110. [175, 250]  let's try even higher. 250 still better than 175, can try even 350, 500?
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
 #   tp_notsecret_range_percent=110: 2/210 (1.0%), avg perf_percentSum_w_roll group 0 secret TP=65.11 (per algo)
 #   tp_notsecret_range_percent=150: 208/210 (99.0%), avg perf_percentSum_w_roll group 0 secret TP=88.60 (per algo)
@@ -259,7 +282,7 @@ DESIRED_TP_NOTSECRET_RANGE_PERCENT = [250, 450, 600].freeze # 150 outperforms 11
 #   tp_notsecret_range_percent=250: 192/192 (100.0%), avg perf_percentSum_w_roll group 0 secret TP=170.24 (per algo)
 
 
-DESIRED_MAX_OPEN_POSITIONS = [5].freeze # 15 is better than 10 I think (put 10 to have quicker sim)? 10 also test 5.  could even test 20, beecause 15 is more trades so more proft, but also has better durations
+DESIRED_MAX_OPEN_POSITIONS = [10].freeze # 15 is better than 10 I think (put 10 to have quicker sim)? 10 also test 5.  could even test 20, beecause 15 is more trades so more proft, but also has better durations
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
 #   max_open_positions=10: 0/192 (0.0%), avg perf_percentSum_w_roll group 0 secret TP=131.34 (per algo)
 #   max_open_positions=15: 192/192 (100.0%), avg perf_percentSum_w_roll group 0 secret TP=175.28 (per algo)
@@ -270,12 +293,22 @@ DESIRED_MAX_OPEN_POSITIONS = [5].freeze # 15 is better than 10 I think (put 10 t
 #   perf_avgDurationHours group 0 secret TP: max_open_positions=10 (442.625) is 11.6% better than max_open_positions=15 (396.513)
 
 
-# removed LOW and  CLOSES
+# removed LOW and  CLOSES, and HL_MID
 DESIRED_BREAKDOWNTYPES = %w[ 
   OHLC_AVG
   OC_MID
-  HL_MID
 ].freeze
+### Test new:
+# DECYZJA TUTAJ: Z TOP 3 ZOSTAWIAM TOP 2 TYLKO. HL_MID JEST POŚRODKU W OBU rankingach wiec go wyłączam.
+# perf_avgDurationHours group 0 secret TP higher in head-to-head pairs:
+#   breakdown_streak_continuation_mode=OC_MID: 483/540 (89.4%), avg perf_avgDurationHours group 0 secret TP=1195.980 (per algo)
+#   breakdown_streak_continuation_mode=HL_MID: 30/540 (5.6%), avg perf_avgDurationHours group 0 secret TP=1125.692 (per algo)
+#   breakdown_streak_continuation_mode=OHLC_AVG: 279/504 (55.4%), avg perf_avgDurationHours group 0 secret TP=1059.035 (per algo)
+# perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
+#   breakdown_streak_continuation_mode=OHLC_AVG: 255/504 (50.6%), avg perf_percentSum_w_roll group 0 secret TP=183.46 (per algo)
+#   breakdown_streak_continuation_mode=HL_MID: 335/540 (62.0%), avg perf_percentSum_w_roll group 0 secret TP=182.58 (per algo)
+#   breakdown_streak_continuation_mode=OC_MID: 199/540 (36.9%), avg perf_percentSum_w_roll group 0 secret TP=179.32 (per algo)
+### test old:
 # looks like OC_MID and OHLC_AVG perform the best profit. But HL_MID has lowest durations, 2nd place is OHLC_AVG. 
 # but basically LOW is the worst by far, CLOSES is very weak too, both have low trade count 
 # tested with max trades 10
