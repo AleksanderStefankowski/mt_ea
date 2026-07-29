@@ -3,6 +3,8 @@
 require 'csv'
 require 'date'
 require 'set'
+require 'rbconfig'
+require 'open3'
 
 module CompareVariableAnalysisLib
   module_function
@@ -483,5 +485,52 @@ module CompareVariableAnalysisLib
     return [nil, nil] if dates.empty?
 
     [dates.min, dates.max]
+  end
+
+  PERF_OUTPUT_TIMESTAMP_FILENAME = 'analyze_breakdown_algos_performance_output.timestamp'
+  PERF_OUTPUT_MAX_AGE_SECONDS = 8 * 60
+
+  def perf_output_timestamp_path(script_dir)
+    File.join(script_dir, PERF_OUTPUT_TIMESTAMP_FILENAME)
+  end
+
+  def perf_output_generated_at(script_dir)
+    path = perf_output_timestamp_path(script_dir)
+    return nil unless File.file?(path)
+
+    Integer(File.read(path, encoding: 'bom|utf-8').strip)
+  rescue ArgumentError, TypeError
+    nil
+  end
+
+  def perf_output_recent?(script_dir, max_age_seconds = PERF_OUTPUT_MAX_AGE_SECONDS)
+    perf_path = File.join(script_dir, 'analyze_breakdown_algos_performance_output.csv')
+    generated_at = perf_output_generated_at(script_dir)
+    return false unless File.file?(perf_path) && generated_at
+
+    Time.now.to_i - generated_at < max_age_seconds
+  end
+
+  def refresh_breakdown_algos_performance_output!(script_dir)
+    if perf_output_recent?(script_dir)
+      generated_at = perf_output_generated_at(script_dir)
+      age_min = ((Time.now.to_i - generated_at) / 60.0).round(1)
+      warn
+      warn "Using recent analyze_breakdown_algos_performance_output*.csv " \
+           "(generated #{age_min} min ago; skip refresh if < #{PERF_OUTPUT_MAX_AGE_SECONDS / 60} min)"
+      warn
+      return
+    end
+
+    perf_generator = File.join(script_dir, 'analyze_breakdown_algos_performance_to_csv.rb')
+    warn
+    warn "Refreshing analyze_breakdown_algos_performance_output*.csv via #{File.basename(perf_generator)}..."
+    perf_output, perf_status = Open3.capture2e(RbConfig.ruby, perf_generator)
+    warn perf_output unless perf_output.empty?
+    unless perf_status.success? && perf_output.include?('RAN OK')
+      warn "ERROR: #{File.basename(perf_generator)} did not finish successfully (expected RAN OK)"
+      exit 1
+    end
+    warn
   end
 end

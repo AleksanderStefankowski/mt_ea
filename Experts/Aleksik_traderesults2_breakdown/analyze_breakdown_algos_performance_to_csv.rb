@@ -4,11 +4,14 @@
 require 'csv'
 require 'date'
 require 'set'
+require 'rbconfig'
+require 'open3'
 require_relative '../Aleksik_traderesults/analyze_traderate_common'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 INPUT_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_breakdown.tsv')
 ALGO_CONFIG_PATH = File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.csv', SCRIPT_DIR)
+BREAKDOWN_CONFIG_GENERATOR = File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos.rb', SCRIPT_DIR)
 OUTPUT_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.csv')
 FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
@@ -18,6 +21,7 @@ EXCEPT_FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
   'analyze_breakdown_algos_performance_output_except_2025flashcrash.csv'
 )
+OUTPUT_TIMESTAMP_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.timestamp')
 
 FLASHCRASH_TRADE_BEFORE = Date.new(2025, 2, 14)
 FLASHCRASH_TRADE_AFTER = Date.new(2025, 7, 1)
@@ -53,6 +57,7 @@ CSV_HEADERS = %w[
   weekly_traderate
   avg_open_exposure
   peak_open_exposure
+  main_close_reason
 ].freeze
 
 def parse_mt_datetime(value)
@@ -129,7 +134,9 @@ def load_trades(path)
       profit_custom_with_roll: parse_float(row['profit_custom_with_roll']) || 0.0,
       percent_increase_w_roll: percent_increase_w_roll(row),
       mfe_w_roll: parse_float(row['MFE_w_roll']),
-      mae_w_roll: parse_float(row['MAE_w_roll'])
+      mae_w_roll: parse_float(row['MAE_w_roll']),
+      close_decision: row['close_decision'].to_s.strip,
+      reason: row['reason'].to_s.strip
     }
   end
 
@@ -355,7 +362,8 @@ def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_
     traderate: format_float(trade_rate(trades, global_trading_day_count), 2),
     weekly_traderate: format_float(weekly_trade_rate(trades, global_full_week_mondays), 2),
     avg_open_exposure: format_float(avg_open_exposure(trades), 2),
-    peak_open_exposure: peak_open_exposure(trades)
+    peak_open_exposure: peak_open_exposure(trades),
+    main_close_reason: main_close_reason_for_trades(trades)
   }
 end
 
@@ -499,6 +507,15 @@ end
 
 if __FILE__ == $PROGRAM_NAME
 
+warn
+warn "Refreshing aleksik2_r_read_breakdown_algos_csv.csv via #{File.basename(BREAKDOWN_CONFIG_GENERATOR)}..."
+config_output, config_status = Open3.capture2e(RbConfig.ruby, BREAKDOWN_CONFIG_GENERATOR)
+warn config_output unless config_output.empty?
+unless config_status.success? && config_output.include?('RAN OK')
+  warn "ERROR: #{File.basename(BREAKDOWN_CONFIG_GENERATOR)} did not finish successfully (expected RAN OK)"
+  exit 1
+end
+
 unless File.file?(INPUT_PATH)
   warn "ERROR: input file not found: #{INPUT_PATH}"
   exit 1
@@ -596,6 +613,7 @@ else
        "(all trades except #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
 end
 
-warn 'DONE'
+File.write(OUTPUT_TIMESTAMP_PATH, Time.now.to_i.to_s)
+warn 'RAN OK'
 
 end

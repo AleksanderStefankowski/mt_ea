@@ -332,13 +332,10 @@ def print_metric_comparisons(grouped_entries)
   end
 end
 
+CompareVariableAnalysisLib.refresh_breakdown_algos_performance_output!(SCRIPT_DIR)
+
 unless File.file?(CONFIG_PATH)
   warn "ERROR: config file not found: #{CONFIG_PATH}"
-  exit 1
-end
-
-unless File.file?(PERF_PATH)
-  warn "ERROR: performance file not found: #{PERF_PATH}"
   exit 1
 end
 

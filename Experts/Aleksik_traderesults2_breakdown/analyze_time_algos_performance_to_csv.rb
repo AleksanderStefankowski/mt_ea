@@ -48,6 +48,7 @@ CSV_HEADERS = %w[
   weekly_traderate
   avg_open_exposure
   peak_open_exposure
+  main_close_reason
 ].freeze
 
 def parse_mt_datetime(value)
@@ -104,7 +105,9 @@ def load_trades(path)
       profit_custom_with_roll: parse_float(row['profit_custom_with_roll']) || 0.0,
       percent_increase_w_roll: percent_increase_w_roll(row),
       mfe_w_roll: parse_float(row['MFE_w_roll']),
-      mae_w_roll: parse_float(row['MAE_w_roll'])
+      mae_w_roll: parse_float(row['MAE_w_roll']),
+      close_decision: row['close_decision'].to_s.strip,
+      reason: row['reason'].to_s.strip
     }
   end
 
@@ -329,7 +332,8 @@ def build_algo_row(algo_id, trades, global_first_date, global_last_date, global_
     traderate: format_float(trade_rate(trades, global_trading_day_count), 2),
     weekly_traderate: format_float(weekly_trade_rate(trades, global_full_week_mondays), 2),
     avg_open_exposure: format_float(avg_open_exposure(trades), 2),
-    peak_open_exposure: peak_open_exposure(trades)
+    peak_open_exposure: peak_open_exposure(trades),
+    main_close_reason: main_close_reason_for_trades(trades)
   }
 end
 

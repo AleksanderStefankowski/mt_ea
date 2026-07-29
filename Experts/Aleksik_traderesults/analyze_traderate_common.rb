@@ -157,3 +157,43 @@ def print_loaded_trade_span_summary(
     min_trades
   )
 end
+
+def trade_close_reason_label(close_decision, reason)
+  decision = close_decision.to_s.strip
+  return decision unless decision.empty?
+
+  reason.to_s.strip
+end
+
+def main_close_reason_for_trades(trades)
+  return '' if trades.empty?
+
+  counts = Hash.new(0)
+  trades.each do |trade|
+    label = trade_close_reason_label(trade[:close_decision], trade[:reason])
+    label = '(none)' if label.empty?
+    counts[label] += 1
+  end
+
+  counts.max_by { |label, count| [count, label] }.first
+end
+
+def trade_close_reason_label(close_decision, reason)
+  decision = close_decision.to_s.strip
+  return decision unless decision.empty?
+
+  reason.to_s.strip
+end
+
+def main_close_reason_for_trades(trades)
+  return '' if trades.empty?
+
+  counts = Hash.new(0)
+  trades.each do |trade|
+    label = trade_close_reason_label(trade[:close_decision], trade[:reason])
+    label = '(none)' if label.empty?
+    counts[label] += 1
+  end
+
+  counts.max_by { |label, count| [count, label] }.first
+end
