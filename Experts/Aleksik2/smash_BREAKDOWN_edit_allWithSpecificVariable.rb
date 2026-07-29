@@ -40,9 +40,9 @@ ALLOWED_FIELDS = %w[
 BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES = 15
 
 # --- edit filter here ---
-FILTER_VARIABLE = "bd_start_min_breakdown_percent"
-FILTER_VALUES = [0.10, 0.20].freeze
-SET_VARIABLE_TO = 0.30
+FILTER_VARIABLE = "max_open_positions"
+FILTER_VALUES = [10].freeze
+SET_VARIABLE_TO = 20
 SET_ENABLED_TO = nil # set to nil to leave .enabled unchanged
 
 PARAM_ASSIGN_RE = /

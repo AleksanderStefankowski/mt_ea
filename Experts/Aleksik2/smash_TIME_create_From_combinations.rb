@@ -20,11 +20,11 @@ DESIRED_ENTRY_TIMES = [
 DESIRED_RULE_SWITCH_MAP = [1].freeze  ### [0, 1] !!!!!!!!!! Rule 1: Secret-TP babysit close is only allowed during 14:30–15:29 server time
 
 # [5.0, 10.0, 15.0, 20.0] 20.0 had most profit but 5.0 had most efficiency and still crazy profit
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 3.5, 5.0, 10.0, 15.0, 20.0].freeze # 5 10 20 # also test 2.0, 3.5. 
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 3.0, 4.0, 5.0, 6.0].freeze # 5 10 20 # also test 2.0, 3.0.  [2.0, 3.0, 5.0, 10.0, 15.0, 20.0]
 
-DESIRED_SECRET_TP_GREENGUARD_PRICEDIFF_AT_LEAST = [12.0].freeze
+DESIRED_SECRET_TP_GREENGUARD_PRICEDIFF_AT_LEAST = [10.0].freeze
 DESIRED_MAX_TRADES_PER_DAY = [1].freeze
-DESIRED_MAX_OPEN_POSITIONS = [15].freeze # 10, 15
+DESIRED_MAX_OPEN_POSITIONS = [20].freeze # 15
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [1].freeze
 
 module TimeCombinationsCreator

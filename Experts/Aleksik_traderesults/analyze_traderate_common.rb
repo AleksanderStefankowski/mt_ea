@@ -4,6 +4,16 @@ require 'date'
 require 'set'
 require_relative 'aleksik_non_trade_calendar'
 
+@traderate_account_for_banned_days = true
+
+def traderate_account_for_banned_days
+  @traderate_account_for_banned_days
+end
+
+def traderate_account_for_banned_days=(value)
+  @traderate_account_for_banned_days = !!value
+end
+
 def weekday?(date)
   !date.saturday? && !date.sunday?
 end
@@ -17,7 +27,10 @@ rescue ArgumentError
 end
 
 def countable_weekday?(date)
-  weekday?(date) && !AleksikNonTradeCalendar.non_trade_date?(date)
+  return false unless weekday?(date)
+  return true unless traderate_account_for_banned_days
+
+  !AleksikNonTradeCalendar.non_trade_date?(date)
 end
 
 def countable_weekday_count_in_range(first_date, last_date)
@@ -77,6 +90,8 @@ def mon_fri_week_in_range?(monday, first_date, last_date)
 end
 
 def mon_fri_week_fully_non_trade?(monday, first_date, last_date)
+  return false unless traderate_account_for_banned_days
+
   weekdays = (0..4).map { |i| monday + i }.select { |d| d >= first_date && d <= last_date }
   return false if weekdays.empty?
 
@@ -142,8 +157,20 @@ def print_loaded_trade_span_summary(
   io.puts "Loaded trades: #{trade_count}"
   io.puts "Trade span first day: #{format_trade_span_date(first_date)}"
   io.puts "Trade span last day: #{format_trade_span_date(last_date)}"
-  io.puts "Countable weekdays in range (excl. weekends + aleksik banned): #{trading_day_count}"
-  io.puts "Countable Mon-Fri weeks in range (excl. fully banned weeks): #{full_week_mondays.size}"
+  weekday_label =
+    if traderate_account_for_banned_days
+      'Countable weekdays in range (excl. weekends + aleksik banned)'
+    else
+      'Countable weekdays in range (excl. weekends only)'
+    end
+  week_label =
+    if traderate_account_for_banned_days
+      'Countable Mon-Fri weeks in range (excl. fully banned weeks)'
+    else
+      'Countable Mon-Fri weeks in range'
+    end
+  io.puts "#{weekday_label}: #{trading_day_count}"
+  io.puts "#{week_label}: #{full_week_mondays.size}"
 
   return unless weekly_trade_rate_check_enabled && !minimum_weekly_trade_rate.nil?
 

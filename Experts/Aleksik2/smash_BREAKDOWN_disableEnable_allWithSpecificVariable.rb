@@ -40,7 +40,7 @@ FILTER_VARIABLE = "stop_trading_today_if_thisAlgo_losing_trades_count"
 # FILTER_VALUES = [11, 18].freeze
 FILTER_VALUES = [999].freeze
 
-SET_ENABLED_TO = true
+SET_ENABLED_TO = false
 
 ENABLED_LINE_RE = /
   g_breakdownAlgos\[BreakdownAlgoSlotIndexByAlgoId\(MAGIC_BREAKDOWN(\d+)\)\]\.enabled\s*=\s*(true|false);

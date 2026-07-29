@@ -75,7 +75,7 @@ DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze # 3 
 
 ### It does not need secret TP != 0. The time-based close is independent of secret_tp_range_percent.
 # profit/minutes arrays are only expanded in the grid when closetrade_after_some_time=true.
-DESIRED_CLOSETRADE_AFTER_SOME_TIME = [true].freeze
+DESIRED_CLOSETRADE_AFTER_SOME_TIME = [false].freeze
 DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0, 5.0, 10.0, 19.0].freeze # [1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 18.0, 25.0]
 DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [800].freeze
 # NEEDED = [2.0, 5.0, 8.0]  # niezle durations, tylko 64 avg a wciaz 114 % gain?
@@ -271,7 +271,7 @@ DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [38, 62].freeze #  66  [20, 66, 75].    [
 #   entryrange_range_percentspot=38.00: 90/120 (75.0%), avg perf_avgDurationHours=134.163 (per algo)
 
 
-DESIRED_SECRET_TP_RANGE_PERCENT = [0].freeze # [45, 75, 125]  45 mialo najslabszy result w big run, na razie usuwam. usuwam tez 20 ale mozna retest. 
+DESIRED_SECRET_TP_RANGE_PERCENT = [100, 150, 200, 300, 400, 500].freeze # [45, 75, 125]  45 mialo najslabszy result w big run, na razie usuwam. usuwam tez 20 ale mozna retest. 
 # perf_percentSum_w_roll higher in head-to-head pairs:
 #   secret_tp_range_percent=0: 420/420 (100.0%), avg perf_percentSum_w_roll=76.85 (per algo)
 #   secret_tp_range_percent=75: 0/420 (0.0%), avg perf_percentSum_w_roll=45.44 (per algo)

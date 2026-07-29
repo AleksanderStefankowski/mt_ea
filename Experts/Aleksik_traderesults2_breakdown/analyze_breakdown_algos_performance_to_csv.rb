@@ -8,6 +8,8 @@ require 'rbconfig'
 require 'open3'
 require_relative '../Aleksik_traderesults/analyze_traderate_common'
 
+self.traderate_account_for_banned_days = false
+
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 INPUT_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_breakdown.tsv')
 ALGO_CONFIG_PATH = File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.csv', SCRIPT_DIR)

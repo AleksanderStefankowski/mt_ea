@@ -6,6 +6,8 @@ require 'date'
 require 'set'
 require_relative '../Aleksik_traderesults/analyze_traderate_common'
 
+self.traderate_account_for_banned_days = false
+
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 INPUT_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_time.tsv')
 OUTPUT_PATH = File.join(SCRIPT_DIR, 'analyze_time_algos_performance_output.csv')
