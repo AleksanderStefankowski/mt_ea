@@ -14710,7 +14710,7 @@ void SyncBreakdownFamilyProfileFromInputs()
    g_breakdownAlgoShared.stop_trading_if_day_has_profit_factor_above = 9999;
    g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count = 999;
    g_breakdownAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
-   g_breakdownAlgoShared.tradeSizePct = 100;
+   g_breakdownAlgoShared.tradeSizePct = 100; // bdbookmark
    g_breakdownAlgoShared.bannedRanges = "21,35,23,59;0,0,1,0";
    g_breakdownAlgoShared.tradesDays = "12345";
    // /to do;
@@ -20197,7 +20197,7 @@ void SyncTimeAlgoFamilyProfileFromInputs()
    g_timeAlgoShared.stop_trading_if_day_has_profit_factor_above = 9999;
    g_timeAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count = 999;
    g_timeAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
-   g_timeAlgoShared.tradeSizePct = 100;
+   g_timeAlgoShared.tradeSizePct = 100; // timebookmark
    g_timeAlgoShared.bannedRanges = "22,0,23,59;0,0,1,0"; // allow 21:58 entry; breakdown family still uses 21:35 ban
    g_timeAlgoShared.tradesDays = "12345";
 
