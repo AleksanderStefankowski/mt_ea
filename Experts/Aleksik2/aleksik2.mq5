@@ -43,8 +43,525 @@
 #define TIME_ALGO_REGISTRY_MAX                   5
 #define TIME_ALGO_REGISTRY_MAX_HEADROOM           3
 #define TIME_ALGO_OPEN_LIFETIME_MAX             20000
+//--- Level algo family (leading digit 3)
+#define LEVEL_ALGO_REGISTRY_MAX                  512
+#define LEVEL_ALGO_REGISTRY_MAX_HEADROOM          3
+#define LEVEL_ALGO_OPEN_LIFETIME_MAX            20000
+
+#define MAGIC_LEVEL30000001          30000001
+#define MAGIC_LEVEL30000002          30000002
+#define MAGIC_LEVEL30000003          30000003
+#define MAGIC_LEVEL30000004          30000004
+#define MAGIC_LEVEL30000005          30000005
+#define MAGIC_LEVEL30000006          30000006
+#define MAGIC_LEVEL30000007          30000007
+#define MAGIC_LEVEL30000008          30000008
+#define MAGIC_LEVEL30000009          30000009
+#define MAGIC_LEVEL30000010          30000010
+#define MAGIC_LEVEL30000011          30000011
+#define MAGIC_LEVEL30000012          30000012
+#define MAGIC_LEVEL30000013          30000013
+#define MAGIC_LEVEL30000014          30000014
+#define MAGIC_LEVEL30000015          30000015
+#define MAGIC_LEVEL30000016          30000016
+#define MAGIC_LEVEL30000017          30000017
+#define MAGIC_LEVEL30000018          30000018
+#define MAGIC_LEVEL30000019          30000019
+#define MAGIC_LEVEL30000020          30000020
+#define MAGIC_LEVEL30000021          30000021
+#define MAGIC_LEVEL30000022          30000022
+#define MAGIC_LEVEL30000023          30000023
+#define MAGIC_LEVEL30000024          30000024
+#define MAGIC_LEVEL30000025          30000025
+#define MAGIC_LEVEL30000026          30000026
+#define MAGIC_LEVEL30000027          30000027
+#define MAGIC_LEVEL30000028          30000028
+#define MAGIC_LEVEL30000029          30000029
+#define MAGIC_LEVEL30000030          30000030
+#define MAGIC_LEVEL30000031          30000031
+#define MAGIC_LEVEL30000032          30000032
+#define MAGIC_LEVEL30000033          30000033
+#define MAGIC_LEVEL30000034          30000034
+#define MAGIC_LEVEL30000035          30000035
+#define MAGIC_LEVEL30000036          30000036
+#define MAGIC_LEVEL30000037          30000037
+#define MAGIC_LEVEL30000038          30000038
+#define MAGIC_LEVEL30000039          30000039
+#define MAGIC_LEVEL30000040          30000040
+#define MAGIC_LEVEL30000041          30000041
+#define MAGIC_LEVEL30000042          30000042
+#define MAGIC_LEVEL30000043          30000043
+#define MAGIC_LEVEL30000044          30000044
+#define MAGIC_LEVEL30000045          30000045
+#define MAGIC_LEVEL30000046          30000046
+#define MAGIC_LEVEL30000047          30000047
+#define MAGIC_LEVEL30000048          30000048
+#define MAGIC_LEVEL30000049          30000049
+#define MAGIC_LEVEL30000050          30000050
+#define MAGIC_LEVEL30000051          30000051
+#define MAGIC_LEVEL30000052          30000052
+#define MAGIC_LEVEL30000053          30000053
+#define MAGIC_LEVEL30000054          30000054
+#define MAGIC_LEVEL30000055          30000055
+#define MAGIC_LEVEL30000056          30000056
+#define MAGIC_LEVEL30000057          30000057
+#define MAGIC_LEVEL30000058          30000058
+#define MAGIC_LEVEL30000059          30000059
+#define MAGIC_LEVEL30000060          30000060
+#define MAGIC_LEVEL30000061          30000061
+#define MAGIC_LEVEL30000062          30000062
+#define MAGIC_LEVEL30000063          30000063
+#define MAGIC_LEVEL30000064          30000064
+#define MAGIC_LEVEL30000065          30000065
+#define MAGIC_LEVEL30000066          30000066
+#define MAGIC_LEVEL30000067          30000067
+#define MAGIC_LEVEL30000068          30000068
+#define MAGIC_LEVEL30000069          30000069
+#define MAGIC_LEVEL30000070          30000070
+#define MAGIC_LEVEL30000071          30000071
+#define MAGIC_LEVEL30000072          30000072
+#define MAGIC_LEVEL30000073          30000073
+#define MAGIC_LEVEL30000074          30000074
+#define MAGIC_LEVEL30000075          30000075
+#define MAGIC_LEVEL30000076          30000076
+#define MAGIC_LEVEL30000077          30000077
+#define MAGIC_LEVEL30000078          30000078
+#define MAGIC_LEVEL30000079          30000079
+#define MAGIC_LEVEL30000080          30000080
+#define MAGIC_LEVEL30000081          30000081
+#define MAGIC_LEVEL30000082          30000082
+#define MAGIC_LEVEL30000083          30000083
+#define MAGIC_LEVEL30000084          30000084
+#define MAGIC_LEVEL30000085          30000085
+#define MAGIC_LEVEL30000086          30000086
+#define MAGIC_LEVEL30000087          30000087
+#define MAGIC_LEVEL30000088          30000088
+#define MAGIC_LEVEL30000089          30000089
+#define MAGIC_LEVEL30000090          30000090
+#define MAGIC_LEVEL30000091          30000091
+#define MAGIC_LEVEL30000092          30000092
+#define MAGIC_LEVEL30000093          30000093
+#define MAGIC_LEVEL30000094          30000094
+#define MAGIC_LEVEL30000095          30000095
+#define MAGIC_LEVEL30000096          30000096
+#define MAGIC_LEVEL30000097          30000097
+#define MAGIC_LEVEL30000098          30000098
+#define MAGIC_LEVEL30000099          30000099
+#define MAGIC_LEVEL30000100          30000100
+#define MAGIC_LEVEL30000101          30000101
+#define MAGIC_LEVEL30000102          30000102
+#define MAGIC_LEVEL30000103          30000103
+#define MAGIC_LEVEL30000104          30000104
+#define MAGIC_LEVEL30000105          30000105
+#define MAGIC_LEVEL30000106          30000106
+#define MAGIC_LEVEL30000107          30000107
+#define MAGIC_LEVEL30000108          30000108
+#define MAGIC_LEVEL30000109          30000109
+#define MAGIC_LEVEL30000110          30000110
+#define MAGIC_LEVEL30000111          30000111
+#define MAGIC_LEVEL30000112          30000112
+#define MAGIC_LEVEL30000113          30000113
+#define MAGIC_LEVEL30000114          30000114
+#define MAGIC_LEVEL30000115          30000115
+#define MAGIC_LEVEL30000116          30000116
+#define MAGIC_LEVEL30000117          30000117
+#define MAGIC_LEVEL30000118          30000118
+#define MAGIC_LEVEL30000119          30000119
+#define MAGIC_LEVEL30000120          30000120
+#define MAGIC_LEVEL30000121          30000121
+#define MAGIC_LEVEL30000122          30000122
+#define MAGIC_LEVEL30000123          30000123
+#define MAGIC_LEVEL30000124          30000124
+#define MAGIC_LEVEL30000125          30000125
+#define MAGIC_LEVEL30000126          30000126
+#define MAGIC_LEVEL30000127          30000127
+#define MAGIC_LEVEL30000128          30000128
+#define MAGIC_LEVEL30000129          30000129
+#define MAGIC_LEVEL30000130          30000130
+#define MAGIC_LEVEL30000131          30000131
+#define MAGIC_LEVEL30000132          30000132
+#define MAGIC_LEVEL30000133          30000133
+#define MAGIC_LEVEL30000134          30000134
+#define MAGIC_LEVEL30000135          30000135
+#define MAGIC_LEVEL30000136          30000136
+#define MAGIC_LEVEL30000137          30000137
+#define MAGIC_LEVEL30000138          30000138
+#define MAGIC_LEVEL30000139          30000139
+#define MAGIC_LEVEL30000140          30000140
+#define MAGIC_LEVEL30000141          30000141
+#define MAGIC_LEVEL30000142          30000142
+#define MAGIC_LEVEL30000143          30000143
+#define MAGIC_LEVEL30000144          30000144
+#define MAGIC_LEVEL30000145          30000145
+#define MAGIC_LEVEL30000146          30000146
+#define MAGIC_LEVEL30000147          30000147
+#define MAGIC_LEVEL30000148          30000148
+#define MAGIC_LEVEL30000149          30000149
+#define MAGIC_LEVEL30000150          30000150
+#define MAGIC_LEVEL30000151          30000151
+#define MAGIC_LEVEL30000152          30000152
+#define MAGIC_LEVEL30000153          30000153
+#define MAGIC_LEVEL30000154          30000154
+#define MAGIC_LEVEL30000155          30000155
+#define MAGIC_LEVEL30000156          30000156
+#define MAGIC_LEVEL30000157          30000157
+#define MAGIC_LEVEL30000158          30000158
+#define MAGIC_LEVEL30000159          30000159
+#define MAGIC_LEVEL30000160          30000160
+#define MAGIC_LEVEL30000161          30000161
+#define MAGIC_LEVEL30000162          30000162
+#define MAGIC_LEVEL30000163          30000163
+#define MAGIC_LEVEL30000164          30000164
+#define MAGIC_LEVEL30000165          30000165
+#define MAGIC_LEVEL30000166          30000166
+#define MAGIC_LEVEL30000167          30000167
+#define MAGIC_LEVEL30000168          30000168
+#define MAGIC_LEVEL30000169          30000169
+#define MAGIC_LEVEL30000170          30000170
+#define MAGIC_LEVEL30000171          30000171
+#define MAGIC_LEVEL30000172          30000172
+#define MAGIC_LEVEL30000173          30000173
+#define MAGIC_LEVEL30000174          30000174
+#define MAGIC_LEVEL30000175          30000175
+#define MAGIC_LEVEL30000176          30000176
+#define MAGIC_LEVEL30000177          30000177
+#define MAGIC_LEVEL30000178          30000178
+#define MAGIC_LEVEL30000179          30000179
+#define MAGIC_LEVEL30000180          30000180
+#define MAGIC_LEVEL30000181          30000181
+#define MAGIC_LEVEL30000182          30000182
+#define MAGIC_LEVEL30000183          30000183
+#define MAGIC_LEVEL30000184          30000184
+#define MAGIC_LEVEL30000185          30000185
+#define MAGIC_LEVEL30000186          30000186
+#define MAGIC_LEVEL30000187          30000187
+#define MAGIC_LEVEL30000188          30000188
+#define MAGIC_LEVEL30000189          30000189
+#define MAGIC_LEVEL30000190          30000190
+#define MAGIC_LEVEL30000191          30000191
+#define MAGIC_LEVEL30000192          30000192
+#define MAGIC_LEVEL30000193          30000193
+#define MAGIC_LEVEL30000194          30000194
+#define MAGIC_LEVEL30000195          30000195
+#define MAGIC_LEVEL30000196          30000196
+#define MAGIC_LEVEL30000197          30000197
+#define MAGIC_LEVEL30000198          30000198
+#define MAGIC_LEVEL30000199          30000199
+#define MAGIC_LEVEL30000200          30000200
+#define MAGIC_LEVEL30000201          30000201
+#define MAGIC_LEVEL30000202          30000202
+#define MAGIC_LEVEL30000203          30000203
+#define MAGIC_LEVEL30000204          30000204
+#define MAGIC_LEVEL30000205          30000205
+#define MAGIC_LEVEL30000206          30000206
+#define MAGIC_LEVEL30000207          30000207
+#define MAGIC_LEVEL30000208          30000208
+#define MAGIC_LEVEL30000209          30000209
+#define MAGIC_LEVEL30000210          30000210
+#define MAGIC_LEVEL30000211          30000211
+#define MAGIC_LEVEL30000212          30000212
+#define MAGIC_LEVEL30000213          30000213
+#define MAGIC_LEVEL30000214          30000214
+#define MAGIC_LEVEL30000215          30000215
+#define MAGIC_LEVEL30000216          30000216
+#define MAGIC_LEVEL30000217          30000217
+#define MAGIC_LEVEL30000218          30000218
+#define MAGIC_LEVEL30000219          30000219
+#define MAGIC_LEVEL30000220          30000220
+#define MAGIC_LEVEL30000221          30000221
+#define MAGIC_LEVEL30000222          30000222
+#define MAGIC_LEVEL30000223          30000223
+#define MAGIC_LEVEL30000224          30000224
+#define MAGIC_LEVEL30000225          30000225
+#define MAGIC_LEVEL30000226          30000226
+#define MAGIC_LEVEL30000227          30000227
+#define MAGIC_LEVEL30000228          30000228
+#define MAGIC_LEVEL30000229          30000229
+#define MAGIC_LEVEL30000230          30000230
+#define MAGIC_LEVEL30000231          30000231
+#define MAGIC_LEVEL30000232          30000232
+#define MAGIC_LEVEL30000233          30000233
+#define MAGIC_LEVEL30000234          30000234
+#define MAGIC_LEVEL30000235          30000235
+#define MAGIC_LEVEL30000236          30000236
+#define MAGIC_LEVEL30000237          30000237
+#define MAGIC_LEVEL30000238          30000238
+#define MAGIC_LEVEL30000239          30000239
+#define MAGIC_LEVEL30000240          30000240
+#define MAGIC_LEVEL30000241          30000241
+#define MAGIC_LEVEL30000242          30000242
+#define MAGIC_LEVEL30000243          30000243
+#define MAGIC_LEVEL30000244          30000244
+#define MAGIC_LEVEL30000245          30000245
+#define MAGIC_LEVEL30000246          30000246
+#define MAGIC_LEVEL30000247          30000247
+#define MAGIC_LEVEL30000248          30000248
+#define MAGIC_LEVEL30000249          30000249
+#define MAGIC_LEVEL30000250          30000250
+#define MAGIC_LEVEL30000251          30000251
+#define MAGIC_LEVEL30000252          30000252
+#define MAGIC_LEVEL30000253          30000253
+#define MAGIC_LEVEL30000254          30000254
+#define MAGIC_LEVEL30000255          30000255
+#define MAGIC_LEVEL30000256          30000256
+#define MAGIC_LEVEL30000257          30000257
+#define MAGIC_LEVEL30000258          30000258
+#define MAGIC_LEVEL30000259          30000259
+#define MAGIC_LEVEL30000260          30000260
+#define MAGIC_LEVEL30000261          30000261
+#define MAGIC_LEVEL30000262          30000262
+#define MAGIC_LEVEL30000263          30000263
+#define MAGIC_LEVEL30000264          30000264
+#define MAGIC_LEVEL30000265          30000265
+#define MAGIC_LEVEL30000266          30000266
+#define MAGIC_LEVEL30000267          30000267
+#define MAGIC_LEVEL30000268          30000268
+#define MAGIC_LEVEL30000269          30000269
+#define MAGIC_LEVEL30000270          30000270
+#define MAGIC_LEVEL30000271          30000271
+#define MAGIC_LEVEL30000272          30000272
+#define MAGIC_LEVEL30000273          30000273
+#define MAGIC_LEVEL30000274          30000274
+#define MAGIC_LEVEL30000275          30000275
+#define MAGIC_LEVEL30000276          30000276
+#define MAGIC_LEVEL30000277          30000277
+#define MAGIC_LEVEL30000278          30000278
+#define MAGIC_LEVEL30000279          30000279
+#define MAGIC_LEVEL30000280          30000280
+#define MAGIC_LEVEL30000281          30000281
+#define MAGIC_LEVEL30000282          30000282
+#define MAGIC_LEVEL30000283          30000283
+#define MAGIC_LEVEL30000284          30000284
+#define MAGIC_LEVEL30000285          30000285
+#define MAGIC_LEVEL30000286          30000286
+#define MAGIC_LEVEL30000287          30000287
+#define MAGIC_LEVEL30000288          30000288
+#define MAGIC_LEVEL30000289          30000289
+#define MAGIC_LEVEL30000290          30000290
+#define MAGIC_LEVEL30000291          30000291
+#define MAGIC_LEVEL30000292          30000292
+#define MAGIC_LEVEL30000293          30000293
+#define MAGIC_LEVEL30000294          30000294
+#define MAGIC_LEVEL30000295          30000295
+#define MAGIC_LEVEL30000296          30000296
+#define MAGIC_LEVEL30000297          30000297
+#define MAGIC_LEVEL30000298          30000298
+#define MAGIC_LEVEL30000299          30000299
+#define MAGIC_LEVEL30000300          30000300
+#define MAGIC_LEVEL30000301          30000301
+#define MAGIC_LEVEL30000302          30000302
+#define MAGIC_LEVEL30000303          30000303
+#define MAGIC_LEVEL30000304          30000304
+#define MAGIC_LEVEL30000305          30000305
+#define MAGIC_LEVEL30000306          30000306
+#define MAGIC_LEVEL30000307          30000307
+#define MAGIC_LEVEL30000308          30000308
+#define MAGIC_LEVEL30000309          30000309
+#define MAGIC_LEVEL30000310          30000310
+#define MAGIC_LEVEL30000311          30000311
+#define MAGIC_LEVEL30000312          30000312
+#define MAGIC_LEVEL30000313          30000313
+#define MAGIC_LEVEL30000314          30000314
+#define MAGIC_LEVEL30000315          30000315
+#define MAGIC_LEVEL30000316          30000316
+#define MAGIC_LEVEL30000317          30000317
+#define MAGIC_LEVEL30000318          30000318
+#define MAGIC_LEVEL30000319          30000319
+#define MAGIC_LEVEL30000320          30000320
+#define MAGIC_LEVEL30000321          30000321
+#define MAGIC_LEVEL30000322          30000322
+#define MAGIC_LEVEL30000323          30000323
+#define MAGIC_LEVEL30000324          30000324
+#define MAGIC_LEVEL30000325          30000325
+#define MAGIC_LEVEL30000326          30000326
+#define MAGIC_LEVEL30000327          30000327
+#define MAGIC_LEVEL30000328          30000328
+#define MAGIC_LEVEL30000329          30000329
+#define MAGIC_LEVEL30000330          30000330
+#define MAGIC_LEVEL30000331          30000331
+#define MAGIC_LEVEL30000332          30000332
+#define MAGIC_LEVEL30000333          30000333
+#define MAGIC_LEVEL30000334          30000334
+#define MAGIC_LEVEL30000335          30000335
+#define MAGIC_LEVEL30000336          30000336
+#define MAGIC_LEVEL30000337          30000337
+#define MAGIC_LEVEL30000338          30000338
+#define MAGIC_LEVEL30000339          30000339
+#define MAGIC_LEVEL30000340          30000340
+#define MAGIC_LEVEL30000341          30000341
+#define MAGIC_LEVEL30000342          30000342
+#define MAGIC_LEVEL30000343          30000343
+#define MAGIC_LEVEL30000344          30000344
+#define MAGIC_LEVEL30000345          30000345
+#define MAGIC_LEVEL30000346          30000346
+#define MAGIC_LEVEL30000347          30000347
+#define MAGIC_LEVEL30000348          30000348
+#define MAGIC_LEVEL30000349          30000349
+#define MAGIC_LEVEL30000350          30000350
+#define MAGIC_LEVEL30000351          30000351
+#define MAGIC_LEVEL30000352          30000352
+#define MAGIC_LEVEL30000353          30000353
+#define MAGIC_LEVEL30000354          30000354
+#define MAGIC_LEVEL30000355          30000355
+#define MAGIC_LEVEL30000356          30000356
+#define MAGIC_LEVEL30000357          30000357
+#define MAGIC_LEVEL30000358          30000358
+#define MAGIC_LEVEL30000359          30000359
+#define MAGIC_LEVEL30000360          30000360
+#define MAGIC_LEVEL30000361          30000361
+#define MAGIC_LEVEL30000362          30000362
+#define MAGIC_LEVEL30000363          30000363
+#define MAGIC_LEVEL30000364          30000364
+#define MAGIC_LEVEL30000365          30000365
+#define MAGIC_LEVEL30000366          30000366
+#define MAGIC_LEVEL30000367          30000367
+#define MAGIC_LEVEL30000368          30000368
+#define MAGIC_LEVEL30000369          30000369
+#define MAGIC_LEVEL30000370          30000370
+#define MAGIC_LEVEL30000371          30000371
+#define MAGIC_LEVEL30000372          30000372
+#define MAGIC_LEVEL30000373          30000373
+#define MAGIC_LEVEL30000374          30000374
+#define MAGIC_LEVEL30000375          30000375
+#define MAGIC_LEVEL30000376          30000376
+#define MAGIC_LEVEL30000377          30000377
+#define MAGIC_LEVEL30000378          30000378
+#define MAGIC_LEVEL30000379          30000379
+#define MAGIC_LEVEL30000380          30000380
+#define MAGIC_LEVEL30000381          30000381
+#define MAGIC_LEVEL30000382          30000382
+#define MAGIC_LEVEL30000383          30000383
+#define MAGIC_LEVEL30000384          30000384
+#define MAGIC_LEVEL30000385          30000385
+#define MAGIC_LEVEL30000386          30000386
+#define MAGIC_LEVEL30000387          30000387
+#define MAGIC_LEVEL30000388          30000388
+#define MAGIC_LEVEL30000389          30000389
+#define MAGIC_LEVEL30000390          30000390
+#define MAGIC_LEVEL30000391          30000391
+#define MAGIC_LEVEL30000392          30000392
+#define MAGIC_LEVEL30000393          30000393
+#define MAGIC_LEVEL30000394          30000394
+#define MAGIC_LEVEL30000395          30000395
+#define MAGIC_LEVEL30000396          30000396
+#define MAGIC_LEVEL30000397          30000397
+#define MAGIC_LEVEL30000398          30000398
+#define MAGIC_LEVEL30000399          30000399
+#define MAGIC_LEVEL30000400          30000400
+#define MAGIC_LEVEL30000401          30000401
+#define MAGIC_LEVEL30000402          30000402
+#define MAGIC_LEVEL30000403          30000403
+#define MAGIC_LEVEL30000404          30000404
+#define MAGIC_LEVEL30000405          30000405
+#define MAGIC_LEVEL30000406          30000406
+#define MAGIC_LEVEL30000407          30000407
+#define MAGIC_LEVEL30000408          30000408
+#define MAGIC_LEVEL30000409          30000409
+#define MAGIC_LEVEL30000410          30000410
+#define MAGIC_LEVEL30000411          30000411
+#define MAGIC_LEVEL30000412          30000412
+#define MAGIC_LEVEL30000413          30000413
+#define MAGIC_LEVEL30000414          30000414
+#define MAGIC_LEVEL30000415          30000415
+#define MAGIC_LEVEL30000416          30000416
+#define MAGIC_LEVEL30000417          30000417
+#define MAGIC_LEVEL30000418          30000418
+#define MAGIC_LEVEL30000419          30000419
+#define MAGIC_LEVEL30000420          30000420
+#define MAGIC_LEVEL30000421          30000421
+#define MAGIC_LEVEL30000422          30000422
+#define MAGIC_LEVEL30000423          30000423
+#define MAGIC_LEVEL30000424          30000424
+#define MAGIC_LEVEL30000425          30000425
+#define MAGIC_LEVEL30000426          30000426
+#define MAGIC_LEVEL30000427          30000427
+#define MAGIC_LEVEL30000428          30000428
+#define MAGIC_LEVEL30000429          30000429
+#define MAGIC_LEVEL30000430          30000430
+#define MAGIC_LEVEL30000431          30000431
+#define MAGIC_LEVEL30000432          30000432
+#define MAGIC_LEVEL30000433          30000433
+#define MAGIC_LEVEL30000434          30000434
+#define MAGIC_LEVEL30000435          30000435
+#define MAGIC_LEVEL30000436          30000436
+#define MAGIC_LEVEL30000437          30000437
+#define MAGIC_LEVEL30000438          30000438
+#define MAGIC_LEVEL30000439          30000439
+#define MAGIC_LEVEL30000440          30000440
+#define MAGIC_LEVEL30000441          30000441
+#define MAGIC_LEVEL30000442          30000442
+#define MAGIC_LEVEL30000443          30000443
+#define MAGIC_LEVEL30000444          30000444
+#define MAGIC_LEVEL30000445          30000445
+#define MAGIC_LEVEL30000446          30000446
+#define MAGIC_LEVEL30000447          30000447
+#define MAGIC_LEVEL30000448          30000448
+#define MAGIC_LEVEL30000449          30000449
+#define MAGIC_LEVEL30000450          30000450
+#define MAGIC_LEVEL30000451          30000451
+#define MAGIC_LEVEL30000452          30000452
+#define MAGIC_LEVEL30000453          30000453
+#define MAGIC_LEVEL30000454          30000454
+#define MAGIC_LEVEL30000455          30000455
+#define MAGIC_LEVEL30000456          30000456
+#define MAGIC_LEVEL30000457          30000457
+#define MAGIC_LEVEL30000458          30000458
+#define MAGIC_LEVEL30000459          30000459
+#define MAGIC_LEVEL30000460          30000460
+#define MAGIC_LEVEL30000461          30000461
+#define MAGIC_LEVEL30000462          30000462
+#define MAGIC_LEVEL30000463          30000463
+#define MAGIC_LEVEL30000464          30000464
+#define MAGIC_LEVEL30000465          30000465
+#define MAGIC_LEVEL30000466          30000466
+#define MAGIC_LEVEL30000467          30000467
+#define MAGIC_LEVEL30000468          30000468
+#define MAGIC_LEVEL30000469          30000469
+#define MAGIC_LEVEL30000470          30000470
+#define MAGIC_LEVEL30000471          30000471
+#define MAGIC_LEVEL30000472          30000472
+#define MAGIC_LEVEL30000473          30000473
+#define MAGIC_LEVEL30000474          30000474
+#define MAGIC_LEVEL30000475          30000475
+#define MAGIC_LEVEL30000476          30000476
+#define MAGIC_LEVEL30000477          30000477
+#define MAGIC_LEVEL30000478          30000478
+#define MAGIC_LEVEL30000479          30000479
+#define MAGIC_LEVEL30000480          30000480
+#define MAGIC_LEVEL30000481          30000481
+#define MAGIC_LEVEL30000482          30000482
+#define MAGIC_LEVEL30000483          30000483
+#define MAGIC_LEVEL30000484          30000484
+#define MAGIC_LEVEL30000485          30000485
+#define MAGIC_LEVEL30000486          30000486
+#define MAGIC_LEVEL30000487          30000487
+#define MAGIC_LEVEL30000488          30000488
+#define MAGIC_LEVEL30000489          30000489
+#define MAGIC_LEVEL30000490          30000490
+#define MAGIC_LEVEL30000491          30000491
+#define MAGIC_LEVEL30000492          30000492
+#define MAGIC_LEVEL30000493          30000493
+#define MAGIC_LEVEL30000494          30000494
+#define MAGIC_LEVEL30000495          30000495
+#define MAGIC_LEVEL30000496          30000496
+#define MAGIC_LEVEL30000497          30000497
+#define MAGIC_LEVEL30000498          30000498
+#define MAGIC_LEVEL30000499          30000499
+#define MAGIC_LEVEL30000500          30000500
+#define MAGIC_LEVEL30000501          30000501
+#define MAGIC_LEVEL30000502          30000502
+#define MAGIC_LEVEL30000503          30000503
+#define MAGIC_LEVEL30000504          30000504
+#define MAGIC_LEVEL30000505          30000505
+#define MAGIC_LEVEL30000506          30000506
+#define MAGIC_LEVEL30000507          30000507
+#define MAGIC_LEVEL30000508          30000508
+#define MAGIC_LEVEL30000509          30000509
+#define MAGIC_LEVEL30000510          30000510
+#define MAGIC_LEVEL30000511          30000511
+#define MAGIC_LEVEL30000512          30000512
 //--- Cross-family
-#define ALGO_OCCUPIED_CACHE_MAX (ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + TIME_ALGO_REGISTRY_MAX)
+#define ALGO_OCCUPIED_CACHE_MAX (ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + TIME_ALGO_REGISTRY_MAX + LEVEL_ALGO_REGISTRY_MAX)
 //--- Trade history (per calendar day buffers)
 #define MAX_TRADE_RESULTS                   1000000
 #define MAX_DEALS_DAY            (MAX_TRADE_RESULTS * 2)  // IN+OUT deals per day
@@ -114,10 +631,13 @@ bool     maemfe_testing             = false; // if tru: all trades use TP=SL=300
 bool     bigflipper_log_algo_trade_results_csv             = false; // (date)_summaryZ_tradeResults_ALL_Day_algoN.csv
 bool     bigflipper_log_summary_tradeResults_all_days_breakdown = true;  // summary_tradeResults_all_days_breakdown.tsv — truncated on OnInit; append on close
 bool     bigflipper_log_summary_tradeResults_all_days_time = true;  // summary_tradeResults_all_days_time.tsv — truncated on OnInit; append on close
+bool     bigflipper_log_summary_tradeResults_all_days_level = true;  // summary_tradeResults_all_days_level.tsv — truncated on OnInit; append on close
 bool     bigflipper_log_summary_tradeResults_all_days2_breakdown = true;  // summary_tradeResults_all_days2_breakdown.csv — same data as all_days; OnInit truncate; append on close
 bool     bigflipper_log_summary_tradeResults_all_days2_time = true;  // summary_tradeResults_all_days2_time.csv — same data as all_days; OnInit truncate; append on close
+bool     bigflipper_log_summary_tradeResults_all_days2_level = true;  // summary_tradeResults_all_days2_level.csv — same data as all_days; OnInit truncate; append on close
 bool     bigflipper_log_breakdown_trade_lifetime             = false;  // bdalgoN_alltrades_log.csv + benchmark_all_algos_breakdown.csv — truncated on OnInit each run
 bool     bigflipper_log_time_algo_trade_lifetime             = false;  // timealgoN_alltrades_log.csv + benchmark_all_algos_time.csv — truncated on OnInit each run
+bool     bigflipper_log_level_algo_trade_lifetime            = false;  // levelalgoN_alltrades_log.csv + benchmark_all_algos_level.csv — truncated on OnInit each run
 bool     bigflipper_log_all_breakdowns                       = true;  // all_breakdowns_{type}_streakNorMore.csv + all_breakdowns_summaries.csv — per run, OnInit truncate
 #define  BREAKDOWN_AUDIT_LOG_MIN_STREAK_ARG                   3
 double   BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG = 0.20;  // strong-red M15 start gate for audit log only
@@ -129,6 +649,7 @@ bool     bigflipper_log_B_TradeLog                        = false;  // (date)_B_
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
 bool     bigflipper_log_algo_gates_per_minute              = false;  // (date)_algoN_gates_per_minute.csv — enabled algos only
+bool     bigflipper_log_level_algo_gates_per_minute        = false;  // (date)_levelalgoN_gates_per_minute.csv — enabled level algos only
 int      eod_log_start_hour                                =  21;  // originally 21 // EOD log window start (server time; broker clock incl. DST)
 int      eod_log_start_minute                              =  58;  // originally 58
 int      eod_log_end_hour                                  =  22;  // originally 22 EOD log window end inclusive (server time)
@@ -136,6 +657,7 @@ int      eod_log_end_minute                                =   0;  // originally
 //--- Per-second logs (shared time window below)
 bool     bigflipper_log_testing_algofamily_per_second      = false;  // (date)_pullinghistory_b_algofamily_per_second_weekly.csv + _daily.csv
 bool     bigflipper_log_algo_gates_per_second              = false;  // (date)_algoN_gates_per_second.csv — enabled algos only
+bool     bigflipper_log_level_algo_gates_per_second        = false;  // (date)_levelalgoN_gates_per_second.csv — enabled level algos only
 int      per_second_log_start_hour                         =   10;  // shared inclusive window start (server time) — per-second logs above
 int      per_second_log_start_minute                       =  33;
 int      per_second_log_end_hour                           =  10;  // shared inclusive window end (server time)
@@ -143,7 +665,7 @@ int      per_second_log_end_minute                         =  34;
 bool     backtest_profile_enabled                          = true;   // strategy tester only: section wall-time → backtest_profile_*.csv
 // false: backtest — incremental closed bars only; full replay on new day / track change / bar shrink.
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
-bool     bigflipper_pullinghistory_always_full_replay      = false; // ALGOBOOKMARKLIVE
+bool     bigflipper_pullinghistory_always_full_replay      = false; // REALBOOKMARK LIVEBOOKMARK
 bool     bigflipper_friday_api_pull_all_trades            = false;  // 1st Fri of month 14:00 server: History deals → API_friday_pull_all_trades.csv
 string   bigflipper_stop_trading_after_date               = "2028.12.20"; // "2028.12.20" YYYY.MM.DD server calendar; BOOKMARK bookmark placement off after this day; babysit unaffected; "" = disabled
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
@@ -215,9 +737,11 @@ const long DEFAULT_ORDER_MAGIC = 47001; // restore CTrade magic when not using a
 
 //--- Algo family = leading digit of 8-digit algo id (single edit point)
 // time:      digit 1  => 10000000..19999999
-// breakdown: digits 2..9 => 20000000..99999999
+// level:     digit 3  => 30000000..39999999
+// breakdown: digits 2,4..9 => 20000000..99999999 (digit 3 reserved for level fam)
 #define FALGO_ALGO_FAMILY_LEADING_DIGIT_SCALE  10000000   // 10^(FALGO_MAGIC_LENGTH_ALGO-1)
 #define FALGO_ALGO_FAMILY_TIME_DIGIT             1
+#define FALGO_ALGO_FAMILY_LEVEL_DIGIT            3
 #define FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MIN    2
 #define FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MAX    9
 CTrade ExtTrade;
@@ -358,7 +882,9 @@ datetime g_fridayApiPullDoneForDayStart = 0;
 #define BACKTEST_PROF_OUTSIDE_GAP_NO_OPEN_PEND0               (BACKTEST_PROF_OUTSIDE_GAP_TIME_OPEN_STEADY_PEND0 + BACKTEST_PROF_GAP_PENDING_BUCKET_COUNT)
 #define BACKTEST_PROF_BABYSIT_BREAKDOWN                       (BACKTEST_PROF_OUTSIDE_GAP_NO_OPEN_PEND0 + BACKTEST_PROF_GAP_PENDING_BUCKET_COUNT)
 #define BACKTEST_PROF_BABYSIT_TIME                            (BACKTEST_PROF_BABYSIT_BREAKDOWN + 1)
-#define BACKTEST_PROF_SECTION_COUNT                           (BACKTEST_PROF_BABYSIT_TIME + 1)
+#define BACKTEST_PROF_LEVEL_ALGO_PLACEMENT                      (BACKTEST_PROF_BABYSIT_TIME + 1)
+#define BACKTEST_PROF_BABYSIT_LEVEL                             (BACKTEST_PROF_LEVEL_ALGO_PLACEMENT + 1)
+#define BACKTEST_PROF_SECTION_COUNT                           (BACKTEST_PROF_BABYSIT_LEVEL + 1)
 
 #define BACKTEST_PROF_SCOPE_NONE                              0
 #define BACKTEST_PROF_SCOPE_ONINIT                            1
@@ -526,6 +1052,8 @@ string BacktestProfSectionLabel(const int section)
       case BACKTEST_PROF_TELEMETRY_PER_SEC_TIME:               return "telemetry_per_sec_time";
       case BACKTEST_PROF_BABYSIT_BREAKDOWN:                    return "babysit_bd";
       case BACKTEST_PROF_BABYSIT_TIME:                         return "babysit_time";
+      case BACKTEST_PROF_LEVEL_ALGO_PLACEMENT:                 return "level_algo_placement";
+      case BACKTEST_PROF_BABYSIT_LEVEL:                        return "babysit_level";
    }
    if(section >= BACKTEST_PROF_OUTSIDE_GAP_BD_OPEN_M1_CLOSE_PEND0
       && section < BACKTEST_PROF_OUTSIDE_GAP_NO_OPEN_PEND0 + BACKTEST_PROF_GAP_PENDING_BUCKET_COUNT)
@@ -1679,7 +2207,7 @@ struct TimeAlgoSharedProfile
    string bannedRanges;
    string tradesDays;
    bool   babysit_enabled;
-   bool   blockPlacementIfFamilyOpenOrPending;
+   bool   blockPlacementIfFamilyOpenOrPending;  // any time-fam algo open/pending on _Symbol
    int    stop_trading_today_if_AllAlgos_losing_trades_count;
    int    stop_trading_today_if_AllAlgos_winning_trades_count;
    int    stop_trading_if_day_has_X_wins_0_losses;
@@ -1708,7 +2236,7 @@ int                   g_timeAlgoDayTradesToday[TIME_ALGO_REGISTRY_MAX];
 int                   g_timeAlgoTradesAll[TIME_ALGO_REGISTRY_MAX];
 int                   g_timeAlgoNextTradeCustomId[TIME_ALGO_REGISTRY_MAX];
 
-struct TimeAlgoOpenTradeLifetimeRec
+struct FalgoSecretTpLifetimeRec
 {
    ulong    positionId;
    int      algoNumber;
@@ -1750,8 +2278,94 @@ struct TimeAlgoBenchmarkAcc
    double sumLifetimeHours;
 };
 
-TimeAlgoOpenTradeLifetimeRec g_timeAlgoOpenLifetime[TIME_ALGO_OPEN_LIFETIME_MAX];
+FalgoSecretTpLifetimeRec g_timeAlgoOpenLifetime[TIME_ALGO_OPEN_LIFETIME_MAX];
 TimeAlgoBenchmarkAcc         g_timeAlgoBenchmarkAcc[TIME_ALGO_REGISTRY_MAX];
+
+//--- Level algo family (leading digit 3): limit-buy at tagged levels
+struct LevelAlgoSharedProfile
+{
+   bool   use_banned_days;
+   int    tradeSizePct;
+   string bannedRanges;
+   string tradesDays;
+   bool   babysit_enabled;
+   bool   blockPlacementIfFamilyOpenOrPending;  // any level-fam algo open/pending on _Symbol
+   bool   cannotTrade__when_levelFamOpenOrPendingNearLevel;  // any level-fam open/pending near level price
+   int    stop_trading_today_if_AllAlgos_losing_trades_count;
+   int    stop_trading_today_if_AllAlgos_winning_trades_count;
+   int    stop_trading_if_day_has_X_wins_0_losses;
+   double stop_trading_if_day_has_profit_factor_above;
+};
+
+struct LevelAlgoDef
+{
+   int     algo_id;
+   bool    enabled;
+   int     stop_trading_today_if_thisAlgo_losing_trades_count;
+   int     stop_trading_today_if_thisAlgo_winning_trades_count;
+   int     stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count;
+   int     expiry_minutes;
+   int     this_algo_max_concurrent_pending_trades;
+   int     max_open_positions;
+   double  secret_tp_profit_percent_min;
+   double  secret_tp_greenguard_pricediff_at_least;
+   double  price_proximity_above_level;
+   bool    level_needs_to_be_below_ONO;
+   bool    offset_positive;
+   double  offset_percentage;
+   double  cannotTrade__when_levelProximity_multiplyOffset;
+   bool    cannotTrade__when_thisAlgoOpenOrPendingNearLevel;  // this algo only, near level price
+   bool    trades_weekly;
+   bool    trades_daily;
+   string  trades_tags[];
+   double  real_tp;
+   int     rule_switch_map;
+};
+
+LevelAlgoSharedProfile       g_levelAlgoShared;
+LevelAlgoDef                 g_levelAlgos[LEVEL_ALGO_REGISTRY_MAX];
+int                          g_levelAlgoCount = 0;
+int                          g_levelAlgoDayTradesToday[LEVEL_ALGO_REGISTRY_MAX];
+int                          g_levelAlgoDayWins[LEVEL_ALGO_REGISTRY_MAX];
+int                          g_levelAlgoDayLosses[LEVEL_ALGO_REGISTRY_MAX];
+datetime                     g_levelAlgoDayTradeCountsDayStartMarker = 0;
+FalgoSecretTpLifetimeRec g_levelAlgoOpenLifetime[LEVEL_ALGO_OPEN_LIFETIME_MAX];
+int                          g_levelAlgoLifetimePosMapSlot[FALGO_LIFETIME_POS_MAP_BUCKETS];
+ulong                        g_levelAlgoLifetimePosMapKey[FALGO_LIFETIME_POS_MAP_BUCKETS];
+int                          g_levelAlgoBannedRangeCount = 0;
+datetime                     g_levelAlgoGatesLastLoggedBarTime[LEVEL_ALGO_REGISTRY_MAX];
+datetime                     g_levelAlgoGatesPerSecondLastLoggedTime[LEVEL_ALGO_REGISTRY_MAX];
+int                          g_levelAlgoGatesPmFileHandle[LEVEL_ALGO_REGISTRY_MAX];
+int                          g_levelAlgoGatesPsFileHandle[LEVEL_ALGO_REGISTRY_MAX];
+datetime                     g_levelAlgoGatesLogFileDayStart = 0;
+
+bool IsLevelFamilyAlgoNumber(const int algoNumber);
+bool IsLevelFamilyCompositeMagic(const long magic);
+int LevelAlgoSlotIndexByAlgoId(const int algoNumber);
+int LevelAlgoOpenLifetimeSlotByPositionId(const ulong positionId);
+bool Babysitf_falgo_runLevelAlgoSecretTpExit(const long posMagic, const double rolloverForGuard, const int lifeIdx);
+void LevelAlgoRememberPendingCloseReason(const ulong positionId, const string reason);
+void LevelAlgoRememberCloseDecision(const ulong positionId, const string decision, const string detail);
+void LevelAlgoOpenLifetimePosMapRebuild();
+void LevelAlgoRebuildDayCountersFromLoadedTradeResults(const datetime dayStart);
+void LevelAlgoLogTradeOpenedLifetime(const ulong positionId, const long magic, const datetime fillTime, const double fillPrice, const ulong orderTicket);
+void LevelAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMagic, const datetime closeTime, const double closePriceIn, const ENUM_DEAL_REASON dealReason, const double closeProfitIn);
+void SyncLevelAlgoFamilyProfileFromInputs();
+void RunLevelAlgoPlacementOnM1Close(const int barIdx);
+void LevelAlgoHydrateSecretTpFromOpenPositionsOnInit();
+void LevelAlgoGatesLogInitFileHandles();
+void LevelAlgoGatesLogCloseAllFileHandles();
+void LevelAlgoTryLogGatesForClosedMinute();
+void LevelAlgoTryLogGatesPerSecond();
+double GetTradeLotForLevelAlgo();
+
+//+------------------------------------------------------------------+
+bool IsLevelFamilyCompositeMagic(const long magic)
+{
+   return IsLevelFamilyAlgoNumber(AlgoFamilyMagicNumber(magic));
+}
+
+bool BigflipperPlacementAllowedAtTime(const datetime t);
 
 struct BreakdownOpenTradeLifetimeRec
 {
@@ -1967,6 +2581,32 @@ bool FalgoBtFindOpenTimeAlgoStats(const long magic, const datetime startTime, Fa
 }
 
 //+------------------------------------------------------------------+
+bool FalgoBtFindOpenLevelAlgoStats(const long magic, const datetime startTime, FalgoBtClosedTradeStats &outStats)
+{
+   for(int i = 0; i < LEVEL_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(!g_levelAlgoOpenLifetime[i].active)
+         continue;
+      if(g_levelAlgoOpenLifetime[i].startTime != startTime)
+         continue;
+      ZeroMemory(outStats);
+      outStats.magic = magic;
+      outStats.startTime = startTime;
+      outStats.mfePts = g_levelAlgoOpenLifetime[i].mfePts;
+      outStats.maePts = g_levelAlgoOpenLifetime[i].maePts;
+      outStats.maeFirstWindowPts = g_levelAlgoOpenLifetime[i].maeFirstWindowPts;
+      outStats.mfeCandle1Based = g_levelAlgoOpenLifetime[i].mfeCandle1Based;
+      outStats.maeCandle1Based = g_levelAlgoOpenLifetime[i].maeCandle1Based;
+      outStats.closeDecision = g_levelAlgoOpenLifetime[i].closeDecisionReason;
+      outStats.closeDetail = g_levelAlgoOpenLifetime[i].closeDecisionDetail;
+      outStats.withRolloverFee = g_levelAlgoOpenLifetime[i].withRolloverFee;
+      outStats.rolloverPricediff = g_levelAlgoOpenLifetime[i].rolloverPricediff;
+      return g_levelAlgoOpenLifetime[i].mfeMaeInitialized;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
 bool FalgoGetBreakdownTimeTradeStats(const long magic, const datetime startTime, FalgoBtClosedTradeStats &outStats)
 {
    if(FalgoBtFindClosedStats(magic, startTime, outStats))
@@ -1975,6 +2615,8 @@ bool FalgoGetBreakdownTimeTradeStats(const long magic, const datetime startTime,
       return FalgoBtFindOpenBreakdownStats(magic, startTime, outStats);
    if(IsTimeFamilyCompositeMagic(magic))
       return FalgoBtFindOpenTimeAlgoStats(magic, startTime, outStats);
+   if(IsLevelFamilyCompositeMagic(magic))
+      return FalgoBtFindOpenLevelAlgoStats(magic, startTime, outStats);
    return false;
 }
 
@@ -2001,6 +2643,7 @@ void FalgoBreakdownTimePerSecondAndBabysit()
    const bool profOn = BacktestProfileEnabled();
    const bool bdBabysit = g_breakdownAlgoShared.babysit_enabled;
    const bool taBabysit = g_timeAlgoShared.babysit_enabled;
+   const bool laBabysit = g_levelAlgoShared.babysit_enabled;
 
    for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
    {
@@ -2009,7 +2652,7 @@ void FalgoBreakdownTimePerSecondAndBabysit()
       if(ExtPositionInfo.Symbol() != _Symbol)
          continue;
       const long magic = ExtPositionInfo.Magic();
-      if(!IsBreakdownFamilyCompositeMagic(magic) && !IsTimeFamilyCompositeMagic(magic))
+      if(!IsBreakdownFamilyCompositeMagic(magic) && !IsTimeFamilyCompositeMagic(magic) && !IsLevelFamilyCompositeMagic(magic))
          continue;
 
       const ulong positionId = (ulong)ExtPositionInfo.Identifier();
@@ -2049,7 +2692,7 @@ void FalgoBreakdownTimePerSecondAndBabysit()
                BacktestProfAccumulate(BACKTEST_PROF_BABYSIT_BREAKDOWN, profT0);
          }
       }
-      else
+      else if(IsTimeFamilyCompositeMagic(magic))
       {
          const int lifeIdx = TimeAlgoOpenLifetimeSlotByPositionId(positionId);
          if(lifeIdx >= 0)
@@ -2077,6 +2720,34 @@ void FalgoBreakdownTimePerSecondAndBabysit()
                BacktestProfAccumulate(BACKTEST_PROF_BABYSIT_TIME, profT0);
          }
       }
+      else if(IsLevelFamilyCompositeMagic(magic))
+      {
+         const int lifeIdx = LevelAlgoOpenLifetimeSlotByPositionId(positionId);
+         if(lifeIdx >= 0)
+         {
+            FalgoLifetimeRecUpdateMfeMae(g_levelAlgoOpenLifetime[lifeIdx].mfePts, g_levelAlgoOpenLifetime[lifeIdx].maePts,
+               g_levelAlgoOpenLifetime[lifeIdx].maeFirstWindowPts, g_levelAlgoOpenLifetime[lifeIdx].mfeCandle1Based,
+               g_levelAlgoOpenLifetime[lifeIdx].maeCandle1Based, g_levelAlgoOpenLifetime[lifeIdx].mfeMaeInitialized,
+               g_levelAlgoOpenLifetime[lifeIdx].startTime, profitPts);
+         }
+         if(profOn)
+            BacktestProfAccumulate(BACKTEST_PROF_TELEMETRY_PER_SEC_TIME, profT0);
+
+         if(laBabysit)
+         {
+            if(profOn)
+               profT0 = GetMicrosecondCount();
+            if(lifeIdx >= 0)
+               FalgoLifetimeEnsureLevelAlgoRolloverState(lifeIdx);
+            const double rolloverForGuard = (lifeIdx >= 0)
+               ? FalgoGreenguardRolloverPricediff(openTime, g_levelAlgoOpenLifetime[lifeIdx].rolloverWedDayStart,
+                  g_levelAlgoOpenLifetime[lifeIdx].withRolloverFee, g_levelAlgoOpenLifetime[lifeIdx].rolloverPricediff)
+               : FalgoGreenguardRolloverPricediff(openTime, 0, false, 0.0);
+            Babysitf_falgo_runLevelAlgoSecretTpExit(magic, rolloverForGuard, lifeIdx);
+            if(profOn)
+               BacktestProfAccumulate(BACKTEST_PROF_BABYSIT_LEVEL, profT0);
+         }
+      }
    }
 }
 
@@ -2100,6 +2771,15 @@ void FalgoCustomQopexApplyRolloverToBreakdownTimeLifetimes(const datetime rollov
          continue;
       g_timeAlgoOpenLifetime[i].withRolloverFee = true;
       g_timeAlgoOpenLifetime[i].rolloverPricediff = rolloverPricediff;
+   }
+   for(int i = 0; i < LEVEL_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(!g_levelAlgoOpenLifetime[i].active)
+         continue;
+      if(g_levelAlgoOpenLifetime[i].rolloverWedDayStart != rolloverWedDayStart)
+         continue;
+      g_levelAlgoOpenLifetime[i].withRolloverFee = true;
+      g_levelAlgoOpenLifetime[i].rolloverPricediff = rolloverPricediff;
    }
 }
 
@@ -2305,6 +2985,17 @@ struct TradeResult
    int tradeCustomId;
    bool closedPipelineDone;  // enrich + day-count + level-stats applied for this closed trade
 };
+void LevelAlgoApplyOneClosedTradeCounts(const TradeResult &tr);
+void FalgoAppendLevelAlgoClosedTradeToAllDaysSummary(const TradeResult &tr);
+void FalgoAppendLevelAlgoClosedTradeToAllDays2Summary(const TradeResult &tr);
+void FalgoAppendLevelAlgoClosedTradeToAllDaysSummaryFile(const TradeResult &tr, const string summaryAllName);
+void LevelAlgoAllDaysAlgoConfigForMagic(const long magic, int &outEntryHour, int &outEntryMinute,
+   double &outSecretTpProfitPctMin, double &outSecretTpGreenguardPricediff);
+void FalgoSecretTpAlgoAllDaysConfigForMagic(const long magic, int &outEntryHour, int &outEntryMinute,
+   double &outSecretTpProfitPctMin, double &outSecretTpGreenguardPricediff);
+void FalgoAppendSecretTpAlgoTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr);
+void FalgoAppendLevelAlgoTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr);
+string FalgoLevelAlgoAllDaysTradeResultsHeader();
 TradeResult g_tradeResults[MAX_TRADE_RESULTS];
 int g_tradeResultsCount = 0;
 datetime g_tradeResultsIncrementalDayStart = 0;
@@ -2786,6 +3477,17 @@ void FalgoLifetimeEnsureTimeAlgoRolloverState(const int lifeIdx)
       g_timeAlgoOpenLifetime[lifeIdx].rolloverWedDayStart,
       g_timeAlgoOpenLifetime[lifeIdx].withRolloverFee,
       g_timeAlgoOpenLifetime[lifeIdx].rolloverPricediff);
+}
+
+//+------------------------------------------------------------------+
+void FalgoLifetimeEnsureLevelAlgoRolloverState(const int lifeIdx)
+{
+   if(lifeIdx < 0 || lifeIdx >= LEVEL_ALGO_OPEN_LIFETIME_MAX || !g_levelAlgoOpenLifetime[lifeIdx].active)
+      return;
+   FalgoLifetimeEnsureRolloverState(g_levelAlgoOpenLifetime[lifeIdx].startTime,
+      g_levelAlgoOpenLifetime[lifeIdx].rolloverWedDayStart,
+      g_levelAlgoOpenLifetime[lifeIdx].withRolloverFee,
+      g_levelAlgoOpenLifetime[lifeIdx].rolloverPricediff);
 }
 
 //+------------------------------------------------------------------+
@@ -6489,6 +7191,11 @@ void FalgoAppendClosedTradeToAllDaysSummaryFromLifetime(const ulong positionId, 
       FalgoAppendTimeAlgoClosedTradeToAllDaysSummary(tr);
       FalgoAppendTimeAlgoClosedTradeToAllDays2Summary(tr);
    }
+   else if(IsLevelFamilyCompositeMagic(entryMagic))
+   {
+      FalgoAppendLevelAlgoClosedTradeToAllDaysSummary(tr);
+      FalgoAppendLevelAlgoClosedTradeToAllDays2Summary(tr);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -6781,6 +7488,9 @@ void FalgoRebuildDayCountersFromHistoryOnInit()
    TimeAlgoRebuildDayCountersFromLoadedTradeResults(dayStart);
    g_timeAlgoDayTradeCountsDayStartMarker = dayStart;
 
+   LevelAlgoRebuildDayCountersFromLoadedTradeResults(dayStart);
+   g_levelAlgoDayTradeCountsDayStartMarker = dayStart;
+
    SyncFalgoPlanCountersFromTradeResults();
    g_falgoDayTradeCountsDayStart = dayStart;
    g_falgoPlanCountersDayStart = dayStart;
@@ -6904,6 +7614,7 @@ void FalgoProcessNewClosedTradeAtIndex(const int trIdx, const bool includeLevelS
 
    FalgoEnrichTradeResultLevelTpSl(g_tradeResults[trIdx]);
    BreakdownApplyOneClosedTradeCounts(g_tradeResults[trIdx]);
+   LevelAlgoApplyOneClosedTradeCounts(g_tradeResults[trIdx]);
    if(includeLevelStats)
       LevelTradeStatsApplyOneClosedTrade(g_tradeResults[trIdx]);
    if(IsAnyAlgoFamilyCompositeMagic(g_tradeResults[trIdx].magic))
@@ -8200,6 +8911,524 @@ int g_timeAlgoRegistryIds[] =
 };
 //timealgocreator1end
 
+//levelalgocreator1start
+int g_levelAlgoRegistryIds[] =
+{
+   MAGIC_LEVEL30000001,
+   MAGIC_LEVEL30000002,
+   MAGIC_LEVEL30000003,
+   MAGIC_LEVEL30000004,
+   MAGIC_LEVEL30000005,
+   MAGIC_LEVEL30000006,
+   MAGIC_LEVEL30000007,
+   MAGIC_LEVEL30000008,
+   MAGIC_LEVEL30000009,
+   MAGIC_LEVEL30000010,
+   MAGIC_LEVEL30000011,
+   MAGIC_LEVEL30000012,
+   MAGIC_LEVEL30000013,
+   MAGIC_LEVEL30000014,
+   MAGIC_LEVEL30000015,
+   MAGIC_LEVEL30000016,
+   MAGIC_LEVEL30000017,
+   MAGIC_LEVEL30000018,
+   MAGIC_LEVEL30000019,
+   MAGIC_LEVEL30000020,
+   MAGIC_LEVEL30000021,
+   MAGIC_LEVEL30000022,
+   MAGIC_LEVEL30000023,
+   MAGIC_LEVEL30000024,
+   MAGIC_LEVEL30000025,
+   MAGIC_LEVEL30000026,
+   MAGIC_LEVEL30000027,
+   MAGIC_LEVEL30000028,
+   MAGIC_LEVEL30000029,
+   MAGIC_LEVEL30000030,
+   MAGIC_LEVEL30000031,
+   MAGIC_LEVEL30000032,
+   MAGIC_LEVEL30000033,
+   MAGIC_LEVEL30000034,
+   MAGIC_LEVEL30000035,
+   MAGIC_LEVEL30000036,
+   MAGIC_LEVEL30000037,
+   MAGIC_LEVEL30000038,
+   MAGIC_LEVEL30000039,
+   MAGIC_LEVEL30000040,
+   MAGIC_LEVEL30000041,
+   MAGIC_LEVEL30000042,
+   MAGIC_LEVEL30000043,
+   MAGIC_LEVEL30000044,
+   MAGIC_LEVEL30000045,
+   MAGIC_LEVEL30000046,
+   MAGIC_LEVEL30000047,
+   MAGIC_LEVEL30000048,
+   MAGIC_LEVEL30000049,
+   MAGIC_LEVEL30000050,
+   MAGIC_LEVEL30000051,
+   MAGIC_LEVEL30000052,
+   MAGIC_LEVEL30000053,
+   MAGIC_LEVEL30000054,
+   MAGIC_LEVEL30000055,
+   MAGIC_LEVEL30000056,
+   MAGIC_LEVEL30000057,
+   MAGIC_LEVEL30000058,
+   MAGIC_LEVEL30000059,
+   MAGIC_LEVEL30000060,
+   MAGIC_LEVEL30000061,
+   MAGIC_LEVEL30000062,
+   MAGIC_LEVEL30000063,
+   MAGIC_LEVEL30000064,
+   MAGIC_LEVEL30000065,
+   MAGIC_LEVEL30000066,
+   MAGIC_LEVEL30000067,
+   MAGIC_LEVEL30000068,
+   MAGIC_LEVEL30000069,
+   MAGIC_LEVEL30000070,
+   MAGIC_LEVEL30000071,
+   MAGIC_LEVEL30000072,
+   MAGIC_LEVEL30000073,
+   MAGIC_LEVEL30000074,
+   MAGIC_LEVEL30000075,
+   MAGIC_LEVEL30000076,
+   MAGIC_LEVEL30000077,
+   MAGIC_LEVEL30000078,
+   MAGIC_LEVEL30000079,
+   MAGIC_LEVEL30000080,
+   MAGIC_LEVEL30000081,
+   MAGIC_LEVEL30000082,
+   MAGIC_LEVEL30000083,
+   MAGIC_LEVEL30000084,
+   MAGIC_LEVEL30000085,
+   MAGIC_LEVEL30000086,
+   MAGIC_LEVEL30000087,
+   MAGIC_LEVEL30000088,
+   MAGIC_LEVEL30000089,
+   MAGIC_LEVEL30000090,
+   MAGIC_LEVEL30000091,
+   MAGIC_LEVEL30000092,
+   MAGIC_LEVEL30000093,
+   MAGIC_LEVEL30000094,
+   MAGIC_LEVEL30000095,
+   MAGIC_LEVEL30000096,
+   MAGIC_LEVEL30000097,
+   MAGIC_LEVEL30000098,
+   MAGIC_LEVEL30000099,
+   MAGIC_LEVEL30000100,
+   MAGIC_LEVEL30000101,
+   MAGIC_LEVEL30000102,
+   MAGIC_LEVEL30000103,
+   MAGIC_LEVEL30000104,
+   MAGIC_LEVEL30000105,
+   MAGIC_LEVEL30000106,
+   MAGIC_LEVEL30000107,
+   MAGIC_LEVEL30000108,
+   MAGIC_LEVEL30000109,
+   MAGIC_LEVEL30000110,
+   MAGIC_LEVEL30000111,
+   MAGIC_LEVEL30000112,
+   MAGIC_LEVEL30000113,
+   MAGIC_LEVEL30000114,
+   MAGIC_LEVEL30000115,
+   MAGIC_LEVEL30000116,
+   MAGIC_LEVEL30000117,
+   MAGIC_LEVEL30000118,
+   MAGIC_LEVEL30000119,
+   MAGIC_LEVEL30000120,
+   MAGIC_LEVEL30000121,
+   MAGIC_LEVEL30000122,
+   MAGIC_LEVEL30000123,
+   MAGIC_LEVEL30000124,
+   MAGIC_LEVEL30000125,
+   MAGIC_LEVEL30000126,
+   MAGIC_LEVEL30000127,
+   MAGIC_LEVEL30000128,
+   MAGIC_LEVEL30000129,
+   MAGIC_LEVEL30000130,
+   MAGIC_LEVEL30000131,
+   MAGIC_LEVEL30000132,
+   MAGIC_LEVEL30000133,
+   MAGIC_LEVEL30000134,
+   MAGIC_LEVEL30000135,
+   MAGIC_LEVEL30000136,
+   MAGIC_LEVEL30000137,
+   MAGIC_LEVEL30000138,
+   MAGIC_LEVEL30000139,
+   MAGIC_LEVEL30000140,
+   MAGIC_LEVEL30000141,
+   MAGIC_LEVEL30000142,
+   MAGIC_LEVEL30000143,
+   MAGIC_LEVEL30000144,
+   MAGIC_LEVEL30000145,
+   MAGIC_LEVEL30000146,
+   MAGIC_LEVEL30000147,
+   MAGIC_LEVEL30000148,
+   MAGIC_LEVEL30000149,
+   MAGIC_LEVEL30000150,
+   MAGIC_LEVEL30000151,
+   MAGIC_LEVEL30000152,
+   MAGIC_LEVEL30000153,
+   MAGIC_LEVEL30000154,
+   MAGIC_LEVEL30000155,
+   MAGIC_LEVEL30000156,
+   MAGIC_LEVEL30000157,
+   MAGIC_LEVEL30000158,
+   MAGIC_LEVEL30000159,
+   MAGIC_LEVEL30000160,
+   MAGIC_LEVEL30000161,
+   MAGIC_LEVEL30000162,
+   MAGIC_LEVEL30000163,
+   MAGIC_LEVEL30000164,
+   MAGIC_LEVEL30000165,
+   MAGIC_LEVEL30000166,
+   MAGIC_LEVEL30000167,
+   MAGIC_LEVEL30000168,
+   MAGIC_LEVEL30000169,
+   MAGIC_LEVEL30000170,
+   MAGIC_LEVEL30000171,
+   MAGIC_LEVEL30000172,
+   MAGIC_LEVEL30000173,
+   MAGIC_LEVEL30000174,
+   MAGIC_LEVEL30000175,
+   MAGIC_LEVEL30000176,
+   MAGIC_LEVEL30000177,
+   MAGIC_LEVEL30000178,
+   MAGIC_LEVEL30000179,
+   MAGIC_LEVEL30000180,
+   MAGIC_LEVEL30000181,
+   MAGIC_LEVEL30000182,
+   MAGIC_LEVEL30000183,
+   MAGIC_LEVEL30000184,
+   MAGIC_LEVEL30000185,
+   MAGIC_LEVEL30000186,
+   MAGIC_LEVEL30000187,
+   MAGIC_LEVEL30000188,
+   MAGIC_LEVEL30000189,
+   MAGIC_LEVEL30000190,
+   MAGIC_LEVEL30000191,
+   MAGIC_LEVEL30000192,
+   MAGIC_LEVEL30000193,
+   MAGIC_LEVEL30000194,
+   MAGIC_LEVEL30000195,
+   MAGIC_LEVEL30000196,
+   MAGIC_LEVEL30000197,
+   MAGIC_LEVEL30000198,
+   MAGIC_LEVEL30000199,
+   MAGIC_LEVEL30000200,
+   MAGIC_LEVEL30000201,
+   MAGIC_LEVEL30000202,
+   MAGIC_LEVEL30000203,
+   MAGIC_LEVEL30000204,
+   MAGIC_LEVEL30000205,
+   MAGIC_LEVEL30000206,
+   MAGIC_LEVEL30000207,
+   MAGIC_LEVEL30000208,
+   MAGIC_LEVEL30000209,
+   MAGIC_LEVEL30000210,
+   MAGIC_LEVEL30000211,
+   MAGIC_LEVEL30000212,
+   MAGIC_LEVEL30000213,
+   MAGIC_LEVEL30000214,
+   MAGIC_LEVEL30000215,
+   MAGIC_LEVEL30000216,
+   MAGIC_LEVEL30000217,
+   MAGIC_LEVEL30000218,
+   MAGIC_LEVEL30000219,
+   MAGIC_LEVEL30000220,
+   MAGIC_LEVEL30000221,
+   MAGIC_LEVEL30000222,
+   MAGIC_LEVEL30000223,
+   MAGIC_LEVEL30000224,
+   MAGIC_LEVEL30000225,
+   MAGIC_LEVEL30000226,
+   MAGIC_LEVEL30000227,
+   MAGIC_LEVEL30000228,
+   MAGIC_LEVEL30000229,
+   MAGIC_LEVEL30000230,
+   MAGIC_LEVEL30000231,
+   MAGIC_LEVEL30000232,
+   MAGIC_LEVEL30000233,
+   MAGIC_LEVEL30000234,
+   MAGIC_LEVEL30000235,
+   MAGIC_LEVEL30000236,
+   MAGIC_LEVEL30000237,
+   MAGIC_LEVEL30000238,
+   MAGIC_LEVEL30000239,
+   MAGIC_LEVEL30000240,
+   MAGIC_LEVEL30000241,
+   MAGIC_LEVEL30000242,
+   MAGIC_LEVEL30000243,
+   MAGIC_LEVEL30000244,
+   MAGIC_LEVEL30000245,
+   MAGIC_LEVEL30000246,
+   MAGIC_LEVEL30000247,
+   MAGIC_LEVEL30000248,
+   MAGIC_LEVEL30000249,
+   MAGIC_LEVEL30000250,
+   MAGIC_LEVEL30000251,
+   MAGIC_LEVEL30000252,
+   MAGIC_LEVEL30000253,
+   MAGIC_LEVEL30000254,
+   MAGIC_LEVEL30000255,
+   MAGIC_LEVEL30000256,
+   MAGIC_LEVEL30000257,
+   MAGIC_LEVEL30000258,
+   MAGIC_LEVEL30000259,
+   MAGIC_LEVEL30000260,
+   MAGIC_LEVEL30000261,
+   MAGIC_LEVEL30000262,
+   MAGIC_LEVEL30000263,
+   MAGIC_LEVEL30000264,
+   MAGIC_LEVEL30000265,
+   MAGIC_LEVEL30000266,
+   MAGIC_LEVEL30000267,
+   MAGIC_LEVEL30000268,
+   MAGIC_LEVEL30000269,
+   MAGIC_LEVEL30000270,
+   MAGIC_LEVEL30000271,
+   MAGIC_LEVEL30000272,
+   MAGIC_LEVEL30000273,
+   MAGIC_LEVEL30000274,
+   MAGIC_LEVEL30000275,
+   MAGIC_LEVEL30000276,
+   MAGIC_LEVEL30000277,
+   MAGIC_LEVEL30000278,
+   MAGIC_LEVEL30000279,
+   MAGIC_LEVEL30000280,
+   MAGIC_LEVEL30000281,
+   MAGIC_LEVEL30000282,
+   MAGIC_LEVEL30000283,
+   MAGIC_LEVEL30000284,
+   MAGIC_LEVEL30000285,
+   MAGIC_LEVEL30000286,
+   MAGIC_LEVEL30000287,
+   MAGIC_LEVEL30000288,
+   MAGIC_LEVEL30000289,
+   MAGIC_LEVEL30000290,
+   MAGIC_LEVEL30000291,
+   MAGIC_LEVEL30000292,
+   MAGIC_LEVEL30000293,
+   MAGIC_LEVEL30000294,
+   MAGIC_LEVEL30000295,
+   MAGIC_LEVEL30000296,
+   MAGIC_LEVEL30000297,
+   MAGIC_LEVEL30000298,
+   MAGIC_LEVEL30000299,
+   MAGIC_LEVEL30000300,
+   MAGIC_LEVEL30000301,
+   MAGIC_LEVEL30000302,
+   MAGIC_LEVEL30000303,
+   MAGIC_LEVEL30000304,
+   MAGIC_LEVEL30000305,
+   MAGIC_LEVEL30000306,
+   MAGIC_LEVEL30000307,
+   MAGIC_LEVEL30000308,
+   MAGIC_LEVEL30000309,
+   MAGIC_LEVEL30000310,
+   MAGIC_LEVEL30000311,
+   MAGIC_LEVEL30000312,
+   MAGIC_LEVEL30000313,
+   MAGIC_LEVEL30000314,
+   MAGIC_LEVEL30000315,
+   MAGIC_LEVEL30000316,
+   MAGIC_LEVEL30000317,
+   MAGIC_LEVEL30000318,
+   MAGIC_LEVEL30000319,
+   MAGIC_LEVEL30000320,
+   MAGIC_LEVEL30000321,
+   MAGIC_LEVEL30000322,
+   MAGIC_LEVEL30000323,
+   MAGIC_LEVEL30000324,
+   MAGIC_LEVEL30000325,
+   MAGIC_LEVEL30000326,
+   MAGIC_LEVEL30000327,
+   MAGIC_LEVEL30000328,
+   MAGIC_LEVEL30000329,
+   MAGIC_LEVEL30000330,
+   MAGIC_LEVEL30000331,
+   MAGIC_LEVEL30000332,
+   MAGIC_LEVEL30000333,
+   MAGIC_LEVEL30000334,
+   MAGIC_LEVEL30000335,
+   MAGIC_LEVEL30000336,
+   MAGIC_LEVEL30000337,
+   MAGIC_LEVEL30000338,
+   MAGIC_LEVEL30000339,
+   MAGIC_LEVEL30000340,
+   MAGIC_LEVEL30000341,
+   MAGIC_LEVEL30000342,
+   MAGIC_LEVEL30000343,
+   MAGIC_LEVEL30000344,
+   MAGIC_LEVEL30000345,
+   MAGIC_LEVEL30000346,
+   MAGIC_LEVEL30000347,
+   MAGIC_LEVEL30000348,
+   MAGIC_LEVEL30000349,
+   MAGIC_LEVEL30000350,
+   MAGIC_LEVEL30000351,
+   MAGIC_LEVEL30000352,
+   MAGIC_LEVEL30000353,
+   MAGIC_LEVEL30000354,
+   MAGIC_LEVEL30000355,
+   MAGIC_LEVEL30000356,
+   MAGIC_LEVEL30000357,
+   MAGIC_LEVEL30000358,
+   MAGIC_LEVEL30000359,
+   MAGIC_LEVEL30000360,
+   MAGIC_LEVEL30000361,
+   MAGIC_LEVEL30000362,
+   MAGIC_LEVEL30000363,
+   MAGIC_LEVEL30000364,
+   MAGIC_LEVEL30000365,
+   MAGIC_LEVEL30000366,
+   MAGIC_LEVEL30000367,
+   MAGIC_LEVEL30000368,
+   MAGIC_LEVEL30000369,
+   MAGIC_LEVEL30000370,
+   MAGIC_LEVEL30000371,
+   MAGIC_LEVEL30000372,
+   MAGIC_LEVEL30000373,
+   MAGIC_LEVEL30000374,
+   MAGIC_LEVEL30000375,
+   MAGIC_LEVEL30000376,
+   MAGIC_LEVEL30000377,
+   MAGIC_LEVEL30000378,
+   MAGIC_LEVEL30000379,
+   MAGIC_LEVEL30000380,
+   MAGIC_LEVEL30000381,
+   MAGIC_LEVEL30000382,
+   MAGIC_LEVEL30000383,
+   MAGIC_LEVEL30000384,
+   MAGIC_LEVEL30000385,
+   MAGIC_LEVEL30000386,
+   MAGIC_LEVEL30000387,
+   MAGIC_LEVEL30000388,
+   MAGIC_LEVEL30000389,
+   MAGIC_LEVEL30000390,
+   MAGIC_LEVEL30000391,
+   MAGIC_LEVEL30000392,
+   MAGIC_LEVEL30000393,
+   MAGIC_LEVEL30000394,
+   MAGIC_LEVEL30000395,
+   MAGIC_LEVEL30000396,
+   MAGIC_LEVEL30000397,
+   MAGIC_LEVEL30000398,
+   MAGIC_LEVEL30000399,
+   MAGIC_LEVEL30000400,
+   MAGIC_LEVEL30000401,
+   MAGIC_LEVEL30000402,
+   MAGIC_LEVEL30000403,
+   MAGIC_LEVEL30000404,
+   MAGIC_LEVEL30000405,
+   MAGIC_LEVEL30000406,
+   MAGIC_LEVEL30000407,
+   MAGIC_LEVEL30000408,
+   MAGIC_LEVEL30000409,
+   MAGIC_LEVEL30000410,
+   MAGIC_LEVEL30000411,
+   MAGIC_LEVEL30000412,
+   MAGIC_LEVEL30000413,
+   MAGIC_LEVEL30000414,
+   MAGIC_LEVEL30000415,
+   MAGIC_LEVEL30000416,
+   MAGIC_LEVEL30000417,
+   MAGIC_LEVEL30000418,
+   MAGIC_LEVEL30000419,
+   MAGIC_LEVEL30000420,
+   MAGIC_LEVEL30000421,
+   MAGIC_LEVEL30000422,
+   MAGIC_LEVEL30000423,
+   MAGIC_LEVEL30000424,
+   MAGIC_LEVEL30000425,
+   MAGIC_LEVEL30000426,
+   MAGIC_LEVEL30000427,
+   MAGIC_LEVEL30000428,
+   MAGIC_LEVEL30000429,
+   MAGIC_LEVEL30000430,
+   MAGIC_LEVEL30000431,
+   MAGIC_LEVEL30000432,
+   MAGIC_LEVEL30000433,
+   MAGIC_LEVEL30000434,
+   MAGIC_LEVEL30000435,
+   MAGIC_LEVEL30000436,
+   MAGIC_LEVEL30000437,
+   MAGIC_LEVEL30000438,
+   MAGIC_LEVEL30000439,
+   MAGIC_LEVEL30000440,
+   MAGIC_LEVEL30000441,
+   MAGIC_LEVEL30000442,
+   MAGIC_LEVEL30000443,
+   MAGIC_LEVEL30000444,
+   MAGIC_LEVEL30000445,
+   MAGIC_LEVEL30000446,
+   MAGIC_LEVEL30000447,
+   MAGIC_LEVEL30000448,
+   MAGIC_LEVEL30000449,
+   MAGIC_LEVEL30000450,
+   MAGIC_LEVEL30000451,
+   MAGIC_LEVEL30000452,
+   MAGIC_LEVEL30000453,
+   MAGIC_LEVEL30000454,
+   MAGIC_LEVEL30000455,
+   MAGIC_LEVEL30000456,
+   MAGIC_LEVEL30000457,
+   MAGIC_LEVEL30000458,
+   MAGIC_LEVEL30000459,
+   MAGIC_LEVEL30000460,
+   MAGIC_LEVEL30000461,
+   MAGIC_LEVEL30000462,
+   MAGIC_LEVEL30000463,
+   MAGIC_LEVEL30000464,
+   MAGIC_LEVEL30000465,
+   MAGIC_LEVEL30000466,
+   MAGIC_LEVEL30000467,
+   MAGIC_LEVEL30000468,
+   MAGIC_LEVEL30000469,
+   MAGIC_LEVEL30000470,
+   MAGIC_LEVEL30000471,
+   MAGIC_LEVEL30000472,
+   MAGIC_LEVEL30000473,
+   MAGIC_LEVEL30000474,
+   MAGIC_LEVEL30000475,
+   MAGIC_LEVEL30000476,
+   MAGIC_LEVEL30000477,
+   MAGIC_LEVEL30000478,
+   MAGIC_LEVEL30000479,
+   MAGIC_LEVEL30000480,
+   MAGIC_LEVEL30000481,
+   MAGIC_LEVEL30000482,
+   MAGIC_LEVEL30000483,
+   MAGIC_LEVEL30000484,
+   MAGIC_LEVEL30000485,
+   MAGIC_LEVEL30000486,
+   MAGIC_LEVEL30000487,
+   MAGIC_LEVEL30000488,
+   MAGIC_LEVEL30000489,
+   MAGIC_LEVEL30000490,
+   MAGIC_LEVEL30000491,
+   MAGIC_LEVEL30000492,
+   MAGIC_LEVEL30000493,
+   MAGIC_LEVEL30000494,
+   MAGIC_LEVEL30000495,
+   MAGIC_LEVEL30000496,
+   MAGIC_LEVEL30000497,
+   MAGIC_LEVEL30000498,
+   MAGIC_LEVEL30000499,
+   MAGIC_LEVEL30000500,
+   MAGIC_LEVEL30000501,
+   MAGIC_LEVEL30000502,
+   MAGIC_LEVEL30000503,
+   MAGIC_LEVEL30000504,
+   MAGIC_LEVEL30000505,
+   MAGIC_LEVEL30000506,
+   MAGIC_LEVEL30000507,
+   MAGIC_LEVEL30000508,
+   MAGIC_LEVEL30000509,
+   MAGIC_LEVEL30000510,
+   MAGIC_LEVEL30000511,
+   MAGIC_LEVEL30000512
+};
+//levelalgocreator1end
+
 //+------------------------------------------------------------------+
 void RebuildBreakdownAlgoSlotsRegistry()
 {
@@ -8269,9 +9498,17 @@ bool IsTimeFamilyAlgoNumber(const int algoNumber)
 }
 
 //+------------------------------------------------------------------+
+bool IsLevelFamilyAlgoNumber(const int algoNumber)
+{
+   return (FalgoAlgoFamilyLeadingDigit(algoNumber) == FALGO_ALGO_FAMILY_LEVEL_DIGIT);
+}
+
+//+------------------------------------------------------------------+
 bool IsBreakdownFamilyAlgoNumber(const int algoNumber)
 {
    const int digit = FalgoAlgoFamilyLeadingDigit(algoNumber);
+   if(digit == FALGO_ALGO_FAMILY_LEVEL_DIGIT)
+      return false;
    return (digit >= FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MIN && digit <= FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MAX);
 }
 
@@ -8282,8 +9519,8 @@ void FalgoValidateAlgoFamilyDigitConfig()
       FatalError("FalgoAlgoFamilyDigitConfig: leading digit 1 => time only");
    if(!IsBreakdownFamilyAlgoNumber(20000000) || IsTimeFamilyAlgoNumber(20000000))
       FatalError("FalgoAlgoFamilyDigitConfig: leading digit 2 => breakdown");
-   if(!IsBreakdownFamilyAlgoNumber(30000001) || IsTimeFamilyAlgoNumber(30000001))
-      FatalError("FalgoAlgoFamilyDigitConfig: leading digit 3 => breakdown");
+   if(!IsLevelFamilyAlgoNumber(30000001) || IsTimeFamilyAlgoNumber(30000001) || IsBreakdownFamilyAlgoNumber(30000001))
+      FatalError("FalgoAlgoFamilyDigitConfig: leading digit 3 => level");
    if(!IsBreakdownFamilyAlgoNumber(56789012) || IsTimeFamilyAlgoNumber(56789012))
       FatalError("FalgoAlgoFamilyDigitConfig: leading digit 5 => breakdown");
    if(!IsBreakdownFamilyAlgoNumber(99999999) || IsTimeFamilyAlgoNumber(99999999))
@@ -8732,6 +9969,7 @@ void FalgoRebuildOpenLifetimePosMapsOnInit()
 {
    BreakdownOpenLifetimePosMapRebuild();
    TimeAlgoOpenLifetimePosMapRebuild();
+   LevelAlgoOpenLifetimePosMapRebuild();
 }
 
 //+------------------------------------------------------------------+
@@ -9345,7 +10583,7 @@ int TimeAlgoRegisterOpenTradeLifetime(const ulong positionId, const int algoNumb
 }
 
 //+------------------------------------------------------------------+
-bool TimeAlgoTakeOpenTradeLifetime(const ulong positionId, TimeAlgoOpenTradeLifetimeRec &outRec)
+bool TimeAlgoTakeOpenTradeLifetime(const ulong positionId, FalgoSecretTpLifetimeRec &outRec)
 {
    ZeroMemory(outRec);
    for(int i = 0; i < TIME_ALGO_OPEN_LIFETIME_MAX; i++)
@@ -9386,6 +10624,35 @@ void TimeAlgoRememberCloseDecision(const ulong positionId, const string decision
             g_timeAlgoOpenLifetime[i].closeDecisionReason = decision;
          if(detail != "")
             g_timeAlgoOpenLifetime[i].closeDecisionDetail = detail;
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+void LevelAlgoRememberPendingCloseReason(const ulong positionId, const string reason)
+{
+   if(positionId == 0 || reason == "")
+      return;
+   for(int i = 0; i < LEVEL_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_levelAlgoOpenLifetime[i].active && g_levelAlgoOpenLifetime[i].positionId == positionId)
+         g_levelAlgoOpenLifetime[i].pendingCloseReason = reason;
+   }
+}
+
+//+------------------------------------------------------------------+
+void LevelAlgoRememberCloseDecision(const ulong positionId, const string decision, const string detail)
+{
+   if(positionId == 0)
+      return;
+   for(int i = 0; i < LEVEL_ALGO_OPEN_LIFETIME_MAX; i++)
+   {
+      if(g_levelAlgoOpenLifetime[i].active && g_levelAlgoOpenLifetime[i].positionId == positionId)
+      {
+         if(decision != "")
+            g_levelAlgoOpenLifetime[i].closeDecisionReason = decision;
+         if(detail != "")
+            g_levelAlgoOpenLifetime[i].closeDecisionDetail = detail;
       }
    }
 }
@@ -9477,7 +10744,7 @@ void TimeAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMagi
    if(!IsTimeFamilyCompositeMagic(entryMagic))
       return;
 
-   TimeAlgoOpenTradeLifetimeRec openRec;
+   FalgoSecretTpLifetimeRec openRec;
    datetime startTime = 0;
    double plannedPrice = 0.0;
    double startPrice = 0.0;
@@ -9692,7 +10959,7 @@ bool IsAlgoCompositeMagic(const long magic, const int algoNumber)
 bool IsAnyAlgoFamilyCompositeMagic(const long magic)
 {
    const int algoNumber = AlgoFamilyMagicNumber(magic);
-   return IsBreakdownFamilyAlgoNumber(algoNumber) || IsTimeFamilyAlgoNumber(algoNumber);
+   return IsBreakdownFamilyAlgoNumber(algoNumber) || IsTimeFamilyAlgoNumber(algoNumber) || IsLevelFamilyAlgoNumber(algoNumber);
 }
 
 //+------------------------------------------------------------------+
@@ -9771,6 +11038,7 @@ struct BannedRangeMinutes { int startMin; int endMin; };
 BannedRangeMinutes g_falgoBannedRanges[FALGO_BANNED_RANGES_MAX];
 int g_falgoBannedRangeCount = 0;
 BannedRangeMinutes g_timeAlgoBannedRanges[FALGO_BANNED_RANGES_MAX];
+BannedRangeMinutes g_levelAlgoBannedRanges[FALGO_BANNED_RANGES_MAX];
 int g_timeAlgoBannedRangeCount = 0;
 datetime g_falgoPlanCountersDayStart = 0;
 datetime g_falgoDayTradeCountsDayStart = 0;
@@ -9868,6 +11136,11 @@ bool AlgoFamilyAnyEnabled()
       if(g_timeAlgos[i].enabled)
          return true;
    }
+   for(int i = 0; i < g_levelAlgoCount; i++)
+   {
+      if(g_levelAlgos[i].enabled)
+         return true;
+   }
    return false;
 }
 
@@ -9909,6 +11182,12 @@ bool TimeAlgoFamilyEodTradeResultsAllDaysLoggingEnabled()
 }
 
 //+------------------------------------------------------------------+
+bool LevelAlgoFamilyEodTradeResultsAllDaysLoggingEnabled()
+{
+   return bigflipper_log_summary_tradeResults_all_days_level;
+}
+
+//+------------------------------------------------------------------+
 bool BreakdownFamilyEodTradeResultsAllDays2LoggingEnabled()
 {
    return bigflipper_log_summary_tradeResults_all_days2_breakdown;
@@ -9918,6 +11197,12 @@ bool BreakdownFamilyEodTradeResultsAllDays2LoggingEnabled()
 bool TimeAlgoFamilyEodTradeResultsAllDays2LoggingEnabled()
 {
    return bigflipper_log_summary_tradeResults_all_days2_time;
+}
+
+//+------------------------------------------------------------------+
+bool LevelAlgoFamilyEodTradeResultsAllDays2LoggingEnabled()
+{
+   return bigflipper_log_summary_tradeResults_all_days2_level;
 }
 
 //+------------------------------------------------------------------+
@@ -10075,6 +11360,8 @@ double FalgoConfiguredTradeLotForMagic(const long magic)
       return GetTradeLotForBreakdown();
    if(IsTimeFamilyCompositeMagic(magic))
       return GetTradeLotForTimeAlgo();
+   if(IsLevelFamilyCompositeMagic(magic))
+      return GetTradeLotForLevelAlgo();
    return GetTradeLotForFalgo();
 }
 
@@ -11099,6 +12386,17 @@ double FalgoTimeAlgoSecretTpPriceFromMagic(const long magic, const double planne
 }
 
 //+------------------------------------------------------------------+
+double FalgoLevelAlgoSecretTpPriceFromMagic(const long magic, const double plannedPrice)
+{
+   if(plannedPrice <= 0.0 || !IsLevelFamilyCompositeMagic(magic))
+      return 0.0;
+   const FalgoMagicKey fk = ParseFalgoMagic(magic);
+   if(fk.secretTpPointsAbovePlanned <= 0)
+      return 0.0;
+   return NormalizeDouble(plannedPrice + (double)fk.secretTpPointsAbovePlanned, _Digits);
+}
+
+//+------------------------------------------------------------------+
 double FalgoTimeAlgoGreenguardPricediffFromMagic(const long magic)
 {
    if(!IsTimeFamilyCompositeMagic(magic))
@@ -11108,9 +12406,18 @@ double FalgoTimeAlgoGreenguardPricediffFromMagic(const long magic)
 }
 
 //+------------------------------------------------------------------+
+double FalgoLevelAlgoGreenguardPricediffFromMagic(const long magic)
+{
+   if(!IsLevelFamilyCompositeMagic(magic))
+      return 0.0;
+   const FalgoMagicKey fk = ParseFalgoMagic(magic);
+   return fk.offset_tenths / 10.0;
+}
+
+//+------------------------------------------------------------------+
 //| BUY entry: price where OrderCalcProfit reaches secret_tp_profit_percent_min of lot×one_lot_equals_xPLN. |
 //+------------------------------------------------------------------+
-double FalgoTimeAlgoSecretTpPriceForProfitPctMin(const double entryPrice, const double lot, const double profitPctMin)
+double FalgoSecretTpPriceForProfitPctMin(const double entryPrice, const double lot, const double profitPctMin)
 {
    if(entryPrice <= 0.0 || lot <= 0.0 || profitPctMin <= 0.0 || one_lot_equals_xPLN <= 0.0)
       return 0.0;
@@ -12193,6 +13500,21 @@ void AlgoFamilyDayStopBumpFromBabysitClose(const long positionMagic, const doubl
    }
    if(IsTimeFamilyAlgoNumber(algoNumber))
       return;
+   if(IsLevelFamilyAlgoNumber(algoNumber))
+   {
+      const int slotIdx = LevelAlgoSlotIndexByAlgoId(algoNumber);
+      if(profitPtsBeforeClose > 0.0)
+      {
+         if(slotIdx >= 0)
+            g_levelAlgoDayWins[slotIdx]++;
+      }
+      else if(profitPtsBeforeClose < 0.0)
+      {
+         if(slotIdx >= 0)
+            g_levelAlgoDayLosses[slotIdx]++;
+      }
+      return;
+   }
    const int algoIdx = AlgoFamilySlotArrayIndex(algoNumber);
    if(profitPtsBeforeClose > 0.0)
    {
@@ -12342,6 +13664,8 @@ bool AlgoIsRegisteredFamilyAlgoNumber(const int algoNumber)
       return true;
    if(TimeAlgoSlotIndexByAlgoId(algoNumber) >= 0)
       return true;
+   if(LevelAlgoSlotIndexByAlgoId(algoNumber) >= 0)
+      return true;
    return false;
 }
 
@@ -12357,6 +13681,9 @@ int AlgoOccupiedCacheIndex(const int algoNumber)
    idx = TimeAlgoSlotIndexByAlgoId(algoNumber);
    if(idx >= 0)
       return ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + idx;
+   idx = LevelAlgoSlotIndexByAlgoId(algoNumber);
+   if(idx >= 0)
+      return ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + TIME_ALGO_REGISTRY_MAX + idx;
    return -1;
 }
 
@@ -12493,7 +13820,7 @@ int FalgoGetRecentCeilingCountForClosestWeeklyLevel(const int barIdx)
 //+------------------------------------------------------------------+
 bool FalgoGetTelemetrySummaryForTrade(const long magic, const datetime startTime, FalgoClosedTradeTelemetrySummary &outSummary)
 {
-   if(!IsBreakdownFamilyCompositeMagic(magic) && !IsTimeFamilyCompositeMagic(magic))
+   if(!IsBreakdownFamilyCompositeMagic(magic) && !IsTimeFamilyCompositeMagic(magic) && !IsLevelFamilyCompositeMagic(magic))
       return false;
    FalgoBtClosedTradeStats btStats;
    if(!FalgoGetBreakdownTimeTradeStats(magic, startTime, btStats))
@@ -12675,6 +14002,8 @@ double FalgoLevelPriceForMagicKey(const FalgoMagicKey &fk)
    return g_levelsExpanded[levelIdx].levelPrice;
 }
 
+#include "aleksik2_level_fam.mqh"
+
 //+------------------------------------------------------------------+
 void FalgoEffectiveTpSlPointsFromMagicKey(const FalgoMagicKey &k, double &outTpPoints, double &outSlPoints)
 {
@@ -12708,6 +14037,14 @@ void FalgoEnrichTradeResultLevelTpSl(TradeResult &tr)
    else if(IsTimeFamilyAlgoNumber(algoNumber))
    {
       if(tr.priceStart > 0.0)
+         tr.level = DoubleToString(tr.priceStart, _Digits);
+   }
+   else if(IsLevelFamilyAlgoNumber(algoNumber))
+   {
+      const double lvlPrice = FalgoLevelPriceForMagicKey(fk);
+      if(lvlPrice > 0.0)
+         tr.level = DoubleToString(lvlPrice, _Digits);
+      else if(tr.priceStart > 0.0)
          tr.level = DoubleToString(tr.priceStart, _Digits);
    }
    else
@@ -13281,6 +14618,13 @@ bool BreakdownSecretTpReachedWithRollover(const double secretTpPrice, const doub
 }
 
 //+------------------------------------------------------------------+
+bool FalgoSecretTpReachedWithRollover(const double secretTpPrice, const double bidPrice,
+   const double rolloverPricediff)
+{
+   return BreakdownSecretTpReachedWithRollover(secretTpPrice, bidPrice, rolloverPricediff);
+}
+
+//+------------------------------------------------------------------+
 bool BreakdownSecretTpGreenGuardAllowsClose(const BreakdownAlgoDef &bd, const double entryPrice,
    const double bidPrice, const double rolloverPricediff = 0.0)
 {
@@ -13400,7 +14744,7 @@ bool FalgoBuildMagicKeyForTimeAlgoPlacement(const int algoNumber, const int dire
    {
       if(entryPrice <= 0.0 || lot <= 0.0)
          return false;
-      const double secretTpPrice = FalgoTimeAlgoSecretTpPriceForProfitPctMin(entryPrice, lot, ta.secret_tp_profit_percent_min);
+      const double secretTpPrice = FalgoSecretTpPriceForProfitPctMin(entryPrice, lot, ta.secret_tp_profit_percent_min);
       outKey.secretTpPointsAbovePlanned = FalgoEncodeSecretTpPointsAbovePlanned(entryPrice, secretTpPrice);
       if(outKey.secretTpPointsAbovePlanned <= 0)
          return false;
@@ -13445,7 +14789,7 @@ bool TimeAlgoBarIsEntryTrigger(const TimeAlgoDef &ta, const int barIdx)
 }
 
 //+------------------------------------------------------------------+
-bool TimeAlgoRuleSwitchAllowsSecretTpCloseNow(const int ruleSwitchMap, const datetime evalTime)
+bool FalgoRuleSwitchAllowsSecretTpCloseNow(const int ruleSwitchMap, const datetime evalTime)
 {
    if(ruleSwitchMap == 0)
       return true;
@@ -13471,7 +14815,7 @@ bool Babysitf_falgo_runTimeAlgoSecretTpExit(const long posMagic, const double ro
 
    if(!g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchHydrated)
       TimeAlgoHydrateLifetimeRuleSwitchFromMagic(lifeIdx, posMagic);
-   if(!TimeAlgoRuleSwitchAllowsSecretTpCloseNow(g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchMap, g_lastTimer1Time))
+   if(!FalgoRuleSwitchAllowsSecretTpCloseNow(g_timeAlgoOpenLifetime[lifeIdx].ruleSwitchMap, g_lastTimer1Time))
       return false;
 
    const ulong posTicket = ExtPositionInfo.Ticket();
@@ -13551,7 +14895,7 @@ bool AlgoTryPlaceTimeAlgoMarketBuy(const int algoNumber, const int barIdx)
       return false;
    if(g_timeAlgoShared.blockPlacementIfFamilyOpenOrPending)
    {
-      if(!CanPlaceNewOrderForAlgo_Cached(algoNumber))
+      if(TimeAnyFamilyOccupiedOnSymbolCached())
          return false;
    }
 
@@ -14077,8 +15421,7 @@ void FalgoFillTradeLegacyContextCols(const TradeResult &tr, FalgoTradeLegacyCont
    out.dayBrokePDL = GetDayBrokePDLAtTradeOpenTime(tr.startTime);
 
    const FalgoMagicKey fk = ParseFalgoMagic(tr.magic);
-   if(IsAnyAlgoFamilyCompositeMagic(tr.magic) && !IsBreakdownFamilyCompositeMagic(tr.magic)
-      && !IsTimeFamilyCompositeMagic(tr.magic))
+   if(IsAnyAlgoFamilyCompositeMagic(tr.magic) && IsLevelFamilyCompositeMagic(tr.magic))
       out.levelCats = g_levelsExpanded[FalgoResolveExpandedLevelIdxFromMagicKey(fk)].categories;
 
    const double levelPrice = (IsBreakdownFamilyCompositeMagic(tr.magic)
@@ -14120,7 +15463,9 @@ void FalgoFillTradeBounceCeilingCountsAtStart(const TradeResult &tr,
 
 //+------------------------------------------------------------------+
 #define FALGO_BREAKDOWN_ALLDAYS_COLS    45
-#define FALGO_TIME_ALGO_ALLDAYS_COLS    47
+#define FALGO_SECRET_TP_ALGO_ALLDAYS_COLS 47
+#define FALGO_TIME_ALGO_ALLDAYS_COLS        FALGO_SECRET_TP_ALGO_ALLDAYS_COLS
+#define FALGO_LEVEL_ALGO_ALLDAYS_COLS       FALGO_SECRET_TP_ALGO_ALLDAYS_COLS
 
 //+------------------------------------------------------------------+
 string FalgoTradeDurationHoursStr(const datetime startTime, const datetime endTime)
@@ -14179,6 +15524,14 @@ void FalgoResetAllDaysTradeResultsSummaryLogsOnInit()
       FalgoFileWriteAllDaysHeader(fh, FalgoTimeAlgoAllDaysTradeResultsHeader());
       FileClose(fh);
    }
+   if(LevelAlgoFamilyEodTradeResultsAllDaysLoggingEnabled())
+   {
+      int fh = FileOpen("summary_tradeResults_all_days_level.tsv",
+         FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+      FalgoFatalIfFileOpenFailed("summary_tradeResults_all_days_level.tsv", fh);
+      FalgoFileWriteAllDaysHeader(fh, FalgoLevelAlgoAllDaysTradeResultsHeader());
+      FileClose(fh);
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -14198,6 +15551,14 @@ void FalgoResetAllDays2TradeResultsSummaryLogsOnInit()
          FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
       FalgoFatalIfFileOpenFailed("summary_tradeResults_all_days2_time.csv", fh);
       FalgoFileWriteAllDaysHeader(fh, FalgoTimeAlgoAllDaysTradeResultsHeader());
+      FileClose(fh);
+   }
+   if(LevelAlgoFamilyEodTradeResultsAllDays2LoggingEnabled())
+   {
+      int fh = FileOpen("summary_tradeResults_all_days2_level.csv",
+         FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+      FalgoFatalIfFileOpenFailed("summary_tradeResults_all_days2_level.csv", fh);
+      FalgoFileWriteAllDaysHeader(fh, FalgoLevelAlgoAllDaysTradeResultsHeader());
       FileClose(fh);
    }
 }
@@ -14323,10 +15684,24 @@ void TimeAlgoAllDaysAlgoConfigForMagic(const long magic, int &outEntryHour, int 
 }
 
 //+------------------------------------------------------------------+
-void FalgoAppendTimeAlgoTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
+void FalgoSecretTpAlgoAllDaysConfigForMagic(const long magic, int &outEntryHour, int &outEntryMinute,
+   double &outSecretTpProfitPctMin, double &outSecretTpGreenguardPricediff)
+{
+   outEntryHour = 0;
+   outEntryMinute = 0;
+   outSecretTpProfitPctMin = 0.0;
+   outSecretTpGreenguardPricediff = 0.0;
+   if(IsTimeFamilyCompositeMagic(magic))
+      TimeAlgoAllDaysAlgoConfigForMagic(magic, outEntryHour, outEntryMinute, outSecretTpProfitPctMin, outSecretTpGreenguardPricediff);
+   else if(IsLevelFamilyCompositeMagic(magic))
+      LevelAlgoAllDaysAlgoConfigForMagic(magic, outEntryHour, outEntryMinute, outSecretTpProfitPctMin, outSecretTpGreenguardPricediff);
+}
+
+//+------------------------------------------------------------------+
+void FalgoAppendSecretTpAlgoTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
 {
    const int base = ArraySize(cells);
-   ArrayResize(cells, base + FALGO_TIME_ALGO_ALLDAYS_COLS);
+   ArrayResize(cells, base + FALGO_SECRET_TP_ALGO_ALLDAYS_COLS);
    cells[base + 0]  = dateStr;
    cells[base + 1]  = tr.symbol;
    cells[base + 2]  = (tr.tradeCustomId > 0 ? IntegerToString(tr.tradeCustomId) : "");
@@ -14357,7 +15732,7 @@ void FalgoAppendTimeAlgoTradeResultCells(string &cells[], const string dateStr, 
       int mfeCandleFallback = 0;
       int maeCandleFallback = 0;
       if(!FalgoTryM1MfeMaePointsForTrade(tr, mfePts, maePts, mfeCandleFallback, maeCandleFallback))
-         FatalError(StringFormat("FalgoAppendTimeAlgoTradeResultCells: no MFE/MAE telemetry or M1 fallback magic=%I64d startTime=%s",
+         FatalError(StringFormat("FalgoAppendSecretTpAlgoTradeResultCells: no MFE/MAE telemetry or M1 fallback magic=%I64d startTime=%s",
             tr.magic, TimeToString(tr.startTime, TIME_DATE | TIME_SECONDS)));
       cells[base + 18] = DoubleToString(mfePts, 1);
       cells[base + 19] = DoubleToString(maePts, 1);
@@ -14405,11 +15780,29 @@ void FalgoAppendTimeAlgoTradeResultCells(string &cells[], const string dateStr, 
    cells[base + 42] = FalgoSanitizeCsvCell(legacyCtx.refBelow);
    int entryHour = 0, entryMinute = 0;
    double secretTpProfitPctMin = 0.0, secretTpGreenguardPricediff = 0.0;
-   TimeAlgoAllDaysAlgoConfigForMagic(tr.magic, entryHour, entryMinute, secretTpProfitPctMin, secretTpGreenguardPricediff);
+   FalgoSecretTpAlgoAllDaysConfigForMagic(tr.magic, entryHour, entryMinute, secretTpProfitPctMin, secretTpGreenguardPricediff);
    cells[base + 43] = IntegerToString(entryHour);
    cells[base + 44] = IntegerToString(entryMinute);
    cells[base + 45] = DoubleToString(secretTpProfitPctMin, 2);
    cells[base + 46] = DoubleToString(secretTpGreenguardPricediff, _Digits);
+}
+
+//+------------------------------------------------------------------+
+void FalgoAppendTimeAlgoTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
+{
+   FalgoAppendSecretTpAlgoTradeResultCells(cells, dateStr, tr);
+}
+
+//+------------------------------------------------------------------+
+void FalgoAppendLevelAlgoTradeResultCells(string &cells[], const string dateStr, const TradeResult &tr)
+{
+   FalgoAppendSecretTpAlgoTradeResultCells(cells, dateStr, tr);
+}
+
+//+------------------------------------------------------------------+
+string FalgoLevelAlgoAllDaysTradeResultsHeader()
+{
+   return FalgoTimeAlgoAllDaysTradeResultsHeader();
 }
 
 //+------------------------------------------------------------------+
@@ -14476,6 +15869,40 @@ void FalgoAppendTimeAlgoClosedTradeToAllDays2Summary(const TradeResult &tr)
    if(!TimeAlgoFamilyEodTradeResultsAllDays2LoggingEnabled())
       return;
    FalgoAppendTimeAlgoClosedTradeToAllDaysSummaryFile(tr, "summary_tradeResults_all_days2_time.csv");
+}
+
+//+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+void FalgoAppendLevelAlgoClosedTradeToAllDaysSummaryFile(const TradeResult &tr, const string summaryAllName)
+{
+   if(!tr.foundOut || !IsLevelFamilyCompositeMagic(tr.magic))
+      return;
+
+   int fh = FileOpen(summaryAllName, FILE_READ | FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   FalgoFatalIfFileOpenFailed(summaryAllName, fh);
+   FileSeek(fh, 0, SEEK_END);
+
+   const string dateStr = TimeToString(tr.endTime - (tr.endTime % 86400), TIME_DATE);
+   string cells[];
+   FalgoAppendLevelAlgoTradeResultCells(cells, dateStr, tr);
+   FalgoFileWriteAllDaysRowFromCells(fh, cells, 0, FALGO_LEVEL_ALGO_ALLDAYS_COLS);
+   FileClose(fh);
+}
+
+//+------------------------------------------------------------------+
+void FalgoAppendLevelAlgoClosedTradeToAllDaysSummary(const TradeResult &tr)
+{
+   if(!LevelAlgoFamilyEodTradeResultsAllDaysLoggingEnabled())
+      return;
+   FalgoAppendLevelAlgoClosedTradeToAllDaysSummaryFile(tr, "summary_tradeResults_all_days_level.tsv");
+}
+
+//+------------------------------------------------------------------+
+void FalgoAppendLevelAlgoClosedTradeToAllDays2Summary(const TradeResult &tr)
+{
+   if(!LevelAlgoFamilyEodTradeResultsAllDays2LoggingEnabled())
+      return;
+   FalgoAppendLevelAlgoClosedTradeToAllDaysSummaryFile(tr, "summary_tradeResults_all_days2_level.csv");
 }
 
 //+------------------------------------------------------------------+
@@ -20301,6 +21728,7 @@ void ValidateMagicCompositionOnInit()
    SyncAlgoFamilyProfileFromInputs();
    SyncBreakdownFamilyProfileFromInputs();
    SyncTimeAlgoFamilyProfileFromInputs();
+   SyncLevelAlgoFamilyProfileFromInputs();
    ValidateBreakdownEntryForgetTimingOnInit();
    if(!AlgoFamilyAnyEnabled())
       FatalError("Enable at least one algo family slot.");
@@ -23624,7 +25052,8 @@ void FalgoTryLogAlgoFamilyPerSecond()
 {
    if(!FalgoIsTimeInPerSecondLogWindow(g_lastTimer1Time))
       return;
-   if(!bigflipper_log_testing_algofamily_per_second && !bigflipper_log_algo_gates_per_second)
+   if(!bigflipper_log_testing_algofamily_per_second && !bigflipper_log_algo_gates_per_second
+      && !bigflipper_log_level_algo_gates_per_second)
       return;
    if(g_barsInDay <= 0 || g_m1DayStart == 0)
       return;
@@ -23669,6 +25098,8 @@ void FalgoTryLogAlgoFamilyPerSecond()
             BacktestProfAccumulate(BACKTEST_PROF_GATES_LOG_PER_SECOND, profT0);
       }
    }
+   if(bigflipper_log_level_algo_gates_per_second)
+      LevelAlgoTryLogGatesPerSecond();
 }
 
 //+------------------------------------------------------------------+
@@ -24414,6 +25845,17 @@ bool BreakdownAnyFamilyOccupiedOnSymbolCached()
 }
 
 //+------------------------------------------------------------------+
+bool TimeAnyFamilyOccupiedOnSymbolCached()
+{
+   for(int si = 0; si < g_timeAlgoCount; si++)
+   {
+      if(BreakdownAlgoIsOccupiedOnSymbolCached(g_timeAlgos[si].algo_id))
+         return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
 //| Close any algo-family position open longer than minutes. Sets trade magic so OUT deal pairs with IN. |
 //+------------------------------------------------------------------+
 void CloseAnyEAPositionThatIsXMinutesOld(int minutes)
@@ -24930,6 +26372,7 @@ int OnInit()
    FalgoResetAllDays2TradeResultsSummaryLogsOnInit();
    BreakdownResetAllBreakdownsAuditLogsOnInit();
    BreakdownGatesLogInitFileHandles();
+   LevelAlgoGatesLogInitFileHandles();
    BuyHoldBenchmarkResetOnInit();
    g_m1BarCloseTerminalWasConnected = (bool)TerminalInfoInteger(TERMINAL_CONNECTED);
 
@@ -24947,8 +26390,10 @@ int OnInit()
    EnsureOccupiedMagicsCacheInitialized();
    FalgoLifetimePosMapClear(g_breakdownLifetimePosMapSlot, FALGO_LIFETIME_POS_MAP_BUCKETS);
    FalgoLifetimePosMapClear(g_timeAlgoLifetimePosMapSlot, FALGO_LIFETIME_POS_MAP_BUCKETS);
+   FalgoLifetimePosMapClear(g_levelAlgoLifetimePosMapSlot, FALGO_LIFETIME_POS_MAP_BUCKETS);
    BreakdownHydrateSecretTpFromOpenPositionsOnInit();
    TimeAlgoHydrateSecretTpFromOpenPositionsOnInit();
+   LevelAlgoHydrateSecretTpFromOpenPositionsOnInit();
    FalgoRebuildOpenLifetimePosMapsOnInit();
    FalgoRebuildDayCountersFromHistoryOnInit();
 
@@ -25097,6 +26542,7 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
       AlgoFamilyOccupiedCacheNoteOpenFilled(AlgoFamilyMagicNumber(dealMagic));
    BreakdownLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
    TimeAlgoLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
+   LevelAlgoLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
 
    string magicStrForLogFilename = GetMagicStrForLogFilename(dealMagic);
    if(StringLen(magicStrForLogFilename) == 0) return;
@@ -25142,6 +26588,8 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
       BreakdownLogTradeClosedLifetime(posId, entryMagic, closeTime, closePrice, reason, closeProfit);
    if(IsTimeFamilyCompositeMagic(entryMagic))
       TimeAlgoLogTradeClosedLifetime(posId, entryMagic, closeTime, closePrice, reason, closeProfit);
+   if(IsLevelFamilyCompositeMagic(entryMagic))
+      LevelAlgoLogTradeClosedLifetime(posId, entryMagic, closeTime, closePrice, reason, closeProfit);
 
    string magicStrForLogFilename = GetMagicStrForLogFilename(entryMagic);
    if(StringLen(magicStrForLogFilename) == 0) return;
@@ -25356,6 +26804,7 @@ void OnDeinit(const int reason)
    const ulong deinitT0 = BacktestProfileEnabled() ? GetMicrosecondCount() : 0;
 
    BreakdownGatesLogCloseAllFileHandles();
+   LevelAlgoGatesLogCloseAllFileHandles();
    PullingHistoryPsLogCloseHandles();
    BuyHoldBenchmarkUpdate(true);
 
@@ -25661,6 +27110,7 @@ void OnTimer()
    if(profOn)
       profT0 = GetMicrosecondCount();
    FalgoTryLogGatesForClosedMinute();
+   LevelAlgoTryLogGatesForClosedMinute();
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_M1_BAR_CLOSE_GATES_FALGO, profT0);
 
@@ -25669,6 +27119,7 @@ void OnTimer()
       const int placementBarIdx = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
       RunBreakdownPlacementOnM1Close(placementBarIdx);
       RunTimeAlgoPlacementOnM1Close(placementBarIdx);
+      RunLevelAlgoPlacementOnM1Close(placementBarIdx);
    }
 
    if(profOn)
