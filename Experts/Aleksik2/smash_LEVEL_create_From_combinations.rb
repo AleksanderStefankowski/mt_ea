@@ -30,25 +30,28 @@ DESIRED_EXPIRY_MINUTES = [120].freeze
 # :both -> trades_weekly=true, trades_daily=true
 # :weekly -> trades_weekly=true, trades_daily=false
 # :daily  -> trades_weekly=false, trades_daily=true
-DESIRED_TRADES_WHAT_LEVELS = %i[both weekly].freeze # daily
+DESIRED_TRADES_WHAT_LEVELS = %i[weekly].freeze # [both weekly daily, weekly has best profit and time!!!]
 
-DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze   # [1, 3]
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 4.0, 8.0, 30.0].freeze
+DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze   # [1, 3: 3 is better]
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [4.0, 6.0, 10.0, 20.0].freeze # [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
 DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL = [25.0].freeze
-DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO = [true, false].freeze
-DESIRED_OFFSET_POSITIVE = [true, false].freeze
-DESIRED_OFFSET_PERCENTAGE = [0.0005, 0.0020].freeze
-DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET = [4.0, 1.0].freeze
+DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO = [true, false].freeze # [true, false] seems no diff, can retest later with less options
+DESIRED_OFFSET_POSITIVE = [true].freeze # true had 30% more profit than false
+DESIRED_OFFSET_PERCENTAGE = [0.0005, 0.0020].freeze # [false, 0.0020 is very bad] 
+DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET = [1.5, 1.0, 0.8, 0.5, 0.3].freeze # ([4.0, 1.0] 1.0 more trades than 4.0 so more profit, but worse avgDuration)
+#  [1.0 129% profit  0.037 ratio , 0.5 146% profit  0.033 ratio] 
 
 # trades_tags presets — wantTag is a substring of the level tag (LevelAlgoTagMatches):
 #   "Down1" matches dailyDown1, weeklyDown1, ...
 #   "Up2"   matches dailyUp2, weeklyUp2, ...
 #   "Pivot" matches dailyPivot, weeklyPivot (one entry is enough)
+
+# removed "all_up" as it had terrible stats. "all_down_pivot" "all_tags" had 33% weaker profitVStime
 DESIRED_TRADES_TAGS_PRESET = %i[
-  all_tags
+  
   all_down
-  all_up
-  all_down_pivot
+
+  
 ].freeze
 
 TRADES_TAGS_BY_PRESET = {
@@ -64,7 +67,6 @@ COMBO_FIELDS = %i[
   trades_what_levels
   stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
   secret_tp_profit_percent_min
-  price_proximity_above_level
   level_needs_to_be_below_ONO
   offset_positive
   offset_percentage
@@ -198,7 +200,6 @@ module LevelCombinationsCreator
       stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count:
         DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT.size,
       secret_tp_profit_percent_min: DESIRED_SECRET_TP_PROFIT_PERCENT_MIN.size,
-      price_proximity_above_level: DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL.size,
       level_needs_to_be_below_ONO: DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO.size,
       offset_positive: DESIRED_OFFSET_POSITIVE.size,
       offset_percentage: DESIRED_OFFSET_PERCENTAGE.size,
@@ -217,20 +218,18 @@ module LevelCombinationsCreator
       DESIRED_TRADES_WHAT_LEVELS,
       DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT,
       DESIRED_SECRET_TP_PROFIT_PERCENT_MIN,
-      DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL,
       DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO,
       DESIRED_OFFSET_POSITIVE,
       DESIRED_OFFSET_PERCENTAGE,
       DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET,
       DESIRED_TRADES_TAGS_PRESET
-    ) do |max_open, expiry, trades_scope, stop_total, secret_tp, proximity, below_ono, offset_pos, offset_pct, multiply_offset, tags_preset|
+    ) do |max_open, expiry, trades_scope, stop_total, secret_tp, below_ono, offset_pos, offset_pct, multiply_offset, tags_preset|
       combo = {
         max_open_positions: max_open,
         expiry_minutes: expiry,
         trades_what_levels: trades_scope,
         stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: stop_total,
         secret_tp_profit_percent_min: secret_tp,
-        price_proximity_above_level: proximity,
         level_needs_to_be_below_ONO: below_ono,
         offset_positive: offset_pos,
         offset_percentage: offset_pct,
@@ -265,6 +264,35 @@ module LevelCombinationsCreator
     lines.join("\n")
   end
 
+  def family_price_proximity_above_level
+    if DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL.size != 1
+      warn "DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL has #{DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL.size} values; " \
+           "using first (#{DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL.first}) as family-wide g_levelAlgoShared.price_proximity_above_level"
+    end
+    DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL.first
+  end
+
+  def set_family_price_proximity!(level_fam_content, proximity)
+    line = "g_levelAlgoShared.price_proximity_above_level = #{format_mq5_double(proximity)};"
+    if level_fam_content.match?(/g_levelAlgoShared\.price_proximity_above_level\s*=/)
+      unless level_fam_content.sub!(
+        /g_levelAlgoShared\.price_proximity_above_level\s*=\s*[^;]+;/,
+        line
+      )
+        raise "Failed to update g_levelAlgoShared.price_proximity_above_level in #{LEVEL_FAM_FILE}"
+      end
+    else
+      unless level_fam_content.sub!(
+        /(\/\/levelalgocreator2start)/,
+        "#{line}\n\\1"
+      )
+        raise "Could not insert g_levelAlgoShared.price_proximity_above_level before //levelalgocreator2start"
+      end
+    end
+
+    level_fam_content
+  end
+
   def build_algo_params_block(algo_id, combo)
     const = level_magic_const(algo_id)
     slot = "LevelAlgoSlotIndexByAlgoId(#{const})"
@@ -282,7 +310,6 @@ module LevelCombinationsCreator
     lines << "g_levelAlgos[#{slot}].max_open_positions = #{combo[:max_open_positions]};"
     lines << "g_levelAlgos[#{slot}].secret_tp_profit_percent_min = #{format_mq5_double(combo[:secret_tp_profit_percent_min])};"
     lines << "g_levelAlgos[#{slot}].secret_tp_greenguard_pricediff_at_least = 20.0;"
-    lines << "g_levelAlgos[#{slot}].price_proximity_above_level = #{format_mq5_double(combo[:price_proximity_above_level])};"
     lines << "g_levelAlgos[#{slot}].level_needs_to_be_below_ONO = #{format_mq5_bool(combo[:level_needs_to_be_below_ONO])};"
     lines << "g_levelAlgos[#{slot}].offset_positive = #{format_mq5_bool(combo[:offset_positive])};"
     lines << "g_levelAlgos[#{slot}].offset_percentage = #{format_mq5_double(combo[:offset_percentage], 4)};"
@@ -319,6 +346,7 @@ module LevelCombinationsCreator
       end.join("\n\n")
 
     level_fam_content = replace_inner(level_fam_content, LEVEL_FAM_MARKERS[2], params_inner)
+    level_fam_content = set_family_price_proximity!(level_fam_content, family_price_proximity_above_level)
 
     [mq5_content, level_fam_content]
   end
@@ -338,6 +366,7 @@ if __FILE__ == $PROGRAM_NAME
   puts
   puts "  trades_what_levels: #{DESIRED_TRADES_WHAT_LEVELS.join(', ')}"
   puts "  trades_tags presets: #{DESIRED_TRADES_TAGS_PRESET.join(', ')}"
+  puts "  family price_proximity_above_level: #{family_price_proximity_above_level}"
   puts
 
   mq5_content = File.read(MQ5_FILE, encoding: "bom|utf-8")

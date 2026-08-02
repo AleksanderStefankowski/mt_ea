@@ -15,6 +15,7 @@
 #   READ_ALL_ALGOS_FROM_PERFORMANCE_OUTPUT = true
 #     Catalog every algo listed in analyze_breakdown_algos_performance_output.csv and
 #     analyze_time_algos_performance_output.csv.
+#   Rows with non-numeric algoID (e.g. ALL/BREAKDOWN summary rows) are skipped.
 #
 # Per family:
 #   breakdown -> aleksik2_r_read_breakdown_algos_csv.csv + analyze_breakdown_algos_performance_output*.csv
@@ -110,6 +111,10 @@ rescue ArgumentError
   raise "ERROR: invalid algo id #{algo_id.inspect} (expected digits only)"
 end
 
+def catalogable_algo_id?(algo_id)
+  algo_id.to_s.strip.match?(/\A\d+\z/)
+end
+
 def algo_ids_from_performance_output(family)
   perf_path = FAMILIES[family][:perf_path]
   unless File.file?(perf_path)
@@ -119,7 +124,10 @@ def algo_ids_from_performance_output(family)
 
   Lib.read_csv(perf_path).filter_map do |row|
     algo_id = row['algoID'].to_s.strip
-    algo_id.empty? ? nil : algo_id
+    next if algo_id.empty?
+    next unless catalogable_algo_id?(algo_id)
+
+    algo_id
   end.uniq.sort_by(&:to_i)
 end
 

@@ -205,22 +205,30 @@ def main_close_reason_for_trades(trades)
   counts.max_by { |label, count| [count, label] }.first
 end
 
-def trade_close_reason_label(close_decision, reason)
-  decision = close_decision.to_s.strip
-  return decision unless decision.empty?
+def gross_profit_and_loss_custom_with_roll(trades)
+  profits = trades.map { |trade| trade[:profit_custom_with_roll].to_f }
 
-  reason.to_s.strip
+  [
+    profits.select(&:positive?).sum,
+    profits.select(&:negative?).sum.abs
+  ]
 end
 
-def main_close_reason_for_trades(trades)
-  return '' if trades.empty?
+def profit_factor_from_gross(gross_profit, gross_loss)
+  return 999.0 if gross_loss.zero? && gross_profit.positive?
+  return 0.0 if gross_loss.zero?
 
-  counts = Hash.new(0)
-  trades.each do |trade|
-    label = trade_close_reason_label(trade[:close_decision], trade[:reason])
-    label = '(none)' if label.empty?
-    counts[label] += 1
-  end
+  gross_profit / gross_loss
+end
 
-  counts.max_by { |label, count| [count, label] }.first
+def profit_factor_for_trades(trades)
+  gross_profit, gross_loss = gross_profit_and_loss_custom_with_roll(trades)
+  profit_factor_from_gross(gross_profit, gross_loss)
+end
+
+def format_profit_factor(value)
+  return '' if value.nil?
+  return '999.00' if value >= 999.0
+
+  format('%.2f', value)
 end

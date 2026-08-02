@@ -5,10 +5,18 @@
 #   analyze_ALL_algos_performance_output.csv
 #   analyze_ALL_algos_performance_output_2025flashcrash.csv
 #   analyze_ALL_algos_performance_output_except_2025flashcrash.csv
+#
+# Each family CSV includes algoID=ALL with pattern=BREAKDOWN|TIME|LEVEL.
+# The merged file adds algoID=ALL pattern=ALL by summing family ALL rows (no TSV reload).
 
 require 'csv'
 require 'rbconfig'
 require 'open3'
+require_relative 'analyze_algos_performance_common'
+
+include AnalyzeAlgosPerformanceCommon
+
+self.traderate_account_for_banned_days = false
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 OUTPUT_TIMESTAMP_PATH = File.join(SCRIPT_DIR, 'analyze_ALL_algos_performance_output.timestamp')
@@ -102,16 +110,23 @@ def merge_family_outputs!(family_outputs, merged_output)
     return
   end
 
-  rows.sort_by! { |row| row['algoID'].to_i }
+  merged_all_row = build_merged_all_row_from_family_all_rows(family_all_rows(rows))
+  if merged_all_row
+    headers ||= CSV_HEADERS
+    rows.unshift(merged_all_row.transform_keys(&:to_s))
+  end
+
+  rows = sort_performance_rows(rows)
 
   merged_path = File.join(SCRIPT_DIR, merged_output)
   CSV.open(merged_path, 'w', write_headers: true, headers: headers) do |csv|
     rows.each do |row|
-      csv << headers.map { |header| row[header] }
+      csv << headers.map { |header| row[header] || row[header.to_sym] }
     end
   end
 
-  warn "Wrote #{rows.size} algo rows to #{merged_path} " \
+  all_note = merged_all_row ? ' (includes ALL/ALL row from family ALL rows)' : ''
+  warn "Wrote #{rows.size} rows to #{merged_path}#{all_note} " \
        "(merged from #{used_paths.join(', ')})"
 end
 
