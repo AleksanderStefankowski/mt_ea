@@ -1193,7 +1193,7 @@ void SyncLevelAlgoFamilyProfileFromInputs()
    g_levelAlgoShared.price_proximity_above_level = 25.0;
 
 //levelalgocreator2start
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1219,7 +1219,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1244,7 +1244,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1270,7 +1270,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1295,7 +1295,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1321,7 +1321,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1346,7 +1346,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1372,7 +1372,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1397,7 +1397,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1423,7 +1423,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1448,7 +1448,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1474,7 +1474,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1499,7 +1499,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1525,7 +1525,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1550,7 +1550,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1576,7 +1576,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1601,7 +1601,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1627,7 +1627,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1652,7 +1652,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1678,7 +1678,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1703,7 +1703,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1729,7 +1729,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1754,7 +1754,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1780,7 +1780,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1805,7 +1805,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1831,7 +1831,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1856,7 +1856,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1882,7 +1882,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1907,7 +1907,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1933,7 +1933,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1958,7 +1958,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -1984,7 +1984,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2009,7 +2009,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2035,7 +2035,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2060,7 +2060,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2086,7 +2086,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2111,7 +2111,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2137,7 +2137,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2162,7 +2162,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2188,7 +2188,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2213,7 +2213,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2239,7 +2239,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2264,7 +2264,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2290,7 +2290,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2315,7 +2315,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2341,7 +2341,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2366,7 +2366,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2392,7 +2392,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2417,7 +2417,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2443,7 +2443,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2468,7 +2468,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2494,7 +2494,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2519,7 +2519,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2545,7 +2545,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2570,7 +2570,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2596,7 +2596,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2621,7 +2621,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2647,7 +2647,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2672,7 +2672,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2698,7 +2698,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2723,7 +2723,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2749,7 +2749,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2774,7 +2774,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2800,7 +2800,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2825,7 +2825,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2851,7 +2851,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2876,7 +2876,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2902,7 +2902,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2927,7 +2927,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2953,7 +2953,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2978,7 +2978,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3004,7 +3004,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3029,7 +3029,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3055,7 +3055,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3080,7 +3080,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3106,7 +3106,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3131,7 +3131,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3157,7 +3157,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3182,7 +3182,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3208,7 +3208,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3233,7 +3233,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3259,7 +3259,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3284,7 +3284,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3310,7 +3310,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3335,7 +3335,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3361,7 +3361,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3386,7 +3386,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3412,7 +3412,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3437,7 +3437,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3463,7 +3463,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3488,7 +3488,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3514,7 +3514,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3539,7 +3539,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3565,7 +3565,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3590,7 +3590,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3616,7 +3616,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_daily = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3641,7 +3641,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3667,7 +3667,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3692,7 +3692,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3718,7 +3718,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3743,7 +3743,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3769,7 +3769,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3794,7 +3794,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3820,7 +3820,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3845,7 +3845,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3871,7 +3871,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3896,7 +3896,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3922,7 +3922,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3947,7 +3947,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3973,7 +3973,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3998,7 +3998,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4024,7 +4024,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4049,7 +4049,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4075,7 +4075,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4100,7 +4100,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4126,7 +4126,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4151,7 +4151,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4177,7 +4177,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4202,7 +4202,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4228,7 +4228,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4279,7 +4279,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4304,7 +4304,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4330,7 +4330,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4355,7 +4355,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4381,7 +4381,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4406,7 +4406,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4432,7 +4432,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4457,7 +4457,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4483,7 +4483,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4508,7 +4508,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4534,7 +4534,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4559,7 +4559,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4585,7 +4585,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4610,7 +4610,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4636,7 +4636,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4661,7 +4661,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4687,7 +4687,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4712,7 +4712,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4738,7 +4738,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4763,7 +4763,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4789,7 +4789,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4814,7 +4814,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4840,7 +4840,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4865,7 +4865,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4891,7 +4891,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4916,7 +4916,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4942,7 +4942,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4967,7 +4967,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4993,7 +4993,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5018,7 +5018,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5044,7 +5044,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5069,7 +5069,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5095,7 +5095,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5120,7 +5120,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5146,7 +5146,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5171,7 +5171,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5197,7 +5197,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5222,7 +5222,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5248,7 +5248,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5273,7 +5273,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5299,7 +5299,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5324,7 +5324,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5350,7 +5350,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5375,7 +5375,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5401,7 +5401,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5426,7 +5426,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5452,7 +5452,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5477,7 +5477,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5503,7 +5503,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5528,7 +5528,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5554,7 +5554,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5579,7 +5579,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5605,7 +5605,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5630,7 +5630,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5656,7 +5656,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5681,7 +5681,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5707,7 +5707,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5732,7 +5732,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5758,7 +5758,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5783,7 +5783,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5809,7 +5809,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5834,7 +5834,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5860,7 +5860,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5885,7 +5885,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5911,7 +5911,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5936,7 +5936,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5962,7 +5962,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5987,7 +5987,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6013,7 +6013,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6038,7 +6038,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6064,7 +6064,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6089,7 +6089,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6115,7 +6115,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6140,7 +6140,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6166,7 +6166,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6191,7 +6191,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6217,7 +6217,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6242,7 +6242,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6268,7 +6268,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6293,7 +6293,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6319,7 +6319,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6344,7 +6344,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6370,7 +6370,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6395,7 +6395,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6421,7 +6421,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6446,7 +6446,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6472,7 +6472,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6497,7 +6497,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6523,7 +6523,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6548,7 +6548,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6574,7 +6574,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6599,7 +6599,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6625,7 +6625,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6650,7 +6650,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6676,7 +6676,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6701,7 +6701,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6727,7 +6727,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6752,7 +6752,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6778,7 +6778,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6803,7 +6803,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6829,7 +6829,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6854,7 +6854,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6880,7 +6880,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6905,7 +6905,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6931,7 +6931,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6956,7 +6956,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -6982,7 +6982,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7007,7 +7007,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7033,7 +7033,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7058,7 +7058,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7084,7 +7084,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7109,7 +7109,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7135,7 +7135,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7160,7 +7160,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7186,7 +7186,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7211,7 +7211,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7237,7 +7237,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7262,7 +7262,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7288,7 +7288,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7313,7 +7313,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7339,7 +7339,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7364,7 +7364,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7390,7 +7390,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7415,7 +7415,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7441,7 +7441,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7466,7 +7466,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7492,7 +7492,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7517,7 +7517,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7543,7 +7543,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7568,7 +7568,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7594,7 +7594,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7619,7 +7619,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7645,7 +7645,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7670,7 +7670,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7696,7 +7696,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7721,7 +7721,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7747,7 +7747,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7772,7 +7772,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7798,7 +7798,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7823,7 +7823,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7849,7 +7849,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7874,7 +7874,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7900,7 +7900,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7925,7 +7925,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7951,7 +7951,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -7976,7 +7976,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8002,7 +8002,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8027,7 +8027,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8053,7 +8053,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8078,7 +8078,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8104,7 +8104,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8129,7 +8129,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8155,7 +8155,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8180,7 +8180,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8206,7 +8206,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8231,7 +8231,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8257,7 +8257,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8282,7 +8282,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8308,7 +8308,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8333,7 +8333,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8359,7 +8359,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8384,7 +8384,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8410,7 +8410,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8435,7 +8435,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8461,7 +8461,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8486,7 +8486,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -8512,7 +8512,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].enabled = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_weekly = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;

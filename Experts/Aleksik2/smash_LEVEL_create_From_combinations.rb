@@ -30,17 +30,18 @@ DESIRED_EXPIRY_MINUTES = [120].freeze
 # :both -> trades_weekly=true, trades_daily=true
 # :weekly -> trades_weekly=true, trades_daily=false
 # :daily  -> trades_weekly=false, trades_daily=true
-DESIRED_TRADES_WHAT_LEVELS = %i[weekly both daily].freeze # [both weekly daily, weekly has best profit and time!!!]
+DESIRED_TRADES_WHAT_LEVELS = %i[both].freeze # [both weekly daily, both has highest profit, weekly has highest timevsprofit with OK profit. daily serves no purpose then?]
 
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze   # [1, 3: 3 is better]
 #  [1, 3, 10] 10 is best? somehow had better avgtimeVSprofit and better avgavgDurationHours than 3.
 
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 8.0, 30.0].freeze 
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [30.0].freeze 
 # [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
 # [4.0, 6.0, 10.0, 20.0], stil more profit if higher target, but 10.0 had best profitvstime
 # [8.0, 10.0, 12.0, 14.0, 20.0]
 # 20 means SPX go up by 1% (leverage 1:20)
 # [8.0, 10.0, 12.0, 14.0, 20.0] as always, higher means more profit
+
 
 DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL = [25.0].freeze
 DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO = [true].freeze # [true, false] seems no diff, can retest later with less options. we only trade down levels so this is irrelevant

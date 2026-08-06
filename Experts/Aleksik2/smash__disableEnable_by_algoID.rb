@@ -1,9 +1,13 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-# Set .enabled for specific breakdown/time algo IDs in aleksik2.mq5.
+# Set .enabled for specific breakdown / time / level algo IDs.
+#
+# Breakdown + time: aleksik2.mq5 (//breakdowncreator1*, //timealgocreator1*)
+# Level: registry in aleksik2.mq5 (//levelalgocreator1*), .enabled in aleksik2_level_fam.mqh
 #
 # Whitelist (target :enabled): enable listed algos, disable all other wired algos in that family.
 # Blacklist (target :disabled): disable listed algos only; leave all others unchanged.
+# Whitelist with an empty list: disable every algo in that family.
 
 require_relative "smash_BREAKDOWN_creator_from_combinations"
 
@@ -11,14 +15,21 @@ EDIT_BD_ALGOS = true
 TARGET_STATE_FOR_BD_ALGOS = :enabled # :enabled or :disabled
 
 SET_STATE_FOR_BD_ALGOS_LIST = <<~IDS
-  20000028
+  20000025
 IDS
 
 EDIT_TIME_ALGOS = true
-TARGET_STATE_FOR_TIME_ALGOS = :enabled # :enabled or :disabled
+TARGET_STATE_FOR_TIME_ALGOS = :enabled # :enabled or :disabled — empty list = disable all time algos
 
 SET_STATE_FOR_TIME_ALGOS_LIST = <<~IDS
-  10000002
+
+IDS
+
+EDIT_LEVEL_ALGOS = true
+TARGET_STATE_FOR_LEVEL_ALGOS = :enabled # :enabled or :disabled
+
+SET_STATE_FOR_LEVEL_ALGOS_LIST = <<~IDS
+  30000121
 IDS
 
 BD_REGISTRY_MARKERS = %w[//breakdowncreator1start //breakdowncreator1end].freeze
@@ -27,12 +38,21 @@ BD_REGISTRY_ID_RE = /MAGIC_BREAKDOWN(\d+)/
 TIME_REGISTRY_MARKERS = %w[//timealgocreator1start //timealgocreator1end].freeze
 TIME_REGISTRY_ID_RE = /TIME_ALGO_(\d+)/
 
+LEVEL_REGISTRY_MARKERS = %w[//levelalgocreator1start //levelalgocreator1end].freeze
+LEVEL_REGISTRY_ID_RE = /MAGIC_LEVEL(\d+)/
+
+LEVEL_FAM_FILE = File.expand_path("aleksik2_level_fam.mqh", __dir__)
+
 BD_ENABLED_LINE_RE = /
   g_breakdownAlgos\[BreakdownAlgoSlotIndexByAlgoId\(MAGIC_BREAKDOWN(\d+)\)\]\.enabled\s*=\s*(true|false);
 /x
 
 TIME_ENABLED_LINE_RE = /
   g_timeAlgos\[TimeAlgoSlotIndexByAlgoId\(TIME_ALGO_(\d+)\)\]\.enabled\s*=\s*(true|false);
+/x
+
+LEVEL_ENABLED_LINE_RE = /
+  g_levelAlgos\[LevelAlgoSlotIndexByAlgoId\(MAGIC_LEVEL(\d+)\)\]\.enabled\s*=\s*(true|false);
 /x
 
 module DisableEnableByAlgoId
@@ -49,7 +69,7 @@ module DisableEnableByAlgoId
     end
   end
 
-  def parse_algo_id_list(text, label)
+  def parse_algo_id_list(text, label, allow_empty: false)
     ids =
       text.each_line.filter_map do |line|
         stripped = line.strip
@@ -61,7 +81,9 @@ module DisableEnableByAlgoId
         stripped.to_i
       end.uniq.sort
 
-    raise ArgumentError, "#{label} is empty" if ids.empty?
+    if ids.empty? && !allow_empty
+      raise ArgumentError, "#{label} is empty"
+    end
 
     ids
   end
@@ -101,6 +123,10 @@ module DisableEnableByAlgoId
     /g_timeAlgos\[TimeAlgoSlotIndexByAlgoId\(TIME_ALGO_#{algo_id}\)\]\.enabled\s*=\s*(true|false);/
   end
 
+  def level_enabled_line_re(algo_id)
+    /g_levelAlgos\[LevelAlgoSlotIndexByAlgoId\(MAGIC_LEVEL#{algo_id}\)\]\.enabled\s*=\s*(true|false);/
+  end
+
   def apply_enable_plan!(content, line_re, plan)
     changed = []
     skipped = []
@@ -130,12 +156,12 @@ module DisableEnableByAlgoId
 
     puts "#{family_label}:"
     puts "  Wired algos:              #{all_ids.size}"
-    puts "  List algo ids:            #{list_ids.join(', ')}"
+    puts "  List algo ids:            #{list_ids.empty? ? '(empty)' : list_ids.join(', ')}"
     puts "  Target for listed algos:  #{target_enabled ? 'enabled' : 'disabled'}"
     if target_enabled
       puts "  Mode:                     whitelist (enable listed, disable others)"
       puts "  Will enable:              #{enable_ids.empty? ? '(none)' : enable_ids.join(', ')}"
-      puts "  Will disable:             #{disable_ids.empty? ? '(none)' : disable_ids.join(', ')}"
+      puts "  Will disable:             #{disable_ids.empty? ? '(none)' : "#{disable_ids.size} algo(s)"}"
     else
       puts "  Mode:                     blacklist (disable listed only)"
       puts "  Will disable:             #{disable_ids.empty? ? '(none)' : disable_ids.join(', ')}"
@@ -147,21 +173,25 @@ end
 include DisableEnableByAlgoId
 
 if __FILE__ == $PROGRAM_NAME
-  unless EDIT_BD_ALGOS || EDIT_TIME_ALGOS
-    warn "ERROR: set EDIT_BD_ALGOS and/or EDIT_TIME_ALGOS to true"
+  unless EDIT_BD_ALGOS || EDIT_TIME_ALGOS || EDIT_LEVEL_ALGOS
+    warn "ERROR: set EDIT_BD_ALGOS, EDIT_TIME_ALGOS, and/or EDIT_LEVEL_ALGOS to true"
     exit 1
   end
 
-  content = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
-  updated = content
+  mq5_content = SmashMql5AlgoReader.load_mq5(MQ5_FILE)
+  mq5_updated = mq5_content
+  level_fam_content = EDIT_LEVEL_ALGOS ? File.read(LEVEL_FAM_FILE, encoding: "UTF-8") : nil
+  level_fam_updated = level_fam_content
   plans = []
 
   if EDIT_BD_ALGOS
     bd_target_enabled = parse_target_state(TARGET_STATE_FOR_BD_ALGOS, "TARGET_STATE_FOR_BD_ALGOS")
-    bd_list_ids = parse_algo_id_list(SET_STATE_FOR_BD_ALGOS_LIST, "SET_STATE_FOR_BD_ALGOS_LIST")
-    bd_all_ids = registry_algo_ids(content, BD_REGISTRY_MARKERS, BD_REGISTRY_ID_RE)
+    bd_list_ids = parse_algo_id_list(
+      SET_STATE_FOR_BD_ALGOS_LIST, "SET_STATE_FOR_BD_ALGOS_LIST", allow_empty: bd_target_enabled
+    )
+    bd_all_ids = registry_algo_ids(mq5_content, BD_REGISTRY_MARKERS, BD_REGISTRY_ID_RE)
     bd_plan = build_enable_plan(bd_all_ids, bd_list_ids, target_enabled: bd_target_enabled)
-    bd_missing = bd_plan.keys.reject { |algo_id| content.match?(breakdown_enabled_line_re(algo_id)) }
+    bd_missing = bd_plan.keys.reject { |algo_id| mq5_content.match?(breakdown_enabled_line_re(algo_id)) }
 
     if bd_missing.any?
       warn "ERROR: no .enabled line for breakdown algo(s): #{bd_missing.join(', ')}"
@@ -169,15 +199,17 @@ if __FILE__ == $PROGRAM_NAME
     end
 
     summarize_plan("Breakdown algos", bd_all_ids, bd_list_ids, bd_target_enabled, bd_plan)
-    plans << [:breakdown, BD_ENABLED_LINE_RE, bd_plan]
+    plans << [:mq5, BD_ENABLED_LINE_RE, bd_plan]
   end
 
   if EDIT_TIME_ALGOS
     time_target_enabled = parse_target_state(TARGET_STATE_FOR_TIME_ALGOS, "TARGET_STATE_FOR_TIME_ALGOS")
-    time_list_ids = parse_algo_id_list(SET_STATE_FOR_TIME_ALGOS_LIST, "SET_STATE_FOR_TIME_ALGOS_LIST")
-    time_all_ids = registry_algo_ids(content, TIME_REGISTRY_MARKERS, TIME_REGISTRY_ID_RE)
+    time_list_ids = parse_algo_id_list(
+      SET_STATE_FOR_TIME_ALGOS_LIST, "SET_STATE_FOR_TIME_ALGOS_LIST", allow_empty: time_target_enabled
+    )
+    time_all_ids = registry_algo_ids(mq5_content, TIME_REGISTRY_MARKERS, TIME_REGISTRY_ID_RE)
     time_plan = build_enable_plan(time_all_ids, time_list_ids, target_enabled: time_target_enabled)
-    time_missing = time_plan.keys.reject { |algo_id| content.match?(time_enabled_line_re(algo_id)) }
+    time_missing = time_plan.keys.reject { |algo_id| mq5_content.match?(time_enabled_line_re(algo_id)) }
 
     if time_missing.any?
       warn "ERROR: no .enabled line for time algo(s): #{time_missing.join(', ')}"
@@ -185,14 +217,39 @@ if __FILE__ == $PROGRAM_NAME
     end
 
     summarize_plan("Time algos", time_all_ids, time_list_ids, time_target_enabled, time_plan)
-    plans << [:time, TIME_ENABLED_LINE_RE, time_plan]
+    plans << [:mq5, TIME_ENABLED_LINE_RE, time_plan]
+  end
+
+  if EDIT_LEVEL_ALGOS
+    level_target_enabled = parse_target_state(TARGET_STATE_FOR_LEVEL_ALGOS, "TARGET_STATE_FOR_LEVEL_ALGOS")
+    level_list_ids = parse_algo_id_list(
+      SET_STATE_FOR_LEVEL_ALGOS_LIST, "SET_STATE_FOR_LEVEL_ALGOS_LIST", allow_empty: level_target_enabled
+    )
+    level_all_ids = registry_algo_ids(mq5_content, LEVEL_REGISTRY_MARKERS, LEVEL_REGISTRY_ID_RE)
+    level_plan = build_enable_plan(level_all_ids, level_list_ids, target_enabled: level_target_enabled)
+    level_missing = level_plan.keys.reject { |algo_id| level_fam_content.match?(level_enabled_line_re(algo_id)) }
+
+    if level_missing.any?
+      warn "ERROR: no .enabled line for level algo(s): #{level_missing.join(', ')}"
+      exit 1
+    end
+
+    summarize_plan("Level algos", level_all_ids, level_list_ids, level_target_enabled, level_plan)
+    plans << [:level_fam, LEVEL_ENABLED_LINE_RE, level_plan]
   end
 
   dry_changed = []
   dry_skipped = []
 
-  plans.each do |_family, line_re, plan|
-    updated, changed, skipped = apply_enable_plan!(updated, line_re, plan)
+  plans.each do |target, line_re, plan|
+    case target
+    when :mq5
+      mq5_updated, changed, skipped = apply_enable_plan!(mq5_updated, line_re, plan)
+    when :level_fam
+      level_fam_updated, changed, skipped = apply_enable_plan!(level_fam_updated, line_re, plan)
+    else
+      raise "Unknown write target: #{target}"
+    end
     dry_changed.concat(changed)
     dry_skipped.concat(skipped)
   end
@@ -209,13 +266,21 @@ if __FILE__ == $PROGRAM_NAME
     exit 0
   end
 
-  updated = content
-  plans.each do |_family, line_re, plan|
-    updated, = apply_enable_plan!(updated, line_re, plan)
+  mq5_updated = mq5_content
+  level_fam_updated = level_fam_content
+  plans.each do |target, line_re, plan|
+    case target
+    when :mq5
+      mq5_updated, = apply_enable_plan!(mq5_updated, line_re, plan)
+    when :level_fam
+      level_fam_updated, = apply_enable_plan!(level_fam_updated, line_re, plan)
+    end
   end
 
-  File.write(MQ5_FILE, updated)
+  File.write(MQ5_FILE, mq5_updated) if plans.any? { |target, _, _| target == :mq5 }
+  File.write(LEVEL_FAM_FILE, level_fam_updated) if plans.any? { |target, _, _| target == :level_fam }
 
   puts "Updated #{dry_changed.uniq.size} algo(s): #{dry_changed.uniq.sort.join(', ')}"
-  puts MQ5_FILE
+  puts MQ5_FILE if plans.any? { |target, _, _| target == :mq5 }
+  puts LEVEL_FAM_FILE if plans.any? { |target, _, _| target == :level_fam }
 end
