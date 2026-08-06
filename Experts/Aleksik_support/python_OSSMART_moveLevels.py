@@ -29,11 +29,11 @@ run_on_time = True
 # True: Mon–Fri after 01:30 local, poll every 10 minutes (once per day).
 # False: run immediately, then every 2 minutes.
 
-print_polling = True
-print_overwriteinfo = True
+print_polling = False
+print_overwriteinfo = False
 
 POLL_SECONDS_SCHEDULED = 10 * 60
-POLL_SECONDS_IMMEDIATE = 2 * 60
+POLL_SECONDS_IMMEDIATE = 1 * 60
 SCHEDULE_HOUR = 1
 SCHEDULE_MINUTE = 30
 

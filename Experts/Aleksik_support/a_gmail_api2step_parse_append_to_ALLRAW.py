@@ -5,6 +5,8 @@ import re
 from calendar import month_abbr, month_name
 from datetime import datetime, timedelta
 
+print_levels_to_console = False
+
 
 def normalize_level_record(lev):
     tag = lev.get("tag", "")
@@ -243,5 +245,6 @@ if __name__ == "__main__":
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(combined, f, indent=2)
 
-    for row in data:
-        print(row)
+    if print_levels_to_console:
+        for row in data:
+            print(row)
