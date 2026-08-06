@@ -26,7 +26,7 @@ from typing import Optional, Tuple
 # ============================================================
 
 run_on_time = True
-# True: Mon–Fri after 01:30 local, poll every 10 minutes (once per day).
+# True: Mon–Fri, run once when a 10-min poll lands in 01:30–01:45 window.
 # False: run immediately, then every 2 minutes.
 
 print_polling = False
@@ -36,6 +36,8 @@ POLL_SECONDS_SCHEDULED = 10 * 60
 POLL_SECONDS_IMMEDIATE = 1 * 60
 SCHEDULE_HOUR = 1
 SCHEDULE_MINUTE = 30
+SCHEDULE_WINDOW_END_HOUR = 1
+SCHEDULE_WINDOW_END_MINUTE = 45  # [01:30, 01:45) — 15 min window for 10-min polls
 
 LEVELS_FILENAME = "levelsinfo_zeFinal.csv"
 RUBY_SCRIPT = "a_gmail_api_run_all.rb"
@@ -259,20 +261,35 @@ def is_weekday(now: datetime) -> bool:
     return now.weekday() < 5  # Mon=0 .. Fri=4
 
 
-def scheduled_time_reached(now: datetime) -> bool:
-    scheduled = now.replace(
+def schedule_window_start(now: datetime) -> datetime:
+    return now.replace(
         hour=SCHEDULE_HOUR,
         minute=SCHEDULE_MINUTE,
         second=0,
         microsecond=0,
     )
-    return now >= scheduled
+
+
+def schedule_window_end(now: datetime) -> datetime:
+    return now.replace(
+        hour=SCHEDULE_WINDOW_END_HOUR,
+        minute=SCHEDULE_WINDOW_END_MINUTE,
+        second=0,
+        microsecond=0,
+    )
+
+
+def in_schedule_window(now: datetime) -> bool:
+    """True only during [01:30, 01:45) on the current calendar day."""
+    start = schedule_window_start(now)
+    end = schedule_window_end(now)
+    return start <= now < end
 
 
 def should_run_scheduled(now: datetime, last_run_date: Optional[datetime.date]) -> bool:
     if not is_weekday(now):
         return False
-    if not scheduled_time_reached(now):
+    if not in_schedule_window(now):
         return False
     if last_run_date == now.date():
         return False
@@ -293,8 +310,10 @@ def main() -> int:
 
     if run_on_time:
         log(
-            f"Schedule: Mon–Fri after {SCHEDULE_HOUR:02d}:{SCHEDULE_MINUTE:02d} "
-            f"(poll every {POLL_SECONDS_SCHEDULED // 60} min, once per day)"
+            f"Polling every {POLL_SECONDS_SCHEDULED // 60} min; "
+            f"job runs Mon–Fri at most once when a poll falls in "
+            f"{SCHEDULE_HOUR:02d}:{SCHEDULE_MINUTE:02d}–"
+            f"{SCHEDULE_WINDOW_END_HOUR:02d}:{SCHEDULE_WINDOW_END_MINUTE:02d}"
         )
     else:
         log(f"Schedule: immediate + every {POLL_SECONDS_IMMEDIATE // 60} min")
@@ -307,7 +326,7 @@ def main() -> int:
         if run_on_time:
             poll_log(
                 f"Poll {now:%Y-%m-%d %H:%M:%S} — weekday={is_weekday(now)} "
-                f"after_schedule={scheduled_time_reached(now)} "
+                f"in_schedule_window={in_schedule_window(now)} "
                 f"last_run={last_run_date}"
             )
             if should_run_scheduled(now, last_run_date):
