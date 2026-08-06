@@ -3,11 +3,10 @@
 
 # Run per-family performance scripts, then merge into one combined CSV:
 #   analyze_ALL_algos_performance_output.csv
-#   analyze_ALL_algos_performance_output_2025flashcrash.csv
-#   analyze_ALL_algos_performance_output_except_2025flashcrash.csv
+#   ...
 #
-# Each family CSV includes algoID=ALL with pattern=BREAKDOWN|TIME|LEVEL.
-# The merged file adds algoID=ALL pattern=ALL by summing family ALL rows (no TSV reload).
+# Freshness: only this script writes/reads analyze_ALL_algos_performance_output_timestamp.txt.
+# Re-run within 8 minutes skips family scripts and merge. Family scripts run directly always refresh.
 
 require 'csv'
 require 'rbconfig'
@@ -19,7 +18,7 @@ include AnalyzeAlgosPerformanceCommon
 self.traderate_account_for_banned_days = false
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
-OUTPUT_TIMESTAMP_PATH = File.join(SCRIPT_DIR, 'analyze_ALL_algos_performance_output.timestamp')
+OUTPUT_TIMESTAMP_PATH = File.join(SCRIPT_DIR, 'analyze_ALL_algos_performance_output_timestamp.txt')
 
 FAMILY_SCRIPTS = [
   {
@@ -132,6 +131,15 @@ end
 
 if __FILE__ == $PROGRAM_NAME
 
+if output_timestamp_recent?(OUTPUT_TIMESTAMP_PATH)
+  warn
+  warn "Skipping family scripts and merge (#{output_timestamp_age_label(OUTPUT_TIMESTAMP_PATH)}; " \
+       "stamp fresh within last #{OUTPUT_TIMESTAMP_MAX_AGE_SECONDS / 60} min)"
+  warn
+  warn 'RAN OK'
+  exit 0
+end
+
 FAMILY_SCRIPTS.each { |entry| run_family_script!(entry) }
 
 warn
@@ -139,7 +147,7 @@ MERGE_SETS.each do |entry|
   merge_family_outputs!(entry[:family_outputs], entry[:merged_output])
 end
 
-File.write(OUTPUT_TIMESTAMP_PATH, Time.now.to_i.to_s)
+write_output_timestamp_txt!(OUTPUT_TIMESTAMP_PATH)
 warn
 warn 'RAN OK'
 

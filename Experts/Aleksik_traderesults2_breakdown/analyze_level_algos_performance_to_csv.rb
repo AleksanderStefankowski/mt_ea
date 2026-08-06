@@ -18,8 +18,6 @@ EXCEPT_FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
   'analyze_level_algos_performance_output_except_2025flashcrash.csv'
 )
-OUTPUT_TIMESTAMP_PATH = File.join(SCRIPT_DIR, 'analyze_level_algos_performance_output.timestamp')
-
 FAMILY_ALL_PATTERN = 'LEVEL'
 pattern_for_algo = ->(_algo_id) { 'LEVEL' }
 
@@ -127,7 +125,6 @@ else
        "(includes ALL/#{FAMILY_ALL_PATTERN}; all trades except #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
 end
 
-File.write(OUTPUT_TIMESTAMP_PATH, Time.now.to_i.to_s)
 warn 'RAN OK'
 
 end

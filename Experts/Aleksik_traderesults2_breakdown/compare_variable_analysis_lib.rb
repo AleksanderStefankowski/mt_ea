@@ -5,6 +5,7 @@ require 'date'
 require 'set'
 require 'rbconfig'
 require 'open3'
+require_relative 'analyze_algos_performance_common'
 
 module CompareVariableAnalysisLib
   module_function
@@ -97,6 +98,49 @@ module CompareVariableAnalysisLib
        .join("\x1f")
   end
 
+  def pair_differs_only_in_variable?(pair, compare_variable)
+    left = pair[:left][:config]
+    right = pair[:right][:config]
+    compare_header = compare_variable.to_s
+    diff_headers =
+      left.headers.select do |header|
+        header != 'algo_id' && left[header].to_s != right[header].to_s
+      end
+    diff_headers == [compare_header]
+  end
+
+  def paired_compare_values(pairs, compare_variable, sort_key: nil)
+    sort_key ||= method(:compare_variable_sort_key)
+    pairs.flat_map do |pair|
+      next [] unless pair_differs_only_in_variable?(pair, compare_variable)
+
+      [
+        pair[:left][:config][compare_variable].to_s,
+        pair[:right][:config][compare_variable].to_s
+      ]
+    end.uniq.sort_by { |value| sort_key.call(value) }
+  end
+
+  def value_pair_has_paired_duel?(pairs, compare_variable, value_a, value_b)
+    target_values = Set[value_a.to_s, value_b.to_s]
+    pairs.any? do |pair|
+      next false unless pair_differs_only_in_variable?(pair, compare_variable)
+
+      left_val = pair[:left][:config][compare_variable].to_s
+      right_val = pair[:right][:config][compare_variable].to_s
+      Set[left_val, right_val] == target_values
+    end
+  end
+
+  def value_pairs_with_paired_duels(pairs, compare_variable, sort_key: nil)
+    values = paired_compare_values(pairs, compare_variable, sort_key: sort_key)
+    return [] if values.size < 2
+
+    values.combination(2).select do |left_value, right_value|
+      value_pair_has_paired_duel?(pairs, compare_variable, left_value, right_value)
+    end
+  end
+
   def build_variable_compare_run(matched_rows, compare_variable, signature_exclude_variables: [])
     excluded = (['algo_id', compare_variable] + signature_exclude_variables).uniq
     groups = Hash.new { |hash, key| hash[key] = [] }
@@ -128,11 +172,14 @@ module CompareVariableAnalysisLib
       entries.combination(2).each do |left, right|
         next if left[:config][compare_variable].to_s == right[:config][compare_variable].to_s
 
+        pair = { left: left, right: right }
+        next unless pair_differs_only_in_variable?(pair, compare_variable)
+
         pair_id += 1
         total_pairs += 1
         paired_algo_ids << left[:algo_id]
         paired_algo_ids << right[:algo_id]
-        pairs << { group_id: group_id, pair_id: pair_id, left: left, right: right }
+        pairs << pair.merge(group_id: group_id, pair_id: pair_id)
         output_rows << merged_compare_row(group_id, pair_id, left[:config], left[:perf])
         output_rows << merged_compare_row(group_id, pair_id, right[:config], right[:perf])
       end
@@ -281,7 +328,550 @@ module CompareVariableAnalysisLib
       .transform_values { |group| average(group.map { |entry| parse_float(entry[:perf][perf_field]) }) }
   end
 
-  def variable_pair_stats_lines(label, compare_variable, stats, paired_entries, perf_field, show_avg_comparison: true, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil)
+  BEST_ALGO_DUEL_COMPANION_FIELDS = {
+    'timeVSprofit' => { field: 'percentSum_w_roll', label: 'perf_percentSum_w_roll', decimals: 2 },
+    'percentSum_w_roll' => { field: 'timeVSprofit', label: 'perf_timeVSprofit', decimals: 3 }
+  }.freeze
+
+  # Best single algo in a set of entries (highest perf_field). Tie-break: lower algo_id.
+  def best_algo_from_entries(entries, perf_field)
+    companion = BEST_ALGO_DUEL_COMPANION_FIELDS[perf_field]
+    entry =
+      entries
+      .reject { |row| parse_float(row[:perf][perf_field]).nil? }
+      .max_by { |row| [parse_float(row[:perf][perf_field]), -row[:algo_id].to_i] }
+    return nil unless entry
+
+    metric = parse_float(entry[:perf][perf_field])
+    {
+      algo_id: entry[:algo_id].to_s,
+      metric: metric,
+      companion_metric: companion ? parse_float(entry[:perf][companion[:field]]) : nil,
+      percent_sum: parse_float(entry[:perf]['percentSum_w_roll']),
+      timeVSprofit: parse_float(entry[:perf]['timeVSprofit']),
+      avg_duration: parse_float(entry[:perf]['avgDurationHours']),
+      trades_count: parse_float(entry[:perf]['tradesCount'])
+    }
+  end
+
+  # Best single algo per compare_variable value (highest perf_field). Tie-break: lower algo_id.
+  def best_algo_by_value(paired_entries, compare_variable, perf_field)
+    paired_entries
+      .group_by { |entry| entry[:config][compare_variable].to_s }
+      .transform_values { |group| best_algo_from_entries(group, perf_field) }
+      .compact
+  end
+
+  METRIC_DUEL_LABELS = {
+    'timeVSprofit' => 'tVSprof #1',
+    'percentSum_w_roll' => '%sum #1',
+    'avgDurationHours' => 'duration #1',
+    'tradesCount' => 'trades #1'
+  }.freeze
+
+  METRIC_DUEL_EXTRA_COLUMNS = {
+    'timeVSprofit' => [[:percent_sum, 11], [:timeVSprofit, 12]],
+    'percentSum_w_roll' => [[:percent_sum, 11], [:timeVSprofit, 12]],
+    'avgDurationHours' => [[:avg_duration, 16]],
+    'tradesCount' => [[:trades_count, 12]]
+  }.freeze
+
+  DUEL_TABLE_BASE_COLUMNS = [
+    [:duel, 20],
+    [:side, 6],
+    [:group, 24],
+    [:algo, 10]
+  ].freeze
+
+  # Minimal config row for paired duels when config is not a CSV row (e.g. level fam hashes).
+  def make_pair_config_row(values)
+    row = values.transform_keys(&:to_s)
+    row.define_singleton_method(:headers) { keys }
+    row
+  end
+
+  BEST_PAIR_DUEL_TABLE_COLUMNS = DUEL_TABLE_BASE_COLUMNS + METRIC_DUEL_EXTRA_COLUMNS['percentSum_w_roll']
+
+  def format_duel_table_cell(name, value)
+    case name
+    when :percent_sum
+      return 'n/a' if value.nil?
+      return value if value.is_a?(String)
+
+      format('%.2f', value)
+    when :timeVSprofit
+      return 'n/a' if value.nil?
+      return value if value.is_a?(String)
+
+      format('%.3f', value)
+    when :avg_duration
+      return 'n/a' if value.nil?
+      return value if value.is_a?(String)
+
+      format('%.2f', value)
+    when :trades_count
+      return 'n/a' if value.nil?
+      return value if value.is_a?(String)
+
+      format('%.2f', value)
+    else
+      value.to_s
+    end
+  end
+
+  def duel_table_row(columns, row)
+    columns.map do |name, width|
+      format_duel_table_cell(name, row[name]).ljust(width)[0, width]
+    end.join(' ')
+  end
+
+  def pct_delta_str(better, worse)
+    return 'n/a' if better.nil? || worse.nil? || worse.zero?
+
+    format('%+.1f%%', percent_better_than(better, worse))
+  end
+
+  def duel_metric_values(best, perf_field)
+    case perf_field
+    when 'percentSum_w_roll'
+      { percent_sum: best[:metric], timeVSprofit: best[:timeVSprofit] }
+    when 'timeVSprofit'
+      { percent_sum: best[:percent_sum], timeVSprofit: best[:metric] }
+    when 'avgDurationHours'
+      { avg_duration: best[:metric] }
+    when 'tradesCount'
+      { trades_count: best[:metric] }
+    else
+      {}
+    end
+  end
+
+  def top_two_values_by_average(paired_entries, compare_variable, perf_field)
+    per_algo_averages_by_value(paired_entries, compare_variable, perf_field)
+      .sort_by { |value, avg| [avg.nil? ? 1 : 0, -(avg || 0), value.to_s] }
+      .first(2)
+      .map(&:first)
+  end
+
+  def find_best_paired_duel(pairs, compare_variable, perf_field, primary_value, secondary_value)
+    best = nil
+    best_primary_metric = nil
+    target_values = Set[primary_value.to_s, secondary_value.to_s]
+
+    pairs.each do |pair|
+      next unless pair_differs_only_in_variable?(pair, compare_variable)
+
+      left_val = pair[:left][:config][compare_variable].to_s
+      right_val = pair[:right][:config][compare_variable].to_s
+      next unless Set[left_val, right_val] == target_values
+
+      if left_val == primary_value.to_s
+        primary_entry, secondary_entry = pair[:left], pair[:right]
+      else
+        primary_entry, secondary_entry = pair[:right], pair[:left]
+      end
+
+      primary_metric = parse_float(primary_entry[:perf][perf_field])
+      next if primary_metric.nil?
+
+      if best_primary_metric.nil? ||
+         primary_metric > best_primary_metric ||
+         (primary_metric == best_primary_metric && primary_entry[:algo_id].to_i < best[:primary_entry][:algo_id].to_i)
+        best = {
+          primary_entry: primary_entry,
+          secondary_entry: secondary_entry,
+          primary_value: primary_value.to_s,
+          secondary_value: secondary_value.to_s
+        }
+        best_primary_metric = primary_metric
+      end
+    end
+
+    best
+  end
+
+  def paired_duel_best_by_value_for_pair(pairs, compare_variable, perf_field, primary_value, secondary_value)
+    paired_duel = find_best_paired_duel(pairs, compare_variable, perf_field, primary_value, secondary_value)
+    return {} unless paired_duel
+
+    primary_best = best_algo_from_entries([paired_duel[:primary_entry]], perf_field)
+    secondary_best = best_algo_from_entries([paired_duel[:secondary_entry]], perf_field)
+    return {} unless primary_best && secondary_best
+
+    {
+      paired_duel[:primary_value] => primary_best,
+      paired_duel[:secondary_value] => secondary_best
+    }
+  end
+
+  def best_paired_duel_best_by_value(pairs, compare_variable, perf_field)
+    paired_entries = paired_entries_from_pairs(pairs)
+    top_two = top_two_values_by_average(paired_entries, compare_variable, perf_field)
+    return {} if top_two.size < 2
+
+    paired_duel_best_by_value_for_pair(pairs, compare_variable, perf_field, top_two[0], top_two[1])
+  end
+
+  def duel_label_for_value_pair(base_label, left_value, right_value, multiple_duels:)
+    return base_label unless multiple_duels
+
+    stem = base_label.sub(/ #1\z/, '')
+    "#{stem} #{left_value}vs#{right_value}"
+  end
+
+  def single_metric_solo_best_lines(label:, perf_field:, value:, best:)
+    extra_cols = METRIC_DUEL_EXTRA_COLUMNS[perf_field]
+    return [] unless extra_cols && best
+
+    cols = DUEL_TABLE_BASE_COLUMNS + extra_cols
+    metrics = duel_metric_values(best, perf_field)
+    [
+      duel_table_row(cols, {
+        duel: label, side: 'best', group: value, algo: best[:algo_id],
+        **metrics
+      })
+    ]
+  end
+
+  def metric_duel_and_solo_lines_from_pairs(pairs, compare_variable, perf_field, include_header: true, sort_key: nil)
+    paired_entries = paired_entries_from_pairs(pairs)
+    all_values = paired_compare_values(pairs, compare_variable, sort_key: sort_key)
+    return [] if all_values.empty?
+
+    extra_cols = METRIC_DUEL_EXTRA_COLUMNS[perf_field]
+    return [] unless extra_cols
+
+    base_label = METRIC_DUEL_LABELS[perf_field] || "#{perf_field} #1"
+    top_two = top_two_values_by_average(paired_entries, compare_variable, perf_field)
+    best_by_all_values = best_algo_by_value(paired_entries, compare_variable, perf_field)
+    cols = DUEL_TABLE_BASE_COLUMNS + extra_cols
+    lines = []
+    if include_header
+      header = cols.map { |name, width| name.to_s.ljust(width) }.join(' ')
+      lines << header
+      lines << '-' * header.length
+    end
+
+    if top_two.size >= 2
+      best_by_value = paired_duel_best_by_value_for_pair(
+        pairs, compare_variable, perf_field, top_two[0], top_two[1]
+      )
+      if best_by_value.size >= 2
+        lines.concat(single_metric_duel_block_lines(
+                       duel_label: base_label,
+                       perf_field: perf_field,
+                       best_by_value: best_by_value
+                     ))
+      end
+    end
+
+    duel_values = top_two.map(&:to_s).to_set
+    all_values.reject { |value| duel_values.include?(value) }.each do |value|
+      best = best_by_all_values[value]
+      next unless best
+
+      solo_label = "#{base_label.sub(' #1', '')} solo"
+      lines.concat(single_metric_solo_best_lines(
+                     label: solo_label,
+                     perf_field: perf_field,
+                     value: value,
+                     best: best
+                   ))
+    end
+
+    lines
+  end
+
+  def metric_duel_table_lines_from_pairs(pairs, compare_variable, perf_field, include_header: true, sort_key: nil)
+    metric_duel_and_solo_lines_from_pairs(
+      pairs, compare_variable, perf_field, include_header: include_header, sort_key: sort_key
+    )
+  end
+
+  def single_metric_duel_block_lines(duel_label:, perf_field:, best_by_value:)
+    extra_cols = METRIC_DUEL_EXTRA_COLUMNS[perf_field]
+    return [] unless extra_cols
+
+    top_two = best_by_value.sort_by { |value, best| [-best[:metric], value.to_s] }.first(2)
+    return [] if top_two.size < 2
+
+    winner_value, winner_best = top_two[0]
+    loser_value, loser_best = top_two[1]
+    winner_metrics = duel_metric_values(winner_best, perf_field)
+    loser_metrics = duel_metric_values(loser_best, perf_field)
+    cols = DUEL_TABLE_BASE_COLUMNS + extra_cols
+    delta_metrics = extra_cols.to_h do |name, _width|
+      [name, pct_delta_str(winner_metrics[name], loser_metrics[name])]
+    end
+
+    [
+      duel_table_row(cols, {
+        duel: duel_label, side: '1st', group: winner_value, algo: winner_best[:algo_id],
+        **winner_metrics
+      }),
+      duel_table_row(cols, {
+        duel: '', side: '2nd', group: loser_value, algo: loser_best[:algo_id],
+        **loser_metrics
+      }),
+      duel_table_row(cols, {
+        duel: '', side: 'Δ 1→2', group: '', algo: '',
+        **delta_metrics
+      })
+    ]
+  end
+
+  def metric_duel_table_lines_from_best(best_by_value, perf_field, include_header: true)
+    return [] if best_by_value.size < 2
+
+    duel_label = METRIC_DUEL_LABELS[perf_field] || "#{perf_field} #1"
+    extra_cols = METRIC_DUEL_EXTRA_COLUMNS[perf_field]
+    return [] unless extra_cols
+
+    cols = DUEL_TABLE_BASE_COLUMNS + extra_cols
+    lines = []
+    if include_header
+      header = cols.map { |name, width| name.to_s.ljust(width) }.join(' ')
+      lines << header
+      lines << '-' * header.length
+    end
+    lines.concat(single_metric_duel_block_lines(duel_label: duel_label, perf_field: perf_field,
+                                                best_by_value: best_by_value))
+    lines
+  end
+
+  def pairwise_metric_duel_table_lines(label_a, best_a, label_b, best_b, perf_field, include_header: true)
+    return [] unless best_a && best_b
+
+    metric_duel_table_lines_from_best(
+      { label_a => best_a, label_b => best_b },
+      perf_field,
+      include_header: include_header
+    )
+  end
+
+  def metric_duel_table_lines(compare_variable, paired_entries, perf_field, pairs: nil, include_header: true, sort_key: nil)
+    unless pairs.nil?
+      return [] if pairs.empty?
+
+      return metric_duel_table_lines_from_pairs(
+        pairs, compare_variable, perf_field, include_header: include_header, sort_key: sort_key
+      )
+    end
+
+    return [] if paired_entries.empty?
+
+    best_by_value = best_algo_by_value(paired_entries, compare_variable, perf_field)
+    metric_duel_table_lines_from_best(best_by_value, perf_field, include_header: include_header)
+  end
+
+  # Paired duels: same config except compare_variable; top-2 values by group avg, best paired algos per value.
+  def best_pair_duel_table_lines(field_name:, best_by_percent: {}, best_by_time: {}, pairs: nil, compare_variable: nil, sort_key: nil)
+    return [] unless compare_variable
+
+    if pairs.nil? || pairs.empty?
+      return ['best pair duels: (no paired algos — same config except this dimension)']
+    end
+
+    lines = ['best pair duels (top-2 duel + solo #1 for other values):']
+    cols = BEST_PAIR_DUEL_TABLE_COLUMNS
+    header = cols.map { |name, width| name.to_s.ljust(width) }.join(' ')
+    lines << header
+    lines << '-' * header.length
+    lines.concat(metric_duel_and_solo_lines_from_pairs(
+                   pairs, compare_variable, 'percentSum_w_roll',
+                   include_header: false, sort_key: sort_key
+                 ))
+    lines.concat(metric_duel_and_solo_lines_from_pairs(
+                   pairs, compare_variable, 'timeVSprofit',
+                   include_header: false, sort_key: sort_key
+                 ))
+    lines
+  end
+
+  def aggregate_entries_by_group(entries, group_label)
+    {
+      group: group_label,
+      algos: entries.size,
+      avg_trades: average(entries.map { |entry| parse_float(entry[:perf]['tradesCount']) }),
+      avg_percent: average(entries.map { |entry| parse_float(entry[:perf]['percentSum_w_roll']) }),
+      avgtimeVSprofit: average(entries.map { |entry| parse_float(entry[:perf]['timeVSprofit']) }),
+      avgavgDurationHours: average(entries.map { |entry| parse_float(entry[:perf]['avgDurationHours']) })
+    }
+  end
+
+  COMPARE_VALUE_GROUP_TABLE_COLUMNS = [
+    [:group, 24],
+    [:algos, 6],
+    [:avg_trades, 10],
+    [:avg_percent, 12],
+    [:avgtimeVSprofit, 12],
+    [:avgavgDurationHours, 14]
+  ].freeze
+
+  def format_group_table_cell(name, value)
+    case name
+    when :avg_percent, :avg_trades, :avgavgDurationHours
+      return 'n/a' if value.nil?
+
+      format('%.2f', value)
+    when :avgtimeVSprofit
+      return 'n/a' if value.nil?
+
+      format('%.3f', value)
+    when :algos
+      return 'n/a' if value.nil?
+
+      value.to_i.to_s
+    else
+      value.to_s
+    end
+  end
+
+  def group_table_row(columns, row)
+    columns.map do |name, width|
+      format_group_table_cell(name, row[name]).ljust(width)[0, width]
+    end.join(' ')
+  end
+
+  def compare_value_group_rows(paired_entries, compare_variable, sort_key: nil)
+    sort_key ||= method(:compare_variable_sort_key)
+    paired_entries
+      .group_by { |entry| entry[:config][compare_variable].to_s }
+      .map { |value, entries| aggregate_entries_by_group(entries, value) }
+      .sort_by { |row| sort_key.call(row[:group]) }
+  end
+
+  def compare_value_group_table_lines(compare_variable, paired_entries, sort_key: nil)
+    rows = compare_value_group_rows(paired_entries, compare_variable, sort_key: sort_key)
+    return ['(no paired algos)'] if rows.empty?
+
+    lines = ["by #{compare_variable} (paired algos, per-algo averages):"]
+    cols = COMPARE_VALUE_GROUP_TABLE_COLUMNS
+    header = cols.map { |name, width| name.to_s.ljust(width) }.join(' ')
+    lines << header
+    lines << '-' * header.length
+    rows.each { |row| lines << group_table_row(cols, row) }
+    lines
+  end
+
+  def grouped_entries_table_lines(title, entries, group_field, sort_key: nil)
+    return [] if entries.empty?
+
+    sort_key ||= method(:compare_variable_sort_key)
+    rows =
+      entries
+      .group_by { |entry| entry[:config][group_field].to_s }
+      .map { |value, group| aggregate_entries_by_group(group, value) }
+      .sort_by { |row| sort_key.call(row[:group]) }
+
+    lines = [title]
+    cols = COMPARE_VALUE_GROUP_TABLE_COLUMNS
+    header = cols.map { |name, width| name.to_s.ljust(width) }.join(' ')
+    lines << header
+    lines << '-' * header.length
+    rows.each { |row| lines << group_table_row(cols, row) }
+    lines
+  end
+
+  def compare_compact_analysis_lines(pairs, compare_variable, sort_key: nil)
+    return ['(no pairs)'] if pairs.empty?
+
+    paired_entries = paired_entries_from_pairs(pairs)
+    lines = []
+    lines.concat(compare_value_group_table_lines(compare_variable, paired_entries, sort_key: sort_key))
+    lines << ''
+    duel_lines = best_algo_duel_table_lines(compare_variable, paired_entries, pairs: pairs)
+    lines.concat(duel_lines) unless duel_lines.empty?
+    lines
+  end
+
+  def best_algo_duel_table_lines(compare_variable, paired_entries, pairs:)
+    best_pair_duel_table_lines(
+      field_name: compare_variable,
+      pairs: pairs,
+      compare_variable: compare_variable
+    )
+  end
+
+  def best_algo_duel_better_worse_line(prefix:, label:, field_name:, left_value:, left_algo_id:, left_avg:,
+                                      right_value:, right_algo_id:, right_avg:, decimals: 3)
+    return nil if left_avg.nil? || right_avg.nil?
+
+    if left_avg == right_avg
+      return "#{prefix}#{label}: #{field_name}=#{left_value} algo #{left_algo_id} and " \
+             "#{field_name}=#{right_value} algo #{right_algo_id} tie (#{format_float(left_avg, decimals)})"
+    end
+
+    if left_avg > right_avg
+      better_value, better_algo, better_avg = left_value, left_algo_id, left_avg
+      worse_value, worse_algo, worse_avg = right_value, right_algo_id, right_avg
+    else
+      better_value, better_algo, better_avg = right_value, right_algo_id, right_avg
+      worse_value, worse_algo, worse_avg = left_value, left_algo_id, left_avg
+    end
+
+    pct = percent_better_than(better_avg, worse_avg)
+    "#{prefix}#{label}: #{field_name}=#{better_value} algo #{better_algo} (#{format_float(better_avg, decimals)}) is " \
+      "#{format('%.1f%%', pct)} better than #{field_name}=#{worse_value} algo #{worse_algo} (#{format_float(worse_avg, decimals)})"
+  end
+
+  # Keep the same algo/value order as primary_order (first = primary winner side).
+  def best_algo_duel_companion_line(prefix:, label:, field_name:, primary_order:, companion_by_value:, decimals: 3)
+    first_value, second_value = primary_order
+    first = companion_by_value[first_value]
+    second = companion_by_value[second_value]
+    return nil if first.nil? || second.nil? || first[:companion_metric].nil? || second[:companion_metric].nil?
+
+    first_avg = first[:companion_metric]
+    second_avg = second[:companion_metric]
+    if first_avg == second_avg
+      return "#{prefix}#{label}: #{field_name}=#{first_value} algo #{first[:algo_id]} and " \
+             "#{field_name}=#{second_value} algo #{second[:algo_id]} tie (#{format_float(first_avg, decimals)})"
+    end
+
+    if first_avg > second_avg
+      pct = percent_better_than(first_avg, second_avg)
+      relation = 'better'
+    else
+      pct = percent_better_than(second_avg, first_avg)
+      relation = 'worse'
+    end
+    "#{prefix}#{label}: #{field_name}=#{first_value} algo #{first[:algo_id]} (#{format_float(first_avg, decimals)}) is " \
+      "#{format('%.1f%%', pct)} #{relation} than #{field_name}=#{second_value} algo #{second[:algo_id]} (#{format_float(second_avg, decimals)})"
+  end
+
+  def best_algo_duel_lines(label, compare_variable, paired_entries, perf_field, avg_decimals: 3, sort_key: nil)
+    companion = BEST_ALGO_DUEL_COMPANION_FIELDS[perf_field]
+    best_by_value = best_algo_by_value(paired_entries, compare_variable, perf_field)
+    # Only duel the top-2 value-group #1 champions by primary metric (not every value pair).
+    top_two =
+      best_by_value
+        .sort_by { |value, best| [-best[:metric], value.to_s] }
+        .first(2)
+    return [] if top_two.size < 2
+
+    better_value, better = top_two[0]
+    worse_value, worse = top_two[1]
+    lines = []
+    duel = best_algo_duel_better_worse_line(
+      prefix: '  ', label: "#{label} #1", field_name: compare_variable,
+      left_value: better_value, left_algo_id: better[:algo_id], left_avg: better[:metric],
+      right_value: worse_value, right_algo_id: worse[:algo_id], right_avg: worse[:metric],
+      decimals: avg_decimals
+    )
+    lines << duel if duel
+    return lines unless companion && !better[:companion_metric].nil? && !worse[:companion_metric].nil?
+
+    companion_duel = best_algo_duel_companion_line(
+      prefix: '  ', label: "#{companion[:label]} (same #1 algos)", field_name: compare_variable,
+      primary_order: [better_value, worse_value], companion_by_value: best_by_value,
+      decimals: companion[:decimals]
+    )
+    lines << companion_duel if companion_duel
+    lines
+  end
+
+  def variable_pair_stats_lines(label, compare_variable, stats, paired_entries, perf_field, pairs: nil, show_avg_on_win_lines: true, show_avg_comparison: true, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, show_best_algo_duel: false)
     sort_key ||= method(:compare_variable_sort_key)
     lines = ["#{label} higher in head-to-head pairs:"]
     return lines if stats.empty?
@@ -300,31 +890,50 @@ module CompareVariableAnalysisLib
     sorted_stats.each do |value, row|
       comparable = row[:appearances] - row[:missing]
       avg = per_algo_averages[value]
-      avg_text = show_avg_comparison ? ", avg #{label}=#{format_float(avg, avg_decimals)} (per algo)" : ''
+      avg_text =
+        if show_avg_on_win_lines && !avg.nil?
+          ", avg #{label}=#{format_float(avg, avg_decimals)} (per algo)"
+        else
+          ''
+        end
       lines << "  #{compare_variable}=#{value}: #{row[:wins]}/#{comparable} " \
                 "(#{format_percent(row[:wins], comparable)})#{avg_text}"
     end
 
-    return lines unless show_avg_comparison
+    if show_avg_comparison
+      sorted_values = per_algo_averages.keys.sort_by { |value| sort_key.call(value) }
+      if sorted_values.size >= 2
+        sorted_values.combination(2).each do |left_value, right_value|
+          line = better_than_worse_line(
+            prefix: '  ', field_name: compare_variable,
+            left_value: left_value, left_avg: per_algo_averages[left_value],
+            right_value: right_value, right_avg: per_algo_averages[right_value],
+            decimals: avg_decimals, label: label, min_percent_diff: min_percent_diff
+          )
+          lines << line if line
+        end
+      end
+    end
 
-    sorted_values = per_algo_averages.keys.sort_by { |value| sort_key.call(value) }
-    return lines if sorted_values.size < 2
-
-    sorted_values.combination(2).each do |left_value, right_value|
-      line = better_than_worse_line(
-        prefix: '  ', field_name: compare_variable,
-        left_value: left_value, left_avg: per_algo_averages[left_value],
-        right_value: right_value, right_avg: per_algo_averages[right_value],
-        decimals: avg_decimals, label: label, min_percent_diff: min_percent_diff
+    if show_best_algo_duel
+      duel_lines = metric_duel_table_lines(
+        compare_variable, paired_entries, perf_field, pairs: pairs, sort_key: sort_key
       )
-      lines << line if line
+      unless duel_lines.empty?
+        lines << ''
+        duel_lines.each { |line| lines << "  #{line}" }
+      end
     end
 
     lines
   end
 
-  def perf_field_analysis_lines_with_secret_tp_split(label, perf_field, pairs, compare_variable, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil)
-    line_opts = {}
+  def perf_field_analysis_lines_with_secret_tp_split(label, perf_field, pairs, compare_variable, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, show_best_algo_duel: false, show_avg_on_win_lines: true, show_avg_comparison: true)
+    line_opts = {
+      show_avg_on_win_lines: show_avg_on_win_lines,
+      show_avg_comparison: show_avg_comparison,
+      show_best_algo_duel: show_best_algo_duel
+    }
     line_opts[:sort_key] = sort_key if sort_key
     line_opts[:sort_by_avg] = true if sort_by_avg
     line_opts[:min_percent_diff] = min_percent_diff if min_percent_diff
@@ -332,6 +941,7 @@ module CompareVariableAnalysisLib
     lines.concat(variable_pair_stats_lines(label, compare_variable,
                                            build_variable_pair_stats(pairs, compare_variable, perf_field),
                                            paired_entries_from_pairs(pairs), perf_field,
+                                           pairs: pairs,
                                            avg_decimals: avg_decimals, **line_opts))
 
     zero_secret_tp_pairs = pairs_for_secret_tp_group(pairs, zero_group: true)
@@ -340,6 +950,7 @@ module CompareVariableAnalysisLib
       lines.concat(variable_pair_stats_lines("#{label} group 0 secret TP", compare_variable,
                                              build_variable_pair_stats(zero_secret_tp_pairs, compare_variable, perf_field),
                                              paired_entries_from_pairs(zero_secret_tp_pairs), perf_field,
+                                             pairs: zero_secret_tp_pairs,
                                              avg_decimals: avg_decimals, **line_opts))
     end
 
@@ -349,6 +960,7 @@ module CompareVariableAnalysisLib
       lines.concat(variable_pair_stats_lines("#{label} group non 0 secret TP", compare_variable,
                                              build_variable_pair_stats(non_zero_secret_tp_pairs, compare_variable, perf_field),
                                              paired_entries_from_pairs(non_zero_secret_tp_pairs), perf_field,
+                                             pairs: non_zero_secret_tp_pairs,
                                              avg_decimals: avg_decimals, **line_opts))
     end
 
@@ -358,15 +970,16 @@ module CompareVariableAnalysisLib
   def compare_analysis_lines(pairs, compare_variable, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, include_secret_tp_split: true)
     return ['(no pairs)'] if pairs.empty?
 
-    line_opts = {}
+    line_opts = { show_avg_on_win_lines: true, show_avg_comparison: true, show_best_algo_duel: true }
     line_opts[:sort_key] = sort_key if sort_key
     line_opts[:sort_by_avg] = true if sort_by_avg
-    line_opts[:min_percent_diff] = min_percent_diff if min_percent_diff
     paired_entries = paired_entries_from_pairs(pairs)
     lines = []
+    lines.concat(compare_value_group_table_lines(compare_variable, paired_entries, sort_key: sort_key))
+    lines << ''
     lines.concat(variable_pair_stats_lines('perf_timeVSprofit', compare_variable,
                                            build_variable_pair_stats(pairs, compare_variable, 'timeVSprofit'),
-                                           paired_entries, 'timeVSprofit', **line_opts))
+                                           paired_entries, 'timeVSprofit', pairs: pairs, **line_opts))
     lines << ''
     if include_secret_tp_split
       lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_percentSum_w_roll', 'percentSum_w_roll',
@@ -382,15 +995,17 @@ module CompareVariableAnalysisLib
     else
       lines.concat(variable_pair_stats_lines('perf_percentSum_w_roll', compare_variable,
                                              build_variable_pair_stats(pairs, compare_variable, 'percentSum_w_roll'),
-                                             paired_entries, 'percentSum_w_roll', avg_decimals: 2, **line_opts))
+                                             paired_entries, 'percentSum_w_roll', pairs: pairs, avg_decimals: 2,
+                                             **line_opts))
       lines << ''
       lines.concat(variable_pair_stats_lines('perf_avgDurationHours', compare_variable,
                                              build_variable_pair_stats(pairs, compare_variable, 'avgDurationHours'),
-                                             paired_entries, 'avgDurationHours', **line_opts))
+                                             paired_entries, 'avgDurationHours', pairs: pairs, **line_opts))
       lines << ''
       lines.concat(variable_pair_stats_lines('perf_tradesCount', compare_variable,
                                              build_variable_pair_stats(pairs, compare_variable, 'tradesCount'),
-                                             paired_entries, 'tradesCount', avg_decimals: 2, **line_opts))
+                                             paired_entries, 'tradesCount', pairs: pairs, avg_decimals: 2,
+                                             **line_opts))
     end
     lines
   end
@@ -487,37 +1102,31 @@ module CompareVariableAnalysisLib
     [dates.min, dates.max]
   end
 
-  PERF_OUTPUT_TIMESTAMP_FILENAME = 'analyze_breakdown_algos_performance_output.timestamp'
-  PERF_OUTPUT_MAX_AGE_SECONDS = 8 * 60
+  ALL_PERF_OUTPUT_TIMESTAMP_FILENAME = 'analyze_ALL_algos_performance_output_timestamp.txt'
+  PERF_OUTPUT_MAX_AGE_SECONDS = AnalyzeAlgosPerformanceCommon::OUTPUT_TIMESTAMP_MAX_AGE_SECONDS
 
-  def perf_output_timestamp_path(script_dir)
-    File.join(script_dir, PERF_OUTPUT_TIMESTAMP_FILENAME)
-  end
-
-  def perf_output_generated_at(script_dir)
-    path = perf_output_timestamp_path(script_dir)
-    return nil unless File.file?(path)
-
-    Integer(File.read(path, encoding: 'bom|utf-8').strip)
-  rescue ArgumentError, TypeError
-    nil
+  def all_perf_output_timestamp_path(script_dir)
+    File.join(script_dir, ALL_PERF_OUTPUT_TIMESTAMP_FILENAME)
   end
 
   def perf_output_recent?(script_dir, max_age_seconds = PERF_OUTPUT_MAX_AGE_SECONDS)
     perf_path = File.join(script_dir, 'analyze_breakdown_algos_performance_output.csv')
-    generated_at = perf_output_generated_at(script_dir)
-    return false unless File.file?(perf_path) && generated_at
+    return false unless File.file?(perf_path)
 
-    Time.now.to_i - generated_at < max_age_seconds
+    AnalyzeAlgosPerformanceCommon.output_timestamp_recent?(
+      all_perf_output_timestamp_path(script_dir),
+      max_age_seconds
+    )
   end
 
   def refresh_breakdown_algos_performance_output!(script_dir)
     if perf_output_recent?(script_dir)
-      generated_at = perf_output_generated_at(script_dir)
-      age_min = ((Time.now.to_i - generated_at) / 60.0).round(1)
+      age_label = AnalyzeAlgosPerformanceCommon.output_timestamp_age_label(
+        all_perf_output_timestamp_path(script_dir)
+      )
       warn
       warn "Using recent analyze_breakdown_algos_performance_output*.csv " \
-           "(generated #{age_min} min ago; skip refresh if < #{PERF_OUTPUT_MAX_AGE_SECONDS / 60} min)"
+           "(analyze_ALL stamp #{age_label}; skip refresh if stamp within last #{PERF_OUTPUT_MAX_AGE_SECONDS / 60} min)"
       warn
       return
     end

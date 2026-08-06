@@ -14,189 +14,32 @@
 #   non-zero secret_tp_range_percent
 #
 # Raises if an algo has non-zero secret TP and closetrade_after_some_time=true.
+#
+# When closetrade=true algos are present, also prints per-combo stats for each
+# profit_percent x minutes_from_breakdown pair from smash_BREAKDOWN_create_combinationsMap_csv.rb:
+#   DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED
+#   DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN
+#
+# Algo set modes:
+#   :all_from_performance (default) — all numeric algo ids from perf CSV; no INPUT_ALGO_IDS needed
+#   :closetrade_after_some_time_true — same source, only closetrade_after_some_time=true
+#   :input_algo_ids — use INPUT_ALGO_IDS heredoc (must not be empty)
 
 require_relative 'compare_variable_analysis_lib'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 CONFIG_PATH = File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.csv', SCRIPT_DIR)
 PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.csv')
+COMBINATIONS_MAP_CREATOR_PATH =
+  File.expand_path('../Aleksik2/smash_BREAKDOWN_create_combinationsMap_csv.rb', SCRIPT_DIR)
 MIN_BETTER_THAN_PERCENT_DIFF = 33.0
 
-# Edit algo ids here. Blank lines and # comments are ignored.
+# :all_from_performance | :closetrade_after_some_time_true | :input_algo_ids
+ALGO_SET_MODE = :closetrade_after_some_time_true
+
+# Edit algo ids here when ALGO_SET_MODE = :input_algo_ids. Blank lines and # comments are ignored.
 INPUT_ALGO_IDS = <<~IDS
-20000007
-20000016
-20000005
-20000014
-20000090
-20000171
-20000087
-20000168
-20000006
-20000015
-20000089
-20000170
-20000093
-20000174
-20000063
-20000144
-20000086
-20000167
-20000060
-20000141
-20000092
-20000173
-20000081
-20000162
-20000083
-20000164
-20000066
-20000147
-20000094
-20000175
-20000036
-20000117
-20000091
-20000172
-20000062
-20000143
-20000039
-20000120
-20000033
-20000114
-20000053
-20000134
-20000059
-20000140
-20000065
-20000146
-20000035
-20000116
-20000082
-20000163
-20000084
-20000165
-20000080
-20000161
-20000054
-20000135
-20000088
-20000169
-20000038
-20000119
-20000067
-20000148
-20000064
-20000145
-20000056
-20000137
-20000032
-20000113
-20000058
-20000139
-20000103
-20000184
-20000055
-20000136
-20000078
-20000159
-20000100
-20000181
-20000061
-20000142
-20000040
-20000121
-20000097
-20000178
-20000057
-20000138
-20000085
-20000166
-20000037
-20000118
-20000027
-20000108
-20000076
-20000157
-20000073
-20000154
-20000070
-20000151
-20000030
-20000111
-20000049
-20000130
-20000099
-20000180
-20000102
-20000183
-20000096
-20000177
-20000051
-20000132
-20000046
-20000127
-20000026
-20000107
-20000034
-20000115
-20000072
-20000153
-20000043
-20000124
-20000075
-20000156
-20000048
-20000129
-20000069
-20000150
-20000079
-20000160
-20000045
-20000126
-20000077
-20000158
-20000047
-20000128
-20000042
-20000123
-20000050
-20000131
-20000029
-20000110
-20000101
-20000182
-20000044
-20000125
-20000098
-20000179
-20000041
-20000122
-20000095
-20000176
-20000031
-20000112
-20000074
-20000155
-20000071
-20000152
-20000068
-20000149
-20000024
-20000105
-20000028
-20000109
-20000052
-20000133
-20000023
-20000104
-20000025
-20000106
-20000003
-20000001
-20000004
-20000000
-20000002
+
 IDS
 
 EXIT_GROUP_ORDER = %i[
@@ -220,6 +63,52 @@ METRICS = [
 
 Lib = CompareVariableAnalysisLib
 
+ALGO_SET_MODES = %i[
+  all_from_performance
+  closetrade_after_some_time_true
+  input_algo_ids
+].freeze
+
+def catalogable_algo_id?(algo_id)
+  algo_id.to_s.strip.match?(/\A\d+\z/)
+end
+
+def algo_ids_from_performance_output
+  Lib.read_csv(PERF_PATH).filter_map do |row|
+    algo_id = row['algoID'].to_s.strip
+    next if algo_id.empty?
+    next unless catalogable_algo_id?(algo_id)
+
+    algo_id
+  end.uniq.sort_by(&:to_i)
+end
+
+def resolve_input_algo_ids(config_by_algo_id)
+  unless ALGO_SET_MODES.include?(ALGO_SET_MODE)
+    warn "ERROR: unknown ALGO_SET_MODE #{ALGO_SET_MODE.inspect} " \
+         "(expected #{ALGO_SET_MODES.map(&:inspect).join(', ')})"
+    exit 1
+  end
+
+  case ALGO_SET_MODE
+  when :input_algo_ids
+    ids = parse_input_algo_ids(INPUT_ALGO_IDS)
+    if ids.empty?
+      warn 'ERROR: ALGO_SET_MODE=:input_algo_ids but INPUT_ALGO_IDS is empty ' \
+           '(add algo ids to the heredoc at top of script)'
+      exit 1
+    end
+    ids
+  when :all_from_performance
+    algo_ids_from_performance_output
+  when :closetrade_after_some_time_true
+    algo_ids_from_performance_output.select do |algo_id|
+      config_row = config_by_algo_id[algo_id]
+      config_row && config_bool(config_row['closetrade_after_some_time'])
+    end
+  end
+end
+
 def parse_input_algo_ids(text)
   text.each_line.filter_map do |line|
     stripped = line.strip
@@ -236,6 +125,59 @@ end
 
 def config_bool(value)
   %w[true 1 yes].include?(value.to_s.strip.downcase)
+end
+
+def parse_desired_array_constant(path, constant_name)
+  unless File.file?(path)
+    warn "ERROR: combinations map creator not found: #{path}"
+    exit 1
+  end
+
+  content = File.read(path, encoding: 'bom|utf-8')
+  pattern = /#{Regexp.escape(constant_name)}\s*=\s*\[([^\]]+)\]\.freeze/
+  match = content.match(pattern)
+  unless match
+    warn "ERROR: #{constant_name} not found in #{path}"
+    exit 1
+  end
+
+  match[1].split(',').map(&:strip).reject(&:empty?).map do |token|
+    if token.match?(/\A-?\d+\z/)
+      token.to_i
+    else
+      Float(token)
+    end
+  end
+end
+
+def closetrade_combo_grid_from_map_creator
+  profit_values = parse_desired_array_constant(
+    COMBINATIONS_MAP_CREATOR_PATH,
+    'DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED'
+  )
+  minutes_values = parse_desired_array_constant(
+    COMBINATIONS_MAP_CREATOR_PATH,
+    'DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN'
+  )
+  [profit_values, minutes_values]
+end
+
+def normalize_combo_scalar(value)
+  text = value.to_s.strip
+  return nil if text.empty?
+
+  float_match = text.match(/\A-?\d+(?:\.\d+)?\z/)
+  return format('%.10g', Float(text)) if float_match
+
+  text
+end
+
+def closetrade_combo_match?(config_row, profit_needed, minutes_from_breakdown)
+  config_profit = normalize_combo_scalar(config_row['closetrade_after_some_time_but_ProfitPercent_Needed'])
+  config_minutes = normalize_combo_scalar(config_row['closetrade_after_x_minutes_from_breakdown'])
+  target_profit = normalize_combo_scalar(profit_needed)
+  target_minutes = normalize_combo_scalar(minutes_from_breakdown)
+  config_profit == target_profit && config_minutes == target_minutes
 end
 
 def classify_exit_group(config_row, algo_id:)
@@ -282,6 +224,50 @@ def print_group_summary(grouped_entries)
     metrics = group_metrics(entries)
     algo_ids = entries.map { |entry| entry[:algo_id] }.sort_by(&:to_i).join(', ')
     puts "#{label}: algos=#{entries.size} [#{algo_ids}]"
+    puts "  avg perf_timeVSprofit=#{Lib.format_float(metrics[:timeVSprofit])}"
+    puts "  avg perf_percentSum_w_roll=#{Lib.format_float(metrics[:percentSum_w_roll], 2)}"
+    puts "  avg perf_avgDurationHours=#{Lib.format_float(metrics[:avgDurationHours])}"
+    puts "  avg perf_tradesCount=#{Lib.format_float(metrics[:tradesCount], 2)}"
+  end
+  puts
+end
+
+def print_closetrade_combo_analysis(time_exit_entries, profit_values, minutes_values)
+  puts '=== closetrade time-exit combos (from combinationsMap creator grid) ==='
+  puts "map creator: #{COMBINATIONS_MAP_CREATOR_PATH}"
+  puts "profit_percent grid: #{profit_values.join(', ')}"
+  puts "minutes_from_breakdown grid: #{minutes_values.join(', ')}"
+  puts
+
+  combo_rows = profit_values.product(minutes_values).map do |profit, minutes|
+    entries = time_exit_entries.select do |entry|
+      closetrade_combo_match?(entry[:config], profit, minutes)
+    end
+    {
+      profit: profit,
+      minutes: minutes,
+      entries: entries,
+      metrics: entries.empty? ? nil : group_metrics(entries)
+    }
+  end
+
+  matched_algo_ids = combo_rows.flat_map { |row| row[:entries].map { |entry| entry[:algo_id] } }.to_set
+  unmatched = time_exit_entries.reject { |entry| matched_algo_ids.include?(entry[:algo_id]) }
+  unless unmatched.empty?
+    warn "WARNING: #{unmatched.size} closetrade=true algo(s) did not match any grid combo: " \
+         "#{unmatched.map { |entry| entry[:algo_id] }.sort_by(&:to_i).join(', ')}"
+  end
+
+  combo_rows.sort_by { |row| -(row[:metrics]&.dig(:timeVSprofit) || -Float::INFINITY) }.each do |row|
+    label = "closetrade_after_some_time_but_ProfitPercent_Needed=#{row[:profit]}, " \
+            "closetrade_after_x_minutes_from_breakdown=#{row[:minutes]}"
+    if row[:entries].empty?
+      puts "#{label} (algos=0): (no algos)"
+      next
+    end
+
+    metrics = row[:metrics]
+    puts "#{label} (algos=#{row[:entries].size}):"
     puts "  avg perf_timeVSprofit=#{Lib.format_float(metrics[:timeVSprofit])}"
     puts "  avg perf_percentSum_w_roll=#{Lib.format_float(metrics[:percentSum_w_roll], 2)}"
     puts "  avg perf_avgDurationHours=#{Lib.format_float(metrics[:avgDurationHours])}"
@@ -339,12 +325,6 @@ unless File.file?(CONFIG_PATH)
   exit 1
 end
 
-input_algo_ids = parse_input_algo_ids(INPUT_ALGO_IDS)
-if input_algo_ids.empty?
-  warn 'ERROR: INPUT_ALGO_IDS is empty (add algo ids to the heredoc at top of script)'
-  exit 1
-end
-
 config_by_algo_id =
   Lib.read_csv(CONFIG_PATH).each_with_object({}) do |row, memo|
     algo_id = row['algo_id'].to_s.strip
@@ -360,6 +340,28 @@ perf_by_algo_id =
 
     memo[algo_id] = row
   end
+
+input_algo_ids = resolve_input_algo_ids(config_by_algo_id)
+if input_algo_ids.empty?
+  case ALGO_SET_MODE
+  when :all_from_performance
+    warn 'ERROR: no numeric algo ids found in performance output'
+  when :closetrade_after_some_time_true
+    warn 'ERROR: no algos with closetrade_after_some_time=true found in performance output'
+  end
+  exit 1
+end
+
+missing_config_from_perf = []
+if %i[all_from_performance closetrade_after_some_time_true].include?(ALGO_SET_MODE)
+  algo_ids_from_performance_output.each do |algo_id|
+    missing_config_from_perf << algo_id if config_by_algo_id[algo_id].nil?
+  end
+  unless missing_config_from_perf.empty?
+    warn "WARNING: #{missing_config_from_perf.size} performance algo(s) missing from config: " \
+         "#{missing_config_from_perf.sort_by(&:to_i).join(', ')}"
+  end
+end
 
 matched_rows = []
 missing_config = []
@@ -401,6 +403,7 @@ grouped_entries = matched_rows.group_by { |entry| entry[:exit_group] }
 
 puts "config: #{CONFIG_PATH}"
 puts "performance: #{PERF_PATH}"
+puts "algo set mode: #{ALGO_SET_MODE}"
 puts "input algos: #{input_algo_ids.size}"
 puts "matched algos: #{matched_rows.size}"
 EXIT_GROUP_ORDER.each do |group_key|
@@ -411,3 +414,9 @@ puts
 
 print_group_summary(grouped_entries)
 print_metric_comparisons(grouped_entries)
+
+time_exit_entries = grouped_entries[:zero_secret_tp_time_exit]
+if time_exit_entries&.any?
+  profit_values, minutes_values = closetrade_combo_grid_from_map_creator
+  print_closetrade_combo_analysis(time_exit_entries, profit_values, minutes_values)
+end

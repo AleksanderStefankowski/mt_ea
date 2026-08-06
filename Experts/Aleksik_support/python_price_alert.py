@@ -34,7 +34,6 @@
 import base64
 import csv
 import os
-import pickle
 import time
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
@@ -43,18 +42,19 @@ from email.mime.text import MIMEText
 from typing import Dict, Optional, Tuple
 
 import yfinance as yf  # python3 -m pip install yfinance
-from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
+
+from gmail_auth_common import (
+    CREDENTIALS_FILE,
+    SCRIPT_DIR,
+    TOKEN_FILE,
+    get_gmail_service as create_gmail_service,
+)
 
 # ============================================================
 # CONFIG
 # ============================================================
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 LEVELS_FILE = os.path.join(SCRIPT_DIR, "levelsinfo_zeFinal.csv")
-TOKEN_FILE = os.path.join(SCRIPT_DIR, "token.pickle")  # use existing token.pickle
-CREDENTIALS_FILE = os.path.join(SCRIPT_DIR, "credentials.json")
 
 EMAIL_FROM = "aleksikstorage2@gmail.com"  # send from
 EMAIL_TO = "aleksikstorage2@gmail.com"    # send to
@@ -81,7 +81,7 @@ reload_levels_file_every_x_minutes = 1440 # 1440 = 24h
 check_emails_for_deletion_every_x_minutes = 120 # but do first check immediately after launch
 can_delete_email_older_than_x_minutes = 600
 
-SCOPES = [
+ALERT_GMAIL_SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/gmail.modify",
 ]
@@ -130,39 +130,7 @@ class LevelState:
 # ============================================================
 
 def get_gmail_service():
-    # use existing token.pickle (same folder as this script)
-    creds = None
-
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "rb") as f:
-            creds = pickle.load(f)
-
-    if creds:
-        token_scopes = set(creds.scopes or [])
-        if not all(scope in token_scopes for scope in SCOPES):
-            print("token.pickle missing gmail send/modify scopes — re-authenticating...")
-            creds = None
-
-    if not creds or not creds.valid:
-        from google.auth.exceptions import RefreshError
-
-        if creds and creds.expired and creds.refresh_token:
-            try:
-                creds.refresh(Request())
-            except RefreshError:
-                print("Refresh token expired/revoked. Re-authenticating...")
-                creds = None
-
-        if not creds:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                CREDENTIALS_FILE, SCOPES
-            )
-            creds = flow.run_local_server(port=0, prompt="consent")
-
-        with open(TOKEN_FILE, "wb") as f:
-            pickle.dump(creds, f)
-
-    return build("gmail", "v1", credentials=creds)
+    return create_gmail_service(ALERT_GMAIL_SCOPES)
 
 
 def send_alert_email(service, subject: str, body: str) -> None:

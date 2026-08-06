@@ -33,14 +33,16 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 #   closetrade_after_some_time_but_ProfitPercent_Needed
 #   closetrade_after_x_minutes_from_breakdown
 #   max_open_positions
-# VARIABLE_1 = 'forget_about_latest_breakdown_after_x_15m_candles'
-# VARIABLE_2 = 'entry_max_minutes_after_bdend'
-VARIABLE_1 = 'closetrade_after_some_time_but_ProfitPercent_Needed'
-VARIABLE_2 = 'closetrade_after_x_minutes_from_breakdown'
+VARIABLE_1 = 'forget_about_latest_breakdown_after_x_15m_candles'
+VARIABLE_2 = 'entry_max_minutes_after_bdend'
+WRITE_OUTPUT_FILE = false
+# VARIABLE_1 = 'closetrade_after_some_time_but_ProfitPercent_Needed'
+# VARIABLE_2 = 'closetrade_after_x_minutes_from_breakdown'
 DYNAMIC_GROUPS_MODE = true
 # Used when DYNAMIC_GROUPS_MODE = true: cartesian product of var1 x var2 values.
-DYNAMIC_VARIABLE_1_VALUES = [1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 18.0, 25.0].freeze
-DYNAMIC_VARIABLE_2_VALUES = [200, 350, 500, 800].freeze
+DYNAMIC_VARIABLE_1_VALUES = [6, 11, 52].freeze
+DYNAMIC_VARIABLE_2_VALUES = [60, 110, 250].freeze
+
 
 # Used when DYNAMIC_GROUPS_MODE = false: each row is [variable_1_value, variable_2_value]
 ALLOWED_GROUPS_EXPLICIT = [
@@ -169,31 +171,90 @@ def sort_groups_by_average(group_averages, field, order: :desc)
   end
 end
 
+def short_group_label(var1_value, var2_value)
+  "#{normalize_group_value(var1_value)}/#{normalize_group_value(var2_value)}"
+end
+
+def print_grid_cell_duels(groups_with_data)
+  return if groups_with_data.size < 2
+
+  puts
+  puts '=' * 72
+  puts 'GRID CELL DUELS (best algo per var1/var2 cell, top-2 cells by metric — not paired single-variable)'
+  puts '=' * 72
+
+  PERF_FIELDS.each do |perf_field|
+    best_by_value =
+      groups_with_data.each_with_object({}) do |group, memo|
+        label = short_group_label(group[:variable_1], group[:variable_2])
+        best = CompareVariableAnalysisLib.best_algo_from_entries(group[:rows], perf_field)
+        memo[label] = best if best
+      end
+    duel_lines = CompareVariableAnalysisLib.metric_duel_table_lines_from_best(best_by_value, perf_field)
+    next if duel_lines.empty?
+
+    puts
+    duel_lines.each { |line| puts line }
+  end
+end
+
+def print_paired_var1_duels(allowed_rows)
+  var2_values = ALLOWED_GROUPS.map { |_, var2| normalize_group_value(var2) }.uniq
+  any = false
+
+  var2_values.sort.each do |var2_value|
+    subset =
+      allowed_rows.select do |entry|
+        normalize_group_value(entry[:config][VARIABLE_2]) == var2_value
+      end
+    next if subset.map { |entry| entry[:config][VARIABLE_1].to_s }.uniq.size < 2
+
+    run = CompareVariableAnalysisLib.build_variable_compare_run(subset, VARIABLE_1)
+    next if run[:pairs].empty?
+
+    any = true
+    puts
+    puts '=' * 72
+    puts "PAIRED DUELS: #{VARIABLE_1} (fixed #{VARIABLE_2}=#{var2_value}, all other config equal)"
+    puts '=' * 72
+    CompareVariableAnalysisLib.compare_compact_analysis_lines(run[:pairs], VARIABLE_1).each { |line| puts line }
+  end
+
+  return if any
+
+  puts
+  puts "(no paired duels: no #{VARIABLE_1} pairs at fixed #{VARIABLE_2} with matching other config)"
+end
+
 def print_group_averages_sorted(group_averages, field, order:)
   direction = order == :desc ? 'highest' : 'lowest'
+  groups_with_data = group_averages.select { |group| group[:algo_count].positive? }
   puts '=' * 72
   puts "PER-GROUP AVERAGES sorted by #{direction} perf_#{field}"
   puts '=' * 72
 
-  sort_groups_by_average(group_averages, field, order: order).each do |group|
-    puts allowed_group_label(group[:variable_1], group[:variable_2]) + " (algos=#{group[:algo_count]}):"
-    if group[:algo_count].zero?
-      puts '  (no algos with performance data)'
-      next
-    end
+  if groups_with_data.empty?
+    puts '(no groups with performance data)'
+    return
+  end
 
+  sort_groups_by_average(groups_with_data, field, order: order).each do |group|
+    puts allowed_group_label(group[:variable_1], group[:variable_2]) + " (algos=#{group[:algo_count]}):"
     PERF_FIELDS.each do |perf_field|
       puts "  avg perf_#{perf_field}=#{format_float(group[:averages][perf_field], perf_field_decimals(perf_field))}"
     end
   end
 end
 
-def print_group_averages(group_averages)
+def print_group_averages(group_averages, allowed_rows)
+  groups_with_data = group_averages.select { |group| group[:algo_count].positive? }
   print_group_averages_sorted(group_averages, 'timeVSprofit', order: :desc)
   puts
   print_group_averages_sorted(group_averages, 'percentSum_w_roll', order: :desc)
   puts
   print_group_averages_sorted(group_averages, 'avgDurationHours', order: :asc)
+  print_paired_var1_duels(allowed_rows)
+  print_grid_cell_duels(groups_with_data)
 end
 
 def normalize_group_value(value)
@@ -273,7 +334,7 @@ allowed_rows =
   end
 
 group_averages = build_group_averages(allowed_rows)
-write_group_averages_csv(group_averages)
+write_group_averages_csv(group_averages) if WRITE_OUTPUT_FILE
 
 puts "compare 2 variables: #{VARIABLE_1} + #{VARIABLE_2}"
 puts "groups mode: #{DYNAMIC_GROUPS_MODE ? 'dynamic' : 'explicit'}"
@@ -284,6 +345,6 @@ end
 puts "algos in performance output: #{perf_rows.size}"
 puts "algos in allowed groups: #{allowed_rows.size}"
 puts
-print_group_averages(group_averages)
+print_group_averages(group_averages, allowed_rows)
 puts
-puts "wrote group averages to #{GROUP_AVERAGES_OUTPUT_PATH}"
+puts "wrote group averages to #{GROUP_AVERAGES_OUTPUT_PATH}" if WRITE_OUTPUT_FILE

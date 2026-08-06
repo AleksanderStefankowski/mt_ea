@@ -30,26 +30,50 @@ DESIRED_EXPIRY_MINUTES = [120].freeze
 # :both -> trades_weekly=true, trades_daily=true
 # :weekly -> trades_weekly=true, trades_daily=false
 # :daily  -> trades_weekly=false, trades_daily=true
-DESIRED_TRADES_WHAT_LEVELS = %i[weekly].freeze # [both weekly daily, weekly has best profit and time!!!]
+DESIRED_TRADES_WHAT_LEVELS = %i[weekly both daily].freeze # [both weekly daily, weekly has best profit and time!!!]
 
-DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [3].freeze   # [1, 3: 3 is better]
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [4.0, 6.0, 10.0, 20.0].freeze # [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
+DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze   # [1, 3: 3 is better]
+#  [1, 3, 10] 10 is best? somehow had better avgtimeVSprofit and better avgavgDurationHours than 3.
+
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 8.0, 30.0].freeze 
+# [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
+# [4.0, 6.0, 10.0, 20.0], stil more profit if higher target, but 10.0 had best profitvstime
+# [8.0, 10.0, 12.0, 14.0, 20.0]
+# 20 means SPX go up by 1% (leverage 1:20)
+# [8.0, 10.0, 12.0, 14.0, 20.0] as always, higher means more profit
+
 DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL = [25.0].freeze
-DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO = [true, false].freeze # [true, false] seems no diff, can retest later with less options
+DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO = [true].freeze # [true, false] seems no diff, can retest later with less options. we only trade down levels so this is irrelevant
 DESIRED_OFFSET_POSITIVE = [true].freeze # true had 30% more profit than false
-DESIRED_OFFSET_PERCENTAGE = [0.0005, 0.0020].freeze # [false, 0.0020 is very bad] 
-DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET = [1.5, 1.0, 0.8, 0.5, 0.3].freeze # ([4.0, 1.0] 1.0 more trades than 4.0 so more profit, but worse avgDuration)
+DESIRED_OFFSET_PERCENTAGE = [0.0003, 0.0006].freeze # [false, 0.0020 is very bad]  |   [0.0005, 0.0020 true, 20 has a bit more profit via more trades, but worse profitVStime]
+DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET = [1.2].freeze # 1.25 should properly block stacking multiple open trades on the same level. and profit still great
+# group                              algo       percent_sum  timeVSprofit gross_profit
+# ------------------------------------------------------------------------------------
+# true, 0.0006, 1.2                  30000169   331.33       0.026        3735.40 # 1.2 always better than 2.0.  and from [0.0006, 0.001, 0.002] 6 always best
+# true, 0.0006, 2.0                  30000171   323.99       0.027        3685.84
+# true, 0.0010, 1.2                  30000173   304.62       0.025        3458.16
+# true, 0.0010, 2.0                  30000175   279.26       0.026        3188.03
+# true, 0.0020, 1.2                  30000177   290.79       0.028        3301.39
+# true, 0.0020, 2.0                  30000179   260.50       0.029        2960.69
+# false, 0.0006, 1.2                 30000181   294.27       0.025        3358.84  # FALSE ALWAYS WORSE THAN TRUE but with high multiply and offset the timevsprofit can be higher
+# false, 0.0006, 2.0                 30000183   287.58       0.026        3285.64
+# false, 0.0010, 1.2                 30000185   279.28       0.027        3206.02
+# false, 0.0010, 2.0                 30000187   266.44       0.028        3043.53
+# false, 0.0020, 1.2                 30000189   240.49       0.030        2757.34
+# false, 0.0020, 2.0                 30000191   215.26       0.035        2451.79
+
+
+# ([4.0, 1.0] 1.0 more trades than 4.0 so more profit, but worse avgDuration)
 #  [1.0 129% profit  0.037 ratio , 0.5 146% profit  0.033 ratio] 
+# [1.5, 1.0, 0.8, 0.5, 0.3] 1.5 super bad, but can test 1.2 vs 1.0.   1.0 had best timevsprift with OK profit, but 0.3 best profit. 
+# [1.2, 1.0, 0.5, 0.3, 0.15] 1.2 never good, 0.5 had best percent_sum, tVSprof best for 0.2
 
-# trades_tags presets — wantTag is a substring of the level tag (LevelAlgoTagMatches):
-#   "Down1" matches dailyDown1, weeklyDown1, ...
-#   "Up2"   matches dailyUp2, weeklyUp2, ...
-#   "Pivot" matches dailyPivot, weeklyPivot (one entry is enough)
 
-# removed "all_up" as it had terrible stats. "all_down_pivot" "all_tags" had 33% weaker profitVStime
+
+
+# removed "all_up" as it had terrible stats. removed "all_tags". Removed "all_down". "all_down_pivot" has more trades so more profit, but much weaker timeVSprofit. For now let's go for max profit with 
 DESIRED_TRADES_TAGS_PRESET = %i[
-  
-  all_down
+  all_down_pivot
 
   
 ].freeze
@@ -247,7 +271,7 @@ module LevelCombinationsCreator
     combos
   end
 
-  def format_mq5_double(value, decimals = 1)
+  def format_mq5_double(value, decimals = 2)
     format("%.#{decimals}f", value.to_f)
   end
 
@@ -313,7 +337,7 @@ module LevelCombinationsCreator
     lines << "g_levelAlgos[#{slot}].level_needs_to_be_below_ONO = #{format_mq5_bool(combo[:level_needs_to_be_below_ONO])};"
     lines << "g_levelAlgos[#{slot}].offset_positive = #{format_mq5_bool(combo[:offset_positive])};"
     lines << "g_levelAlgos[#{slot}].offset_percentage = #{format_mq5_double(combo[:offset_percentage], 4)};"
-    lines << "g_levelAlgos[#{slot}].cannotTrade__when_levelProximity_multiplyOffset = #{format_mq5_double(combo[:cannotTrade__when_levelProximity_multiplyOffset])};"
+    lines << "g_levelAlgos[#{slot}].cannotTrade__when_levelProximity_multiplyOffset = #{format_mq5_double(combo[:cannotTrade__when_levelProximity_multiplyOffset], 2)};"
     lines << "g_levelAlgos[#{slot}].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;"
     lines << build_trades_tags_lines(slot, tags)
     lines << "g_levelAlgos[#{slot}].real_tp = 555.0;"

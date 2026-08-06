@@ -20,8 +20,8 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 
 COMPARE_VARIABLE = 'breakdown_streak_continuation_mode'
 BREAKDOWN_TYPES = %w[CLOSES OHLC_AVG LOW OC_MID HL_MID].freeze
-MIN_BETTER_THAN_PERCENT_DIFF = 33.0
 OUTPUT_PATH = File.join(SCRIPT_DIR, 'compare_breakdown_types_pairs.csv')
+WRITE_OUTPUT_FILE = false
 
 CLOSETRADE_CONFIG_COLUMNS = %w[
   closetrade_after_some_time
@@ -97,7 +97,7 @@ Lib.write_compare_pairs_csv(
   run_result[:output_rows],
   COMPARE_VARIABLE,
   closetrade_config_columns: CLOSETRADE_CONFIG_COLUMNS
-)
+) if WRITE_OUTPUT_FILE
 
 puts "compare breakdown types (#{COMPARE_VARIABLE}): #{BREAKDOWN_TYPES.join(', ')}"
 puts "algos in analyze_breakdown_algos_performance_output: #{perf_row_count}"
@@ -109,8 +109,7 @@ puts "unpaired groups written: #{run_result[:unpaired_written]}"
 Lib.compare_analysis_lines(
   run_result[:pairs],
   COMPARE_VARIABLE,
-  sort_by_avg: true,
-  min_percent_diff: MIN_BETTER_THAN_PERCENT_DIFF
+  sort_by_avg: true
 ).each { |line| puts line }
 puts
-puts "wrote #{run_result[:output_rows].size} rows to #{OUTPUT_PATH}"
+puts "wrote #{run_result[:output_rows].size} rows to #{OUTPUT_PATH}" if WRITE_OUTPUT_FILE

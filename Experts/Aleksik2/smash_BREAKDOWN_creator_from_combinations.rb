@@ -160,8 +160,8 @@ module BreakdownCombinationsCreator
     "MAGIC_BREAKDOWN#{algo_id}"
   end
 
-  def format_mq5_double(value)
-    format("%.2f", value.to_f)
+  def format_mq5_double(value, decimals = 2)
+    format("%.#{decimals}f", value.to_f)
   end
 
   def format_mq5_bool(value)

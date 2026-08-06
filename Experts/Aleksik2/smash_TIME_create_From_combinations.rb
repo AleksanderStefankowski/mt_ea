@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-# Cartesian product of desired_* arrays -> new time algos in aleksik2.mq5.
-# Skips combinations whose config already exists among wired time algos.
+# Cartesian product of desired_* arrays -> REPLACE all time algos in aleksik2.mq5.
+# Does NOT append — deletes previous wired time algos and writes a fresh set from combo #1.
 
 require "set"
 require_relative "smash_TIME_creator_common"
@@ -20,11 +20,11 @@ DESIRED_ENTRY_TIMES = [
 DESIRED_RULE_SWITCH_MAP = [1].freeze  ### [0, 1] !!!!!!!!!! Rule 1: Secret-TP babysit close is only allowed during 14:30–15:29 server time
 
 # [5.0, 10.0, 15.0, 20.0] 20.0 had most profit but 5.0 had most efficiency and still crazy profit
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 3.0, 4.0, 5.0, 6.0].freeze # 5 10 20 # also test 2.0, 3.0.  [2.0, 3.0, 5.0, 10.0, 15.0, 20.0]
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [8.0, 12.0, 20.0].freeze # 5 10 20 # 2.0, 3.0. are too weak even vs buy and hold benchmark
 
 DESIRED_SECRET_TP_GREENGUARD_PRICEDIFF_AT_LEAST = [10.0].freeze
 DESIRED_MAX_TRADES_PER_DAY = [1].freeze
-DESIRED_MAX_OPEN_POSITIONS = [20].freeze # 15
+DESIRED_MAX_OPEN_POSITIONS = [10].freeze # 15
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [1].freeze
 
 module TimeCombinationsCreator
@@ -116,52 +116,28 @@ module TimeCombinationsCreator
     MQL5
   end
 
-  def append_params_block(inner, algo_id, combo)
-    const = TimeCombinationsCommon.time_const(algo_id)
-    return inner if inner.include?("TimeAlgoSlotIndexByAlgoId(#{const})")
+  def algo_ids_for_count(count)
+    raise "Need at least one time algo combination" if count <= 0
 
-    inner.rstrip + "\n" + build_algo_params_block(algo_id, combo)
+    last_id = TIME_ALGO_ID_MIN + count - 1
+    raise "Ran out of time algo ids below #{TIME_ALGO_ID_MAX}" if last_id > TIME_ALGO_ID_MAX
+
+    (TIME_ALGO_ID_MIN..last_id).to_a
   end
 
-  def next_algo_ids(existing_ids, count)
-    raise "Need at least one new algo id" if count <= 0
+  def apply_combinations_overwrite!(content, combinations)
+    algo_ids = algo_ids_for_count(combinations.size)
+    required_registry_max = combinations.size
 
-    ids = existing_ids.dup
-    out = []
-    candidate = ids.empty? ? TIME_ALGO_ID_MIN : ids.max + 1
-    while out.size < count
-      raise "Ran out of time algo ids below #{TIME_ALGO_ID_MAX}" if candidate > TIME_ALGO_ID_MAX
+    content = set_time_registry_max(content, required_registry_max)
+    inner1 = rebuild_registry_inner(algo_ids)
+    inner2 =
+      combinations.zip(algo_ids).map do |combo, algo_id|
+        build_algo_params_block(algo_id, combo)
+      end.join("\n\n")
 
-      unless ids.include?(candidate)
-        out << candidate
-        ids << candidate
-      end
-      candidate += 1
-    end
-    out
-  end
-
-  def filter_new_combinations(content, combinations)
-    existing = TimeCombinationsCommon.existing_combo_signatures(content)
-    combinations.reject do |combo|
-      existing.include?(TimeCombinationsCommon.combo_signature(combo))
-    end
-  end
-
-  def apply_combinations!(content, combinations)
-    existing_ids = TimeCombinationsCommon.registry_algo_ids(content)
-    new_ids = next_algo_ids(existing_ids, combinations.size)
-    all_ids = (existing_ids + new_ids).uniq.sort
-
-    inner1 = TimeCombinationsCommon.rebuild_registry_inner(all_ids)
-    inner2 = TimeCombinationsCommon.extract_inner(content, 2)
-
-    combinations.zip(new_ids).each do |combo, algo_id|
-      inner2 = append_params_block(inner2, algo_id, combo)
-    end
-
-    content = TimeCombinationsCommon.replace_inner(content, 1, inner1)
-    TimeCombinationsCommon.replace_inner(content, 2, inner2)
+    content = replace_inner(content, 1, inner1)
+    replace_inner(content, 2, inner2)
   end
 end
 
@@ -184,51 +160,45 @@ if __FILE__ == $PROGRAM_NAME
   registry_max = time_registry_max(content)
   registry_headroom = time_registry_max_headroom(content)
   wired_ids = registry_algo_ids(content)
-  empty_slots = registry_max - wired_ids.size
 
   all_combinations = build_combinations
   raise "Combination build mismatch: #{all_combinations.size} != #{total_combinations}" if all_combinations.size != total_combinations
 
-  new_combinations = filter_new_combinations(content, all_combinations)
-  duplicate_count = all_combinations.size - new_combinations.size
-  required_registry_max = compute_registry_max_for_wired_count(wired_ids.size + new_combinations.size)
-  next_algo_id = wired_ids.empty? ? TIME_ALGO_ID_MIN : wired_ids.max + 1
+  new_algo_ids = algo_ids_for_count(all_combinations.size)
+  required_registry_max = all_combinations.size
 
   puts "Registry slot capacity:    #{registry_max} (TIME_ALGO_REGISTRY_MAX in aleksik2.mq5)"
   puts "Registry headroom:         #{registry_headroom} (max unused slots above wired count)"
-  puts "Wired time algos:          #{wired_ids.size} (#{wired_ids.join(', ')})"
-  puts "Empty registry slots:      #{empty_slots}"
-  puts "Already exist (skip):      #{duplicate_count}"
-  puts "Will create:               #{new_combinations.size}"
-  puts "Required registry slots:   #{required_registry_max} (after creating #{new_combinations.size})"
-  puts "Time algo ID range:        #{TIME_ALGO_ID_MIN}..#{TIME_ALGO_ID_MAX}"
-  puts "Next new algo ID would be: #{next_algo_id}"
-  if required_registry_max > registry_max
-    puts "Will raise TIME_ALGO_REGISTRY_MAX: #{registry_max} -> #{required_registry_max}"
+  puts "Currently wired time IDs:  #{wired_ids.size} (#{wired_ids.join(', ')})"
+  puts "Will REPLACE with:         #{all_combinations.size} algos"
+  puts "New algo ID range:         #{new_algo_ids.first}..#{new_algo_ids.last}"
+  puts "Required registry slots:   #{required_registry_max}"
+  if required_registry_max != registry_max
+    verb = required_registry_max > registry_max ? "raise" : "lower"
+    puts "Will #{verb} TIME_ALGO_REGISTRY_MAX: #{registry_max} -> #{required_registry_max}"
   end
   puts
+  puts "Mode: OVERWRITE (previous time algos in creator blocks are removed)"
+  puts
 
-  if new_combinations.empty?
-    puts "No new time algo combinations to create."
+  if all_combinations.empty?
+    puts "No time algo combinations to create."
     exit 0
   end
 
-  print "Create #{new_combinations.size} time algo(s) in #{MQ5_FILE}? [y/N] "
+  print "Overwrite time algos with #{all_combinations.size} combination(s)? [y/N] "
   answer = $stdin.gets&.strip&.downcase
   unless answer == "y"
     puts "Aborted."
     exit 0
   end
 
-  before_ids = wired_ids
-  content = set_time_registry_max(content, required_registry_max) if required_registry_max > registry_max
-  updated = apply_combinations!(content, new_combinations)
+  updated = apply_combinations_overwrite!(content, all_combinations)
   File.write(MQ5_FILE, updated)
 
   after_ids = registry_algo_ids(updated)
-  new_ids = after_ids - before_ids
   final_registry_max = time_registry_max(updated)
-  puts "Created #{new_combinations.size} time algo(s): #{new_ids.sort.join(', ')}"
-  puts "TIME_ALGO_REGISTRY_MAX: #{registry_max} -> #{final_registry_max}" if required_registry_max > registry_max
+  puts "Wrote #{all_combinations.size} time algo(s): #{after_ids.join(', ')}"
+  puts "TIME_ALGO_REGISTRY_MAX: #{registry_max} -> #{final_registry_max}" if required_registry_max != registry_max
   puts MQ5_FILE
 end

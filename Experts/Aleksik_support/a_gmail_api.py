@@ -1,12 +1,12 @@
 import base64
+import os
 import re
 from email import message_from_bytes
-import os
-import pickle
 
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
+from gmail_auth_common import SCRIPT_DIR, get_gmail_service
+
+# Always read/write next to this script (ruby runner may use another cwd).
+os.chdir(SCRIPT_DIR)
 
 
 # ============================================================
@@ -17,44 +17,15 @@ sent_from = "smashelito@substack.com" # and sent to asg2
 parse_how_many_latest_emails = 25
 email_body_text_marker = "observe the behavior around"
 save_to_file = True
-save_file_name = "a_gmail_api_output_overwrites_store_latest_emails.txt"
+save_file_name = os.path.join(
+    SCRIPT_DIR, "a_gmail_api_output_overwrites_store_latest_emails.txt"
+)
 
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+READONLY_SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 
-
-# ============================================================
-# AUTH
-# ============================================================
 
 def get_service():
-    creds = None
-
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as f:
-            creds = pickle.load(f)
-
-    if not creds or not creds.valid:
-        from google.auth.exceptions import RefreshError
-
-        if creds and creds.expired and creds.refresh_token:
-            try:
-                creds.refresh(Request())
-            except RefreshError:
-                print("Refresh token expired/revoked. Re-authenticating...")
-                creds = None
-
-        if not creds:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(
-                port=0,
-                prompt='consent'   # 🔑 ensures new refresh token
-            )
-
-        with open('token.pickle', 'wb') as f:
-            pickle.dump(creds, f)
-
-    return build('gmail', 'v1', credentials=creds)
+    return get_gmail_service(READONLY_SCOPES)
 
 # ============================================================
 # HELPERS

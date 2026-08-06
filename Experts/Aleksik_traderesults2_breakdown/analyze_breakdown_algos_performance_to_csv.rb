@@ -23,8 +23,6 @@ EXCEPT_FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
   'analyze_breakdown_algos_performance_output_except_2025flashcrash.csv'
 )
-OUTPUT_TIMESTAMP_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.timestamp')
-
 # Big run only (not 2025flashcrash): drop algos below this % of the highest tradesCount algo.
 exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo = 24
 
@@ -206,7 +204,6 @@ else
        "(includes ALL/#{FAMILY_ALL_PATTERN}; all trades except #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
 end
 
-File.write(OUTPUT_TIMESTAMP_PATH, Time.now.to_i.to_s)
 warn 'RAN OK'
 
 end

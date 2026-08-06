@@ -4,22 +4,24 @@
 # Build/append per-family result catalogs: config + performance for input algos.
 # Rows are keyed by config (not algo id). Append-only; skips configs already present.
 #
-# Outputs (separate schemas — time and breakdown config columns differ):
+# Outputs (separate schemas — config columns differ per family):
 #   create_RESULTcatalogOUTPUT_time.csv      — within-catalog-id T1, T2, ... (+ placeholder_1/2 after pattern)
 #   create_RESULTcatalogOUTPUT_breakdown.csv — within-catalog-id B1, B2, ...
-# No mq5 algo id in either output file.
+#   create_RESULTcatalogOUTPUT_level.csv     — within-catalog-id L1, L2, ...
+# No mq5 algo id in any output file.
 #
 # Mode:
 #   READ_ALL_ALGOS_FROM_PERFORMANCE_OUTPUT = false (default)
-#     Use INPUT_ALGO_IDS heredoc. Routes each id to breakdown or time family by algo range.
+#     Use INPUT_ALGO_IDS heredoc. Routes each id to breakdown, time, or level family by algo range.
 #   READ_ALL_ALGOS_FROM_PERFORMANCE_OUTPUT = true
-#     Catalog every algo listed in analyze_breakdown_algos_performance_output.csv and
-#     analyze_time_algos_performance_output.csv.
+#     Catalog every algo listed in analyze_breakdown_algos_performance_output.csv,
+#     analyze_time_algos_performance_output.csv, and analyze_level_algos_performance_output.csv.
 #   Rows with non-numeric algoID (e.g. ALL/BREAKDOWN summary rows) are skipped.
 #
 # Per family:
 #   breakdown -> aleksik2_r_read_breakdown_algos_csv.csv + analyze_breakdown_algos_performance_output*.csv
 #   time      -> aleksik2_r_read_time_algos_csv.csv      + analyze_time_algos_performance_output*.csv
+#   level     -> aleksik2_level_fam.mqh                   + analyze_level_algos_performance_output*.csv
 # Performance columns (incl. main_close_reason) are copied from the perf CSV into the catalog output.
 #
 # Also adds 2025flashcrash_percentSum_isWhat_percent_of_allpercentSum from each family's flashcrash perf file.
@@ -31,7 +33,8 @@ require_relative 'compare_variable_analysis_lib'
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 OUTPUT_PATHS = {
   breakdown: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_breakdown.csv'),
-  time: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_time.csv')
+  time: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_time.csv'),
+  level: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_level.csv')
 }.freeze
 WITHIN_CATALOG_ID_COLUMN = 'within-catalog-id'
 EXTRA_COLUMN = '2025flashcrash_percentSum_isWhat_percent_of_allpercentSum'
@@ -41,11 +44,34 @@ READ_ALL_ALGOS_FROM_PERFORMANCE_OUTPUT = true
 
 FAMILY_BREAKDOWN = :breakdown
 FAMILY_TIME = :time
+FAMILY_LEVEL = :level
 
 FAMILY_CATALOG_ID_PREFIX = {
   FAMILY_BREAKDOWN => 'B',
-  FAMILY_TIME => 'T'
+  FAMILY_TIME => 'T',
+  FAMILY_LEVEL => 'L'
 }.freeze
+
+LEVEL_TRADES_TAGS_BY_PRESET = {
+  'all_tags' => (1..5).map { |n| "Down#{n}" } + (1..5).map { |n| "Up#{n}" } + %w[Pivot],
+  'all_down' => (1..5).map { |n| "Down#{n}" },
+  'all_up' => (1..5).map { |n| "Up#{n}" },
+  'all_down_pivot' => (1..5).map { |n| "Down#{n}" } + %w[Pivot]
+}.freeze
+
+LEVEL_CONFIG_HEADERS = %w[
+  algo_id
+  max_open_positions
+  expiry_minutes
+  trades_what_levels
+  stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
+  secret_tp_profit_percent_min
+  level_needs_to_be_below_ONO
+  offset_positive
+  offset_percentage
+  cannotTrade__when_levelProximity_multiplyOffset
+  trades_tags_preset
+].freeze
 
 FAMILIES = {
   FAMILY_BREAKDOWN => {
@@ -72,6 +98,19 @@ FAMILIES = {
     except_flashcrash_perf_path: File.join(
       SCRIPT_DIR,
       'analyze_time_algos_performance_output_except_2025flashcrash.csv'
+    )
+  },
+  FAMILY_LEVEL => {
+    output_path: OUTPUT_PATHS[:level],
+    config_path: File.expand_path('../Aleksik2/aleksik2_level_fam.mqh', SCRIPT_DIR),
+    perf_path: File.join(SCRIPT_DIR, 'analyze_level_algos_performance_output.csv'),
+    flashcrash_perf_path: File.join(
+      SCRIPT_DIR,
+      'analyze_level_algos_performance_output_2025flashcrash.csv'
+    ),
+    except_flashcrash_perf_path: File.join(
+      SCRIPT_DIR,
+      'analyze_level_algos_performance_output_except_2025flashcrash.csv'
     )
   }
 }.freeze
@@ -103,12 +142,110 @@ end
 def family_for_algo_id(algo_id)
   id = Integer(algo_id)
   return FAMILY_TIME if id >= 10_000_000 && id < 20_000_000
-  return FAMILY_BREAKDOWN if id >= 20_000_000
+  return FAMILY_BREAKDOWN if id >= 20_000_000 && id < 30_000_000
+  return FAMILY_LEVEL if id >= 30_000_000 && id < 40_000_000
 
   raise "ERROR: cannot determine algo family for algo id #{algo_id} " \
-        '(expected 10000000..19999999 time or 20000000+ breakdown)'
+        '(expected 10000000..19999999 time, 20000000..29999999 breakdown, or 30000000..39999999 level)'
 rescue ArgumentError
   raise "ERROR: invalid algo id #{algo_id.inspect} (expected digits only)"
+end
+
+def parse_level_bool_token(value)
+  value.to_s.strip.downcase == 'true'
+end
+
+def level_trades_what_levels_label(weekly, daily)
+  return 'both' if weekly && daily
+  return 'weekly' if weekly && !daily
+  return 'daily' if !weekly && daily
+
+  'none'
+end
+
+def level_trades_tags_preset_for(tags)
+  preset = LEVEL_TRADES_TAGS_BY_PRESET.find { |_name, list| list == tags }
+  return preset[0] if preset
+
+  tags.empty? ? '(no tags)' : tags.join('+')
+end
+
+def parse_level_catalog_configs(path)
+  unless File.file?(path)
+    warn "ERROR: level config not found: #{path}"
+    exit 1
+  end
+
+  configs = {}
+  current_id = nil
+
+  File.foreach(path, encoding: 'bom|utf-8') do |line|
+    if (match = line.match(/LevelAlgoSlotIndexByAlgoId\(MAGIC_LEVEL(\d+)\)\]\.enabled = true/))
+      current_id = match[1]
+      configs[current_id] = {
+        'algo_id' => current_id,
+        'max_open_positions' => nil,
+        'expiry_minutes' => nil,
+        'trades_what_levels' => nil,
+        'stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count' => nil,
+        'secret_tp_profit_percent_min' => nil,
+        'level_needs_to_be_below_ONO' => nil,
+        'offset_positive' => nil,
+        'offset_percentage' => nil,
+        'cannotTrade__when_levelProximity_multiplyOffset' => nil,
+        'trades_tags_preset' => nil,
+        weekly: false,
+        daily: false,
+        tags: []
+      }
+      next
+    end
+    next unless current_id
+    next unless line.include?("MAGIC_LEVEL#{current_id}")
+
+    config = configs[current_id]
+    if (match = line.match(/trades_weekly = (true|false)/))
+      config[:weekly] = parse_level_bool_token(match[1])
+    elsif (match = line.match(/trades_daily = (true|false)/))
+      config[:daily] = parse_level_bool_token(match[1])
+    elsif (match = line.match(/max_open_positions = (\d+)/))
+      config['max_open_positions'] = match[1]
+    elsif (match = line.match(/expiry_minutes = (\d+)/))
+      config['expiry_minutes'] = match[1]
+    elsif (match = line.match(/stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = (\d+)/))
+      config['stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count'] = match[1]
+    elsif (match = line.match(/secret_tp_profit_percent_min = ([0-9.]+)/))
+      config['secret_tp_profit_percent_min'] = match[1]
+    elsif (match = line.match(/level_needs_to_be_below_ONO = (true|false)/))
+      config['level_needs_to_be_below_ONO'] = match[1]
+    elsif (match = line.match(/offset_positive = (true|false)/))
+      config['offset_positive'] = match[1]
+    elsif (match = line.match(/offset_percentage = ([0-9.]+)/))
+      config['offset_percentage'] = match[1]
+    elsif (match = line.match(/cannotTrade__when_levelProximity_multiplyOffset = ([0-9.]+)/))
+      config['cannotTrade__when_levelProximity_multiplyOffset'] = match[1]
+    elsif (match = line.match(/trades_tags\[\d+\] = "([^"]+)"/))
+      config[:tags] << match[1]
+    end
+  end
+
+  configs.each_value do |config|
+    config['trades_what_levels'] = level_trades_what_levels_label(config[:weekly], config[:daily])
+    config['trades_tags_preset'] = level_trades_tags_preset_for(config[:tags])
+    config.delete(:weekly)
+    config.delete(:daily)
+    config.delete(:tags)
+  end
+
+  configs
+end
+
+def load_level_config_table(path)
+  configs = parse_level_catalog_configs(path)
+  rows = configs.values.sort_by { |config| config['algo_id'].to_i }.map do |config|
+    CSV::Row.new(LEVEL_CONFIG_HEADERS, LEVEL_CONFIG_HEADERS.map { |header| config[header].to_s })
+  end
+  CSV::Table.new(rows)
 end
 
 def catalogable_algo_id?(algo_id)
@@ -251,7 +388,12 @@ rescue StandardError => e
 end
 
 def load_family_data(family, paths)
-  config_table = load_required_csv(paths[:config_path], "#{family} config")
+  config_table =
+    if family == FAMILY_LEVEL
+      load_level_config_table(paths[:config_path])
+    else
+      load_required_csv(paths[:config_path], "#{family} config")
+    end
   perf_table = load_required_csv(paths[:perf_path], "#{family} performance output")
   {
     family: family,

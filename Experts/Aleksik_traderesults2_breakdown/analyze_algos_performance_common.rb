@@ -601,4 +601,64 @@ module AnalyzeAlgosPerformanceCommon
       end
     end
   end
+
+  OUTPUT_TIMESTAMP_MAX_AGE_SECONDS = 8 * 60
+
+  # Human-editable refresh stamp (.txt) for analyze_ALL_algos_performance_to_csv.rb only.
+  # Far-future time => skip refresh until you edit it back.
+  # Format of the timestamp line: YYYY-MM-DD HH:MM:SS (local). Legacy unix epoch still accepted.
+  def write_output_timestamp_txt!(path, time = Time.now)
+    stamp = time.strftime('%Y-%m-%d %H:%M:%S')
+    File.write(
+      path,
+      <<~TXT
+        # analyze_ALL_algos_performance_to_csv.rb only.
+        # Parent skips family scripts if this time is within the last 8 minutes of now.
+        # Family scripts run manually always refresh (no timestamp check).
+        # Set a far-future time (e.g. 2099-01-01 00:00:00) to skip refresh until you change it.
+        # Format: YYYY-MM-DD HH:MM:SS (local time)
+        #{stamp}
+      TXT
+    )
+  end
+
+  def output_timestamp_recent?(path, max_age_seconds = OUTPUT_TIMESTAMP_MAX_AGE_SECONDS)
+    generated_at = read_output_timestamp_txt(path)
+    return false unless generated_at
+
+    Time.now.to_i - generated_at < max_age_seconds
+  end
+
+  def output_timestamp_age_label(path)
+    generated_at = read_output_timestamp_txt(path)
+    return 'no stamp' unless generated_at
+
+    age_sec = Time.now.to_i - generated_at
+    if age_sec.negative?
+      'future-dated stamp (manual skip)'
+    else
+      "#{(age_sec / 60.0).round(1)} min ago"
+    end
+  end
+
+  def read_output_timestamp_txt(path)
+    return nil unless File.file?(path)
+
+    line = File.readlines(path, encoding: 'bom|utf-8')
+               .map { |l| l.strip }
+               .find { |l| !l.empty? && !l.start_with?('#') }
+    return nil if line.nil? || line.empty?
+
+    if line.match?(/\A\d+\z/)
+      return Integer(line)
+    end
+
+    Time.strptime(line, '%Y-%m-%d %H:%M:%S').to_i
+  rescue ArgumentError, TypeError
+    begin
+      Time.strptime(line, '%Y.%m.%d %H:%M:%S').to_i
+    rescue ArgumentError, TypeError
+      nil
+    end
+  end
 end

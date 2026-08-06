@@ -166,8 +166,8 @@ module TimeCombinationsCommon
     end.to_set
   end
 
-  def format_mq5_double(value)
-    format("%.1f", value.to_f)
+  def format_mq5_double(value, decimals = 2)
+    format("%.#{decimals}f", value.to_f)
   end
 
   def entry_time_label(hour, minute)

@@ -20,7 +20,8 @@ MAIN_FIELDS = %w[
 ].freeze
 
 SHARED_FIELDS = %w[
-  use_banned_days
+  use_banned_days_QOPEX
+  use_banned_days_holidays
   tradeSizePct
   bannedRanges
   tradesDays

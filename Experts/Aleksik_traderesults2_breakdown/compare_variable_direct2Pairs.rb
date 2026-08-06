@@ -36,6 +36,8 @@ PERF_PATH = File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.cs
 #   max_open_positions
 COMPARE_VARIABLE = 'entryrange_range_percentspot'
 
+WRITE_OUTPUT_FILE = false
+
 PERF_FIELDS = %w[
   timeVSprofit
   percentSum_w_roll
@@ -272,9 +274,11 @@ output_rows = pairs.map { |pair| pair_output_row(pair, COMPARE_VARIABLE) }
 win_stats = build_win_stats(pairs, COMPARE_VARIABLE)
 
 headers = output_rows.flat_map(&:keys).uniq
-CSV.open(OUTPUT_PATH, 'w', write_headers: true, headers: headers) do |csv|
-  output_rows.each do |row|
-    csv << headers.map { |header| row[header] }
+if WRITE_OUTPUT_FILE
+  CSV.open(OUTPUT_PATH, 'w', write_headers: true, headers: headers) do |csv|
+    output_rows.each do |row|
+      csv << headers.map { |header| row[header] }
+    end
   end
 end
 
@@ -292,4 +296,4 @@ PERF_FIELDS.each do |field|
   puts
 end
 
-puts "wrote #{output_rows.size} pair rows to #{OUTPUT_PATH}"
+puts "wrote #{output_rows.size} pair rows to #{OUTPUT_PATH}" if WRITE_OUTPUT_FILE

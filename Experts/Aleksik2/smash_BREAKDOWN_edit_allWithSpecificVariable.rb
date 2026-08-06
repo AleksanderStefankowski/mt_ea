@@ -41,8 +41,8 @@ BREAKDOWN_ENTRY_FORGET_MIN_ROOM_MINUTES = 15
 
 # --- edit filter here ---
 FILTER_VARIABLE = "max_open_positions"
-FILTER_VALUES = [10].freeze
-SET_VARIABLE_TO = 20
+FILTER_VALUES = [20].freeze
+SET_VARIABLE_TO = 10
 SET_ENABLED_TO = nil # set to nil to leave .enabled unchanged
 
 PARAM_ASSIGN_RE = /

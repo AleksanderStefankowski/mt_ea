@@ -5,13 +5,16 @@ require 'csv'
 require 'date'
 
 # ============ INPUT (edit these) ============
-ALGO_ID = 10000001 # 10000001 20000086
-ALGO_TYPE = :time # :breakdown or :time
+ALGO_ID = 30000016 # examples: 10000001 time, 20000086 breakdown, 30000001 level
 # ============================================
+
+ALGO_ID_MIN = 10_000_000
+ALGO_ID_MAX = 99_999_999
 
 SOURCE_FILES = {
   breakdown: File.expand_path('summary_tradeResults_all_days_breakdown.tsv', __dir__),
-  time: File.expand_path('summary_tradeResults_all_days_time.tsv', __dir__)
+  time: File.expand_path('summary_tradeResults_all_days_time.tsv', __dir__),
+  level: File.expand_path('summary_tradeResults_all_days_level.tsv', __dir__)
 }.freeze
 
 OUTPUT_PATH = File.expand_path('replay_an_algo_output.csv', __dir__)
@@ -39,20 +42,46 @@ def trade_sort_key(row)
   ]
 end
 
-unless SOURCE_FILES.key?(ALGO_TYPE)
-  warn "ERROR: ALGO_TYPE must be :breakdown or :time (got #{ALGO_TYPE.inspect})"
-  exit 1
-end
+# Leading digit of 8-digit algo id (aleksik2.mq5 FalgoAlgoFamilyLeadingDigit):
+#   1 => time, 3 => level, 2/4/5/6/7/8/9 => breakdown
+def algo_type_for_algo_id(algo_id)
+  id = Integer(algo_id)
+  unless id >= ALGO_ID_MIN && id <= ALGO_ID_MAX
+    raise "algo id #{algo_id} out of range (#{ALGO_ID_MIN}..#{ALGO_ID_MAX})"
+  end
 
-source_path = SOURCE_FILES[ALGO_TYPE]
-unless File.file?(source_path)
-  warn "ERROR: source file not found: #{source_path}"
-  exit 1
+  case id / 10_000_000
+  when 1 then :time
+  when 3 then :level
+  when 2, 4, 5, 6, 7, 8, 9 then :breakdown
+  else
+    raise "cannot determine algo family for algo id #{algo_id} (invalid leading digit)"
+  end
+rescue ArgumentError
+  raise "invalid algo id #{algo_id.inspect} (expected digits only)"
 end
 
 algo_id = ALGO_ID.to_s.strip
 if algo_id.empty?
   warn 'ERROR: ALGO_ID is empty'
+  exit 1
+end
+
+begin
+  algo_type = algo_type_for_algo_id(algo_id)
+rescue StandardError => e
+  warn "ERROR: #{e.message}"
+  exit 1
+end
+
+unless SOURCE_FILES.key?(algo_type)
+  warn "ERROR: unknown algo type #{algo_type.inspect}"
+  exit 1
+end
+
+source_path = SOURCE_FILES[algo_type]
+unless File.file?(source_path)
+  warn "ERROR: source file not found: #{source_path}"
   exit 1
 end
 
@@ -73,6 +102,6 @@ CSV.open(OUTPUT_PATH, 'w', write_headers: true, headers: table.headers) do |csv|
   end
 end
 
-warn "algo_id=#{algo_id} algo_type=#{ALGO_TYPE}"
+warn "algo_id=#{algo_id} algo_type=#{algo_type}"
 warn "source=#{source_path}"
 warn "Wrote #{matching_rows.size} trades to #{OUTPUT_PATH}"

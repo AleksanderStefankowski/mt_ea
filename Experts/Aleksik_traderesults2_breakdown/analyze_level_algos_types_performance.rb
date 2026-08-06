@@ -10,10 +10,13 @@
 #   - secret_tp_profit_percent_min
 #   - level_needs_to_be_below_ONO
 #   - cannotTrade__when_levelProximity_multiplyOffset
+#   - cannotTrade__when_levelProximity_multiplyOffset + offset_percentage (paired)
+#   - offset_positive + offset_percentage + cannotTrade multiply (triple group + top-3 duels)
 #   - stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
 #
 # Uses analyze_level_algos_performance_output.csv + config parsed from aleksik2_level_fam.mqh.
 
+require 'set'
 require_relative 'compare_variable_analysis_lib'
 require_relative '../Aleksik_traderesults/analyze_traderate_common'
 
@@ -38,8 +41,17 @@ GROUP_SECTIONS = [
   { field: :level_needs_to_be_below_ONO, title: 'LEVEL_NEEDS_TO_BE_BELOW_ONO' },
   { field: :cannotTrade__when_levelProximity_multiplyOffset,
     title: 'CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET' },
+  { field: :proximity_offset_pair,
+    title: 'CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET + OFFSET_PERCENTAGE' },
+  { field: :offset_proximity_triple,
+    title: 'OFFSET_POSITIVE + OFFSET_PERCENTAGE + CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET',
+    top3_duels: true },
   { field: :stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count,
     title: 'STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT' }
+].freeze
+
+OFFSET_PROXIMITY_TRIPLE_FIELDS = %i[
+  offset_positive offset_percentage cannotTrade__when_levelProximity_multiplyOffset
 ].freeze
 
 TABLE_COLUMNS = [
@@ -61,9 +73,9 @@ TABLE_COLUMNS = [
   [:avgavg_time_at_peak_exposure_hours, 14]
 ].freeze
 
-TABLE_COLUMNS_PART1 = TABLE_COLUMNS[0..6].freeze
-TABLE_COLUMNS_PART2 = [TABLE_COLUMNS[0]] + TABLE_COLUMNS[7..11].freeze
-TABLE_COLUMNS_PART3 = [TABLE_COLUMNS[0]] + TABLE_COLUMNS[12..].freeze
+TRIPLE_TABLE_COLUMNS = TABLE_COLUMNS.map do |name, width|
+  name == :group ? [:group, 34] : [name, width]
+end.freeze
 
 def catalogable_algo_id?(algo_id)
   algo_id.to_s.strip.match?(/\A\d+\z/)
@@ -129,6 +141,15 @@ def parse_level_alg_configs(path)
     config[:level_scope] = level_scope_label(config[:weekly], config[:daily])
     config[:offset_positive_label] = config[:offset_positive].nil? ? 'n/a' : config[:offset_positive].to_s
     config[:offset_pair] = offset_pair_label(config[:offset_positive], config[:offset_percentage])
+    config[:proximity_offset_pair] = config_pair_label(
+      config[:cannotTrade__when_levelProximity_multiplyOffset],
+      config[:offset_percentage]
+    )
+    config[:offset_proximity_triple] = offset_proximity_triple_label(
+      config[:offset_positive],
+      config[:offset_percentage],
+      config[:cannotTrade__when_levelProximity_multiplyOffset]
+    )
     config[:level_needs_to_be_below_ONO_label] =
       config[:level_needs_to_be_below_ONO].nil? ? 'n/a' : config[:level_needs_to_be_below_ONO].to_s
   end
@@ -152,9 +173,40 @@ def level_scope_label(weekly, daily)
 end
 
 def offset_pair_label(offset_positive, offset_percentage)
-  positive = offset_positive.nil? ? 'n/a' : offset_positive.to_s
-  percentage = offset_percentage.nil? ? 'n/a' : offset_percentage.to_s
-  "#{positive}, #{percentage}"
+  config_pair_label(offset_positive, offset_percentage)
+end
+
+def config_pair_label(first, second)
+  a = first.nil? ? 'n/a' : first.to_s
+  b = second.nil? ? 'n/a' : second.to_s
+  "#{a}, #{b}"
+end
+
+def offset_proximity_triple_label(offset_positive, offset_percentage, multiply_offset)
+  a = offset_positive.nil? ? 'n/a' : offset_positive.to_s
+  b = offset_percentage.nil? ? 'n/a' : offset_percentage.to_s
+  c = multiply_offset.nil? ? 'n/a' : multiply_offset.to_s
+  "#{a}, #{b}, #{c}"
+end
+
+def parse_offset_proximity_triple_key(group_key)
+  parts = group_key.to_s.split(', ', 3)
+  return %w[n/a n/a n/a] if parts.size < 3
+
+  parts
+end
+
+def offset_proximity_triple_diff_fields(left_key, right_key)
+  names = %w[offset_positive offset_percentage multiplyOffset]
+  left_parts = parse_offset_proximity_triple_key(left_key)
+  right_parts = parse_offset_proximity_triple_key(right_key)
+  names.zip(left_parts, right_parts).filter_map do |name, left, right|
+    name if left != right
+  end
+end
+
+def offset_proximity_triple_keys_differ?(left_key, right_key)
+  offset_proximity_triple_diff_fields(left_key, right_key).any?
 end
 
 def load_matched_rows
@@ -239,21 +291,27 @@ def aggregate_group(group_key, entries)
   }
 end
 
-def group_rows(matched_rows, field)
-  grouped = matched_rows.group_by do |entry|
-    case field
-    when :offset_pair
-      entry[:config][:offset_pair]
-    when :level_needs_to_be_below_ONO
-      entry[:config][:level_needs_to_be_below_ONO_label]
-    when :secret_tp_profit_percent_min
-      entry[:config][:secret_tp_profit_percent_min].to_s
-    when :cannotTrade__when_levelProximity_multiplyOffset
-      entry[:config][:cannotTrade__when_levelProximity_multiplyOffset].to_s
-    else
-      entry[:config][field].to_s
-    end
+def group_key_for_entry(entry, field)
+  case field
+  when :offset_pair
+    entry[:config][:offset_pair]
+  when :proximity_offset_pair
+    entry[:config][:proximity_offset_pair]
+  when :offset_proximity_triple
+    entry[:config][:offset_proximity_triple]
+  when :level_needs_to_be_below_ONO
+    entry[:config][:level_needs_to_be_below_ONO_label]
+  when :secret_tp_profit_percent_min
+    entry[:config][:secret_tp_profit_percent_min].to_s
+  when :cannotTrade__when_levelProximity_multiplyOffset
+    entry[:config][:cannotTrade__when_levelProximity_multiplyOffset].to_s
+  else
+    entry[:config][field].to_s
   end
+end
+
+def group_rows(matched_rows, field)
+  grouped = matched_rows.group_by { |entry| group_key_for_entry(entry, field) }
 
   grouped
     .map { |group_key, entries| aggregate_group(group_key, entries) }
@@ -268,6 +326,13 @@ def group_sort_key(field, group_key, row)
     positive, percentage = group_key.to_s.split(', ', 2)
     positive_rank = { 'true' => 0, 'false' => 1, 'n/a' => 2 }.fetch(positive, 99)
     [positive_rank, Lib.parse_float(percentage) || 99.0, group_key.to_s]
+  when :proximity_offset_pair
+    multiply, percentage = group_key.to_s.split(', ', 2)
+    [Lib.parse_float(multiply) || 99.0, Lib.parse_float(percentage) || 99.0, group_key.to_s]
+  when :offset_proximity_triple
+    positive, percentage, multiply = parse_offset_proximity_triple_key(group_key)
+    positive_rank = { 'true' => 0, 'false' => 1, 'n/a' => 2 }.fetch(positive, 99)
+    [positive_rank, Lib.parse_float(percentage) || 99.0, Lib.parse_float(multiply) || 99.0, group_key.to_s]
   when :level_needs_to_be_below_ONO
     { 'true' => 0, 'false' => 1, 'n/a' => 2 }.fetch(group_key.to_s, 99)
   when :secret_tp_profit_percent_min,
@@ -275,13 +340,233 @@ def group_sort_key(field, group_key, row)
        :stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
     [Lib.parse_float(group_key) || 99.0, group_key.to_s]
   when :trades_tags_preset
-  [
-    { 'all_tags' => 0, 'all_down' => 1, 'all_up' => 2, 'all_down_pivot' => 3 }.fetch(group_key.to_s, 99),
-    group_key.to_s
-  ]
+    [
+      { 'all_tags' => 0, 'all_down' => 1, 'all_up' => 2, 'all_down_pivot' => 3 }.fetch(group_key.to_s, 99),
+      group_key.to_s
+    ]
   else
     [-row[:percent_sum].to_f, group_key.to_s]
   end
+end
+
+LEVEL_CONFIG_SIGNATURE_KEYS = %i[
+  weekly daily offset_positive offset_percentage secret_tp_profit_percent_min
+  level_needs_to_be_below_ONO cannotTrade__when_levelProximity_multiplyOffset
+  stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
+].freeze
+
+def signature_exclude_for_field(field)
+  case field
+  when :trades_tags_preset
+    %i[trades_tags_preset tags]
+  when :offset_pair
+    %i[offset_positive offset_percentage offset_pair offset_positive_label]
+  when :level_scope
+    %i[weekly daily level_scope]
+  when :proximity_offset_pair
+    %i[cannotTrade__when_levelProximity_multiplyOffset offset_percentage proximity_offset_pair]
+  when :offset_proximity_triple
+    %i[
+      offset_positive offset_percentage cannotTrade__when_levelProximity_multiplyOffset
+      offset_pair proximity_offset_pair offset_proximity_triple offset_positive_label
+    ]
+  when :level_needs_to_be_below_ONO
+    %i[level_needs_to_be_below_ONO level_needs_to_be_below_ONO_label]
+  else
+    [field]
+  end
+end
+
+def compare_config_key_for_field(field)
+  case field
+  when :level_needs_to_be_below_ONO
+    :level_needs_to_be_below_ONO_label
+  else
+    field
+  end
+end
+
+def level_config_signature(entry, field)
+  exclude = signature_exclude_for_field(field).to_set
+  LEVEL_CONFIG_SIGNATURE_KEYS
+    .reject { |key| exclude.include?(key) }
+    .map { |key| entry[:config][key].to_s }
+    .join("\x1f")
+end
+
+def level_pair_side(entry, field)
+  compare_key = compare_config_key_for_field(field).to_s
+  Lib.make_pair_config_row(
+    compare_key => group_key_for_entry(entry, field).to_s,
+    'algo_id' => entry[:algo_id].to_s
+  )
+end
+
+def build_level_pairs(matched_rows, field)
+  pairs = []
+  matched_rows
+    .group_by { |entry| level_config_signature(entry, field) }
+    .each_value do |entries|
+      next if entries.size < 2
+
+      values = entries.map { |entry| group_key_for_entry(entry, field).to_s }.uniq
+      next if values.size < 2
+
+      entries.combination(2).each do |left, right|
+        left_value = group_key_for_entry(left, field).to_s
+        right_value = group_key_for_entry(right, field).to_s
+        next if left_value == right_value
+
+        pairs << {
+          left: { algo_id: left[:algo_id], config: level_pair_side(left, field), perf: left[:perf] },
+          right: { algo_id: right[:algo_id], config: level_pair_side(right, field), perf: right[:perf] }
+        }
+      end
+    end
+  pairs
+end
+
+def duel_sort_key_for_field(field)
+  lambda do |value|
+    group_sort_key(field, value, {})
+  end
+end
+
+TRIPLE_CHAMPION_COLUMNS = [
+  [:group, 34],
+  [:algo, 10],
+  [:percent_sum, 12],
+  [:timeVSprofit, 12],
+  [:gross_profit, 12]
+].freeze
+
+def triple_group_champion_rows(matched_rows, field, rows)
+  perf_field = 'percentSum_w_roll'
+  rows.filter_map do |row|
+    group_key = row[:group].to_s
+    entries = matched_rows.select { |entry| group_key_for_entry(entry, field).to_s == group_key }
+    best = Lib.best_algo_from_entries(entries, perf_field)
+    next unless best
+
+    entry = entries.find { |e| e[:algo_id].to_s == best[:algo_id] }
+    gross_profit = entry ? Lib.parse_float(entry[:perf]['gross_profit']) : nil
+
+    {
+      group: group_key,
+      algo: best[:algo_id],
+      percent_sum: best[:metric],
+      timeVSprofit: best[:timeVSprofit],
+      gross_profit: gross_profit
+    }
+  end.sort_by { |row| group_sort_key(field, row[:group], {}) }
+end
+
+def print_triple_group_champions(matched_rows, field, rows)
+  champions = triple_group_champion_rows(matched_rows, field, rows)
+  return if champions.empty?
+
+  puts '#1 by percent_sum per combination (highest profit, one row each):'
+  header = TRIPLE_CHAMPION_COLUMNS.map { |name, width| name.to_s.ljust(width) }.join(' ')
+  puts header
+  puts '-' * header.length
+  champions.each do |row|
+    line = TRIPLE_CHAMPION_COLUMNS.map do |name, width|
+      case name
+      when :percent_sum, :gross_profit
+        format_table_cell(row[name], width, numeric: true)
+      when :timeVSprofit
+        format_table_cell(row[name], width, numeric: true, decimals: 3)
+      else
+        format_table_cell(row[name], width)
+      end
+    end.join(' ')
+    puts line
+  end
+  puts
+end
+
+def print_top3_triple_duels(section, matched_rows, rows)
+  field = section[:field]
+  compare_variable = compare_config_key_for_field(field).to_s
+  pairs = build_level_pairs(matched_rows, field)
+  top3 = rows.sort_by { |row| -row[:percent_sum].to_f }.first(3)
+
+  if top3.size >= 2
+    puts 'top-3 group duels (paired algos — same config except offset_positive, offset_percentage, multiplyOffset):'
+    if pairs.empty?
+      puts '(no paired algos)'
+      puts
+    else
+      top3_keys = top3.map { |row| row[:group].to_s }
+      puts "top groups by percent_sum: #{top3_keys.join(' | ')}"
+      puts
+
+      duel_blocks = 0
+      header_printed = false
+      top3_keys.combination(2).each do |left_key, right_key|
+        next unless offset_proximity_triple_keys_differ?(left_key, right_key)
+
+        diff_fields = offset_proximity_triple_diff_fields(left_key, right_key)
+        puts "--- #{left_key} vs #{right_key} (diff: #{diff_fields.join(', ')}) ---"
+
+        %w[percentSum_w_roll timeVSprofit].each do |perf_field|
+          best_by_value = Lib.paired_duel_best_by_value_for_pair(
+            pairs, compare_variable, perf_field, left_key, right_key
+          )
+          next if best_by_value.size < 2
+
+          duel_label = Lib::METRIC_DUEL_LABELS[perf_field] || "#{perf_field} #1"
+          lines = Lib.single_metric_duel_block_lines(
+            duel_label: duel_label,
+            perf_field: perf_field,
+            best_by_value: best_by_value
+          )
+          next if lines.empty?
+
+          unless header_printed
+            cols = Lib::BEST_PAIR_DUEL_TABLE_COLUMNS
+            header = cols.map { |name, width| name.to_s.ljust(width) }.join(' ')
+            puts header
+            puts '-' * header.length
+            header_printed = true
+          end
+          lines.each { |line| puts line }
+          duel_blocks += 1
+        end
+        puts
+      end
+
+      puts '(no paired duels among top-3 groups)' if duel_blocks.zero?
+    end
+  end
+
+  print_triple_group_champions(matched_rows, field, rows)
+end
+
+def print_section_best_duels(section, matched_rows)
+  return if section[:top3_duels]
+
+  field = section[:field]
+  compare_variable = compare_config_key_for_field(field).to_s
+  pairs = build_level_pairs(matched_rows, field)
+  group_count = matched_rows.map { |entry| group_key_for_entry(entry, field).to_s }.uniq.size
+  return if group_count < 2
+
+  lines =
+    if pairs.empty?
+      ['best pair duels: (no paired algos — same config except this dimension)']
+    else
+      Lib.best_pair_duel_table_lines(
+        field_name: field.to_s,
+        best_by_percent: {},
+        best_by_time: {},
+        pairs: pairs,
+        compare_variable: compare_variable,
+        sort_key: duel_sort_key_for_field(field)
+      )
+    end
+  lines.each { |line| puts line }
+  puts
 end
 
 def format_table_cell(value, width, numeric: false, decimals: 2)
@@ -328,12 +613,15 @@ def print_group_table_with_columns(rows, columns)
   end
 end
 
-def print_group_table(rows)
-  print_group_table_with_columns(rows, TABLE_COLUMNS_PART1)
+def print_group_table(rows, columns: TABLE_COLUMNS)
+  part1 = columns[0..6]
+  part2 = [columns[0]] + columns[7..11]
+  part3 = [columns[0]] + columns[12..]
+  print_group_table_with_columns(rows, part1)
   puts
-  print_group_table_with_columns(rows, TABLE_COLUMNS_PART2)
+  print_group_table_with_columns(rows, part2)
   puts
-  print_group_table_with_columns(rows, TABLE_COLUMNS_PART3)
+  print_group_table_with_columns(rows, part3)
 end
 
 def print_section(section, matched_rows)
@@ -352,7 +640,17 @@ def print_section(section, matched_rows)
   puts "groups: #{rows.size}   algos: #{total_algos}"
   puts
 
-  print_group_table(rows)
+  if section[:top3_duels]
+    print_group_table(rows, columns: TRIPLE_TABLE_COLUMNS)
+  else
+    print_group_table(rows)
+  end
+  puts
+  if section[:top3_duels]
+    print_top3_triple_duels(section, matched_rows, rows)
+  else
+    print_section_best_duels(section, matched_rows)
+  end
   puts
 end
 
