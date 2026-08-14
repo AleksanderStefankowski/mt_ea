@@ -1,19 +1,17 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
-# Read create_RESULTcatalogOUTPUT_breakdown.csv + INPUT_CATALOG_IDS heredoc -> new breakdown algos in aleksik2.mq5.
+# Read create_RESULTcatalogOUTPUT_breakdown*.csv + INPUT_CATALOG_IDS heredoc -> append new breakdown algos in aleksik2.mq5.
 # Does not check for duplicate configs; each catalog id always gets a new mq5 algo id.
 
 count_of_created_algos_limit = 1300
 
 require "csv"
+require_relative "smash_from_CATALOG_creator_common"
 require_relative "smash_BREAKDOWN_creator_from_combinations"
 
-CATALOG_PATH = File.expand_path(
-  "../Aleksik_traderesults2_breakdown/create_RESULTcatalogOUTPUT_breakdown.csv",
-  __dir__
-)
-WITHIN_CATALOG_ID_COLUMN = "within-catalog-id"
-CATALOG_PERF_FIRST_COLUMN = "pattern"
+CATALOG_FAMILY = "breakdown"
+CATALOG_PREFIX = "B"
+CATALOG_PATH = CatalogCreatorCommon.resolve_catalog_path(CATALOG_FAMILY)
 
 # Edit catalog ids here (B1, B2, ...). Blank lines and # comments are ignored.
 INPUT_CATALOG_IDS = <<~IDS
@@ -214,49 +212,8 @@ B385
 IDS
 
 module BreakdownCatalogCreator
+  include CatalogCreatorCommon
   module_function
-
-  def parse_catalog_ids(text)
-    text.each_line.filter_map do |line|
-      stripped = line.strip
-      next if stripped.empty?
-      next if stripped.start_with?("#")
-
-      unless stripped.match?(/\AB\d+\z/i)
-        raise "ERROR: invalid catalog id line: #{line.inspect} (expected B followed by digits, e.g. B7)"
-      end
-
-      "B#{stripped[/\d+/].to_i}"
-    end.uniq
-  end
-
-  def normalize_catalog_row(row)
-    row.to_h.transform_keys(&:to_s).transform_values { |value| value.to_s.strip }
-  end
-
-  def catalog_rows_by_id(path)
-    raise "Missing breakdown catalog: #{path}" unless File.exist?(path)
-
-    table = CSV.read(path, headers: true)
-    unless table.headers.include?(WITHIN_CATALOG_ID_COLUMN)
-      raise "#{File.basename(path)} missing column: #{WITHIN_CATALOG_ID_COLUMN}"
-    end
-
-    rows_by_id = {}
-    table.each do |csv_row|
-      row = normalize_catalog_row(csv_row)
-      catalog_id = row[WITHIN_CATALOG_ID_COLUMN]
-      next if catalog_id.empty?
-
-      catalog_id = "B#{catalog_id[/\d+/].to_i}"
-      rows_by_id[catalog_id] = row
-    end
-    rows_by_id
-  end
-
-  def csv_bool?(value)
-    %w[true 1 yes].include?(value.to_s.strip.downcase)
-  end
 
   def resolve_continuation_mode(value)
     text = value.to_s.strip
@@ -313,7 +270,7 @@ module BreakdownCatalogCreator
 
   def apply_catalog_rows!(content, catalog_rows)
     existing_ids = registry_algo_ids(content)
-    new_ids = next_algo_ids(existing_ids, catalog_rows.size)
+    new_ids = next_algo_ids(existing_ids, catalog_rows.size, BREAKDOWN_ID_MIN, BREAKDOWN_ID_MAX)
     all_ids = (existing_ids + new_ids).uniq.sort
 
     inner1 = rebuild_registry_inner(all_ids)
@@ -329,23 +286,6 @@ module BreakdownCatalogCreator
     content = replace_inner(content, 2, inner2)
     replace_inner(content, 4, inner4)
   end
-
-  def select_catalog_rows(catalog_ids, rows_by_id, limit)
-    selected = []
-    missing = []
-
-    catalog_ids.first(limit).each do |catalog_id|
-      row = rows_by_id[catalog_id]
-      if row.nil?
-        missing << catalog_id
-        next
-      end
-
-      selected << row.merge(WITHIN_CATALOG_ID_COLUMN => catalog_id)
-    end
-
-    { rows: selected, missing: missing }
-  end
 end
 
 include BreakdownCombinationsCreator
@@ -355,13 +295,13 @@ if __FILE__ == $PROGRAM_NAME
   limit = count_of_created_algos_limit
   raise "count_of_created_algos_limit must be >= 1" if limit < 1
 
-  catalog_ids = parse_catalog_ids(INPUT_CATALOG_IDS)
+  catalog_ids = parse_catalog_ids(INPUT_CATALOG_IDS, CATALOG_PREFIX)
   if catalog_ids.empty?
     puts "ERROR: INPUT_CATALOG_IDS is empty (add catalog ids like B7 to the heredoc at top of script)"
     exit 1
   end
 
-  rows_by_id = catalog_rows_by_id(CATALOG_PATH)
+  rows_by_id = catalog_rows_by_id(CATALOG_PATH, CATALOG_PREFIX)
   selection = select_catalog_rows(catalog_ids, rows_by_id, limit)
   rows_to_create = selection[:rows]
   missing_catalog_ids = selection[:missing]
@@ -375,6 +315,7 @@ if __FILE__ == $PROGRAM_NAME
   puts "Requested catalog ids:  #{catalog_ids.size}"
   puts "Create limit (top var): #{limit}"
   puts "Will create this run:   #{rows_to_create.size}"
+  puts "Mode: APPEND (each catalog id gets a new mq5 algo id)"
   puts
   rows_to_create.each do |row|
     puts "  #{row[WITHIN_CATALOG_ID_COLUMN]}"

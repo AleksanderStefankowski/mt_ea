@@ -92,7 +92,7 @@ DESIRED_SECRET_TP_RANGE_PERCENT = [175, 300, 500, 800].freeze #  [100, 200, 300,
 
 ### It does not need secret TP != 0. The time-based close is independent of secret_tp_range_percent.
 # profit/minutes arrays are only expanded in the grid when closetrade_after_some_time=true.
-DESIRED_CLOSETRADE_AFTER_SOME_TIME = [true].freeze
+DESIRED_CLOSETRADE_AFTER_SOME_TIME = [false].freeze
 DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [15.0, 25.0, 40.0].freeze # ✅✅[1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 18.0, 25.0]
 DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [800].freeze # ✅ with higher TP targets it is irrelevant 
 # DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0, 5.0, 10.0, 19.0].freeze # [1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 18.0, 25.0]
@@ -144,7 +144,7 @@ DESIRED_MAX_BREAKDOWN_SEQUENCE_LEN = [21].freeze # 9  ✅ 21 best from tested
 #   max_breakdown_sequence_len=21: 432/432 (100.0%), avg perf_tradesCount=307.18 (per algo)
 
 
-DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20, 0.30].freeze # 0.20   [0.20, 0.35, 0.15] the less the more trades obviously, turns out for mmore profit?  tested with 10 trades limit
+DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20, 0.30, 0.45].freeze # 0.20   [0.20, 0.35, 0.15] the less the more trades obviously, turns out for mmore profit?  tested with 10 trades limit
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
 #   bd_start_min_breakdown_percent=0.15: 191/280 (68.2%), avg perf_percentSum_w_roll group 0 secret TP=78.68 (per algo)
 #   bd_start_min_breakdown_percent=0.20: 113/280 (40.4%), avg perf_percentSum_w_roll group 0 secret TP=76.07 (per algo)
@@ -158,7 +158,7 @@ DESIRED_BD_START_MIN_BREAKDOWN_PERCENT = [0.20, 0.30].freeze # 0.20   [0.20, 0.3
 
 # [0.10, 0.20] top 4 profit algo is 0.20. top 4 profitVStime are 0.20. NEVER USE 0.10 ANYMORE, BUT CAN TEST 0.3
 
-DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.30, 0.60].freeze  #  0.60, [0.40, 0.60, 0.85, 1.50]  # again easier rule = more trades = more profit
+DESIRED_MIN_BREAKDOWN_TOTAL_PERCENT = [0.30, 0.60, 0.95].freeze  #  0.60, [0.40, 0.60, 0.85, 1.50]  # again easier rule = more trades = more profit
 # perf_percentSum_w_roll higher in head-to-head pairs:
 #   min_breakdown_total_percent=0.45: 374/384 (97.4%), avg perf_percentSum_w_roll=140.89 (per algo)
 #   min_breakdown_total_percent=0.60: 10/384 (2.6%), avg perf_percentSum_w_roll=118.90 (per algo)
@@ -188,7 +188,7 @@ SKIP_INVALIDCOMBOS_OF_FORGETBD_VS_ENTRY_MAX_MINUTES = true # if false, error and
 # DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [8, 11, 18, 30].freeze # literally no diff for this with 150 below
 # DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [150].freeze 
 DESIRED_FORGET_ABOUT_LATEST_BREAKDOWN_AFTER_X_15M_CANDLES = [52].freeze # 52✅ but can test VS bigger numbers
-DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [250].freeze # 250  ✅ 110 wins vs 60. 160 wins vs 110 & 13 with better profit and time!  [110, 250]:250 wins
+DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [110, 250].freeze # 250  ✅ 110 wins vs 60. 160 wins vs 110 & 13 with better profit and time!  [110, 250]:250 wins
 # duel           side   group    algo       percent_sum timeVSprofit
 # ------------------------------------------------------------------
 # %sum #1        1st    52/250   20000032   377.12      0.027
@@ -247,7 +247,7 @@ DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [250].freeze # 250  ✅ 110 wins vs 60. 
 # 61.8% — The Golden Ratio ($1 / 1.618 \approx 0.618$)
 # 78.6%
 # 88.6% — Harmonic Level Calculated as $\sqrt{0.786}$ (or $\sqrt[4]{0.618}$). Popularized in Harmonic trading (e.g., Bat patterns)
-DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [66, 71].freeze # ✅✅✅✅✅66 > 62 ✅ [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
+DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [33, 66, 71].freeze # ✅✅✅✅✅66 > 62 ✅ [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
 # [62, 66] 66 won slightly
 # by entryrange_range_percentspot (paired algos, per-algo averages):
 # group                    algos  avg_trades avg_percent  avgtimeVSprofit avgavgDurationHours
@@ -310,6 +310,7 @@ DESIRED_MAX_OPEN_POSITIONS = [10].freeze # 15 is better than 10 I think (put 10 
 # removed LOW and  CLOSES, and HL_MID.   removed OHLC_AVG
 DESIRED_BREAKDOWNTYPES = %w[ 
   OC_MID
+  OHLC_AVG
 ].freeze
 #latest test  ruby .\compare_breakdown_types.rb
 # perf_timeVSprofit higher in head-to-head pairs:

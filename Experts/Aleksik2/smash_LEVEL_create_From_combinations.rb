@@ -35,7 +35,7 @@ DESIRED_TRADES_WHAT_LEVELS = %i[both].freeze # [both weekly daily, both has high
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze   # [1, 3: 3 is better]
 #  [1, 3, 10] 10 is best? somehow had better avgtimeVSprofit and better avgavgDurationHours than 3.
 
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [30.0].freeze 
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 8.0, 12.0, 30.0].freeze 
 # [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
 # [4.0, 6.0, 10.0, 20.0], stil more profit if higher target, but 10.0 had best profitvstime
 # [8.0, 10.0, 12.0, 14.0, 20.0]
@@ -45,7 +45,7 @@ DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [30.0].freeze
 
 DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL = [25.0].freeze
 DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO = [true].freeze # [true, false] seems no diff, can retest later with less options. we only trade down levels so this is irrelevant
-DESIRED_OFFSET_POSITIVE = [true].freeze # true had 30% more profit than false
+DESIRED_OFFSET_POSITIVE = [true, false].freeze # true had 30% more profit than false
 DESIRED_OFFSET_PERCENTAGE = [0.0003, 0.0006].freeze # [false, 0.0020 is very bad]  |   [0.0005, 0.0020 true, 20 has a bit more profit via more trades, but worse profitVStime]
 DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET = [1.2].freeze # 1.25 should properly block stacking multiple open trades on the same level. and profit still great
 # group                              algo       percent_sum  timeVSprofit gross_profit
