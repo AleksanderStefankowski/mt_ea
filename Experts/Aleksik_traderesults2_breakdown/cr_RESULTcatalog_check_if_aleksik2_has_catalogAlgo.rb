@@ -11,6 +11,7 @@ require 'open3'
 require 'rbconfig'
 require 'set'
 require_relative 'compare_variable_analysis_lib'
+require_relative 'cr_RESULTcatalog_paths_lib'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 WITHIN_CATALOG_ID_COLUMN = 'within-catalog-id'
@@ -21,17 +22,14 @@ FAMILY_LEVEL = :level
 
 FAMILIES = {
   FAMILY_BREAKDOWN => {
-    catalog_path: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_breakdown.csv'),
     config_path: File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.csv', SCRIPT_DIR),
     read_script: File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos.rb', SCRIPT_DIR)
   },
   FAMILY_TIME => {
-    catalog_path: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_time.csv'),
     config_path: File.expand_path('../Aleksik2/aleksik2_r_read_time_algos_csv.csv', SCRIPT_DIR),
     read_script: File.expand_path('../Aleksik2/aleksik2_r_read_time_algos.rb', SCRIPT_DIR)
   },
   FAMILY_LEVEL => {
-    catalog_path: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_level.csv'),
     config_path: File.expand_path('../Aleksik2/aleksik2_level_fam.mqh', SCRIPT_DIR),
     read_script: nil
   }
@@ -235,13 +233,14 @@ end
 def check_family(family, paths)
   refresh_aleksik2_config!(family, paths)
 
+  catalog_path = ResultcatalogPathsLib.resolve_catalog_path(SCRIPT_DIR, family.to_s)
   config_table = load_config_table(family, paths[:config_path])
   config_headers = family_config_headers(config_table)
   config_rows = filter_config_rows(config_table)
 
-  catalog_rows = load_required_csv(paths[:catalog_path], "#{family} catalog")
+  catalog_rows = load_required_csv(catalog_path, "#{family} catalog")
   unless catalog_rows.empty? || catalog_rows.headers.include?(WITHIN_CATALOG_ID_COLUMN)
-    warn "ERROR: #{paths[:catalog_path]} has no #{WITHIN_CATALOG_ID_COLUMN} column"
+    warn "ERROR: #{catalog_path} has no #{WITHIN_CATALOG_ID_COLUMN} column"
     exit 1
   end
 
@@ -264,7 +263,7 @@ def check_family(family, paths)
 
   {
     family: family,
-    catalog_path: paths[:catalog_path],
+    catalog_path: catalog_path,
     config_path: paths[:config_path],
     checked: config_rows.size,
     in_catalog: in_catalog,

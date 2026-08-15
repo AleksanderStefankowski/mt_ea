@@ -2,13 +2,18 @@
 # frozen_string_literal: true
 
 # Build/append per-family result catalogs: config + performance for input algos.
-# Rows are keyed by config (not algo id). Append-only; skips configs already present.
+# Rows are keyed by config (not algo id).
+#
+# If a config already exists with identical result columns, the input algo is skipped.
+# If a config already exists but result columns differ, the catalog row is overwritten
+# and the previous row is appended to create_RESULTcatalogOUTPUT_<family>_YYYY_YYYY_olddupes.csv.
 #
 # Outputs (separate schemas — config columns differ per family):
-#   create_RESULTcatalogOUTPUT_time.csv      — within-catalog-id T1, T2, ... (+ placeholder_1/2 after pattern)
-#   create_RESULTcatalogOUTPUT_breakdown.csv — within-catalog-id B1, B2, ...
-#   create_RESULTcatalogOUTPUT_level.csv     — within-catalog-id L1, L2, ...
-# No mq5 algo id in any output file.
+#   create_RESULTcatalogOUTPUT_time_YYYY_YYYY.csv      — within-catalog-id T1, T2, ... (+ placeholder_1/2 after pattern)
+#   create_RESULTcatalogOUTPUT_breakdown_YYYY_YYYY.csv — within-catalog-id B1, B2, ...
+#   create_RESULTcatalogOUTPUT_level_YYYY_YYYY.csv     — within-catalog-id L1, L2, ...
+# YYYY_YYYY comes from earliest/latest firstTradeDate/lastTradeDate across all 3 perf input files.
+# Legacy undated output files are not read or written.
 #
 # Mode:
 #   READ_ALL_ALGOS_FROM_PERFORMANCE_OUTPUT = false (default)
@@ -25,22 +30,24 @@
 # Performance columns (incl. main_close_reason) are copied from the perf CSV into the catalog output.
 #
 # Also adds 2025flashcrash_percentSum_isWhat_percent_of_allpercentSum from each family's flashcrash perf file.
+#
+# Level fam parsing (aleksik2_level_fam.mqh):
+#   LEVEL_PARSE_ONLY_ENABLED_TRUE = true  — only blocks starting with ".enabled = true"
+#   LEVEL_PARSE_ONLY_ENABLED_TRUE = false — all wired blocks (".enabled = true|false")
 
 require 'csv'
+require 'date'
 require 'set'
 require_relative 'compare_variable_analysis_lib'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
-OUTPUT_PATHS = {
-  breakdown: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_breakdown.csv'),
-  time: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_time.csv'),
-  level: File.join(SCRIPT_DIR, 'create_RESULTcatalogOUTPUT_level.csv')
-}.freeze
 WITHIN_CATALOG_ID_COLUMN = 'within-catalog-id'
 EXTRA_COLUMN = '2025flashcrash_percentSum_isWhat_percent_of_allpercentSum'
 TIME_CATALOG_PLACEHOLDER_COLUMNS = %w[placeholder_1 placeholder_2].freeze
+PERF_DATE_COLUMNS = %w[firstTradeDate lastTradeDate].freeze
 
 READ_ALL_ALGOS_FROM_PERFORMANCE_OUTPUT = true
+LEVEL_PARSE_ONLY_ENABLED_TRUE = false
 
 FAMILY_BREAKDOWN = :breakdown
 FAMILY_TIME = :time
@@ -75,7 +82,6 @@ LEVEL_CONFIG_HEADERS = %w[
 
 FAMILIES = {
   FAMILY_BREAKDOWN => {
-    output_path: OUTPUT_PATHS[:breakdown],
     config_path: File.expand_path('../Aleksik2/aleksik2_r_read_breakdown_algos_csv.csv', SCRIPT_DIR),
     perf_path: File.join(SCRIPT_DIR, 'analyze_breakdown_algos_performance_output.csv'),
     flashcrash_perf_path: File.join(
@@ -88,7 +94,6 @@ FAMILIES = {
     )
   },
   FAMILY_TIME => {
-    output_path: OUTPUT_PATHS[:time],
     config_path: File.expand_path('../Aleksik2/aleksik2_r_read_time_algos_csv.csv', SCRIPT_DIR),
     perf_path: File.join(SCRIPT_DIR, 'analyze_time_algos_performance_output.csv'),
     flashcrash_perf_path: File.join(
@@ -101,7 +106,6 @@ FAMILIES = {
     )
   },
   FAMILY_LEVEL => {
-    output_path: OUTPUT_PATHS[:level],
     config_path: File.expand_path('../Aleksik2/aleksik2_level_fam.mqh', SCRIPT_DIR),
     perf_path: File.join(SCRIPT_DIR, 'analyze_level_algos_performance_output.csv'),
     flashcrash_perf_path: File.join(
@@ -124,6 +128,57 @@ INPUT_ALGO_IDS = <<~IDS
 IDS
 
 Lib = CompareVariableAnalysisLib
+
+def parse_trade_date(value)
+  text = value.to_s.strip
+  match = text.match(/\A(\d{4})\.(\d{2})\.(\d{2})\z/)
+  return nil unless match
+
+  Date.new(match[1].to_i, match[2].to_i, match[3].to_i)
+rescue ArgumentError
+  nil
+end
+
+def date_range_suffix_from_perf_paths(perf_paths)
+  earliest = nil
+  latest = nil
+
+  perf_paths.each do |path|
+    unless File.file?(path)
+      warn "ERROR: performance output not found: #{path}"
+      exit 1
+    end
+
+    Lib.read_csv(path).each do |row|
+      PERF_DATE_COLUMNS.each do |column|
+        date = parse_trade_date(row[column])
+        next unless date
+
+        earliest = date if earliest.nil? || date < earliest
+        latest = date if latest.nil? || date > latest
+      end
+    end
+  end
+
+  if earliest.nil? || latest.nil?
+    warn 'ERROR: could not determine date range from performance output files'
+    exit 1
+  end
+
+  {
+    suffix: "_#{earliest.year}_#{latest.year}",
+    earliest: earliest,
+    latest: latest
+  }
+end
+
+def family_paths(family, date_suffix)
+  base_name = "create_RESULTcatalogOUTPUT_#{family}#{date_suffix}"
+  FAMILIES.fetch(family).merge(
+    output_path: File.join(SCRIPT_DIR, "#{base_name}.csv"),
+    olddupes_output_path: File.join(SCRIPT_DIR, "#{base_name}_olddupes.csv")
+  )
+end
 
 def parse_input_algo_ids(text)
   text.each_line.filter_map do |line|
@@ -170,6 +225,27 @@ def level_trades_tags_preset_for(tags)
   tags.empty? ? '(no tags)' : tags.join('+')
 end
 
+def level_enabled_parse_mode_label
+  if LEVEL_PARSE_ONLY_ENABLED_TRUE
+    'enabled = true only'
+  else
+    'enabled = true|false (all wired level algos)'
+  end
+end
+
+def print_create_resultcatalog_finish(status = 'done')
+  warn "level fam parse: #{level_enabled_parse_mode_label} (LEVEL_PARSE_ONLY_ENABLED_TRUE = #{LEVEL_PARSE_ONLY_ENABLED_TRUE})"
+  warn "--- create_RESULTcatalog #{status} ---"
+end
+
+def level_enabled_line_regex
+  if LEVEL_PARSE_ONLY_ENABLED_TRUE
+    /LevelAlgoSlotIndexByAlgoId\(MAGIC_LEVEL(\d+)\)\]\.enabled = true/
+  else
+    /LevelAlgoSlotIndexByAlgoId\(MAGIC_LEVEL(\d+)\)\]\.enabled = (true|false)/
+  end
+end
+
 def parse_level_catalog_configs(path)
   unless File.file?(path)
     warn "ERROR: level config not found: #{path}"
@@ -180,7 +256,7 @@ def parse_level_catalog_configs(path)
   current_id = nil
 
   File.foreach(path, encoding: 'bom|utf-8') do |line|
-    if (match = line.match(/LevelAlgoSlotIndexByAlgoId\(MAGIC_LEVEL(\d+)\)\]\.enabled = true/))
+    if (match = line.match(level_enabled_line_regex))
       current_id = match[1]
       configs[current_id] = {
         'algo_id' => current_id,
@@ -292,6 +368,22 @@ end
 
 def config_key_for_row(row, config_headers)
   config_headers.map { |header| normalize_config_value(row[header]) }.join("\x1f")
+end
+
+def family_result_headers(output_headers, config_headers)
+  output_headers - config_headers - [WITHIN_CATALOG_ID_COLUMN]
+end
+
+def catalog_row_signature(row, headers)
+  headers.map { |header| normalize_config_value(row[header]) }.join("\x1f")
+end
+
+def same_catalog_results?(old_row, new_row, result_headers)
+  catalog_row_signature(old_row, result_headers) == catalog_row_signature(new_row, result_headers)
+end
+
+def catalog_row_to_hash(row, headers)
+  headers.to_h { |header| [header, row[header].to_s] }
 end
 
 def index_rows_by_algo_id(rows, algo_column)
@@ -439,13 +531,18 @@ def append_family_catalog(family, input_algo_ids, data)
     end
   end
 
-  existing_config_keys = existing_rows.map { |row| config_key_for_row(row, config_headers) }.to_set
+  existing_by_config_key = existing_rows.each_with_object({}) do |row, memo|
+    memo[config_key_for_row(row, config_headers)] = row
+  end
   catalog_id_counter = next_catalog_id_counter(existing_rows, prefix)
+  result_headers = family_result_headers(output_headers, config_headers)
 
   missing_config = []
   missing_perf = []
-  skipped_existing = []
+  skipped_unchanged = []
   rows_to_append = []
+  rows_to_overwrite = []
+  archived_rows = []
 
   family_algo_ids.each do |algo_id|
     config_row = data[:config_by_algo_id][algo_id]
@@ -461,11 +558,7 @@ def append_family_catalog(family, input_algo_ids, data)
     end
 
     config_key = config_key_for_row(config_row, config_headers)
-    if existing_config_keys.include?(config_key)
-      skipped_existing << algo_id
-      next
-    end
-
+    existing_row = existing_by_config_key[config_key]
     flashcrash_perf_row = data[:flashcrash_by_algo_id][algo_id]
     except_perf_row = data[:except_by_algo_id][algo_id]
     if flashcrash_perf_row.nil?
@@ -474,6 +567,29 @@ def append_family_catalog(family, input_algo_ids, data)
     end
     if except_perf_row.nil?
       warn "WARNING: algo #{algo_id}: no row in #{File.basename(paths[:except_flashcrash_perf_path])}"
+    end
+
+    if existing_row
+      within_catalog_id = existing_row[WITHIN_CATALOG_ID_COLUMN].to_s
+      new_row = build_output_row(
+        within_catalog_id,
+        config_row,
+        perf_row,
+        flashcrash_perf_row,
+        output_headers,
+        config_headers,
+        perf_headers
+      )
+
+      if same_catalog_results?(existing_row, new_row, result_headers)
+        skipped_unchanged << algo_id
+        next
+      end
+
+      archived_rows << catalog_row_to_hash(existing_row, output_headers)
+      rows_to_overwrite << new_row
+      existing_by_config_key[config_key] = new_row
+      next
     end
 
     catalog_id_counter += 1
@@ -486,39 +602,83 @@ def append_family_catalog(family, input_algo_ids, data)
       config_headers,
       perf_headers
     )
-    existing_config_keys << config_key
+    existing_by_config_key[config_key] = rows_to_append.last
   end
 
   {
     family: family,
+    paths: paths,
     output_path: output_path,
+    olddupes_output_path: paths[:olddupes_output_path],
     output_headers: output_headers,
     input_count: family_algo_ids.size,
     missing_config: missing_config,
     missing_perf: missing_perf,
-    skipped_existing: skipped_existing,
+    skipped_unchanged: skipped_unchanged,
     rows_to_append: rows_to_append,
-    existing_row_count: existing_rows.size,
-    write_headers: existing_rows.empty?
+    rows_to_overwrite: rows_to_overwrite,
+    archived_rows: archived_rows,
+    existing_row_count: existing_rows.size
   }
 end
 
-def write_family_catalog(result)
-  return if result[:rows_to_append].empty?
-
-  output_headers = result[:output_headers]
-  CSV.open(result[:output_path], 'a', write_headers: result[:write_headers], headers: output_headers) do |csv|
-    result[:rows_to_append].each do |row|
-      csv << output_headers.map { |header| row[header].to_s }
+def write_catalog_rows(path, headers, rows)
+  CSV.open(path, 'w', write_headers: true, headers: headers) do |csv|
+    rows.each do |row|
+      csv << headers.map { |header| row[header].to_s }
     end
   end
+end
+
+def append_catalog_rows(path, headers, rows)
+  return if rows.empty?
+
+  write_headers = !File.file?(path)
+  CSV.open(path, 'a', write_headers: write_headers, headers: headers) do |csv|
+    rows.each do |row|
+      csv << headers.map { |header| row[header].to_s }
+    end
+  end
+end
+
+def write_family_catalog(result)
+  output_headers = result[:output_headers]
+  has_changes = !result[:rows_to_append].empty? || !result[:rows_to_overwrite].empty?
+  return unless has_changes || !result[:archived_rows].empty?
+
+  if !result[:rows_to_overwrite].empty?
+    existing_rows =
+      if File.file?(result[:output_path])
+        Lib.read_csv(result[:output_path]).map { |row| catalog_row_to_hash(row, output_headers) }
+      else
+        []
+      end
+
+    overwrite_by_id = result[:rows_to_overwrite].to_h { |row| [row[WITHIN_CATALOG_ID_COLUMN], row] }
+    merged_rows = existing_rows.map { |row| overwrite_by_id.fetch(row[WITHIN_CATALOG_ID_COLUMN], row) }
+    merged_rows.concat(result[:rows_to_append])
+    write_catalog_rows(result[:output_path], output_headers, merged_rows)
+  elsif !result[:rows_to_append].empty?
+    append_catalog_rows(result[:output_path], output_headers, result[:rows_to_append])
+  end
+
+  return if result[:archived_rows].empty?
+
+  append_catalog_rows(result[:olddupes_output_path], output_headers, result[:archived_rows])
 end
 
 # =========================================================
 # MAIN
 # =========================================================
 
+warn '--- create_RESULTcatalog start ---'
+warn "level fam parse: #{level_enabled_parse_mode_label} (LEVEL_PARSE_ONLY_ENABLED_TRUE = #{LEVEL_PARSE_ONLY_ENABLED_TRUE})"
+
 CompareVariableAnalysisLib.refresh_breakdown_algos_performance_output!(SCRIPT_DIR)
+
+date_range = date_range_suffix_from_perf_paths(FAMILIES.values.map { |paths| paths[:perf_path] })
+date_suffix = date_range[:suffix]
+warn "catalog date range: #{date_range[:earliest]} .. #{date_range[:latest]} (#{date_suffix})"
 
 input_algo_ids = resolve_input_algo_ids
 if input_algo_ids.empty?
@@ -527,50 +687,70 @@ if input_algo_ids.empty?
   else
     warn 'ERROR: INPUT_ALGO_IDS is empty (add algo ids to the heredoc at top of script)'
   end
+  print_create_resultcatalog_finish('failed')
   exit 1
 end
 
 families_needed = input_algo_ids.map { |algo_id| family_for_algo_id(algo_id) }.uniq
 family_results =
   families_needed.map do |family|
-    data = load_family_data(family, FAMILIES[family])
+    paths = family_paths(family, date_suffix)
+    data = load_family_data(family, paths)
     append_family_catalog(family, input_algo_ids, data)
   end
 
+family_errors = []
 family_results.each do |result|
   unless result[:missing_config].empty?
-    warn "ERROR: #{result[:missing_config].size} #{result[:family]} algo(s) missing from config: " \
-         "#{result[:missing_config].sort.join(', ')}"
-    exit 1
+    family_errors << "#{result[:missing_config].size} #{result[:family]} algo(s) missing from config: " \
+                     "#{result[:missing_config].sort.join(', ')}"
+    next
   end
 
   unless result[:missing_perf].empty?
-    warn "ERROR: #{result[:missing_perf].size} #{result[:family]} algo(s) missing from performance output: " \
-         "#{result[:missing_perf].sort.join(', ')}"
-    exit 1
+    family_errors << "#{result[:missing_perf].size} #{result[:family]} algo(s) missing from performance output: " \
+                     "#{result[:missing_perf].sort.join(', ')}"
+    next
   end
+
+  write_family_catalog(result)
 end
 
-family_results.each { |result| write_family_catalog(result) }
+if family_errors.any?
+  family_errors.each { |message| warn "ERROR: #{message}" }
+  print_create_resultcatalog_finish('failed')
+  exit 1
+end
 
-if family_results.all? { |result| result[:rows_to_append].empty? }
-  skipped_total = family_results.sum { |result| result[:skipped_existing].size }
-  warn "No new rows to append (#{skipped_total} input algo(s) already cataloged by config)"
+if family_results.all? do |result|
+     result[:rows_to_append].empty? && result[:rows_to_overwrite].empty?
+   end
+  skipped_total = family_results.sum { |result| result[:skipped_unchanged].size }
+  warn "No catalog changes (#{skipped_total} input algo(s) already present with same results)"
+  print_create_resultcatalog_finish('done')
   exit 0
 end
 
 warn "mode: #{READ_ALL_ALGOS_FROM_PERFORMANCE_OUTPUT ? 'read_all_algos_from_performance_output' : 'input_algo_ids'}"
 family_results.each do |result|
-  paths = FAMILIES[result[:family]]
+  paths = result[:paths]
   warn "#{result[:family]} config: #{paths[:config_path]}"
   warn "#{result[:family]} performance: #{paths[:perf_path]}"
   warn "#{result[:family]} flashcrash performance: #{paths[:flashcrash_perf_path]}"
   warn "#{result[:family]} except-flashcrash performance: #{paths[:except_flashcrash_perf_path]}"
   warn "#{result[:family]} output: #{result[:output_path]}"
+  warn "#{result[:family]} olddupes output: #{result[:olddupes_output_path]}"
   warn "#{result[:family]} input algos: #{result[:input_count]}"
   warn "#{result[:family]} appended rows: #{result[:rows_to_append].size}"
-  unless result[:skipped_existing].empty?
-    warn "#{result[:family]} skipped (config already present): #{result[:skipped_existing].size}"
+  warn "#{result[:family]} overwritten rows: #{result[:rows_to_overwrite].size}"
+  unless result[:archived_rows].empty?
+    warn "#{result[:family]} archived to olddupes: #{result[:archived_rows].size}"
   end
-  warn "#{result[:family]} total rows in catalog: #{result[:existing_row_count] + result[:rows_to_append].size}"
+  unless result[:skipped_unchanged].empty?
+    warn "#{result[:family]} skipped unchanged (config + results match): #{result[:skipped_unchanged].size}"
+  end
+  final_count = result[:existing_row_count] + result[:rows_to_append].size
+  warn "#{result[:family]} total rows in catalog: #{final_count}"
 end
+
+print_create_resultcatalog_finish('done')

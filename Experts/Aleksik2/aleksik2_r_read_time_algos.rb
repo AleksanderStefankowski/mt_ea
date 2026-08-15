@@ -162,3 +162,4 @@ end
 
 puts OUT_CSV
 print_summary(rows)
+warn 'RAN OK'

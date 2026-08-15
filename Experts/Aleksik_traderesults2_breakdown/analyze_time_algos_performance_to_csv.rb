@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'rbconfig'
+require 'open3'
 require_relative 'analyze_algos_performance_common'
 
 self.traderate_account_for_banned_days = false
@@ -9,6 +11,7 @@ include AnalyzeAlgosPerformanceCommon
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 INPUT_PATH = File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_time.tsv')
+TIME_CONFIG_GENERATOR = File.expand_path('../Aleksik2/aleksik2_r_read_time_algos.rb', SCRIPT_DIR)
 OUTPUT_PATH = File.join(SCRIPT_DIR, 'analyze_time_algos_performance_output.csv')
 FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
@@ -23,6 +26,15 @@ FAMILY_ALL_PATTERN = 'TIME'
 pattern_for_algo = ->(_algo_id) { 'TIME' }
 
 if __FILE__ == $PROGRAM_NAME
+
+warn
+warn "Refreshing aleksik2_r_read_time_algos_csv.csv via #{File.basename(TIME_CONFIG_GENERATOR)}..."
+config_output, config_status = Open3.capture2e(RbConfig.ruby, TIME_CONFIG_GENERATOR)
+warn config_output unless config_output.empty?
+unless config_status.success? && config_output.include?('RAN OK')
+  warn "ERROR: #{File.basename(TIME_CONFIG_GENERATOR)} did not finish successfully (expected RAN OK)"
+  exit 1
+end
 
 unless File.file?(INPUT_PATH)
   warn "ERROR: input file not found: #{INPUT_PATH}"

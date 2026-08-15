@@ -75,7 +75,7 @@ DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze #âœ
 
 
 
-DESIRED_SECRET_TP_RANGE_PERCENT = [175, 300, 500, 800].freeze #  [100, 200, 300, 500]
+DESIRED_SECRET_TP_RANGE_PERCENT = [50, 100, 175, 300, 500, 800].freeze #  [100, 200, 300, 500]
 #  [100, 200, 300, 500] 100 too weak vs buy and hold. 200 already good
 # perf_percentSum_w_roll highers 100      20000057   149.52      0.059
 #                        2nd    200      20000058   203.34      0.038

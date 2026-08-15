@@ -15,14 +15,14 @@ EDIT_BD_ALGOS = true
 TARGET_STATE_FOR_BD_ALGOS = :enabled # :enabled or :disabled
 
 SET_STATE_FOR_BD_ALGOS_LIST = <<~IDS
-  20000025
+  
 IDS
 
 EDIT_TIME_ALGOS = true
 TARGET_STATE_FOR_TIME_ALGOS = :enabled # :enabled or :disabled — empty list = disable all time algos
 
 SET_STATE_FOR_TIME_ALGOS_LIST = <<~IDS
-
+  10000001
 IDS
 
 EDIT_LEVEL_ALGOS = true

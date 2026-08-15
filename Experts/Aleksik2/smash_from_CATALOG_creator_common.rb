@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "csv"
+require_relative "../Aleksik_traderesults2_breakdown/cr_RESULTcatalog_paths_lib"
 
 module CatalogCreatorCommon
   module_function
@@ -9,15 +10,8 @@ module CatalogCreatorCommon
   RESULTCATALOG_DIR = File.expand_path("../Aleksik_traderesults2_breakdown", __dir__)
 
   def resolve_catalog_path(family)
-    dated = Dir.glob(File.join(RESULTCATALOG_DIR, "create_RESULTcatalogOUTPUT_#{family}_*.csv")).sort
-    return dated.last if dated.any?
-
-    legacy = File.join(RESULTCATALOG_DIR, "create_RESULTcatalogOUTPUT_#{family}.csv")
-    return legacy if File.exist?(legacy)
-
-    raise "Missing #{family} catalog under #{RESULTCATALOG_DIR}"
+    ResultcatalogPathsLib.resolve_catalog_path(RESULTCATALOG_DIR, family)
   end
-
   def parse_catalog_ids(text, prefix)
     letter = prefix.to_s.upcase
     text.each_line.filter_map do |line|

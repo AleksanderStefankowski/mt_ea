@@ -26,7 +26,8 @@ from typing import Optional, Tuple
 # ============================================================
 
 run_on_time = True
-# True: Mon–Fri, run once when a 10-min poll lands in 01:30–01:45 window.
+# True: run once immediately on startup (token check), then Mon–Fri once when a 10-min poll
+#       lands in 01:30–01:45 window.
 # False: run immediately, then every 2 minutes.
 
 print_polling = False
@@ -139,15 +140,12 @@ def file_stats(path: str) -> Tuple[Optional[int], Optional[int]]:
     return size, line_count
 
 
-def describe_path(label: str, path: str) -> None:
-    exists = os.path.exists(path)
-    log(f"{label}:")
-    log(f"  path: {path}")
-    log(f"  exists: {exists}")
-    if exists:
-        size, lines = file_stats(path)
-        log(f"  size: {size} bytes")
-        log(f"  lines: {lines}")
+def dest_path_for_env(env_label: str) -> Optional[str]:
+    if env_label == "MAC":
+        return MAC_WINE_DEST
+    if env_label.startswith("WINDOWS"):
+        return WIN_COMMON_FILES
+    return None
 
 
 # ============================================================
@@ -178,51 +176,97 @@ def run_gmail_pipeline() -> int:
     return result.returncode
 
 
-def overwrite_levels_file(source: str, dest: str, label: str) -> bool:
-    describe_path(f"{label} destination", dest)
-    describe_path(f"{label} source", source)
+def overwrite_levels_file(
+    source: str,
+    dest: str,
+    label: str,
+    *,
+    dest_before_pipeline: Optional[Tuple[Optional[int], Optional[int]]] = None,
+) -> bool:
+    log(f"{label} copy:")
+    log(f"  source path: {source}")
+    log(f"  destination path: {dest}")
+
+    if dest_before_pipeline is not None:
+        size, lines = dest_before_pipeline
+        if size is None:
+            log("  destination before pipeline: (missing)")
+        else:
+            log(f"  destination before pipeline: {size} bytes, {lines} lines")
 
     if not os.path.isfile(source):
-        overwrite_log(f"{label}: skip — source not found: {source}")
+        log(f"{label}: skip — source not found")
         return False
 
     dest_dir = os.path.dirname(dest)
     if not os.path.isdir(dest_dir):
-        overwrite_log(f"{label}: skip — destination folder not found: {dest_dir}")
+        log(f"{label}: skip — destination folder not found: {dest_dir}")
         return False
 
     dest_size_before, dest_lines_before = file_stats(dest)
     src_size, src_lines = file_stats(source)
 
-    overwrite_log(f"{label}: about to overwrite")
     if dest_size_before is None:
-        overwrite_log("  destination before: (missing)")
+        log("  destination before copy: (missing)")
     else:
-        overwrite_log(
-            f"  destination before: {dest_size_before} bytes, {dest_lines_before} lines"
+        log(f"  destination before copy: {dest_size_before} bytes, {dest_lines_before} lines")
+    log(f"  source before copy: {src_size} bytes, {src_lines} lines")
+
+    if (
+        dest_before_pipeline is not None
+        and dest_before_pipeline != (dest_size_before, dest_lines_before)
+        and dest_size_before is not None
+    ):
+        log(
+            "  note: destination changed during Gmail pipeline "
+            "(a_gmail_api3step syncs to MT5 Common/Files on Windows)"
         )
-    overwrite_log(f"  source: {src_size} bytes, {src_lines} lines")
 
     shutil.copy2(source, dest)
 
     dest_size_after, dest_lines_after = file_stats(dest)
-    overwrite_log(
-        f"  destination after: {dest_size_after} bytes, {dest_lines_after} lines"
-    )
-    log(f"{label}: copied OK")
+    log(f"  destination after copy: {dest_size_after} bytes, {dest_lines_after} lines")
+
+    if (
+        dest_size_before == dest_size_after
+        and src_size == dest_size_after
+        and dest_size_before is not None
+    ):
+        log(f"{label}: copied OK (file already matched source)")
+    else:
+        log(f"{label}: copied OK")
+
+    overwrite_log(f"{label}: about to overwrite")
+    overwrite_log(f"  destination before: {dest_size_before} bytes, {dest_lines_before} lines")
+    overwrite_log(f"  source: {src_size} bytes, {src_lines} lines")
+    overwrite_log(f"  destination after: {dest_size_after} bytes, {dest_lines_after} lines")
     return True
 
 
-def move_levels_for_platform(env_label: str) -> None:
+def move_levels_for_platform(
+    env_label: str,
+    *,
+    dest_before_pipeline: Optional[Tuple[Optional[int], Optional[int]]] = None,
+) -> None:
     log("")
     log("--- levels file copy ---")
 
     if env_label == "MAC":
-        overwrite_levels_file(MAC_WINE_SOURCE, MAC_WINE_DEST, "Mac Wine")
+        overwrite_levels_file(
+            MAC_WINE_SOURCE,
+            MAC_WINE_DEST,
+            "Mac Wine",
+            dest_before_pipeline=dest_before_pipeline,
+        )
         return
 
     if env_label.startswith("WINDOWS"):
-        overwrite_levels_file(SOURCE_FILE, WIN_COMMON_FILES, "Windows")
+        overwrite_levels_file(
+            SOURCE_FILE,
+            WIN_COMMON_FILES,
+            "Windows",
+            dest_before_pipeline=dest_before_pipeline,
+        )
         return
 
     # Fallback: try both if paths exist (e.g. unusual Wine/Linux setup)
@@ -242,6 +286,9 @@ def run_cycle(env_label: str) -> None:
     log(f"Working directory: {os.getcwd()}")
     log("=" * 72)
 
+    dest_path = dest_path_for_env(env_label)
+    dest_before_pipeline = file_stats(dest_path) if dest_path else None
+
     run_gmail_pipeline()
 
     if not os.path.isfile(SOURCE_FILE):
@@ -250,7 +297,10 @@ def run_cycle(env_label: str) -> None:
         size, lines = file_stats(SOURCE_FILE)
         log(f"Local source after pipeline: {size} bytes, {lines} lines")
 
-    move_levels_for_platform(env_label)
+    move_levels_for_platform(
+        env_label,
+        dest_before_pipeline=dest_before_pipeline,
+    )
 
 
 # ============================================================
@@ -315,6 +365,8 @@ def main() -> int:
             f"{SCHEDULE_HOUR:02d}:{SCHEDULE_MINUTE:02d}–"
             f"{SCHEDULE_WINDOW_END_HOUR:02d}:{SCHEDULE_WINDOW_END_MINUTE:02d}"
         )
+        log("Startup: running one cycle immediately (Gmail token / pipeline check)")
+        run_cycle(env_label)
     else:
         log(f"Schedule: immediate + every {POLL_SECONDS_IMMEDIATE // 60} min")
 
