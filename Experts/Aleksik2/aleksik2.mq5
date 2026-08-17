@@ -171,7 +171,7 @@ int      per_second_log_end_minute                         =  34;
 bool     backtest_profile_enabled                          = true;   // strategy tester only: section wall-time → backtest_profile_*.csv
 // false: backtest — incremental closed bars only; full replay on new day / track change / bar shrink.
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
-bool     bigflipper_pullinghistory_always_full_replay      = false; // REALBOOKMARK LIVEBOOKMARK
+bool     bigflipper_pullinghistory_always_full_replay      = true; // REALBOOKMARK LIVEBOOKMARK
 bool     bigflipper_friday_api_pull_all_trades            = false;  // 1st Fri of month 14:00 server: History deals → API_friday_pull_all_trades.csv
 string   bigflipper_stop_trading_after_date               = "2026.03.10"; // "2028.12.20" YYYY.MM.DD server calendar; BOOKMARK bookmark placement off after this day; babysit unaffected; "" = disabled
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
@@ -34824,7 +34824,7 @@ void SyncTimeAlgoFamilyProfileFromInputs()
 
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_hour = 11;   // 2:00 catalog T5
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_minute = 54;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_minute = 58;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].rule_switch_map = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_profit_percent_min = 2.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_greenguard_pricediff_at_least = 10.00;
