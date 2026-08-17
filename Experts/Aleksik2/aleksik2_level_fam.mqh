@@ -1132,8 +1132,7 @@ bool Babysitf_falgo_runLevelAlgoSecretTpExit(const long posMagic, const double r
       DoubleToString(greenguard, _Digits));
    LevelAlgoRememberCloseDecision(positionId, "level_secretTPSL_tp", closeDetail);
    LevelAlgoRememberPendingCloseReason(positionId, "secretTP");
-   FalgoFlipperPrintfManualCloseDecision(bigflipper_log_level_algo_manual_close_decision,
-      "level", "secretTP", posMagic, posTicket, positionId, closeDetail);
+   FalgoFlipperPrintfManualCloseDecision("level", "secretTP", posMagic, posTicket, positionId, closeDetail);
 
    LevelAlgoDef la;
    string closeComment = "";

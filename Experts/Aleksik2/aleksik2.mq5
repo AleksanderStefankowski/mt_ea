@@ -141,9 +141,12 @@ bool     bigflipper_log_summary_tradeResults_all_days2_level = true;  // summary
 bool     bigflipper_log_breakdown_trade_lifetime             = false;  // bdalgoN_alltrades_log.csv + benchmark_all_algos_breakdown.csv — truncated on OnInit each run
 bool     bigflipper_log_time_algo_trade_lifetime             = false;  // timealgoN_alltrades_log.csv + benchmark_all_algos_time.csv — truncated on OnInit each run
 bool     bigflipper_log_level_algo_trade_lifetime            = false;  // levelalgoN_alltrades_log.csv + benchmark_all_algos_level.csv — truncated on OnInit each run
-bool     bigflipper_log_time_algo_manual_close_decision      = true;   // console Print when babysit decides to PositionClose a time algo trade
-bool     bigflipper_log_level_algo_manual_close_decision     = false;  // console Print when babysit decides to PositionClose a level algo trade
-bool     bigflipper_log_breakdown_algo_manual_close_decision = false;  // console Print when babysit decides to PositionClose a breakdown algo trade
+bool     bigflipper_log_time_algo_manual_close_decision      = true;   // always print [manual_close] for time; also auto-on when sparse journal active
+bool     bigflipper_log_level_algo_manual_close_decision     = false;  // always print [manual_close] for level; also auto-on when sparse journal active
+bool     bigflipper_log_breakdown_algo_manual_close_decision = false;  // always print [manual_close] for breakdown; also auto-on when sparse journal active
+bool     bigflipper_sparse_journal_time_algo                 = true;   // [sparse_journal] + sparse [manual_close] when 1..3 time algos enabled
+bool     bigflipper_sparse_journal_level_algo                = true;   // [sparse_journal] + sparse [manual_close] when 1..3 level algos enabled
+bool     bigflipper_sparse_journal_breakdown_algo            = true;   // [sparse_journal] + sparse [manual_close] when 1..3 breakdown algos enabled
 bool     bigflipper_log_all_breakdowns                       = true;  // all_breakdowns_{type}_streakNorMore.csv + all_breakdowns_summaries.csv — per run, OnInit truncate
 #define  BREAKDOWN_AUDIT_LOG_MIN_STREAK_ARG                   3
 double   BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG = 0.20;  // strong-red M15 start gate for audit log only
@@ -173,7 +176,7 @@ bool     backtest_profile_enabled                          = true;   // strategy
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
 bool     bigflipper_pullinghistory_always_full_replay      = true; // REALBOOKMARK LIVEBOOKMARK
 bool     bigflipper_friday_api_pull_all_trades            = false;  // 1st Fri of month 14:00 server: History deals → API_friday_pull_all_trades.csv
-string   bigflipper_stop_trading_after_date               = "2026.03.10"; // "2028.12.20" YYYY.MM.DD server calendar; BOOKMARK bookmark placement off after this day; babysit unaffected; "" = disabled
+string   bigflipper_stop_trading_after_date               = "2555.01.12"; // ""2555.01.12"  "2026.03.10"  YYYY.MM.DD server calendar; BOOKMARK bookmark placement off after this day; babysit unaffected; "" = disabled
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = false;  // trade-results CSV: omit reference points too close to level
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_referencePoints_movingLookback_seconds = 180;  // bookmark moving trade-result context: bar at (startTime - this); refs, dayBrokePDH/PDL
@@ -250,6 +253,7 @@ const long DEFAULT_ORDER_MAGIC = 47001; // restore CTrade magic when not using a
 #define FALGO_ALGO_FAMILY_LEVEL_DIGIT            3
 #define FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MIN    2
 #define FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MAX    9
+#define FALGO_SPARSE_JOURNAL_ENABLED_MAX           4  // families with 1..3 enabled algos get extra journal prints
 CTrade ExtTrade;
 COrderInfo ExtOrderInfo;
 CPositionInfo ExtPositionInfo;
@@ -297,6 +301,7 @@ int EODpulled_pendingOrders = 0;
 
 //--- Current time (server); set in OnTimer(1s), use instead of TimeCurrent()
 datetime g_lastTimer1Time = 0;
+bool     g_liveStopTradingAfterDateConfigChecked = false;
 
 //--- OnTimer(1s) wall time (GetMicrosecondCount): min/max elapsed µs per calendar day; one Print at 21:30 (GetTickCount64 is ~16ms quantum on Windows—too coarse here)
 datetime g_onTimerDuration_dayStart = 0;
@@ -1974,6 +1979,7 @@ bool IsLevelFamilyCompositeMagic(const long magic)
 }
 
 bool BigflipperPlacementAllowedAtTime(const datetime t);
+void ValidateLiveStopTradingAfterDateConfig(const datetime t);
 
 struct BreakdownOpenTradeLifetimeRec
 {
@@ -11208,6 +11214,109 @@ datetime FalgoDayStartForCounterRebuild()
 }
 
 //+------------------------------------------------------------------+
+int FalgoBreakdownEnabledCount()
+{
+   int count = 0;
+   for(int i = 0; i < g_breakdownAlgoCount; i++)
+   {
+      if(g_breakdownAlgos[i].enabled)
+         count++;
+   }
+   return count;
+}
+
+//+------------------------------------------------------------------+
+int FalgoTimeEnabledCount()
+{
+   int count = 0;
+   for(int i = 0; i < g_timeAlgoCount; i++)
+   {
+      if(g_timeAlgos[i].enabled)
+         count++;
+   }
+   return count;
+}
+
+//+------------------------------------------------------------------+
+int FalgoLevelEnabledCount()
+{
+   int count = 0;
+   for(int i = 0; i < g_levelAlgoCount; i++)
+   {
+      if(g_levelAlgos[i].enabled)
+         count++;
+   }
+   return count;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoFamilyCountIsSparseJournalRange(const int enabledCount)
+{
+   return (enabledCount >= 1 && enabledCount < FALGO_SPARSE_JOURNAL_ENABLED_MAX);
+}
+
+//+------------------------------------------------------------------+
+bool FalgoFamilySparseJournalEnabled(const string family)
+{
+   if(family == "breakdown")
+   {
+      if(!bigflipper_sparse_journal_breakdown_algo)
+         return false;
+      return FalgoFamilyCountIsSparseJournalRange(FalgoBreakdownEnabledCount());
+   }
+   if(family == "time")
+   {
+      if(!bigflipper_sparse_journal_time_algo)
+         return false;
+      return FalgoFamilyCountIsSparseJournalRange(FalgoTimeEnabledCount());
+   }
+   if(family == "level")
+   {
+      if(!bigflipper_sparse_journal_level_algo)
+         return false;
+      return FalgoFamilyCountIsSparseJournalRange(FalgoLevelEnabledCount());
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+bool FalgoFlipperManualCloseJournalEnabled(const string family)
+{
+   if(family == "breakdown")
+   {
+      if(bigflipper_log_breakdown_algo_manual_close_decision)
+         return true;
+      return FalgoFamilySparseJournalEnabled("breakdown");
+   }
+   if(family == "time")
+   {
+      if(bigflipper_log_time_algo_manual_close_decision)
+         return true;
+      return FalgoFamilySparseJournalEnabled("time");
+   }
+   if(family == "level")
+   {
+      if(bigflipper_log_level_algo_manual_close_decision)
+         return true;
+      return FalgoFamilySparseJournalEnabled("level");
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+void FalgoFlipperPrintfSparseFamilyTradeEvent(const string family, const string eventLabel,
+   const long posMagic, const ulong positionId, const datetime eventTime, const double price)
+{
+   if(!FalgoFamilySparseJournalEnabled(family))
+      return;
+
+   const int algoNumber = AlgoFamilyMagicNumber(posMagic);
+   Print(StringFormat("[sparse_journal][%s] %s algo=%d magic=%I64d posId=%I64u time=%s price=%s",
+      family, eventLabel, algoNumber, posMagic, positionId,
+      TimeToString(eventTime, TIME_DATE | TIME_MINUTES), DoubleToString(price, _Digits)));
+}
+
+//+------------------------------------------------------------------+
 void FalgoResetAllFamilyDayCountersIfNewCalendarDay()
 {
    const datetime dayStart = FalgoCalendarDayStart();
@@ -11583,6 +11692,37 @@ bool BigflipperPlacementAllowedAtTime(const datetime t)
       return true;
    const datetime tDayStart = t - (t % 86400);
    return (tDayStart <= cutoffDayStart);
+}
+
+//+------------------------------------------------------------------+
+//| Live full-replay: fatal if server calendar day is already past placement cutoff (silent no-trade otherwise). |
+//+------------------------------------------------------------------+
+void ValidateLiveStopTradingAfterDateConfig(const datetime t)
+{
+   if(g_liveStopTradingAfterDateConfigChecked)
+      return;
+   if(!bigflipper_pullinghistory_always_full_replay || BacktestProfileEnabled())
+   {
+      g_liveStopTradingAfterDateConfigChecked = true;
+      return;
+   }
+   if(t <= 0)
+      return;
+   g_liveStopTradingAfterDateConfigChecked = true;
+
+   const datetime cutoffDayStart = BigflipperStopTradingAfterDateDayStart();
+   if(cutoffDayStart <= 0)
+      return;
+
+   const datetime tDayStart = t - (t % 86400);
+   if(tDayStart > cutoffDayStart)
+   {
+      FatalError(StringFormat(
+         "Misconfiguration (live): bigflipper_pullinghistory_always_full_replay=true but server calendar day %s is after "
+         "bigflipper_stop_trading_after_date=%s — BigflipperPlacementAllowedAtTime blocks all new orders. "
+         "Set bigflipper_stop_trading_after_date to a future date or \"\" to disable.",
+         TimeToString(tDayStart, TIME_DATE), bigflipper_stop_trading_after_date));
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -14306,8 +14446,10 @@ double FalgoLevelPriceForMagicKey(const FalgoMagicKey &fk)
    return g_levelsExpanded[levelIdx].levelPrice;
 }
 
-void FalgoFlipperPrintfManualCloseDecision(const bool enabled, const string family, const string closeType,
+void FalgoFlipperPrintfManualCloseDecision(const string family, const string closeType,
    const long posMagic, const ulong posTicket, const ulong positionId, const string closeDetail);
+void FalgoFlipperPrintfSparseFamilyTradeEvent(const string family, const string eventLabel,
+   const long posMagic, const ulong positionId, const datetime eventTime, const double price);
 
 string FalgoManualCloseCommentRollToken(const double rolloverForGuard);
 string FalgoBuildManualCloseCommentTime(const int ruleSwitchMap, const double secretTpProfitPctMin,
@@ -14961,10 +15103,10 @@ bool BreakdownSecretTpGreenGuardAllowsClose(const BreakdownAlgoDef &bd, const do
 }
 
 //+------------------------------------------------------------------+
-void FalgoFlipperPrintfManualCloseDecision(const bool enabled, const string family, const string closeType,
+void FalgoFlipperPrintfManualCloseDecision(const string family, const string closeType,
    const long posMagic, const ulong posTicket, const ulong positionId, const string closeDetail)
 {
-   if(!enabled)
+   if(!FalgoFlipperManualCloseJournalEnabled(family))
       return;
    const int algoNumber = AlgoFamilyMagicNumber(posMagic);
    Print(StringFormat("[manual_close][%s] algo=%d magic=%I64d ticket=%I64u posId=%I64u type=%s | %s",
@@ -15109,8 +15251,7 @@ bool Babysitf_falgo_runBreakdownSecretTpExit(const long posMagic, const double r
       DoubleToString(bd.secret_tp_greenguard_pricediff_at_least, _Digits));
    BreakdownRememberCloseDecision(positionId, "breakdown_secretTPSL_tp", closeDetail);
    BreakdownRememberPendingCloseReason(positionId, "secretTP");
-   FalgoFlipperPrintfManualCloseDecision(bigflipper_log_breakdown_algo_manual_close_decision,
-      "breakdown", "secretTP", posMagic, posTicket, positionId, closeDetail);
+   FalgoFlipperPrintfManualCloseDecision("breakdown", "secretTP", posMagic, posTicket, positionId, closeDetail);
    const string closeComment = FalgoBuildManualCloseCommentBreakdown("BS", bd.secret_tp_range_percent,
       bd.secret_tp_greenguard_pricediff_at_least, rolloverForGuard);
    double profitPts = 0.0;
@@ -15153,8 +15294,7 @@ bool Babysitf_falgo_runBreakdownMidpointTimeExit(const long posMagic, const doub
       (bd.closetrade_after_some_time_butOnlyIfProfit ? "true" : "false"));
    BreakdownRememberCloseDecision(positionId, "breakdown_midpoint_time_exit", closeDetail);
    BreakdownRememberPendingCloseReason(positionId, "timeTrigger");
-   FalgoFlipperPrintfManualCloseDecision(bigflipper_log_breakdown_algo_manual_close_decision,
-      "breakdown", "timeTrigger", posMagic, posTicket, positionId, closeDetail);
+   FalgoFlipperPrintfManualCloseDecision("breakdown", "timeTrigger", posMagic, posTicket, positionId, closeDetail);
    const string closeComment = FalgoBuildManualCloseCommentBreakdown("BT", bd.secret_tp_range_percent,
       bd.secret_tp_greenguard_pricediff_at_least, rolloverForGuard);
    double profitPts = 0.0;
@@ -15278,8 +15418,7 @@ bool Babysitf_falgo_runTimeAlgoSecretTpExit(const long posMagic, const double ro
       DoubleToString(greenguard, _Digits));
    TimeAlgoRememberCloseDecision(positionId, "time_algo_secretTPSL_tp", closeDetail);
    TimeAlgoRememberPendingCloseReason(positionId, "secretTP");
-   FalgoFlipperPrintfManualCloseDecision(bigflipper_log_time_algo_manual_close_decision,
-      "time", "secretTP", posMagic, posTicket, positionId, closeDetail);
+   FalgoFlipperPrintfManualCloseDecision("time", "secretTP", posMagic, posTicket, positionId, closeDetail);
    TimeAlgoDef ta;
    string closeComment = "";
    if(TimeAlgoDefForNumber(AlgoFamilyMagicNumber(posMagic), ta))
@@ -34814,7 +34953,7 @@ void SyncTimeAlgoFamilyProfileFromInputs()
    g_timeAlgoShared.stop_trading_if_day_has_profit_factor_above = 9999;
    g_timeAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count = 999;
    g_timeAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
-   g_timeAlgoShared.tradeSizePct = 100; // timebookmark
+   g_timeAlgoShared.tradeSizePct = 100; // wmark
    g_timeAlgoShared.bannedRanges = "22,0,23,59;0,0,1,0"; // allow 21:58 entry; breakdown family still uses 21:35 ban
    g_timeAlgoShared.tradesDays = "12345";
 
@@ -34823,8 +34962,8 @@ void SyncTimeAlgoFamilyProfileFromInputs()
 
 
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].enabled = true;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_hour = 11;   // 2:00 catalog T5
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_minute = 58;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_hour = 2;   // 2:00 catalog T5
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_minute = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].rule_switch_map = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_profit_percent_min = 2.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_greenguard_pricediff_at_least = 10.00;
@@ -40926,6 +41065,7 @@ int OnInit()
 
    g_liveBid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
    g_liveAsk = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   ValidateLiveStopTradingAfterDateConfig(TimeCurrent());
 
    if(!LoadCalendar())
       Print("Calendar file not loaded: ", InpCalendarFile, " (place CSV in Terminal/Common/Files)");
@@ -41072,6 +41212,12 @@ void HandleEntryDeal(const MqlTradeTransaction& trans)
    BreakdownLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
    TimeAlgoLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
    LevelAlgoLogTradeOpenedLifetime(positionId, dealMagic, fillTime, fillPrice, orderTicket);
+   if(IsBreakdownFamilyCompositeMagic(dealMagic))
+      FalgoFlipperPrintfSparseFamilyTradeEvent("breakdown", "trade opened", dealMagic, positionId, fillTime, fillPrice);
+   if(IsTimeFamilyCompositeMagic(dealMagic))
+      FalgoFlipperPrintfSparseFamilyTradeEvent("time", "trade opened", dealMagic, positionId, fillTime, fillPrice);
+   if(IsLevelFamilyCompositeMagic(dealMagic))
+      FalgoFlipperPrintfSparseFamilyTradeEvent("level", "trade opened", dealMagic, positionId, fillTime, fillPrice);
 
    string magicStrForLogFilename = GetMagicStrForLogFilename(dealMagic);
    if(StringLen(magicStrForLogFilename) == 0) return;
@@ -41114,11 +41260,23 @@ void HandleExitDeal(const MqlTradeTransaction& trans)
    }
 
    if(IsBreakdownFamilyCompositeMagic(entryMagic))
+   {
       BreakdownLogTradeClosedLifetime(posId, entryMagic, closeTime, closePrice, reason, closeProfit);
+      if(isExpertClose)
+         FalgoFlipperPrintfSparseFamilyTradeEvent("breakdown", "trade closed by expert", entryMagic, posId, closeTime, closePrice);
+   }
    if(IsTimeFamilyCompositeMagic(entryMagic))
+   {
       TimeAlgoLogTradeClosedLifetime(posId, entryMagic, closeTime, closePrice, reason, closeProfit);
+      if(isExpertClose)
+         FalgoFlipperPrintfSparseFamilyTradeEvent("time", "trade closed by expert", entryMagic, posId, closeTime, closePrice);
+   }
    if(IsLevelFamilyCompositeMagic(entryMagic))
+   {
       LevelAlgoLogTradeClosedLifetime(posId, entryMagic, closeTime, closePrice, reason, closeProfit);
+      if(isExpertClose)
+         FalgoFlipperPrintfSparseFamilyTradeEvent("level", "trade closed by expert", entryMagic, posId, closeTime, closePrice);
+   }
 
    string magicStrForLogFilename = GetMagicStrForLogFilename(entryMagic);
    if(StringLen(magicStrForLogFilename) == 0) return;
@@ -41443,6 +41601,7 @@ void OnTimer()
       BacktestProfRecordOutsideGapSinceLastScopeEnd(BACKTEST_PROF_SCOPE_ONTIMER);
 
    g_lastTimer1Time = TimeCurrent();
+   ValidateLiveStopTradingAfterDateConfig(g_lastTimer1Time);
    MqlDateTime mqlTime;
    TimeToStruct(g_lastTimer1Time, mqlTime);
    if(profOn)
