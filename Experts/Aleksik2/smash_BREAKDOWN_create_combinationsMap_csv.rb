@@ -75,7 +75,7 @@ DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze #�
 
 
 
-DESIRED_SECRET_TP_RANGE_PERCENT = [50, 100, 175, 300, 500, 800].freeze #  [100, 200, 300, 500]
+DESIRED_SECRET_TP_RANGE_PERCENT = [50, 100, 175, 300].freeze #  [100, 200, 300, 500]
 #  [100, 200, 300, 500] 100 too weak vs buy and hold. 200 already good
 # perf_percentSum_w_roll highers 100      20000057   149.52      0.059
 #                        2nd    200      20000058   203.34      0.038
@@ -92,8 +92,8 @@ DESIRED_SECRET_TP_RANGE_PERCENT = [50, 100, 175, 300, 500, 800].freeze #  [100, 
 
 ### It does not need secret TP != 0. The time-based close is independent of secret_tp_range_percent.
 # profit/minutes arrays are only expanded in the grid when closetrade_after_some_time=true.
-DESIRED_CLOSETRADE_AFTER_SOME_TIME = [false].freeze
-DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [15.0, 25.0, 40.0].freeze # ✅✅[1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 18.0, 25.0]
+DESIRED_CLOSETRADE_AFTER_SOME_TIME = [true].freeze
+DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0, 4.0, 15.0].freeze # ✅✅[1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 18.0, 25.0]
 DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [800].freeze # ✅ with higher TP targets it is irrelevant 
 # DESIRED_CLOSETRADE_AFTER_SOME_TIME_BUT_PROFITPERCENT_NEEDED = [2.0, 5.0, 10.0, 19.0].freeze # [1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 18.0, 25.0]
 # DESIRED_CLOSETRADE_AFTER_X_MINUTES_FROM_BREAKDOWN = [60, 800].freeze

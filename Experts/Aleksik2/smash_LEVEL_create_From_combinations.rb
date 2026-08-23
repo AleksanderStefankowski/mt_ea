@@ -2,10 +2,11 @@
 # frozen_string_literal: true
 
 # Cartesian product of desired_* arrays -> REPLACE all level algos in:
-#   aleksik2.mq5            (registry + MAGIC_LEVEL* defines + LEVEL_ALGO_REGISTRY_MAX)
+#   aleksik2.mq5            (registry + MAGIC_LEVEL* defines + LEVEL_ALGO_REGISTRY_MAX + levelalgocreator3 rules)
 #   aleksik2_level_fam.mqh  (g_levelAlgos[...] param blocks)
 #
-# Does NOT append — deletes previous wired level algos and writes a fresh set from combo #1.
+# Does NOT append — deletes previous base AND quant-ref level algos, then writes a fresh base set from combo #1.
+# Re-run smash_from_QUANTREFERENCEPOINTS_creator.rb afterward to recreate quant-ref clones.
 
 require "set"
 
@@ -23,6 +24,10 @@ LEVEL_FAM_MARKERS = {
   2 => %w[//levelalgocreator2start //levelalgocreator2end]
 }.freeze
 
+LEVEL_RULE_MARKERS = %w[//levelalgocreator3start //levelalgocreator3end].freeze
+
+QUANTREF_NEW_ID_RE = /(?:\/\/\s*)?quantref\s+base=\d+\s+new=(\d+)/
+
 # --- edit combination grids here ---
 DESIRED_MAX_OPEN_POSITIONS = [10].freeze
 DESIRED_EXPIRY_MINUTES = [120].freeze
@@ -35,7 +40,7 @@ DESIRED_TRADES_WHAT_LEVELS = %i[both].freeze # [both weekly daily, both has high
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze   # [1, 3: 3 is better]
 #  [1, 3, 10] 10 is best? somehow had better avgtimeVSprofit and better avgavgDurationHours than 3.
 
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [0.5, 1.0].freeze  # [2.0, 8.0, 12.0, 30.0]
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [1.0, 2.0, 4.0].freeze  # [2.0, 8.0, 12.0, 30.0]
 # [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
 # [4.0, 6.0, 10.0, 20.0], stil more profit if higher target, but 10.0 had best profitvstime
 # [8.0, 10.0, 12.0, 14.0, 20.0]
@@ -75,7 +80,7 @@ DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET = [1.2].freeze # 1.25 s
 # removed "all_up" as it had terrible stats. removed "all_tags". Removed "all_down". "all_down_pivot" has more trades so more profit, but much weaker timeVSprofit. For now let's go for max profit with 
 DESIRED_TRADES_TAGS_PRESET = %i[
   all_down_pivot
-
+  all_down
   
 ].freeze
 
@@ -164,6 +169,17 @@ module LevelCombinationsCreator
   def registry_algo_ids(mq5_content)
     block = extract_inner(mq5_content, MQ5_MARKERS[1])
     block.scan(/MAGIC_LEVEL(\d+)/).flatten.map(&:to_i).uniq.sort
+  end
+
+  def level_quant_clone_algo_ids(mq5_content, level_fam_content)
+    rule_block =
+      begin
+        extract_inner(mq5_content, LEVEL_RULE_MARKERS)
+      rescue StandardError
+        ""
+      end
+    ids = [level_fam_content, rule_block].compact.join.scan(QUANTREF_NEW_ID_RE).flatten.map(&:to_i)
+    ids.select { |id| id >= LEVEL_ALGO_ID_MIN && id <= LEVEL_ALGO_ID_MAX }.uniq.sort
   end
 
   def rebuild_registry_inner(algo_ids)
@@ -364,6 +380,7 @@ module LevelCombinationsCreator
 
     registry_inner = rebuild_registry_inner(algo_ids)
     mq5_content = replace_inner(mq5_content, MQ5_MARKERS[1], registry_inner)
+    mq5_content = replace_inner(mq5_content, LEVEL_RULE_MARKERS, "")
 
     params_inner =
       combinations.zip(algo_ids).map do |combo, algo_id|
@@ -400,6 +417,7 @@ if __FILE__ == $PROGRAM_NAME
   registry_max = level_registry_max(mq5_content)
   registry_headroom = level_registry_max_headroom(mq5_content)
   wired_ids = registry_algo_ids(mq5_content)
+  quant_ids = level_quant_clone_algo_ids(mq5_content, level_fam_content)
 
   all_combinations = build_combinations
   if all_combinations.size != total_combinations
@@ -412,14 +430,18 @@ if __FILE__ == $PROGRAM_NAME
   puts "Registry slot capacity:    #{registry_max} (LEVEL_ALGO_REGISTRY_MAX in aleksik2.mq5)"
   puts "Registry headroom:         #{registry_headroom} (max unused slots above wired count)"
   puts "Currently wired level IDs: #{wired_ids.size} (#{wired_ids.join(', ')})"
-  puts "Will REPLACE with:         #{all_combinations.size} algos"
+  unless quant_ids.empty?
+    puts "Quant-ref algos to remove: #{quant_ids.size} (#{quant_ids.join(', ')})"
+  end
+  puts "Will REPLACE with:         #{all_combinations.size} base algos"
   puts "New algo ID range:         #{new_algo_ids.first}..#{new_algo_ids.last}"
   puts "Required registry slots:   #{required_registry_max}"
   if required_registry_max > registry_max
     puts "Will raise LEVEL_ALGO_REGISTRY_MAX: #{registry_max} -> #{required_registry_max}"
   end
   puts
-  puts "Mode: OVERWRITE (previous level algos in creator blocks are removed)"
+  puts "Mode: OVERWRITE (base + quant-ref level algos removed; levelalgocreator3 rules cleared)"
+  puts "      Re-run smash_from_QUANTREFERENCEPOINTS_creator.rb to recreate quant-ref clones."
   puts
 
   if all_combinations.empty?
@@ -427,7 +449,7 @@ if __FILE__ == $PROGRAM_NAME
     exit 0
   end
 
-  print "Overwrite level algos with #{all_combinations.size} combination(s)? [y/N] "
+  print "Overwrite level algos (#{quant_ids.size} quant + #{wired_ids.size} wired -> #{all_combinations.size} base)? [y/N] "
   answer = $stdin.gets&.strip&.downcase
   unless answer == "y"
     puts "Aborted."
