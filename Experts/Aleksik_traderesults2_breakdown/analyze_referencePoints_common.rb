@@ -12,6 +12,9 @@ module AnalyzeAlgosReferencePointsCommon
   UNGROUPED_REF_GROUP_SIZE = 0
   MAX_RATECUT = 1.0
   TIMEVSPROFIT_DECIMALS = 3
+  # Merge grouped rows with identical algo + ratecut + timeVSprofit + percentSum + tradesCount
+  # into one row (union of ref points; mergedVariantCount > 1 when combined).
+  MERGE_SAME_RESULTS = true
 
   OUTPUT_HEADERS =
     AnalyzeAlgosPerformanceCommon::CSV_HEADERS + %w[
@@ -20,6 +23,7 @@ module AnalyzeAlgosReferencePointsCommon
       grpRefsBelow
       ratecut
       timeVSprofitVSratecut
+      mergedVariantCount
     ].freeze
 
   def safe_split_refs(value)
@@ -220,6 +224,63 @@ module AnalyzeAlgosReferencePointsCommon
     )
   end
 
+  def merge_result_key(row)
+    [
+      row[:algoID].to_s,
+      AnalyzeAlgosPerformanceCommon.format_float(
+        AnalyzeAlgosPerformanceCommon.parse_float(row[:ratecut]), 4
+      ),
+      AnalyzeAlgosPerformanceCommon.format_float(
+        rounded_time_vs_profit(row[:timeVSprofit]), TIMEVSPROFIT_DECIMALS
+      ),
+      AnalyzeAlgosPerformanceCommon.format_float(
+        AnalyzeAlgosPerformanceCommon.parse_float(row[:percentSum_w_roll]), 2
+      ),
+      row[:tradesCount].to_i
+    ]
+  end
+
+  def merge_ref_group_cluster(cluster)
+    return cluster.first if cluster.size == 1
+
+    above_union =
+      cluster.flat_map { |row| safe_split_refs(row[:grpRefsAbove]) }.uniq.sort
+    below_union =
+      cluster.flat_map { |row| safe_split_refs(row[:grpRefsBelow]) }.uniq.sort
+    ref_count = above_union.size + below_union.size
+
+    cluster.first.merge(
+      refGroupSize: ref_count,
+      grpRefsAbove: format_ref_list(above_union),
+      grpRefsBelow: format_ref_list(below_union),
+      mergedVariantCount: cluster.size
+    )
+  end
+
+  def merge_equivalent_group_rows(rows, merge_same_results: MERGE_SAME_RESULTS)
+    ungrouped, grouped =
+      rows.partition { |row| row[:refGroupSize] == UNGROUPED_REF_GROUP_SIZE }
+    return rows unless merge_same_results
+
+    merged_grouped =
+      grouped
+      .group_by { |row| merge_result_key(row) }
+      .values
+      .map { |cluster| merge_ref_group_cluster(cluster) }
+
+    ungrouped + merged_grouped
+  end
+
+  def stamp_merged_variant_counts!(rows)
+    rows.each do |row|
+      next if row.key?(:mergedVariantCount)
+
+      row[:mergedVariantCount] =
+        row[:refGroupSize] == UNGROUPED_REF_GROUP_SIZE ? '' : 1
+    end
+    rows
+  end
+
   def build_ref_group_rows(
     algo_id,
     algo_trades,
@@ -290,7 +351,10 @@ module AnalyzeAlgosReferencePointsCommon
       end
     end
 
-    rows.sort_by do |row|
+    merged_rows = merge_equivalent_group_rows(rows)
+    stamp_merged_variant_counts!(merged_rows)
+
+    merged_rows.sort_by do |row|
       [
         row[:algoID].to_i,
         row[:refGroupSize].to_i,
@@ -306,9 +370,16 @@ module AnalyzeAlgosReferencePointsCommon
     trades_count = row[:tradesCount]
     ratecut_pct =
       (AnalyzeAlgosPerformanceCommon.parse_float(row[:ratecut]).to_f * 100).round(2)
+    merged_note =
+      if row[:mergedVariantCount].to_s.to_i > 1
+        " mergedVariants=#{row[:mergedVariantCount]} refCount=#{row[:refGroupSize]} |"
+      else
+        ''
+      end
     puts(
       "  refs above=#{row[:grpRefsAbove].empty? ? '-' : row[:grpRefsAbove]} " \
-      "below=#{row[:grpRefsBelow].empty? ? '-' : row[:grpRefsBelow]} | " \
+      "below=#{row[:grpRefsBelow].empty? ? '-' : row[:grpRefsBelow]} |" \
+      "#{merged_note} " \
       "trades=#{trades_count}/#{algo_total_trades} ratecut=#{ratecut_pct}% | " \
       "percentSum=#{row[:percentSum_w_roll]} profit_avg=#{row[:avg_profit_custom_with_roll]} | " \
       "timeVSprofit=#{row[:timeVSprofit]} " \
@@ -375,6 +446,9 @@ module AnalyzeAlgosReferencePointsCommon
     puts "minimum ratecut: #{minimum_ratecut_percent}% (groups below this are skipped)"
     if group_timevsprofit_needs_to_be_better
       puts "GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER: skip groups with timeVSprofit <= ungrouped (after #{TIMEVSPROFIT_DECIMALS}-decimal rounding)"
+    end
+    if MERGE_SAME_RESULTS
+      puts 'MERGE_SAME_RESULTS: merge grouped rows with identical algo/ratecut/timeVSprofit/percentSum/tradesCount (union refs; mergedVariantCount)'
     end
     puts 'ratecut = trades in group / all trades for that algo (0.00–1.00; console shows %)'
     puts 'timeVSprofitVSratecut = timeVSprofit × ratecut (tie-break: higher ratecut wins at same timeVSprofit)'

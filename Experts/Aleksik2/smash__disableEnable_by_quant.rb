@@ -13,8 +13,8 @@
 #   -> disable all wired algos in selected families.
 DO_WHICH_FAMS = [
   :level,
-  :time,
-  :breakdown
+  # :time,
+  # :breakdown
 ].freeze
 
 # :quant = algos with quantref comment; :base = wired algos that are not quant-ref clones

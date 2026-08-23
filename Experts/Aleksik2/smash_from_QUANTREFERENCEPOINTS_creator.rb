@@ -119,6 +119,7 @@ module QuantRefCreator
         time_vs_profit_vs_ratecut: row["timeVSprofitVSratecut"].to_f,
         percent_sum_w_roll: row["percentSum_w_roll"],
         trades_count: row["tradesCount"].to_i,
+        merged_variant_count: row["mergedVariantCount"].to_s.strip,
         pattern: row["pattern"]
       }
     end
@@ -311,19 +312,31 @@ module QuantRefCreator
 
   def quantref_comment(row, new_algo_id)
     modes = creation_modes_for(row).join(",")
+    merged =
+      if row[:merged_variant_count].to_s.to_i > 1
+        " mergedVariants=#{row[:merged_variant_count]}"
+      else
+        ""
+      end
     " // quantref base=#{row[:algo_id]} new=#{new_algo_id} modes=#{modes} " \
       "above=#{row[:grp_refs_above].empty? ? '-' : row[:grp_refs_above]} " \
       "below=#{row[:grp_refs_below].empty? ? '-' : row[:grp_refs_below]} " \
       "ratecut=#{row[:ratecut]} timeVSprofit=#{row[:time_vs_profit]} " \
-      "percentSum_w_roll=#{row[:percent_sum_w_roll]} tradesCount=#{row[:trades_count]}"
+      "percentSum_w_roll=#{row[:percent_sum_w_roll]} tradesCount=#{row[:trades_count]}#{merged}"
   end
 
   def describe_row(row)
     primary_mode = row[:creation_mode] || creation_modes_for(row).first
+    merged =
+      if row[:merged_variant_count].to_s.to_i > 1
+        " mergedVariants=#{row[:merged_variant_count]}"
+      else
+        ""
+      end
     "base=#{row[:algo_id]} above=#{row[:grp_refs_above].empty? ? '-' : row[:grp_refs_above]} " \
       "below=#{row[:grp_refs_below].empty? ? '-' : row[:grp_refs_below]} " \
       "modes=#{creation_modes_for(row).join(',')} metric=#{sort_metric(row, primary_mode)} " \
-      "percentSum_w_roll=#{row[:percent_sum_w_roll]} tradesCount=#{row[:trades_count]}"
+      "percentSum_w_roll=#{row[:percent_sum_w_roll]} tradesCount=#{row[:trades_count]}#{merged}"
   end
 
   def breakdown_rule_lines(refs_above, refs_below)

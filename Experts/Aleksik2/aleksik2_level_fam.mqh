@@ -13,6 +13,15 @@ struct LevelNearLevelPlacementCacheEntry
 LevelNearLevelPlacementCacheEntry g_levelNearLevelPlacementCache[];
 int                               g_levelNearLevelPlacementCacheCount = 0;
 
+struct LevelAlgoPendingPlannedPriceRec
+{
+   double   plannedPrice;
+   datetime sentTime;     // pending ORDER_TIME_SETUP when placed
+   bool     active;
+};
+
+LevelAlgoPendingPlannedPriceRec g_levelAlgoPendingPlannedBySlot[LEVEL_ALGO_REGISTRY_MAX];
+
 void LevelRebuildAllRuleChains();
 string LevelRunRulesFirstFail(const int slotIdx, const int barIdx, const double plannedTradePrice);
 
@@ -225,7 +234,7 @@ bool LevelAlgoDefForNumber(const int algoNumber, LevelAlgoDef &outDef)
 //+------------------------------------------------------------------+
 double GetTradeLotForLevelAlgo()
 {
-   return g_global_base_trade_size * ((double)g_levelAlgoShared.tradeSizePct / 100.0);
+   return g_global_base_trade_size_level * ((double)g_levelAlgoShared.tradeSizePct / 100.0);
 }
 
 //+------------------------------------------------------------------+
@@ -492,6 +501,37 @@ bool FalgoBuildMagicKeyForLevelAlgoPlacement(const int levelIdx, const double en
 }
 
 //+------------------------------------------------------------------+
+void LevelAlgoRememberPendingPlannedPrice(const long magic, const double plannedPrice, const datetime sentTime)
+{
+   if(magic <= 0 || plannedPrice <= 0.0)
+      return;
+   if(!IsLevelFamilyCompositeMagic(magic))
+      return;
+   const int slotIdx = LevelAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(magic));
+   if(slotIdx < 0)
+      return;
+   g_levelAlgoPendingPlannedBySlot[slotIdx].plannedPrice = plannedPrice;
+   g_levelAlgoPendingPlannedBySlot[slotIdx].sentTime = sentTime;
+   g_levelAlgoPendingPlannedBySlot[slotIdx].active = true;
+}
+
+//+------------------------------------------------------------------+
+bool LevelAlgoTakePendingOrderContext(const long magic, double &outPlannedPrice, datetime &outSentTime)
+{
+   outPlannedPrice = 0.0;
+   outSentTime = 0;
+   if(!IsLevelFamilyCompositeMagic(magic))
+      return false;
+   const int slotIdx = LevelAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(magic));
+   if(slotIdx < 0 || !g_levelAlgoPendingPlannedBySlot[slotIdx].active)
+      return false;
+   outPlannedPrice = g_levelAlgoPendingPlannedBySlot[slotIdx].plannedPrice;
+   outSentTime = g_levelAlgoPendingPlannedBySlot[slotIdx].sentTime;
+   g_levelAlgoPendingPlannedBySlot[slotIdx].active = false;
+   return true;
+}
+
+//+------------------------------------------------------------------+
 bool PlacePendingFromFalgoMagicLevel(const long magic, const double orderPrice, const double brokerTpPrice,
    const int expirationMin, const double lot)
 {
@@ -511,6 +551,8 @@ bool PlacePendingFromFalgoMagicLevel(const long magic, const double orderPrice, 
    LogPreOrderContext(magic, orderNorm, orderNorm, "BuyLimit", expirationMin);
    const bool ok = ExtTrade.BuyLimit(lot, orderNorm, _Symbol, 0.0, tpNorm, ORDER_TIME_SPECIFIED, expiration, comment);
    ExtTrade.SetExpertMagicNumber(DEFAULT_ORDER_MAGIC);
+   if(ok)
+      LevelAlgoRememberPendingPlannedPrice(magic, orderNorm, g_lastTimer1Time);
    return ok;
 }
 
@@ -538,11 +580,15 @@ void LevelAlgoOpenLifetimePosMapRebuild()
 
 //+------------------------------------------------------------------+
 int LevelAlgoEnsureSecretTpLifetimeSlot(const ulong positionId, const long magic, const datetime startTime,
-   const double fillPrice, const double plannedPrice)
+   const double fillPrice, const double plannedPrice, const datetime sentTime = 0)
 {
    int lifeIdx = LevelAlgoOpenLifetimeSlotByPositionId(positionId);
    if(lifeIdx >= 0)
+   {
+      if(g_levelAlgoOpenLifetime[lifeIdx].sentTime <= 0 && sentTime > 0)
+         g_levelAlgoOpenLifetime[lifeIdx].sentTime = sentTime;
       return lifeIdx;
+   }
    for(int i = 0; i < LEVEL_ALGO_OPEN_LIFETIME_MAX; i++)
    {
       if(g_levelAlgoOpenLifetime[i].active)
@@ -550,6 +596,7 @@ int LevelAlgoEnsureSecretTpLifetimeSlot(const ulong positionId, const long magic
       ZeroMemory(g_levelAlgoOpenLifetime[i]);
       g_levelAlgoOpenLifetime[i].positionId = positionId;
       g_levelAlgoOpenLifetime[i].algoNumber = AlgoFamilyMagicNumber(magic);
+      g_levelAlgoOpenLifetime[i].sentTime = sentTime;
       g_levelAlgoOpenLifetime[i].startTime = startTime;
       g_levelAlgoOpenLifetime[i].startPrice = fillPrice;
       g_levelAlgoOpenLifetime[i].plannedPrice = (plannedPrice > 0.0 ? plannedPrice : fillPrice);
@@ -635,15 +682,20 @@ void LevelAlgoLogTradeOpenedLifetime(const ulong positionId, const long magic, c
       return;
 
    double plannedPrice = 0.0;
-   if(orderTicket > 0 && HistoryOrderSelect(orderTicket))
+   datetime sentTime = 0;
+   LevelAlgoTakePendingOrderContext(magic, plannedPrice, sentTime);
+   if(plannedPrice <= 0.0 && orderTicket > 0 && HistoryOrderSelect(orderTicket))
       plannedPrice = HistoryOrderGetDouble(orderTicket, ORDER_PRICE_OPEN);
    if(plannedPrice <= 0.0)
       plannedPrice = fillPrice;
 
    const double startPrice = (fillPrice > 0.0 ? fillPrice : plannedPrice);
    const datetime startTime = (fillTime > 0 ? fillTime : g_lastTimer1Time);
+   if(sentTime <= 0)
+      sentTime = FalgoPendingOrderSentTimeFromTicket(orderTicket, startTime);
+   sentTime = FalgoResolveTradeSentTime(sentTime, 0, startTime);
    const bool isNewOpen = (LevelAlgoOpenLifetimeSlotByPositionId(positionId) < 0);
-   const int lifeIdx = LevelAlgoEnsureSecretTpLifetimeSlot(positionId, magic, startTime, startPrice, plannedPrice);
+   const int lifeIdx = LevelAlgoEnsureSecretTpLifetimeSlot(positionId, magic, startTime, startPrice, plannedPrice, sentTime);
    if(lifeIdx >= 0)
       LevelAlgoHydrateLifetimeSecretTpFromMagic(lifeIdx, positionId, magic);
    if(isNewOpen && lifeIdx >= 0)
@@ -667,6 +719,7 @@ void LevelAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMag
       return;
 
    FalgoSecretTpLifetimeRec openRec;
+   datetime sentTime = 0;
    datetime startTime = 0;
    double plannedPrice = 0.0;
    double startPrice = 0.0;
@@ -674,11 +727,13 @@ void LevelAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMag
    double rolloverPricediff = 0.0;
    int tradeCustomId = 0;
    int algoNumber = AlgoFamilyMagicNumber(entryMagic);
+   ulong entryOrderTicket = 0;
    const bool gotOpenRec = LevelAlgoTakeOpenTradeLifetime(positionId, openRec);
    if(gotOpenRec)
    {
       algoNumber = openRec.algoNumber;
       tradeCustomId = openRec.tradeCustomId;
+      sentTime = openRec.sentTime;
       startTime = openRec.startTime;
       plannedPrice = openRec.plannedPrice;
       startPrice = openRec.startPrice;
@@ -697,10 +752,18 @@ void LevelAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMag
          startTime = (datetime)HistoryDealGetInteger(dealTicket, DEAL_TIME);
          startPrice = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
          plannedPrice = startPrice;
+         entryOrderTicket = HistoryDealGetInteger(dealTicket, DEAL_ORDER);
+         sentTime = FalgoPendingOrderSentTimeFromTicket(entryOrderTicket, startTime);
          if(!IsLevelFamilyAlgoNumber(algoNumber))
             algoNumber = AlgoFamilyMagicNumber(HistoryDealGetInteger(dealTicket, DEAL_MAGIC));
          break;
       }
+   }
+   if(startTime > 0)
+   {
+      if(sentTime <= 0 && entryOrderTicket > 0)
+         sentTime = FalgoPendingOrderSentTimeFromTicket(entryOrderTicket, startTime);
+      sentTime = FalgoResolveTradeSentTime(sentTime, 0, startTime);
    }
    if(!IsLevelFamilyAlgoNumber(algoNumber) || startTime <= 0)
       return;
@@ -729,7 +792,7 @@ void LevelAlgoLogTradeClosedLifetime(const ulong positionId, const long entryMag
          openRec.mfeCandle1Based, openRec.maeCandle1Based, openRec.closeDecisionReason, openRec.closeDecisionDetail,
          withRolloverFee, rolloverPricediff);
    }
-   FalgoAppendClosedTradeToAllDaysSummaryFromLifetime(positionId, entryMagic, startTime, startTime, eventTime,
+   FalgoAppendClosedTradeToAllDaysSummaryFromLifetime(positionId, entryMagic, sentTime, startTime, eventTime,
       startPrice, closePrice, dealReason, closeProfitIn, withRolloverFee, rolloverPricediff, plannedPrice, tradeCustomId);
 }
 
