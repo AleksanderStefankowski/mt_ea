@@ -31,10 +31,10 @@ from gmail_auth_common import get_gmail_service
 # CONFIG
 # ============================================================
 
-send_email_on_start = True
+send_email_on_start = False
 send_email_on_time_hhmm = "22:02"  # once per calendar day when local clock hits HH:MM
 
-POLL_SECONDS = 30
+POLL_SECONDS = 55
 EMAIL_SUBJECT_PREFIX = "mt5py"
 
 EMAIL_FROM = "aleksikstorage2@gmail.com"
