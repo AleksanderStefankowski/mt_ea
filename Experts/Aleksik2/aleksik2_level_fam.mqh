@@ -1284,7 +1284,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000001)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].enabled = false;
@@ -1309,7 +1309,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000002)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].enabled = false;
@@ -1335,7 +1335,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000003)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].enabled = false;
@@ -1360,7 +1360,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000004)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].enabled = false;
@@ -1386,7 +1386,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000005)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].enabled = false;
@@ -1411,7 +1411,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000006)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].enabled = false;
@@ -1437,7 +1437,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000007)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].enabled = false;
@@ -1462,7 +1462,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000008)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].enabled = false;
@@ -1488,7 +1488,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000009)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].enabled = false;
@@ -1513,7 +1513,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000010)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].enabled = false;
@@ -1539,7 +1539,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000011)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].enabled = false;
@@ -1564,7 +1564,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000012)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].enabled = false;
@@ -1590,7 +1590,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].enabled = false;
@@ -1615,7 +1615,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].enabled = false;
@@ -1641,7 +1641,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].enabled = false;
@@ -1666,7 +1666,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].enabled = false;
@@ -1692,7 +1692,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].enabled = false;
@@ -1717,7 +1717,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].enabled = false;
@@ -1743,7 +1743,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].enabled = false;
@@ -1768,7 +1768,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].enabled = false;
@@ -1794,7 +1794,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].enabled = false;
@@ -1819,7 +1819,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].enabled = false;
@@ -1845,7 +1845,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].enabled = false;
@@ -1870,7 +1870,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].enabled = false;
@@ -1896,7 +1896,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].enabled = false;
@@ -1921,7 +1921,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].enabled = false;
@@ -1947,7 +1947,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].enabled = false;
@@ -1972,7 +1972,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].enabled = false;
@@ -1998,7 +1998,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].enabled = false;
@@ -2023,7 +2023,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].enabled = false;
@@ -2049,7 +2049,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].enabled = false;
@@ -2074,7 +2074,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].enabled = false;
@@ -2100,7 +2100,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].enabled = false;
@@ -2125,7 +2125,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].enabled = false;
@@ -2151,7 +2151,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].enabled = false;
@@ -2176,7 +2176,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].enabled = false;
@@ -2202,7 +2202,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].enabled = false;
@@ -2227,7 +2227,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].enabled = false;
@@ -2253,7 +2253,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].enabled = false;
@@ -2278,7 +2278,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].enabled = false;
@@ -2304,7 +2304,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].enabled = false;
@@ -2329,7 +2329,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].enabled = false;
@@ -2355,7 +2355,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].enabled = false;
@@ -2380,7 +2380,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].enabled = false;
@@ -2406,7 +2406,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].enabled = false;
@@ -2431,7 +2431,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].enabled = false;
@@ -2457,7 +2457,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].enabled = false;
@@ -2482,7 +2482,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].enabled = false;
@@ -2508,7 +2508,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].enabled = false;
@@ -2533,7 +2533,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].enabled = false;
@@ -2559,7 +2559,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].enabled = false;
@@ -2584,7 +2584,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].enabled = false;
@@ -2610,7 +2610,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].enabled = false;
@@ -2635,7 +2635,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].enabled = false;
@@ -2661,7 +2661,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].enabled = false;
@@ -2686,7 +2686,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].enabled = false;
@@ -2712,7 +2712,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].enabled = false;
@@ -2737,7 +2737,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].enabled = false;
@@ -2763,7 +2763,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].enabled = false;
@@ -2788,7 +2788,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].enabled = false;
@@ -2814,7 +2814,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].enabled = false;
@@ -2839,7 +2839,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].enabled = false;
@@ -2865,7 +2865,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].enabled = false;
@@ -2890,7 +2890,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].enabled = false;
@@ -2916,7 +2916,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].enabled = false;
@@ -2941,7 +2941,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].enabled = false;
@@ -2967,7 +2967,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].enabled = false;
@@ -2992,7 +2992,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].enabled = false;
@@ -3018,7 +3018,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].enabled = false;
@@ -3043,7 +3043,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].enabled = false;
@@ -3069,7 +3069,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].enabled = false;
@@ -3094,7 +3094,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].enabled = false;
@@ -3120,7 +3120,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].enabled = false;
@@ -3145,7 +3145,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].enabled = false;
@@ -3171,7 +3171,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].enabled = false;
@@ -3196,7 +3196,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].enabled = false;
@@ -3222,7 +3222,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].enabled = false;
@@ -3247,7 +3247,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].enabled = false;
@@ -3273,7 +3273,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].enabled = false;
@@ -3298,7 +3298,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].enabled = false;
@@ -3324,7 +3324,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].enabled = true;
@@ -3349,7 +3349,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].enabled = false;
@@ -3375,7 +3375,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].enabled = false;
@@ -3400,7 +3400,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].enabled = false;
@@ -3426,7 +3426,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].enabled = false;
@@ -3451,7 +3451,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].enabled = false;
@@ -3477,7 +3477,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].enabled = false;
@@ -3502,7 +3502,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].enabled = false;
@@ -3528,7 +3528,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].enabled = false;
@@ -3553,7 +3553,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].enabled = false;
@@ -3579,7 +3579,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].enabled = false;
@@ -3604,7 +3604,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].enabled = false;
@@ -3630,7 +3630,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].enabled = false;
@@ -3655,7 +3655,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].enabled = false;
@@ -3681,7 +3681,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].enabled = false;
@@ -3706,7 +3706,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].enabled = false;
@@ -3732,7 +3732,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].enabled = false;
@@ -3757,7 +3757,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].enabled = false;
@@ -3783,7 +3783,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].enabled = false;
@@ -3808,7 +3808,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].enabled = false;
@@ -3834,7 +3834,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].enabled = false;
@@ -3859,7 +3859,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].enabled = false;
@@ -3885,7 +3885,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].enabled = false;
@@ -3910,7 +3910,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].enabled = false;
@@ -3936,7 +3936,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].enabled = false;
@@ -3961,7 +3961,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].enabled = false;
@@ -3987,7 +3987,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].enabled = false;
@@ -4012,7 +4012,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].enabled = false;
@@ -4038,7 +4038,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].enabled = false;
@@ -4063,7 +4063,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].enabled = false;
@@ -4089,7 +4089,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].enabled = false;
@@ -4114,7 +4114,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].enabled = false;
@@ -4140,7 +4140,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].enabled = false;
@@ -4165,7 +4165,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].enabled = false;
@@ -4191,7 +4191,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].enabled = false;
@@ -4216,7 +4216,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].enabled = false;
@@ -4242,7 +4242,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].enabled = false;
@@ -4267,7 +4267,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].enabled = false;
@@ -4293,7 +4293,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].enabled = false;
@@ -4318,7 +4318,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].enabled = false;
@@ -4344,7 +4344,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].enabled = false;
@@ -4369,7 +4369,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].enabled = false;
@@ -4395,7 +4395,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].enabled = false;
@@ -4420,7 +4420,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].enabled = false;
@@ -4446,7 +4446,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].enabled = false;
@@ -4471,7 +4471,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].enabled = false;
@@ -4497,7 +4497,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].enabled = false;
@@ -4522,7 +4522,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].enabled = false;
@@ -4548,7 +4548,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].enabled = false;
@@ -4573,7 +4573,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].enabled = false;
@@ -4599,7 +4599,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].enabled = false;
@@ -4624,7 +4624,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].enabled = false;
@@ -4650,7 +4650,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].enabled = false;
@@ -4675,7 +4675,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].enabled = false;
@@ -4701,7 +4701,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].enabled = false;
@@ -4726,7 +4726,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].enabled = false;
@@ -4752,7 +4752,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].enabled = false;
@@ -4777,7 +4777,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].enabled = false;
@@ -4803,7 +4803,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].enabled = false;
@@ -4828,7 +4828,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].enabled = false;
@@ -4854,7 +4854,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].enabled = false;
@@ -4879,7 +4879,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].enabled = false;
@@ -4905,7 +4905,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].enabled = false;
@@ -4930,7 +4930,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].enabled = false; // quantref base=30000005 new=30000145 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6612 timeVSprofit=0.701 percentSum_w_roll=150.21 tradesCount=726
@@ -4956,7 +4956,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].enabled = false; // quantref base=30000041 new=30000146 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6612 timeVSprofit=0.701 percentSum_w_roll=150.21 tradesCount=726
@@ -4982,7 +4982,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].enabled = false; // quantref base=30000007 new=30000147 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9004 timeVSprofit=0.081 percentSum_w_roll=152.96 tradesCount=714
@@ -5008,7 +5008,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].enabled = false; // quantref base=30000043 new=30000148 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9027 timeVSprofit=0.081 percentSum_w_roll=152.96 tradesCount=714
@@ -5034,7 +5034,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].enabled = false; // quantref base=30000006 new=30000149 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8969 timeVSprofit=0.078 percentSum_w_roll=173.99 tradesCount=826
@@ -5059,7 +5059,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].enabled = false; // quantref base=30000042 new=30000150 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8969 timeVSprofit=0.078 percentSum_w_roll=173.99 tradesCount=826
@@ -5084,7 +5084,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].enabled = false; // quantref base=30000079 new=30000151 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8913 timeVSprofit=0.071 percentSum_w_roll=162.92 tradesCount=656
@@ -5110,7 +5110,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].enabled = false; // quantref base=30000039 new=30000152 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8788 timeVSprofit=0.067 percentSum_w_roll=167.04 tradesCount=805
@@ -5136,7 +5136,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].enabled = false; // quantref base=30000003 new=30000153 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8791 timeVSprofit=0.066 percentSum_w_roll=167.44 tradesCount=807
@@ -5162,7 +5162,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].enabled = false; // quantref base=30000005 new=30000154 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8552 timeVSprofit=0.065 percentSum_w_roll=192.56 tradesCount=939
@@ -5188,7 +5188,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].enabled = false; // quantref base=30000041 new=30000155 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8552 timeVSprofit=0.065 percentSum_w_roll=192.56 tradesCount=939
@@ -5214,7 +5214,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].enabled = false; // quantref base=30000078 new=30000156 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8942 timeVSprofit=0.064 percentSum_w_roll=180.84 tradesCount=744
@@ -5239,7 +5239,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].enabled = false; // quantref base=30000037 new=30000157 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8760 timeVSprofit=0.064 percentSum_w_roll=156.83 tradesCount=749
@@ -5265,7 +5265,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].enabled = false; // quantref base=30000001 new=30000158 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8762 timeVSprofit=0.063 percentSum_w_roll=157.02 tradesCount=750
@@ -5291,7 +5291,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].enabled = false; // quantref base=30000076 new=30000159 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9069 timeVSprofit=0.059 percentSum_w_roll=156.30 tradesCount=633
@@ -5316,7 +5316,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].enabled = false; // quantref base=30000073 new=30000160 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8688 timeVSprofit=0.057 percentSum_w_roll=169.57 tradesCount=695
@@ -5342,7 +5342,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].enabled = false; // quantref base=30000075 new=30000161 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8737 timeVSprofit=0.056 percentSum_w_roll=179.76 tradesCount=740
@@ -5368,7 +5368,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].enabled = false; // quantref base=30000118 new=30000162 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9207 timeVSprofit=0.051 percentSum_w_roll=167.26 tradesCount=418
@@ -5393,7 +5393,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].enabled = false; // quantref base=30000114 new=30000163 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.6639 timeVSprofit=0.05 percentSum_w_roll=159.07 tradesCount=403
@@ -5418,7 +5418,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].enabled = false; // quantref base=30000077 new=30000164 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8542 timeVSprofit=0.05 percentSum_w_roll=191.11 tradesCount=797
@@ -5444,7 +5444,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].enabled = false; // quantref base=30000058 new=30000165 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7253 timeVSprofit=0.049 percentSum_w_roll=174.80 tradesCount=272 mergedVariants=2
@@ -5469,7 +5469,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].enabled = false; // quantref base=30000110 new=30000166 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8938 timeVSprofit=0.049 percentSum_w_roll=183.28 tradesCount=463
@@ -5494,7 +5494,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].enabled = false; // quantref base=30000022 new=30000167 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7253 timeVSprofit=0.049 percentSum_w_roll=174.80 tradesCount=272 mergedVariants=2
@@ -5519,7 +5519,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].enabled = false; // quantref base=30000106 new=30000168 modes=best_timevsprofit above=PDH;PDO below=- ratecut=0.6530 timeVSprofit=0.049 percentSum_w_roll=168.40 tradesCount=239 mergedVariants=2
@@ -5544,7 +5544,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].enabled = false; // quantref base=30000115 new=30000169 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8748 timeVSprofit=0.048 percentSum_w_roll=198.70 tradesCount=503
@@ -5570,7 +5570,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].enabled = false; // quantref base=30000106 new=30000170 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8361 timeVSprofit=0.048 percentSum_w_roll=196.49 tradesCount=306
@@ -5595,7 +5595,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].enabled = false; // quantref base=30000032 new=30000171 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8611 timeVSprofit=0.046 percentSum_w_roll=210.02 tradesCount=341
@@ -5620,7 +5620,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].enabled = false; // quantref base=30000032 new=30000172 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8535 timeVSprofit=0.046 percentSum_w_roll=209.30 tradesCount=338
@@ -5645,7 +5645,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].enabled = false; // quantref base=30000054 new=30000173 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7807 timeVSprofit=0.046 percentSum_w_roll=222.81 tradesCount=388
@@ -5670,7 +5670,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].enabled = false; // quantref base=30000064 new=30000174 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7605 timeVSprofit=0.046 percentSum_w_roll=211.30 tradesCount=327
@@ -5695,7 +5695,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].enabled = false; // quantref base=30000068 new=30000175 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8611 timeVSprofit=0.046 percentSum_w_roll=210.02 tradesCount=341
@@ -5720,7 +5720,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].enabled = false; // quantref base=30000068 new=30000176 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8535 timeVSprofit=0.046 percentSum_w_roll=209.30 tradesCount=338
@@ -5745,7 +5745,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].enabled = false; // quantref base=30000140 new=30000177 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7847 timeVSprofit=0.046 percentSum_w_roll=210.44 tradesCount=277
@@ -5770,7 +5770,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].enabled = false; // quantref base=30000140 new=30000178 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7819 timeVSprofit=0.046 percentSum_w_roll=210.08 tradesCount=276
@@ -5795,7 +5795,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].enabled = false; // quantref base=30000142 new=30000179 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7546 timeVSprofit=0.046 percentSum_w_roll=185.88 tradesCount=246
@@ -5820,7 +5820,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].enabled = false; // quantref base=30000142 new=30000180 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7515 timeVSprofit=0.046 percentSum_w_roll=185.49 tradesCount=245
@@ -5845,7 +5845,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].enabled = false; // quantref base=30000018 new=30000181 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7807 timeVSprofit=0.046 percentSum_w_roll=222.81 tradesCount=388
@@ -5870,7 +5870,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].enabled = false; // quantref base=30000028 new=30000182 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7605 timeVSprofit=0.046 percentSum_w_roll=211.30 tradesCount=327
@@ -5895,7 +5895,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].enabled = false; // quantref base=30000104 new=30000183 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8442 timeVSprofit=0.045 percentSum_w_roll=207.98 tradesCount=325
@@ -5920,7 +5920,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].enabled = false; // quantref base=30000104 new=30000184 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7662 timeVSprofit=0.045 percentSum_w_roll=196.85 tradesCount=295
@@ -5945,7 +5945,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].enabled = false; // quantref base=30000114 new=30000185 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8863 timeVSprofit=0.045 percentSum_w_roll=212.08 tradesCount=538
@@ -5970,7 +5970,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].enabled = false; // quantref base=30000134 new=30000186 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC below=PDL ratecut=0.7493 timeVSprofit=0.045 percentSum_w_roll=201.38 tradesCount=263
@@ -5995,7 +5995,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].enabled = false; // quantref base=30000062 new=30000187 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7592 timeVSprofit=0.044 percentSum_w_roll=200.40 tradesCount=309
@@ -6020,7 +6020,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].enabled = false; // quantref base=30000117 new=30000188 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8935 timeVSprofit=0.044 percentSum_w_roll=186.20 tradesCount=470
@@ -6046,7 +6046,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].enabled = false; // quantref base=30000034 new=30000189 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8503 timeVSprofit=0.044 percentSum_w_roll=194.54 tradesCount=318
@@ -6071,7 +6071,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].enabled = false; // quantref base=30000034 new=30000190 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8422 timeVSprofit=0.044 percentSum_w_roll=193.81 tradesCount=315
@@ -6096,7 +6096,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].enabled = false; // quantref base=30000057 new=30000191 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7082 timeVSprofit=0.044 percentSum_w_roll=196.02 tradesCount=318 mergedVariants=2
@@ -6122,7 +6122,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].enabled = false; // quantref base=30000022 new=30000192 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7600 timeVSprofit=0.044 percentSum_w_roll=172.72 tradesCount=285
@@ -6147,7 +6147,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].enabled = false; // quantref base=30000134 new=30000193 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7863 timeVSprofit=0.044 percentSum_w_roll=208.05 tradesCount=276
@@ -6172,7 +6172,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].enabled = false; // quantref base=30000070 new=30000194 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8507 timeVSprofit=0.044 percentSum_w_roll=194.75 tradesCount=319
@@ -6197,7 +6197,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].enabled = false; // quantref base=30000100 new=30000195 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7727 timeVSprofit=0.044 percentSum_w_roll=215.06 tradesCount=323
@@ -6222,7 +6222,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].enabled = false; // quantref base=30000058 new=30000196 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7600 timeVSprofit=0.044 percentSum_w_roll=172.72 tradesCount=285
@@ -6247,7 +6247,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].enabled = false; // quantref base=30000090 new=30000197 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7983 timeVSprofit=0.044 percentSum_w_roll=221.84 tradesCount=372
@@ -6272,7 +6272,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].enabled = false; // quantref base=30000088 new=30000198 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7146 timeVSprofit=0.044 percentSum_w_roll=197.79 tradesCount=318 mergedVariants=2
@@ -6297,7 +6297,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].enabled = false; // quantref base=30000026 new=30000199 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7592 timeVSprofit=0.044 percentSum_w_roll=200.40 tradesCount=309
@@ -6322,7 +6322,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].enabled = false; // quantref base=30000070 new=30000200 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8427 timeVSprofit=0.044 percentSum_w_roll=194.02 tradesCount=316
@@ -6347,7 +6347,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].enabled = false; // quantref base=30000136 new=30000201 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7417 timeVSprofit=0.043 percentSum_w_roll=204.36 tradesCount=267
@@ -6372,7 +6372,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].enabled = false; // quantref base=30000056 new=30000202 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7322 timeVSprofit=0.043 percentSum_w_roll=189.12 tradesCount=298 mergedVariants=2
@@ -6397,7 +6397,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].enabled = false; // quantref base=30000066 new=30000203 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7983 timeVSprofit=0.043 percentSum_w_roll=229.64 tradesCount=368
@@ -6422,7 +6422,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].enabled = false; // quantref base=30000094 new=30000204 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7459 timeVSprofit=0.043 percentSum_w_roll=177.74 tradesCount=273 mergedVariants=2
@@ -6447,7 +6447,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].enabled = false; // quantref base=30000136 new=30000205 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7806 timeVSprofit=0.043 percentSum_w_roll=211.45 tradesCount=281
@@ -6472,7 +6472,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].enabled = false; // quantref base=30000021 new=30000206 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7047 timeVSprofit=0.043 percentSum_w_roll=192.32 tradesCount=315 mergedVariants=2
@@ -6498,7 +6498,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].enabled = false; // quantref base=30000020 new=30000207 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7322 timeVSprofit=0.043 percentSum_w_roll=189.12 tradesCount=298 mergedVariants=2
@@ -6523,7 +6523,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].enabled = false; // quantref base=30000030 new=30000208 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7983 timeVSprofit=0.043 percentSum_w_roll=229.64 tradesCount=368
@@ -6548,7 +6548,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].enabled = false; // quantref base=30000016 new=30000209 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7165 timeVSprofit=0.043 percentSum_w_roll=191.70 tradesCount=326 mergedVariants=2
@@ -6573,7 +6573,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].enabled = false; // quantref base=30000052 new=30000210 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7165 timeVSprofit=0.043 percentSum_w_roll=191.70 tradesCount=326 mergedVariants=2
@@ -6598,7 +6598,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].enabled = false; // quantref base=30000028 new=30000211 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8605 timeVSprofit=0.042 percentSum_w_roll=224.24 tradesCount=370
@@ -6623,7 +6623,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].enabled = false; // quantref base=30000018 new=30000212 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7042 timeVSprofit=0.042 percentSum_w_roll=213.19 tradesCount=350 mergedVariants=2
@@ -6648,7 +6648,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].enabled = false; // quantref base=30000030 new=30000213 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8829 timeVSprofit=0.042 percentSum_w_roll=243.29 tradesCount=407
@@ -6673,7 +6673,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].enabled = false; // quantref base=30000130 new=30000214 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6500 timeVSprofit=0.042 percentSum_w_roll=170.91 tradesCount=221
@@ -6698,7 +6698,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].enabled = false; // quantref base=30000130 new=30000215 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7912 timeVSprofit=0.042 percentSum_w_roll=198.33 tradesCount=269
@@ -6723,7 +6723,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].enabled = false; // quantref base=30000124 new=30000216 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6543 timeVSprofit=0.042 percentSum_w_roll=190.02 tradesCount=246
@@ -6748,7 +6748,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].enabled = false; // quantref base=30000112 new=30000217 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8968 timeVSprofit=0.042 percentSum_w_roll=166.46 tradesCount=426
@@ -6773,7 +6773,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].enabled = false; // quantref base=30000109 new=30000218 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8576 timeVSprofit=0.042 percentSum_w_roll=205.39 tradesCount=524
@@ -6799,7 +6799,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].enabled = false; // quantref base=30000100 new=30000219 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8469 timeVSprofit=0.042 percentSum_w_roll=226.63 tradesCount=354
@@ -6824,7 +6824,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].enabled = false; // quantref base=30000054 new=30000220 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7042 timeVSprofit=0.042 percentSum_w_roll=213.19 tradesCount=350 mergedVariants=2
@@ -6849,7 +6849,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].enabled = false; // quantref base=30000098 new=30000221 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7880 timeVSprofit=0.042 percentSum_w_roll=211.94 tradesCount=316
@@ -6874,7 +6874,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].enabled = false; // quantref base=30000066 new=30000222 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8829 timeVSprofit=0.042 percentSum_w_roll=243.29 tradesCount=407
@@ -6899,7 +6899,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].enabled = false; // quantref base=30000064 new=30000223 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8605 timeVSprofit=0.042 percentSum_w_roll=224.24 tradesCount=370
@@ -6924,7 +6924,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].enabled = false; // quantref base=30000138 new=30000224 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7989 timeVSprofit=0.041 percentSum_w_roll=218.03 tradesCount=298
@@ -6949,7 +6949,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].enabled = false; // quantref base=30000138 new=30000225 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7936 timeVSprofit=0.041 percentSum_w_roll=217.09 tradesCount=296
@@ -6974,7 +6974,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].enabled = false; // quantref base=30000088 new=30000226 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7843 timeVSprofit=0.041 percentSum_w_roll=206.23 tradesCount=349
@@ -6999,7 +6999,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].enabled = false; // quantref base=30000057 new=30000227 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7706 timeVSprofit=0.041 percentSum_w_roll=195.60 tradesCount=346
@@ -7025,7 +7025,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].enabled = false; // quantref base=30000092 new=30000228 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7393 timeVSprofit=0.041 percentSum_w_roll=189.13 tradesCount=295 mergedVariants=2
@@ -7050,7 +7050,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].enabled = false; // quantref base=30000026 new=30000229 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8722 timeVSprofit=0.041 percentSum_w_roll=213.25 tradesCount=355
@@ -7075,7 +7075,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].enabled = false; // quantref base=30000124 new=30000230 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8457 timeVSprofit=0.041 percentSum_w_roll=228.07 tradesCount=318
@@ -7100,7 +7100,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].enabled = false; // quantref base=30000062 new=30000231 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8722 timeVSprofit=0.041 percentSum_w_roll=213.25 tradesCount=355
@@ -7125,7 +7125,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].enabled = false; // quantref base=30000102 new=30000232 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8691 timeVSprofit=0.041 percentSum_w_roll=238.78 tradesCount=385
@@ -7150,7 +7150,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].enabled = false; // quantref base=30000102 new=30000233 modes=best_timevsprofit above=PDC below=PDL ratecut=0.8104 timeVSprofit=0.041 percentSum_w_roll=227.91 tradesCount=359
@@ -7175,7 +7175,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].enabled = false; // quantref base=30000094 new=30000234 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7705 timeVSprofit=0.04 percentSum_w_roll=173.99 tradesCount=282
@@ -7200,7 +7200,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].enabled = false; // quantref base=30000098 new=30000235 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8628 timeVSprofit=0.04 percentSum_w_roll=222.60 tradesCount=346
@@ -7225,7 +7225,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].enabled = false; // quantref base=30000126 new=30000236 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6658 timeVSprofit=0.04 percentSum_w_roll=195.75 tradesCount=263
@@ -7250,7 +7250,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].enabled = false; // quantref base=30000052 new=30000237 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7824 timeVSprofit=0.04 percentSum_w_roll=201.33 tradesCount=356
@@ -7275,7 +7275,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].enabled = false; // quantref base=30000133 new=30000238 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7312 timeVSprofit=0.04 percentSum_w_roll=211.94 tradesCount=302
@@ -7301,7 +7301,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].enabled = false; // quantref base=30000016 new=30000239 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7824 timeVSprofit=0.04 percentSum_w_roll=201.33 tradesCount=356
@@ -7326,7 +7326,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].enabled = false; // quantref base=30000021 new=30000240 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7740 timeVSprofit=0.04 percentSum_w_roll=194.20 tradesCount=346
@@ -7352,7 +7352,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].enabled = false; // quantref base=30000139 new=30000241 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7775 timeVSprofit=0.04 percentSum_w_roll=210.25 tradesCount=304
@@ -7378,7 +7378,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].enabled = false; // quantref base=30000050 new=30000242 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7212 timeVSprofit=0.04 percentSum_w_roll=182.16 tradesCount=313 mergedVariants=2
@@ -7403,7 +7403,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].enabled = false; // quantref base=30000139 new=30000243 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7749 timeVSprofit=0.04 percentSum_w_roll=209.89 tradesCount=303
@@ -7429,7 +7429,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].enabled = false; // quantref base=30000014 new=30000244 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7212 timeVSprofit=0.04 percentSum_w_roll=182.16 tradesCount=313 mergedVariants=2
@@ -7454,7 +7454,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].enabled = false; // quantref base=30000027 new=30000245 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7705 timeVSprofit=0.039 percentSum_w_roll=227.22 tradesCount=386
@@ -7480,7 +7480,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].enabled = false; // quantref base=30000063 new=30000246 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7709 timeVSprofit=0.039 percentSum_w_roll=227.57 tradesCount=387
@@ -7506,7 +7506,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].enabled = false; // quantref base=30000099 new=30000247 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7782 timeVSprofit=0.039 percentSum_w_roll=226.67 tradesCount=372
@@ -7532,7 +7532,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].enabled = false; // quantref base=30000090 new=30000248 modes=best_timevsprofit above=- below=PDL ratecut=0.8777 timeVSprofit=0.039 percentSum_w_roll=236.19 tradesCount=409
@@ -7557,7 +7557,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].enabled = false; // quantref base=30000056 new=30000249 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7862 timeVSprofit=0.039 percentSum_w_roll=188.06 tradesCount=320
@@ -7582,7 +7582,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].enabled = false; // quantref base=30000020 new=30000250 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7862 timeVSprofit=0.039 percentSum_w_roll=188.06 tradesCount=320
@@ -7607,7 +7607,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].enabled = false; // quantref base=30000111 new=30000251 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8590 timeVSprofit=0.039 percentSum_w_roll=201.41 tradesCount=518
@@ -7633,7 +7633,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].rule_switch_map = 0;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].enabled = false; // quantref base=30000086 new=30000252 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7400 timeVSprofit=0.039 percentSum_w_roll=193.83 tradesCount=316 mergedVariants=2
@@ -7658,7 +7658,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].enabled = false; // quantref base=30000135 new=30000253 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7677 timeVSprofit=0.039 percentSum_w_roll=220.78 tradesCount=314
@@ -7684,7 +7684,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].enabled = false; // quantref base=30000135 new=30000254 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7653 timeVSprofit=0.039 percentSum_w_roll=220.37 tradesCount=313
@@ -7710,7 +7710,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].enabled = false; // quantref base=30000033 new=30000255 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7661 timeVSprofit=0.038 percentSum_w_roll=202.18 tradesCount=334
@@ -7736,7 +7736,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].enabled = false; // quantref base=30000141 new=30000256 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7407 timeVSprofit=0.038 percentSum_w_roll=181.56 tradesCount=260
@@ -7762,7 +7762,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].enabled = false; // quantref base=30000141 new=30000257 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7436 timeVSprofit=0.038 percentSum_w_roll=181.95 tradesCount=261
@@ -7788,7 +7788,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].enabled = false; // quantref base=30000099 new=30000258 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8347 timeVSprofit=0.038 percentSum_w_roll=236.56 tradesCount=399
@@ -7814,7 +7814,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].enabled = false; // quantref base=30000097 new=30000259 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7891 timeVSprofit=0.038 percentSum_w_roll=226.65 tradesCount=378
@@ -7840,7 +7840,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].enabled = false; // quantref base=30000069 new=30000260 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7661 timeVSprofit=0.038 percentSum_w_roll=202.18 tradesCount=334
@@ -7866,7 +7866,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].enabled = false; // quantref base=30000092 new=30000261 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7820 timeVSprofit=0.038 percentSum_w_roll=187.63 tradesCount=312
@@ -7891,7 +7891,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].enabled = false; // quantref base=30000086 new=30000262 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8009 timeVSprofit=0.038 percentSum_w_roll=202.37 tradesCount=342
@@ -7916,7 +7916,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].enabled = false; // quantref base=30000128 new=30000263 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8309 timeVSprofit=0.038 percentSum_w_roll=200.81 tradesCount=280
@@ -7941,7 +7941,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].enabled = false; // quantref base=30000128 new=30000264 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7834 timeVSprofit=0.038 percentSum_w_roll=193.26 tradesCount=264
@@ -7966,7 +7966,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].enabled = false; // quantref base=30000050 new=30000265 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7972 timeVSprofit=0.038 percentSum_w_roll=191.97 tradesCount=346
@@ -7991,7 +7991,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].enabled = false; // quantref base=30000133 new=30000266 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7676 timeVSprofit=0.038 percentSum_w_roll=219.08 tradesCount=317
@@ -8017,7 +8017,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].enabled = false; // quantref base=30000014 new=30000267 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7972 timeVSprofit=0.038 percentSum_w_roll=191.97 tradesCount=346
@@ -8042,7 +8042,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].enabled = false; // quantref base=30000031 new=30000268 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8715 timeVSprofit=0.037 percentSum_w_roll=231.12 tradesCount=400
@@ -8068,7 +8068,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].enabled = false; // quantref base=30000035 new=30000269 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9843 timeVSprofit=0.037 percentSum_w_roll=159.01 tradesCount=250
@@ -8094,7 +8094,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].enabled = false; // quantref base=30000033 new=30000270 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=214.01 tradesCount=372
@@ -8120,7 +8120,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].enabled = false; // quantref base=30000087 new=30000271 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7186 timeVSprofit=0.037 percentSum_w_roll=219.60 tradesCount=383 mergedVariants=2
@@ -8146,7 +8146,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].enabled = false; // quantref base=30000031 new=30000272 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8627 timeVSprofit=0.037 percentSum_w_roll=230.00 tradesCount=396
@@ -8172,7 +8172,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].enabled = false; // quantref base=30000122 new=30000273 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7908 timeVSprofit=0.037 percentSum_w_roll=197.69 tradesCount=276
@@ -8197,7 +8197,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].enabled = false; // quantref base=30000131 new=30000274 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9394 timeVSprofit=0.037 percentSum_w_roll=159.87 tradesCount=217
@@ -8223,7 +8223,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].enabled = false; // quantref base=30000067 new=30000275 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8715 timeVSprofit=0.037 percentSum_w_roll=231.12 tradesCount=400
@@ -8249,7 +8249,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].enabled = false; // quantref base=30000097 new=30000276 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8476 timeVSprofit=0.037 percentSum_w_roll=237.08 tradesCount=406
@@ -8275,7 +8275,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].enabled = false; // quantref base=30000069 new=30000277 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=214.01 tradesCount=372
@@ -8301,7 +8301,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].enabled = false; // quantref base=30000067 new=30000278 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8627 timeVSprofit=0.037 percentSum_w_roll=230.00 tradesCount=396
@@ -8327,7 +8327,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].enabled = false; // quantref base=30000126 new=30000279 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=236.10 tradesCount=337
@@ -8352,7 +8352,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].enabled = false; // quantref base=30000122 new=30000280 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8453 timeVSprofit=0.036 percentSum_w_roll=205.95 tradesCount=295
@@ -8377,7 +8377,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].enabled = false; // quantref base=30000019 new=30000281 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7164 timeVSprofit=0.036 percentSum_w_roll=198.23 tradesCount=341 mergedVariants=2
@@ -8403,7 +8403,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].enabled = false; // quantref base=30000121 new=30000282 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6627 timeVSprofit=0.036 percentSum_w_roll=192.69 tradesCount=277
@@ -8429,7 +8429,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].enabled = false; // quantref base=30000123 new=30000283 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6596 timeVSprofit=0.036 percentSum_w_roll=202.54 tradesCount=279
@@ -8455,7 +8455,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].enabled = false; // quantref base=30000055 new=30000284 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7206 timeVSprofit=0.036 percentSum_w_roll=200.93 tradesCount=343 mergedVariants=2
@@ -8481,7 +8481,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].enabled = false; // quantref base=30000061 new=30000285 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7744 timeVSprofit=0.036 percentSum_w_roll=219.51 tradesCount=381
@@ -8507,7 +8507,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].enabled = false; // quantref base=30000025 new=30000286 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7744 timeVSprofit=0.036 percentSum_w_roll=219.51 tradesCount=381
@@ -8533,7 +8533,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].enabled = false; // quantref base=30000105 new=30000287 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8410 timeVSprofit=0.036 percentSum_w_roll=208.51 tradesCount=349
@@ -8559,7 +8559,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].enabled = false; // quantref base=30000105 new=30000288 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8506 timeVSprofit=0.036 percentSum_w_roll=209.76 tradesCount=353
@@ -8585,7 +8585,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].enabled = false; // quantref base=30000027 new=30000289 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8643 timeVSprofit=0.036 percentSum_w_roll=240.83 tradesCount=433
@@ -8611,7 +8611,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].enabled = false; // quantref base=30000103 new=30000290 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8542 timeVSprofit=0.036 percentSum_w_roll=223.53 tradesCount=375
@@ -8637,7 +8637,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].enabled = false; // quantref base=30000063 new=30000291 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8645 timeVSprofit=0.036 percentSum_w_roll=241.18 tradesCount=434
@@ -8663,7 +8663,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].enabled = false; // quantref base=30000103 new=30000292 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8610 timeVSprofit=0.036 percentSum_w_roll=224.31 tradesCount=378
@@ -8689,7 +8689,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].enabled = false; // quantref base=30000051 new=30000293 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7020 timeVSprofit=0.036 percentSum_w_roll=207.14 tradesCount=384 mergedVariants=2
@@ -8715,7 +8715,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].enabled = false; // quantref base=30000087 new=30000294 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7749 timeVSprofit=0.036 percentSum_w_roll=221.94 tradesCount=413
@@ -8741,7 +8741,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].enabled = false; // quantref base=30000015 new=30000295 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7033 timeVSprofit=0.036 percentSum_w_roll=207.14 tradesCount=384 mergedVariants=2
@@ -8767,7 +8767,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].enabled = false; // quantref base=30000093 new=30000296 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7817 timeVSprofit=0.036 percentSum_w_roll=193.92 tradesCount=333
@@ -8793,7 +8793,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].enabled = false; // quantref base=30000093 new=30000297 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7418 timeVSprofit=0.036 percentSum_w_roll=196.55 tradesCount=316 mergedVariants=2
@@ -8819,7 +8819,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].enabled = false; // quantref base=30000055 new=30000298 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8004 timeVSprofit=0.035 percentSum_w_roll=203.51 tradesCount=381
@@ -8845,7 +8845,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].enabled = false; // quantref base=30000019 new=30000299 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7983 timeVSprofit=0.035 percentSum_w_roll=200.99 tradesCount=380
@@ -8871,7 +8871,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].enabled = false; // quantref base=30000123 new=30000300 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8369 timeVSprofit=0.035 percentSum_w_roll=242.86 tradesCount=354
@@ -8897,7 +8897,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].enabled = false; // quantref base=30000025 new=30000301 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8720 timeVSprofit=0.034 percentSum_w_roll=233.26 tradesCount=429
@@ -8923,7 +8923,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].enabled = false; // quantref base=30000089 new=30000302 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8070 timeVSprofit=0.034 percentSum_w_roll=228.50 tradesCount=414
@@ -8949,7 +8949,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].enabled = false; // quantref base=30000053 new=30000303 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7933 timeVSprofit=0.034 percentSum_w_roll=221.14 tradesCount=426
@@ -8975,7 +8975,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].enabled = false; // quantref base=30000061 new=30000304 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8720 timeVSprofit=0.034 percentSum_w_roll=233.26 tradesCount=429
@@ -9001,7 +9001,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].enabled = false; // quantref base=30000121 new=30000305 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8325 timeVSprofit=0.034 percentSum_w_roll=230.60 tradesCount=348
@@ -9027,7 +9027,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].enabled = false; // quantref base=30000129 new=30000306 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7703 timeVSprofit=0.034 percentSum_w_roll=197.65 tradesCount=285
@@ -9053,7 +9053,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].enabled = false; // quantref base=30000065 new=30000307 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7840 timeVSprofit=0.034 percentSum_w_roll=222.33 tradesCount=392
@@ -9079,7 +9079,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].enabled = false; // quantref base=30000029 new=30000308 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7840 timeVSprofit=0.034 percentSum_w_roll=222.33 tradesCount=392
@@ -9105,7 +9105,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].enabled = false; // quantref base=30000127 new=30000309 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7658 timeVSprofit=0.034 percentSum_w_roll=202.65 tradesCount=291
@@ -9131,7 +9131,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].enabled = false; // quantref base=30000127 new=30000310 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8105 timeVSprofit=0.034 percentSum_w_roll=211.39 tradesCount=308
@@ -9157,7 +9157,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].enabled = false; // quantref base=30000051 new=30000311 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7788 timeVSprofit=0.034 percentSum_w_roll=214.71 tradesCount=426
@@ -9183,7 +9183,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].enabled = false; // quantref base=30000017 new=30000312 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7933 timeVSprofit=0.034 percentSum_w_roll=221.14 tradesCount=426
@@ -9209,7 +9209,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].enabled = false; // quantref base=30000125 new=30000313 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6714 timeVSprofit=0.034 percentSum_w_roll=203.75 tradesCount=286
@@ -9235,7 +9235,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].enabled = false; // quantref base=30000015 new=30000314 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7802 timeVSprofit=0.034 percentSum_w_roll=213.77 tradesCount=426
@@ -9261,7 +9261,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].enabled = false; // quantref base=30000065 new=30000315 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8560 timeVSprofit=0.033 percentSum_w_roll=232.01 tradesCount=428
@@ -9287,7 +9287,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].enabled = false; // quantref base=30000049 new=30000316 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7121 timeVSprofit=0.033 percentSum_w_roll=196.99 tradesCount=376 mergedVariants=2
@@ -9313,7 +9313,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].enabled = false; // quantref base=30000013 new=30000317 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7116 timeVSprofit=0.033 percentSum_w_roll=196.79 tradesCount=375 mergedVariants=2
@@ -9339,7 +9339,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].enabled = false; // quantref base=30000013 new=30000318 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8065 timeVSprofit=0.033 percentSum_w_roll=206.23 tradesCount=425
@@ -9365,7 +9365,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].enabled = false; // quantref base=30000085 new=30000319 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8043 timeVSprofit=0.033 percentSum_w_roll=214.12 tradesCount=411
@@ -9391,7 +9391,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].enabled = false; // quantref base=30000029 new=30000320 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8560 timeVSprofit=0.033 percentSum_w_roll=232.01 tradesCount=428
@@ -9417,7 +9417,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].enabled = false; // quantref base=30000049 new=30000321 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8049 timeVSprofit=0.033 percentSum_w_roll=206.24 tradesCount=425
@@ -9443,7 +9443,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].enabled = false; // quantref base=30000125 new=30000322 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7840 timeVSprofit=0.033 percentSum_w_roll=227.46 tradesCount=334
@@ -9469,7 +9469,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].enabled = false; // quantref base=30000085 new=30000323 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7339 timeVSprofit=0.032 percentSum_w_roll=206.13 tradesCount=375 mergedVariants=2
@@ -9495,7 +9495,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].enabled = false; // quantref base=30000101 new=30000324 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8473 timeVSprofit=0.032 percentSum_w_roll=224.43 tradesCount=394
@@ -9521,7 +9521,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].enabled = false; // quantref base=30000101 new=30000325 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8430 timeVSprofit=0.032 percentSum_w_roll=223.99 tradesCount=392
@@ -9547,7 +9547,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].enabled = false; // quantref base=30000089 new=30000326 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8752 timeVSprofit=0.032 percentSum_w_roll=242.29 tradesCount=449
@@ -9573,7 +9573,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].enabled = false; // quantref base=30000129 new=30000327 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8189 timeVSprofit=0.032 percentSum_w_roll=206.14 tradesCount=303
@@ -9599,7 +9599,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].enabled = false; // quantref base=30000091 new=30000328 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7996 timeVSprofit=0.032 percentSum_w_roll=194.37 tradesCount=363
@@ -9625,7 +9625,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].enabled = false; // quantref base=30000091 new=30000329 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7313 timeVSprofit=0.032 percentSum_w_roll=193.11 tradesCount=332 mergedVariants=2
@@ -9651,7 +9651,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].enabled = false; // quantref base=30000053 new=30000330 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8678 timeVSprofit=0.032 percentSum_w_roll=235.70 tradesCount=466
@@ -9677,7 +9677,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].enabled = false; // quantref base=30000017 new=30000331 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8678 timeVSprofit=0.032 percentSum_w_roll=235.70 tradesCount=466
@@ -9703,7 +9703,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].enabled = false; // quantref base=30000022 new=30000332 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9387 timeVSprofit=0.043 percentSum_w_roll=208.56 tradesCount=352
@@ -9728,7 +9728,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].enabled = false; // quantref base=30000058 new=30000333 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9387 timeVSprofit=0.043 percentSum_w_roll=208.56 tradesCount=352
@@ -9753,7 +9753,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].enabled = false; // quantref base=30000106 new=30000334 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8443 timeVSprofit=0.047 percentSum_w_roll=197.31 tradesCount=309
@@ -9778,7 +9778,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].enabled = false; // quantref base=30000104 new=30000335 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8519 timeVSprofit=0.044 percentSum_w_roll=208.76 tradesCount=328
@@ -9803,7 +9803,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].enabled = false; // quantref base=30000094 new=30000336 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9454 timeVSprofit=0.039 percentSum_w_roll=209.86 tradesCount=346
@@ -9828,7 +9828,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].enabled = false; // quantref base=30000054 new=30000337 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9135 timeVSprofit=0.041 percentSum_w_roll=250.00 tradesCount=454
@@ -9853,7 +9853,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].enabled = false; // quantref base=30000066 new=30000338 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8742 timeVSprofit=0.042 percentSum_w_roll=241.97 tradesCount=403
@@ -9878,7 +9878,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].enabled = false; // quantref base=30000030 new=30000339 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8742 timeVSprofit=0.042 percentSum_w_roll=241.97 tradesCount=403
@@ -9903,7 +9903,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].enabled = false; // quantref base=30000018 new=30000340 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9135 timeVSprofit=0.041 percentSum_w_roll=250.00 tradesCount=454
@@ -9928,7 +9928,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].enabled = false; // quantref base=30000064 new=30000341 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8465 timeVSprofit=0.042 percentSum_w_roll=222.58 tradesCount=364
@@ -9953,7 +9953,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].enabled = false; // quantref base=30000020 new=30000342 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9459 timeVSprofit=0.038 percentSum_w_roll=222.69 tradesCount=385
@@ -9978,7 +9978,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].enabled = false; // quantref base=30000057 new=30000343 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9198 timeVSprofit=0.039 percentSum_w_roll=230.97 tradesCount=413
@@ -10004,7 +10004,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].enabled = false; // quantref base=30000069 new=30000344 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9862 timeVSprofit=0.036 percentSum_w_roll=253.16 tradesCount=430
@@ -10030,7 +10030,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].enabled = false; // quantref base=30000056 new=30000345 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9459 timeVSprofit=0.038 percentSum_w_roll=222.69 tradesCount=385
@@ -10055,7 +10055,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].enabled = false; // quantref base=30000033 new=30000346 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9862 timeVSprofit=0.036 percentSum_w_roll=253.16 tradesCount=430
@@ -10081,7 +10081,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].enabled = false; // quantref base=30000028 new=30000347 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8465 timeVSprofit=0.042 percentSum_w_roll=222.58 tradesCount=364
@@ -10106,7 +10106,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].enabled = false; // quantref base=30000130 new=30000348 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9559 timeVSprofit=0.038 percentSum_w_roll=238.86 tradesCount=325
@@ -10131,7 +10131,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].enabled = false; // quantref base=30000100 new=30000349 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8349 timeVSprofit=0.042 percentSum_w_roll=225.07 tradesCount=349
@@ -10156,7 +10156,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].enabled = false; // quantref base=30000102 new=30000350 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9887 timeVSprofit=0.035 percentSum_w_roll=273.22 tradesCount=438
@@ -10181,7 +10181,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].enabled = false; // quantref base=30000092 new=30000351 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9424 timeVSprofit=0.037 percentSum_w_roll=222.52 tradesCount=376
@@ -10206,7 +10206,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].enabled = false; // quantref base=30000088 new=30000352 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9303 timeVSprofit=0.038 percentSum_w_roll=238.22 tradesCount=414
@@ -10231,7 +10231,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].enabled = false; // quantref base=30000090 new=30000353 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9206 timeVSprofit=0.038 percentSum_w_roll=248.93 tradesCount=429
@@ -10256,7 +10256,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].enabled = false; // quantref base=30000021 new=30000354 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9195 timeVSprofit=0.038 percentSum_w_roll=227.45 tradesCount=411
@@ -10282,7 +10282,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].enabled = false; // quantref base=30000016 new=30000355 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9341 timeVSprofit=0.037 percentSum_w_roll=231.84 tradesCount=425
@@ -10307,7 +10307,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].enabled = false; // quantref base=30000062 new=30000356 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8575 timeVSprofit=0.041 percentSum_w_roll=211.66 tradesCount=349
@@ -10332,7 +10332,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].enabled = false; // quantref base=30000052 new=30000357 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9341 timeVSprofit=0.037 percentSum_w_roll=231.84 tradesCount=425
@@ -10357,7 +10357,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].enabled = false; // quantref base=30000026 new=30000358 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8575 timeVSprofit=0.041 percentSum_w_roll=211.66 tradesCount=349
@@ -10382,7 +10382,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].enabled = false; // quantref base=30000098 new=30000359 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8579 timeVSprofit=0.04 percentSum_w_roll=221.64 tradesCount=344
@@ -10407,7 +10407,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].enabled = false; // quantref base=30000050 new=30000360 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9332 timeVSprofit=0.035 percentSum_w_roll=219.30 tradesCount=405
@@ -10432,7 +10432,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].enabled = false; // quantref base=30000086 new=30000361 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9368 timeVSprofit=0.035 percentSum_w_roll=230.38 tradesCount=400
@@ -10457,7 +10457,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].enabled = false; // quantref base=30000124 new=30000362 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7952 timeVSprofit=0.041 percentSum_w_roll=219.25 tradesCount=299
@@ -10482,7 +10482,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].enabled = false; // quantref base=30000130 new=30000363 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8353 timeVSprofit=0.04 percentSum_w_roll=205.37 tradesCount=284
@@ -10507,7 +10507,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].enabled = false; // quantref base=30000014 new=30000364 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9332 timeVSprofit=0.035 percentSum_w_roll=219.30 tradesCount=405
@@ -10532,7 +10532,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].enabled = false; // quantref base=30000136 new=30000365 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7861 timeVSprofit=0.042 percentSum_w_roll=212.29 tradesCount=283
@@ -10557,7 +10557,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].enabled = false; // quantref base=30000033 new=30000366 modes=best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.8968 timeVSprofit=0.036 percentSum_w_roll=240.91 tradesCount=391 mergedVariants=2
@@ -10583,7 +10583,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].enabled = false; // quantref base=30000069 new=30000367 modes=best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.8968 timeVSprofit=0.036 percentSum_w_roll=240.91 tradesCount=391 mergedVariants=2
@@ -10609,7 +10609,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].enabled = false; // quantref base=30000093 new=30000368 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9343 timeVSprofit=0.034 percentSum_w_roll=229.79 tradesCount=398
@@ -10635,7 +10635,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].enabled = false; // quantref base=30000099 new=30000369 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8431 timeVSprofit=0.037 percentSum_w_roll=237.49 tradesCount=403
@@ -10661,7 +10661,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].enabled = false; // quantref base=30000019 new=30000370 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9307 timeVSprofit=0.033 percentSum_w_roll=231.70 tradesCount=443
@@ -10687,7 +10687,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].enabled = false; // quantref base=30000016 new=30000371 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8484 timeVSprofit=0.036 percentSum_w_roll=211.00 tradesCount=386
@@ -10712,7 +10712,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].enabled = false; // quantref base=30000027 new=30000372 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8543 timeVSprofit=0.036 percentSum_w_roll=239.80 tradesCount=428
@@ -10738,7 +10738,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].enabled = false; // quantref base=30000126 new=30000373 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9443 timeVSprofit=0.033 percentSum_w_roll=261.35 tradesCount=373
@@ -10763,7 +10763,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].enabled = false; // quantref base=30000063 new=30000374 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8546 timeVSprofit=0.036 percentSum_w_roll=240.15 tradesCount=429
@@ -10789,7 +10789,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].enabled = false; // quantref base=30000055 new=30000375 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9328 timeVSprofit=0.033 percentSum_w_roll=234.22 tradesCount=444
@@ -10815,7 +10815,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].enabled = false; // quantref base=30000052 new=30000376 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8484 timeVSprofit=0.036 percentSum_w_roll=211.00 tradesCount=386
@@ -10840,7 +10840,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].enabled = false; // quantref base=30000097 new=30000377 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8518 timeVSprofit=0.036 percentSum_w_roll=237.79 tradesCount=408
@@ -10866,7 +10866,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].enabled = false; // quantref base=30000086 new=30000378 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8618 timeVSprofit=0.035 percentSum_w_roll=211.04 tradesCount=368
@@ -10891,7 +10891,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[1] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].enabled = false; // quantref base=30000087 new=30000379 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9212 timeVSprofit=0.033 percentSum_w_roll=260.40 tradesCount=491
@@ -10917,7 +10917,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].enabled = false; // quantref base=30000015 new=30000380 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9249 timeVSprofit=0.032 percentSum_w_roll=248.76 tradesCount=505
@@ -10943,7 +10943,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].enabled = false; // quantref base=30000051 new=30000381 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9232 timeVSprofit=0.032 percentSum_w_roll=249.70 tradesCount=505
@@ -10969,7 +10969,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].enabled = false; // quantref base=30000013 new=30000382 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9317 timeVSprofit=0.031 percentSum_w_roll=236.13 tradesCount=491
@@ -10995,7 +10995,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].enabled = false; // quantref base=30000129 new=30000383 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9514 timeVSprofit=0.031 percentSum_w_roll=243.54 tradesCount=352
@@ -11021,7 +11021,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].enabled = false; // quantref base=30000133 new=30000384 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7651 timeVSprofit=0.038 percentSum_w_roll=218.67 tradesCount=316
@@ -11047,7 +11047,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].enabled = false; // quantref base=30000089 new=30000385 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9298 timeVSprofit=0.031 percentSum_w_roll=259.44 tradesCount=477
@@ -11073,7 +11073,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].enabled = false; // quantref base=30000061 new=30000386 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8577 timeVSprofit=0.034 percentSum_w_roll=231.73 tradesCount=422
@@ -11099,7 +11099,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].enabled = false; // quantref base=30000025 new=30000387 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8577 timeVSprofit=0.034 percentSum_w_roll=231.73 tradesCount=422
@@ -11125,7 +11125,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].enabled = false; // quantref base=30000049 new=30000388 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9299 timeVSprofit=0.031 percentSum_w_roll=236.14 tradesCount=491
@@ -11151,7 +11151,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].enabled = false; // quantref base=30000055 new=30000389 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8676 timeVSprofit=0.032 percentSum_w_roll=214.90 tradesCount=413
@@ -11177,7 +11177,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].enabled = false; // quantref base=30000053 new=30000390 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9236 timeVSprofit=0.03 percentSum_w_roll=252.00 tradesCount=496
@@ -11203,7 +11203,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].enabled = false; // quantref base=30000093 new=30000391 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8451 timeVSprofit=0.033 percentSum_w_roll=204.03 tradesCount=360
@@ -11229,7 +11229,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].enabled = false; // quantref base=30000091 new=30000392 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9361 timeVSprofit=0.03 percentSum_w_roll=225.93 tradesCount=425
@@ -11255,7 +11255,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].enabled = false; // quantref base=30000085 new=30000393 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9295 timeVSprofit=0.03 percentSum_w_roll=243.73 tradesCount=475
@@ -11281,7 +11281,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].enabled = false; // quantref base=30000065 new=30000394 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8500 timeVSprofit=0.033 percentSum_w_roll=231.46 tradesCount=425
@@ -11307,7 +11307,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].enabled = false; // quantref base=30000123 new=30000395 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7872 timeVSprofit=0.035 percentSum_w_roll=231.05 tradesCount=333
@@ -11333,7 +11333,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].enabled = false; // quantref base=30000029 new=30000396 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8500 timeVSprofit=0.033 percentSum_w_roll=231.46 tradesCount=425
@@ -11359,7 +11359,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].enabled = false; // quantref base=30000017 new=30000397 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9236 timeVSprofit=0.03 percentSum_w_roll=252.00 tradesCount=496
@@ -11385,7 +11385,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].enabled = false; // quantref base=30000087 new=30000398 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8537 timeVSprofit=0.033 percentSum_w_roll=237.56 tradesCount=455
@@ -11411,7 +11411,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].enabled = false; // quantref base=30000125 new=30000399 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8427 timeVSprofit=0.032 percentSum_w_roll=242.08 tradesCount=359
@@ -11437,7 +11437,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].enabled = false; // quantref base=30000121 new=30000400 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7895 timeVSprofit=0.034 percentSum_w_roll=221.13 tradesCount=330
@@ -11463,7 +11463,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].enabled = false; // quantref base=30000051 new=30000401 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8556 timeVSprofit=0.032 percentSum_w_roll=229.97 tradesCount=468
@@ -11489,7 +11489,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].enabled = false; // quantref base=30000015 new=30000402 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8553 timeVSprofit=0.031 percentSum_w_roll=228.64 tradesCount=467
@@ -11515,7 +11515,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].enabled = false; // quantref base=30000091 new=30000403 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8634 timeVSprofit=0.03 percentSum_w_roll=205.37 tradesCount=392
@@ -11541,7 +11541,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[5] = "Pivot";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].real_tp = 499.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].rule_switch_map = 1;
 //levelalgocreator2end
    LevelRebuildAllRuleChains();
