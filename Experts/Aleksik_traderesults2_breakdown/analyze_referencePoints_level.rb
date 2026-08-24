@@ -17,11 +17,17 @@ MINIMUM_RATECUT_PERCENT = 65
 # Skip grouped rows whose timeVSprofit is not above that algo's ungrouped row.
 GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER = true
 
+# Output CSV excludes rows below these performance floors.
+MINIMUM_PERCENT_SUM_W_ROLL = 150
+MINIMUM_WEEKLY_TRADERATE = 0.4
+
 AnalyzeAlgosReferencePointsCommon.run(
   family_label: 'level',
   pattern: 'LEVEL',
   input_path: File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_level.tsv'),
   output_path: File.join(SCRIPT_DIR, 'analyze_referencePoints_level_output.csv'),
   minimum_ratecut_percent: MINIMUM_RATECUT_PERCENT,
-  group_timevsprofit_needs_to_be_better: GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER
+  group_timevsprofit_needs_to_be_better: GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER,
+  minimum_percent_sum_w_roll: MINIMUM_PERCENT_SUM_W_ROLL,
+  minimum_weekly_traderate: MINIMUM_WEEKLY_TRADERATE
 )

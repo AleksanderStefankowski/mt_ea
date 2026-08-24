@@ -40,7 +40,9 @@ DESIRED_TRADES_WHAT_LEVELS = %i[both].freeze # [both weekly daily, both has high
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze   # [1, 3: 3 is better]
 #  [1, 3, 10] 10 is best? somehow had better avgtimeVSprofit and better avgavgDurationHours than 3.
 
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [1.0, 2.0, 4.0].freeze  # [2.0, 8.0, 12.0, 30.0]
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [1.0, 2.0, 4.0, 7.0].freeze  # [2.0, 8.0, 12.0, 30.0]
+# Rule 0: anytime. Rule 1: 14:30–15:29. Rule 2: 02:00–03:00 server time (same as time algo).
+DESIRED_RULE_SWITCH_MAP = [0, 1, 2].freeze
 # [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
 # [4.0, 6.0, 10.0, 20.0], stil more profit if higher target, but 10.0 had best profitvstime
 # [8.0, 10.0, 12.0, 14.0, 20.0]
@@ -97,6 +99,7 @@ COMBO_FIELDS = %i[
   trades_what_levels
   stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
   secret_tp_profit_percent_min
+  rule_switch_map
   level_needs_to_be_below_ONO
   offset_positive
   offset_percentage
@@ -241,6 +244,7 @@ module LevelCombinationsCreator
       stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count:
         DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT.size,
       secret_tp_profit_percent_min: DESIRED_SECRET_TP_PROFIT_PERCENT_MIN.size,
+      rule_switch_map: DESIRED_RULE_SWITCH_MAP.size,
       level_needs_to_be_below_ONO: DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO.size,
       offset_positive: DESIRED_OFFSET_POSITIVE.size,
       offset_percentage: DESIRED_OFFSET_PERCENTAGE.size,
@@ -259,18 +263,20 @@ module LevelCombinationsCreator
       DESIRED_TRADES_WHAT_LEVELS,
       DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT,
       DESIRED_SECRET_TP_PROFIT_PERCENT_MIN,
+      DESIRED_RULE_SWITCH_MAP,
       DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO,
       DESIRED_OFFSET_POSITIVE,
       DESIRED_OFFSET_PERCENTAGE,
       DESIRED_CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET,
       DESIRED_TRADES_TAGS_PRESET
-    ) do |max_open, expiry, trades_scope, stop_total, secret_tp, below_ono, offset_pos, offset_pct, multiply_offset, tags_preset|
+    ) do |max_open, expiry, trades_scope, stop_total, secret_tp, rule_switch_map, below_ono, offset_pos, offset_pct, multiply_offset, tags_preset|
       combo = {
         max_open_positions: max_open,
         expiry_minutes: expiry,
         trades_what_levels: trades_scope,
         stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: stop_total,
         secret_tp_profit_percent_min: secret_tp,
+        rule_switch_map: rule_switch_map,
         level_needs_to_be_below_ONO: below_ono,
         offset_positive: offset_pos,
         offset_percentage: offset_pct,
@@ -358,7 +364,7 @@ module LevelCombinationsCreator
     lines << "g_levelAlgos[#{slot}].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;"
     lines << build_trades_tags_lines(slot, tags)
     lines << "g_levelAlgos[#{slot}].real_tp = 555.0;"
-    lines << "g_levelAlgos[#{slot}].rule_switch_map = 0;"
+    lines << "g_levelAlgos[#{slot}].rule_switch_map = #{combo[:rule_switch_map]};"
     lines.join("\n")
   end
 

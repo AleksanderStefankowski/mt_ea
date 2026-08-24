@@ -40,11 +40,11 @@
 #define BREAKDOWN_AUDIT_LOG_DEDUP_MAX         1000000
 #define FALGO_LIFETIME_POS_MAP_BUCKETS          8192  // positionId -> lifetime slot; O(1) babysit lookup
 //--- Time algo family
-#define TIME_ALGO_REGISTRY_MAX                   41
+#define TIME_ALGO_REGISTRY_MAX                   9
 #define TIME_ALGO_REGISTRY_MAX_HEADROOM           3
 #define TIME_ALGO_OPEN_LIFETIME_MAX             20000
 //--- Level algo family (leading digit 3)
-#define LEVEL_ALGO_REGISTRY_MAX                  151
+#define LEVEL_ALGO_REGISTRY_MAX                  403
 #define LEVEL_ALGO_REGISTRY_MAX_HEADROOM          3
 #define LEVEL_ALGO_OPEN_LIFETIME_MAX            20000
 
@@ -199,6 +199,258 @@
 #define MAGIC_LEVEL30000149          30000149
 #define MAGIC_LEVEL30000150          30000150
 #define MAGIC_LEVEL30000151          30000151
+#define MAGIC_LEVEL30000152          30000152
+#define MAGIC_LEVEL30000153          30000153
+#define MAGIC_LEVEL30000154          30000154
+#define MAGIC_LEVEL30000155          30000155
+#define MAGIC_LEVEL30000156          30000156
+#define MAGIC_LEVEL30000157          30000157
+#define MAGIC_LEVEL30000158          30000158
+#define MAGIC_LEVEL30000159          30000159
+#define MAGIC_LEVEL30000160          30000160
+#define MAGIC_LEVEL30000161          30000161
+#define MAGIC_LEVEL30000162          30000162
+#define MAGIC_LEVEL30000163          30000163
+#define MAGIC_LEVEL30000164          30000164
+#define MAGIC_LEVEL30000165          30000165
+#define MAGIC_LEVEL30000166          30000166
+#define MAGIC_LEVEL30000167          30000167
+#define MAGIC_LEVEL30000168          30000168
+#define MAGIC_LEVEL30000169          30000169
+#define MAGIC_LEVEL30000170          30000170
+#define MAGIC_LEVEL30000171          30000171
+#define MAGIC_LEVEL30000172          30000172
+#define MAGIC_LEVEL30000173          30000173
+#define MAGIC_LEVEL30000174          30000174
+#define MAGIC_LEVEL30000175          30000175
+#define MAGIC_LEVEL30000176          30000176
+#define MAGIC_LEVEL30000177          30000177
+#define MAGIC_LEVEL30000178          30000178
+#define MAGIC_LEVEL30000179          30000179
+#define MAGIC_LEVEL30000180          30000180
+#define MAGIC_LEVEL30000181          30000181
+#define MAGIC_LEVEL30000182          30000182
+#define MAGIC_LEVEL30000183          30000183
+#define MAGIC_LEVEL30000184          30000184
+#define MAGIC_LEVEL30000185          30000185
+#define MAGIC_LEVEL30000186          30000186
+#define MAGIC_LEVEL30000187          30000187
+#define MAGIC_LEVEL30000188          30000188
+#define MAGIC_LEVEL30000189          30000189
+#define MAGIC_LEVEL30000190          30000190
+#define MAGIC_LEVEL30000191          30000191
+#define MAGIC_LEVEL30000192          30000192
+#define MAGIC_LEVEL30000193          30000193
+#define MAGIC_LEVEL30000194          30000194
+#define MAGIC_LEVEL30000195          30000195
+#define MAGIC_LEVEL30000196          30000196
+#define MAGIC_LEVEL30000197          30000197
+#define MAGIC_LEVEL30000198          30000198
+#define MAGIC_LEVEL30000199          30000199
+#define MAGIC_LEVEL30000200          30000200
+#define MAGIC_LEVEL30000201          30000201
+#define MAGIC_LEVEL30000202          30000202
+#define MAGIC_LEVEL30000203          30000203
+#define MAGIC_LEVEL30000204          30000204
+#define MAGIC_LEVEL30000205          30000205
+#define MAGIC_LEVEL30000206          30000206
+#define MAGIC_LEVEL30000207          30000207
+#define MAGIC_LEVEL30000208          30000208
+#define MAGIC_LEVEL30000209          30000209
+#define MAGIC_LEVEL30000210          30000210
+#define MAGIC_LEVEL30000211          30000211
+#define MAGIC_LEVEL30000212          30000212
+#define MAGIC_LEVEL30000213          30000213
+#define MAGIC_LEVEL30000214          30000214
+#define MAGIC_LEVEL30000215          30000215
+#define MAGIC_LEVEL30000216          30000216
+#define MAGIC_LEVEL30000217          30000217
+#define MAGIC_LEVEL30000218          30000218
+#define MAGIC_LEVEL30000219          30000219
+#define MAGIC_LEVEL30000220          30000220
+#define MAGIC_LEVEL30000221          30000221
+#define MAGIC_LEVEL30000222          30000222
+#define MAGIC_LEVEL30000223          30000223
+#define MAGIC_LEVEL30000224          30000224
+#define MAGIC_LEVEL30000225          30000225
+#define MAGIC_LEVEL30000226          30000226
+#define MAGIC_LEVEL30000227          30000227
+#define MAGIC_LEVEL30000228          30000228
+#define MAGIC_LEVEL30000229          30000229
+#define MAGIC_LEVEL30000230          30000230
+#define MAGIC_LEVEL30000231          30000231
+#define MAGIC_LEVEL30000232          30000232
+#define MAGIC_LEVEL30000233          30000233
+#define MAGIC_LEVEL30000234          30000234
+#define MAGIC_LEVEL30000235          30000235
+#define MAGIC_LEVEL30000236          30000236
+#define MAGIC_LEVEL30000237          30000237
+#define MAGIC_LEVEL30000238          30000238
+#define MAGIC_LEVEL30000239          30000239
+#define MAGIC_LEVEL30000240          30000240
+#define MAGIC_LEVEL30000241          30000241
+#define MAGIC_LEVEL30000242          30000242
+#define MAGIC_LEVEL30000243          30000243
+#define MAGIC_LEVEL30000244          30000244
+#define MAGIC_LEVEL30000245          30000245
+#define MAGIC_LEVEL30000246          30000246
+#define MAGIC_LEVEL30000247          30000247
+#define MAGIC_LEVEL30000248          30000248
+#define MAGIC_LEVEL30000249          30000249
+#define MAGIC_LEVEL30000250          30000250
+#define MAGIC_LEVEL30000251          30000251
+#define MAGIC_LEVEL30000252          30000252
+#define MAGIC_LEVEL30000253          30000253
+#define MAGIC_LEVEL30000254          30000254
+#define MAGIC_LEVEL30000255          30000255
+#define MAGIC_LEVEL30000256          30000256
+#define MAGIC_LEVEL30000257          30000257
+#define MAGIC_LEVEL30000258          30000258
+#define MAGIC_LEVEL30000259          30000259
+#define MAGIC_LEVEL30000260          30000260
+#define MAGIC_LEVEL30000261          30000261
+#define MAGIC_LEVEL30000262          30000262
+#define MAGIC_LEVEL30000263          30000263
+#define MAGIC_LEVEL30000264          30000264
+#define MAGIC_LEVEL30000265          30000265
+#define MAGIC_LEVEL30000266          30000266
+#define MAGIC_LEVEL30000267          30000267
+#define MAGIC_LEVEL30000268          30000268
+#define MAGIC_LEVEL30000269          30000269
+#define MAGIC_LEVEL30000270          30000270
+#define MAGIC_LEVEL30000271          30000271
+#define MAGIC_LEVEL30000272          30000272
+#define MAGIC_LEVEL30000273          30000273
+#define MAGIC_LEVEL30000274          30000274
+#define MAGIC_LEVEL30000275          30000275
+#define MAGIC_LEVEL30000276          30000276
+#define MAGIC_LEVEL30000277          30000277
+#define MAGIC_LEVEL30000278          30000278
+#define MAGIC_LEVEL30000279          30000279
+#define MAGIC_LEVEL30000280          30000280
+#define MAGIC_LEVEL30000281          30000281
+#define MAGIC_LEVEL30000282          30000282
+#define MAGIC_LEVEL30000283          30000283
+#define MAGIC_LEVEL30000284          30000284
+#define MAGIC_LEVEL30000285          30000285
+#define MAGIC_LEVEL30000286          30000286
+#define MAGIC_LEVEL30000287          30000287
+#define MAGIC_LEVEL30000288          30000288
+#define MAGIC_LEVEL30000289          30000289
+#define MAGIC_LEVEL30000290          30000290
+#define MAGIC_LEVEL30000291          30000291
+#define MAGIC_LEVEL30000292          30000292
+#define MAGIC_LEVEL30000293          30000293
+#define MAGIC_LEVEL30000294          30000294
+#define MAGIC_LEVEL30000295          30000295
+#define MAGIC_LEVEL30000296          30000296
+#define MAGIC_LEVEL30000297          30000297
+#define MAGIC_LEVEL30000298          30000298
+#define MAGIC_LEVEL30000299          30000299
+#define MAGIC_LEVEL30000300          30000300
+#define MAGIC_LEVEL30000301          30000301
+#define MAGIC_LEVEL30000302          30000302
+#define MAGIC_LEVEL30000303          30000303
+#define MAGIC_LEVEL30000304          30000304
+#define MAGIC_LEVEL30000305          30000305
+#define MAGIC_LEVEL30000306          30000306
+#define MAGIC_LEVEL30000307          30000307
+#define MAGIC_LEVEL30000308          30000308
+#define MAGIC_LEVEL30000309          30000309
+#define MAGIC_LEVEL30000310          30000310
+#define MAGIC_LEVEL30000311          30000311
+#define MAGIC_LEVEL30000312          30000312
+#define MAGIC_LEVEL30000313          30000313
+#define MAGIC_LEVEL30000314          30000314
+#define MAGIC_LEVEL30000315          30000315
+#define MAGIC_LEVEL30000316          30000316
+#define MAGIC_LEVEL30000317          30000317
+#define MAGIC_LEVEL30000318          30000318
+#define MAGIC_LEVEL30000319          30000319
+#define MAGIC_LEVEL30000320          30000320
+#define MAGIC_LEVEL30000321          30000321
+#define MAGIC_LEVEL30000322          30000322
+#define MAGIC_LEVEL30000323          30000323
+#define MAGIC_LEVEL30000324          30000324
+#define MAGIC_LEVEL30000325          30000325
+#define MAGIC_LEVEL30000326          30000326
+#define MAGIC_LEVEL30000327          30000327
+#define MAGIC_LEVEL30000328          30000328
+#define MAGIC_LEVEL30000329          30000329
+#define MAGIC_LEVEL30000330          30000330
+#define MAGIC_LEVEL30000331          30000331
+#define MAGIC_LEVEL30000332          30000332
+#define MAGIC_LEVEL30000333          30000333
+#define MAGIC_LEVEL30000334          30000334
+#define MAGIC_LEVEL30000335          30000335
+#define MAGIC_LEVEL30000336          30000336
+#define MAGIC_LEVEL30000337          30000337
+#define MAGIC_LEVEL30000338          30000338
+#define MAGIC_LEVEL30000339          30000339
+#define MAGIC_LEVEL30000340          30000340
+#define MAGIC_LEVEL30000341          30000341
+#define MAGIC_LEVEL30000342          30000342
+#define MAGIC_LEVEL30000343          30000343
+#define MAGIC_LEVEL30000344          30000344
+#define MAGIC_LEVEL30000345          30000345
+#define MAGIC_LEVEL30000346          30000346
+#define MAGIC_LEVEL30000347          30000347
+#define MAGIC_LEVEL30000348          30000348
+#define MAGIC_LEVEL30000349          30000349
+#define MAGIC_LEVEL30000350          30000350
+#define MAGIC_LEVEL30000351          30000351
+#define MAGIC_LEVEL30000352          30000352
+#define MAGIC_LEVEL30000353          30000353
+#define MAGIC_LEVEL30000354          30000354
+#define MAGIC_LEVEL30000355          30000355
+#define MAGIC_LEVEL30000356          30000356
+#define MAGIC_LEVEL30000357          30000357
+#define MAGIC_LEVEL30000358          30000358
+#define MAGIC_LEVEL30000359          30000359
+#define MAGIC_LEVEL30000360          30000360
+#define MAGIC_LEVEL30000361          30000361
+#define MAGIC_LEVEL30000362          30000362
+#define MAGIC_LEVEL30000363          30000363
+#define MAGIC_LEVEL30000364          30000364
+#define MAGIC_LEVEL30000365          30000365
+#define MAGIC_LEVEL30000366          30000366
+#define MAGIC_LEVEL30000367          30000367
+#define MAGIC_LEVEL30000368          30000368
+#define MAGIC_LEVEL30000369          30000369
+#define MAGIC_LEVEL30000370          30000370
+#define MAGIC_LEVEL30000371          30000371
+#define MAGIC_LEVEL30000372          30000372
+#define MAGIC_LEVEL30000373          30000373
+#define MAGIC_LEVEL30000374          30000374
+#define MAGIC_LEVEL30000375          30000375
+#define MAGIC_LEVEL30000376          30000376
+#define MAGIC_LEVEL30000377          30000377
+#define MAGIC_LEVEL30000378          30000378
+#define MAGIC_LEVEL30000379          30000379
+#define MAGIC_LEVEL30000380          30000380
+#define MAGIC_LEVEL30000381          30000381
+#define MAGIC_LEVEL30000382          30000382
+#define MAGIC_LEVEL30000383          30000383
+#define MAGIC_LEVEL30000384          30000384
+#define MAGIC_LEVEL30000385          30000385
+#define MAGIC_LEVEL30000386          30000386
+#define MAGIC_LEVEL30000387          30000387
+#define MAGIC_LEVEL30000388          30000388
+#define MAGIC_LEVEL30000389          30000389
+#define MAGIC_LEVEL30000390          30000390
+#define MAGIC_LEVEL30000391          30000391
+#define MAGIC_LEVEL30000392          30000392
+#define MAGIC_LEVEL30000393          30000393
+#define MAGIC_LEVEL30000394          30000394
+#define MAGIC_LEVEL30000395          30000395
+#define MAGIC_LEVEL30000396          30000396
+#define MAGIC_LEVEL30000397          30000397
+#define MAGIC_LEVEL30000398          30000398
+#define MAGIC_LEVEL30000399          30000399
+#define MAGIC_LEVEL30000400          30000400
+#define MAGIC_LEVEL30000401          30000401
+#define MAGIC_LEVEL30000402          30000402
+#define MAGIC_LEVEL30000403          30000403
 //--- Cross-family
 #define ALGO_OCCUPIED_CACHE_MAX (ALGO_FAMILY_REGISTRY_MAX + BREAKDOWN_ALGO_REGISTRY_MAX + TIME_ALGO_REGISTRY_MAX + LEVEL_ALGO_REGISTRY_MAX)
 //--- Trade history (per calendar day buffers)
@@ -295,6 +547,7 @@ double   BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG = 0.20;  // stro
 bool     dailyLog_algoFamilyDayStartWeekPerspective = true;  // (date)_algofamily_dayStart_weekPerspective.csv — today-loaded levels vs week M1 at day start only
 bool     dailyEODlog_PullingHistoryAlgoFamily = false;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_not_from_globals_AllHistoryOrders_and_deals = false;  // (date)-not_from_globals_AllHistoryOrders.csv + _AllHistoryDeals.csv (WriteDailySummary EOD)
+bool     bigflipper_log_day_summary                         = true;   // day_summary.txt at 22:00 M1 close (overwrite; FILE_SHARE_READ)
 bool     bigflipper_log_B_TradeLog                        = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
@@ -344,9 +597,9 @@ int      babysit_telemetry_interval_seconds = 240; // bookmark // MFE/MAE open-p
 // for example, 1.2, and specific trade is 30%, would mean position 0.36, 50% = 0.60
 // profit factor danego trade jest stały przy jego różnych trade size, ale profit factor całego runu zmieni się bo zmieniają się proporcje absolutnego zysku
 
-double   g_global_base_trade_size_breakdown = 0.020;  // bookmark9 basetradesize breakdown
-double   g_global_base_trade_size_time      = 0.010; // bookmark9 basetradesize time
-double   g_global_base_trade_size_level     = 0.010;  // bookmark9 basetradesize level
+double   g_global_base_trade_size_breakdown = 0.013;  // bookmark9 basetradesize breakdown // 10 × (0.002 + 0.003 + 2× (0.015) = 0.35
+double   g_global_base_trade_size_time      = 0.013; // bookmark9 basetradesize time 0.001
+double   g_global_base_trade_size_level     = 0.002;  // bookmark9 basetradesize level
 #define TRADE_VARIANT_COUNT_MAX_LOTSIZE 4.0
 const double one_lot_equals_xPLN = 65000.0;  // PLN notional per 1.0 lot; 0.001 lot => 65 PLN deposit equivalent
 const double FALGO_SECRET_TP_ASSUMED_LEVERAGE = 20.0;  // time/level secret TP: profit% on margin ≈ leverage × price-move%
@@ -440,6 +693,7 @@ double EODpulled_freeMargin = 0.0;
 double EODpulled_marginLevel = 0.0;
 int EODpulled_openPositions = 0;
 int EODpulled_pendingOrders = 0;
+datetime g_daySummaryTxtWrittenForDayStart = 0;
 
 //--- Current time (server); set in OnTimer(1s), use instead of TimeCurrent()
 datetime g_lastTimer1Time = 0;
@@ -1966,7 +2220,7 @@ struct TimeAlgoDef
    int     max_trades_per_day;
    int     max_open_positions;                  // max simultaneous open positions + pending orders (carryover days OK)
    int     stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count;
-   int     rule_switch_map;                     // magic R digit: 0=default close; 1=secret-TP close only 14:30-15:29
+   int     rule_switch_map;                     // magic R digit: 0=anytime; 1=14:30-15:29; 2=02:00-03:00
    AlgoRuleEntry  rules[ALGO_RULES_MAX];
    int            rule_count;
 };
@@ -11268,38 +11522,6 @@ int g_breakdownRegistryIds[] =
 #define TIME_ALGO_10000007          10000007
 #define TIME_ALGO_10000008          10000008
 #define TIME_ALGO_10000009          10000009
-#define TIME_ALGO_10000010          10000010
-#define TIME_ALGO_10000011          10000011
-#define TIME_ALGO_10000012          10000012
-#define TIME_ALGO_10000013          10000013
-#define TIME_ALGO_10000014          10000014
-#define TIME_ALGO_10000015          10000015
-#define TIME_ALGO_10000016          10000016
-#define TIME_ALGO_10000017          10000017
-#define TIME_ALGO_10000018          10000018
-#define TIME_ALGO_10000019          10000019
-#define TIME_ALGO_10000020          10000020
-#define TIME_ALGO_10000021          10000021
-#define TIME_ALGO_10000022          10000022
-#define TIME_ALGO_10000023          10000023
-#define TIME_ALGO_10000024          10000024
-#define TIME_ALGO_10000025          10000025
-#define TIME_ALGO_10000026          10000026
-#define TIME_ALGO_10000027          10000027
-#define TIME_ALGO_10000028          10000028
-#define TIME_ALGO_10000029          10000029
-#define TIME_ALGO_10000030          10000030
-#define TIME_ALGO_10000031          10000031
-#define TIME_ALGO_10000032          10000032
-#define TIME_ALGO_10000033          10000033
-#define TIME_ALGO_10000034          10000034
-#define TIME_ALGO_10000035          10000035
-#define TIME_ALGO_10000036          10000036
-#define TIME_ALGO_10000037          10000037
-#define TIME_ALGO_10000038          10000038
-#define TIME_ALGO_10000039          10000039
-#define TIME_ALGO_10000040          10000040
-#define TIME_ALGO_10000041          10000041
 
 int g_timeAlgoRegistryIds[] =
 {
@@ -11311,39 +11533,7 @@ int g_timeAlgoRegistryIds[] =
    TIME_ALGO_10000006,
    TIME_ALGO_10000007,
    TIME_ALGO_10000008,
-   TIME_ALGO_10000009,
-   TIME_ALGO_10000010,
-   TIME_ALGO_10000011,
-   TIME_ALGO_10000012,
-   TIME_ALGO_10000013,
-   TIME_ALGO_10000014,
-   TIME_ALGO_10000015,
-   TIME_ALGO_10000016,
-   TIME_ALGO_10000017,
-   TIME_ALGO_10000018,
-   TIME_ALGO_10000019,
-   TIME_ALGO_10000020,
-   TIME_ALGO_10000021,
-   TIME_ALGO_10000022,
-   TIME_ALGO_10000023,
-   TIME_ALGO_10000024,
-   TIME_ALGO_10000025,
-   TIME_ALGO_10000026,
-   TIME_ALGO_10000027,
-   TIME_ALGO_10000028,
-   TIME_ALGO_10000029,
-   TIME_ALGO_10000030,
-   TIME_ALGO_10000031,
-   TIME_ALGO_10000032,
-   TIME_ALGO_10000033,
-   TIME_ALGO_10000034,
-   TIME_ALGO_10000035,
-   TIME_ALGO_10000036,
-   TIME_ALGO_10000037,
-   TIME_ALGO_10000038,
-   TIME_ALGO_10000039,
-   TIME_ALGO_10000040,
-   TIME_ALGO_10000041
+   TIME_ALGO_10000009
 };
 //timealgocreator1end
 
@@ -11500,7 +11690,259 @@ int g_levelAlgoRegistryIds[] =
    MAGIC_LEVEL30000148,
    MAGIC_LEVEL30000149,
    MAGIC_LEVEL30000150,
-   MAGIC_LEVEL30000151
+   MAGIC_LEVEL30000151,
+   MAGIC_LEVEL30000152,
+   MAGIC_LEVEL30000153,
+   MAGIC_LEVEL30000154,
+   MAGIC_LEVEL30000155,
+   MAGIC_LEVEL30000156,
+   MAGIC_LEVEL30000157,
+   MAGIC_LEVEL30000158,
+   MAGIC_LEVEL30000159,
+   MAGIC_LEVEL30000160,
+   MAGIC_LEVEL30000161,
+   MAGIC_LEVEL30000162,
+   MAGIC_LEVEL30000163,
+   MAGIC_LEVEL30000164,
+   MAGIC_LEVEL30000165,
+   MAGIC_LEVEL30000166,
+   MAGIC_LEVEL30000167,
+   MAGIC_LEVEL30000168,
+   MAGIC_LEVEL30000169,
+   MAGIC_LEVEL30000170,
+   MAGIC_LEVEL30000171,
+   MAGIC_LEVEL30000172,
+   MAGIC_LEVEL30000173,
+   MAGIC_LEVEL30000174,
+   MAGIC_LEVEL30000175,
+   MAGIC_LEVEL30000176,
+   MAGIC_LEVEL30000177,
+   MAGIC_LEVEL30000178,
+   MAGIC_LEVEL30000179,
+   MAGIC_LEVEL30000180,
+   MAGIC_LEVEL30000181,
+   MAGIC_LEVEL30000182,
+   MAGIC_LEVEL30000183,
+   MAGIC_LEVEL30000184,
+   MAGIC_LEVEL30000185,
+   MAGIC_LEVEL30000186,
+   MAGIC_LEVEL30000187,
+   MAGIC_LEVEL30000188,
+   MAGIC_LEVEL30000189,
+   MAGIC_LEVEL30000190,
+   MAGIC_LEVEL30000191,
+   MAGIC_LEVEL30000192,
+   MAGIC_LEVEL30000193,
+   MAGIC_LEVEL30000194,
+   MAGIC_LEVEL30000195,
+   MAGIC_LEVEL30000196,
+   MAGIC_LEVEL30000197,
+   MAGIC_LEVEL30000198,
+   MAGIC_LEVEL30000199,
+   MAGIC_LEVEL30000200,
+   MAGIC_LEVEL30000201,
+   MAGIC_LEVEL30000202,
+   MAGIC_LEVEL30000203,
+   MAGIC_LEVEL30000204,
+   MAGIC_LEVEL30000205,
+   MAGIC_LEVEL30000206,
+   MAGIC_LEVEL30000207,
+   MAGIC_LEVEL30000208,
+   MAGIC_LEVEL30000209,
+   MAGIC_LEVEL30000210,
+   MAGIC_LEVEL30000211,
+   MAGIC_LEVEL30000212,
+   MAGIC_LEVEL30000213,
+   MAGIC_LEVEL30000214,
+   MAGIC_LEVEL30000215,
+   MAGIC_LEVEL30000216,
+   MAGIC_LEVEL30000217,
+   MAGIC_LEVEL30000218,
+   MAGIC_LEVEL30000219,
+   MAGIC_LEVEL30000220,
+   MAGIC_LEVEL30000221,
+   MAGIC_LEVEL30000222,
+   MAGIC_LEVEL30000223,
+   MAGIC_LEVEL30000224,
+   MAGIC_LEVEL30000225,
+   MAGIC_LEVEL30000226,
+   MAGIC_LEVEL30000227,
+   MAGIC_LEVEL30000228,
+   MAGIC_LEVEL30000229,
+   MAGIC_LEVEL30000230,
+   MAGIC_LEVEL30000231,
+   MAGIC_LEVEL30000232,
+   MAGIC_LEVEL30000233,
+   MAGIC_LEVEL30000234,
+   MAGIC_LEVEL30000235,
+   MAGIC_LEVEL30000236,
+   MAGIC_LEVEL30000237,
+   MAGIC_LEVEL30000238,
+   MAGIC_LEVEL30000239,
+   MAGIC_LEVEL30000240,
+   MAGIC_LEVEL30000241,
+   MAGIC_LEVEL30000242,
+   MAGIC_LEVEL30000243,
+   MAGIC_LEVEL30000244,
+   MAGIC_LEVEL30000245,
+   MAGIC_LEVEL30000246,
+   MAGIC_LEVEL30000247,
+   MAGIC_LEVEL30000248,
+   MAGIC_LEVEL30000249,
+   MAGIC_LEVEL30000250,
+   MAGIC_LEVEL30000251,
+   MAGIC_LEVEL30000252,
+   MAGIC_LEVEL30000253,
+   MAGIC_LEVEL30000254,
+   MAGIC_LEVEL30000255,
+   MAGIC_LEVEL30000256,
+   MAGIC_LEVEL30000257,
+   MAGIC_LEVEL30000258,
+   MAGIC_LEVEL30000259,
+   MAGIC_LEVEL30000260,
+   MAGIC_LEVEL30000261,
+   MAGIC_LEVEL30000262,
+   MAGIC_LEVEL30000263,
+   MAGIC_LEVEL30000264,
+   MAGIC_LEVEL30000265,
+   MAGIC_LEVEL30000266,
+   MAGIC_LEVEL30000267,
+   MAGIC_LEVEL30000268,
+   MAGIC_LEVEL30000269,
+   MAGIC_LEVEL30000270,
+   MAGIC_LEVEL30000271,
+   MAGIC_LEVEL30000272,
+   MAGIC_LEVEL30000273,
+   MAGIC_LEVEL30000274,
+   MAGIC_LEVEL30000275,
+   MAGIC_LEVEL30000276,
+   MAGIC_LEVEL30000277,
+   MAGIC_LEVEL30000278,
+   MAGIC_LEVEL30000279,
+   MAGIC_LEVEL30000280,
+   MAGIC_LEVEL30000281,
+   MAGIC_LEVEL30000282,
+   MAGIC_LEVEL30000283,
+   MAGIC_LEVEL30000284,
+   MAGIC_LEVEL30000285,
+   MAGIC_LEVEL30000286,
+   MAGIC_LEVEL30000287,
+   MAGIC_LEVEL30000288,
+   MAGIC_LEVEL30000289,
+   MAGIC_LEVEL30000290,
+   MAGIC_LEVEL30000291,
+   MAGIC_LEVEL30000292,
+   MAGIC_LEVEL30000293,
+   MAGIC_LEVEL30000294,
+   MAGIC_LEVEL30000295,
+   MAGIC_LEVEL30000296,
+   MAGIC_LEVEL30000297,
+   MAGIC_LEVEL30000298,
+   MAGIC_LEVEL30000299,
+   MAGIC_LEVEL30000300,
+   MAGIC_LEVEL30000301,
+   MAGIC_LEVEL30000302,
+   MAGIC_LEVEL30000303,
+   MAGIC_LEVEL30000304,
+   MAGIC_LEVEL30000305,
+   MAGIC_LEVEL30000306,
+   MAGIC_LEVEL30000307,
+   MAGIC_LEVEL30000308,
+   MAGIC_LEVEL30000309,
+   MAGIC_LEVEL30000310,
+   MAGIC_LEVEL30000311,
+   MAGIC_LEVEL30000312,
+   MAGIC_LEVEL30000313,
+   MAGIC_LEVEL30000314,
+   MAGIC_LEVEL30000315,
+   MAGIC_LEVEL30000316,
+   MAGIC_LEVEL30000317,
+   MAGIC_LEVEL30000318,
+   MAGIC_LEVEL30000319,
+   MAGIC_LEVEL30000320,
+   MAGIC_LEVEL30000321,
+   MAGIC_LEVEL30000322,
+   MAGIC_LEVEL30000323,
+   MAGIC_LEVEL30000324,
+   MAGIC_LEVEL30000325,
+   MAGIC_LEVEL30000326,
+   MAGIC_LEVEL30000327,
+   MAGIC_LEVEL30000328,
+   MAGIC_LEVEL30000329,
+   MAGIC_LEVEL30000330,
+   MAGIC_LEVEL30000331,
+   MAGIC_LEVEL30000332,
+   MAGIC_LEVEL30000333,
+   MAGIC_LEVEL30000334,
+   MAGIC_LEVEL30000335,
+   MAGIC_LEVEL30000336,
+   MAGIC_LEVEL30000337,
+   MAGIC_LEVEL30000338,
+   MAGIC_LEVEL30000339,
+   MAGIC_LEVEL30000340,
+   MAGIC_LEVEL30000341,
+   MAGIC_LEVEL30000342,
+   MAGIC_LEVEL30000343,
+   MAGIC_LEVEL30000344,
+   MAGIC_LEVEL30000345,
+   MAGIC_LEVEL30000346,
+   MAGIC_LEVEL30000347,
+   MAGIC_LEVEL30000348,
+   MAGIC_LEVEL30000349,
+   MAGIC_LEVEL30000350,
+   MAGIC_LEVEL30000351,
+   MAGIC_LEVEL30000352,
+   MAGIC_LEVEL30000353,
+   MAGIC_LEVEL30000354,
+   MAGIC_LEVEL30000355,
+   MAGIC_LEVEL30000356,
+   MAGIC_LEVEL30000357,
+   MAGIC_LEVEL30000358,
+   MAGIC_LEVEL30000359,
+   MAGIC_LEVEL30000360,
+   MAGIC_LEVEL30000361,
+   MAGIC_LEVEL30000362,
+   MAGIC_LEVEL30000363,
+   MAGIC_LEVEL30000364,
+   MAGIC_LEVEL30000365,
+   MAGIC_LEVEL30000366,
+   MAGIC_LEVEL30000367,
+   MAGIC_LEVEL30000368,
+   MAGIC_LEVEL30000369,
+   MAGIC_LEVEL30000370,
+   MAGIC_LEVEL30000371,
+   MAGIC_LEVEL30000372,
+   MAGIC_LEVEL30000373,
+   MAGIC_LEVEL30000374,
+   MAGIC_LEVEL30000375,
+   MAGIC_LEVEL30000376,
+   MAGIC_LEVEL30000377,
+   MAGIC_LEVEL30000378,
+   MAGIC_LEVEL30000379,
+   MAGIC_LEVEL30000380,
+   MAGIC_LEVEL30000381,
+   MAGIC_LEVEL30000382,
+   MAGIC_LEVEL30000383,
+   MAGIC_LEVEL30000384,
+   MAGIC_LEVEL30000385,
+   MAGIC_LEVEL30000386,
+   MAGIC_LEVEL30000387,
+   MAGIC_LEVEL30000388,
+   MAGIC_LEVEL30000389,
+   MAGIC_LEVEL30000390,
+   MAGIC_LEVEL30000391,
+   MAGIC_LEVEL30000392,
+   MAGIC_LEVEL30000393,
+   MAGIC_LEVEL30000394,
+   MAGIC_LEVEL30000395,
+   MAGIC_LEVEL30000396,
+   MAGIC_LEVEL30000397,
+   MAGIC_LEVEL30000398,
+   MAGIC_LEVEL30000399,
+   MAGIC_LEVEL30000400,
+   MAGIC_LEVEL30000401,
+   MAGIC_LEVEL30000402,
+   MAGIC_LEVEL30000403
 };
 //levelalgocreator1end
 
@@ -13063,7 +13505,7 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 //| AAAAAAAA | D | OO | SSSS | R | uu |
 //  SSSS = secret TP points above planned open (round(secretTp - plannedPrice), 0000=none)
 //  OO   = breakdown: plan offset tenths; time algo: greenguard pricediff tenths (e.g. 8.0 -> 80)
-//  R    = custom rule switch map (0..9). breakdown: always 0. time algo: 0=default babysit close; 1=secret-TP close only 14:30-15:29
+//  R    = custom rule switch map (0..9). breakdown: always 0. time/level: 0=anytime; 1=14:30-15:29; 2=02:00-03:00
 //  uu   = level magic slot %02d (00=RTHO, 01=PDC, 10..35 weekly, 50..80 daily)
 #define FALGO_MAGIC_INDEX_ALGO            0   // 8-digit algo id (10000000..99999999)
 #define FALGO_MAGIC_INDEX_DIRECTION       8   // 1|2|3|4 long/short variants
@@ -17339,6 +17781,17 @@ bool FalgoRuleSwitchAllowsSecretTpCloseNow(const int ruleSwitchMap, const dateti
       const int minOfDay = dt.hour * 60 + dt.min;
       const int windowStart = 14 * 60 + 30;
       const int windowEnd = 15 * 60 + 29;
+      return (minOfDay >= windowStart && minOfDay <= windowEnd);
+   }
+   if(ruleSwitchMap == 2)
+   {
+      if(evalTime <= 0)
+         return false;
+      MqlDateTime dt;
+      TimeToStruct(evalTime, dt);
+      const int minOfDay = dt.hour * 60 + dt.min;
+      const int windowStart = 2 * 60 + 0;
+      const int windowEnd = 3 * 60 + 0;
       return (minOfDay >= windowStart && minOfDay <= windowEnd);
    }
    return true;
@@ -48238,7 +48691,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001093)].closet
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001093)].closetrade_after_x_minutes_from_breakdown = 800;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001093)].max_open_positions = 10;
 
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].enabled = false; // quantref base=20000494 new=20001094 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8929 timeVSprofit=0.087 percentSum_w_roll=150.36 tradesCount=175
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].enabled = true; // quantref base=20000494 new=20001094 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8929 timeVSprofit=0.087 percentSum_w_roll=150.36 tradesCount=175
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
@@ -51964,7 +52417,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001231)].closet
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001231)].closetrade_after_x_minutes_from_breakdown = 800;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001231)].max_open_positions = 10;
 
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].enabled = false; // quantref base=20000475 new=20001232 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9150 timeVSprofit=0.059 percentSum_w_roll=205.98 tradesCount=140
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].enabled = true; // quantref base=20000475 new=20001232 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9150 timeVSprofit=0.059 percentSum_w_roll=205.98 tradesCount=140
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
@@ -57870,15 +58323,15 @@ void SyncTimeAlgoFamilyProfileFromInputs()
    g_timeAlgoShared.stop_trading_today_if_AllAlgos_losing_trades_count = 999;
    g_timeAlgoShared.stop_trading_today_if_AllAlgos_winning_trades_count = 999;
    g_timeAlgoShared.tradeSizePct = 100; // wmark
-   g_timeAlgoShared.bannedRanges = "22,0,23,59;0,0,1,0"; // allow 21:58 entry; breakdown family still uses 21:35 ban
+   g_timeAlgoShared.bannedRanges = "23,0,23,59;0,0,1,0"; // allow 21:58 entry; breakdown family still uses 21:35 ban
    g_timeAlgoShared.tradesDays = "12345";
 
 //timebookmark
 //timealgocreator2start
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].enabled = false;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].enabled = true;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].rule_switch_map = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].rule_switch_map = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_profit_percent_min = 1.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].max_trades_per_day = 1;
@@ -57888,7 +58341,7 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].stop_trading_TODAY_if
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].enabled = false;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].rule_switch_map = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].rule_switch_map = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].secret_tp_profit_percent_min = 2.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].max_trades_per_day = 1;
@@ -57898,8 +58351,8 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].stop_trading_TODAY_if
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].enabled = false;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].secret_tp_profit_percent_min = 8.00;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].rule_switch_map = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].secret_tp_profit_percent_min = 4.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].max_open_positions = 10;
@@ -57908,8 +58361,8 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000003)].stop_trading_TODAY_if
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].enabled = false;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].secret_tp_profit_percent_min = 12.00;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].rule_switch_map = 1;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].secret_tp_profit_percent_min = 8.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000004)].max_open_positions = 10;
@@ -57919,23 +58372,23 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].enabled = false;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].entry_minute = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].secret_tp_profit_percent_min = 1.00;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].secret_tp_profit_percent_min = 12.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000005)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
 
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].enabled = false;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].enabled = false; // quantref base=10000005 new=10000006 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7872 timeVSprofit=0.043 percentSum_w_roll=171.43 tradesCount=259
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].entry_minute = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].secret_tp_profit_percent_min = 2.00;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].secret_tp_profit_percent_min = 12.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000006)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
 
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].enabled = false;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].enabled = false; // quantref base=10000004 new=10000007 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8017 timeVSprofit=0.035 percentSum_w_roll=132.76 tradesCount=291
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].entry_minute = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].rule_switch_map = 1;
@@ -57945,7 +58398,7 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].max_trades_per_day = 
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000007)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
 
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].enabled = false;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].enabled = false; // quantref base=10000005 new=10000008 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9027 timeVSprofit=0.035 percentSum_w_roll=195.57 tradesCount=297
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].entry_minute = 0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].rule_switch_map = 1;
@@ -57955,335 +58408,15 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].max_trades_per_day = 
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000008)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
 
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].enabled = false; // quantref base=10000003 new=10000009 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=ONL ratecut=0.3069 timeVSprofit=0.389 percentSum_w_roll=65.12 tradesCount=143
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].enabled = false; // quantref base=10000004 new=10000009 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9449 timeVSprofit=0.029 percentSum_w_roll=155.20 tradesCount=343
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].entry_hour = 2;   // 2:00
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].rule_switch_map = 0;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].rule_switch_map = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].secret_tp_profit_percent_min = 8.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].max_trades_per_day = 1;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].max_open_positions = 10;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000009)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].enabled = false; // quantref base=10000003 new=10000010 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=ONL;dayLowSoFar ratecut=0.3069 timeVSprofit=0.389 percentSum_w_roll=65.12 tradesCount=143
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].secret_tp_profit_percent_min = 8.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000010)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].enabled = false; // quantref base=10000003 new=10000011 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=dayLowSoFar ratecut=0.3090 timeVSprofit=0.388 percentSum_w_roll=65.69 tradesCount=144
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].secret_tp_profit_percent_min = 8.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000011)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].enabled = false; // quantref base=10000001 new=10000012 modes=best_timevsprofit above=ONH below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000012)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].enabled = false; // quantref base=10000001 new=10000013 modes=best_timevsprofit above=ONH;dayHighSoFar below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000013)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].enabled = false; // quantref base=10000002 new=10000014 modes=best_timevsprofit above=ONH below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000014)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].enabled = false; // quantref base=10000002 new=10000015 modes=best_timevsprofit above=ONH;dayHighSoFar below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000015)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].enabled = false; // quantref base=10000001 new=10000016 modes=best_timevsprofit above=dayHighSoFar below=- ratecut=0.3649 timeVSprofit=0.276 percentSum_w_roll=42.27 tradesCount=204
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000016)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].enabled = false; // quantref base=10000002 new=10000017 modes=best_timevsprofit above=dayHighSoFar below=- ratecut=0.3649 timeVSprofit=0.276 percentSum_w_roll=42.27 tradesCount=204
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000017)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].enabled = false; // quantref base=10000008 new=10000018 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC below=PDL ratecut=0.5500 timeVSprofit=0.039 percentSum_w_roll=150.52 tradesCount=176
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].secret_tp_profit_percent_min = 12.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000018)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].enabled = false; // quantref base=10000008 new=10000019 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.6562 timeVSprofit=0.038 percentSum_w_roll=177.28 tradesCount=210
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].secret_tp_profit_percent_min = 12.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000019)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].enabled = false; // quantref base=10000008 new=10000020 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.6969 timeVSprofit=0.038 percentSum_w_roll=190.51 tradesCount=223
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].secret_tp_profit_percent_min = 12.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000020)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].enabled = false; // quantref base=10000006 new=10000021 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7782 timeVSprofit=0.038 percentSum_w_roll=184.47 tradesCount=386
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000021)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].enabled = false; // quantref base=10000005 new=10000022 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7782 timeVSprofit=0.038 percentSum_w_roll=184.47 tradesCount=386
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000022)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].enabled = false; // quantref base=10000005 new=10000023 modes=best_timevsprofit above=PDC below=PDL ratecut=0.4435 timeVSprofit=0.037 percentSum_w_roll=125.83 tradesCount=220
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000023)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].enabled = false; // quantref base=10000006 new=10000024 modes=best_timevsprofit above=PDC below=PDL ratecut=0.4435 timeVSprofit=0.037 percentSum_w_roll=125.83 tradesCount=220
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000024)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].enabled = false; // quantref base=10000005 new=10000025 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9274 timeVSprofit=0.036 percentSum_w_roll=212.59 tradesCount=460
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000025)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].enabled = false; // quantref base=10000006 new=10000026 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9274 timeVSprofit=0.036 percentSum_w_roll=212.59 tradesCount=460
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000026)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].enabled = false; // quantref base=10000007 new=10000027 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8463 timeVSprofit=0.036 percentSum_w_roll=228.33 tradesCount=336
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].secret_tp_profit_percent_min = 8.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000027)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].enabled = false; // quantref base=10000007 new=10000028 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7783 timeVSprofit=0.035 percentSum_w_roll=210.05 tradesCount=309
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].secret_tp_profit_percent_min = 8.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000028)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].enabled = false; // quantref base=10000007 new=10000029 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC below=PDL ratecut=0.5995 timeVSprofit=0.034 percentSum_w_roll=169.16 tradesCount=238
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].secret_tp_profit_percent_min = 8.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000029)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].enabled = false; // quantref base=10000004 new=10000030 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7339 timeVSprofit=0.033 percentSum_w_roll=185.12 tradesCount=284
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].secret_tp_profit_percent_min = 12.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000030)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].enabled = false; // quantref base=10000004 new=10000031 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8734 timeVSprofit=0.031 percentSum_w_roll=219.45 tradesCount=338
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].secret_tp_profit_percent_min = 12.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000031)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].enabled = false; // quantref base=10000004 new=10000032 modes=best_timevsprofit above=PDC below=PDL ratecut=0.4341 timeVSprofit=0.028 percentSum_w_roll=109.67 tradesCount=168
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].secret_tp_profit_percent_min = 12.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000032)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].enabled = false; // quantref base=10000001 new=10000033 modes=best_timeVSprofitVSratecut above=- below=ONL ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000033)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].enabled = false; // quantref base=10000001 new=10000034 modes=best_timeVSprofitVSratecut above=- below=dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000034)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].enabled = false; // quantref base=10000001 new=10000035 modes=best_timeVSprofitVSratecut above=- below=ONL;dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000035)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].enabled = false; // quantref base=10000002 new=10000036 modes=best_timeVSprofitVSratecut above=- below=ONL ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000036)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].enabled = false; // quantref base=10000002 new=10000037 modes=best_timeVSprofitVSratecut above=- below=dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000037)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].enabled = false; // quantref base=10000002 new=10000038 modes=best_timeVSprofitVSratecut above=- below=ONL;dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000038)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].enabled = false; // quantref base=10000005 new=10000039 modes=best_timeVSprofitVSratecut above=- below=PDO ratecut=0.5343 timeVSprofit=0.031 percentSum_w_roll=119.83 tradesCount=265
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].secret_tp_profit_percent_min = 1.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000039)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].enabled = false; // quantref base=10000006 new=10000040 modes=best_timeVSprofitVSratecut above=- below=PDO ratecut=0.5343 timeVSprofit=0.031 percentSum_w_roll=119.83 tradesCount=265
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].rule_switch_map = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].secret_tp_profit_percent_min = 2.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000040)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
-
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].enabled = false; // quantref base=10000004 new=10000041 modes=best_timeVSprofitVSratecut above=- below=PDO ratecut=0.5168 timeVSprofit=0.026 percentSum_w_roll=129.32 tradesCount=200
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].entry_hour = 2;   // 2:00
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].entry_minute = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].rule_switch_map = 0;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].secret_tp_profit_percent_min = 12.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].secret_tp_greenguard_pricediff_at_least = 10.00;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].max_open_positions = 10;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000041)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
 //timealgocreator2end
    TimeRebuildAllRuleChains();
    RebuildTimeAlgoBannedRangesCache();
@@ -65402,413 +65535,919 @@ void LevelRebuildRuleChainForSlot(const int slotIdx)
       // algobookmark level rules
 //levelalgocreator3start
 
-case MAGIC_LEVEL30000037: // quantref base=30000024 new=30000037 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6708 timeVSprofit=1.775 percentSum_w_roll=50.36 tradesCount=218
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000038: // quantref base=30000012 new=30000038 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6718 timeVSprofit=1.772 percentSum_w_roll=50.60 tradesCount=219
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000039: // quantref base=30000036 new=30000039 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6585 timeVSprofit=1.745 percentSum_w_roll=54.63 tradesCount=214
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+case MAGIC_LEVEL30000145: // quantref base=30000005 new=30000145 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6612 timeVSprofit=0.701 percentSum_w_roll=150.21 tradesCount=726
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
    break;
-case MAGIC_LEVEL30000040: // quantref base=30000036 new=30000040 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6585 timeVSprofit=1.745 percentSum_w_roll=54.63 tradesCount=214
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000041: // quantref base=30000024 new=30000041 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6892 timeVSprofit=1.741 percentSum_w_roll=51.81 tradesCount=224
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000042: // quantref base=30000024 new=30000042 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6892 timeVSprofit=1.741 percentSum_w_roll=51.81 tradesCount=224
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+case MAGIC_LEVEL30000146: // quantref base=30000041 new=30000146 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6612 timeVSprofit=0.701 percentSum_w_roll=150.21 tradesCount=726
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
    break;
-case MAGIC_LEVEL30000043: // quantref base=30000012 new=30000043 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6902 timeVSprofit=1.738 percentSum_w_roll=52.05 tradesCount=225
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000044: // quantref base=30000012 new=30000044 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6902 timeVSprofit=1.738 percentSum_w_roll=52.05 tradesCount=225
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000045: // quantref base=30000011 new=30000045 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6739 timeVSprofit=1.508 percentSum_w_roll=63.56 tradesCount=281
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000046: // quantref base=30000023 new=30000046 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6739 timeVSprofit=1.508 percentSum_w_roll=63.56 tradesCount=281
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000047: // quantref base=30000023 new=30000047 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000048: // quantref base=30000023 new=30000048 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000049: // quantref base=30000011 new=30000049 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000050: // quantref base=30000011 new=30000050 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000051: // quantref base=30000010 new=30000051 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000052: // quantref base=30000010 new=30000052 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000053: // quantref base=30000022 new=30000053 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000054: // quantref base=30000022 new=30000054 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000055: // quantref base=30000022 new=30000055 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6667 timeVSprofit=1.378 percentSum_w_roll=83.17 tradesCount=378
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000056: // quantref base=30000010 new=30000056 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6667 timeVSprofit=1.378 percentSum_w_roll=83.17 tradesCount=378
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000057: // quantref base=30000034 new=30000057 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6623 timeVSprofit=1.24 percentSum_w_roll=90.02 tradesCount=355
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000058: // quantref base=30000034 new=30000058 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6623 timeVSprofit=1.24 percentSum_w_roll=90.02 tradesCount=355
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000059: // quantref base=30000035 new=30000059 modes=best_timevsprofit above=midpoint below=- ratecut=0.6789 timeVSprofit=1.232 percentSum_w_roll=53.81 tradesCount=203
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000060: // quantref base=30000035 new=30000060 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6789 timeVSprofit=1.232 percentSum_w_roll=53.81 tradesCount=203
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000061: // quantref base=30000035 new=30000061 modes=best_timevsprofit above=PDH;midpoint below=- ratecut=0.6789 timeVSprofit=1.232 percentSum_w_roll=53.81 tradesCount=203
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000062: // quantref base=30000020 new=30000062 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6624 timeVSprofit=1.145 percentSum_w_roll=89.28 tradesCount=410
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000063: // quantref base=30000008 new=30000063 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6624 timeVSprofit=1.145 percentSum_w_roll=89.28 tradesCount=410
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000064: // quantref base=30000036 new=30000064 modes=best_timevsprofit above=midpoint below=- ratecut=0.6677 timeVSprofit=1.124 percentSum_w_roll=56.71 tradesCount=217
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
-   break;
-case MAGIC_LEVEL30000065: // quantref base=30000008 new=30000065 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000066: // quantref base=30000008 new=30000066 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000067: // quantref base=30000020 new=30000067 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000068: // quantref base=30000020 new=30000068 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000069: // quantref base=30000016 new=30000069 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000070: // quantref base=30000016 new=30000070 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000071: // quantref base=30000004 new=30000071 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000072: // quantref base=30000004 new=30000072 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000073: // quantref base=30000033 new=30000073 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6705 timeVSprofit=0.971 percentSum_w_roll=118.87 tradesCount=468
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000074: // quantref base=30000033 new=30000074 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.6705 timeVSprofit=0.971 percentSum_w_roll=118.87 tradesCount=468
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000147: // quantref base=30000007 new=30000147 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9004 timeVSprofit=0.081 percentSum_w_roll=152.96 tradesCount=714
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000075: // quantref base=30000033 new=30000075 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6705 timeVSprofit=0.971 percentSum_w_roll=118.87 tradesCount=468
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000076: // quantref base=30000014 new=30000076 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000077: // quantref base=30000014 new=30000077 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000078: // quantref base=30000002 new=30000078 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000079: // quantref base=30000002 new=30000079 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   break;
-case MAGIC_LEVEL30000080: // quantref base=30000034 new=30000080 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6959 timeVSprofit=0.917 percentSum_w_roll=96.13 tradesCount=373
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000081: // quantref base=30000021 new=30000081 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000148: // quantref base=30000043 new=30000148 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9027 timeVSprofit=0.081 percentSum_w_roll=152.96 tradesCount=714
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000082: // quantref base=30000021 new=30000082 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000083: // quantref base=30000021 new=30000083 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000084: // quantref base=30000009 new=30000084 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000149: // quantref base=30000006 new=30000149 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8969 timeVSprofit=0.078 percentSum_w_roll=173.99 tradesCount=826
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000085: // quantref base=30000009 new=30000085 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000150: // quantref base=30000042 new=30000150 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8969 timeVSprofit=0.078 percentSum_w_roll=173.99 tradesCount=826
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000086: // quantref base=30000009 new=30000086 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000151: // quantref base=30000079 new=30000151 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8913 timeVSprofit=0.071 percentSum_w_roll=162.92 tradesCount=656
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000087: // quantref base=30000032 new=30000087 modes=best_timevsprofit above=dayHighSoFar;midpoint below=- ratecut=0.6551 timeVSprofit=0.84 percentSum_w_roll=97.00 tradesCount=378
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000152: // quantref base=30000039 new=30000152 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8788 timeVSprofit=0.067 percentSum_w_roll=167.04 tradesCount=805
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000088: // quantref base=30000032 new=30000088 modes=best_timevsprofit above=midpoint below=- ratecut=0.6551 timeVSprofit=0.84 percentSum_w_roll=97.00 tradesCount=378
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000153: // quantref base=30000003 new=30000153 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8791 timeVSprofit=0.066 percentSum_w_roll=167.44 tradesCount=807
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000089: // quantref base=30000032 new=30000089 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6551 timeVSprofit=0.84 percentSum_w_roll=97.00 tradesCount=378
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000154: // quantref base=30000005 new=30000154 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8552 timeVSprofit=0.065 percentSum_w_roll=192.56 tradesCount=939
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000090: // quantref base=30000007 new=30000090 modes=best_timevsprofit above=dayHighSoFar;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000155: // quantref base=30000041 new=30000155 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8552 timeVSprofit=0.065 percentSum_w_roll=192.56 tradesCount=939
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000091: // quantref base=30000019 new=30000091 modes=best_timevsprofit above=midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000156: // quantref base=30000078 new=30000156 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8942 timeVSprofit=0.064 percentSum_w_roll=180.84 tradesCount=744
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000092: // quantref base=30000019 new=30000092 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000157: // quantref base=30000037 new=30000157 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8760 timeVSprofit=0.064 percentSum_w_roll=156.83 tradesCount=749
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000093: // quantref base=30000019 new=30000093 modes=best_timevsprofit above=dayHighSoFar;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000158: // quantref base=30000001 new=30000158 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8762 timeVSprofit=0.063 percentSum_w_roll=157.02 tradesCount=750
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000094: // quantref base=30000007 new=30000094 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000159: // quantref base=30000076 new=30000159 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9069 timeVSprofit=0.059 percentSum_w_roll=156.30 tradesCount=633
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000095: // quantref base=30000007 new=30000095 modes=best_timevsprofit above=midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_MIDPOINT);
+case MAGIC_LEVEL30000160: // quantref base=30000073 new=30000160 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8688 timeVSprofit=0.057 percentSum_w_roll=169.57 tradesCount=695
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000096: // quantref base=30000028 new=30000096 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6730 timeVSprofit=0.838 percentSum_w_roll=114.14 tradesCount=457
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000161: // quantref base=30000075 new=30000161 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8737 timeVSprofit=0.056 percentSum_w_roll=179.76 tradesCount=740
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000097: // quantref base=30000028 new=30000097 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6730 timeVSprofit=0.838 percentSum_w_roll=114.14 tradesCount=457
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000162: // quantref base=30000118 new=30000162 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9207 timeVSprofit=0.051 percentSum_w_roll=167.26 tradesCount=418
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000098: // quantref base=30000028 new=30000098 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6730 timeVSprofit=0.838 percentSum_w_roll=114.14 tradesCount=457
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000163: // quantref base=30000114 new=30000163 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.6639 timeVSprofit=0.05 percentSum_w_roll=159.07 tradesCount=403
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case MAGIC_LEVEL30000099: // quantref base=30000004 new=30000099 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7091 timeVSprofit=0.814 percentSum_w_roll=110.54 tradesCount=507
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000164: // quantref base=30000077 new=30000164 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8542 timeVSprofit=0.05 percentSum_w_roll=191.11 tradesCount=797
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000100: // quantref base=30000016 new=30000100 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7091 timeVSprofit=0.814 percentSum_w_roll=110.54 tradesCount=507
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000165: // quantref base=30000058 new=30000165 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7253 timeVSprofit=0.049 percentSum_w_roll=174.80 tradesCount=272 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000101: // quantref base=30000031 new=30000101 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6526 timeVSprofit=0.813 percentSum_w_roll=123.41 tradesCount=494
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000166: // quantref base=30000110 new=30000166 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8938 timeVSprofit=0.049 percentSum_w_roll=183.28 tradesCount=463
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000102: // quantref base=30000031 new=30000102 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6526 timeVSprofit=0.813 percentSum_w_roll=123.41 tradesCount=494
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000167: // quantref base=30000022 new=30000167 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7253 timeVSprofit=0.049 percentSum_w_roll=174.80 tradesCount=272 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000103: // quantref base=30000031 new=30000103 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6526 timeVSprofit=0.813 percentSum_w_roll=123.41 tradesCount=494
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000104: // quantref base=30000030 new=30000104 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6551 timeVSprofit=0.793 percentSum_w_roll=129.69 tradesCount=528
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000105: // quantref base=30000030 new=30000105 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6538 timeVSprofit=0.792 percentSum_w_roll=129.47 tradesCount=527
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000106: // quantref base=30000030 new=30000106 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6538 timeVSprofit=0.792 percentSum_w_roll=129.47 tradesCount=527
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000107: // quantref base=30000014 new=30000107 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7056 timeVSprofit=0.782 percentSum_w_roll=101.48 tradesCount=465
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000108: // quantref base=30000002 new=30000108 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7056 timeVSprofit=0.782 percentSum_w_roll=101.48 tradesCount=465
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000109: // quantref base=30000001 new=30000109 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6934 timeVSprofit=0.78 percentSum_w_roll=128.66 tradesCount=606
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000110: // quantref base=30000001 new=30000110 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000111: // quantref base=30000001 new=30000111 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000112: // quantref base=30000013 new=30000112 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6934 timeVSprofit=0.78 percentSum_w_roll=128.66 tradesCount=606
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000113: // quantref base=30000013 new=30000113 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000114: // quantref base=30000013 new=30000114 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000115: // quantref base=30000003 new=30000115 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6876 timeVSprofit=0.762 percentSum_w_roll=133.19 tradesCount=634
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000116: // quantref base=30000003 new=30000116 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000117: // quantref base=30000003 new=30000117 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000118: // quantref base=30000015 new=30000118 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000119: // quantref base=30000015 new=30000119 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000120: // quantref base=30000015 new=30000120 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6876 timeVSprofit=0.762 percentSum_w_roll=133.19 tradesCount=634
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000121: // quantref base=30000006 new=30000121 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6921 timeVSprofit=0.745 percentSum_w_roll=131.24 tradesCount=616
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000122: // quantref base=30000006 new=30000122 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000123: // quantref base=30000006 new=30000123 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000124: // quantref base=30000018 new=30000124 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000125: // quantref base=30000018 new=30000125 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6921 timeVSprofit=0.745 percentSum_w_roll=131.24 tradesCount=616
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000126: // quantref base=30000018 new=30000126 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000127: // quantref base=30000017 new=30000127 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6574 timeVSprofit=0.695 percentSum_w_roll=147.43 tradesCount=710
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000128: // quantref base=30000005 new=30000128 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6574 timeVSprofit=0.695 percentSum_w_roll=147.43 tradesCount=710
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000129: // quantref base=30000017 new=30000129 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000130: // quantref base=30000017 new=30000130 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000131: // quantref base=30000005 new=30000131 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case MAGIC_LEVEL30000132: // quantref base=30000005 new=30000132 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case MAGIC_LEVEL30000133: // quantref base=30000026 new=30000133 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH;PDO below=- ratecut=0.6986 timeVSprofit=0.082 percentSum_w_roll=50.16 tradesCount=204
+case MAGIC_LEVEL30000168: // quantref base=30000106 new=30000168 modes=best_timevsprofit above=PDH;PDO below=- ratecut=0.6530 timeVSprofit=0.049 percentSum_w_roll=168.40 tradesCount=239 mergedVariants=2
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDO);
    break;
-case MAGIC_LEVEL30000134: // quantref base=30000026 new=30000134 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDO below=- ratecut=0.6986 timeVSprofit=0.082 percentSum_w_roll=50.16 tradesCount=204
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDO);
-   break;
-case MAGIC_LEVEL30000135: // quantref base=30000025 new=30000135 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8627 timeVSprofit=0.056 percentSum_w_roll=172.08 tradesCount=704
+case MAGIC_LEVEL30000169: // quantref base=30000115 new=30000169 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8748 timeVSprofit=0.048 percentSum_w_roll=198.70 tradesCount=503
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000136: // quantref base=30000027 new=30000136 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8666 timeVSprofit=0.055 percentSum_w_roll=178.33 tradesCount=734
+case MAGIC_LEVEL30000170: // quantref base=30000106 new=30000170 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8361 timeVSprofit=0.048 percentSum_w_roll=196.49 tradesCount=306
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000171: // quantref base=30000032 new=30000171 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8611 timeVSprofit=0.046 percentSum_w_roll=210.02 tradesCount=341
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000172: // quantref base=30000032 new=30000172 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8535 timeVSprofit=0.046 percentSum_w_roll=209.30 tradesCount=338
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000173: // quantref base=30000054 new=30000173 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7807 timeVSprofit=0.046 percentSum_w_roll=222.81 tradesCount=388
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000174: // quantref base=30000064 new=30000174 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7605 timeVSprofit=0.046 percentSum_w_roll=211.30 tradesCount=327
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000175: // quantref base=30000068 new=30000175 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8611 timeVSprofit=0.046 percentSum_w_roll=210.02 tradesCount=341
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000176: // quantref base=30000068 new=30000176 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8535 timeVSprofit=0.046 percentSum_w_roll=209.30 tradesCount=338
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000177: // quantref base=30000140 new=30000177 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7847 timeVSprofit=0.046 percentSum_w_roll=210.44 tradesCount=277
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000178: // quantref base=30000140 new=30000178 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7819 timeVSprofit=0.046 percentSum_w_roll=210.08 tradesCount=276
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000179: // quantref base=30000142 new=30000179 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7546 timeVSprofit=0.046 percentSum_w_roll=185.88 tradesCount=246
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000180: // quantref base=30000142 new=30000180 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7515 timeVSprofit=0.046 percentSum_w_roll=185.49 tradesCount=245
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000181: // quantref base=30000018 new=30000181 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7807 timeVSprofit=0.046 percentSum_w_roll=222.81 tradesCount=388
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000182: // quantref base=30000028 new=30000182 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7605 timeVSprofit=0.046 percentSum_w_roll=211.30 tradesCount=327
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000183: // quantref base=30000104 new=30000183 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8442 timeVSprofit=0.045 percentSum_w_roll=207.98 tradesCount=325
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000184: // quantref base=30000104 new=30000184 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7662 timeVSprofit=0.045 percentSum_w_roll=196.85 tradesCount=295
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000185: // quantref base=30000114 new=30000185 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8863 timeVSprofit=0.045 percentSum_w_roll=212.08 tradesCount=538
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000137: // quantref base=30000029 new=30000137 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8530 timeVSprofit=0.05 percentSum_w_roll=189.05 tradesCount=789
+case MAGIC_LEVEL30000186: // quantref base=30000134 new=30000186 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC below=PDL ratecut=0.7493 timeVSprofit=0.045 percentSum_w_roll=201.38 tradesCount=263
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000187: // quantref base=30000062 new=30000187 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7592 timeVSprofit=0.044 percentSum_w_roll=200.40 tradesCount=309
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000188: // quantref base=30000117 new=30000188 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8935 timeVSprofit=0.044 percentSum_w_roll=186.20 tradesCount=470
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000138: // quantref base=30000026 new=30000138 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8938 timeVSprofit=0.048 percentSum_w_roll=63.59 tradesCount=261
+case MAGIC_LEVEL30000189: // quantref base=30000034 new=30000189 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8503 timeVSprofit=0.044 percentSum_w_roll=194.54 tradesCount=318
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000190: // quantref base=30000034 new=30000190 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8422 timeVSprofit=0.044 percentSum_w_roll=193.81 tradesCount=315
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000191: // quantref base=30000057 new=30000191 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7082 timeVSprofit=0.044 percentSum_w_roll=196.02 tradesCount=318 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000139: // quantref base=30000035 new=30000139 modes=best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.6957 timeVSprofit=1.21 percentSum_w_roll=55.07 tradesCount=208
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000192: // quantref base=30000022 new=30000192 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7600 timeVSprofit=0.044 percentSum_w_roll=172.72 tradesCount=285
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000193: // quantref base=30000134 new=30000193 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7863 timeVSprofit=0.044 percentSum_w_roll=208.05 tradesCount=276
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000194: // quantref base=30000070 new=30000194 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8507 timeVSprofit=0.044 percentSum_w_roll=194.75 tradesCount=319
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000195: // quantref base=30000100 new=30000195 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7727 timeVSprofit=0.044 percentSum_w_roll=215.06 tradesCount=323
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000196: // quantref base=30000058 new=30000196 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7600 timeVSprofit=0.044 percentSum_w_roll=172.72 tradesCount=285
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000197: // quantref base=30000090 new=30000197 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7983 timeVSprofit=0.044 percentSum_w_roll=221.84 tradesCount=372
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000198: // quantref base=30000088 new=30000198 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7146 timeVSprofit=0.044 percentSum_w_roll=197.79 tradesCount=318 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
    LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000140: // quantref base=30000035 new=30000140 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6957 timeVSprofit=1.21 percentSum_w_roll=55.07 tradesCount=208
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000199: // quantref base=30000026 new=30000199 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7592 timeVSprofit=0.044 percentSum_w_roll=200.40 tradesCount=309
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case MAGIC_LEVEL30000141: // quantref base=30000035 new=30000141 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6957 timeVSprofit=1.21 percentSum_w_roll=55.07 tradesCount=208
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000200: // quantref base=30000070 new=30000200 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8427 timeVSprofit=0.044 percentSum_w_roll=194.02 tradesCount=316
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case MAGIC_LEVEL30000142: // quantref base=30000036 new=30000142 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6831 timeVSprofit=1.12 percentSum_w_roll=58.05 tradesCount=222
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000201: // quantref base=30000136 new=30000201 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7417 timeVSprofit=0.043 percentSum_w_roll=204.36 tradesCount=267
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case MAGIC_LEVEL30000143: // quantref base=30000019 new=30000143 modes=best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000202: // quantref base=30000056 new=30000202 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7322 timeVSprofit=0.043 percentSum_w_roll=189.12 tradesCount=298 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000144: // quantref base=30000019 new=30000144 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000203: // quantref base=30000066 new=30000203 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7983 timeVSprofit=0.043 percentSum_w_roll=229.64 tradesCount=368
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case MAGIC_LEVEL30000145: // quantref base=30000019 new=30000145 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000204: // quantref base=30000094 new=30000204 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7459 timeVSprofit=0.043 percentSum_w_roll=177.74 tradesCount=273 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000146: // quantref base=30000007 new=30000146 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000205: // quantref base=30000136 new=30000205 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7806 timeVSprofit=0.043 percentSum_w_roll=211.45 tradesCount=281
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case MAGIC_LEVEL30000147: // quantref base=30000007 new=30000147 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000206: // quantref base=30000021 new=30000206 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7047 timeVSprofit=0.043 percentSum_w_roll=192.32 tradesCount=315 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000148: // quantref base=30000007 new=30000148 modes=best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000207: // quantref base=30000020 new=30000207 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7322 timeVSprofit=0.043 percentSum_w_roll=189.12 tradesCount=298 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000149: // quantref base=30000032 new=30000149 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6742 timeVSprofit=0.833 percentSum_w_roll=99.71 tradesCount=389
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
+case MAGIC_LEVEL30000208: // quantref base=30000030 new=30000208 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7983 timeVSprofit=0.043 percentSum_w_roll=229.64 tradesCount=368
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case MAGIC_LEVEL30000150: // quantref base=30000032 new=30000150 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6742 timeVSprofit=0.833 percentSum_w_roll=99.71 tradesCount=389
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000209: // quantref base=30000016 new=30000209 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7165 timeVSprofit=0.043 percentSum_w_roll=191.70 tradesCount=326 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    break;
-case MAGIC_LEVEL30000151: // quantref base=30000032 new=30000151 modes=best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6742 timeVSprofit=0.833 percentSum_w_roll=99.71 tradesCount=389
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
+case MAGIC_LEVEL30000210: // quantref base=30000052 new=30000210 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7165 timeVSprofit=0.043 percentSum_w_roll=191.70 tradesCount=326 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000211: // quantref base=30000028 new=30000211 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8605 timeVSprofit=0.042 percentSum_w_roll=224.24 tradesCount=370
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000212: // quantref base=30000018 new=30000212 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7042 timeVSprofit=0.042 percentSum_w_roll=213.19 tradesCount=350 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000213: // quantref base=30000030 new=30000213 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8829 timeVSprofit=0.042 percentSum_w_roll=243.29 tradesCount=407
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000214: // quantref base=30000130 new=30000214 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6500 timeVSprofit=0.042 percentSum_w_roll=170.91 tradesCount=221
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000215: // quantref base=30000130 new=30000215 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7912 timeVSprofit=0.042 percentSum_w_roll=198.33 tradesCount=269
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000216: // quantref base=30000124 new=30000216 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6543 timeVSprofit=0.042 percentSum_w_roll=190.02 tradesCount=246
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000217: // quantref base=30000112 new=30000217 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8968 timeVSprofit=0.042 percentSum_w_roll=166.46 tradesCount=426
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000218: // quantref base=30000109 new=30000218 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8576 timeVSprofit=0.042 percentSum_w_roll=205.39 tradesCount=524
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000219: // quantref base=30000100 new=30000219 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8469 timeVSprofit=0.042 percentSum_w_roll=226.63 tradesCount=354
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000220: // quantref base=30000054 new=30000220 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7042 timeVSprofit=0.042 percentSum_w_roll=213.19 tradesCount=350 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000221: // quantref base=30000098 new=30000221 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7880 timeVSprofit=0.042 percentSum_w_roll=211.94 tradesCount=316
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000222: // quantref base=30000066 new=30000222 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8829 timeVSprofit=0.042 percentSum_w_roll=243.29 tradesCount=407
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000223: // quantref base=30000064 new=30000223 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8605 timeVSprofit=0.042 percentSum_w_roll=224.24 tradesCount=370
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000224: // quantref base=30000138 new=30000224 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7989 timeVSprofit=0.041 percentSum_w_roll=218.03 tradesCount=298
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000225: // quantref base=30000138 new=30000225 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7936 timeVSprofit=0.041 percentSum_w_roll=217.09 tradesCount=296
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000226: // quantref base=30000088 new=30000226 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7843 timeVSprofit=0.041 percentSum_w_roll=206.23 tradesCount=349
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000227: // quantref base=30000057 new=30000227 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7706 timeVSprofit=0.041 percentSum_w_roll=195.60 tradesCount=346
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000228: // quantref base=30000092 new=30000228 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7393 timeVSprofit=0.041 percentSum_w_roll=189.13 tradesCount=295 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000229: // quantref base=30000026 new=30000229 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8722 timeVSprofit=0.041 percentSum_w_roll=213.25 tradesCount=355
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000230: // quantref base=30000124 new=30000230 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8457 timeVSprofit=0.041 percentSum_w_roll=228.07 tradesCount=318
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000231: // quantref base=30000062 new=30000231 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8722 timeVSprofit=0.041 percentSum_w_roll=213.25 tradesCount=355
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000232: // quantref base=30000102 new=30000232 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8691 timeVSprofit=0.041 percentSum_w_roll=238.78 tradesCount=385
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000233: // quantref base=30000102 new=30000233 modes=best_timevsprofit above=PDC below=PDL ratecut=0.8104 timeVSprofit=0.041 percentSum_w_roll=227.91 tradesCount=359
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000234: // quantref base=30000094 new=30000234 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7705 timeVSprofit=0.04 percentSum_w_roll=173.99 tradesCount=282
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000235: // quantref base=30000098 new=30000235 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8628 timeVSprofit=0.04 percentSum_w_roll=222.60 tradesCount=346
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000236: // quantref base=30000126 new=30000236 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6658 timeVSprofit=0.04 percentSum_w_roll=195.75 tradesCount=263
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000237: // quantref base=30000052 new=30000237 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7824 timeVSprofit=0.04 percentSum_w_roll=201.33 tradesCount=356
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000238: // quantref base=30000133 new=30000238 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7312 timeVSprofit=0.04 percentSum_w_roll=211.94 tradesCount=302
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000239: // quantref base=30000016 new=30000239 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7824 timeVSprofit=0.04 percentSum_w_roll=201.33 tradesCount=356
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000240: // quantref base=30000021 new=30000240 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7740 timeVSprofit=0.04 percentSum_w_roll=194.20 tradesCount=346
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000241: // quantref base=30000139 new=30000241 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7775 timeVSprofit=0.04 percentSum_w_roll=210.25 tradesCount=304
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000242: // quantref base=30000050 new=30000242 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7212 timeVSprofit=0.04 percentSum_w_roll=182.16 tradesCount=313 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000243: // quantref base=30000139 new=30000243 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7749 timeVSprofit=0.04 percentSum_w_roll=209.89 tradesCount=303
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000244: // quantref base=30000014 new=30000244 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7212 timeVSprofit=0.04 percentSum_w_roll=182.16 tradesCount=313 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000245: // quantref base=30000027 new=30000245 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7705 timeVSprofit=0.039 percentSum_w_roll=227.22 tradesCount=386
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000246: // quantref base=30000063 new=30000246 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7709 timeVSprofit=0.039 percentSum_w_roll=227.57 tradesCount=387
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000247: // quantref base=30000099 new=30000247 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7782 timeVSprofit=0.039 percentSum_w_roll=226.67 tradesCount=372
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000248: // quantref base=30000090 new=30000248 modes=best_timevsprofit above=- below=PDL ratecut=0.8777 timeVSprofit=0.039 percentSum_w_roll=236.19 tradesCount=409
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000249: // quantref base=30000056 new=30000249 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7862 timeVSprofit=0.039 percentSum_w_roll=188.06 tradesCount=320
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000250: // quantref base=30000020 new=30000250 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7862 timeVSprofit=0.039 percentSum_w_roll=188.06 tradesCount=320
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000251: // quantref base=30000111 new=30000251 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8590 timeVSprofit=0.039 percentSum_w_roll=201.41 tradesCount=518
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000252: // quantref base=30000086 new=30000252 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7400 timeVSprofit=0.039 percentSum_w_roll=193.83 tradesCount=316 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000253: // quantref base=30000135 new=30000253 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7677 timeVSprofit=0.039 percentSum_w_roll=220.78 tradesCount=314
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000254: // quantref base=30000135 new=30000254 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7653 timeVSprofit=0.039 percentSum_w_roll=220.37 tradesCount=313
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000255: // quantref base=30000033 new=30000255 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7661 timeVSprofit=0.038 percentSum_w_roll=202.18 tradesCount=334
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000256: // quantref base=30000141 new=30000256 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7407 timeVSprofit=0.038 percentSum_w_roll=181.56 tradesCount=260
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000257: // quantref base=30000141 new=30000257 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7436 timeVSprofit=0.038 percentSum_w_roll=181.95 tradesCount=261
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000258: // quantref base=30000099 new=30000258 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8347 timeVSprofit=0.038 percentSum_w_roll=236.56 tradesCount=399
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000259: // quantref base=30000097 new=30000259 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7891 timeVSprofit=0.038 percentSum_w_roll=226.65 tradesCount=378
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000260: // quantref base=30000069 new=30000260 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7661 timeVSprofit=0.038 percentSum_w_roll=202.18 tradesCount=334
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000261: // quantref base=30000092 new=30000261 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7820 timeVSprofit=0.038 percentSum_w_roll=187.63 tradesCount=312
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000262: // quantref base=30000086 new=30000262 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8009 timeVSprofit=0.038 percentSum_w_roll=202.37 tradesCount=342
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000263: // quantref base=30000128 new=30000263 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8309 timeVSprofit=0.038 percentSum_w_roll=200.81 tradesCount=280
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000264: // quantref base=30000128 new=30000264 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7834 timeVSprofit=0.038 percentSum_w_roll=193.26 tradesCount=264
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000265: // quantref base=30000050 new=30000265 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7972 timeVSprofit=0.038 percentSum_w_roll=191.97 tradesCount=346
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000266: // quantref base=30000133 new=30000266 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7676 timeVSprofit=0.038 percentSum_w_roll=219.08 tradesCount=317
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000267: // quantref base=30000014 new=30000267 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7972 timeVSprofit=0.038 percentSum_w_roll=191.97 tradesCount=346
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000268: // quantref base=30000031 new=30000268 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8715 timeVSprofit=0.037 percentSum_w_roll=231.12 tradesCount=400
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000269: // quantref base=30000035 new=30000269 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9843 timeVSprofit=0.037 percentSum_w_roll=159.01 tradesCount=250
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000270: // quantref base=30000033 new=30000270 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=214.01 tradesCount=372
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000271: // quantref base=30000087 new=30000271 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7186 timeVSprofit=0.037 percentSum_w_roll=219.60 tradesCount=383 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000272: // quantref base=30000031 new=30000272 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8627 timeVSprofit=0.037 percentSum_w_roll=230.00 tradesCount=396
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000273: // quantref base=30000122 new=30000273 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7908 timeVSprofit=0.037 percentSum_w_roll=197.69 tradesCount=276
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000274: // quantref base=30000131 new=30000274 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9394 timeVSprofit=0.037 percentSum_w_roll=159.87 tradesCount=217
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000275: // quantref base=30000067 new=30000275 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8715 timeVSprofit=0.037 percentSum_w_roll=231.12 tradesCount=400
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000276: // quantref base=30000097 new=30000276 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8476 timeVSprofit=0.037 percentSum_w_roll=237.08 tradesCount=406
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000277: // quantref base=30000069 new=30000277 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=214.01 tradesCount=372
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000278: // quantref base=30000067 new=30000278 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8627 timeVSprofit=0.037 percentSum_w_roll=230.00 tradesCount=396
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000279: // quantref base=30000126 new=30000279 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=236.10 tradesCount=337
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000280: // quantref base=30000122 new=30000280 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8453 timeVSprofit=0.036 percentSum_w_roll=205.95 tradesCount=295
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000281: // quantref base=30000019 new=30000281 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7164 timeVSprofit=0.036 percentSum_w_roll=198.23 tradesCount=341 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000282: // quantref base=30000121 new=30000282 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6627 timeVSprofit=0.036 percentSum_w_roll=192.69 tradesCount=277
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000283: // quantref base=30000123 new=30000283 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6596 timeVSprofit=0.036 percentSum_w_roll=202.54 tradesCount=279
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000284: // quantref base=30000055 new=30000284 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7206 timeVSprofit=0.036 percentSum_w_roll=200.93 tradesCount=343 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000285: // quantref base=30000061 new=30000285 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7744 timeVSprofit=0.036 percentSum_w_roll=219.51 tradesCount=381
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000286: // quantref base=30000025 new=30000286 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7744 timeVSprofit=0.036 percentSum_w_roll=219.51 tradesCount=381
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000287: // quantref base=30000105 new=30000287 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8410 timeVSprofit=0.036 percentSum_w_roll=208.51 tradesCount=349
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000288: // quantref base=30000105 new=30000288 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8506 timeVSprofit=0.036 percentSum_w_roll=209.76 tradesCount=353
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000289: // quantref base=30000027 new=30000289 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8643 timeVSprofit=0.036 percentSum_w_roll=240.83 tradesCount=433
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000290: // quantref base=30000103 new=30000290 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8542 timeVSprofit=0.036 percentSum_w_roll=223.53 tradesCount=375
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000291: // quantref base=30000063 new=30000291 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8645 timeVSprofit=0.036 percentSum_w_roll=241.18 tradesCount=434
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000292: // quantref base=30000103 new=30000292 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8610 timeVSprofit=0.036 percentSum_w_roll=224.31 tradesCount=378
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000293: // quantref base=30000051 new=30000293 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7020 timeVSprofit=0.036 percentSum_w_roll=207.14 tradesCount=384 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000294: // quantref base=30000087 new=30000294 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7749 timeVSprofit=0.036 percentSum_w_roll=221.94 tradesCount=413
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000295: // quantref base=30000015 new=30000295 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7033 timeVSprofit=0.036 percentSum_w_roll=207.14 tradesCount=384 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000296: // quantref base=30000093 new=30000296 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7817 timeVSprofit=0.036 percentSum_w_roll=193.92 tradesCount=333
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000297: // quantref base=30000093 new=30000297 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7418 timeVSprofit=0.036 percentSum_w_roll=196.55 tradesCount=316 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000298: // quantref base=30000055 new=30000298 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8004 timeVSprofit=0.035 percentSum_w_roll=203.51 tradesCount=381
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000299: // quantref base=30000019 new=30000299 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7983 timeVSprofit=0.035 percentSum_w_roll=200.99 tradesCount=380
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000300: // quantref base=30000123 new=30000300 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8369 timeVSprofit=0.035 percentSum_w_roll=242.86 tradesCount=354
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000301: // quantref base=30000025 new=30000301 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8720 timeVSprofit=0.034 percentSum_w_roll=233.26 tradesCount=429
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000302: // quantref base=30000089 new=30000302 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8070 timeVSprofit=0.034 percentSum_w_roll=228.50 tradesCount=414
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000303: // quantref base=30000053 new=30000303 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7933 timeVSprofit=0.034 percentSum_w_roll=221.14 tradesCount=426
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000304: // quantref base=30000061 new=30000304 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8720 timeVSprofit=0.034 percentSum_w_roll=233.26 tradesCount=429
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000305: // quantref base=30000121 new=30000305 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8325 timeVSprofit=0.034 percentSum_w_roll=230.60 tradesCount=348
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000306: // quantref base=30000129 new=30000306 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7703 timeVSprofit=0.034 percentSum_w_roll=197.65 tradesCount=285
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000307: // quantref base=30000065 new=30000307 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7840 timeVSprofit=0.034 percentSum_w_roll=222.33 tradesCount=392
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000308: // quantref base=30000029 new=30000308 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7840 timeVSprofit=0.034 percentSum_w_roll=222.33 tradesCount=392
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000309: // quantref base=30000127 new=30000309 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7658 timeVSprofit=0.034 percentSum_w_roll=202.65 tradesCount=291
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000310: // quantref base=30000127 new=30000310 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8105 timeVSprofit=0.034 percentSum_w_roll=211.39 tradesCount=308
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000311: // quantref base=30000051 new=30000311 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7788 timeVSprofit=0.034 percentSum_w_roll=214.71 tradesCount=426
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000312: // quantref base=30000017 new=30000312 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7933 timeVSprofit=0.034 percentSum_w_roll=221.14 tradesCount=426
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000313: // quantref base=30000125 new=30000313 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6714 timeVSprofit=0.034 percentSum_w_roll=203.75 tradesCount=286
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000314: // quantref base=30000015 new=30000314 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7802 timeVSprofit=0.034 percentSum_w_roll=213.77 tradesCount=426
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000315: // quantref base=30000065 new=30000315 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8560 timeVSprofit=0.033 percentSum_w_roll=232.01 tradesCount=428
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000316: // quantref base=30000049 new=30000316 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7121 timeVSprofit=0.033 percentSum_w_roll=196.99 tradesCount=376 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000317: // quantref base=30000013 new=30000317 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7116 timeVSprofit=0.033 percentSum_w_roll=196.79 tradesCount=375 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000318: // quantref base=30000013 new=30000318 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8065 timeVSprofit=0.033 percentSum_w_roll=206.23 tradesCount=425
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000319: // quantref base=30000085 new=30000319 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8043 timeVSprofit=0.033 percentSum_w_roll=214.12 tradesCount=411
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000320: // quantref base=30000029 new=30000320 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8560 timeVSprofit=0.033 percentSum_w_roll=232.01 tradesCount=428
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000321: // quantref base=30000049 new=30000321 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8049 timeVSprofit=0.033 percentSum_w_roll=206.24 tradesCount=425
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000322: // quantref base=30000125 new=30000322 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7840 timeVSprofit=0.033 percentSum_w_roll=227.46 tradesCount=334
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000323: // quantref base=30000085 new=30000323 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7339 timeVSprofit=0.032 percentSum_w_roll=206.13 tradesCount=375 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000324: // quantref base=30000101 new=30000324 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8473 timeVSprofit=0.032 percentSum_w_roll=224.43 tradesCount=394
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000325: // quantref base=30000101 new=30000325 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8430 timeVSprofit=0.032 percentSum_w_roll=223.99 tradesCount=392
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000326: // quantref base=30000089 new=30000326 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8752 timeVSprofit=0.032 percentSum_w_roll=242.29 tradesCount=449
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000327: // quantref base=30000129 new=30000327 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8189 timeVSprofit=0.032 percentSum_w_roll=206.14 tradesCount=303
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000328: // quantref base=30000091 new=30000328 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7996 timeVSprofit=0.032 percentSum_w_roll=194.37 tradesCount=363
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000329: // quantref base=30000091 new=30000329 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7313 timeVSprofit=0.032 percentSum_w_roll=193.11 tradesCount=332 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000330: // quantref base=30000053 new=30000330 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8678 timeVSprofit=0.032 percentSum_w_roll=235.70 tradesCount=466
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000331: // quantref base=30000017 new=30000331 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8678 timeVSprofit=0.032 percentSum_w_roll=235.70 tradesCount=466
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000332: // quantref base=30000022 new=30000332 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9387 timeVSprofit=0.043 percentSum_w_roll=208.56 tradesCount=352
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000333: // quantref base=30000058 new=30000333 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9387 timeVSprofit=0.043 percentSum_w_roll=208.56 tradesCount=352
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000334: // quantref base=30000106 new=30000334 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8443 timeVSprofit=0.047 percentSum_w_roll=197.31 tradesCount=309
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000335: // quantref base=30000104 new=30000335 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8519 timeVSprofit=0.044 percentSum_w_roll=208.76 tradesCount=328
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000336: // quantref base=30000094 new=30000336 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9454 timeVSprofit=0.039 percentSum_w_roll=209.86 tradesCount=346
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000337: // quantref base=30000054 new=30000337 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9135 timeVSprofit=0.041 percentSum_w_roll=250.00 tradesCount=454
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000338: // quantref base=30000066 new=30000338 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8742 timeVSprofit=0.042 percentSum_w_roll=241.97 tradesCount=403
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000339: // quantref base=30000030 new=30000339 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8742 timeVSprofit=0.042 percentSum_w_roll=241.97 tradesCount=403
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000340: // quantref base=30000018 new=30000340 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9135 timeVSprofit=0.041 percentSum_w_roll=250.00 tradesCount=454
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000341: // quantref base=30000064 new=30000341 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8465 timeVSprofit=0.042 percentSum_w_roll=222.58 tradesCount=364
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000342: // quantref base=30000020 new=30000342 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9459 timeVSprofit=0.038 percentSum_w_roll=222.69 tradesCount=385
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000343: // quantref base=30000057 new=30000343 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9198 timeVSprofit=0.039 percentSum_w_roll=230.97 tradesCount=413
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000344: // quantref base=30000069 new=30000344 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9862 timeVSprofit=0.036 percentSum_w_roll=253.16 tradesCount=430
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000345: // quantref base=30000056 new=30000345 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9459 timeVSprofit=0.038 percentSum_w_roll=222.69 tradesCount=385
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000346: // quantref base=30000033 new=30000346 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9862 timeVSprofit=0.036 percentSum_w_roll=253.16 tradesCount=430
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000347: // quantref base=30000028 new=30000347 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8465 timeVSprofit=0.042 percentSum_w_roll=222.58 tradesCount=364
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000348: // quantref base=30000130 new=30000348 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9559 timeVSprofit=0.038 percentSum_w_roll=238.86 tradesCount=325
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000349: // quantref base=30000100 new=30000349 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8349 timeVSprofit=0.042 percentSum_w_roll=225.07 tradesCount=349
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000350: // quantref base=30000102 new=30000350 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9887 timeVSprofit=0.035 percentSum_w_roll=273.22 tradesCount=438
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000351: // quantref base=30000092 new=30000351 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9424 timeVSprofit=0.037 percentSum_w_roll=222.52 tradesCount=376
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000352: // quantref base=30000088 new=30000352 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9303 timeVSprofit=0.038 percentSum_w_roll=238.22 tradesCount=414
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000353: // quantref base=30000090 new=30000353 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9206 timeVSprofit=0.038 percentSum_w_roll=248.93 tradesCount=429
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000354: // quantref base=30000021 new=30000354 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9195 timeVSprofit=0.038 percentSum_w_roll=227.45 tradesCount=411
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000355: // quantref base=30000016 new=30000355 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9341 timeVSprofit=0.037 percentSum_w_roll=231.84 tradesCount=425
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000356: // quantref base=30000062 new=30000356 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8575 timeVSprofit=0.041 percentSum_w_roll=211.66 tradesCount=349
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000357: // quantref base=30000052 new=30000357 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9341 timeVSprofit=0.037 percentSum_w_roll=231.84 tradesCount=425
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000358: // quantref base=30000026 new=30000358 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8575 timeVSprofit=0.041 percentSum_w_roll=211.66 tradesCount=349
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000359: // quantref base=30000098 new=30000359 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8579 timeVSprofit=0.04 percentSum_w_roll=221.64 tradesCount=344
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000360: // quantref base=30000050 new=30000360 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9332 timeVSprofit=0.035 percentSum_w_roll=219.30 tradesCount=405
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000361: // quantref base=30000086 new=30000361 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9368 timeVSprofit=0.035 percentSum_w_roll=230.38 tradesCount=400
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000362: // quantref base=30000124 new=30000362 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7952 timeVSprofit=0.041 percentSum_w_roll=219.25 tradesCount=299
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000363: // quantref base=30000130 new=30000363 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8353 timeVSprofit=0.04 percentSum_w_roll=205.37 tradesCount=284
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000364: // quantref base=30000014 new=30000364 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9332 timeVSprofit=0.035 percentSum_w_roll=219.30 tradesCount=405
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000365: // quantref base=30000136 new=30000365 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7861 timeVSprofit=0.042 percentSum_w_roll=212.29 tradesCount=283
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000366: // quantref base=30000033 new=30000366 modes=best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.8968 timeVSprofit=0.036 percentSum_w_roll=240.91 tradesCount=391 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000367: // quantref base=30000069 new=30000367 modes=best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.8968 timeVSprofit=0.036 percentSum_w_roll=240.91 tradesCount=391 mergedVariants=2
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000368: // quantref base=30000093 new=30000368 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9343 timeVSprofit=0.034 percentSum_w_roll=229.79 tradesCount=398
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000369: // quantref base=30000099 new=30000369 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8431 timeVSprofit=0.037 percentSum_w_roll=237.49 tradesCount=403
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000370: // quantref base=30000019 new=30000370 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9307 timeVSprofit=0.033 percentSum_w_roll=231.70 tradesCount=443
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000371: // quantref base=30000016 new=30000371 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8484 timeVSprofit=0.036 percentSum_w_roll=211.00 tradesCount=386
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000372: // quantref base=30000027 new=30000372 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8543 timeVSprofit=0.036 percentSum_w_roll=239.80 tradesCount=428
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000373: // quantref base=30000126 new=30000373 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9443 timeVSprofit=0.033 percentSum_w_roll=261.35 tradesCount=373
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000374: // quantref base=30000063 new=30000374 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8546 timeVSprofit=0.036 percentSum_w_roll=240.15 tradesCount=429
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000375: // quantref base=30000055 new=30000375 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9328 timeVSprofit=0.033 percentSum_w_roll=234.22 tradesCount=444
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000376: // quantref base=30000052 new=30000376 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8484 timeVSprofit=0.036 percentSum_w_roll=211.00 tradesCount=386
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000377: // quantref base=30000097 new=30000377 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8518 timeVSprofit=0.036 percentSum_w_roll=237.79 tradesCount=408
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000378: // quantref base=30000086 new=30000378 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8618 timeVSprofit=0.035 percentSum_w_roll=211.04 tradesCount=368
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000379: // quantref base=30000087 new=30000379 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9212 timeVSprofit=0.033 percentSum_w_roll=260.40 tradesCount=491
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000380: // quantref base=30000015 new=30000380 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9249 timeVSprofit=0.032 percentSum_w_roll=248.76 tradesCount=505
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000381: // quantref base=30000051 new=30000381 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9232 timeVSprofit=0.032 percentSum_w_roll=249.70 tradesCount=505
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000382: // quantref base=30000013 new=30000382 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9317 timeVSprofit=0.031 percentSum_w_roll=236.13 tradesCount=491
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000383: // quantref base=30000129 new=30000383 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9514 timeVSprofit=0.031 percentSum_w_roll=243.54 tradesCount=352
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000384: // quantref base=30000133 new=30000384 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7651 timeVSprofit=0.038 percentSum_w_roll=218.67 tradesCount=316
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000385: // quantref base=30000089 new=30000385 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9298 timeVSprofit=0.031 percentSum_w_roll=259.44 tradesCount=477
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000386: // quantref base=30000061 new=30000386 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8577 timeVSprofit=0.034 percentSum_w_roll=231.73 tradesCount=422
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000387: // quantref base=30000025 new=30000387 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8577 timeVSprofit=0.034 percentSum_w_roll=231.73 tradesCount=422
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000388: // quantref base=30000049 new=30000388 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9299 timeVSprofit=0.031 percentSum_w_roll=236.14 tradesCount=491
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000389: // quantref base=30000055 new=30000389 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8676 timeVSprofit=0.032 percentSum_w_roll=214.90 tradesCount=413
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000390: // quantref base=30000053 new=30000390 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9236 timeVSprofit=0.03 percentSum_w_roll=252.00 tradesCount=496
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000391: // quantref base=30000093 new=30000391 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8451 timeVSprofit=0.033 percentSum_w_roll=204.03 tradesCount=360
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000392: // quantref base=30000091 new=30000392 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9361 timeVSprofit=0.03 percentSum_w_roll=225.93 tradesCount=425
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000393: // quantref base=30000085 new=30000393 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9295 timeVSprofit=0.03 percentSum_w_roll=243.73 tradesCount=475
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000394: // quantref base=30000065 new=30000394 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8500 timeVSprofit=0.033 percentSum_w_roll=231.46 tradesCount=425
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000395: // quantref base=30000123 new=30000395 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7872 timeVSprofit=0.035 percentSum_w_roll=231.05 tradesCount=333
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000396: // quantref base=30000029 new=30000396 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8500 timeVSprofit=0.033 percentSum_w_roll=231.46 tradesCount=425
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000397: // quantref base=30000017 new=30000397 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9236 timeVSprofit=0.03 percentSum_w_roll=252.00 tradesCount=496
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   break;
+case MAGIC_LEVEL30000398: // quantref base=30000087 new=30000398 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8537 timeVSprofit=0.033 percentSum_w_roll=237.56 tradesCount=455
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000399: // quantref base=30000125 new=30000399 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8427 timeVSprofit=0.032 percentSum_w_roll=242.08 tradesCount=359
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000400: // quantref base=30000121 new=30000400 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7895 timeVSprofit=0.034 percentSum_w_roll=221.13 tradesCount=330
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000401: // quantref base=30000051 new=30000401 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8556 timeVSprofit=0.032 percentSum_w_roll=229.97 tradesCount=468
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000402: // quantref base=30000015 new=30000402 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8553 timeVSprofit=0.031 percentSum_w_roll=228.64 tradesCount=467
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
+   break;
+case MAGIC_LEVEL30000403: // quantref base=30000091 new=30000403 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8634 timeVSprofit=0.03 percentSum_w_roll=205.37 tradesCount=392
+   LevelRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
 //levelalgocreator3end
       default:
@@ -65884,119 +66523,19 @@ void TimeRebuildRuleChainForSlot(const int slotIdx)
       // algobookmark time rules
 //timealgocreator3start
 
-case TIME_ALGO_10000009: // quantref base=10000003 new=10000009 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=ONL ratecut=0.3069 timeVSprofit=0.389 percentSum_w_roll=65.12 tradesCount=143
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_ONL);
-   break;
-case TIME_ALGO_10000010: // quantref base=10000003 new=10000010 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=ONL;dayLowSoFar ratecut=0.3069 timeVSprofit=0.389 percentSum_w_roll=65.12 tradesCount=143
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_ONL);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_DAY_LOW);
-   break;
-case TIME_ALGO_10000011: // quantref base=10000003 new=10000011 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=dayLowSoFar ratecut=0.3090 timeVSprofit=0.388 percentSum_w_roll=65.69 tradesCount=144
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_DAY_LOW);
-   break;
-case TIME_ALGO_10000012: // quantref base=10000001 new=10000012 modes=best_timevsprofit above=ONH below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case TIME_ALGO_10000013: // quantref base=10000001 new=10000013 modes=best_timevsprofit above=ONH;dayHighSoFar below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case TIME_ALGO_10000014: // quantref base=10000002 new=10000014 modes=best_timevsprofit above=ONH below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   break;
-case TIME_ALGO_10000015: // quantref base=10000002 new=10000015 modes=best_timevsprofit above=ONH;dayHighSoFar below=- ratecut=0.3631 timeVSprofit=0.278 percentSum_w_roll=42.08 tradesCount=203
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_ONH);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case TIME_ALGO_10000016: // quantref base=10000001 new=10000016 modes=best_timevsprofit above=dayHighSoFar below=- ratecut=0.3649 timeVSprofit=0.276 percentSum_w_roll=42.27 tradesCount=204
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case TIME_ALGO_10000017: // quantref base=10000002 new=10000017 modes=best_timevsprofit above=dayHighSoFar below=- ratecut=0.3649 timeVSprofit=0.276 percentSum_w_roll=42.27 tradesCount=204
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_DAY_HIGH);
-   break;
-case TIME_ALGO_10000018: // quantref base=10000008 new=10000018 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC below=PDL ratecut=0.5500 timeVSprofit=0.039 percentSum_w_roll=150.52 tradesCount=176
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000019: // quantref base=10000008 new=10000019 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.6562 timeVSprofit=0.038 percentSum_w_roll=177.28 tradesCount=210
+case TIME_ALGO_10000006: // quantref base=10000005 new=10000006 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7872 timeVSprofit=0.043 percentSum_w_roll=171.43 tradesCount=259
    TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case TIME_ALGO_10000020: // quantref base=10000008 new=10000020 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.6969 timeVSprofit=0.038 percentSum_w_roll=190.51 tradesCount=223
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000021: // quantref base=10000006 new=10000021 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7782 timeVSprofit=0.038 percentSum_w_roll=184.47 tradesCount=386
+case TIME_ALGO_10000007: // quantref base=10000004 new=10000007 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8017 timeVSprofit=0.035 percentSum_w_roll=132.76 tradesCount=291
    TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
    TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case TIME_ALGO_10000022: // quantref base=10000005 new=10000022 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7782 timeVSprofit=0.038 percentSum_w_roll=184.47 tradesCount=386
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
+case TIME_ALGO_10000008: // quantref base=10000005 new=10000008 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9027 timeVSprofit=0.035 percentSum_w_roll=195.57 tradesCount=297
    TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
    break;
-case TIME_ALGO_10000023: // quantref base=10000005 new=10000023 modes=best_timevsprofit above=PDC below=PDL ratecut=0.4435 timeVSprofit=0.037 percentSum_w_roll=125.83 tradesCount=220
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
+case TIME_ALGO_10000009: // quantref base=10000004 new=10000009 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9449 timeVSprofit=0.029 percentSum_w_roll=155.20 tradesCount=343
    TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000024: // quantref base=10000006 new=10000024 modes=best_timevsprofit above=PDC below=PDL ratecut=0.4435 timeVSprofit=0.037 percentSum_w_roll=125.83 tradesCount=220
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000025: // quantref base=10000005 new=10000025 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9274 timeVSprofit=0.036 percentSum_w_roll=212.59 tradesCount=460
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000026: // quantref base=10000006 new=10000026 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.9274 timeVSprofit=0.036 percentSum_w_roll=212.59 tradesCount=460
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000027: // quantref base=10000007 new=10000027 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8463 timeVSprofit=0.036 percentSum_w_roll=228.33 tradesCount=336
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000028: // quantref base=10000007 new=10000028 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7783 timeVSprofit=0.035 percentSum_w_roll=210.05 tradesCount=309
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000029: // quantref base=10000007 new=10000029 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC below=PDL ratecut=0.5995 timeVSprofit=0.034 percentSum_w_roll=169.16 tradesCount=238
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000030: // quantref base=10000004 new=10000030 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7339 timeVSprofit=0.033 percentSum_w_roll=185.12 tradesCount=284
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDH);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000031: // quantref base=10000004 new=10000031 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8734 timeVSprofit=0.031 percentSum_w_roll=219.45 tradesCount=338
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000032: // quantref base=10000004 new=10000032 modes=best_timevsprofit above=PDC below=PDL ratecut=0.4341 timeVSprofit=0.028 percentSum_w_roll=109.67 tradesCount=168
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_BELOW_PDC);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDL);
-   break;
-case TIME_ALGO_10000033: // quantref base=10000001 new=10000033 modes=best_timeVSprofitVSratecut above=- below=ONL ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_ONL);
-   break;
-case TIME_ALGO_10000034: // quantref base=10000001 new=10000034 modes=best_timeVSprofitVSratecut above=- below=dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_DAY_LOW);
-   break;
-case TIME_ALGO_10000035: // quantref base=10000001 new=10000035 modes=best_timeVSprofitVSratecut above=- below=ONL;dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_ONL);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_DAY_LOW);
-   break;
-case TIME_ALGO_10000036: // quantref base=10000002 new=10000036 modes=best_timeVSprofitVSratecut above=- below=ONL ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_ONL);
-   break;
-case TIME_ALGO_10000037: // quantref base=10000002 new=10000037 modes=best_timeVSprofitVSratecut above=- below=dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_DAY_LOW);
-   break;
-case TIME_ALGO_10000038: // quantref base=10000002 new=10000038 modes=best_timeVSprofitVSratecut above=- below=ONL;dayLowSoFar ratecut=0.5045 timeVSprofit=0.265 percentSum_w_roll=58.85 tradesCount=282
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_ONL);
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_DAY_LOW);
-   break;
-case TIME_ALGO_10000039: // quantref base=10000005 new=10000039 modes=best_timeVSprofitVSratecut above=- below=PDO ratecut=0.5343 timeVSprofit=0.031 percentSum_w_roll=119.83 tradesCount=265
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDO);
-   break;
-case TIME_ALGO_10000040: // quantref base=10000006 new=10000040 modes=best_timeVSprofitVSratecut above=- below=PDO ratecut=0.5343 timeVSprofit=0.031 percentSum_w_roll=119.83 tradesCount=265
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDO);
-   break;
-case TIME_ALGO_10000041: // quantref base=10000004 new=10000041 modes=best_timeVSprofitVSratecut above=- below=PDO ratecut=0.5168 timeVSprofit=0.026 percentSum_w_roll=129.32 tradesCount=200
-   TimeRuleChainAdd(slotIdx, RULE_LEVEL_ABOVE_PDO);
    break;
 //timealgocreator3end
       default:
@@ -67434,6 +67973,247 @@ void FridayApiPullMaybeOnTimer()
 }
 
 //+------------------------------------------------------------------+
+string DaySummaryFamilyLabel(const long magic)
+{
+   if(IsLevelFamilyCompositeMagic(magic))
+      return "level";
+   if(IsTimeFamilyCompositeMagic(magic))
+      return "time";
+   if(IsBreakdownFamilyCompositeMagic(magic))
+   {
+      const int slot = BreakdownAlgoSlotIndexByAlgoId(AlgoFamilyMagicNumber(magic));
+      if(slot < 0)
+         return "breakdown";
+      const ENUM_BREAKDOWN_STREAK_CONTINUATION mode = g_breakdownAlgos[slot].breakdown_streak_continuation_mode;
+      if(mode == BREAKDOWN_STREAK_CONTINUATION_OHLC_AVG)
+         return "ohlc_avg";
+      if(mode == BREAKDOWN_STREAK_CONTINUATION_OC_MID)
+         return "oc_mid";
+      return "breakdown";
+   }
+   return "other";
+}
+
+//+------------------------------------------------------------------+
+string DaySummaryAlgoLabel(const long magic)
+{
+   if(FalgoIsCompositeMagicLong(magic))
+   {
+      const int algoNum = AlgoFamilyMagicNumber(magic);
+      if(algoNum > 0)
+         return IntegerToString(algoNum);
+   }
+   return IntegerToString(magic);
+}
+
+//+------------------------------------------------------------------+
+string DaySummaryClosedRowLine(const double amount, const long magic)
+{
+   return StringFormat("%.2f\t%s\t%s",
+      amount,
+      DaySummaryAlgoLabel(magic),
+      DaySummaryFamilyLabel(magic));
+}
+
+//+------------------------------------------------------------------+
+string DaySummaryOpenRowLine(const double amount, const double hoursOpen, const long magic)
+{
+   return StringFormat("%.2f\t%.2f\t%s\t%s",
+      amount,
+      hoursOpen,
+      DaySummaryAlgoLabel(magic),
+      DaySummaryFamilyLabel(magic));
+}
+
+//+------------------------------------------------------------------+
+struct DaySummaryClosedDealRow
+{
+   double   amount;
+   long     magic;
+   datetime dealTime;
+};
+
+//+------------------------------------------------------------------+
+bool DaySummaryIsClosedDealEntry(const ENUM_DEAL_ENTRY entry)
+{
+   return (entry == DEAL_ENTRY_OUT || entry == DEAL_ENTRY_OUT_BY);
+}
+
+//+------------------------------------------------------------------+
+double DaySummaryDealNetAmount(const ulong dealTicket)
+{
+   return HistoryDealGetDouble(dealTicket, DEAL_PROFIT)
+        + HistoryDealGetDouble(dealTicket, DEAL_SWAP)
+        + HistoryDealGetDouble(dealTicket, DEAL_COMMISSION);
+}
+
+//+------------------------------------------------------------------+
+int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime dayEndExclusive,
+   DaySummaryClosedDealRow &outRows[])
+{
+   ArrayResize(outRows, 0);
+   if(dayStart <= 0)
+      return 0;
+
+   datetime historyTo = dayEndExclusive;
+   const datetime now = (g_lastTimer1Time > 0) ? g_lastTimer1Time : TimeCurrent();
+   if(historyTo > now)
+      historyTo = now;
+   if(!HistorySelect(dayStart, historyTo))
+      return 0;
+
+   int n = 0;
+   const int total = HistoryDealsTotal();
+   for(int dealIdx = 0; dealIdx < total; dealIdx++)
+   {
+      const ulong ticket = HistoryDealGetTicket(dealIdx);
+      if(ticket == 0)
+         continue;
+      if(HistoryDealGetString(ticket, DEAL_SYMBOL) != _Symbol)
+         continue;
+      if((long)HistoryDealGetInteger(ticket, DEAL_TYPE) == (long)DEAL_TYPE_BALANCE)
+         continue;
+      if(!DaySummaryIsClosedDealEntry((ENUM_DEAL_ENTRY)HistoryDealGetInteger(ticket, DEAL_ENTRY)))
+         continue;
+
+      const datetime dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+      if(dealTime < dayStart || dealTime >= dayEndExclusive)
+         continue;
+
+      const double amount = DaySummaryDealNetAmount(ticket);
+      if(amount == 0.0)
+         continue;
+
+      ArrayResize(outRows, n + 1);
+      outRows[n].amount = amount;
+      outRows[n].magic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
+      outRows[n].dealTime = dealTime;
+      n++;
+   }
+   return n;
+}
+
+//+------------------------------------------------------------------+
+bool DaySummaryDayHas2200Bar(const datetime dayStart)
+{
+   if(dayStart <= 0 || g_barsInDay <= 0 || g_m1DayStart != dayStart)
+      return false;
+   const datetime bar2200 = dayStart + 22 * 3600;
+   for(int bi = 0; bi < g_barsInDay; bi++)
+   {
+      if(g_m1Rates[bi].time == bar2200)
+         return true;
+   }
+   return false;
+}
+
+//+------------------------------------------------------------------+
+void WriteDaySummaryTxt()
+{
+   const datetime dayStart = FalgoTradingDayStart();
+   const datetime dayEndExclusive = dayStart + 86400;
+   const datetime evalTime = g_lastTimer1Time;
+
+   int fileHandle = FileOpen("day_summary.txt", FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fileHandle == INVALID_HANDLE)
+      FatalError("WriteDaySummaryTxt: could not open day_summary.txt");
+
+   FileWrite(fileHandle, StringFormat("closed static balance=%.2f", AccountInfoDouble(ACCOUNT_BALANCE)));
+   FileWrite(fileHandle, StringFormat("equity includes open ProfitLoss=%.2f", AccountInfoDouble(ACCOUNT_EQUITY)));
+   FileWrite(fileHandle, StringFormat("free for deposit freeMargin=%.2f", AccountInfoDouble(ACCOUNT_MARGIN_FREE)));
+   FileWrite(fileHandle, StringFormat("taken deposit margin=%.2f", AccountInfoDouble(ACCOUNT_MARGIN)));
+   FileWrite(fileHandle, StringFormat("floatingProfit=%.2f credit=%.2f",
+      AccountInfoDouble(ACCOUNT_PROFIT),
+      AccountInfoDouble(ACCOUNT_CREDIT)));
+   FileWrite(fileHandle, StringFormat("percentage marginLevel=%.1f", AccountInfoDouble(ACCOUNT_MARGIN_LEVEL)));
+
+   DaySummaryClosedDealRow closedToday[];
+   const int closedCount = DaySummaryCollectClosedDealsToday(dayStart, dayEndExclusive, closedToday);
+   double closedNetToday = 0.0;
+   for(int ci = 0; ci < closedCount; ci++)
+      closedNetToday += closedToday[ci].amount;
+   FileWrite(fileHandle, StringFormat("closedNetToday=%.2f closedPositions=%d", closedNetToday, closedCount));
+
+   int openCount = 0;
+   double openProfitTotal = 0.0;
+   for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
+   {
+      const ulong ticket = PositionGetTicket(pi);
+      if(ticket == 0 || !PositionSelectByTicket(ticket))
+         continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol)
+         continue;
+      openCount++;
+      openProfitTotal += PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
+   }
+
+   for(int a = 0; a < closedCount - 1; a++)
+   {
+      for(int b = a + 1; b < closedCount; b++)
+      {
+         if(closedToday[a].dealTime > closedToday[b].dealTime)
+         {
+            const DaySummaryClosedDealRow t = closedToday[a];
+            closedToday[a] = closedToday[b];
+            closedToday[b] = t;
+         }
+      }
+   }
+   if(closedCount > 0)
+   {
+      FileWrite(fileHandle, "# closed trades today: amount\talgo\tfamily");
+      for(int ci = 0; ci < closedCount; ci++)
+         FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic));
+   }
+
+   FileWrite(fileHandle, StringFormat("openProfitTotal=%.2f openPositions=%d", openProfitTotal, openCount));
+
+   if(openCount > 0)
+   {
+      FileWrite(fileHandle, "# open trades now: amount\thours_open\talgo\tfamily");
+      for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
+      {
+         const ulong ticket = PositionGetTicket(pi);
+         if(ticket == 0 || !PositionSelectByTicket(ticket))
+            continue;
+         if(PositionGetString(POSITION_SYMBOL) != _Symbol)
+            continue;
+         const long magic = (long)PositionGetInteger(POSITION_MAGIC);
+         const datetime startTime = (datetime)PositionGetInteger(POSITION_TIME);
+         const double openProfit = PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
+         double hoursOpen = 0.0;
+         if(startTime > 0 && evalTime > startTime)
+            hoursOpen = (double)(evalTime - startTime) / 3600.0;
+         FileWrite(fileHandle, DaySummaryOpenRowLine(openProfit, hoursOpen, magic));
+      }
+   }
+
+   FileClose(fileHandle);
+}
+
+//+------------------------------------------------------------------+
+void TryWriteDaySummaryTxt()
+{
+   if(!bigflipper_log_day_summary || !InpEODLogging)
+      return;
+   if(g_m1DayStart <= 0 || g_barsInDay <= 0)
+      return;
+   if(g_daySummaryTxtWrittenForDayStart == g_m1DayStart)
+      return;
+   if(!DaySummaryDayHas2200Bar(g_m1DayStart))
+      return;
+
+   MqlDateTime mt;
+   TimeToStruct(g_lastTimer1Time, mt);
+   const int minOfDay = mt.hour * 60 + mt.min;
+   if(minOfDay < 22 * 60)
+      return;
+
+   WriteDaySummaryTxt();
+   g_daySummaryTxtWrittenForDayStart = g_m1DayStart;
+}
+
+//+------------------------------------------------------------------+
 //| Write daily summary files in plain text format                        |
 //| Creates separate files for different data types                      |
 //+------------------------------------------------------------------+
@@ -68517,7 +69297,6 @@ void OnTimer()
          if(dailyEODlog_DailySummary && !FileIsExist(dateStr + "-Day_activeLevels.csv"))
             WriteDailySummary();
 
-
          if(dailyEODlog_PullingHistoryAlgoFamily)
          {
             UpdateTradeResultsForDay();
@@ -68526,6 +69305,8 @@ void OnTimer()
             PullingHistoryAlgoFamilyWriteEodCsv(dateStr, "weekly");
             PullingHistoryAlgoFamilyWriteEodCsv(dateStr, "daily");
          }
+
+         TryWriteDaySummaryTxt();
 
          // EOD one-line trades summary: same trade stats as latest row of pullinghistory (date)_summary_EOD_tradesSummary1line.csv. Skip if no trades (empty day).
          string eodSummaryName = dateStr + "_summary_EOD_tradesSummary1line.csv";

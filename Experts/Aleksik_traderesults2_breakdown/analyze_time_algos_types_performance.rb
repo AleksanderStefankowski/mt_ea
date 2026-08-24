@@ -52,6 +52,7 @@ DISPLAY_CONFIG_FIELDS = %w[
 
 COMPARE_METRICS = [
   ['perf_percentSum_w_roll', 'percentSum_w_roll', 2],
+  ['perf_timeVSprofit', 'timeVSprofit', 3],
   ['perf_avgDurationHours', 'avgDurationHours', 2]
 ].freeze
 
@@ -259,6 +260,34 @@ def compared_value_pairs(pairs, compare_variable, sort_key: nil)
   end
 end
 
+def print_section_summaries(pairs, compare_variable, sort_key: nil)
+  return if pairs.empty?
+
+  paired_entries = Lib.paired_entries_from_pairs(pairs)
+
+  puts '--- by compare value (paired algos, per-algo averages) ---'
+  Lib.compare_value_group_table_lines(compare_variable, paired_entries, sort_key: sort_key).each do |line|
+    puts "  #{line}"
+  end
+  puts
+
+  puts '--- timeVSprofit head-to-head (paired duels) ---'
+  Lib.variable_pair_stats_lines(
+    'perf_timeVSprofit',
+    compare_variable,
+    Lib.build_variable_pair_stats(pairs, compare_variable, 'timeVSprofit'),
+    paired_entries,
+    'timeVSprofit',
+    pairs: pairs,
+    sort_key: sort_key,
+    avg_decimals: 3,
+    show_avg_on_win_lines: true,
+    show_avg_comparison: true,
+    show_best_algo_duel: false
+  ).each { |line| puts "  #{line}" }
+  puts
+end
+
 def print_pair_comparisons(pairs, compare_variable, sort_key: nil)
   if pairs.empty?
     puts '(no pairs)'
@@ -291,7 +320,10 @@ def print_pair_comparisons(pairs, compare_variable, sort_key: nil)
       ]
     end
 
-  return if value_pairs.empty?
+  if value_pairs.empty?
+    print_section_summaries(pairs, compare_variable, sort_key: sort_key)
+    return
+  end
 
   puts '--- section avg ---'
   value_pairs.each do |left_val, right_val|
@@ -305,6 +337,8 @@ def print_pair_comparisons(pairs, compare_variable, sort_key: nil)
     )}"
   end
   puts
+
+  print_section_summaries(pairs, compare_variable, sort_key: sort_key)
 end
 
 def print_comparison_section(title, matched_rows, compare_variable, signature_exclude_variables: [], sort_key: nil)

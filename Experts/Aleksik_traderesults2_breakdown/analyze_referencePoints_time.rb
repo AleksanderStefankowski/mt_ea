@@ -13,7 +13,7 @@ SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 
 # Skip ref groups whose share of that algo's trades is below this % (0–100).
 MINIMUM_RATECUT_PERCENT = 30
-
+MINIMUM_PERCENT_SUM_W_ROLL = 120
 # Skip grouped rows whose timeVSprofit is not above that algo's ungrouped row.
 GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER = true
 
@@ -23,5 +23,6 @@ AnalyzeAlgosReferencePointsCommon.run(
   input_path: File.join(SCRIPT_DIR, 'summary_tradeResults_all_days_time.tsv'),
   output_path: File.join(SCRIPT_DIR, 'analyze_referencePoints_time_output.csv'),
   minimum_ratecut_percent: MINIMUM_RATECUT_PERCENT,
-  group_timevsprofit_needs_to_be_better: GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER
+  group_timevsprofit_needs_to_be_better: GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER,
+  minimum_percent_sum_w_roll: MINIMUM_PERCENT_SUM_W_ROLL
 )

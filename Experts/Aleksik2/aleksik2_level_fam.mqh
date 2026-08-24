@@ -1576,7 +1576,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].offset_positive = true;
@@ -1591,7 +1591,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000013)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_weekly = true;
@@ -1602,7 +1602,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].offset_positive = true;
@@ -1616,7 +1616,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000014)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_weekly = true;
@@ -1627,7 +1627,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].offset_positive = true;
@@ -1642,7 +1642,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000015)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_weekly = true;
@@ -1653,7 +1653,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].offset_positive = true;
@@ -1667,7 +1667,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000016)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_weekly = true;
@@ -1678,7 +1678,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].offset_positive = true;
@@ -1693,7 +1693,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000017)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_weekly = true;
@@ -1704,7 +1704,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].offset_positive = true;
@@ -1718,7 +1718,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000018)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_weekly = true;
@@ -1729,7 +1729,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].offset_positive = false;
@@ -1744,7 +1744,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000019)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_weekly = true;
@@ -1755,7 +1755,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].offset_positive = false;
@@ -1769,7 +1769,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000020)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_weekly = true;
@@ -1780,7 +1780,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].offset_positive = false;
@@ -1795,7 +1795,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000021)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_weekly = true;
@@ -1806,7 +1806,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].offset_positive = false;
@@ -1820,7 +1820,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000022)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_weekly = true;
@@ -1831,7 +1831,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].offset_positive = false;
@@ -1846,7 +1846,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000023)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_weekly = true;
@@ -1857,7 +1857,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].offset_positive = false;
@@ -1871,7 +1871,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000024)].rule_switch_map = 1;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_weekly = true;
@@ -1882,7 +1882,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].offset_positive = true;
@@ -1897,7 +1897,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000025)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_weekly = true;
@@ -1908,7 +1908,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].offset_positive = true;
@@ -1922,7 +1922,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000026)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_weekly = true;
@@ -1933,7 +1933,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].offset_positive = true;
@@ -1948,7 +1948,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000027)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_weekly = true;
@@ -1959,7 +1959,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].offset_positive = true;
@@ -1973,7 +1973,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000028)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_weekly = true;
@@ -1984,7 +1984,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].offset_positive = true;
@@ -1999,7 +1999,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000029)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_weekly = true;
@@ -2010,7 +2010,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].offset_positive = true;
@@ -2024,7 +2024,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000030)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_weekly = true;
@@ -2035,7 +2035,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].offset_positive = false;
@@ -2050,7 +2050,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000031)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_weekly = true;
@@ -2061,7 +2061,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].offset_positive = false;
@@ -2075,7 +2075,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000032)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_weekly = true;
@@ -2086,7 +2086,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].offset_positive = false;
@@ -2101,7 +2101,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000033)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_weekly = true;
@@ -2112,7 +2112,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].offset_positive = false;
@@ -2126,7 +2126,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000034)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_weekly = true;
@@ -2137,7 +2137,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].offset_positive = false;
@@ -2152,7 +2152,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000035)].rule_switch_map = 2;
 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_weekly = true;
@@ -2163,7 +2163,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].offset_positive = false;
@@ -2177,9 +2177,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000036)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].enabled = true; // quantref base=30000024 new=30000037 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6708 timeVSprofit=1.775 percentSum_w_roll=50.36 tradesCount=218
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2191,20 +2191,21 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000037)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].enabled = true; // quantref base=30000012 new=30000038 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6718 timeVSprofit=1.772 percentSum_w_roll=50.60 tradesCount=219
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2213,11 +2214,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_tags, 5);
@@ -2229,7 +2230,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000038)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].enabled = true; // quantref base=30000036 new=30000039 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6585 timeVSprofit=1.745 percentSum_w_roll=54.63 tradesCount=214
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2238,23 +2239,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000039)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].enabled = true; // quantref base=30000036 new=30000040 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6585 timeVSprofit=1.745 percentSum_w_roll=54.63 tradesCount=214
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2263,11 +2265,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_tags, 5);
@@ -2279,7 +2281,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000040)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].enabled = true; // quantref base=30000024 new=30000041 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6892 timeVSprofit=1.741 percentSum_w_roll=51.81 tradesCount=224
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2291,20 +2293,21 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000041)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].enabled = true; // quantref base=30000024 new=30000042 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6892 timeVSprofit=1.741 percentSum_w_roll=51.81 tradesCount=224
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2316,7 +2319,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
@@ -2329,7 +2332,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000042)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].enabled = true; // quantref base=30000012 new=30000043 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6902 timeVSprofit=1.738 percentSum_w_roll=52.05 tradesCount=225
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2338,23 +2341,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000043)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].enabled = true; // quantref base=30000012 new=30000044 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6902 timeVSprofit=1.738 percentSum_w_roll=52.05 tradesCount=225
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2363,11 +2367,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_tags, 5);
@@ -2379,7 +2383,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000044)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].enabled = true; // quantref base=30000011 new=30000045 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6739 timeVSprofit=1.508 percentSum_w_roll=63.56 tradesCount=281
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2388,11 +2392,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_tags, 6);
@@ -2405,7 +2409,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000045)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].enabled = true; // quantref base=30000023 new=30000046 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6739 timeVSprofit=1.508 percentSum_w_roll=63.56 tradesCount=281
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2418,20 +2422,19 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].secret_tp_profit_p
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000046)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].enabled = true; // quantref base=30000023 new=30000047 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2457,7 +2460,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000047)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].enabled = true; // quantref base=30000023 new=30000048 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2473,17 +2476,16 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].offset_positive = 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000048)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].enabled = true; // quantref base=30000011 new=30000049 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2492,11 +2494,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags, 6);
@@ -2507,9 +2509,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000049)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].enabled = true; // quantref base=30000011 new=30000050 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6882 timeVSprofit=1.495 percentSum_w_roll=64.98 tradesCount=287
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2518,24 +2520,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000050)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].enabled = true; // quantref base=30000010 new=30000051 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2544,23 +2545,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000051)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].enabled = true; // quantref base=30000010 new=30000052 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2569,10 +2571,10 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
@@ -2583,9 +2585,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000052)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].enabled = true; // quantref base=30000022 new=30000053 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2597,20 +2599,21 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000053)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].enabled = true; // quantref base=30000022 new=30000054 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6949 timeVSprofit=1.386 percentSum_w_roll=86.50 tradesCount=394
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2622,8 +2625,8 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags, 5);
@@ -2633,9 +2636,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000054)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].enabled = true; // quantref base=30000022 new=30000055 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6667 timeVSprofit=1.378 percentSum_w_roll=83.17 tradesCount=378
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2648,19 +2651,20 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].secret_tp_profit_p
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000055)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].enabled = true; // quantref base=30000010 new=30000056 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6667 timeVSprofit=1.378 percentSum_w_roll=83.17 tradesCount=378
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2669,11 +2673,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags, 5);
@@ -2683,9 +2687,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000056)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].enabled = true; // quantref base=30000034 new=30000057 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6623 timeVSprofit=1.24 percentSum_w_roll=90.02 tradesCount=355
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2694,23 +2698,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000057)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].enabled = true; // quantref base=30000034 new=30000058 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6623 timeVSprofit=1.24 percentSum_w_roll=90.02 tradesCount=355
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2719,7 +2724,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].offset_positive = false;
@@ -2733,9 +2738,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000058)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].enabled = true; // quantref base=30000035 new=30000059 modes=best_timevsprofit above=midpoint below=- ratecut=0.6789 timeVSprofit=1.232 percentSum_w_roll=53.81 tradesCount=203
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2744,7 +2749,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].offset_positive = false;
@@ -2759,9 +2764,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000059)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].enabled = true; // quantref base=30000035 new=30000060 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6789 timeVSprofit=1.232 percentSum_w_roll=53.81 tradesCount=203
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2770,24 +2775,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000060)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].enabled = true; // quantref base=30000035 new=30000061 modes=best_timevsprofit above=PDH;midpoint below=- ratecut=0.6789 timeVSprofit=1.232 percentSum_w_roll=53.81 tradesCount=203
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2796,11 +2800,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags, 6);
@@ -2811,9 +2815,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000061)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].enabled = true; // quantref base=30000020 new=30000062 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6624 timeVSprofit=1.145 percentSum_w_roll=89.28 tradesCount=410
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2825,7 +2829,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
@@ -2836,9 +2840,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000062)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].enabled = true; // quantref base=30000008 new=30000063 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;midpoint below=- ratecut=0.6624 timeVSprofit=1.145 percentSum_w_roll=89.28 tradesCount=410
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2847,23 +2851,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000063)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].enabled = true; // quantref base=30000036 new=30000064 modes=best_timevsprofit above=midpoint below=- ratecut=0.6677 timeVSprofit=1.124 percentSum_w_roll=56.71 tradesCount=217
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2872,11 +2877,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags, 5);
@@ -2886,9 +2891,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000064)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].enabled = true; // quantref base=30000008 new=30000065 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2897,23 +2902,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000065)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].enabled = true; // quantref base=30000008 new=30000066 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2922,11 +2928,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags, 5);
@@ -2936,9 +2942,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000066)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].enabled = true; // quantref base=30000020 new=30000067 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2954,16 +2960,17 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].offset_positive = 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000067)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].enabled = true; // quantref base=30000020 new=30000068 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6866 timeVSprofit=1.123 percentSum_w_roll=92.37 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -2986,9 +2993,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000068)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].enabled = true; // quantref base=30000016 new=30000069 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3000,20 +3007,21 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000069)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].enabled = true; // quantref base=30000016 new=30000070 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3025,7 +3033,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
@@ -3036,9 +3044,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000070)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].enabled = true; // quantref base=30000004 new=30000071 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3047,23 +3055,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000071)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].enabled = true; // quantref base=30000004 new=30000072 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6531 timeVSprofit=1.005 percentSum_w_roll=100.58 tradesCount=467
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3072,11 +3081,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags, 5);
@@ -3086,9 +3095,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000072)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].enabled = true; // quantref base=30000033 new=30000073 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6705 timeVSprofit=0.971 percentSum_w_roll=118.87 tradesCount=468
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3100,8 +3109,8 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_tags, 6);
@@ -3114,7 +3123,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000073)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].enabled = true; // quantref base=30000033 new=30000074 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.6705 timeVSprofit=0.971 percentSum_w_roll=118.87 tradesCount=468
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3126,21 +3135,20 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000074)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].enabled = true; // quantref base=30000033 new=30000075 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6705 timeVSprofit=0.971 percentSum_w_roll=118.87 tradesCount=468
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3152,7 +3160,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
@@ -3166,7 +3174,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000075)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].enabled = true; // quantref base=30000014 new=30000076 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3175,11 +3183,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_tags, 5);
@@ -3191,7 +3199,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000076)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].enabled = true; // quantref base=30000014 new=30000077 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3200,23 +3208,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000077)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].enabled = true; // quantref base=30000002 new=30000078 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;dayHighSoFar below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3225,11 +3234,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_tags, 5);
@@ -3241,7 +3250,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000078)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].enabled = true; // quantref base=30000002 new=30000079 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDC below=- ratecut=0.6662 timeVSprofit=0.954 percentSum_w_roll=94.88 tradesCount=439
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3250,23 +3259,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000079)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].enabled = true; // quantref base=30000034 new=30000080 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6959 timeVSprofit=0.917 percentSum_w_roll=96.13 tradesCount=373
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3279,7 +3289,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].secret_tp_profit_p
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_tags, 5);
@@ -3291,7 +3301,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000080)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].enabled = true; // quantref base=30000021 new=30000081 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3300,7 +3310,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].offset_positive = false;
@@ -3317,7 +3327,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000081)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].enabled = true; // quantref base=30000021 new=30000082 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].enabled = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3326,24 +3336,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].enabled = true; // quantref base=30000021 new=30000083 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3352,11 +3361,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_tags, 6);
@@ -3369,7 +3378,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000083)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].enabled = true; // quantref base=30000009 new=30000084 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3378,24 +3387,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000084)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].enabled = true; // quantref base=30000009 new=30000085 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3404,11 +3412,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags, 6);
@@ -3419,9 +3427,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000085)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].enabled = true; // quantref base=30000009 new=30000086 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7036 timeVSprofit=0.91 percentSum_w_roll=110.94 tradesCount=508
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3430,24 +3438,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000086)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].enabled = true; // quantref base=30000032 new=30000087 modes=best_timevsprofit above=dayHighSoFar;midpoint below=- ratecut=0.6551 timeVSprofit=0.84 percentSum_w_roll=97.00 tradesCount=378
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3459,20 +3466,21 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000087)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].enabled = true; // quantref base=30000032 new=30000088 modes=best_timevsprofit above=midpoint below=- ratecut=0.6551 timeVSprofit=0.84 percentSum_w_roll=97.00 tradesCount=378
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3484,8 +3492,8 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags, 5);
@@ -3495,9 +3503,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000088)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].enabled = true; // quantref base=30000032 new=30000089 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6551 timeVSprofit=0.84 percentSum_w_roll=97.00 tradesCount=378
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3509,20 +3517,21 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000089)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].enabled = true; // quantref base=30000007 new=30000090 modes=best_timevsprofit above=dayHighSoFar;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3531,24 +3540,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000090)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].enabled = true; // quantref base=30000019 new=30000091 modes=best_timevsprofit above=midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3557,7 +3565,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].offset_positive = false;
@@ -3572,9 +3580,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000091)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].enabled = true; // quantref base=30000019 new=30000092 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3583,24 +3591,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000092)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].enabled = true; // quantref base=30000019 new=30000093 modes=best_timevsprofit above=dayHighSoFar;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3609,11 +3616,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags, 6);
@@ -3624,9 +3631,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000093)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].enabled = true; // quantref base=30000007 new=30000094 modes=best_timevsprofit above=ONH;midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3635,24 +3642,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000094)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].enabled = true; // quantref base=30000007 new=30000095 modes=best_timevsprofit above=midpoint below=- ratecut=0.6516 timeVSprofit=0.839 percentSum_w_roll=115.07 tradesCount=533
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3661,11 +3667,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags, 6);
@@ -3676,9 +3682,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000095)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].enabled = true; // quantref base=30000028 new=30000096 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6730 timeVSprofit=0.838 percentSum_w_roll=114.14 tradesCount=457
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3690,8 +3696,8 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags, 5);
@@ -3701,9 +3707,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000096)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].enabled = true; // quantref base=30000028 new=30000097 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6730 timeVSprofit=0.838 percentSum_w_roll=114.14 tradesCount=457
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3716,19 +3722,20 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].secret_tp_profit_p
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000097)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].enabled = true; // quantref base=30000028 new=30000098 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6730 timeVSprofit=0.838 percentSum_w_roll=114.14 tradesCount=457
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3741,7 +3748,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].secret_tp_profit_p
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags, 5);
@@ -3751,9 +3758,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000098)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].enabled = true; // quantref base=30000004 new=30000099 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7091 timeVSprofit=0.814 percentSum_w_roll=110.54 tradesCount=507
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3762,23 +3769,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000099)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].enabled = true; // quantref base=30000016 new=30000100 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7091 timeVSprofit=0.814 percentSum_w_roll=110.54 tradesCount=507
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3787,7 +3795,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].offset_positive = true;
@@ -3801,9 +3809,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000100)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].enabled = true; // quantref base=30000031 new=30000101 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6526 timeVSprofit=0.813 percentSum_w_roll=123.41 tradesCount=494
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3815,8 +3823,8 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags, 6);
@@ -3827,9 +3835,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000101)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].enabled = true; // quantref base=30000031 new=30000102 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6526 timeVSprofit=0.813 percentSum_w_roll=123.41 tradesCount=494
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3841,21 +3849,20 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000102)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].enabled = true; // quantref base=30000031 new=30000103 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6526 timeVSprofit=0.813 percentSum_w_roll=123.41 tradesCount=494
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3879,9 +3886,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000103)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].enabled = true; // quantref base=30000030 new=30000104 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6551 timeVSprofit=0.793 percentSum_w_roll=129.69 tradesCount=528
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3893,8 +3900,8 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags, 5);
@@ -3904,9 +3911,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000104)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].enabled = true; // quantref base=30000030 new=30000105 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6538 timeVSprofit=0.792 percentSum_w_roll=129.47 tradesCount=527
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3918,20 +3925,21 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000105)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].enabled = true; // quantref base=30000030 new=30000106 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6538 timeVSprofit=0.792 percentSum_w_roll=129.47 tradesCount=527
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3943,8 +3951,8 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].max_open_positions
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags, 5);
@@ -3954,9 +3962,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000106)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].enabled = true; // quantref base=30000014 new=30000107 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7056 timeVSprofit=0.782 percentSum_w_roll=101.48 tradesCount=465
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3965,23 +3973,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000107)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].enabled = true; // quantref base=30000002 new=30000108 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.7056 timeVSprofit=0.782 percentSum_w_roll=101.48 tradesCount=465
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -3990,11 +3999,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags, 5);
@@ -4004,9 +4013,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000108)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].enabled = true; // quantref base=30000001 new=30000109 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6934 timeVSprofit=0.78 percentSum_w_roll=128.66 tradesCount=606
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4015,7 +4024,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].offset_positive = true;
@@ -4032,7 +4041,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000109)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].enabled = true; // quantref base=30000001 new=30000110 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4041,24 +4050,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000110)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].enabled = true; // quantref base=30000001 new=30000111 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4067,11 +4075,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_tags, 6);
@@ -4084,7 +4092,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000111)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].enabled = true; // quantref base=30000013 new=30000112 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6934 timeVSprofit=0.78 percentSum_w_roll=128.66 tradesCount=606
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4093,24 +4101,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000112)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].enabled = true; // quantref base=30000013 new=30000113 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4119,11 +4126,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_tags, 6);
@@ -4136,7 +4143,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000113)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].enabled = true; // quantref base=30000013 new=30000114 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6922 timeVSprofit=0.78 percentSum_w_roll=128.47 tradesCount=605
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4145,24 +4152,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000114)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].enabled = true; // quantref base=30000003 new=30000115 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6876 timeVSprofit=0.762 percentSum_w_roll=133.19 tradesCount=634
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4171,11 +4177,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_tags, 6);
@@ -4188,7 +4194,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000115)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].enabled = true; // quantref base=30000003 new=30000116 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4197,24 +4203,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000116)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].enabled = true; // quantref base=30000003 new=30000117 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4223,10 +4228,10 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
@@ -4240,7 +4245,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000117)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].enabled = true; // quantref base=30000015 new=30000118 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4249,24 +4254,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000118)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].enabled = true; // quantref base=30000015 new=30000119 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6866 timeVSprofit=0.762 percentSum_w_roll=133.00 tradesCount=633
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4275,11 +4279,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_tags, 6);
@@ -4292,7 +4296,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000119)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].enabled = true; // quantref base=30000015 new=30000120 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6876 timeVSprofit=0.762 percentSum_w_roll=133.19 tradesCount=634
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4301,24 +4305,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000120)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].enabled = true; // quantref base=30000006 new=30000121 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6921 timeVSprofit=0.745 percentSum_w_roll=131.24 tradesCount=616
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4327,23 +4330,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000121)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].enabled = true; // quantref base=30000006 new=30000122 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4352,11 +4356,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags, 5);
@@ -4366,9 +4370,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000122)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].enabled = true; // quantref base=30000006 new=30000123 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4377,23 +4381,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000123)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].enabled = true; // quantref base=30000018 new=30000124 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4402,11 +4407,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags, 5);
@@ -4416,9 +4421,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000124)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].enabled = true; // quantref base=30000018 new=30000125 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6921 timeVSprofit=0.745 percentSum_w_roll=131.24 tradesCount=616
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4427,23 +4432,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000125)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].enabled = true; // quantref base=30000018 new=30000126 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6910 timeVSprofit=0.745 percentSum_w_roll=131.08 tradesCount=615
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4452,7 +4458,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].offset_positive = true;
@@ -4466,9 +4472,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000126)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].enabled = true; // quantref base=30000017 new=30000127 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6574 timeVSprofit=0.695 percentSum_w_roll=147.43 tradesCount=710
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4477,11 +4483,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags, 6);
@@ -4492,9 +4498,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000127)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].enabled = true; // quantref base=30000005 new=30000128 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6574 timeVSprofit=0.695 percentSum_w_roll=147.43 tradesCount=710
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4503,24 +4509,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000128)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].enabled = true; // quantref base=30000017 new=30000129 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4529,11 +4534,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags, 6);
@@ -4544,9 +4549,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000129)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].enabled = true; // quantref base=30000017 new=30000130 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4555,24 +4560,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000130)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].enabled = true; // quantref base=30000005 new=30000131 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4581,10 +4585,10 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
@@ -4596,9 +4600,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000131)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].enabled = true; // quantref base=30000005 new=30000132 modes=best_timevsprofit,best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6528 timeVSprofit=0.692 percentSum_w_roll=146.52 tradesCount=705
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4607,24 +4611,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].offset_positive = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000132)].rule_switch_map = 1;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].enabled = true; // quantref base=30000026 new=30000133 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH;PDO below=- ratecut=0.6986 timeVSprofit=0.082 percentSum_w_roll=50.16 tradesCount=204
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4633,23 +4636,24 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000133)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].enabled = true; // quantref base=30000026 new=30000134 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDO below=- ratecut=0.6986 timeVSprofit=0.082 percentSum_w_roll=50.16 tradesCount=204
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4658,7 +4662,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].offset_positive = true;
@@ -4672,9 +4676,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000134)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].enabled = true; // quantref base=30000025 new=30000135 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8627 timeVSprofit=0.056 percentSum_w_roll=172.08 tradesCount=704
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4683,11 +4687,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags, 6);
@@ -4698,9 +4702,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000135)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].enabled = true; // quantref base=30000027 new=30000136 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8666 timeVSprofit=0.055 percentSum_w_roll=178.33 tradesCount=734
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4709,24 +4713,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].offset_positive = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000136)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].enabled = true; // quantref base=30000029 new=30000137 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8530 timeVSprofit=0.05 percentSum_w_roll=189.05 tradesCount=789
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4735,7 +4738,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].offset_positive = true;
@@ -4750,9 +4753,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000137)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].enabled = true; // quantref base=30000026 new=30000138 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8938 timeVSprofit=0.048 percentSum_w_roll=63.59 tradesCount=261
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4761,11 +4764,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].offset_positive = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags, 5);
@@ -4775,9 +4778,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000138)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].enabled = true; // quantref base=30000035 new=30000139 modes=best_timeVSprofitVSratecut above=ONH;PDH below=- ratecut=0.6957 timeVSprofit=1.21 percentSum_w_roll=55.07 tradesCount=208
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4786,11 +4789,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags, 6);
@@ -4801,9 +4804,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000139)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].enabled = true; // quantref base=30000035 new=30000140 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6957 timeVSprofit=1.21 percentSum_w_roll=55.07 tradesCount=208
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4812,24 +4815,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000140)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].enabled = true; // quantref base=30000035 new=30000141 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6957 timeVSprofit=1.21 percentSum_w_roll=55.07 tradesCount=208
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4838,11 +4840,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags, 6);
@@ -4853,9 +4855,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000141)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].enabled = true; // quantref base=30000036 new=30000142 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6831 timeVSprofit=1.12 percentSum_w_roll=58.05 tradesCount=222
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4864,11 +4866,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].offset_percentage = 0.0006;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags, 5);
@@ -4878,9 +4880,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[2] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000142)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].enabled = true; // quantref base=30000019 new=30000143 modes=best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4889,11 +4891,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags, 6);
@@ -4904,9 +4906,9 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[3] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[4] = "Down5";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000143)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].enabled = true; // quantref base=30000019 new=30000144 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].enabled = false;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4915,24 +4917,23 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].secret_tp_profit_percent_min = 7.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags, 6);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags, 5);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[4] = "Down5";
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].real_tp = 555.0;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].rule_switch_map = 0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000144)].rule_switch_map = 2;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].enabled = true; // quantref base=30000019 new=30000145 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].enabled = false; // quantref base=30000005 new=30000145 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6612 timeVSprofit=0.701 percentSum_w_roll=150.21 tradesCount=726
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4941,11 +4942,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_tags, 6);
@@ -4958,7 +4959,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000145)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].enabled = true; // quantref base=30000007 new=30000146 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].enabled = false; // quantref base=30000041 new=30000146 modes=best_timevsprofit,best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6612 timeVSprofit=0.701 percentSum_w_roll=150.21 tradesCount=726
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -4967,11 +4968,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_tags, 6);
@@ -4984,7 +4985,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000146)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].enabled = true; // quantref base=30000007 new=30000147 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].enabled = false; // quantref base=30000007 new=30000147 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9004 timeVSprofit=0.081 percentSum_w_roll=152.96 tradesCount=714
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5010,7 +5011,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000147)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].enabled = true; // quantref base=30000007 new=30000148 modes=best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6993 timeVSprofit=0.831 percentSum_w_roll=122.87 tradesCount=572
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].enabled = false; // quantref base=30000043 new=30000148 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9027 timeVSprofit=0.081 percentSum_w_roll=152.96 tradesCount=714
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5019,7 +5020,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].level_needs_to_be_below_ONO = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].offset_positive = false;
@@ -5036,7 +5037,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].trades_tags[5] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000148)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].enabled = true; // quantref base=30000032 new=30000149 modes=best_timeVSprofitVSratecut above=ONH below=- ratecut=0.6742 timeVSprofit=0.833 percentSum_w_roll=99.71 tradesCount=389
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].enabled = false; // quantref base=30000006 new=30000149 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8969 timeVSprofit=0.078 percentSum_w_roll=173.99 tradesCount=826
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5045,11 +5046,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].secret_tp_profit_percent_min = 1.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_tags, 5);
@@ -5061,7 +5062,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000149)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].enabled = true; // quantref base=30000032 new=30000150 modes=best_timeVSprofitVSratecut above=dayHighSoFar below=- ratecut=0.6742 timeVSprofit=0.833 percentSum_w_roll=99.71 tradesCount=389
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].enabled = false; // quantref base=30000042 new=30000150 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8969 timeVSprofit=0.078 percentSum_w_roll=173.99 tradesCount=826
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5070,11 +5071,11 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].stop_trading_TODAY
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].this_algo_max_concurrent_pending_trades = 1;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].max_open_positions = 10;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].secret_tp_profit_percent_min = 2.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].level_needs_to_be_below_ONO = true;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].offset_positive = false;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].offset_percentage = 0.0020;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
 ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_tags, 5);
@@ -5086,7 +5087,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].trades_tags[4] = "
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000150)].rule_switch_map = 0;
 
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].enabled = true; // quantref base=30000032 new=30000151 modes=best_timeVSprofitVSratecut above=ONH;dayHighSoFar below=- ratecut=0.6742 timeVSprofit=0.833 percentSum_w_roll=99.71 tradesCount=389
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].enabled = false; // quantref base=30000079 new=30000151 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8913 timeVSprofit=0.071 percentSum_w_roll=162.92 tradesCount=656
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_weekly = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_daily = true;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -5102,14 +5103,6446 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].offset_positive = 
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].offset_percentage = 0.0003;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
-ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags, 5);
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags, 6);
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[0] = "Down1";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[1] = "Down2";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[2] = "Down3";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[3] = "Down4";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].trades_tags[5] = "Pivot";
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].real_tp = 555.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000151)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].enabled = false; // quantref base=30000039 new=30000152 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8788 timeVSprofit=0.067 percentSum_w_roll=167.04 tradesCount=805
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000152)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].enabled = false; // quantref base=30000003 new=30000153 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8791 timeVSprofit=0.066 percentSum_w_roll=167.44 tradesCount=807
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000153)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].enabled = false; // quantref base=30000005 new=30000154 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8552 timeVSprofit=0.065 percentSum_w_roll=192.56 tradesCount=939
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000154)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].enabled = false; // quantref base=30000041 new=30000155 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8552 timeVSprofit=0.065 percentSum_w_roll=192.56 tradesCount=939
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000155)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].enabled = false; // quantref base=30000078 new=30000156 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8942 timeVSprofit=0.064 percentSum_w_roll=180.84 tradesCount=744
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000156)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].enabled = false; // quantref base=30000037 new=30000157 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8760 timeVSprofit=0.064 percentSum_w_roll=156.83 tradesCount=749
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000157)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].enabled = false; // quantref base=30000001 new=30000158 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8762 timeVSprofit=0.063 percentSum_w_roll=157.02 tradesCount=750
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000158)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].enabled = false; // quantref base=30000076 new=30000159 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9069 timeVSprofit=0.059 percentSum_w_roll=156.30 tradesCount=633
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000159)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].enabled = false; // quantref base=30000073 new=30000160 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8688 timeVSprofit=0.057 percentSum_w_roll=169.57 tradesCount=695
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000160)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].enabled = false; // quantref base=30000075 new=30000161 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8737 timeVSprofit=0.056 percentSum_w_roll=179.76 tradesCount=740
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000161)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].enabled = false; // quantref base=30000118 new=30000162 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9207 timeVSprofit=0.051 percentSum_w_roll=167.26 tradesCount=418
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000162)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].enabled = false; // quantref base=30000114 new=30000163 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.6639 timeVSprofit=0.05 percentSum_w_roll=159.07 tradesCount=403
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000163)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].enabled = false; // quantref base=30000077 new=30000164 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8542 timeVSprofit=0.05 percentSum_w_roll=191.11 tradesCount=797
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000164)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].enabled = false; // quantref base=30000058 new=30000165 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7253 timeVSprofit=0.049 percentSum_w_roll=174.80 tradesCount=272 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000165)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].enabled = false; // quantref base=30000110 new=30000166 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8938 timeVSprofit=0.049 percentSum_w_roll=183.28 tradesCount=463
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000166)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].enabled = false; // quantref base=30000022 new=30000167 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7253 timeVSprofit=0.049 percentSum_w_roll=174.80 tradesCount=272 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000167)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].enabled = false; // quantref base=30000106 new=30000168 modes=best_timevsprofit above=PDH;PDO below=- ratecut=0.6530 timeVSprofit=0.049 percentSum_w_roll=168.40 tradesCount=239 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000168)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].enabled = false; // quantref base=30000115 new=30000169 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8748 timeVSprofit=0.048 percentSum_w_roll=198.70 tradesCount=503
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000169)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].enabled = false; // quantref base=30000106 new=30000170 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8361 timeVSprofit=0.048 percentSum_w_roll=196.49 tradesCount=306
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000170)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].enabled = false; // quantref base=30000032 new=30000171 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8611 timeVSprofit=0.046 percentSum_w_roll=210.02 tradesCount=341
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000171)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].enabled = false; // quantref base=30000032 new=30000172 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8535 timeVSprofit=0.046 percentSum_w_roll=209.30 tradesCount=338
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000172)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].enabled = false; // quantref base=30000054 new=30000173 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7807 timeVSprofit=0.046 percentSum_w_roll=222.81 tradesCount=388
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000173)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].enabled = false; // quantref base=30000064 new=30000174 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7605 timeVSprofit=0.046 percentSum_w_roll=211.30 tradesCount=327
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000174)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].enabled = false; // quantref base=30000068 new=30000175 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8611 timeVSprofit=0.046 percentSum_w_roll=210.02 tradesCount=341
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000175)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].enabled = false; // quantref base=30000068 new=30000176 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8535 timeVSprofit=0.046 percentSum_w_roll=209.30 tradesCount=338
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000176)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].enabled = false; // quantref base=30000140 new=30000177 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7847 timeVSprofit=0.046 percentSum_w_roll=210.44 tradesCount=277
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000177)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].enabled = false; // quantref base=30000140 new=30000178 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7819 timeVSprofit=0.046 percentSum_w_roll=210.08 tradesCount=276
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000178)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].enabled = false; // quantref base=30000142 new=30000179 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7546 timeVSprofit=0.046 percentSum_w_roll=185.88 tradesCount=246
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000179)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].enabled = false; // quantref base=30000142 new=30000180 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7515 timeVSprofit=0.046 percentSum_w_roll=185.49 tradesCount=245
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000180)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].enabled = false; // quantref base=30000018 new=30000181 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7807 timeVSprofit=0.046 percentSum_w_roll=222.81 tradesCount=388
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000181)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].enabled = false; // quantref base=30000028 new=30000182 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7605 timeVSprofit=0.046 percentSum_w_roll=211.30 tradesCount=327
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000182)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].enabled = false; // quantref base=30000104 new=30000183 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8442 timeVSprofit=0.045 percentSum_w_roll=207.98 tradesCount=325
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000183)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].enabled = false; // quantref base=30000104 new=30000184 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7662 timeVSprofit=0.045 percentSum_w_roll=196.85 tradesCount=295
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000184)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].enabled = false; // quantref base=30000114 new=30000185 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8863 timeVSprofit=0.045 percentSum_w_roll=212.08 tradesCount=538
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000185)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].enabled = false; // quantref base=30000134 new=30000186 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC below=PDL ratecut=0.7493 timeVSprofit=0.045 percentSum_w_roll=201.38 tradesCount=263
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000186)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].enabled = false; // quantref base=30000062 new=30000187 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7592 timeVSprofit=0.044 percentSum_w_roll=200.40 tradesCount=309
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000187)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].enabled = false; // quantref base=30000117 new=30000188 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8935 timeVSprofit=0.044 percentSum_w_roll=186.20 tradesCount=470
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000188)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].enabled = false; // quantref base=30000034 new=30000189 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8503 timeVSprofit=0.044 percentSum_w_roll=194.54 tradesCount=318
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000189)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].enabled = false; // quantref base=30000034 new=30000190 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8422 timeVSprofit=0.044 percentSum_w_roll=193.81 tradesCount=315
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000190)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].enabled = false; // quantref base=30000057 new=30000191 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7082 timeVSprofit=0.044 percentSum_w_roll=196.02 tradesCount=318 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000191)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].enabled = false; // quantref base=30000022 new=30000192 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7600 timeVSprofit=0.044 percentSum_w_roll=172.72 tradesCount=285
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000192)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].enabled = false; // quantref base=30000134 new=30000193 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7863 timeVSprofit=0.044 percentSum_w_roll=208.05 tradesCount=276
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000193)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].enabled = false; // quantref base=30000070 new=30000194 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8507 timeVSprofit=0.044 percentSum_w_roll=194.75 tradesCount=319
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000194)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].enabled = false; // quantref base=30000100 new=30000195 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7727 timeVSprofit=0.044 percentSum_w_roll=215.06 tradesCount=323
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000195)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].enabled = false; // quantref base=30000058 new=30000196 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7600 timeVSprofit=0.044 percentSum_w_roll=172.72 tradesCount=285
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000196)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].enabled = false; // quantref base=30000090 new=30000197 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7983 timeVSprofit=0.044 percentSum_w_roll=221.84 tradesCount=372
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000197)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].enabled = false; // quantref base=30000088 new=30000198 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7146 timeVSprofit=0.044 percentSum_w_roll=197.79 tradesCount=318 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000198)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].enabled = false; // quantref base=30000026 new=30000199 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7592 timeVSprofit=0.044 percentSum_w_roll=200.40 tradesCount=309
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000199)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].enabled = false; // quantref base=30000070 new=30000200 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8427 timeVSprofit=0.044 percentSum_w_roll=194.02 tradesCount=316
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000200)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].enabled = false; // quantref base=30000136 new=30000201 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7417 timeVSprofit=0.043 percentSum_w_roll=204.36 tradesCount=267
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000201)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].enabled = false; // quantref base=30000056 new=30000202 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7322 timeVSprofit=0.043 percentSum_w_roll=189.12 tradesCount=298 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000202)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].enabled = false; // quantref base=30000066 new=30000203 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7983 timeVSprofit=0.043 percentSum_w_roll=229.64 tradesCount=368
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000203)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].enabled = false; // quantref base=30000094 new=30000204 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.7459 timeVSprofit=0.043 percentSum_w_roll=177.74 tradesCount=273 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000204)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].enabled = false; // quantref base=30000136 new=30000205 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7806 timeVSprofit=0.043 percentSum_w_roll=211.45 tradesCount=281
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000205)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].enabled = false; // quantref base=30000021 new=30000206 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7047 timeVSprofit=0.043 percentSum_w_roll=192.32 tradesCount=315 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000206)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].enabled = false; // quantref base=30000020 new=30000207 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7322 timeVSprofit=0.043 percentSum_w_roll=189.12 tradesCount=298 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000207)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].enabled = false; // quantref base=30000030 new=30000208 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7983 timeVSprofit=0.043 percentSum_w_roll=229.64 tradesCount=368
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000208)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].enabled = false; // quantref base=30000016 new=30000209 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7165 timeVSprofit=0.043 percentSum_w_roll=191.70 tradesCount=326 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000209)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].enabled = false; // quantref base=30000052 new=30000210 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7165 timeVSprofit=0.043 percentSum_w_roll=191.70 tradesCount=326 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000210)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].enabled = false; // quantref base=30000028 new=30000211 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8605 timeVSprofit=0.042 percentSum_w_roll=224.24 tradesCount=370
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000211)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].enabled = false; // quantref base=30000018 new=30000212 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7042 timeVSprofit=0.042 percentSum_w_roll=213.19 tradesCount=350 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000212)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].enabled = false; // quantref base=30000030 new=30000213 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8829 timeVSprofit=0.042 percentSum_w_roll=243.29 tradesCount=407
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000213)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].enabled = false; // quantref base=30000130 new=30000214 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6500 timeVSprofit=0.042 percentSum_w_roll=170.91 tradesCount=221
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000214)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].enabled = false; // quantref base=30000130 new=30000215 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7912 timeVSprofit=0.042 percentSum_w_roll=198.33 tradesCount=269
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000215)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].enabled = false; // quantref base=30000124 new=30000216 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6543 timeVSprofit=0.042 percentSum_w_roll=190.02 tradesCount=246
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000216)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].enabled = false; // quantref base=30000112 new=30000217 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8968 timeVSprofit=0.042 percentSum_w_roll=166.46 tradesCount=426
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000217)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].enabled = false; // quantref base=30000109 new=30000218 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8576 timeVSprofit=0.042 percentSum_w_roll=205.39 tradesCount=524
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000218)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].enabled = false; // quantref base=30000100 new=30000219 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8469 timeVSprofit=0.042 percentSum_w_roll=226.63 tradesCount=354
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000219)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].enabled = false; // quantref base=30000054 new=30000220 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7042 timeVSprofit=0.042 percentSum_w_roll=213.19 tradesCount=350 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000220)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].enabled = false; // quantref base=30000098 new=30000221 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7880 timeVSprofit=0.042 percentSum_w_roll=211.94 tradesCount=316
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000221)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].enabled = false; // quantref base=30000066 new=30000222 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8829 timeVSprofit=0.042 percentSum_w_roll=243.29 tradesCount=407
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000222)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].enabled = false; // quantref base=30000064 new=30000223 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8605 timeVSprofit=0.042 percentSum_w_roll=224.24 tradesCount=370
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000223)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].enabled = false; // quantref base=30000138 new=30000224 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7989 timeVSprofit=0.041 percentSum_w_roll=218.03 tradesCount=298
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000224)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].enabled = false; // quantref base=30000138 new=30000225 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7936 timeVSprofit=0.041 percentSum_w_roll=217.09 tradesCount=296
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000225)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].enabled = false; // quantref base=30000088 new=30000226 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7843 timeVSprofit=0.041 percentSum_w_roll=206.23 tradesCount=349
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000226)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].enabled = false; // quantref base=30000057 new=30000227 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7706 timeVSprofit=0.041 percentSum_w_roll=195.60 tradesCount=346
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000227)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].enabled = false; // quantref base=30000092 new=30000228 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7393 timeVSprofit=0.041 percentSum_w_roll=189.13 tradesCount=295 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000228)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].enabled = false; // quantref base=30000026 new=30000229 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8722 timeVSprofit=0.041 percentSum_w_roll=213.25 tradesCount=355
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000229)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].enabled = false; // quantref base=30000124 new=30000230 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8457 timeVSprofit=0.041 percentSum_w_roll=228.07 tradesCount=318
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000230)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].enabled = false; // quantref base=30000062 new=30000231 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8722 timeVSprofit=0.041 percentSum_w_roll=213.25 tradesCount=355
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000231)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].enabled = false; // quantref base=30000102 new=30000232 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8691 timeVSprofit=0.041 percentSum_w_roll=238.78 tradesCount=385
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000232)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].enabled = false; // quantref base=30000102 new=30000233 modes=best_timevsprofit above=PDC below=PDL ratecut=0.8104 timeVSprofit=0.041 percentSum_w_roll=227.91 tradesCount=359
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000233)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].enabled = false; // quantref base=30000094 new=30000234 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7705 timeVSprofit=0.04 percentSum_w_roll=173.99 tradesCount=282
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000234)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].enabled = false; // quantref base=30000098 new=30000235 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8628 timeVSprofit=0.04 percentSum_w_roll=222.60 tradesCount=346
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000235)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].enabled = false; // quantref base=30000126 new=30000236 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6658 timeVSprofit=0.04 percentSum_w_roll=195.75 tradesCount=263
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000236)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].enabled = false; // quantref base=30000052 new=30000237 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7824 timeVSprofit=0.04 percentSum_w_roll=201.33 tradesCount=356
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000237)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].enabled = false; // quantref base=30000133 new=30000238 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7312 timeVSprofit=0.04 percentSum_w_roll=211.94 tradesCount=302
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000238)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].enabled = false; // quantref base=30000016 new=30000239 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7824 timeVSprofit=0.04 percentSum_w_roll=201.33 tradesCount=356
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000239)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].enabled = false; // quantref base=30000021 new=30000240 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7740 timeVSprofit=0.04 percentSum_w_roll=194.20 tradesCount=346
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000240)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].enabled = false; // quantref base=30000139 new=30000241 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7775 timeVSprofit=0.04 percentSum_w_roll=210.25 tradesCount=304
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000241)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].enabled = false; // quantref base=30000050 new=30000242 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7212 timeVSprofit=0.04 percentSum_w_roll=182.16 tradesCount=313 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000242)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].enabled = false; // quantref base=30000139 new=30000243 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7749 timeVSprofit=0.04 percentSum_w_roll=209.89 tradesCount=303
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000243)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].enabled = false; // quantref base=30000014 new=30000244 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7212 timeVSprofit=0.04 percentSum_w_roll=182.16 tradesCount=313 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000244)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].enabled = false; // quantref base=30000027 new=30000245 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7705 timeVSprofit=0.039 percentSum_w_roll=227.22 tradesCount=386
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000245)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].enabled = false; // quantref base=30000063 new=30000246 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7709 timeVSprofit=0.039 percentSum_w_roll=227.57 tradesCount=387
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000246)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].enabled = false; // quantref base=30000099 new=30000247 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7782 timeVSprofit=0.039 percentSum_w_roll=226.67 tradesCount=372
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000247)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].enabled = false; // quantref base=30000090 new=30000248 modes=best_timevsprofit above=- below=PDL ratecut=0.8777 timeVSprofit=0.039 percentSum_w_roll=236.19 tradesCount=409
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000248)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].enabled = false; // quantref base=30000056 new=30000249 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7862 timeVSprofit=0.039 percentSum_w_roll=188.06 tradesCount=320
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000249)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].enabled = false; // quantref base=30000020 new=30000250 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7862 timeVSprofit=0.039 percentSum_w_roll=188.06 tradesCount=320
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000250)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].enabled = false; // quantref base=30000111 new=30000251 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.8590 timeVSprofit=0.039 percentSum_w_roll=201.41 tradesCount=518
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000251)].rule_switch_map = 0;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].enabled = false; // quantref base=30000086 new=30000252 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7400 timeVSprofit=0.039 percentSum_w_roll=193.83 tradesCount=316 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000252)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].enabled = false; // quantref base=30000135 new=30000253 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7677 timeVSprofit=0.039 percentSum_w_roll=220.78 tradesCount=314
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000253)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].enabled = false; // quantref base=30000135 new=30000254 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7653 timeVSprofit=0.039 percentSum_w_roll=220.37 tradesCount=313
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000254)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].enabled = false; // quantref base=30000033 new=30000255 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7661 timeVSprofit=0.038 percentSum_w_roll=202.18 tradesCount=334
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000255)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].enabled = false; // quantref base=30000141 new=30000256 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7407 timeVSprofit=0.038 percentSum_w_roll=181.56 tradesCount=260
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000256)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].enabled = false; // quantref base=30000141 new=30000257 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7436 timeVSprofit=0.038 percentSum_w_roll=181.95 tradesCount=261
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000257)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].enabled = false; // quantref base=30000099 new=30000258 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8347 timeVSprofit=0.038 percentSum_w_roll=236.56 tradesCount=399
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000258)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].enabled = false; // quantref base=30000097 new=30000259 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7891 timeVSprofit=0.038 percentSum_w_roll=226.65 tradesCount=378
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000259)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].enabled = false; // quantref base=30000069 new=30000260 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7661 timeVSprofit=0.038 percentSum_w_roll=202.18 tradesCount=334
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000260)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].enabled = false; // quantref base=30000092 new=30000261 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7820 timeVSprofit=0.038 percentSum_w_roll=187.63 tradesCount=312
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000261)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].enabled = false; // quantref base=30000086 new=30000262 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8009 timeVSprofit=0.038 percentSum_w_roll=202.37 tradesCount=342
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000262)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].enabled = false; // quantref base=30000128 new=30000263 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8309 timeVSprofit=0.038 percentSum_w_roll=200.81 tradesCount=280
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000263)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].enabled = false; // quantref base=30000128 new=30000264 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7834 timeVSprofit=0.038 percentSum_w_roll=193.26 tradesCount=264
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000264)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].enabled = false; // quantref base=30000050 new=30000265 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7972 timeVSprofit=0.038 percentSum_w_roll=191.97 tradesCount=346
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000265)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].enabled = false; // quantref base=30000133 new=30000266 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7676 timeVSprofit=0.038 percentSum_w_roll=219.08 tradesCount=317
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000266)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].enabled = false; // quantref base=30000014 new=30000267 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7972 timeVSprofit=0.038 percentSum_w_roll=191.97 tradesCount=346
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000267)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].enabled = false; // quantref base=30000031 new=30000268 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8715 timeVSprofit=0.037 percentSum_w_roll=231.12 tradesCount=400
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000268)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].enabled = false; // quantref base=30000035 new=30000269 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9843 timeVSprofit=0.037 percentSum_w_roll=159.01 tradesCount=250
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000269)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].enabled = false; // quantref base=30000033 new=30000270 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=214.01 tradesCount=372
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000270)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].enabled = false; // quantref base=30000087 new=30000271 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7186 timeVSprofit=0.037 percentSum_w_roll=219.60 tradesCount=383 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000271)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].enabled = false; // quantref base=30000031 new=30000272 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8627 timeVSprofit=0.037 percentSum_w_roll=230.00 tradesCount=396
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000272)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].enabled = false; // quantref base=30000122 new=30000273 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7908 timeVSprofit=0.037 percentSum_w_roll=197.69 tradesCount=276
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000273)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].enabled = false; // quantref base=30000131 new=30000274 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9394 timeVSprofit=0.037 percentSum_w_roll=159.87 tradesCount=217
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000274)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].enabled = false; // quantref base=30000067 new=30000275 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8715 timeVSprofit=0.037 percentSum_w_roll=231.12 tradesCount=400
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000275)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].enabled = false; // quantref base=30000097 new=30000276 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8476 timeVSprofit=0.037 percentSum_w_roll=237.08 tradesCount=406
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000276)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].enabled = false; // quantref base=30000069 new=30000277 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=214.01 tradesCount=372
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000277)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].enabled = false; // quantref base=30000067 new=30000278 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8627 timeVSprofit=0.037 percentSum_w_roll=230.00 tradesCount=396
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000278)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].enabled = false; // quantref base=30000126 new=30000279 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8532 timeVSprofit=0.037 percentSum_w_roll=236.10 tradesCount=337
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000279)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].enabled = false; // quantref base=30000122 new=30000280 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8453 timeVSprofit=0.036 percentSum_w_roll=205.95 tradesCount=295
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000280)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].enabled = false; // quantref base=30000019 new=30000281 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7164 timeVSprofit=0.036 percentSum_w_roll=198.23 tradesCount=341 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000281)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].enabled = false; // quantref base=30000121 new=30000282 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6627 timeVSprofit=0.036 percentSum_w_roll=192.69 tradesCount=277
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000282)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].enabled = false; // quantref base=30000123 new=30000283 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6596 timeVSprofit=0.036 percentSum_w_roll=202.54 tradesCount=279
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000283)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].enabled = false; // quantref base=30000055 new=30000284 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7206 timeVSprofit=0.036 percentSum_w_roll=200.93 tradesCount=343 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000284)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].enabled = false; // quantref base=30000061 new=30000285 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7744 timeVSprofit=0.036 percentSum_w_roll=219.51 tradesCount=381
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000285)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].enabled = false; // quantref base=30000025 new=30000286 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7744 timeVSprofit=0.036 percentSum_w_roll=219.51 tradesCount=381
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000286)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].enabled = false; // quantref base=30000105 new=30000287 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8410 timeVSprofit=0.036 percentSum_w_roll=208.51 tradesCount=349
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000287)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].enabled = false; // quantref base=30000105 new=30000288 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8506 timeVSprofit=0.036 percentSum_w_roll=209.76 tradesCount=353
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000288)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].enabled = false; // quantref base=30000027 new=30000289 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8643 timeVSprofit=0.036 percentSum_w_roll=240.83 tradesCount=433
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000289)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].enabled = false; // quantref base=30000103 new=30000290 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8542 timeVSprofit=0.036 percentSum_w_roll=223.53 tradesCount=375
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000290)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].enabled = false; // quantref base=30000063 new=30000291 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8645 timeVSprofit=0.036 percentSum_w_roll=241.18 tradesCount=434
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000291)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].enabled = false; // quantref base=30000103 new=30000292 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8610 timeVSprofit=0.036 percentSum_w_roll=224.31 tradesCount=378
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000292)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].enabled = false; // quantref base=30000051 new=30000293 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7020 timeVSprofit=0.036 percentSum_w_roll=207.14 tradesCount=384 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000293)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].enabled = false; // quantref base=30000087 new=30000294 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7749 timeVSprofit=0.036 percentSum_w_roll=221.94 tradesCount=413
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000294)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].enabled = false; // quantref base=30000015 new=30000295 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7033 timeVSprofit=0.036 percentSum_w_roll=207.14 tradesCount=384 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000295)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].enabled = false; // quantref base=30000093 new=30000296 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7817 timeVSprofit=0.036 percentSum_w_roll=193.92 tradesCount=333
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000296)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].enabled = false; // quantref base=30000093 new=30000297 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7418 timeVSprofit=0.036 percentSum_w_roll=196.55 tradesCount=316 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000297)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].enabled = false; // quantref base=30000055 new=30000298 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8004 timeVSprofit=0.035 percentSum_w_roll=203.51 tradesCount=381
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000298)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].enabled = false; // quantref base=30000019 new=30000299 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7983 timeVSprofit=0.035 percentSum_w_roll=200.99 tradesCount=380
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000299)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].enabled = false; // quantref base=30000123 new=30000300 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8369 timeVSprofit=0.035 percentSum_w_roll=242.86 tradesCount=354
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000300)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].enabled = false; // quantref base=30000025 new=30000301 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8720 timeVSprofit=0.034 percentSum_w_roll=233.26 tradesCount=429
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000301)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].enabled = false; // quantref base=30000089 new=30000302 modes=best_timevsprofit above=PDH below=PDL ratecut=0.8070 timeVSprofit=0.034 percentSum_w_roll=228.50 tradesCount=414
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000302)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].enabled = false; // quantref base=30000053 new=30000303 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7933 timeVSprofit=0.034 percentSum_w_roll=221.14 tradesCount=426
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000303)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].enabled = false; // quantref base=30000061 new=30000304 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8720 timeVSprofit=0.034 percentSum_w_roll=233.26 tradesCount=429
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000304)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].enabled = false; // quantref base=30000121 new=30000305 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8325 timeVSprofit=0.034 percentSum_w_roll=230.60 tradesCount=348
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000305)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].enabled = false; // quantref base=30000129 new=30000306 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7703 timeVSprofit=0.034 percentSum_w_roll=197.65 tradesCount=285
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000306)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].enabled = false; // quantref base=30000065 new=30000307 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7840 timeVSprofit=0.034 percentSum_w_roll=222.33 tradesCount=392
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000307)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].enabled = false; // quantref base=30000029 new=30000308 modes=best_timevsprofit above=PDC below=PDL ratecut=0.7840 timeVSprofit=0.034 percentSum_w_roll=222.33 tradesCount=392
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000308)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].enabled = false; // quantref base=30000127 new=30000309 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7658 timeVSprofit=0.034 percentSum_w_roll=202.65 tradesCount=291
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000309)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].enabled = false; // quantref base=30000127 new=30000310 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8105 timeVSprofit=0.034 percentSum_w_roll=211.39 tradesCount=308
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000310)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].enabled = false; // quantref base=30000051 new=30000311 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7788 timeVSprofit=0.034 percentSum_w_roll=214.71 tradesCount=426
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000311)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].enabled = false; // quantref base=30000017 new=30000312 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7933 timeVSprofit=0.034 percentSum_w_roll=221.14 tradesCount=426
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000312)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].enabled = false; // quantref base=30000125 new=30000313 modes=best_timevsprofit above=PDC below=PDL ratecut=0.6714 timeVSprofit=0.034 percentSum_w_roll=203.75 tradesCount=286
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000313)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].enabled = false; // quantref base=30000015 new=30000314 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7802 timeVSprofit=0.034 percentSum_w_roll=213.77 tradesCount=426
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000314)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].enabled = false; // quantref base=30000065 new=30000315 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8560 timeVSprofit=0.033 percentSum_w_roll=232.01 tradesCount=428
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000315)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].enabled = false; // quantref base=30000049 new=30000316 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7121 timeVSprofit=0.033 percentSum_w_roll=196.99 tradesCount=376 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000316)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].enabled = false; // quantref base=30000013 new=30000317 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7116 timeVSprofit=0.033 percentSum_w_roll=196.79 tradesCount=375 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000317)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].enabled = false; // quantref base=30000013 new=30000318 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8065 timeVSprofit=0.033 percentSum_w_roll=206.23 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000318)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].enabled = false; // quantref base=30000085 new=30000319 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8043 timeVSprofit=0.033 percentSum_w_roll=214.12 tradesCount=411
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000319)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].enabled = false; // quantref base=30000029 new=30000320 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8560 timeVSprofit=0.033 percentSum_w_roll=232.01 tradesCount=428
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000320)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].enabled = false; // quantref base=30000049 new=30000321 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8049 timeVSprofit=0.033 percentSum_w_roll=206.24 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000321)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].enabled = false; // quantref base=30000125 new=30000322 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7840 timeVSprofit=0.033 percentSum_w_roll=227.46 tradesCount=334
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000322)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].enabled = false; // quantref base=30000085 new=30000323 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7339 timeVSprofit=0.032 percentSum_w_roll=206.13 tradesCount=375 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000323)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].enabled = false; // quantref base=30000101 new=30000324 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8473 timeVSprofit=0.032 percentSum_w_roll=224.43 tradesCount=394
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000324)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].enabled = false; // quantref base=30000101 new=30000325 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8430 timeVSprofit=0.032 percentSum_w_roll=223.99 tradesCount=392
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000325)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].enabled = false; // quantref base=30000089 new=30000326 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8752 timeVSprofit=0.032 percentSum_w_roll=242.29 tradesCount=449
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000326)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].enabled = false; // quantref base=30000129 new=30000327 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8189 timeVSprofit=0.032 percentSum_w_roll=206.14 tradesCount=303
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000327)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].enabled = false; // quantref base=30000091 new=30000328 modes=best_timevsprofit above=PDH below=PDL ratecut=0.7996 timeVSprofit=0.032 percentSum_w_roll=194.37 tradesCount=363
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000328)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].enabled = false; // quantref base=30000091 new=30000329 modes=best_timevsprofit above=PDC;PDH below=- ratecut=0.7313 timeVSprofit=0.032 percentSum_w_roll=193.11 tradesCount=332 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000329)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].enabled = false; // quantref base=30000053 new=30000330 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8678 timeVSprofit=0.032 percentSum_w_roll=235.70 tradesCount=466
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000330)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].enabled = false; // quantref base=30000017 new=30000331 modes=best_timevsprofit,best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8678 timeVSprofit=0.032 percentSum_w_roll=235.70 tradesCount=466
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000331)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].enabled = false; // quantref base=30000022 new=30000332 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9387 timeVSprofit=0.043 percentSum_w_roll=208.56 tradesCount=352
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000332)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].enabled = false; // quantref base=30000058 new=30000333 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9387 timeVSprofit=0.043 percentSum_w_roll=208.56 tradesCount=352
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000333)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].enabled = false; // quantref base=30000106 new=30000334 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8443 timeVSprofit=0.047 percentSum_w_roll=197.31 tradesCount=309
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000334)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].enabled = false; // quantref base=30000104 new=30000335 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8519 timeVSprofit=0.044 percentSum_w_roll=208.76 tradesCount=328
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000335)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].enabled = false; // quantref base=30000094 new=30000336 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9454 timeVSprofit=0.039 percentSum_w_roll=209.86 tradesCount=346
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000336)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].enabled = false; // quantref base=30000054 new=30000337 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9135 timeVSprofit=0.041 percentSum_w_roll=250.00 tradesCount=454
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000337)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].enabled = false; // quantref base=30000066 new=30000338 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8742 timeVSprofit=0.042 percentSum_w_roll=241.97 tradesCount=403
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000338)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].enabled = false; // quantref base=30000030 new=30000339 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8742 timeVSprofit=0.042 percentSum_w_roll=241.97 tradesCount=403
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000339)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].enabled = false; // quantref base=30000018 new=30000340 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9135 timeVSprofit=0.041 percentSum_w_roll=250.00 tradesCount=454
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000340)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].enabled = false; // quantref base=30000064 new=30000341 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8465 timeVSprofit=0.042 percentSum_w_roll=222.58 tradesCount=364
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000341)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].enabled = false; // quantref base=30000020 new=30000342 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9459 timeVSprofit=0.038 percentSum_w_roll=222.69 tradesCount=385
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000342)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].enabled = false; // quantref base=30000057 new=30000343 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9198 timeVSprofit=0.039 percentSum_w_roll=230.97 tradesCount=413
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000343)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].enabled = false; // quantref base=30000069 new=30000344 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9862 timeVSprofit=0.036 percentSum_w_roll=253.16 tradesCount=430
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000344)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].enabled = false; // quantref base=30000056 new=30000345 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9459 timeVSprofit=0.038 percentSum_w_roll=222.69 tradesCount=385
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000345)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].enabled = false; // quantref base=30000033 new=30000346 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9862 timeVSprofit=0.036 percentSum_w_roll=253.16 tradesCount=430
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000346)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].enabled = false; // quantref base=30000028 new=30000347 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8465 timeVSprofit=0.042 percentSum_w_roll=222.58 tradesCount=364
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000347)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].enabled = false; // quantref base=30000130 new=30000348 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9559 timeVSprofit=0.038 percentSum_w_roll=238.86 tradesCount=325
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000348)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].enabled = false; // quantref base=30000100 new=30000349 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8349 timeVSprofit=0.042 percentSum_w_roll=225.07 tradesCount=349
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000349)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].enabled = false; // quantref base=30000102 new=30000350 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9887 timeVSprofit=0.035 percentSum_w_roll=273.22 tradesCount=438
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000350)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].enabled = false; // quantref base=30000092 new=30000351 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9424 timeVSprofit=0.037 percentSum_w_roll=222.52 tradesCount=376
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000351)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].enabled = false; // quantref base=30000088 new=30000352 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9303 timeVSprofit=0.038 percentSum_w_roll=238.22 tradesCount=414
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000352)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].enabled = false; // quantref base=30000090 new=30000353 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9206 timeVSprofit=0.038 percentSum_w_roll=248.93 tradesCount=429
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000353)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].enabled = false; // quantref base=30000021 new=30000354 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9195 timeVSprofit=0.038 percentSum_w_roll=227.45 tradesCount=411
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000354)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].enabled = false; // quantref base=30000016 new=30000355 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9341 timeVSprofit=0.037 percentSum_w_roll=231.84 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000355)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].enabled = false; // quantref base=30000062 new=30000356 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8575 timeVSprofit=0.041 percentSum_w_roll=211.66 tradesCount=349
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000356)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].enabled = false; // quantref base=30000052 new=30000357 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9341 timeVSprofit=0.037 percentSum_w_roll=231.84 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000357)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].enabled = false; // quantref base=30000026 new=30000358 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8575 timeVSprofit=0.041 percentSum_w_roll=211.66 tradesCount=349
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000358)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].enabled = false; // quantref base=30000098 new=30000359 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8579 timeVSprofit=0.04 percentSum_w_roll=221.64 tradesCount=344
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000359)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].enabled = false; // quantref base=30000050 new=30000360 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9332 timeVSprofit=0.035 percentSum_w_roll=219.30 tradesCount=405
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000360)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].enabled = false; // quantref base=30000086 new=30000361 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9368 timeVSprofit=0.035 percentSum_w_roll=230.38 tradesCount=400
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000361)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].enabled = false; // quantref base=30000124 new=30000362 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7952 timeVSprofit=0.041 percentSum_w_roll=219.25 tradesCount=299
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000362)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].enabled = false; // quantref base=30000130 new=30000363 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8353 timeVSprofit=0.04 percentSum_w_roll=205.37 tradesCount=284
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000363)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].enabled = false; // quantref base=30000014 new=30000364 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9332 timeVSprofit=0.035 percentSum_w_roll=219.30 tradesCount=405
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000364)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].enabled = false; // quantref base=30000136 new=30000365 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.7861 timeVSprofit=0.042 percentSum_w_roll=212.29 tradesCount=283
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000365)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].enabled = false; // quantref base=30000033 new=30000366 modes=best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.8968 timeVSprofit=0.036 percentSum_w_roll=240.91 tradesCount=391 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000366)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].enabled = false; // quantref base=30000069 new=30000367 modes=best_timeVSprofitVSratecut above=PDC;PDH below=- ratecut=0.8968 timeVSprofit=0.036 percentSum_w_roll=240.91 tradesCount=391 mergedVariants=2
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000367)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].enabled = false; // quantref base=30000093 new=30000368 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9343 timeVSprofit=0.034 percentSum_w_roll=229.79 tradesCount=398
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000368)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].enabled = false; // quantref base=30000099 new=30000369 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8431 timeVSprofit=0.037 percentSum_w_roll=237.49 tradesCount=403
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000369)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].enabled = false; // quantref base=30000019 new=30000370 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9307 timeVSprofit=0.033 percentSum_w_roll=231.70 tradesCount=443
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000370)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].enabled = false; // quantref base=30000016 new=30000371 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8484 timeVSprofit=0.036 percentSum_w_roll=211.00 tradesCount=386
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000371)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].enabled = false; // quantref base=30000027 new=30000372 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8543 timeVSprofit=0.036 percentSum_w_roll=239.80 tradesCount=428
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000372)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].enabled = false; // quantref base=30000126 new=30000373 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9443 timeVSprofit=0.033 percentSum_w_roll=261.35 tradesCount=373
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000373)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].enabled = false; // quantref base=30000063 new=30000374 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8546 timeVSprofit=0.036 percentSum_w_roll=240.15 tradesCount=429
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000374)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].enabled = false; // quantref base=30000055 new=30000375 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9328 timeVSprofit=0.033 percentSum_w_roll=234.22 tradesCount=444
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000375)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].enabled = false; // quantref base=30000052 new=30000376 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8484 timeVSprofit=0.036 percentSum_w_roll=211.00 tradesCount=386
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000376)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].enabled = false; // quantref base=30000097 new=30000377 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8518 timeVSprofit=0.036 percentSum_w_roll=237.79 tradesCount=408
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000377)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].enabled = false; // quantref base=30000086 new=30000378 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8618 timeVSprofit=0.035 percentSum_w_roll=211.04 tradesCount=368
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags, 5);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000378)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].enabled = false; // quantref base=30000087 new=30000379 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9212 timeVSprofit=0.033 percentSum_w_roll=260.40 tradesCount=491
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000379)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].enabled = false; // quantref base=30000015 new=30000380 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9249 timeVSprofit=0.032 percentSum_w_roll=248.76 tradesCount=505
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000380)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].enabled = false; // quantref base=30000051 new=30000381 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9232 timeVSprofit=0.032 percentSum_w_roll=249.70 tradesCount=505
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000381)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].enabled = false; // quantref base=30000013 new=30000382 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9317 timeVSprofit=0.031 percentSum_w_roll=236.13 tradesCount=491
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000382)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].enabled = false; // quantref base=30000129 new=30000383 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9514 timeVSprofit=0.031 percentSum_w_roll=243.54 tradesCount=352
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000383)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].enabled = false; // quantref base=30000133 new=30000384 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7651 timeVSprofit=0.038 percentSum_w_roll=218.67 tradesCount=316
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000384)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].enabled = false; // quantref base=30000089 new=30000385 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9298 timeVSprofit=0.031 percentSum_w_roll=259.44 tradesCount=477
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000385)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].enabled = false; // quantref base=30000061 new=30000386 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8577 timeVSprofit=0.034 percentSum_w_roll=231.73 tradesCount=422
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000386)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].enabled = false; // quantref base=30000025 new=30000387 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8577 timeVSprofit=0.034 percentSum_w_roll=231.73 tradesCount=422
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000387)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].enabled = false; // quantref base=30000049 new=30000388 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9299 timeVSprofit=0.031 percentSum_w_roll=236.14 tradesCount=491
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000388)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].enabled = false; // quantref base=30000055 new=30000389 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8676 timeVSprofit=0.032 percentSum_w_roll=214.90 tradesCount=413
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000389)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].enabled = false; // quantref base=30000053 new=30000390 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9236 timeVSprofit=0.03 percentSum_w_roll=252.00 tradesCount=496
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000390)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].enabled = false; // quantref base=30000093 new=30000391 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8451 timeVSprofit=0.033 percentSum_w_roll=204.03 tradesCount=360
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000391)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].enabled = false; // quantref base=30000091 new=30000392 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9361 timeVSprofit=0.03 percentSum_w_roll=225.93 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000392)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].enabled = false; // quantref base=30000085 new=30000393 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9295 timeVSprofit=0.03 percentSum_w_roll=243.73 tradesCount=475
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000393)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].enabled = false; // quantref base=30000065 new=30000394 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8500 timeVSprofit=0.033 percentSum_w_roll=231.46 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000394)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].enabled = false; // quantref base=30000123 new=30000395 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7872 timeVSprofit=0.035 percentSum_w_roll=231.05 tradesCount=333
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000395)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].enabled = false; // quantref base=30000029 new=30000396 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8500 timeVSprofit=0.033 percentSum_w_roll=231.46 tradesCount=425
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000396)].rule_switch_map = 2;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].enabled = false; // quantref base=30000017 new=30000397 modes=best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9236 timeVSprofit=0.03 percentSum_w_roll=252.00 tradesCount=496
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000397)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].enabled = false; // quantref base=30000087 new=30000398 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8537 timeVSprofit=0.033 percentSum_w_roll=237.56 tradesCount=455
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000398)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].enabled = false; // quantref base=30000125 new=30000399 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8427 timeVSprofit=0.032 percentSum_w_roll=242.08 tradesCount=359
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].offset_percentage = 0.0020;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000399)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].enabled = false; // quantref base=30000121 new=30000400 modes=best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.7895 timeVSprofit=0.034 percentSum_w_roll=221.13 tradesCount=330
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].secret_tp_profit_percent_min = 7.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000400)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].enabled = false; // quantref base=30000051 new=30000401 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8556 timeVSprofit=0.032 percentSum_w_roll=229.97 tradesCount=468
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].secret_tp_profit_percent_min = 2.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000401)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].enabled = false; // quantref base=30000015 new=30000402 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8553 timeVSprofit=0.031 percentSum_w_roll=228.64 tradesCount=467
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].secret_tp_profit_percent_min = 1.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].offset_positive = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].offset_percentage = 0.0006;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000402)].rule_switch_map = 1;
+
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].enabled = false; // quantref base=30000091 new=30000403 modes=best_timeVSprofitVSratecut above=- below=PDL ratecut=0.8634 timeVSprofit=0.03 percentSum_w_roll=205.37 tradesCount=392
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_weekly = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_daily = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].expiry_minutes = 120;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].this_algo_max_concurrent_pending_trades = 1;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].secret_tp_profit_percent_min = 4.00;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].secret_tp_greenguard_pricediff_at_least = 20.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].level_needs_to_be_below_ONO = true;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].offset_positive = false;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].offset_percentage = 0.0003;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].cannotTrade__when_levelProximity_multiplyOffset = 1.20;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;
+ArrayResize(g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags, 6);
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[0] = "Down1";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[1] = "Down2";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[2] = "Down3";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[3] = "Down4";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[4] = "Down5";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].trades_tags[5] = "Pivot";
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].real_tp = 555.0;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000403)].rule_switch_map = 1;
 //levelalgocreator2end
    LevelRebuildAllRuleChains();
    RebuildLevelAlgoBannedRangesCache();

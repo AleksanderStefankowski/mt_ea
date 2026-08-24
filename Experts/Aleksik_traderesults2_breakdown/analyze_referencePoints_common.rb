@@ -388,6 +388,36 @@ module AnalyzeAlgosReferencePointsCommon
     )
   end
 
+  def row_meets_output_thresholds?(
+    row,
+    minimum_percent_sum_w_roll:,
+    minimum_weekly_traderate:
+  )
+    if !minimum_percent_sum_w_roll.nil?
+      percent_sum = AnalyzeAlgosPerformanceCommon.parse_float(row[:percentSum_w_roll])
+      return false if percent_sum.nil? || percent_sum < minimum_percent_sum_w_roll
+    end
+
+    if !minimum_weekly_traderate.nil?
+      weekly_traderate = AnalyzeAlgosPerformanceCommon.parse_float(row[:weekly_traderate])
+      return false if weekly_traderate.nil? || weekly_traderate < minimum_weekly_traderate
+    end
+
+    true
+  end
+
+  def filter_output_rows(rows, minimum_percent_sum_w_roll:, minimum_weekly_traderate:)
+    return rows if minimum_percent_sum_w_roll.nil? && minimum_weekly_traderate.nil?
+
+    rows.select do |row|
+      row_meets_output_thresholds?(
+        row,
+        minimum_percent_sum_w_roll: minimum_percent_sum_w_roll,
+        minimum_weekly_traderate: minimum_weekly_traderate
+      )
+    end
+  end
+
   def write_ref_group_rows(path, rows)
     CSV.open(path, 'w', write_headers: true, headers: OUTPUT_HEADERS) do |csv|
       rows.each do |row|
@@ -402,7 +432,9 @@ module AnalyzeAlgosReferencePointsCommon
     input_path:,
     output_path:,
     minimum_ratecut_percent:,
-    group_timevsprofit_needs_to_be_better:
+    group_timevsprofit_needs_to_be_better:,
+    minimum_percent_sum_w_roll: nil,
+    minimum_weekly_traderate: nil
   )
     minimum_ratecut = minimum_ratecut_percent / 100.0
 
@@ -450,6 +482,12 @@ module AnalyzeAlgosReferencePointsCommon
     if MERGE_SAME_RESULTS
       puts 'MERGE_SAME_RESULTS: merge grouped rows with identical algo/ratecut/timeVSprofit/percentSum/tradesCount (union refs; mergedVariantCount)'
     end
+    unless minimum_percent_sum_w_roll.nil?
+      puts "output excludes rows with percentSum_w_roll < #{minimum_percent_sum_w_roll}"
+    end
+    unless minimum_weekly_traderate.nil?
+      puts "output excludes rows with weekly_traderate < #{minimum_weekly_traderate}"
+    end
     puts 'ratecut = trades in group / all trades for that algo (0.00–1.00; console shows %)'
     puts 'timeVSprofitVSratecut = timeVSprofit × ratecut (tie-break: higher ratecut wins at same timeVSprofit)'
     puts
@@ -495,8 +533,17 @@ module AnalyzeAlgosReferencePointsCommon
       puts
     end
 
-    write_ref_group_rows(output_path, all_rows)
-    warn "Wrote #{all_rows.size + 1} rows to #{output_path}"
+    output_rows =
+      filter_output_rows(
+        all_rows,
+        minimum_percent_sum_w_roll: minimum_percent_sum_w_roll,
+        minimum_weekly_traderate: minimum_weekly_traderate
+      )
+
+    write_ref_group_rows(output_path, output_rows)
+    excluded_count = all_rows.size - output_rows.size
+    warn "Wrote #{output_rows.size + 1} rows to #{output_path}"
+    warn "Excluded #{excluded_count} rows from output (below percentSum_w_roll / weekly_traderate thresholds)" if excluded_count.positive?
     warn 'DONE'
   end
 end

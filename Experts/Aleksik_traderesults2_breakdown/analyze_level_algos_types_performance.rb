@@ -8,6 +8,7 @@
 #   - offset_positive + offset_percentage (paired)
 #   - level scope (weekly, daily, both)
 #   - secret_tp_profit_percent_min
+#   - rule_switch_map (0=anytime; 1=14:30-15:29; 2=02:00-03:00 secret-TP close window)
 #   - level_needs_to_be_below_ONO
 #   - cannotTrade__when_levelProximity_multiplyOffset
 #   - cannotTrade__when_levelProximity_multiplyOffset + offset_percentage (paired)
@@ -38,6 +39,7 @@ GROUP_SECTIONS = [
   { field: :offset_pair, title: 'OFFSET_POSITIVE + OFFSET_PERCENTAGE' },
   { field: :level_scope, title: 'LEVEL SCOPE (weekly / daily / both)' },
   { field: :secret_tp_profit_percent_min, title: 'SECRET_TP_PROFIT_PERCENT_MIN' },
+  { field: :rule_switch_map, title: 'RULE_SWITCH_MAP (0=anytime; 1=14:30-15:29; 2=02:00-03:00)' },
   { field: :level_needs_to_be_below_ONO, title: 'LEVEL_NEEDS_TO_BE_BELOW_ONO' },
   { field: :cannotTrade__when_levelProximity_multiplyOffset,
     title: 'CANNOT_TRADE__WHEN_LEVELPROXIMITY_MULTIPLYOFFSET' },
@@ -104,6 +106,7 @@ def parse_level_alg_configs(path)
         offset_positive: nil,
         offset_percentage: nil,
         secret_tp_profit_percent_min: nil,
+        rule_switch_map: nil,
         level_needs_to_be_below_ONO: nil,
         cannotTrade__when_levelProximity_multiplyOffset: nil,
         stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count: nil,
@@ -125,6 +128,8 @@ def parse_level_alg_configs(path)
       config[:offset_percentage] = match[1]
     elsif (match = line.match(/secret_tp_profit_percent_min = ([0-9.]+)/))
       config[:secret_tp_profit_percent_min] = match[1]
+    elsif (match = line.match(/rule_switch_map = (\d+)/))
+      config[:rule_switch_map] = match[1]
     elsif (match = line.match(/level_needs_to_be_below_ONO = (true|false)/))
       config[:level_needs_to_be_below_ONO] = parse_bool_token(match[1])
     elsif (match = line.match(/cannotTrade__when_levelProximity_multiplyOffset = ([0-9.]+)/))
@@ -336,6 +341,7 @@ def group_sort_key(field, group_key, row)
   when :level_needs_to_be_below_ONO
     { 'true' => 0, 'false' => 1, 'n/a' => 2 }.fetch(group_key.to_s, 99)
   when :secret_tp_profit_percent_min,
+       :rule_switch_map,
        :cannotTrade__when_levelProximity_multiplyOffset,
        :stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
     [Lib.parse_float(group_key) || 99.0, group_key.to_s]
@@ -350,7 +356,7 @@ def group_sort_key(field, group_key, row)
 end
 
 LEVEL_CONFIG_SIGNATURE_KEYS = %i[
-  weekly daily offset_positive offset_percentage secret_tp_profit_percent_min
+  weekly daily offset_positive offset_percentage secret_tp_profit_percent_min rule_switch_map
   level_needs_to_be_below_ONO cannotTrade__when_levelProximity_multiplyOffset
   stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count
 ].freeze

@@ -98,13 +98,26 @@ module CompareVariableAnalysisLib
        .join("\x1f")
   end
 
-  def pair_differs_only_in_variable?(pair, compare_variable)
+  ENTRY_TIME_COMPANION_FIELDS = %w[entry_hour entry_minute].freeze
+
+  def companion_fields_for_compare(compare_variable)
+    compare_variable.to_s == 'entry_time' ? ENTRY_TIME_COMPANION_FIELDS : []
+  end
+
+  def pair_differs_only_in_variable?(pair, compare_variable, ignore_headers: nil)
     left = pair[:left][:config]
     right = pair[:right][:config]
     compare_header = compare_variable.to_s
+    companions =
+      if ignore_headers.nil?
+        companion_fields_for_compare(compare_variable)
+      else
+        ignore_headers
+      end
+    ignore = Set['algo_id', *companions.map(&:to_s)]
     diff_headers =
       left.headers.select do |header|
-        header != 'algo_id' && left[header].to_s != right[header].to_s
+        !ignore.include?(header) && left[header].to_s != right[header].to_s
       end
     diff_headers == [compare_header]
   end
@@ -173,7 +186,8 @@ module CompareVariableAnalysisLib
         next if left[:config][compare_variable].to_s == right[:config][compare_variable].to_s
 
         pair = { left: left, right: right }
-        next unless pair_differs_only_in_variable?(pair, compare_variable)
+        next unless pair_differs_only_in_variable?(pair, compare_variable,
+                                                    ignore_headers: signature_exclude_variables)
 
         pair_id += 1
         total_pairs += 1
