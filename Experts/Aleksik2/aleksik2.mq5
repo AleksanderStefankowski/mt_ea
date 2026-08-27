@@ -538,7 +538,9 @@ bool     bigflipper_log_breakdown_algo_manual_close_decision = false;  // always
 bool     bigflipper_sparse_journal_time_algo                 = true;   // [sparse_journal] + sparse [manual_close] when 1..3 time algos enabled
 bool     bigflipper_sparse_journal_level_algo                = true;   // [sparse_journal] + sparse [manual_close] when 1..3 level algos enabled
 bool     bigflipper_sparse_journal_breakdown_algo            = true;   // [sparse_journal] + sparse [manual_close] when 1..3 breakdown algos enabled
-bool     bigflipper_bdfam_open_comment_with_snap_prices    = false;  // open/pending comment: true=bdfam startHigh breakdownLow secretTpPrice; false=bdfam only
+bool     bigflipper_bdfam_open_comment_with_snap_prices    = false;  // open/pending: append startHigh breakdownLow
+bool     bigflipper_bdfam_open_comment_with_tp_price       = true;   // open/pending: append secretTpPrice (0 if no secret TP)
+bool     bigflipper_plus_200p_realTP_override              = true;   // broker TP = magic-encoded target + 200pt; ignores per-algo real_tp / tp_notsecret_range_percent
 bool     bigflipper_log_pre_order_context                    = true;  // Attempting MarketBuy/BuyLimit... Print before placement //bookmark lighter logs
 bool     bigflipper_log_ctrade_ordersend                     = false;  // CTrade::OrderSend journal lines from Trade.mqh //bookmark lighter logs
 bool     bigflipper_log_all_breakdowns                       = true;  // all_breakdowns_{type}_streakNorMore.csv + all_breakdowns_summaries.csv — per run, OnInit truncate
@@ -598,12 +600,17 @@ int      babysit_telemetry_interval_seconds = 240; // bookmark // MFE/MAE open-p
 // for example, 1.2, and specific trade is 30%, would mean position 0.36, 50% = 0.60
 // profit factor danego trade jest stały przy jego różnych trade size, ale profit factor całego runu zmieni się bo zmieniają się proporcje absolutnego zysku
 
-double   g_global_base_trade_size_breakdown = 0.01;  // bookmark9 basetradesize breakdown // 10 × (0.002 + 0.003 + 2× (0.015) = 0.35
+double   g_global_base_trade_size_breakdown = 0.009;  // bookmark9 basetradesize breakdown // 10 × (0.002 + 0.003 + 2× (0.015) = 0.35
 double   g_global_base_trade_size_time      = 0.01; // bookmark9 basetradesize time 0.001
 double   g_global_base_trade_size_level     = 0.003;  // bookmark9 basetradesize level
 #define TRADE_VARIANT_COUNT_MAX_LOTSIZE 4.0
 const double one_lot_equals_xPLN = 65000.0;  // PLN notional per 1.0 lot; 0.001 lot => 65 PLN deposit equivalent
 const double FALGO_SECRET_TP_ASSUMED_LEVERAGE = 20.0;  // time/level secret TP: profit% on margin ≈ leverage × price-move%
+const double FALGO_PLUS_200P_REALTP_OVERRIDE_OFFSET_POINTS = 200.0;  // bigflipper_plus_200p_realTP_override: broker TP above magic-encoded target
+#define FALGO_DIRECTION_LONG_LIMIT        1
+#define FALGO_DIRECTION_SHORT_LIMIT       2
+#define FALGO_DIRECTION_LONG_ALT          3
+#define FALGO_DIRECTION_SHORT_ALT         4
 const double ACCOUNT_SIZE_PLN_FOR_TRADE_SIZE = 50000000.0; //  5000000.0/ PLN budget ceiling vs ValidateBaseTradeSizeVsAccountBudgetOnInit()
 
 // OnTimer (1s): FatalError if (used margin / equity)×100 exceeds this (terminal-style deposit load as % of equity locked in margin). 0 = disabled.
@@ -12612,8 +12619,17 @@ void BreakdownResolveBrokerTpSlForLifetimeLog(const int algoNumber, const dateti
    const Breakdown15mState bdSnap = Breakdown15mSnapForAlgo(algoNumber, atTime);
    if(outRealTPprice <= 0.0 && bd.tp_enabled)
    {
-      outRealTPprice = FalgoBreakdownPriceAtRangePercent(bdSnap.breakdownLow, bdSnap.startHigh,
-         bd.tp_notsecret_range_percent);
+      if(bigflipper_plus_200p_realTP_override && plannedPrice > 0.0)
+      {
+         FalgoMagicKey planKey;
+         if(FalgoBuildMagicKeyForBreakdownPlacement(algoNumber, FALGO_DIRECTION_LONG_LIMIT, plannedPrice, bdSnap, planKey))
+            outRealTPprice = FalgoBrokerTpPriceFromMagicTargetPlusOverride(plannedPrice, planKey);
+      }
+      if(outRealTPprice <= 0.0 && !bigflipper_plus_200p_realTP_override)
+      {
+         outRealTPprice = FalgoBreakdownPriceAtRangePercent(bdSnap.breakdownLow, bdSnap.startHigh,
+            bd.tp_notsecret_range_percent);
+      }
    }
    if(outRealSLprice <= 0.0 && bd.sl_enabled && plannedPrice > 0.0 && bd.sl_points > 0.0)
       outRealSLprice = NormalizeDouble(plannedPrice - PointSized(bd.sl_points), _Digits);
@@ -13534,10 +13550,6 @@ string AlgoFamilyCsvFileName(const string dateStr, const int algoNumber, const s
 #define FALGO_MAGIC_LEVEL_SLOT_DAILY_MIN    50
 #define FALGO_MAGIC_LEVEL_SLOT_DAILY_MAX    80
 #define FALGO_MAGIC_LEVEL_SLOT_DAILY_PIVOT  60
-#define FALGO_DIRECTION_LONG_LIMIT        1
-#define FALGO_DIRECTION_SHORT_LIMIT       2
-#define FALGO_DIRECTION_LONG_ALT          3
-#define FALGO_DIRECTION_SHORT_ALT         4
 
 //+------------------------------------------------------------------+
 double AlgoExtraOffsetForDirection(const int direction)
@@ -15299,6 +15311,20 @@ double FalgoSecretTpPriceForProfitPctMin(const double entryPrice, const double p
 }
 
 //+------------------------------------------------------------------+
+//| bigflipper_plus_200p_realTP_override: broker TP = entry + magic target pts + offset. |
+//+------------------------------------------------------------------+
+double FalgoBrokerTpPriceFromMagicTargetPlusOverride(const double entryPrice, const FalgoMagicKey &planKey)
+{
+   if(!bigflipper_plus_200p_realTP_override || entryPrice <= 0.0 || planKey.secretTpPointsAbovePlanned <= 0)
+      return 0.0;
+   const double brokerTp = NormalizeDouble(entryPrice + (double)planKey.secretTpPointsAbovePlanned
+      + FALGO_PLUS_200P_REALTP_OVERRIDE_OFFSET_POINTS, _Digits);
+   if(brokerTp <= entryPrice)
+      return 0.0;
+   return brokerTp;
+}
+
+//+------------------------------------------------------------------+
 int TimeAlgoEnsureSecretTpLifetimeSlot(const ulong positionId, const long magic, const datetime startTime,
    const double fillPrice)
 {
@@ -16867,6 +16893,9 @@ string FalgoBuildManualCloseCommentLevel(const double secretTpProfitPctMin, cons
    const double rolloverForGuard);
 string FalgoBuildManualCloseCommentBreakdown(const string kindTag, const int tagParam,
    const double greenguardPricediff, const double rolloverForGuard);
+bool FalgoBuildMagicKeyForBreakdownPlacement(const int algoNumber, const int direction,
+   const double plannedPrice, const Breakdown15mState &bdSnap, FalgoMagicKey &outKey);
+double FalgoBrokerTpPriceFromMagicTargetPlusOverride(const double entryPrice, const FalgoMagicKey &planKey);
 bool FalgoPositionCloseWithManualComment(const long posMagic, const ulong posTicket, const string closeComment,
    double &outProfitPts, double &outAccountProfit);
 
@@ -17558,32 +17587,55 @@ string FalgoBuildManualCloseCommentBreakdown(const string kindTag, const int tag
 }
 
 //+------------------------------------------------------------------+
-//| Pending/open comment: bdfam startHigh breakdownLow secretTpPrice (ints). |
+//| Pending/open comment: bdfam [startHigh breakdownLow] [secretTpPrice] (ints). |
 //+------------------------------------------------------------------+
 string FalgoBuildBreakdownOpenComment(const Breakdown15mState &bdSnap, const BreakdownAlgoDef &bd)
 {
-   if(!bigflipper_bdfam_open_comment_with_snap_prices)
+   if(!bigflipper_bdfam_open_comment_with_snap_prices && !bigflipper_bdfam_open_comment_with_tp_price)
       return "bdfam";
 
-   if(bdSnap.startHigh <= 0.0)
-      FatalError(StringFormat("FalgoBuildBreakdownOpenComment: invalid startHigh=%.2f", bdSnap.startHigh));
-   if(bdSnap.breakdownLow <= 0.0)
-      FatalError(StringFormat("FalgoBuildBreakdownOpenComment: invalid breakdownLow=%.2f", bdSnap.breakdownLow));
-
-   double secretTpPrice = 0.0;
-   if(bd.secret_tp_range_percent > 0)
+   const bool needSnapValues = bigflipper_bdfam_open_comment_with_snap_prices
+      || (bigflipper_bdfam_open_comment_with_tp_price && bd.secret_tp_range_percent > 0);
+   if(needSnapValues)
    {
-      secretTpPrice = FalgoBreakdownPriceAtRangePercent(bdSnap.breakdownLow, bdSnap.startHigh,
-         bd.secret_tp_range_percent);
-      if(secretTpPrice <= 0.0)
-         FatalError(StringFormat("FalgoBuildBreakdownOpenComment: invalid secretTpPrice for pct=%d",
-            bd.secret_tp_range_percent));
+      if(bdSnap.startHigh <= 0.0)
+         FatalError(StringFormat("FalgoBuildBreakdownOpenComment: invalid startHigh=%.2f", bdSnap.startHigh));
+      if(bdSnap.breakdownLow <= 0.0)
+         FatalError(StringFormat("FalgoBuildBreakdownOpenComment: invalid breakdownLow=%.2f", bdSnap.breakdownLow));
    }
 
-   string comment = StringFormat("bdfam %d %d %d",
-      (int)MathRound(bdSnap.startHigh),
-      (int)MathRound(bdSnap.breakdownLow),
-      (int)MathRound(secretTpPrice));
+   int secretTpPriceInt = 0;
+   if(bigflipper_bdfam_open_comment_with_tp_price)
+   {
+      double secretTpPrice = 0.0;
+      if(bd.secret_tp_range_percent > 0)
+      {
+         secretTpPrice = FalgoBreakdownPriceAtRangePercent(bdSnap.breakdownLow, bdSnap.startHigh,
+            bd.secret_tp_range_percent);
+         if(secretTpPrice <= 0.0)
+            FatalError(StringFormat("FalgoBuildBreakdownOpenComment: invalid secretTpPrice for pct=%d",
+               bd.secret_tp_range_percent));
+      }
+      else if(bd.closetrade_after_some_time && bd.closetrade_after_some_time_but_ProfitPercent_Needed > 0.0)
+      {
+         const double anchor = BreakdownEntryPriceForAlgo(bd, bdSnap);
+         if(anchor <= 0.0)
+            FatalError("FalgoBuildBreakdownOpenComment: invalid anchor for BT profit target");
+         secretTpPrice = FalgoSecretTpPriceForProfitPctMin(anchor,
+            bd.closetrade_after_some_time_but_ProfitPercent_Needed);
+         if(secretTpPrice <= 0.0)
+            FatalError(StringFormat("FalgoBuildBreakdownOpenComment: invalid BT target for profitPct=%.2f",
+               bd.closetrade_after_some_time_but_ProfitPercent_Needed));
+      }
+      secretTpPriceInt = (int)MathRound(secretTpPrice);
+   }
+
+   string comment = "bdfam";
+   if(bigflipper_bdfam_open_comment_with_snap_prices)
+      comment += StringFormat(" %d %d", (int)MathRound(bdSnap.startHigh), (int)MathRound(bdSnap.breakdownLow));
+   if(bigflipper_bdfam_open_comment_with_tp_price)
+      comment += " " + IntegerToString(secretTpPriceInt);
+
    if(StringLen(comment) > MT5_ORDER_COMMENT_MAX_LEN)
       comment = StringSubstr(comment, 0, MT5_ORDER_COMMENT_MAX_LEN);
    return comment;
@@ -17948,9 +18000,21 @@ bool AlgoTryPlaceTimeAlgoMarketBuy(const int algoNumber, const int barIdx)
    if(!FalgoBuildMagicKeyForTimeAlgoPlacement(algoNumber, FALGO_DIRECTION_LONG_LIMIT, ask, ta, planKey))
       return false;
    const long magic = BuildAlgoMagicNumber(algoNumber, planKey);
-   const double brokerTpPrice = NormalizeDouble(ask + ta.real_tp, _Digits);
-   if(ta.real_tp > 0.0 && brokerTpPrice <= ask)
-      return false;
+   double brokerTpPrice = 0.0;
+   if(ta.real_tp > 0.0 || bigflipper_plus_200p_realTP_override)
+   {
+      if(bigflipper_plus_200p_realTP_override)
+      {
+         brokerTpPrice = FalgoBrokerTpPriceFromMagicTargetPlusOverride(ask, planKey);
+         if(brokerTpPrice <= 0.0)
+            FatalError(StringFormat("TimeAlgoPlacement algo %d: plus_200p_realTP_override failed (magic target pts=%d ask=%.2f)",
+               algoNumber, planKey.secretTpPointsAbovePlanned, ask));
+      }
+      else
+         brokerTpPrice = NormalizeDouble(ask + ta.real_tp, _Digits);
+      if(brokerTpPrice <= ask)
+         return false;
+   }
    if(!PlaceMarketBuyFromFalgoMagicTimeAlgo(magic, lot, brokerTpPrice))
       return false;
 
@@ -18009,6 +18073,14 @@ bool FalgoBuildMagicKeyForBreakdownPlacement(const int algoNumber, const int dir
       const double secretTpPrice = FalgoBreakdownPriceAtRangePercent(bdSnap.breakdownLow, bdSnap.startHigh,
          g_breakdownAlgos[bIdx].secret_tp_range_percent);
       outKey.secretTpPointsAbovePlanned = FalgoEncodeSecretTpPointsAbovePlanned(plannedPrice, secretTpPrice);
+   }
+   else if(bIdx >= 0 && g_breakdownAlgos[bIdx].secret_tp_range_percent <= 0
+      && g_breakdownAlgos[bIdx].closetrade_after_some_time
+      && g_breakdownAlgos[bIdx].closetrade_after_some_time_but_ProfitPercent_Needed > 0.0)
+   {
+      const double btTargetPrice = FalgoSecretTpPriceForProfitPctMin(plannedPrice,
+         g_breakdownAlgos[bIdx].closetrade_after_some_time_but_ProfitPercent_Needed);
+      outKey.secretTpPointsAbovePlanned = FalgoEncodeSecretTpPointsAbovePlanned(plannedPrice, btTargetPrice);
    }
    return true;
 }
@@ -67011,20 +67083,31 @@ bool AlgoTryPlaceBreakdownMidpointOrderForSlot(const int slotIdx, const int barI
       return false;
    if(bdSnap.startHigh <= 0.0 || bdSnap.breakdownLow <= 0.0)
       return false;
-   double brokerTpPrice = 0.0;
-   if(bd.tp_enabled)
-   {
-      brokerTpPrice = FalgoBreakdownPriceAtRangePercent(bdSnap.breakdownLow, bdSnap.startHigh,
-         bd.tp_notsecret_range_percent);
-      if(brokerTpPrice <= orderAnchor)
-         return false;
-   }
 
    FalgoMagicKey planKey;
    if(!FalgoBuildMagicKeyForBreakdownPlacement(algoNumber, FALGO_DIRECTION_LONG_LIMIT, orderAnchor, bdSnap, planKey))
       return false;
 
    const long magic = BuildAlgoMagicNumber(algoNumber, planKey);
+
+   double brokerTpPrice = 0.0;
+   if(bd.tp_enabled)
+   {
+      if(bigflipper_plus_200p_realTP_override)
+      {
+         brokerTpPrice = FalgoBrokerTpPriceFromMagicTargetPlusOverride(orderAnchor, planKey);
+         if(brokerTpPrice <= 0.0)
+            FatalError(StringFormat("BreakdownPlacement algo %d: plus_200p_realTP_override failed (magic target pts=%d anchor=%.2f)",
+               algoNumber, planKey.secretTpPointsAbovePlanned, orderAnchor));
+      }
+      else
+      {
+         brokerTpPrice = FalgoBreakdownPriceAtRangePercent(bdSnap.breakdownLow, bdSnap.startHigh,
+            bd.tp_notsecret_range_percent);
+         if(brokerTpPrice <= orderAnchor)
+            return false;
+      }
+   }
 
    const double lot = GetTradeLotForBreakdown();
    if(profOn)

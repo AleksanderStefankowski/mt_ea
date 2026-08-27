@@ -65,7 +65,7 @@ module LevelCatalogCreator
     lines << "g_levelAlgos[#{slot}].cannotTrade__when_levelProximity_multiplyOffset = #{format_mq5_double(row["cannotTrade__when_levelProximity_multiplyOffset"], 2)};"
     lines << "g_levelAlgos[#{slot}].cannotTrade__when_thisAlgoOpenOrPendingNearLevel = true;"
     lines << build_trades_tags_lines(slot, tags)
-    lines << "g_levelAlgos[#{slot}].real_tp = 555.0;"
+    lines << "g_levelAlgos[#{slot}].real_tp = 499.0;"
     lines << "g_levelAlgos[#{slot}].rule_switch_map = 0;"
     lines.join("\n")
   end

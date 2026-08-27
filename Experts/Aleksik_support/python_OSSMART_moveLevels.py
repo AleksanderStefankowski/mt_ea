@@ -18,7 +18,7 @@ import shutil
 import subprocess
 import sys
 import time
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional, Tuple
 
 # ============================================================
@@ -39,6 +39,7 @@ SCHEDULE_HOUR = 1
 SCHEDULE_MINUTE = 30
 SCHEDULE_WINDOW_END_HOUR = 1
 SCHEDULE_WINDOW_END_MINUTE = 45  # [01:30, 01:45) — 15 min window for 10-min polls
+# While in the schedule window, failed Gmail/network cycles retry on each poll until success.
 
 LEVELS_FILENAME = "levelsinfo_zeFinal.csv"
 RUBY_SCRIPT = "a_gmail_api_run_all.rb"
@@ -152,28 +153,34 @@ def dest_path_for_env(env_label: str) -> Optional[str]:
 # GMAIL PIPELINE + FILE COPY
 # ============================================================
 
-def run_gmail_pipeline() -> int:
+def run_gmail_pipeline() -> bool:
     ruby_script = os.path.join(SCRIPT_DIR, RUBY_SCRIPT)
     if not os.path.isfile(ruby_script):
         log(f"ERROR: missing {ruby_script}")
-        return 1
+        return False
 
     log(f"Running Gmail pipeline: ruby {RUBY_SCRIPT}")
-    if platform.system() == "Windows":
-        result = subprocess.run(
-            ["ruby", RUBY_SCRIPT],
-            cwd=SCRIPT_DIR,
-            check=False,
-        )
-    else:
-        result = subprocess.run(
-            ["bash", "-lc", f"ruby {RUBY_SCRIPT!r}"],
-            cwd=SCRIPT_DIR,
-            check=False,
-        )
+    try:
+        if platform.system() == "Windows":
+            result = subprocess.run(
+                ["ruby", RUBY_SCRIPT],
+                cwd=SCRIPT_DIR,
+                check=False,
+            )
+        else:
+            result = subprocess.run(
+                ["bash", "-lc", f"ruby {RUBY_SCRIPT!r}"],
+                cwd=SCRIPT_DIR,
+                check=False,
+            )
+    except OSError as exc:
+        log(f"ERROR running Gmail pipeline: {exc}")
+        return False
+
     if result.returncode != 0:
-        log(f"WARNING: {RUBY_SCRIPT} exited with code {result.returncode}")
-    return result.returncode
+        log(f"ERROR: {RUBY_SCRIPT} exited with code {result.returncode}")
+        return False
+    return True
 
 
 def overwrite_levels_file(
@@ -247,40 +254,44 @@ def move_levels_for_platform(
     env_label: str,
     *,
     dest_before_pipeline: Optional[Tuple[Optional[int], Optional[int]]] = None,
-) -> None:
+) -> bool:
     log("")
     log("--- levels file copy ---")
 
     if env_label == "MAC":
-        overwrite_levels_file(
+        return overwrite_levels_file(
             MAC_WINE_SOURCE,
             MAC_WINE_DEST,
             "Mac Wine",
             dest_before_pipeline=dest_before_pipeline,
         )
-        return
 
     if env_label.startswith("WINDOWS"):
-        overwrite_levels_file(
+        return overwrite_levels_file(
             SOURCE_FILE,
             WIN_COMMON_FILES,
             "Windows",
             dest_before_pipeline=dest_before_pipeline,
         )
-        return
 
     # Fallback: try both if paths exist (e.g. unusual Wine/Linux setup)
     log(f"Unknown environment {env_label!r}; trying Windows then Mac Wine paths")
+    copied = False
     if os.path.isdir(os.path.dirname(WIN_COMMON_FILES)):
-        overwrite_levels_file(SOURCE_FILE, WIN_COMMON_FILES, "Windows (fallback)")
+        copied = overwrite_levels_file(SOURCE_FILE, WIN_COMMON_FILES, "Windows (fallback)") or copied
     if os.path.isdir(os.path.dirname(MAC_WINE_DEST)):
-        overwrite_levels_file(MAC_WINE_SOURCE, MAC_WINE_DEST, "Mac Wine (fallback)")
+        copied = overwrite_levels_file(MAC_WINE_SOURCE, MAC_WINE_DEST, "Mac Wine (fallback)") or copied
+    return copied
 
 
-def run_cycle(env_label: str) -> None:
+def run_cycle(env_label: str, *, reason: str = "") -> bool:
+    when = datetime.now()
+    date_label = when.strftime("%b %d")
+    reason_text = f" ({date_label} {reason})" if reason else f" ({date_label})"
+
     log("")
     log("=" * 72)
-    log(f"OSSMART moveLevels cycle @ {datetime.now():%Y-%m-%d %H:%M:%S}")
+    log(f"OSSMART moveLevels cycle @ {when:%Y-%m-%d %H:%M:%S}{reason_text}")
     log(f"Environment: {env_label}")
     log(f"Script location: {os.path.abspath(__file__)}")
     log(f"Working directory: {os.getcwd()}")
@@ -289,18 +300,26 @@ def run_cycle(env_label: str) -> None:
     dest_path = dest_path_for_env(env_label)
     dest_before_pipeline = file_stats(dest_path) if dest_path else None
 
-    run_gmail_pipeline()
+    if not run_gmail_pipeline():
+        log("  cycle FAILED: Gmail pipeline")
+        return False
 
     if not os.path.isfile(SOURCE_FILE):
-        log(f"WARNING: local source not updated yet: {SOURCE_FILE}")
-    else:
-        size, lines = file_stats(SOURCE_FILE)
-        log(f"Local source after pipeline: {size} bytes, {lines} lines")
+        log(f"  cycle FAILED: local source not found after pipeline: {SOURCE_FILE}")
+        return False
 
-    move_levels_for_platform(
+    size, lines = file_stats(SOURCE_FILE)
+    log(f"Local source after pipeline: {size} bytes, {lines} lines")
+
+    if not move_levels_for_platform(
         env_label,
         dest_before_pipeline=dest_before_pipeline,
-    )
+    ):
+        log("  cycle FAILED: levels file copy")
+        return False
+
+    log("  cycle OK")
+    return True
 
 
 # ============================================================
@@ -336,14 +355,23 @@ def in_schedule_window(now: datetime) -> bool:
     return start <= now < end
 
 
-def should_run_scheduled(now: datetime, last_run_date: Optional[datetime.date]) -> bool:
+def should_run_scheduled(now: datetime, last_success_date: Optional[date]) -> bool:
     if not is_weekday(now):
         return False
     if not in_schedule_window(now):
         return False
-    if last_run_date == now.date():
+    if last_success_date == now.date():
         return False
     return True
+
+
+def retry_reason_label(attempt: int) -> str:
+    if attempt <= 1:
+        return (
+            f"scheduled {SCHEDULE_HOUR:02d}:{SCHEDULE_MINUTE:02d}"
+            f"-{SCHEDULE_WINDOW_END_HOUR:02d}:{SCHEDULE_WINDOW_END_MINUTE:02d}"
+        )
+    return f"retry {attempt - 1} in schedule window"
 
 
 def sleep_seconds() -> int:
@@ -363,31 +391,63 @@ def main() -> int:
             f"Polling every {POLL_SECONDS_SCHEDULED // 60} min; "
             f"job runs Mon–Fri at most once when a poll falls in "
             f"{SCHEDULE_HOUR:02d}:{SCHEDULE_MINUTE:02d}–"
-            f"{SCHEDULE_WINDOW_END_HOUR:02d}:{SCHEDULE_WINDOW_END_MINUTE:02d}"
+            f"{SCHEDULE_WINDOW_END_HOUR:02d}:{SCHEDULE_WINDOW_END_MINUTE:02d}; "
+            f"retries on later polls in that window after network/Gmail failure"
         )
         log("Startup: running one cycle immediately (Gmail token / pipeline check)")
-        run_cycle(env_label)
+        run_cycle(env_label, reason="startup")
     else:
         log(f"Schedule: immediate + every {POLL_SECONDS_IMMEDIATE // 60} min")
 
-    last_run_date: Optional[datetime.date] = None
+    last_success_date: Optional[date] = None
+    pending_run_date: Optional[date] = None
+    run_attempt_date: Optional[date] = None
+    run_attempt_today = 0
+    retry_expired_logged_date: Optional[date] = None
 
     while True:
         now = datetime.now()
+        today = now.date()
 
         if run_on_time:
             poll_log(
                 f"Poll {now:%Y-%m-%d %H:%M:%S} — weekday={is_weekday(now)} "
                 f"in_schedule_window={in_schedule_window(now)} "
-                f"last_run={last_run_date}"
+                f"last_success={last_success_date}"
             )
-            if should_run_scheduled(now, last_run_date):
-                run_cycle(env_label)
-                last_run_date = now.date()
+
+            if (
+                pending_run_date == today
+                and not in_schedule_window(now)
+                and last_success_date != today
+            ):
+                if retry_expired_logged_date != today:
+                    log("")
+                    log(
+                        f"--- moveLevels retries expired ({today.strftime('%b %d')} "
+                        f"after schedule window "
+                        f"{SCHEDULE_HOUR:02d}:{SCHEDULE_MINUTE:02d}–"
+                        f"{SCHEDULE_WINDOW_END_HOUR:02d}:{SCHEDULE_WINDOW_END_MINUTE:02d}) ---"
+                    )
+                    retry_expired_logged_date = today
+                pending_run_date = None
+                run_attempt_today = 0
+
+            if should_run_scheduled(now, last_success_date):
+                if run_attempt_date != today:
+                    run_attempt_today = 0
+                run_attempt_date = today
+                run_attempt_today += 1
+                reason = retry_reason_label(run_attempt_today)
+                if run_cycle(env_label, reason=reason):
+                    last_success_date = today
+                    pending_run_date = None
+                    run_attempt_today = 0
+                else:
+                    pending_run_date = today
         else:
             poll_log(f"Poll {now:%Y-%m-%d %H:%M:%S} — running cycle")
-            run_cycle(env_label)
-            last_run_date = now.date()
+            run_cycle(env_label, reason="immediate mode")
 
         try:
             time.sleep(sleep_seconds())

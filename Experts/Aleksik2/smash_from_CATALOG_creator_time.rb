@@ -34,6 +34,7 @@ module TimeCatalogCreator
       g_timeAlgos[#{slot}].rule_switch_map = #{row["rule_switch_map"].to_i};
       g_timeAlgos[#{slot}].secret_tp_profit_percent_min = #{format_mq5_double(row["secret_tp_profit_percent_min"])};
       g_timeAlgos[#{slot}].secret_tp_greenguard_pricediff_at_least = #{format_mq5_double(row["secret_tp_greenguard_pricediff_at_least"])};
+      g_timeAlgos[#{slot}].real_tp = 498.0;
       g_timeAlgos[#{slot}].max_trades_per_day = #{row["max_trades_per_day"].to_i};
       g_timeAlgos[#{slot}].max_open_positions = #{row["max_open_positions"].to_i};
       g_timeAlgos[#{slot}].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = #{row["stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count"].to_i};

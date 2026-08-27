@@ -160,6 +160,7 @@ module TimeCombinationsCreator
       g_timeAlgos[#{slot}].rule_switch_map = #{combo[:rule_switch_map]};
       g_timeAlgos[#{slot}].secret_tp_profit_percent_min = #{TimeCombinationsCommon.format_mq5_double(combo[:secret_tp_profit_percent_min])};
       g_timeAlgos[#{slot}].secret_tp_greenguard_pricediff_at_least = #{TimeCombinationsCommon.format_mq5_double(combo[:secret_tp_greenguard_pricediff_at_least])};
+      g_timeAlgos[#{slot}].real_tp = 498.0;
       g_timeAlgos[#{slot}].max_trades_per_day = #{combo[:max_trades_per_day]};
       g_timeAlgos[#{slot}].max_open_positions = #{combo[:max_open_positions]};
       g_timeAlgos[#{slot}].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = #{combo[:stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count]};

@@ -1020,7 +1020,20 @@ bool AlgoTryPlaceLevelAlgoLimitBuyForSlot(const int slotIdx, const int barIdx)
       const string ruleFail = LevelRunRulesFirstFail(slotIdx, barIdx, orderPrice);
       if(ruleFail != "")
          continue;
-      const double brokerTpPrice = NormalizeDouble(orderPrice + g_levelAlgos[slotIdx].real_tp, _Digits);
+
+      FalgoMagicKey planKey;
+      if(!FalgoBuildMagicKeyForLevelAlgoPlacement(levelIdx, orderPrice, g_levelAlgos[slotIdx], planKey))
+         continue;
+      double brokerTpPrice = 0.0;
+      if(bigflipper_plus_200p_realTP_override)
+      {
+         brokerTpPrice = FalgoBrokerTpPriceFromMagicTargetPlusOverride(orderPrice, planKey);
+         if(brokerTpPrice <= 0.0)
+            FatalError(StringFormat("LevelAlgoPlacement algo %d: plus_200p_realTP_override failed (magic target pts=%d order=%.2f)",
+               algoNumber, planKey.secretTpPointsAbovePlanned, orderPrice));
+      }
+      else
+         brokerTpPrice = NormalizeDouble(orderPrice + g_levelAlgos[slotIdx].real_tp, _Digits);
       if(brokerTpPrice <= orderPrice)
          continue;
 
@@ -1028,9 +1041,6 @@ bool AlgoTryPlaceLevelAlgoLimitBuyForSlot(const int slotIdx, const int barIdx)
       if(profOn)
          profOrdT0 = GetMicrosecondCount();
 
-      FalgoMagicKey planKey;
-      if(!FalgoBuildMagicKeyForLevelAlgoPlacement(levelIdx, orderPrice, g_levelAlgos[slotIdx], planKey))
-         continue;
       const long magic = BuildAlgoMagicNumber(algoNumber, planKey);
 
       // Fresh terminal scan: cheap pass runs once/bar; fills can land between that check and place.
@@ -11666,14 +11676,18 @@ void LevelAlgoCollectPlacementFailFlags(const int slotIdx, const int barIdx, con
       const double orderPrice = LevelAlgoComputeOrderPrice(la, levelPrice);
       if(orderPrice <= 0.0)
          continue;
-      const double brokerTpPrice = NormalizeDouble(orderPrice + la.real_tp, _Digits);
-      if(brokerTpPrice <= orderPrice)
-         continue;
-      anyOrderPriceOk = true;
 
       FalgoMagicKey planKey;
       if(!FalgoBuildMagicKeyForLevelAlgoPlacement(levelIdx, orderPrice, la, planKey))
          continue;
+      double brokerTpPrice = 0.0;
+      if(bigflipper_plus_200p_realTP_override)
+         brokerTpPrice = FalgoBrokerTpPriceFromMagicTargetPlusOverride(orderPrice, planKey);
+      else
+         brokerTpPrice = NormalizeDouble(orderPrice + la.real_tp, _Digits);
+      if(brokerTpPrice <= orderPrice)
+         continue;
+      anyOrderPriceOk = true;
       anyMagicOk = true;
 
       outProximityLevel = levelPrice;

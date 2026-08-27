@@ -273,7 +273,7 @@ DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [33, 66, 71].freeze # ✅✅✅✅✅66 >
 
 
 
-DESIRED_TP_NOTSECRET_RANGE_PERCENT = [9999].freeze # 150 outperforms 110. [175, 250] 250 still better than 175, can try even 350, 500? but lower has better  efficency?
+DESIRED_TP_NOTSECRET_RANGE_PERCENT = [600].freeze
 # perf_percentSum_w_roll group 0 secret TP higher in head-to-head pairs:
 #   tp_notsecret_range_percent=110: 2/210 (1.0%), avg perf_percentSum_w_roll group 0 secret TP=65.11 (per algo)
 #   tp_notsecret_range_percent=150: 208/210 (99.0%), avg perf_percentSum_w_roll group 0 secret TP=88.60 (per algo)

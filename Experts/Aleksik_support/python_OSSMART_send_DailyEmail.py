@@ -21,7 +21,7 @@ import platform
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import date, datetime
 from email.mime.text import MIMEText
 from typing import Optional, Tuple
 
@@ -35,6 +35,7 @@ send_email_on_start = False
 send_email_on_time_hhmm = "22:02"  # once per calendar day when local clock hits HH:MM
 
 POLL_SECONDS = 55
+RETRY_WINDOW_MINUTES = 10  # after scheduled HH:MM, keep retrying until success or window ends
 EMAIL_SUBJECT_PREFIX = "mt5py"
 
 EMAIL_FROM = "aleksikstorage2@gmail.com"
@@ -208,12 +209,14 @@ def send_daily_email(service, subject: str, body: str) -> None:
     service.users().messages().send(userId="me", body={"raw": raw}).execute()
 
 
-def send_day_summary(service, summary_path: str, *, reason: str) -> bool:
+def send_day_summary(service, summary_path: str, *, reason: str, when: Optional[datetime] = None) -> bool:
+    when = when or datetime.now()
     body, found = read_day_summary(summary_path)
-    subject = build_email_subject(body, datetime.now())
+    subject = build_email_subject(body, when)
+    date_label = when.strftime("%b %d")
 
     log("")
-    log(f"--- send daily email ({reason}) ---")
+    log(f"--- send daily email ({date_label} {reason}) ---")
     log(f"  day_summary: {summary_path} ({'found' if found else 'MISSING'})")
     log(f"  subject: {subject}")
     log(f"  body lines: {body.count(chr(10)) + (1 if body else 0)}")
@@ -242,13 +245,46 @@ def parse_hhmm(value: str) -> Tuple[int, int]:
     return hour, minute
 
 
-def should_send_on_schedule(now: datetime, last_sent_date: Optional[datetime.date]) -> bool:
-    hour, minute = parse_hhmm(send_email_on_time_hhmm)
-    if now.hour != hour or now.minute != minute:
+def scheduled_time_today(now: datetime, hour: int, minute: int) -> datetime:
+    return now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+
+
+def minutes_since_scheduled(now: datetime, hour: int, minute: int) -> Optional[float]:
+    scheduled = scheduled_time_today(now, hour, minute)
+    if now < scheduled:
+        return None
+    return (now - scheduled).total_seconds() / 60.0
+
+
+def in_retry_window(now: datetime, hour: int, minute: int) -> bool:
+    elapsed = minutes_since_scheduled(now, hour, minute)
+    if elapsed is None:
         return False
-    if last_sent_date == now.date():
+    return elapsed <= RETRY_WINDOW_MINUTES
+
+
+def should_attempt_scheduled_send(
+    now: datetime,
+    last_sent_date: Optional[date],
+    hour: int,
+    minute: int,
+) -> bool:
+    today = now.date()
+    if last_sent_date == today:
         return False
-    return True
+
+    at_scheduled_minute = now.hour == hour and now.minute == minute
+    if at_scheduled_minute:
+        return True
+
+    # Failed earlier (or process restarted): retry until window ends.
+    return in_retry_window(now, hour, minute)
+
+
+def retry_reason_label(hour: int, minute: int, attempt: int) -> str:
+    if attempt <= 1:
+        return f"scheduled {hour:02d}:{minute:02d}"
+    return f"retry {attempt - 1} after {hour:02d}:{minute:02d}"
 
 
 # ============================================================
@@ -267,11 +303,16 @@ def main() -> int:
     log(f"day_summary path: {summary_path}")
     log(f"send_email_on_start={send_email_on_start}")
     log(f"send_email_on_time_hhmm={send_email_on_time_hhmm}")
+    log(f"retry window: {RETRY_WINDOW_MINUTES} min after scheduled time")
     log(f"poll every {POLL_SECONDS}s")
 
     service = get_gmail_service(DAILY_EMAIL_GMAIL_SCOPES)
 
-    last_scheduled_date: Optional[datetime.date] = None
+    last_sent_date: Optional[date] = None
+    pending_send_date: Optional[date] = None
+    send_attempt_date: Optional[date] = None
+    send_attempt_today = 0
+    retry_expired_logged_date: Optional[date] = None
 
     if send_email_on_start:
         send_day_summary(service, summary_path, reason="startup")
@@ -284,13 +325,34 @@ def main() -> int:
             return 0
 
         now = datetime.now()
-        if should_send_on_schedule(now, last_scheduled_date):
-            if send_day_summary(
-                service,
-                summary_path,
-                reason=f"scheduled {schedule_hour:02d}:{schedule_minute:02d}",
-            ):
-                last_scheduled_date = now.date()
+        today = now.date()
+
+        if pending_send_date == today and not in_retry_window(now, schedule_hour, schedule_minute):
+            if retry_expired_logged_date != today:
+                log("")
+                log(
+                    f"--- daily email retries expired ({today.strftime('%b %d')} "
+                    f"after {RETRY_WINDOW_MINUTES} min past "
+                    f"{schedule_hour:02d}:{schedule_minute:02d}) ---"
+                )
+                retry_expired_logged_date = today
+            pending_send_date = None
+            send_attempt_today = 0
+
+        if not should_attempt_scheduled_send(now, last_sent_date, schedule_hour, schedule_minute):
+            continue
+
+        if send_attempt_date != today:
+            send_attempt_today = 0
+        send_attempt_date = today
+        send_attempt_today += 1
+        reason = retry_reason_label(schedule_hour, schedule_minute, send_attempt_today)
+        if send_day_summary(service, summary_path, reason=reason, when=now):
+            last_sent_date = today
+            pending_send_date = None
+            send_attempt_today = 0
+        else:
+            pending_send_date = today
 
 
 if __name__ == "__main__":
