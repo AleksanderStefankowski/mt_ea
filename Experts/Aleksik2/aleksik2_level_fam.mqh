@@ -3345,7 +3345,7 @@ g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].stop_trading_today
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].expiry_minutes = 120;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].this_algo_max_concurrent_pending_trades = 1;
-g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].max_open_positions = 10;
+g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].max_open_positions = 5;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].secret_tp_profit_percent_min = 4.00;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].secret_tp_greenguard_pricediff_at_least = 20.0;
 g_levelAlgos[LevelAlgoSlotIndexByAlgoId(MAGIC_LEVEL30000082)].level_needs_to_be_below_ONO = true;

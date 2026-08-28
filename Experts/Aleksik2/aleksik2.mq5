@@ -571,9 +571,9 @@ int      per_second_log_end_minute                         =  34;
 bool     backtest_profile_enabled                          = true;   // strategy tester only: section wall-time → backtest_profile_*.csv
 // false: backtest — incremental closed bars only; full replay on new day / track change / bar shrink.
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
-bool     bigflipper_pullinghistory_always_full_replay      = true; // REALBOOKMARK LIVEBOOKMARK
+bool     bigflipper_pullinghistory_always_full_replay      = false; // REALBOOKMARK LIVEBOOKMARK
 bool     bigflipper_friday_api_pull_all_trades            = false;  // 1st Fri of month 14:00 server: History deals → API_friday_pull_all_trades.csv
-string   bigflipper_stop_trading_after_date               = "2555.01.12"; // "2555.01.12"  "2026.03.10"  YYYY.MM.DD server calendar; CUTOFFBOOKMARK placement off after this day; babysit unaffected; "" = disabled
+string   bigflipper_stop_trading_after_date               = "2026.03.10"; // "2555.01.12"  "2026.03.10"  YYYY.MM.DD server calendar; CUTOFFBOOKMARK placement off after this day; babysit unaffected; "" = disabled
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = true;  // trade-results CSV: omit reference points too close to fillprice
 double   tradeResult_referencePointMinAbsDiffFromLevel = 4.0; //bookmark // price points; |ref - level| < this counts as too close when flipper above is on
 int      tradeResult_referencePoints_movingLookback_seconds = 180;  // refbookmark moving trade-result context: bar at (startTime - this); refs, dayBrokePDH/PDL
@@ -600,8 +600,9 @@ int      babysit_telemetry_interval_seconds = 240; // bookmark // MFE/MAE open-p
 // for example, 1.2, and specific trade is 30%, would mean position 0.36, 50% = 0.60
 // profit factor danego trade jest stały przy jego różnych trade size, ale profit factor całego runu zmieni się bo zmieniają się proporcje absolutnego zysku
 
-double   g_global_base_trade_size_breakdown = 0.009;  // bookmark9 basetradesize breakdown // 10 × (0.002 + 0.003 + 2× (0.015) = 0.35
-double   g_global_base_trade_size_time      = 0.01; // bookmark9 basetradesize time 0.001
+// 5 × (0.003 + 0.019 + 1× (0.021). 10% 50% 40%, max ~0.3 22OOOPLN
+double   g_global_base_trade_size_time      = 0.019; // bookmark9 basetradesize time 0.001
+double   g_global_base_trade_size_breakdown = 0.021;  // bookmark9 basetradesize breakdown // 10 × (0.002 + 0.003 + 2× (0.015) = 0.35
 double   g_global_base_trade_size_level     = 0.003;  // bookmark9 basetradesize level
 #define TRADE_VARIANT_COUNT_MAX_LOTSIZE 4.0
 const double one_lot_equals_xPLN = 65000.0;  // PLN notional per 1.0 lot; 0.001 lot => 65 PLN deposit equivalent
@@ -48832,7 +48833,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].closet
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].closetrade_after_some_time_butOnlyIfProfit = true;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].closetrade_after_some_time_but_ProfitPercent_Needed = 15.00;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].closetrade_after_x_minutes_from_breakdown = 800;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].max_open_positions = 10;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001094)].max_open_positions = 5;
 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001095)].enabled = false; // quantref base=20000156 new=20001095 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=PDL ratecut=0.8523 timeVSprofit=0.087 percentSum_w_roll=133.30 tradesCount=127
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001095)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -52533,7 +52534,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001231)].closet
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001231)].closetrade_after_x_minutes_from_breakdown = 800;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001231)].max_open_positions = 10;
 
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].enabled = true; // quantref base=20000475 new=20001232 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9150 timeVSprofit=0.059 percentSum_w_roll=205.98 tradesCount=140
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].enabled = false; // quantref base=20000475 new=20001232 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9150 timeVSprofit=0.059 percentSum_w_roll=205.98 tradesCount=140
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].stop_trading_today_if_thisAlgo_winning_trades_count = 999;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 10;
@@ -52558,7 +52559,7 @@ g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].closet
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].closetrade_after_some_time_butOnlyIfProfit = true;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].closetrade_after_some_time_but_ProfitPercent_Needed = 15.00;
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].closetrade_after_x_minutes_from_breakdown = 800;
-g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].max_open_positions = 10;
+g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001232)].max_open_positions = 5;
 
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001233)].enabled = false; // quantref base=20000330 new=20001233 modes=best_timevsprofit,best_timeVSprofitVSratecut above=PDH below=- ratecut=0.9087 timeVSprofit=0.059 percentSum_w_roll=149.45 tradesCount=239
 g_breakdownAlgos[BreakdownAlgoSlotIndexByAlgoId(MAGIC_BREAKDOWN20001233)].stop_trading_today_if_thisAlgo_losing_trades_count = 999;
@@ -58452,7 +58453,7 @@ g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_profit_perc
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].secret_tp_greenguard_pricediff_at_least = 10.00;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].real_tp = 498.0;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].max_trades_per_day = 1;
-g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].max_open_positions = 10;
+g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].max_open_positions = 5;
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000001)].stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count = 1;
 
 g_timeAlgos[TimeAlgoSlotIndexByAlgoId(TIME_ALGO_10000002)].enabled = false;
