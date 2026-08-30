@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 require_relative 'compare_variable_analysis_lib'
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
@@ -156,3 +158,5 @@ Lib.compare_analysis_lines(run_result[:pairs], COMPARE_VARIABLE).each { |line| p
 puts
 print_closetrade_conditional_comparisons(run_result[:pairs])
 puts "wrote #{run_result[:output_rows].size} rows to #{OUTPUT_PATH}" if WRITE_OUTPUT_FILE
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Head-to-head performance comparison for time algos.
 # Each section pairs algos whose config matches on every field except one:
 #   entry_time, secret_tp_profit_percent_min, rule_switch_map, max_open_positions
@@ -52,7 +54,7 @@ DISPLAY_CONFIG_FIELDS = %w[
 
 COMPARE_METRICS = [
   ['perf_percentSum_w_roll', 'percentSum_w_roll', 2],
-  ['perf_timeVSprofit', 'timeVSprofit', 3],
+  ['perf_profitSumVSexposure', 'profitSumVSexposure', Lib::TIMEVSPROFIT_DECIMALS],
   ['perf_avgDurationHours', 'avgDurationHours', 2]
 ].freeze
 
@@ -271,16 +273,15 @@ def print_section_summaries(pairs, compare_variable, sort_key: nil)
   end
   puts
 
-  puts '--- timeVSprofit head-to-head (paired duels) ---'
+  puts '--- profitSumVSexposure head-to-head (paired duels) ---'
   Lib.variable_pair_stats_lines(
-    'perf_timeVSprofit',
+    'perf_profitSumVSexposure',
     compare_variable,
-    Lib.build_variable_pair_stats(pairs, compare_variable, 'timeVSprofit'),
+    Lib.build_variable_pair_stats(pairs, compare_variable, 'profitSumVSexposure'),
     paired_entries,
-    'timeVSprofit',
+    'profitSumVSexposure',
     pairs: pairs,
     sort_key: sort_key,
-    avg_decimals: 3,
     show_avg_on_win_lines: true,
     show_avg_comparison: true,
     show_best_algo_duel: false
@@ -441,3 +442,5 @@ COMPARE_SECTIONS.each do |section|
 end
 
 print_unpaired_configs(unpaired_by_section)
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

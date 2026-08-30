@@ -115,8 +115,8 @@ module QuantRefCreator
         grp_refs_above: row["grpRefsAbove"],
         grp_refs_below: row["grpRefsBelow"],
         ratecut: row["ratecut"],
-        time_vs_profit: row["timeVSprofit"].to_f,
-        time_vs_profit_vs_ratecut: row["timeVSprofitVSratecut"].to_f,
+        profit_sum_vs_exposure: row["profitSumVSexposure"].to_f,
+        profit_sum_vs_exposure_vs_ratecut: row["timeVSprofitVSratecut"].to_f,
         percent_sum_w_roll: row["percentSum_w_roll"],
         trades_count: row["tradesCount"].to_i,
         merged_variant_count: row["mergedVariantCount"].to_s.strip,
@@ -127,8 +127,8 @@ module QuantRefCreator
 
   def sort_metric(row, mode)
     case mode
-    when :best_timevsprofit then row[:time_vs_profit]
-    when :best_timeVSprofitVSratecut then row[:time_vs_profit_vs_ratecut]
+    when :best_timevsprofit then row[:profit_sum_vs_exposure]
+    when :best_timeVSprofitVSratecut then row[:profit_sum_vs_exposure_vs_ratecut]
     else raise "Unknown creation mode: #{mode.inspect}"
     end
   end
@@ -285,6 +285,7 @@ module QuantRefCreator
     lines.map do |line|
       line = line.gsub(base_magic_const, new_magic_const)
       if line.match?(/\.enabled\s*=/)
+        line = line.sub(/\.enabled\s*=\s*(true|false)/, '.enabled = true')
         stripped = line.rstrip
         "#{stripped.sub(/;\s*$/, '')};#{comment_suffix}\n"
       else
@@ -310,6 +311,10 @@ module QuantRefCreator
     MQL5
   end
 
+  def format_profit_sum_vs_exposure(value)
+    AnalyzeAlgosPerformanceCommon.format_float(value, AnalyzeAlgosPerformanceCommon::TIMEVSPROFIT_DECIMALS)
+  end
+
   def quantref_comment(row, new_algo_id)
     modes = creation_modes_for(row).join(",")
     merged =
@@ -321,7 +326,7 @@ module QuantRefCreator
     " // quantref base=#{row[:algo_id]} new=#{new_algo_id} modes=#{modes} " \
       "above=#{row[:grp_refs_above].empty? ? '-' : row[:grp_refs_above]} " \
       "below=#{row[:grp_refs_below].empty? ? '-' : row[:grp_refs_below]} " \
-      "ratecut=#{row[:ratecut]} timeVSprofit=#{row[:time_vs_profit]} " \
+      "ratecut=#{row[:ratecut]} profitSumVSexposure=#{format_profit_sum_vs_exposure(row[:profit_sum_vs_exposure])} " \
       "percentSum_w_roll=#{row[:percent_sum_w_roll]} tradesCount=#{row[:trades_count]}#{merged}"
   end
 

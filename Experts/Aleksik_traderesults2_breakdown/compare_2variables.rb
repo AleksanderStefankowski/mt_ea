@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Compare two config variables using allowed (var1, var2) groups only.
 # Set DYNAMIC_GROUPS_MODE = true to build groups from DYNAMIC_VARIABLE_* cartesian product.
 # Set DYNAMIC_GROUPS_MODE = false to use ALLOWED_GROUPS_EXPLICIT.
@@ -63,7 +65,7 @@ ALLOWED_GROUPS = (
 ).freeze
 
 PERF_FIELDS = %w[
-  timeVSprofit
+  profitSumVSexposure
   percentSum_w_roll
   avgDurationHours
   tradesCount
@@ -95,7 +97,7 @@ def format_float(value, decimals = 3)
 end
 
 def perf_field_decimals(field)
-  field == 'percentSum_w_roll' || field == 'tradesCount' ? 2 : 3
+  CompareVariableAnalysisLib.perf_field_decimals(field)
 end
 
 def average(values)
@@ -248,7 +250,7 @@ end
 
 def print_group_averages(group_averages, allowed_rows)
   groups_with_data = group_averages.select { |group| group[:algo_count].positive? }
-  print_group_averages_sorted(group_averages, 'timeVSprofit', order: :desc)
+  print_group_averages_sorted(group_averages, 'profitSumVSexposure', order: :desc)
   puts
   print_group_averages_sorted(group_averages, 'percentSum_w_roll', order: :desc)
   puts
@@ -348,3 +350,5 @@ puts
 print_group_averages(group_averages, allowed_rows)
 puts
 puts "wrote group averages to #{GROUP_AVERAGES_OUTPUT_PATH}" if WRITE_OUTPUT_FILE
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

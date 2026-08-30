@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 require 'csv'
 require 'set'
 require_relative '../Aleksik2/smash_BREAKDOWN_create_combinationsMap_csv'
@@ -242,3 +244,5 @@ else
 end
 puts
 puts "wrote #{output_rows.size} rows to #{OUTPUT_PATH}"
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

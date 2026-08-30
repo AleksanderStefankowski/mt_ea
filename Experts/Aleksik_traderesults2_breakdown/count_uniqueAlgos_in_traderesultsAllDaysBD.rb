@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Counts unique breakdown algos that appear in summary_tradeResults_all_days_breakdown.tsv
 # and compares against algos defined in aleksik2_r_read_breakdown_algos_csv.csv.
 
@@ -103,3 +105,5 @@ if traded_not_in_config.any?
     puts "  #{algo_id}: #{trade_count_by_algo_id[algo_id]} trades"
   end
 end
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

@@ -5,6 +5,7 @@
 # quantexpected_vs_quantrun_alignmentCheck-exactAlgoIDs.rb
 
 require 'csv'
+require_relative 'alert_done_common'
 require_relative 'analyze_algos_performance_common'
 require_relative '../Aleksik/smash_mql5_algo_reader_lib'
 
@@ -30,7 +31,7 @@ PRINT_HOW_MANY_MOST_RELIABLE_PER_FAM = 5
 PRINT_HOW_MANY_LEAST_RELIABLE_PER_FAM = 5
 
 ALIGNMENT_COLUMNS = {
-  'tVSp_align' => 'timeVSprofit alignment %',
+  'tVSp_align' => 'profitSumVSexposure alignment %',
   'percentSum_align' => 'percentSum alignment %',
   'tC_align' => 'tradesCount alignment %'
 }.freeze
@@ -59,7 +60,7 @@ QUANTREF_RE = /
   above=(\S+)\s+
   below=(\S+)\s+
   ratecut=([\d.]+)\s+
-  timeVSprofit=([\d.]+)\s+
+  (?:timeVSprofit|profitSumVSexposure)=([\d.]+)\s+
   percentSum_w_roll=([\d.]+)\s+
   tradesCount=(\d+)
 /x
@@ -84,7 +85,7 @@ OUTPUT_HEADERS = %w[
   weekly_traderate
   avg_open_exposure
   peak_open_exposure
-  timeVSprofit
+  profitSumVSexposure
   tVSp_expected
   tVSp_align
   percentSum_w_roll
@@ -144,7 +145,7 @@ def parse_quantref_entries(content, default_family: nil)
     end
 
     base_algo_id, quant_algo_id, modes, above, below, ratecut,
-      time_vs_profit, percent_sum, trades_count = match.captures
+      profit_sum_vs_exposure, percent_sum, trades_count = match.captures
 
     entries << {
       family: family,
@@ -154,7 +155,7 @@ def parse_quantref_entries(content, default_family: nil)
       grp_refs_above: above,
       grp_refs_below: below,
       ratecut: ratecut,
-      time_vs_profit_expected: time_vs_profit,
+      profit_sum_vs_exposure_expected: profit_sum_vs_exposure,
       percent_sum_expected: percent_sum,
       trades_count_expected: trades_count,
       ref_group_size: ref_group_size_from_refs(above, below)
@@ -205,9 +206,9 @@ def build_output_row(entry, perf_row)
     weekly_traderate: perf_row['weekly_traderate'],
     avg_open_exposure: perf_row['avg_open_exposure'],
     peak_open_exposure: perf_row['peak_open_exposure'],
-    timeVSprofit: perf_row['timeVSprofit'],
-    tVSp_expected: entry[:time_vs_profit_expected],
-    tVSp_align: pct_alignment(perf_row['timeVSprofit'], entry[:time_vs_profit_expected]),
+    profitSumVSexposure: perf_row['profitSumVSexposure'],
+    tVSp_expected: entry[:profit_sum_vs_exposure_expected],
+    tVSp_align: pct_alignment(perf_row['profitSumVSexposure'], entry[:profit_sum_vs_exposure_expected]),
     percentSum_w_roll: perf_row['percentSum_w_roll'],
     percSum_expected: entry[:percent_sum_expected],
     percentSum_align: pct_alignment(perf_row['percentSum_w_roll'], entry[:percent_sum_expected]),
@@ -631,6 +632,7 @@ def run_full_quant_alignment_check!
 
   print_reliability_algo_id_lists(family_rows)
   warn 'DONE'
+  play_alert_done!
 end
 
 def run_exact_algo_ids_check!(exact_algo_ids)
@@ -664,4 +666,5 @@ def run_exact_algo_ids_check!(exact_algo_ids)
   end
 
   warn 'DONE'
+  play_alert_done!
 end

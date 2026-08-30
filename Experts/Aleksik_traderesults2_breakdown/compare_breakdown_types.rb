@@ -1,12 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Head-to-head comparison of breakdown streak continuation modes:
 #   CLOSES, OHLC_AVG, LOW, OC_MID, HL_MID
 # (config column: breakdown_streak_continuation_mode)
 #
 # Prints the same metrics as compare_variable.rb:
-#   perf_timeVSprofit
+#   perf_profitSumVSexposure
 #   perf_percentSum_w_roll (+ group 0 secret TP / group non 0 secret TP)
 #   perf_avgDurationHours (+ secret TP splits)
 #   perf_tradesCount (+ secret TP splits)
@@ -113,3 +115,5 @@ Lib.compare_analysis_lines(
 ).each { |line| puts line }
 puts
 puts "wrote #{run_result[:output_rows].size} rows to #{OUTPUT_PATH}" if WRITE_OUTPUT_FILE
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

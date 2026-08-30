@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Reads summary_tradeResults_all_days_breakdown.tsv + breakdown algo config.
 # Rewrites the TSV keeping only trade rows for algos in PRESERVE_GROUP.
 #
@@ -196,3 +198,5 @@ puts "algos with kept trades: #{kept_algo_ids.size}"
 puts "algos removed from trades (had rows, other group): #{removed_algo_ids.size}"
 puts
 puts "wrote #{kept_rows.size} rows to #{TRADES_PATH}"
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

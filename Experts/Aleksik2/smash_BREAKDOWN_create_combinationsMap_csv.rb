@@ -247,7 +247,7 @@ DESIRED_ENTRY_MAX_MINUTES_AFTER_BDEND = [110, 250].freeze # 250  ✅ 110 wins vs
 # 61.8% — The Golden Ratio ($1 / 1.618 \approx 0.618$)
 # 78.6%
 # 88.6% — Harmonic Level Calculated as $\sqrt{0.786}$ (or $\sqrt[4]{0.618}$). Popularized in Harmonic trading (e.g., Bat patterns)
-DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [33, 66, 71].freeze # ✅✅✅✅✅66 > 62 ✅ [20, 66, 75].    [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
+DESIRED_ENTRYRANGE_RANGE_PERCENTSPOT = [33, 45, 66].freeze # ✅✅✅✅✅66 > 62 ✅ [20, 66, 75].  33 IS BAD  [20, 33, 50, 66, 75], the higher the better. test 90. 99 rarely trades obvously as too hard to fill. 
 # [62, 66] 66 won slightly
 # by entryrange_range_percentspot (paired algos, per-algo averages):
 # group                    algos  avg_trades avg_percent  avgtimeVSprofit avgavgDurationHours

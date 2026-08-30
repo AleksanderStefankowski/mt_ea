@@ -10,9 +10,11 @@
 #   20000000..29999999 => breakdown
 #   30000000..39999999 => level
 #
-# Whitelist (target :enabled): enable listed algos, disable all other wired algos in that family.
+# Whitelist (target :enabled): enable listed algos only; disable every other wired algo
+#   in each edited family (including families with no ids in this list).
 # Blacklist (target :disabled): disable listed algos only; leave all others unchanged.
-# Whitelist with an empty per-family list: disable every algo in that edited family.
+# Empty SET_STATE_FOR_ALL_ALGOS_LIST with :enabled => disable all in edited families.
+# Empty SET_STATE_FOR_ALL_ALGOS_LIST with :disabled => no changes.
 
 require_relative "smash_BREAKDOWN_creator_from_combinations"
 
@@ -23,14 +25,12 @@ TARGET_STATE_FOR_ALL_EDITED_ALGOS = :enabled # :enabled or :disabled
 
 # Family is inferred from algo id (see ranges above).
 SET_STATE_FOR_ALL_ALGOS_LIST = <<~IDS
-10000001
-30000082
-20001094
-20001232
+20000360
+10000036
+30000006
 IDS
-# 10000023
-# 20001094
-# 30000133
+
+
 # 1 is time
 # 2 is bd
 # 3 is level
@@ -171,15 +171,20 @@ module DisableEnableByAlgoId
   end
 
   def build_enable_plan(all_ids, list_ids, target_enabled:)
-    unknown = list_ids - all_ids
-    unless unknown.empty?
-      raise ArgumentError, "Unknown algo id(s) not in registry: #{unknown.join(', ')}"
-    end
-
     if target_enabled
+      unknown = list_ids - all_ids
+      unless unknown.empty?
+        raise ArgumentError, "Unknown algo id(s) not in registry: #{unknown.join(', ')}"
+      end
       all_ids.to_h { |id| [id, list_ids.include?(id)] }
     else
-      list_ids.to_h { |id| false }
+      return {} if list_ids.empty?
+
+      unknown = list_ids - all_ids
+      unless unknown.empty?
+        raise ArgumentError, "Unknown algo id(s) not in registry: #{unknown.join(', ')}"
+      end
+      list_ids.to_h { |id| [id, false] }
     end
   end
 
@@ -218,21 +223,30 @@ module DisableEnableByAlgoId
     [updated, changed.sort, skipped.sort]
   end
 
+  def list_display_label(list_ids, target_enabled)
+    if list_ids.empty?
+      return target_enabled ? "(none in this family)" : "(none in this family — no changes)"
+    end
+
+    list_ids.join(", ")
+  end
+
   def summarize_plan(family_label, all_ids, list_ids, target_enabled, plan)
     enable_ids = plan.select { |_id, enabled| enabled }.keys.sort
     disable_ids = plan.select { |_id, enabled| !enabled }.keys.sort
 
     puts "#{family_label}:"
     puts "  Wired algos:              #{all_ids.size}"
-    puts "  List algo ids:            #{list_ids.empty? ? '(empty)' : list_ids.join(', ')}"
+    puts "  List algo ids:            #{list_display_label(list_ids, target_enabled)}"
     puts "  Target for listed algos:  #{target_enabled ? 'enabled' : 'disabled'}"
     if target_enabled
       puts "  Mode:                     whitelist (enable listed, disable others)"
       puts "  Will enable:              #{enable_ids.empty? ? '(none)' : enable_ids.join(', ')}"
       puts "  Will disable:             #{disable_ids.empty? ? '(none)' : "#{disable_ids.size} algo(s)"}"
     else
-      puts "  Mode:                     blacklist (disable listed only)"
-      puts "  Will disable:             #{disable_ids.empty? ? '(none)' : disable_ids.join(', ')}"
+      mode = list_ids.empty? ? "blacklist (disable all)" : "blacklist (disable listed only)"
+      puts "  Mode:                     #{mode}"
+      puts "  Will disable:             #{disable_ids.empty? ? '(none)' : (disable_ids.size == all_ids.size ? "#{disable_ids.size} algo(s)" : disable_ids.join(', '))}"
     end
     puts
   end
@@ -253,7 +267,7 @@ if __FILE__ == $PROGRAM_NAME
   all_list_ids = parse_algo_id_list(
     SET_STATE_FOR_ALL_ALGOS_LIST,
     "SET_STATE_FOR_ALL_ALGOS_LIST",
-    allow_empty: target_enabled
+    allow_empty: true
   )
   list_ids_by_family, skipped_for_disabled_families = partition_list_for_edited_families(all_list_ids)
 

@@ -7,29 +7,27 @@
 #
 # Whitelist (target :enabled): enable listed algos, disable all other wired algos in that family.
 # Blacklist (target :disabled): disable listed algos only; leave all others unchanged.
-# Whitelist with an empty list: disable every algo in that family.
+# Empty list: all algos in that family (:enabled => enable all, :disabled => disable all).
 
 require_relative "smash_BREAKDOWN_creator_from_combinations"
 
-EDIT_BD_ALGOS = true
-TARGET_STATE_FOR_BD_ALGOS = :enabled # :enabled or :disabled
+EDIT_BD_ALGOS = false
+TARGET_STATE_FOR_BD_ALGOS = :disabled # :enabled or :disabled
 
 SET_STATE_FOR_BD_ALGOS_LIST = <<~IDS
   
 IDS
 
 EDIT_TIME_ALGOS = true
-TARGET_STATE_FOR_TIME_ALGOS = :enabled # :enabled or :disabled — empty list = disable all time algos
+TARGET_STATE_FOR_TIME_ALGOS = :disabled # :enabled or :disabled
 
 SET_STATE_FOR_TIME_ALGOS_LIST = <<~IDS
-  10000001
 IDS
 
 EDIT_LEVEL_ALGOS = true
-TARGET_STATE_FOR_LEVEL_ALGOS = :enabled # :enabled or :disabled
+TARGET_STATE_FOR_LEVEL_ALGOS = :disabled # :enabled or :disabled
 
 SET_STATE_FOR_LEVEL_ALGOS_LIST = <<~IDS
-  30000121
 IDS
 
 BD_REGISTRY_MARKERS = %w[//breakdowncreator1start //breakdowncreator1end].freeze
@@ -103,15 +101,20 @@ module DisableEnableByAlgoId
   end
 
   def build_enable_plan(all_ids, list_ids, target_enabled:)
-    unknown = list_ids - all_ids
-    unless unknown.empty?
-      raise ArgumentError, "Unknown algo id(s) not in registry: #{unknown.join(', ')}"
-    end
-
     if target_enabled
-      all_ids.to_h { |id| [id, list_ids.include?(id)] }
+      effective_list = list_ids.empty? ? all_ids : list_ids
+      unknown = effective_list - all_ids
+      unless unknown.empty?
+        raise ArgumentError, "Unknown algo id(s) not in registry: #{unknown.join(', ')}"
+      end
+      all_ids.to_h { |id| [id, effective_list.include?(id)] }
     else
-      list_ids.to_h { |id| false }
+      disable_ids = list_ids.empty? ? all_ids : list_ids
+      unknown = disable_ids - all_ids
+      unless unknown.empty?
+        raise ArgumentError, "Unknown algo id(s) not in registry: #{unknown.join(', ')}"
+      end
+      disable_ids.to_h { |id| [id, false] }
     end
   end
 
@@ -150,21 +153,28 @@ module DisableEnableByAlgoId
     [updated, changed.sort, skipped.sort]
   end
 
+  def list_display_label(list_ids, _target_enabled)
+    return "(empty = all)" if list_ids.empty?
+
+    list_ids.join(", ")
+  end
+
   def summarize_plan(family_label, all_ids, list_ids, target_enabled, plan)
     enable_ids = plan.select { |_id, enabled| enabled }.keys.sort
     disable_ids = plan.select { |_id, enabled| !enabled }.keys.sort
 
     puts "#{family_label}:"
     puts "  Wired algos:              #{all_ids.size}"
-    puts "  List algo ids:            #{list_ids.empty? ? '(empty)' : list_ids.join(', ')}"
+    puts "  List algo ids:            #{list_display_label(list_ids, target_enabled)}"
     puts "  Target for listed algos:  #{target_enabled ? 'enabled' : 'disabled'}"
     if target_enabled
       puts "  Mode:                     whitelist (enable listed, disable others)"
       puts "  Will enable:              #{enable_ids.empty? ? '(none)' : enable_ids.join(', ')}"
       puts "  Will disable:             #{disable_ids.empty? ? '(none)' : "#{disable_ids.size} algo(s)"}"
     else
-      puts "  Mode:                     blacklist (disable listed only)"
-      puts "  Will disable:             #{disable_ids.empty? ? '(none)' : disable_ids.join(', ')}"
+      mode = list_ids.empty? ? "blacklist (disable all)" : "blacklist (disable listed only)"
+      puts "  Mode:                     #{mode}"
+      puts "  Will disable:             #{disable_ids.empty? ? '(none)' : (disable_ids.size == all_ids.size ? "#{disable_ids.size} algo(s)" : disable_ids.join(', '))}"
     end
     puts
   end
@@ -187,7 +197,7 @@ if __FILE__ == $PROGRAM_NAME
   if EDIT_BD_ALGOS
     bd_target_enabled = parse_target_state(TARGET_STATE_FOR_BD_ALGOS, "TARGET_STATE_FOR_BD_ALGOS")
     bd_list_ids = parse_algo_id_list(
-      SET_STATE_FOR_BD_ALGOS_LIST, "SET_STATE_FOR_BD_ALGOS_LIST", allow_empty: bd_target_enabled
+      SET_STATE_FOR_BD_ALGOS_LIST, "SET_STATE_FOR_BD_ALGOS_LIST", allow_empty: true
     )
     bd_all_ids = registry_algo_ids(mq5_content, BD_REGISTRY_MARKERS, BD_REGISTRY_ID_RE)
     bd_plan = build_enable_plan(bd_all_ids, bd_list_ids, target_enabled: bd_target_enabled)
@@ -205,7 +215,7 @@ if __FILE__ == $PROGRAM_NAME
   if EDIT_TIME_ALGOS
     time_target_enabled = parse_target_state(TARGET_STATE_FOR_TIME_ALGOS, "TARGET_STATE_FOR_TIME_ALGOS")
     time_list_ids = parse_algo_id_list(
-      SET_STATE_FOR_TIME_ALGOS_LIST, "SET_STATE_FOR_TIME_ALGOS_LIST", allow_empty: time_target_enabled
+      SET_STATE_FOR_TIME_ALGOS_LIST, "SET_STATE_FOR_TIME_ALGOS_LIST", allow_empty: true
     )
     time_all_ids = registry_algo_ids(mq5_content, TIME_REGISTRY_MARKERS, TIME_REGISTRY_ID_RE)
     time_plan = build_enable_plan(time_all_ids, time_list_ids, target_enabled: time_target_enabled)
@@ -223,7 +233,7 @@ if __FILE__ == $PROGRAM_NAME
   if EDIT_LEVEL_ALGOS
     level_target_enabled = parse_target_state(TARGET_STATE_FOR_LEVEL_ALGOS, "TARGET_STATE_FOR_LEVEL_ALGOS")
     level_list_ids = parse_algo_id_list(
-      SET_STATE_FOR_LEVEL_ALGOS_LIST, "SET_STATE_FOR_LEVEL_ALGOS_LIST", allow_empty: level_target_enabled
+      SET_STATE_FOR_LEVEL_ALGOS_LIST, "SET_STATE_FOR_LEVEL_ALGOS_LIST", allow_empty: true
     )
     level_all_ids = registry_algo_ids(mq5_content, LEVEL_REGISTRY_MARKERS, LEVEL_REGISTRY_ID_RE)
     level_plan = build_enable_plan(level_all_ids, level_list_ids, target_enabled: level_target_enabled)

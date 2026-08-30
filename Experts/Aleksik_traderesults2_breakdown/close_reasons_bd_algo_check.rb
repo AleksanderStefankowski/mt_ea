@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Reads breakdown trade results + algo config CSV.
 # Buckets trades by secret_tp_range_percent recorded on each trade row (what actually ran).
 # Also prints config counts and any config vs trade mismatches.
@@ -167,3 +169,5 @@ print_group_report(
   algo_ids_with_trades: non_zero_algos,
   skipped_trades: non_zero_skipped
 )
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

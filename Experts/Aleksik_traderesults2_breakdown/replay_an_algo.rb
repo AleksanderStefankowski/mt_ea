@@ -1,11 +1,13 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 require 'csv'
 require 'date'
 
 # ============ INPUT (edit these) ============
-ALGO_ID = 30000016 # examples: 10000001 time, 20000086 breakdown, 30000001 level
+ALGO_ID = 20000327 # examples: 10000001 time, 20000086 breakdown, 30000001 level
 # ============================================
 
 ALGO_ID_MIN = 10_000_000
@@ -105,3 +107,5 @@ end
 warn "algo_id=#{algo_id} algo_type=#{algo_type}"
 warn "source=#{source_path}"
 warn "Wrote #{matching_rows.size} trades to #{OUTPUT_PATH}"
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

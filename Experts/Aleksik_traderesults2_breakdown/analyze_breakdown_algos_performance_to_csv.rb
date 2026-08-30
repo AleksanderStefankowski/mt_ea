@@ -1,12 +1,19 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
+DO_ALGOS_PERFORMANCE_OUTPUT_2025FLASHCRASH = false
+DO_ALGOS_PERFORMANCE_OUTPUT_EXCEPT_2025FLASHCRASH = false
+LOG_ALL_ROW = false
+
 require 'csv'
 require 'rbconfig'
 require 'open3'
 require_relative 'analyze_algos_performance_common'
 
 self.traderate_account_for_banned_days = false
+self.log_all_row = LOG_ALL_ROW
 
 include AnalyzeAlgosPerformanceCommon
 
@@ -23,10 +30,14 @@ EXCEPT_FLASHCRASH_OUTPUT_PATH = File.join(
   SCRIPT_DIR,
   'analyze_breakdown_algos_performance_output_except_2025flashcrash.csv'
 )
-# Big run only (not 2025flashcrash): drop algos below this % of the highest tradesCount algo.
-exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo = 24
+
+minimum_profitpercentsum = 80
 
 FAMILY_ALL_PATTERN = 'BREAKDOWN'
+
+
+
+
 
 def load_breakdown_pattern_by_algo_id(path)
   unless File.file?(path)
@@ -46,18 +57,6 @@ end
 
 def breakdown_pattern_for_algo(algo_id, pattern_by_algo)
   pattern_by_algo[algo_id.to_s].to_s
-end
-
-def exclude_low_trade_count_algos(rows, min_percent_of_highest)
-  return rows if min_percent_of_highest.nil? || min_percent_of_highest <= 0
-  return rows if rows.empty?
-
-  highest_trade_count = rows.map { |row| row[:tradesCount].to_i }.max
-  return rows if highest_trade_count <= 0
-
-  rows.reject do |row|
-    row[:tradesCount].to_i * 100 <= highest_trade_count * min_percent_of_highest
-  end
 end
 
 if __FILE__ == $PROGRAM_NAME
@@ -98,32 +97,21 @@ print_loaded_trade_span_summary(
   io: $stderr
 )
 
-rows = build_rows(
-  trades,
-  global_first_date,
-  global_last_date,
-  global_trading_day_count,
-  global_full_week_mondays,
-  pattern_for_algo: pattern_for_algo
+rows = filter_rows_by_minimum_profit_percent_sum(
+  build_rows(
+    trades,
+    global_first_date,
+    global_last_date,
+    global_trading_day_count,
+    global_full_week_mondays,
+    pattern_for_algo: pattern_for_algo
+  ),
+  minimum_profitpercentsum
 )
-
-if exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo.positive?
-  before_count = rows.size
-  highest_trade_count = rows.map { |row| row[:tradesCount].to_i }.max
-  rows = exclude_low_trade_count_algos(
-    rows,
-    exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo
-  )
-  excluded_count = before_count - rows.size
-  min_keep = (highest_trade_count * exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo) / 100.0
-  warn "Excluded #{excluded_count} algos with tradesCount <= #{min_keep.round(2)} " \
-       "(#{exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo}% of highest #{highest_trade_count}); " \
-       "#{rows.size} algos remain"
-end
 
 write_rows(
   OUTPUT_PATH,
-  rows_with_family_all(
+  output_rows = rows_with_family_all(
     rows,
     trades,
     FAMILY_ALL_PATTERN,
@@ -133,77 +121,76 @@ write_rows(
     global_full_week_mondays
   )
 )
-warn "Wrote #{rows.size + 1} rows to #{OUTPUT_PATH} (includes ALL/#{FAMILY_ALL_PATTERN})"
+warn "Wrote #{output_rows.size} rows to #{OUTPUT_PATH}" \
+     "#{LOG_ALL_ROW ? " (includes ALL/#{FAMILY_ALL_PATTERN})" : ''}"
 
-flashcrash_trades = trades.select { |trade| trade_in_flashcrash_analysis_range?(trade) }
-flashcrash_rows = build_flashcrash_rows(trades, pattern_for_algo: pattern_for_algo)
-if flashcrash_rows.empty?
-  warn "Skipped #{FLASHCRASH_OUTPUT_PATH}: no algos with a trade before " \
-       "#{format_date(FLASHCRASH_TRADE_BEFORE)} and after #{format_date(FLASHCRASH_TRADE_AFTER)}"
-else
-  global_first_date, global_last_date, global_trading_day_count, global_full_week_mondays = flashcrash_global_context
-  write_rows(
-    FLASHCRASH_OUTPUT_PATH,
-    rows_with_family_all(
-      flashcrash_rows,
-      flashcrash_trades,
-      FAMILY_ALL_PATTERN,
-      global_first_date,
-      global_last_date,
-      global_trading_day_count,
-      global_full_week_mondays
+if DO_ALGOS_PERFORMANCE_OUTPUT_2025FLASHCRASH
+  flashcrash_trades = trades.select { |trade| trade_in_flashcrash_analysis_range?(trade) }
+  flashcrash_rows = build_flashcrash_rows(trades, pattern_for_algo: pattern_for_algo)
+  if flashcrash_rows.empty?
+    warn "Skipped #{FLASHCRASH_OUTPUT_PATH}: no algos with a trade before " \
+         "#{format_date(FLASHCRASH_TRADE_BEFORE)} and after #{format_date(FLASHCRASH_TRADE_AFTER)}"
+  else
+    global_first_date, global_last_date, global_trading_day_count, global_full_week_mondays = flashcrash_global_context
+    write_rows(
+      FLASHCRASH_OUTPUT_PATH,
+      flashcrash_output_rows = rows_with_family_all(
+        flashcrash_rows,
+        flashcrash_trades,
+        FAMILY_ALL_PATTERN,
+        global_first_date,
+        global_last_date,
+        global_trading_day_count,
+        global_full_week_mondays
+      )
     )
-  )
-  warn "Wrote #{flashcrash_rows.size + 1} rows to #{FLASHCRASH_OUTPUT_PATH} " \
-       "(includes ALL/#{FAMILY_ALL_PATTERN}; analysis range #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
+    warn "Wrote #{flashcrash_output_rows.size} rows to #{FLASHCRASH_OUTPUT_PATH} " \
+         "#{LOG_ALL_ROW ? "(includes ALL/#{FAMILY_ALL_PATTERN}; " : '('}" \
+         "analysis range #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
+  end
+else
+  warn "Skipped #{FLASHCRASH_OUTPUT_PATH} (DO_ALGOS_PERFORMANCE_OUTPUT_2025FLASHCRASH = false)"
 end
 
-except_flashcrash_trades = trades_except_flashcrash_analysis_range(trades)
-if except_flashcrash_trades.empty?
-  warn "Skipped #{EXCEPT_FLASHCRASH_OUTPUT_PATH}: no trades outside flashcrash analysis range " \
-       "#{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)}"
-else
-  except_first_date, except_last_date, except_trading_day_count = trade_date_range(except_flashcrash_trades)
-  except_full_week_mondays = countable_mon_fri_weeks_in_date_range(except_first_date, except_last_date)
-  except_rows = build_rows(
-    except_flashcrash_trades,
-    except_first_date,
-    except_last_date,
-    except_trading_day_count,
-    except_full_week_mondays,
-    pattern_for_algo: pattern_for_algo
-  )
-
-  if exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo.positive?
-    before_count = except_rows.size
-    highest_trade_count = except_rows.map { |row| row[:tradesCount].to_i }.max
-    except_rows = exclude_low_trade_count_algos(
-      except_rows,
-      exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo
-    )
-    excluded_count = before_count - except_rows.size
-    min_keep = (highest_trade_count * exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo) / 100.0
-    warn "Except-flashcrash: excluded #{excluded_count} algos with tradesCount <= #{min_keep.round(2)} " \
-         "(#{exclude_algos_with_tradecount_less_than_xpercent_of_highestTradeCountAlgo}% of highest #{highest_trade_count}); " \
-         "#{except_rows.size} algos remain"
-  end
-
-  write_rows(
-    EXCEPT_FLASHCRASH_OUTPUT_PATH,
-    rows_with_family_all(
-      except_rows,
+if DO_ALGOS_PERFORMANCE_OUTPUT_EXCEPT_2025FLASHCRASH
+  except_flashcrash_trades = trades_except_flashcrash_analysis_range(trades)
+  if except_flashcrash_trades.empty?
+    warn "Skipped #{EXCEPT_FLASHCRASH_OUTPUT_PATH}: no trades outside flashcrash analysis range " \
+         "#{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)}"
+  else
+    except_first_date, except_last_date, except_trading_day_count = trade_date_range(except_flashcrash_trades)
+    except_full_week_mondays = countable_mon_fri_weeks_in_date_range(except_first_date, except_last_date)
+    except_rows = build_rows(
       except_flashcrash_trades,
-      FAMILY_ALL_PATTERN,
       except_first_date,
       except_last_date,
       except_trading_day_count,
-      except_full_week_mondays
+      except_full_week_mondays,
+      pattern_for_algo: pattern_for_algo
     )
-  )
-  warn "Wrote #{except_rows.size + 1} rows to #{EXCEPT_FLASHCRASH_OUTPUT_PATH} " \
-       "(includes ALL/#{FAMILY_ALL_PATTERN}; all trades except #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
+
+    write_rows(
+      EXCEPT_FLASHCRASH_OUTPUT_PATH,
+      except_output_rows = rows_with_family_all(
+        except_rows,
+        except_flashcrash_trades,
+        FAMILY_ALL_PATTERN,
+        except_first_date,
+        except_last_date,
+        except_trading_day_count,
+        except_full_week_mondays
+      )
+    )
+    warn "Wrote #{except_output_rows.size} rows to #{EXCEPT_FLASHCRASH_OUTPUT_PATH} " \
+         "#{LOG_ALL_ROW ? "(includes ALL/#{FAMILY_ALL_PATTERN}; " : '('}" \
+         "all trades except #{format_date(FLASHCRASH_ANALYSIS_START)}..#{format_date(FLASHCRASH_ANALYSIS_END)})"
+  end
+else
+  warn "Skipped #{EXCEPT_FLASHCRASH_OUTPUT_PATH} (DO_ALGOS_PERFORMANCE_OUTPUT_EXCEPT_2025FLASHCRASH = false)"
 end
 
 warn 'RAN OK'
 
 end
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

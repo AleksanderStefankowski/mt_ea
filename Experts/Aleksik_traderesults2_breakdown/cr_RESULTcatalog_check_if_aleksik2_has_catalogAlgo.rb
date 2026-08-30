@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Read RESULT catalogs and aleksik2 algo configs; report which wired algos are cataloged.
 # Match is by config fingerprint (same rules as create_RESULTcatalog.rb), not algo id.
 
@@ -323,3 +325,5 @@ if total_missing.positive?
 end
 
 warn 'RAN OK'
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

@@ -23,7 +23,7 @@ CATALOG_HEADERS = %w[
   tested_argument
   perf_firstTradeDate
   perf_lastTradeDate
-  perf_timeVSprofit
+  perf_profitSumVSexposure
   perf_percentSum_w_roll
   perf_avgDurationHours
   perf_tradesCount
@@ -37,7 +37,7 @@ def blank_catalog_row
 end
 
 def fill_core_perf_metrics(row, perf)
-  row['perf_timeVSprofit'] = Lib.format_float(perf[:timeVSprofit], 3)
+  row['perf_profitSumVSexposure'] = Lib.format_float(perf[:profitSumVSexposure], Lib::TIMEVSPROFIT_DECIMALS)
   row['perf_percentSum_w_roll'] = Lib.format_float(perf[:percentSum_w_roll], 2)
   row['perf_avgDurationHours'] = Lib.format_float(perf[:avgDurationHours], 2)
   row['perf_tradesCount'] = Lib.format_float(perf[:tradesCount], 2)
@@ -116,7 +116,7 @@ def build_time_catalog_row
     fill_core_perf_metrics(
       row,
       {
-        timeVSprofit: Lib.parse_float(perf_row['timeVSprofit']),
+        profitSumVSexposure: Lib.parse_float(perf_row['profitSumVSexposure']),
         percentSum_w_roll: Lib.parse_float(perf_row['percentSum_w_roll']),
         avgDurationHours: Lib.parse_float(perf_row['avgDurationHours']),
         tradesCount: Lib.parse_float(perf_row['tradesCount'])

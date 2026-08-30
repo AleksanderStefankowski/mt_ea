@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Run per-family reference-point scripts:
 #   analyze_referencePoints_breakdown.rb
 #   analyze_referencePoints_time.rb
@@ -36,7 +38,7 @@ def run_family_script!(path)
 
   warn
   warn "Running #{File.basename(path)}..."
-  output, status = Open3.capture2e(RbConfig.ruby, path)
+  output, status = Open3.capture2e({ 'SKIP_ALERT_DONE' => '1' }, RbConfig.ruby, path)
   warn output unless output.empty?
 
   success = status.success? && SUCCESS_MARKERS.any? { |marker| output.include?(marker) }
@@ -55,6 +57,7 @@ if output_timestamp_recent?(OUTPUT_TIMESTAMP_PATH)
        "stamp fresh within last #{OUTPUT_TIMESTAMP_MAX_AGE_SECONDS / 60} min)"
   warn
   warn 'RAN OK'
+  play_alert_done!
   exit 0
 end
 
@@ -65,3 +68,5 @@ warn
 warn 'RAN OK'
 
 end
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

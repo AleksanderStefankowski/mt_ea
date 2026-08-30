@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Run per-family performance scripts, then merge into one combined CSV:
 #   analyze_ALL_algos_performance_output.csv
 #   ...
@@ -15,7 +17,10 @@ require_relative 'analyze_algos_performance_common'
 
 include AnalyzeAlgosPerformanceCommon
 
+LOG_ALL_ROW = false
+
 self.traderate_account_for_banned_days = false
+self.log_all_row = LOG_ALL_ROW
 
 SCRIPT_DIR = File.dirname(File.expand_path(__FILE__))
 OUTPUT_TIMESTAMP_PATH = File.join(SCRIPT_DIR, 'analyze_ALL_algos_performance_output_timestamp.txt')
@@ -71,7 +76,7 @@ def run_family_script!(entry)
 
   warn
   warn "Running #{File.basename(path)}..."
-  output, status = Open3.capture2e(RbConfig.ruby, path)
+  output, status = Open3.capture2e({ 'SKIP_ALERT_DONE' => '1' }, RbConfig.ruby, path)
   warn output unless output.empty?
 
   success = status.success? && entry[:success_markers].any? { |marker| output.include?(marker) }
@@ -109,7 +114,10 @@ def merge_family_outputs!(family_outputs, merged_output)
     return
   end
 
-  merged_all_row = build_merged_all_row_from_family_all_rows(family_all_rows(rows))
+  merged_all_row =
+    if log_all_row
+      build_merged_all_row_from_family_all_rows(family_all_rows(rows))
+    end
   if merged_all_row
     headers ||= CSV_HEADERS
     rows.unshift(merged_all_row.transform_keys(&:to_s))
@@ -137,6 +145,7 @@ if output_timestamp_recent?(OUTPUT_TIMESTAMP_PATH)
        "stamp fresh within last #{OUTPUT_TIMESTAMP_MAX_AGE_SECONDS / 60} min)"
   warn
   warn 'RAN OK'
+  play_alert_done!
   exit 0
 end
 
@@ -152,3 +161,5 @@ warn
 warn 'RAN OK'
 
 end
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

@@ -8,6 +8,27 @@ require_relative '../Aleksik_traderesults/analyze_traderate_common'
 module AnalyzeAlgosPerformanceCommon
   module_function
 
+  # profitSumVSexposure:
+  #   (percentSum_w_roll / peak_open_exposure) / 100
+  #   percentSum is in percent points (e.g. 33.3); divide by 100 for fractional scale (e.g. 0.333).
+  #   see profit_sum_vs_exposure
+  #
+  # profitSumVSexposureVStime:
+  #   profitSumVSexposure * (1 / sqrt(avgDurationHours))
+  #   Shorter avgDurationHours scores higher; sqrt keeps duration as a tie-break, not a dominant factor.
+  #   see profit_sum_vs_exposure_vs_time
+  #
+  # timeVSavgProfit:
+  #   avg_profit_custom_with_roll / avgDurationHours
+  #   see time_vs_avg_profit_from_components
+  #
+  # timeVSprofitSum:
+  #   percentSum_w_roll / avgDurationHours
+  #   see time_vs_profit_sum_from_components
+  #
+  # avg_open_exposure:
+  #   mean over traded days of peak concurrent open positions that day
+  #   see avg_open_exposure
   CSV_HEADERS = %w[
     algoID
     pattern
@@ -24,12 +45,15 @@ module AnalyzeAlgosPerformanceCommon
     longestDurationDays
     avgFillDelaySeconds
     avg_profit_custom_with_roll
+    timeVSavgProfit
     gross_profit
     gross_loss
     profit_factor
     percentSum_w_roll
+    timeVSprofitSum
     avg_time_at_peak_exposure_hours
-    timeVSprofit
+    profitSumVSexposure
+    profitSumVSexposureVStime
     max_time_at_peak_exposure_hours
     max_time_at_peak_exposure_days
     traderate
@@ -45,6 +69,7 @@ module AnalyzeAlgosPerformanceCommon
   FLASHCRASH_ANALYSIS_END = Date.new(2025, 7, 17)
 
   MIN_DURATION_HOURS = 0.000001
+  TIMEVSPROFIT_DECIMALS = 4
 
   ALL_TRADE_SUMMARY_FILES = %w[
     summary_tradeResults_all_days_breakdown.tsv
@@ -172,31 +197,36 @@ module AnalyzeAlgosPerformanceCommon
     hours.negative? ? nil : hours
   end
 
-  def duration_hours_for_time_vs_profit!(trade)
-    hours = duration_hours_from_times(trade)
-    hours = trade[:duration_hours] if hours.nil?
+  def profit_sum_vs_exposure_from_components(percent_sum, peak_open_exposure)
+    return nil if percent_sum.nil? || peak_open_exposure.nil? || peak_open_exposure <= 0
 
-    if hours.nil?
-      raise "ERROR: timeVSprofit: durationHours missing for algo #{trade[:algo_id]} #{trade_time_label(trade)}"
-    end
-    if hours < MIN_DURATION_HOURS
-      raise "ERROR: timeVSprofit: durationHours=#{hours} < #{MIN_DURATION_HOURS} for algo #{trade[:algo_id]} #{trade_time_label(trade)}"
-    end
-
-    hours
+    (percent_sum / peak_open_exposure.to_f) / 100.0
   end
 
-  def time_vs_profit(trades)
+  def profit_sum_vs_exposure(trades)
     return nil if trades.empty?
 
-    profits = trades.map { |trade| trade[:profit_custom_with_roll].to_f }
-    hours_list = trades.map { |trade| duration_hours_for_time_vs_profit!(trade) }
+    total_percent = percent_sum(trades)
+    peak = peak_open_exposure(trades)
+    profit_sum_vs_exposure_from_components(total_percent, peak)
+  end
 
-    avg_profit = average(profits)
-    avg_hours = average(hours_list)
-    return nil if avg_profit.nil? || avg_hours.nil? || avg_hours < MIN_DURATION_HOURS
+  def profit_sum_vs_exposure_vs_time(profit_sum_vs_exposure, avg_duration_hours)
+    return nil if profit_sum_vs_exposure.nil? || avg_duration_hours.nil? || avg_duration_hours < MIN_DURATION_HOURS
 
-    avg_profit / avg_hours
+    profit_sum_vs_exposure / Math.sqrt(avg_duration_hours)
+  end
+
+  def time_vs_avg_profit_from_components(avg_profit_custom_with_roll, avg_duration_hours)
+    return nil if avg_profit_custom_with_roll.nil? || avg_duration_hours.nil? || avg_duration_hours < MIN_DURATION_HOURS
+
+    avg_profit_custom_with_roll / avg_duration_hours
+  end
+
+  def time_vs_profit_sum_from_components(percent_sum, avg_duration_hours)
+    return nil if percent_sum.nil? || avg_duration_hours.nil? || avg_duration_hours < MIN_DURATION_HOURS
+
+    percent_sum / avg_duration_hours
   end
 
   def day_range(date)
@@ -285,6 +315,7 @@ module AnalyzeAlgosPerformanceCommon
       .uniq
   end
 
+  # Daily peak concurrent open positions, averaged across days this algo had a trade.
   def avg_open_exposure(trades)
     days = open_days_for_algo(trades)
     return 0.0 if days.empty?
@@ -384,6 +415,14 @@ module AnalyzeAlgosPerformanceCommon
     durations = trades.filter_map { |t| duration_hours_from_column(t) }
     longest_duration_hours = durations.max
     gross_profit, gross_loss = gross_profit_and_loss_custom_with_roll(trades)
+    total_percent = percent_sum(trades)
+    peak_exposure = peak_open_exposure(trades)
+    avg_duration_hours = average(durations)
+    avg_profit = average(trades.map { |t| t[:profit_custom_with_roll] })
+    psve = profit_sum_vs_exposure_from_components(total_percent, peak_exposure)
+    psve_vs_time = profit_sum_vs_exposure_vs_time(psve, avg_duration_hours)
+    tvap = time_vs_avg_profit_from_components(avg_profit, avg_duration_hours)
+    tvps = time_vs_profit_sum_from_components(total_percent, avg_duration_hours)
 
     row = {
       algoID: algo_id,
@@ -396,16 +435,19 @@ module AnalyzeAlgosPerformanceCommon
       avg_notrades_streak: format_float(avg_no_trades_streak(trades, global_first_date, global_last_date), 2),
       avgMFE_w_roll: format_float(average(trades.map { |t| t[:mfe_w_roll] }), 1),
       avgMAE_w_roll: format_float(average(trades.map { |t| t[:mae_w_roll] }), 1),
-      avgDurationHours: format_float(average(durations), 2),
+      avgDurationHours: format_float(avg_duration_hours, 2),
       longestDurationHours: format_float(longest_duration_hours, 2),
       longestDurationDays: format_float(longest_duration_hours.nil? ? nil : longest_duration_hours / 24.0, 2),
       avgFillDelaySeconds: format_float(average(trades.map { |t| fill_delay_seconds(t) }), 2),
-      avg_profit_custom_with_roll: format_float(average(trades.map { |t| t[:profit_custom_with_roll] }), 2),
+      avg_profit_custom_with_roll: format_float(avg_profit, 2),
+      timeVSavgProfit: format_float(tvap, TIMEVSPROFIT_DECIMALS),
       gross_profit: format_float(gross_profit, 2),
       gross_loss: format_float(gross_loss, 2),
       profit_factor: format_profit_factor(profit_factor_from_gross(gross_profit, gross_loss)),
-      percentSum_w_roll: format_float(percent_sum(trades), 2),
-      timeVSprofit: format_float(time_vs_profit(trades), 3),
+      percentSum_w_roll: format_float(total_percent, 2),
+      timeVSprofitSum: format_float(tvps, TIMEVSPROFIT_DECIMALS),
+      profitSumVSexposure: format_float(psve, TIMEVSPROFIT_DECIMALS),
+      profitSumVSexposureVStime: format_float(psve_vs_time, TIMEVSPROFIT_DECIMALS),
       traderate: format_float(trade_rate(trades, global_trading_day_count), 2),
       weekly_traderate: format_float(weekly_trade_rate(trades, global_full_week_mondays), 2),
       main_close_reason: main_close_reason_for_trades(trades)
@@ -419,11 +461,12 @@ module AnalyzeAlgosPerformanceCommon
       row[:peak_open_exposure] = ''
     else
       exposure_stats = peak_exposure_time_stats(trades)
+      avg_exposure = avg_open_exposure(trades)
       row[:avg_time_at_peak_exposure_hours] = format_float(exposure_stats[:avg_hours], 2)
       row[:max_time_at_peak_exposure_hours] = format_float(exposure_stats[:max_hours], 2)
       row[:max_time_at_peak_exposure_days] = format_float(exposure_stats[:max_hours] / 24.0, 2)
-      row[:avg_open_exposure] = format_float(avg_open_exposure(trades), 2)
-      row[:peak_open_exposure] = peak_open_exposure(trades)
+      row[:avg_open_exposure] = format_float(avg_exposure, 2)
+      row[:peak_open_exposure] = peak_exposure
     end
 
     row
@@ -447,6 +490,33 @@ module AnalyzeAlgosPerformanceCommon
       end
   end
 
+  def row_profit_percent_sum(row)
+    parse_float(row[:percentSum_w_roll])
+  end
+
+  def exclude_algos_below_minimum_profit_percent_sum(rows, minimum_profit_percent_sum)
+    return rows if minimum_profit_percent_sum.nil? || minimum_profit_percent_sum <= 0
+
+    rows.reject do |row|
+      percent_sum = row_profit_percent_sum(row)
+      percent_sum.nil? || percent_sum < minimum_profit_percent_sum
+    end
+  end
+
+  def filter_rows_by_minimum_profit_percent_sum(rows, minimum_profit_percent_sum, label: '')
+    return rows if minimum_profit_percent_sum.nil? || minimum_profit_percent_sum <= 0
+
+    before_count = rows.size
+    filtered = exclude_algos_below_minimum_profit_percent_sum(rows, minimum_profit_percent_sum)
+    excluded_count = before_count - filtered.size
+    if excluded_count.positive?
+      prefix = label.empty? ? '' : "#{label}: "
+      warn "#{prefix}Excluded #{excluded_count} algos with percentSum_w_roll < #{minimum_profit_percent_sum}; " \
+           "#{filtered.size} algos remain"
+    end
+    filtered
+  end
+
   def build_all_aggregate_row(trades, global_first_date, global_last_date, global_trading_day_count,
     global_full_week_mondays, pattern:)
     return nil if trades.empty?
@@ -465,6 +535,8 @@ module AnalyzeAlgosPerformanceCommon
 
   def rows_with_family_all(algo_rows, all_trades, family_pattern, global_first_date, global_last_date,
     global_trading_day_count, global_full_week_mondays)
+    return algo_rows unless log_all_row
+
     all_row = build_all_aggregate_row(
       all_trades,
       global_first_date,
@@ -513,6 +585,16 @@ module AnalyzeAlgosPerformanceCommon
     last_dates = family_all_rows.map { |row| parse_trade_date(row_field(row, :lastTradeDate)) }.compact
     total_net = gross_profit - gross_loss
     longest_duration_hours = family_all_rows.map { |row| parse_row_float(row, :longestDurationHours) }.max
+    total_percent_sum = family_all_rows.sum { |row| parse_row_float(row, :percentSum_w_roll) }
+    avg_duration_hours = weighted_average_from_rows(family_all_rows, :avgDurationHours)
+    peak_exposure = family_all_rows.map { |row| parse_row_int(row, :peak_open_exposure) }.max
+    merged_psve =
+      profit_sum_vs_exposure_from_components(total_percent_sum, peak_exposure)
+    merged_psve_vs_time =
+      profit_sum_vs_exposure_vs_time(merged_psve, avg_duration_hours)
+    merged_avg_profit = total_net / trades_count
+    merged_tvap = time_vs_avg_profit_from_components(merged_avg_profit, avg_duration_hours)
+    merged_tvps = time_vs_profit_sum_from_components(total_percent_sum, avg_duration_hours)
 
     {
       algoID: 'ALL',
@@ -529,13 +611,16 @@ module AnalyzeAlgosPerformanceCommon
       longestDurationHours: format_float(longest_duration_hours, 2),
       longestDurationDays: format_float(longest_duration_hours.nil? ? nil : longest_duration_hours / 24.0, 2),
       avgFillDelaySeconds: format_float(weighted_average_from_rows(family_all_rows, :avgFillDelaySeconds), 2),
-      avg_profit_custom_with_roll: format_float(total_net / trades_count, 2),
+      avg_profit_custom_with_roll: format_float(merged_avg_profit, 2),
+      timeVSavgProfit: format_float(merged_tvap, TIMEVSPROFIT_DECIMALS),
       gross_profit: format_float(gross_profit, 2),
       gross_loss: format_float(gross_loss, 2),
       profit_factor: format_profit_factor(profit_factor_from_gross(gross_profit, gross_loss)),
-      percentSum_w_roll: format_float(family_all_rows.sum { |row| parse_row_float(row, :percentSum_w_roll) }, 2),
+      percentSum_w_roll: format_float(total_percent_sum, 2),
+      timeVSprofitSum: format_float(merged_tvps, TIMEVSPROFIT_DECIMALS),
       avg_time_at_peak_exposure_hours: '',
-      timeVSprofit: format_float(weighted_average_from_rows(family_all_rows, :timeVSprofit), 3),
+      profitSumVSexposure: format_float(merged_psve, TIMEVSPROFIT_DECIMALS),
+      profitSumVSexposureVStime: format_float(merged_psve_vs_time, TIMEVSPROFIT_DECIMALS),
       max_time_at_peak_exposure_hours: '',
       max_time_at_peak_exposure_days: '',
       traderate: '',
@@ -661,4 +746,14 @@ module AnalyzeAlgosPerformanceCommon
       nil
     end
   end
+end
+
+@log_all_row = false
+
+def log_all_row
+  @log_all_row
+end
+
+def log_all_row=(value)
+  @log_all_row = !!value
 end

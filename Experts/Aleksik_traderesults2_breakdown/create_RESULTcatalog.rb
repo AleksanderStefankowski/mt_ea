@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Build/append per-family result catalogs: config + performance for input algos.
 # Rows are keyed by config (not algo id).
 #
@@ -728,6 +730,7 @@ if family_results.all? do |result|
   skipped_total = family_results.sum { |result| result[:skipped_unchanged].size }
   warn "No catalog changes (#{skipped_total} input algo(s) already present with same results)"
   print_create_resultcatalog_finish('done')
+  play_alert_done!
   exit 0
 end
 
@@ -754,3 +757,5 @@ family_results.each do |result|
 end
 
 print_create_resultcatalog_finish('done')
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

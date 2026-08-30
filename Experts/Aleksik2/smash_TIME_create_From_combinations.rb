@@ -15,11 +15,11 @@ DESIRED_ENTRY_TIMES = [
   # "16:00",
   # "16:25",
   # "21:58",
-  # "22:15", 2:00 has 15% better direct pair stats 
+  "22:15", # 2:00 has 15% better direct pair stats 
   "2:00"
 ].freeze
 
-DESIRED_RULE_SWITCH_MAP = [1].freeze  ### 0=anytime; 1=14:30–15:29; 2=02:00–03:00 server time
+DESIRED_RULE_SWITCH_MAP = [0, 1, 2].freeze  ### 0=anytime; 1=14:30–15:29; 2=02:00–03:00 server time
 # rule_switch_map 1 vs 0 has avg 50.6% higher perf_percentSum_w_roll and avg 3.9% lower perf_timeVSprofit and avg 65.8% higher perf_avgDurationHours
 # rule_switch_map 2 vs 1 has avg 6.1% higher perf_percentSum_w_roll and avg 7.4% lower perf_timeVSprofit and avg 16.9% higher perf_avgDurationHours
 
@@ -29,7 +29,7 @@ DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [1.0, 2.0, 4.0, 8.0, 12.0].freeze # 5 10 
 
 DESIRED_SECRET_TP_GREENGUARD_PRICEDIFF_AT_LEAST = [10.0].freeze
 DESIRED_MAX_TRADES_PER_DAY = [1].freeze
-DESIRED_MAX_OPEN_POSITIONS = [10].freeze # 15
+DESIRED_MAX_OPEN_POSITIONS = [5, 10, 15, 20, 25].freeze # 15
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [1].freeze
 
 TIME_RULE_MARKERS = %w[//timealgocreator3start //timealgocreator3end].freeze

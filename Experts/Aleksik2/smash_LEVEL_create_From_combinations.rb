@@ -29,7 +29,7 @@ LEVEL_RULE_MARKERS = %w[//levelalgocreator3start //levelalgocreator3end].freeze
 QUANTREF_NEW_ID_RE = /(?:\/\/\s*)?quantref\s+base=\d+\s+new=(\d+)/
 
 # --- edit combination grids here ---
-DESIRED_MAX_OPEN_POSITIONS = [10].freeze
+DESIRED_MAX_OPEN_POSITIONS = [5, 10, 20].freeze
 DESIRED_EXPIRY_MINUTES = [120].freeze
 
 # :both -> trades_weekly=true, trades_daily=true
@@ -37,7 +37,7 @@ DESIRED_EXPIRY_MINUTES = [120].freeze
 # :daily  -> trades_weekly=false, trades_daily=true
 DESIRED_TRADES_WHAT_LEVELS = %i[both].freeze # [both weekly daily, both has highest profit, weekly has highest timevsprofit with OK profit. daily serves no purpose then?]
 
-DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [10].freeze   # [1, 3: 3 is better]
+DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [5].freeze   # [1, 3: 3 is better]
 #  [1, 3, 10] 10 is best? somehow had better avgtimeVSprofit and better avgavgDurationHours than 3.
 
 DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [1.0, 2.0, 4.0, 7.0].freeze  # [2.0, 8.0, 12.0, 30.0]

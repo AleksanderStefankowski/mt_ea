@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Read all 3 summary_tradeResults_all_days_* files, count trades per calendar day
 # by startTime (opens today — matches stop_trading_TODAY_if_thisAlgo_todayTotal_trades_count),
 # find each algo's peak daily open count, print distribution.
@@ -86,3 +88,5 @@ peak_histogram.keys.sort.each do |peak|
   puts format('%-20s %-12d %-16s %s', peak, examples.size, format_percent(examples.size, total_algos),
               example_algo_with_dates(examples))
 end
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

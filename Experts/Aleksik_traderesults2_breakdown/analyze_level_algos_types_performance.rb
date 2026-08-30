@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Group level algo performance by config dimensions. Console output only.
 #
 # Sections:
@@ -71,7 +73,7 @@ TABLE_COLUMNS = [
   [:avg_weekly_tr, 12],
   [:avglongestDurationDays, 12],
   [:avgavgDurationHours, 12],
-  [:avgtimeVSprofit, 10],
+  [:avgprofitSumVSexposure, 10],
   [:avgavg_time_at_peak_exposure_hours, 14]
 ].freeze
 
@@ -268,7 +270,7 @@ def aggregate_group(group_key, entries)
   weekly_values = entries.map { |entry| Lib.parse_float(entry[:perf]['weekly_traderate']) }
   longest_duration_days_values = entries.map { |entry| Lib.parse_float(entry[:perf]['longestDurationDays']) }
   avg_duration_hours_values = entries.map { |entry| Lib.parse_float(entry[:perf]['avgDurationHours']) }
-  time_vs_profit_values = entries.map { |entry| Lib.parse_float(entry[:perf]['timeVSprofit']) }
+  time_vs_profit_values = entries.map { |entry| Lib.parse_float(entry[:perf]['profitSumVSexposure']) }
   avg_peak_exposure_hours_values =
     entries.map { |entry| Lib.parse_float(entry[:perf]['avg_time_at_peak_exposure_hours']) }
   avg_open_exposure_values = entries.map { |entry| Lib.parse_float(entry[:perf]['avg_open_exposure']) }
@@ -291,7 +293,7 @@ def aggregate_group(group_key, entries)
     avg_weekly_tr: Lib.average(weekly_values),
     avglongestDurationDays: Lib.average(longest_duration_days_values),
     avgavgDurationHours: Lib.average(avg_duration_hours_values),
-    avgtimeVSprofit: Lib.average(time_vs_profit_values),
+    avgprofitSumVSexposure: Lib.average(time_vs_profit_values),
     avgavg_time_at_peak_exposure_hours: Lib.average(avg_peak_exposure_hours_values)
   }
 end
@@ -442,7 +444,7 @@ TRIPLE_CHAMPION_COLUMNS = [
   [:group, 34],
   [:algo, 10],
   [:percent_sum, 12],
-  [:timeVSprofit, 12],
+  [:profitSumVSexposure, 12],
   [:gross_profit, 12]
 ].freeze
 
@@ -461,7 +463,7 @@ def triple_group_champion_rows(matched_rows, field, rows)
       group: group_key,
       algo: best[:algo_id],
       percent_sum: best[:metric],
-      timeVSprofit: best[:timeVSprofit],
+      profitSumVSexposure: best[:profitSumVSexposure],
       gross_profit: gross_profit
     }
   end.sort_by { |row| group_sort_key(field, row[:group], {}) }
@@ -480,8 +482,8 @@ def print_triple_group_champions(matched_rows, field, rows)
       case name
       when :percent_sum, :gross_profit
         format_table_cell(row[name], width, numeric: true)
-      when :timeVSprofit
-        format_table_cell(row[name], width, numeric: true, decimals: 3)
+      when :profitSumVSexposure
+        format_table_cell(row[name], width, numeric: true, decimals: Lib::TIMEVSPROFIT_DECIMALS)
       else
         format_table_cell(row[name], width)
       end
@@ -515,7 +517,7 @@ def print_top3_triple_duels(section, matched_rows, rows)
         diff_fields = offset_proximity_triple_diff_fields(left_key, right_key)
         puts "--- #{left_key} vs #{right_key} (diff: #{diff_fields.join(', ')}) ---"
 
-        %w[percentSum_w_roll timeVSprofit].each do |perf_field|
+        %w[percentSum_w_roll profitSumVSexposure].each do |perf_field|
           best_by_value = Lib.paired_duel_best_by_value_for_pair(
             pairs, compare_variable, perf_field, left_key, right_key
           )
@@ -580,9 +582,7 @@ def format_table_cell(value, width, numeric: false, decimals: 2)
     if value.nil?
       'n/a'
     elsif numeric && value.is_a?(Numeric)
-      if decimals == 3
-        format('%.3f', value)
-      elsif value == value.to_i
+      if decimals == 2 && value == value.to_i
         value.to_i.to_s
       else
         format("%.#{decimals}f", value)
@@ -606,8 +606,8 @@ def print_group_table_with_columns(rows, columns)
         format_table_cell(format_profit_factor_value(row[:profit_factor]), width)
       when :algos, :trades
         format_table_cell(row[name], width, numeric: true)
-      when :avgtimeVSprofit
-        format_table_cell(row[name], width, numeric: true, decimals: 3)
+      when :avgprofitSumVSexposure
+        format_table_cell(row[name], width, numeric: true, decimals: Lib::TIMEVSPROFIT_DECIMALS)
       when :avg_trades, :percent_sum, :avg_percent, :avgOpen, :gross_profit, :gross_loss, :avg_traderate, :avg_weekly_tr,
            :avglongestDurationDays, :avgavgDurationHours, :avgavg_time_at_peak_exposure_hours
         format_table_cell(row[name], width, numeric: true)
@@ -681,3 +681,5 @@ GROUP_SECTIONS.each do |section|
 end
 
 end
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

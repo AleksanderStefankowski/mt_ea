@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Pairs algos only when a config group has exactly 2 algos that match on every field
 # except COMPARE_VARIABLE. Each pair is one algo vs one algo — win counts only, no averages.
 
@@ -39,7 +41,7 @@ COMPARE_VARIABLE = 'entryrange_range_percentspot'
 WRITE_OUTPUT_FILE = false
 
 PERF_FIELDS = %w[
-  timeVSprofit
+  profitSumVSexposure
   percentSum_w_roll
   avgDurationHours
   tradesCount
@@ -159,8 +161,8 @@ def pair_output_row(pair, compare_variable)
   PERF_FIELDS.each do |field|
     left_metric = parse_float(left[:perf][field])
     right_metric = parse_float(right[:perf][field])
-    row["left_perf_#{field}"] = format_float(left_metric, field == 'percentSum_w_roll' || field == 'tradesCount' ? 2 : 3)
-    row["right_perf_#{field}"] = format_float(right_metric, field == 'percentSum_w_roll' || field == 'tradesCount' ? 2 : 3)
+    row["left_perf_#{field}"] = format_float(left_metric, CompareVariableAnalysisLib.perf_field_decimals(field))
+    row["right_perf_#{field}"] = format_float(right_metric, CompareVariableAnalysisLib.perf_field_decimals(field))
 
     winner = pair_winner(left_metric, right_metric)
     row["winner_perf_#{field}"] =
@@ -297,3 +299,5 @@ PERF_FIELDS.each do |field|
 end
 
 puts "wrote #{output_rows.size} pair rows to #{OUTPUT_PATH}" if WRITE_OUTPUT_FILE
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

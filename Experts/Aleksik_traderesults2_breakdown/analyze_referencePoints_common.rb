@@ -2,6 +2,7 @@
 
 require 'csv'
 require 'set'
+require_relative 'alert_done_common'
 require_relative 'analyze_algos_performance_common'
 require_relative '../Aleksik_traderesults/analyze_traderate_common'
 
@@ -11,8 +12,8 @@ module AnalyzeAlgosReferencePointsCommon
   REF_GROUP_SIZES = [1, 2].freeze
   UNGROUPED_REF_GROUP_SIZE = 0
   MAX_RATECUT = 1.0
-  TIMEVSPROFIT_DECIMALS = 3
-  # Merge grouped rows with identical algo + ratecut + timeVSprofit + percentSum + tradesCount
+  TIMEVSPROFIT_DECIMALS = AnalyzeAlgosPerformanceCommon::TIMEVSPROFIT_DECIMALS
+  # Merge grouped rows with identical algo + ratecut + profitSumVSexposure + percentSum + tradesCount
   # into one row (union of ref points; mergedVariantCount > 1 when combined).
   MERGE_SAME_RESULTS = true
 
@@ -128,7 +129,7 @@ module AnalyzeAlgosReferencePointsCommon
     end
   end
 
-  def rounded_time_vs_profit(value, decimals = TIMEVSPROFIT_DECIMALS)
+  def rounded_profit_sum_vs_exposure(value, decimals = TIMEVSPROFIT_DECIMALS)
     return nil if value.nil?
 
     AnalyzeAlgosPerformanceCommon.parse_float(
@@ -136,15 +137,15 @@ module AnalyzeAlgosReferencePointsCommon
     )
   end
 
-  def skip_group_time_vs_profit?(group_trades, ungrouped_tvp, group_timevsprofit_needs_to_be_better)
+  def skip_group_time_vs_profit?(group_trades, ungrouped_psve, group_timevsprofit_needs_to_be_better)
     return false unless group_timevsprofit_needs_to_be_better
-    return false if ungrouped_tvp.nil?
+    return false if ungrouped_psve.nil?
 
-    group_tvp = AnalyzeAlgosPerformanceCommon.time_vs_profit(group_trades)
-    return false if group_tvp.nil?
+    group_psve = AnalyzeAlgosPerformanceCommon.profit_sum_vs_exposure(group_trades)
+    return false if group_psve.nil?
 
-    group_rounded = rounded_time_vs_profit(group_tvp)
-    ungrouped_rounded = rounded_time_vs_profit(ungrouped_tvp)
+    group_rounded = rounded_profit_sum_vs_exposure(group_psve)
+    ungrouped_rounded = rounded_profit_sum_vs_exposure(ungrouped_psve)
     return false if group_rounded.nil? || ungrouped_rounded.nil?
 
     group_rounded <= ungrouped_rounded
@@ -172,20 +173,20 @@ module AnalyzeAlgosReferencePointsCommon
     groups
   end
 
-  def time_vs_profit_vs_ratecut(time_vs_profit, ratecut)
-    return nil if time_vs_profit.nil? || ratecut.nil?
+  def profit_sum_vs_exposure_vs_ratecut(profit_sum_vs_exposure, ratecut)
+    return nil if profit_sum_vs_exposure.nil? || ratecut.nil?
 
-    time_vs_profit * ratecut
+    profit_sum_vs_exposure * ratecut
   end
 
   def enrich_ref_group_row(row)
-    tvp = AnalyzeAlgosPerformanceCommon.parse_float(row[:timeVSprofit])
+    psve = AnalyzeAlgosPerformanceCommon.parse_float(row[:profitSumVSexposure])
     ratecut = AnalyzeAlgosPerformanceCommon.parse_float(row[:ratecut])
     combined =
       if row[:refGroupSize] == UNGROUPED_REF_GROUP_SIZE
         nil
       else
-        time_vs_profit_vs_ratecut(tvp, ratecut)
+        profit_sum_vs_exposure_vs_ratecut(psve, ratecut)
       end
 
     row.merge(
@@ -231,7 +232,7 @@ module AnalyzeAlgosReferencePointsCommon
         AnalyzeAlgosPerformanceCommon.parse_float(row[:ratecut]), 4
       ),
       AnalyzeAlgosPerformanceCommon.format_float(
-        rounded_time_vs_profit(row[:timeVSprofit]), TIMEVSPROFIT_DECIMALS
+        rounded_profit_sum_vs_exposure(row[:profitSumVSexposure]), TIMEVSPROFIT_DECIMALS
       ),
       AnalyzeAlgosPerformanceCommon.format_float(
         AnalyzeAlgosPerformanceCommon.parse_float(row[:percentSum_w_roll]), 2
@@ -296,7 +297,7 @@ module AnalyzeAlgosReferencePointsCommon
 
     algo_total = algo_trades.size
     ref_indices = build_algo_ref_indices(algo_trades)
-    ungrouped_tvp = AnalyzeAlgosPerformanceCommon.time_vs_profit(algo_trades)
+    ungrouped_psve = AnalyzeAlgosPerformanceCommon.profit_sum_vs_exposure(algo_trades)
     ungrouped_row =
       build_ungrouped_row(
         algo_id,
@@ -325,7 +326,7 @@ module AnalyzeAlgosReferencePointsCommon
 
         next if skip_group_time_vs_profit?(
           group_trades,
-          ungrouped_tvp,
+          ungrouped_psve,
           group_timevsprofit_needs_to_be_better
         )
 
@@ -382,7 +383,7 @@ module AnalyzeAlgosReferencePointsCommon
       "#{merged_note} " \
       "trades=#{trades_count}/#{algo_total_trades} ratecut=#{ratecut_pct}% | " \
       "percentSum=#{row[:percentSum_w_roll]} profit_avg=#{row[:avg_profit_custom_with_roll]} | " \
-      "timeVSprofit=#{row[:timeVSprofit]} " \
+      "profitSumVSexposure=#{row[:profitSumVSexposure]} " \
       "#{row[:refGroupSize] == UNGROUPED_REF_GROUP_SIZE ? '' : "timeVSprofitVSratecut=#{row[:timeVSprofitVSratecut]} "}" \
       "traderate=#{row[:traderate]} wtraderate=#{row[:weekly_traderate]}"
     )
@@ -477,10 +478,10 @@ module AnalyzeAlgosReferencePointsCommon
     puts "group sizes: #{UNGROUPED_REF_GROUP_SIZE} (ungrouped), #{REF_GROUP_SIZES.join(', ')}"
     puts "minimum ratecut: #{minimum_ratecut_percent}% (groups below this are skipped)"
     if group_timevsprofit_needs_to_be_better
-      puts "GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER: skip groups with timeVSprofit <= ungrouped (after #{TIMEVSPROFIT_DECIMALS}-decimal rounding)"
+      puts "GROUP_TIMEVSPROFIT_NEEDS_TO_BE_BETTER: skip groups with profitSumVSexposure <= ungrouped (after #{TIMEVSPROFIT_DECIMALS}-decimal rounding)"
     end
     if MERGE_SAME_RESULTS
-      puts 'MERGE_SAME_RESULTS: merge grouped rows with identical algo/ratecut/timeVSprofit/percentSum/tradesCount (union refs; mergedVariantCount)'
+      puts 'MERGE_SAME_RESULTS: merge grouped rows with identical algo/ratecut/profitSumVSexposure/percentSum/tradesCount (union refs; mergedVariantCount)'
     end
     unless minimum_percent_sum_w_roll.nil?
       puts "output excludes rows with percentSum_w_roll < #{minimum_percent_sum_w_roll}"
@@ -489,7 +490,7 @@ module AnalyzeAlgosReferencePointsCommon
       puts "output excludes rows with weekly_traderate < #{minimum_weekly_traderate}"
     end
     puts 'ratecut = trades in group / all trades for that algo (0.00–1.00; console shows %)'
-    puts 'timeVSprofitVSratecut = timeVSprofit × ratecut (tie-break: higher ratecut wins at same timeVSprofit)'
+    puts 'timeVSprofitVSratecut = profitSumVSexposure × ratecut (tie-break: higher ratecut wins at same profitSumVSexposure)'
     puts
 
     trades_by_algo.each do |algo_id, algo_trades|
@@ -545,5 +546,6 @@ module AnalyzeAlgosReferencePointsCommon
     warn "Wrote #{output_rows.size + 1} rows to #{output_path}"
     warn "Excluded #{excluded_count} rows from output (below percentSum_w_roll / weekly_traderate thresholds)" if excluded_count.positive?
     warn 'DONE'
+    play_alert_done!
   end
 end

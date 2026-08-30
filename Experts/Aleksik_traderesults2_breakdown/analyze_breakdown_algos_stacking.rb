@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 require 'csv'
 require 'date'
 require 'set'
@@ -255,3 +257,5 @@ per_algo_top = top_per_algo_stack_periods(trades_by_algo, TOP_N)
 print_top_stack_periods("Top #{TOP_N} per-algo stack periods (single algo)", per_algo_top, show_algo: true)
 
 warn 'DONE'
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME

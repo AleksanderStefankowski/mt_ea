@@ -10,6 +10,22 @@ require_relative 'analyze_algos_performance_common'
 module CompareVariableAnalysisLib
   module_function
 
+  TIMEVSPROFIT_DECIMALS = AnalyzeAlgosPerformanceCommon::TIMEVSPROFIT_DECIMALS
+
+  def perf_field_decimals(field)
+    case field.to_s
+    when 'profitSumVSexposure', 'perf_profitSumVSexposure', 'avgprofitSumVSexposure',
+         'profitSumVSexposureVStime', 'perf_profitSumVSexposureVStime',
+         'timeVSavgProfit', 'perf_timeVSavgProfit', 'avgtimeVSavgProfit',
+         'timeVSprofitSum', 'perf_timeVSprofitSum', 'avgtimeVSprofitSum'
+      TIMEVSPROFIT_DECIMALS
+    when 'percentSum_w_roll', 'perf_percentSum_w_roll', 'tradesCount', 'perf_tradesCount'
+      2
+    else
+      3
+    end
+  end
+
   def read_csv(path)
     raw = File.read(path, encoding: 'bom|utf-8')
     CSV.parse(raw, headers: true)
@@ -241,7 +257,7 @@ module CompareVariableAnalysisLib
       "config_#{compare_variable}",
       'config_algo_id',
       'perf_avgDurationHours',
-      'perf_timeVSprofit',
+      'perf_profitSumVSexposure',
       'perf_percentSum_w_roll',
       *closetrade_config_columns.map { |column| "config_#{column}" }
     ]
@@ -329,7 +345,7 @@ module CompareVariableAnalysisLib
 
   def metrics_for_entries(entries)
     {
-      timeVSprofit: average(entries.map { |entry| parse_float(entry[:perf]['timeVSprofit']) }),
+      profitSumVSexposure: average(entries.map { |entry| parse_float(entry[:perf]['profitSumVSexposure']) }),
       percentSum_w_roll: average(entries.map { |entry| parse_float(entry[:perf]['percentSum_w_roll']) }),
       avgDurationHours: average(entries.map { |entry| parse_float(entry[:perf]['avgDurationHours']) }),
       tradesCount: average(entries.map { |entry| parse_float(entry[:perf]['tradesCount']) })
@@ -343,8 +359,8 @@ module CompareVariableAnalysisLib
   end
 
   BEST_ALGO_DUEL_COMPANION_FIELDS = {
-    'timeVSprofit' => { field: 'percentSum_w_roll', label: 'perf_percentSum_w_roll', decimals: 2 },
-    'percentSum_w_roll' => { field: 'timeVSprofit', label: 'perf_timeVSprofit', decimals: 3 }
+    'profitSumVSexposure' => { field: 'percentSum_w_roll', label: 'perf_percentSum_w_roll', decimals: 2 },
+    'percentSum_w_roll' => { field: 'profitSumVSexposure', label: 'perf_profitSumVSexposure', decimals: TIMEVSPROFIT_DECIMALS }
   }.freeze
 
   # Best single algo in a set of entries (highest perf_field). Tie-break: lower algo_id.
@@ -362,7 +378,7 @@ module CompareVariableAnalysisLib
       metric: metric,
       companion_metric: companion ? parse_float(entry[:perf][companion[:field]]) : nil,
       percent_sum: parse_float(entry[:perf]['percentSum_w_roll']),
-      timeVSprofit: parse_float(entry[:perf]['timeVSprofit']),
+      profitSumVSexposure: parse_float(entry[:perf]['profitSumVSexposure']),
       avg_duration: parse_float(entry[:perf]['avgDurationHours']),
       trades_count: parse_float(entry[:perf]['tradesCount'])
     }
@@ -377,15 +393,15 @@ module CompareVariableAnalysisLib
   end
 
   METRIC_DUEL_LABELS = {
-    'timeVSprofit' => 'tVSprof #1',
+    'profitSumVSexposure' => 'pSumVSexp',
     'percentSum_w_roll' => '%sum #1',
     'avgDurationHours' => 'duration #1',
     'tradesCount' => 'trades #1'
   }.freeze
 
   METRIC_DUEL_EXTRA_COLUMNS = {
-    'timeVSprofit' => [[:percent_sum, 11], [:timeVSprofit, 12]],
-    'percentSum_w_roll' => [[:percent_sum, 11], [:timeVSprofit, 12]],
+    'profitSumVSexposure' => [[:percent_sum, 11], [:profitSumVSexposure, 12]],
+    'percentSum_w_roll' => [[:percent_sum, 11], [:profitSumVSexposure, 12]],
     'avgDurationHours' => [[:avg_duration, 16]],
     'tradesCount' => [[:trades_count, 12]]
   }.freeze
@@ -413,11 +429,11 @@ module CompareVariableAnalysisLib
       return value if value.is_a?(String)
 
       format('%.2f', value)
-    when :timeVSprofit
+    when :profitSumVSexposure
       return 'n/a' if value.nil?
       return value if value.is_a?(String)
 
-      format('%.3f', value)
+      format("%.#{TIMEVSPROFIT_DECIMALS}f", value)
     when :avg_duration
       return 'n/a' if value.nil?
       return value if value.is_a?(String)
@@ -448,9 +464,9 @@ module CompareVariableAnalysisLib
   def duel_metric_values(best, perf_field)
     case perf_field
     when 'percentSum_w_roll'
-      { percent_sum: best[:metric], timeVSprofit: best[:timeVSprofit] }
-    when 'timeVSprofit'
-      { percent_sum: best[:percent_sum], timeVSprofit: best[:metric] }
+      { percent_sum: best[:metric], profitSumVSexposure: best[:profitSumVSexposure] }
+    when 'profitSumVSexposure'
+      { percent_sum: best[:percent_sum], profitSumVSexposure: best[:metric] }
     when 'avgDurationHours'
       { avg_duration: best[:metric] }
     when 'tradesCount'
@@ -696,7 +712,7 @@ module CompareVariableAnalysisLib
                    include_header: false, sort_key: sort_key
                  ))
     lines.concat(metric_duel_and_solo_lines_from_pairs(
-                   pairs, compare_variable, 'timeVSprofit',
+                   pairs, compare_variable, 'profitSumVSexposure',
                    include_header: false, sort_key: sort_key
                  ))
     lines
@@ -708,7 +724,7 @@ module CompareVariableAnalysisLib
       algos: entries.size,
       avg_trades: average(entries.map { |entry| parse_float(entry[:perf]['tradesCount']) }),
       avg_percent: average(entries.map { |entry| parse_float(entry[:perf]['percentSum_w_roll']) }),
-      avgtimeVSprofit: average(entries.map { |entry| parse_float(entry[:perf]['timeVSprofit']) }),
+      avgprofitSumVSexposure: average(entries.map { |entry| parse_float(entry[:perf]['profitSumVSexposure']) }),
       avgavgDurationHours: average(entries.map { |entry| parse_float(entry[:perf]['avgDurationHours']) })
     }
   end
@@ -718,7 +734,7 @@ module CompareVariableAnalysisLib
     [:algos, 6],
     [:avg_trades, 10],
     [:avg_percent, 12],
-    [:avgtimeVSprofit, 12],
+    [:avgprofitSumVSexposure, 12],
     [:avgavgDurationHours, 14]
   ].freeze
 
@@ -728,10 +744,10 @@ module CompareVariableAnalysisLib
       return 'n/a' if value.nil?
 
       format('%.2f', value)
-    when :avgtimeVSprofit
+    when :avgprofitSumVSexposure
       return 'n/a' if value.nil?
 
-      format('%.3f', value)
+      format("%.#{TIMEVSPROFIT_DECIMALS}f", value)
     when :algos
       return 'n/a' if value.nil?
 
@@ -854,7 +870,8 @@ module CompareVariableAnalysisLib
       "#{format('%.1f%%', pct)} #{relation} than #{field_name}=#{second_value} algo #{second[:algo_id]} (#{format_float(second_avg, decimals)})"
   end
 
-  def best_algo_duel_lines(label, compare_variable, paired_entries, perf_field, avg_decimals: 3, sort_key: nil)
+  def best_algo_duel_lines(label, compare_variable, paired_entries, perf_field, avg_decimals: nil, sort_key: nil)
+    avg_decimals ||= perf_field_decimals(perf_field)
     companion = BEST_ALGO_DUEL_COMPANION_FIELDS[perf_field]
     best_by_value = best_algo_by_value(paired_entries, compare_variable, perf_field)
     # Only duel the top-2 value-group #1 champions by primary metric (not every value pair).
@@ -885,7 +902,8 @@ module CompareVariableAnalysisLib
     lines
   end
 
-  def variable_pair_stats_lines(label, compare_variable, stats, paired_entries, perf_field, pairs: nil, show_avg_on_win_lines: true, show_avg_comparison: true, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, show_best_algo_duel: false)
+  def variable_pair_stats_lines(label, compare_variable, stats, paired_entries, perf_field, pairs: nil, show_avg_on_win_lines: true, show_avg_comparison: true, avg_decimals: nil, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, show_best_algo_duel: false)
+    avg_decimals ||= perf_field_decimals(perf_field)
     sort_key ||= method(:compare_variable_sort_key)
     lines = ["#{label} higher in head-to-head pairs:"]
     return lines if stats.empty?
@@ -942,7 +960,8 @@ module CompareVariableAnalysisLib
     lines
   end
 
-  def perf_field_analysis_lines_with_secret_tp_split(label, perf_field, pairs, compare_variable, avg_decimals: 3, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, show_best_algo_duel: false, show_avg_on_win_lines: true, show_avg_comparison: true)
+  def perf_field_analysis_lines_with_secret_tp_split(label, perf_field, pairs, compare_variable, avg_decimals: nil, sort_key: nil, sort_by_avg: false, min_percent_diff: nil, show_best_algo_duel: false, show_avg_on_win_lines: true, show_avg_comparison: true)
+    avg_decimals ||= perf_field_decimals(perf_field)
     line_opts = {
       show_avg_on_win_lines: show_avg_on_win_lines,
       show_avg_comparison: show_avg_comparison,
@@ -991,9 +1010,9 @@ module CompareVariableAnalysisLib
     lines = []
     lines.concat(compare_value_group_table_lines(compare_variable, paired_entries, sort_key: sort_key))
     lines << ''
-    lines.concat(variable_pair_stats_lines('perf_timeVSprofit', compare_variable,
-                                           build_variable_pair_stats(pairs, compare_variable, 'timeVSprofit'),
-                                           paired_entries, 'timeVSprofit', pairs: pairs, **line_opts))
+    lines.concat(variable_pair_stats_lines('perf_profitSumVSexposure', compare_variable,
+                                           build_variable_pair_stats(pairs, compare_variable, 'profitSumVSexposure'),
+                                           paired_entries, 'profitSumVSexposure', pairs: pairs, **line_opts))
     lines << ''
     if include_secret_tp_split
       lines.concat(perf_field_analysis_lines_with_secret_tp_split('perf_percentSum_w_roll', 'percentSum_w_roll',
@@ -1096,7 +1115,7 @@ module CompareVariableAnalysisLib
         {
           tradesCount: average(group.map { |entry| parse_float(entry[:perf]['tradesCount']) }),
           percentSum_w_roll: average(group.map { |entry| parse_float(entry[:perf]['percentSum_w_roll']) }),
-          timeVSprofit: average(group.map { |entry| parse_float(entry[:perf]['timeVSprofit']) }),
+          profitSumVSexposure: average(group.map { |entry| parse_float(entry[:perf]['profitSumVSexposure']) }),
           avgDurationHours: average(group.map { |entry| parse_float(entry[:perf]['avgDurationHours']) })
         }
       ]
@@ -1148,7 +1167,7 @@ module CompareVariableAnalysisLib
     perf_generator = File.join(script_dir, 'analyze_breakdown_algos_performance_to_csv.rb')
     warn
     warn "Refreshing analyze_breakdown_algos_performance_output*.csv via #{File.basename(perf_generator)}..."
-    perf_output, perf_status = Open3.capture2e(RbConfig.ruby, perf_generator)
+    perf_output, perf_status = Open3.capture2e({ 'SKIP_ALERT_DONE' => '1' }, RbConfig.ruby, perf_generator)
     warn perf_output unless perf_output.empty?
     unless perf_status.success? && perf_output.include?('RAN OK')
       warn "ERROR: #{File.basename(perf_generator)} did not finish successfully (expected RAN OK)"

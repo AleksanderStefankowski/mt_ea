@@ -1,9 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require_relative 'alert_done_common'
+
 # Classify input algos into exit groups from config, then compare group averages
 # using the same perf metrics as compare_variable.rb:
-#   perf_timeVSprofit
+#   perf_profitSumVSexposure
 #   perf_percentSum_w_roll
 #   perf_avgDurationHours
 #   perf_tradesCount
@@ -55,7 +57,7 @@ EXIT_GROUP_LABELS = {
 }.freeze
 
 METRICS = [
-  ['perf_timeVSprofit', 'timeVSprofit', 3],
+  ['perf_profitSumVSexposure', 'profitSumVSexposure', Lib::TIMEVSPROFIT_DECIMALS],
   ['perf_percentSum_w_roll', 'percentSum_w_roll', 2],
   ['perf_avgDurationHours', 'avgDurationHours', 3],
   ['perf_tradesCount', 'tradesCount', 2]
@@ -204,7 +206,7 @@ end
 
 def group_metrics(entries)
   {
-    timeVSprofit: Lib.average(entries.map { |entry| Lib.parse_float(entry[:perf]['timeVSprofit']) }),
+    profitSumVSexposure: Lib.average(entries.map { |entry| Lib.parse_float(entry[:perf]['profitSumVSexposure']) }),
     percentSum_w_roll: Lib.average(entries.map { |entry| Lib.parse_float(entry[:perf]['percentSum_w_roll']) }),
     avgDurationHours: Lib.average(entries.map { |entry| Lib.parse_float(entry[:perf]['avgDurationHours']) }),
     tradesCount: Lib.average(entries.map { |entry| Lib.parse_float(entry[:perf]['tradesCount']) })
@@ -224,7 +226,7 @@ def print_group_summary(grouped_entries)
     metrics = group_metrics(entries)
     algo_ids = entries.map { |entry| entry[:algo_id] }.sort_by(&:to_i).join(', ')
     puts "#{label}: algos=#{entries.size} [#{algo_ids}]"
-    puts "  avg perf_timeVSprofit=#{Lib.format_float(metrics[:timeVSprofit])}"
+    puts "  avg perf_profitSumVSexposure=#{Lib.format_float(metrics[:profitSumVSexposure], Lib::TIMEVSPROFIT_DECIMALS)}"
     puts "  avg perf_percentSum_w_roll=#{Lib.format_float(metrics[:percentSum_w_roll], 2)}"
     puts "  avg perf_avgDurationHours=#{Lib.format_float(metrics[:avgDurationHours])}"
     puts "  avg perf_tradesCount=#{Lib.format_float(metrics[:tradesCount], 2)}"
@@ -258,7 +260,7 @@ def print_closetrade_combo_analysis(time_exit_entries, profit_values, minutes_va
          "#{unmatched.map { |entry| entry[:algo_id] }.sort_by(&:to_i).join(', ')}"
   end
 
-  combo_rows.sort_by { |row| -(row[:metrics]&.dig(:timeVSprofit) || -Float::INFINITY) }.each do |row|
+  combo_rows.sort_by { |row| -(row[:metrics]&.dig(:profitSumVSexposure) || -Float::INFINITY) }.each do |row|
     label = "closetrade_after_some_time_but_ProfitPercent_Needed=#{row[:profit]}, " \
             "closetrade_after_x_minutes_from_breakdown=#{row[:minutes]}"
     if row[:entries].empty?
@@ -268,7 +270,7 @@ def print_closetrade_combo_analysis(time_exit_entries, profit_values, minutes_va
 
     metrics = row[:metrics]
     puts "#{label} (algos=#{row[:entries].size}):"
-    puts "  avg perf_timeVSprofit=#{Lib.format_float(metrics[:timeVSprofit])}"
+    puts "  avg perf_profitSumVSexposure=#{Lib.format_float(metrics[:profitSumVSexposure], Lib::TIMEVSPROFIT_DECIMALS)}"
     puts "  avg perf_percentSum_w_roll=#{Lib.format_float(metrics[:percentSum_w_roll], 2)}"
     puts "  avg perf_avgDurationHours=#{Lib.format_float(metrics[:avgDurationHours])}"
     puts "  avg perf_tradesCount=#{Lib.format_float(metrics[:tradesCount], 2)}"
@@ -420,3 +422,5 @@ if time_exit_entries&.any?
   profit_values, minutes_values = closetrade_combo_grid_from_map_creator
   print_closetrade_combo_analysis(time_exit_entries, profit_values, minutes_values)
 end
+
+play_alert_done! if __FILE__ == $PROGRAM_NAME
