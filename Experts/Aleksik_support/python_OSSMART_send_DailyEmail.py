@@ -36,7 +36,7 @@ send_email_on_time_hhmm = "22:02"  # once per calendar day when local clock hits
 
 POLL_SECONDS = 55
 RETRY_WINDOW_MINUTES = 10  # after scheduled HH:MM, keep retrying until success or window ends
-EMAIL_SUBJECT_PREFIX = "mt5py"
+EMAIL_SUBJECT_PREFIX = "mt5"
 
 EMAIL_FROM = "aleksikstorage2@gmail.com"
 EMAIL_TO = "aleksikstorage2@gmail.com"
@@ -82,6 +82,7 @@ DAILY_EMAIL_GMAIL_SCOPES = [
 ]
 
 _RE_CLOSED_NET = re.compile(r"closedNetToday=([-\d.]+)")
+_RE_OPEN_PROFIT_TOTAL = re.compile(r"openProfitTotal=([-\d.]+)")
 _RE_OPEN_POSITIONS = re.compile(r"openPositions=(\d+)")
 _RE_MARGIN_LEVEL = re.compile(r"percentage\s+marginLevel=([-\d.]+)")
 
@@ -156,14 +157,19 @@ def read_day_summary(path: str) -> Tuple[str, bool]:
         return handle.read(), True
 
 
-def parse_subject_fields(body: str) -> Tuple[str, str, str]:
+def parse_subject_fields(body: str) -> Tuple[str, str, str, str]:
     closed_net = "?"
+    open_profit_total = "?"
     open_positions = "?"
     margin_level = "?"
 
     match = _RE_CLOSED_NET.search(body)
     if match:
         closed_net = match.group(1)
+
+    match = _RE_OPEN_PROFIT_TOTAL.search(body)
+    if match:
+        open_profit_total = match.group(1)
 
     match = _RE_OPEN_POSITIONS.search(body)
     if match:
@@ -173,7 +179,16 @@ def parse_subject_fields(body: str) -> Tuple[str, str, str]:
     if match:
         margin_level = match.group(1)
 
-    return closed_net, open_positions, margin_level
+    return closed_net, open_profit_total, open_positions, margin_level
+
+
+def format_net_today(closed_net: str, open_profit_total: str) -> str:
+    try:
+        closed_value = 0.0 if closed_net == "?" else float(closed_net)
+        open_value = 0.0 if open_profit_total == "?" else float(open_profit_total)
+        return str(int(round(closed_value + open_value)))
+    except ValueError:
+        return "?"
 
 
 def format_margin_level_for_subject(raw: str) -> str:
@@ -185,13 +200,29 @@ def format_margin_level_for_subject(raw: str) -> str:
         return raw
 
 
+def format_email_body(body: str) -> str:
+    lines = body.splitlines()
+    formatted: list[str] = []
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("closedNetToday=") or stripped.startswith("openProfitTotal="):
+            if formatted and formatted[-1] != "":
+                formatted.append("")
+        formatted.append(line)
+
+    return "\n".join(formatted)
+
+
 def build_email_subject(body: str, when: datetime) -> str:
-    closed_net, open_positions, margin_level = parse_subject_fields(body)
+    closed_net, open_profit_total, open_positions, margin_level = parse_subject_fields(body)
+    net_today = format_net_today(closed_net, open_profit_total)
     margin_level_str = format_margin_level_for_subject(margin_level)
     date_str = when.strftime("%Y.%m.%d")
     return (
-        f"{EMAIL_SUBJECT_PREFIX} {date_str} | closedNetToday={closed_net} | "
-        f"openPositions={open_positions} marginLevel={margin_level_str}"
+        f"{EMAIL_SUBJECT_PREFIX} NetToday={net_today} PLN | "
+        f"openPositions={open_positions} marginLevel={margin_level_str} | "
+        f"{date_str}"
     )
 
 
@@ -212,6 +243,7 @@ def send_daily_email(service, subject: str, body: str) -> None:
 def send_day_summary(service, summary_path: str, *, reason: str, when: Optional[datetime] = None) -> bool:
     when = when or datetime.now()
     body, found = read_day_summary(summary_path)
+    body = format_email_body(body)
     subject = build_email_subject(body, when)
     date_label = when.strftime("%b %d")
 
