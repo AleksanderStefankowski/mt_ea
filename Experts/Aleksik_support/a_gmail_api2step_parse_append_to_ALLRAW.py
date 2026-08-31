@@ -117,6 +117,18 @@ def parse_plan(text, trading):
     return results
 
 
+def _allraw_row_key(lev):
+    return (lev["start"], lev["end"], lev["levelPrice"], lev["tag"])
+
+
+def _dedupe_allraw_levels(levels):
+    """Later rows win on (start, end, levelPrice, tag) — same key as step 3 zeFinal merge."""
+    merged = {}
+    for lev in levels:
+        merged[_allraw_row_key(lev)] = lev
+    return list(merged.values())
+
+
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -140,7 +152,11 @@ if __name__ == "__main__":
             except json.JSONDecodeError:
                 existing = []
 
-    combined = existing + data
+    raw_count = len(existing) + len(data)
+    combined = _dedupe_allraw_levels(existing + data)
+    dropped = raw_count - len(combined)
+    if dropped > 0:
+        print(f"ALLRAW dedupe: {raw_count} -> {len(combined)} rows ({dropped} duplicate keys dropped)")
 
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(combined, f, indent=2)
