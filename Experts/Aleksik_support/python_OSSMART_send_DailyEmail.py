@@ -83,7 +83,9 @@ DAILY_EMAIL_GMAIL_SCOPES = [
 
 _RE_CLOSED_NET = re.compile(r"closedNetToday=([-\d.]+)")
 _RE_OPEN_PROFIT_TOTAL = re.compile(r"openProfitTotal=([-\d.]+)")
-_RE_OPEN_POSITIONS = re.compile(r"openPositions=(\d+)")
+_RE_OPEN_COUNT = re.compile(r"openCount=(\d+)")
+_RE_OPEN_POSITIONS = re.compile(r"openPositions=(\d+)")  # legacy day_summary
+_RE_OPEN_SIZE = re.compile(r"openSize=([-\d.]+)")
 _RE_MARGIN_LEVEL = re.compile(r"percentage\s+marginLevel=([-\d.]+)")
 
 
@@ -157,10 +159,11 @@ def read_day_summary(path: str) -> Tuple[str, bool]:
         return handle.read(), True
 
 
-def parse_subject_fields(body: str) -> Tuple[str, str, str, str]:
+def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str]:
     closed_net = "?"
     open_profit_total = "?"
-    open_positions = "?"
+    open_count = "?"
+    open_size = "?"
     margin_level = "?"
 
     match = _RE_CLOSED_NET.search(body)
@@ -171,15 +174,25 @@ def parse_subject_fields(body: str) -> Tuple[str, str, str, str]:
     if match:
         open_profit_total = match.group(1)
 
-    match = _RE_OPEN_POSITIONS.search(body)
+    match = _RE_OPEN_COUNT.search(body)
     if match:
-        open_positions = match.group(1)
+        open_count = match.group(1)
+    else:
+        match = _RE_OPEN_POSITIONS.search(body)
+        if match:
+            open_count = match.group(1)
+
+    match = _RE_OPEN_SIZE.search(body)
+    if match:
+        open_size = match.group(1)
+    elif open_count == "0":
+        open_size = "0.000"
 
     match = _RE_MARGIN_LEVEL.search(body)
     if match:
         margin_level = match.group(1)
 
-    return closed_net, open_profit_total, open_positions, margin_level
+    return closed_net, open_profit_total, open_count, open_size, margin_level
 
 
 def format_net_today(closed_net: str, open_profit_total: str) -> str:
@@ -189,6 +202,15 @@ def format_net_today(closed_net: str, open_profit_total: str) -> str:
         return str(int(round(closed_value + open_value)))
     except ValueError:
         return "?"
+
+
+def format_open_size_for_subject(raw: str) -> str:
+    if raw == "?":
+        return "?"
+    try:
+        return f"{float(raw):.3f}"
+    except ValueError:
+        return raw
 
 
 def format_margin_level_for_subject(raw: str) -> str:
@@ -215,14 +237,13 @@ def format_email_body(body: str) -> str:
 
 
 def build_email_subject(body: str, when: datetime) -> str:
-    closed_net, open_profit_total, open_positions, margin_level = parse_subject_fields(body)
+    closed_net, open_profit_total, open_count, open_size, margin_level = parse_subject_fields(body)
     net_today = format_net_today(closed_net, open_profit_total)
+    open_size_str = format_open_size_for_subject(open_size)
     margin_level_str = format_margin_level_for_subject(margin_level)
-    date_str = when.strftime("%Y.%m.%d")
     return (
         f"{EMAIL_SUBJECT_PREFIX} NetToday={net_today} PLN | "
-        f"openPositions={open_positions} marginLevel={margin_level_str} | "
-        f"{date_str}"
+        f"openCount={open_count} openSize={open_size_str} marginLevel={margin_level_str}"
     )
 
 

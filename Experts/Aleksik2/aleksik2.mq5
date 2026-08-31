@@ -76680,21 +76680,23 @@ string DaySummaryAlgoLabel(const long magic)
 }
 
 //+------------------------------------------------------------------+
-string DaySummaryClosedRowLine(const double amount, const long magic)
+string DaySummaryClosedRowLine(const double amount, const long magic, const double volume)
 {
-   return StringFormat("%.2f\t%s\t%s",
+   return StringFormat("%.2f\t%s\t%.2f\t%s",
       amount,
       DaySummaryAlgoLabel(magic),
+      volume,
       DaySummaryFamilyLabel(magic));
 }
 
 //+------------------------------------------------------------------+
-string DaySummaryOpenRowLine(const double amount, const double hoursOpen, const long magic)
+string DaySummaryOpenRowLine(const double amount, const double hoursOpen, const long magic, const double volume)
 {
-   return StringFormat("%.2f\t%.2f\t%s\t%s",
+   return StringFormat("%.2f\t%.2f\t%s\t%.2f\t%s",
       amount,
       hoursOpen,
       DaySummaryAlgoLabel(magic),
+      volume,
       DaySummaryFamilyLabel(magic));
 }
 
@@ -76702,6 +76704,7 @@ string DaySummaryOpenRowLine(const double amount, const double hoursOpen, const 
 struct DaySummaryClosedDealRow
 {
    double   amount;
+   double   volume;
    long     magic;
    datetime dealTime;
 };
@@ -76759,6 +76762,7 @@ int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime da
 
       ArrayResize(outRows, n + 1);
       outRows[n].amount = amount;
+      outRows[n].volume = HistoryDealGetDouble(ticket, DEAL_VOLUME);
       outRows[n].magic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
       outRows[n].dealTime = dealTime;
       n++;
@@ -76809,6 +76813,7 @@ void WriteDaySummaryTxt()
 
    int openCount = 0;
    double openProfitTotal = 0.0;
+   double openSizeTotal = 0.0;
    for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
    {
       const ulong ticket = PositionGetTicket(pi);
@@ -76817,6 +76822,7 @@ void WriteDaySummaryTxt()
       if(PositionGetString(POSITION_SYMBOL) != _Symbol)
          continue;
       openCount++;
+      openSizeTotal += PositionGetDouble(POSITION_VOLUME);
       openProfitTotal += PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
    }
 
@@ -76834,16 +76840,16 @@ void WriteDaySummaryTxt()
    }
    if(closedCount > 0)
    {
-      FileWrite(fileHandle, "# closed trades today: amount\talgo\tfamily");
+      FileWrite(fileHandle, "# closed trades today: amount\talgo\tsize\tfamily");
       for(int ci = 0; ci < closedCount; ci++)
-         FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic));
+         FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic, closedToday[ci].volume));
    }
 
-   FileWrite(fileHandle, StringFormat("openProfitTotal=%.2f openPositions=%d", openProfitTotal, openCount));
+   FileWrite(fileHandle, StringFormat("openProfitTotal=%.2f openCount=%d openSize=%.3f", openProfitTotal, openCount, openSizeTotal));
 
    if(openCount > 0)
    {
-      FileWrite(fileHandle, "# open trades now: amount\thours_open\talgo\tfamily");
+      FileWrite(fileHandle, "# open trades now: amount\thours_open\talgo\tsize\tfamily");
       for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
       {
          const ulong ticket = PositionGetTicket(pi);
@@ -76854,10 +76860,11 @@ void WriteDaySummaryTxt()
          const long magic = (long)PositionGetInteger(POSITION_MAGIC);
          const datetime startTime = (datetime)PositionGetInteger(POSITION_TIME);
          const double openProfit = PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
+         const double openVolume = PositionGetDouble(POSITION_VOLUME);
          double hoursOpen = 0.0;
          if(startTime > 0 && evalTime > startTime)
             hoursOpen = (double)(evalTime - startTime) / 3600.0;
-         FileWrite(fileHandle, DaySummaryOpenRowLine(openProfit, hoursOpen, magic));
+         FileWrite(fileHandle, DaySummaryOpenRowLine(openProfit, hoursOpen, magic, openVolume));
       }
    }
 
