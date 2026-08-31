@@ -222,7 +222,46 @@ def format_margin_level_for_subject(raw: str) -> str:
         return raw
 
 
+CLOSED_TRADES_HEADER = "# closed trades today: amount\talgo\tsize\tfamily"
+OPEN_TRADES_HEADER = "# open trades now: amount\thours_open\talgo\tsize\tfamily"
+
+
+def ensure_day_summary_table_headers(body: str) -> str:
+    lines = body.splitlines()
+    has_closed_header = any(line.startswith("# closed trades today:") for line in lines)
+    has_open_header = any(line.startswith("# open trades now:") for line in lines)
+    if has_closed_header and has_open_header:
+        return body
+
+    out: list[str] = []
+    closed_inserted = has_closed_header
+    open_inserted = has_open_header
+
+    for line in lines:
+        if line.startswith("# closed trades today:"):
+            closed_inserted = True
+        if line.startswith("# open trades now:"):
+            open_inserted = True
+        if line.startswith("openProfitTotal="):
+            if not closed_inserted:
+                out.append(CLOSED_TRADES_HEADER)
+                closed_inserted = True
+            out.append(line)
+            if not open_inserted:
+                out.append(OPEN_TRADES_HEADER)
+                open_inserted = True
+            continue
+        out.append(line)
+
+    if not closed_inserted:
+        out.append(CLOSED_TRADES_HEADER)
+    if not open_inserted:
+        out.append(OPEN_TRADES_HEADER)
+    return "\n".join(out)
+
+
 def format_email_body(body: str) -> str:
+    body = ensure_day_summary_table_headers(body)
     lines = body.splitlines()
     formatted: list[str] = []
 

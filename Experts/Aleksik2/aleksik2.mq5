@@ -76682,21 +76682,21 @@ string DaySummaryAlgoLabel(const long magic)
 //+------------------------------------------------------------------+
 string DaySummaryClosedRowLine(const double amount, const long magic, const double volume)
 {
-   return StringFormat("%.2f\t%s\t%.2f\t%s",
+   return StringFormat("%.2f\t%s\t%s\t%s",
       amount,
       DaySummaryAlgoLabel(magic),
-      volume,
+      FalgoVolumeStr(volume),
       DaySummaryFamilyLabel(magic));
 }
 
 //+------------------------------------------------------------------+
 string DaySummaryOpenRowLine(const double amount, const double hoursOpen, const long magic, const double volume)
 {
-   return StringFormat("%.2f\t%.2f\t%s\t%.2f\t%s",
+   return StringFormat("%.2f\t%.2f\t%s\t%s\t%s",
       amount,
       hoursOpen,
       DaySummaryAlgoLabel(magic),
-      volume,
+      FalgoVolumeStr(volume),
       DaySummaryFamilyLabel(magic));
 }
 
@@ -76838,34 +76838,28 @@ void WriteDaySummaryTxt()
          }
       }
    }
-   if(closedCount > 0)
-   {
-      FileWrite(fileHandle, "# closed trades today: amount\talgo\tsize\tfamily");
-      for(int ci = 0; ci < closedCount; ci++)
-         FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic, closedToday[ci].volume));
-   }
+   FileWrite(fileHandle, "# closed trades today: amount\talgo\tsize\tfamily");
+   for(int ci = 0; ci < closedCount; ci++)
+      FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic, closedToday[ci].volume));
 
    FileWrite(fileHandle, StringFormat("openProfitTotal=%.2f openCount=%d openSize=%.3f", openProfitTotal, openCount, openSizeTotal));
 
-   if(openCount > 0)
+   FileWrite(fileHandle, "# open trades now: amount\thours_open\talgo\tsize\tfamily");
+   for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
    {
-      FileWrite(fileHandle, "# open trades now: amount\thours_open\talgo\tsize\tfamily");
-      for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
-      {
-         const ulong ticket = PositionGetTicket(pi);
-         if(ticket == 0 || !PositionSelectByTicket(ticket))
-            continue;
-         if(PositionGetString(POSITION_SYMBOL) != _Symbol)
-            continue;
-         const long magic = (long)PositionGetInteger(POSITION_MAGIC);
-         const datetime startTime = (datetime)PositionGetInteger(POSITION_TIME);
-         const double openProfit = PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
-         const double openVolume = PositionGetDouble(POSITION_VOLUME);
-         double hoursOpen = 0.0;
-         if(startTime > 0 && evalTime > startTime)
-            hoursOpen = (double)(evalTime - startTime) / 3600.0;
-         FileWrite(fileHandle, DaySummaryOpenRowLine(openProfit, hoursOpen, magic, openVolume));
-      }
+      const ulong ticket = PositionGetTicket(pi);
+      if(ticket == 0 || !PositionSelectByTicket(ticket))
+         continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol)
+         continue;
+      const long magic = (long)PositionGetInteger(POSITION_MAGIC);
+      const datetime startTime = (datetime)PositionGetInteger(POSITION_TIME);
+      const double openProfit = PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
+      const double openVolume = PositionGetDouble(POSITION_VOLUME);
+      double hoursOpen = 0.0;
+      if(startTime > 0 && evalTime > startTime)
+         hoursOpen = (double)(evalTime - startTime) / 3600.0;
+      FileWrite(fileHandle, DaySummaryOpenRowLine(openProfit, hoursOpen, magic, openVolume));
    }
 
    FileClose(fileHandle);
