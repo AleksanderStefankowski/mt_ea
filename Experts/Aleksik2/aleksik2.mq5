@@ -7695,8 +7695,7 @@ bool FalgoTryBuildTradeResultFromCloseDeal(const ulong closeDealTicket, TradeRes
       return false;
 
    const ulong positionId = (ulong)HistoryDealGetInteger(closeDealTicket, DEAL_POSITION_ID);
-   const long entryMagic = HistoryDealGetInteger(closeDealTicket, DEAL_MAGIC);
-   if(positionId == 0 || entryMagic == 0)
+   if(positionId == 0)
       return false;
 
    ulong inDealTicket = 0;
@@ -7720,10 +7719,17 @@ bool FalgoTryBuildTradeResultFromCloseDeal(const ulong closeDealTicket, TradeRes
    if(inDealTicket == 0)
       return false;
 
+   const long inMagic = HistoryDealGetInteger(inDealTicket, DEAL_MAGIC);
+   const long closeMagic = HistoryDealGetInteger(closeDealTicket, DEAL_MAGIC);
+   const long entryMagic = (inMagic != 0 ? inMagic : closeMagic);
+   if(entryMagic == 0)
+      return false;
+
    const string outComment = HistoryDealGetString(closeDealTicket, DEAL_COMMENT);
    out.symbol = _Symbol;
    out.magic = entryMagic;
-   out.volume = FalgoConfiguredTradeLotForMagic(entryMagic);
+   const double inVolume = HistoryDealGetDouble(inDealTicket, DEAL_VOLUME);
+   out.volume = (inVolume > 0.0 ? inVolume : FalgoConfiguredTradeLotForMagic(entryMagic));
    out.startTime = (datetime)HistoryDealGetInteger(inDealTicket, DEAL_TIME);
    out.sentTime = FalgoSentTimeFromInDealOrStart(inDealTicket, out.startTime);
    out.priceStart = HistoryDealGetDouble(inDealTicket, DEAL_PRICE);
@@ -76724,6 +76730,44 @@ double DaySummaryDealNetAmount(const ulong dealTicket)
 }
 
 //+------------------------------------------------------------------+
+//+------------------------------------------------------------------+
+void DaySummaryResolveEntryMetaFromCloseDeal(const ulong closeDealTicket, long &outMagic, double &outVolume)
+{
+   outMagic = 0;
+   outVolume = 0.0;
+   if(closeDealTicket == 0 || !HistoryDealSelect(closeDealTicket))
+      return;
+
+   outMagic = HistoryDealGetInteger(closeDealTicket, DEAL_MAGIC);
+   outVolume = HistoryDealGetDouble(closeDealTicket, DEAL_VOLUME);
+
+   const ulong positionId = (ulong)HistoryDealGetInteger(closeDealTicket, DEAL_POSITION_ID);
+   if(positionId == 0)
+      return;
+   if(!HistorySelectByPosition((long)positionId))
+      return;
+
+   for(int j = 0; j < HistoryDealsTotal(); j++)
+   {
+      const ulong dealTicket = HistoryDealGetTicket(j);
+      if(dealTicket == 0)
+         continue;
+      if(HistoryDealGetString(dealTicket, DEAL_SYMBOL) != _Symbol)
+         continue;
+      if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(dealTicket, DEAL_ENTRY) != DEAL_ENTRY_IN)
+         continue;
+
+      const long inMagic = HistoryDealGetInteger(dealTicket, DEAL_MAGIC);
+      if(inMagic != 0)
+         outMagic = inMagic;
+      const double inVolume = HistoryDealGetDouble(dealTicket, DEAL_VOLUME);
+      if(inVolume > 0.0)
+         outVolume = inVolume;
+      return;
+   }
+}
+
+//+------------------------------------------------------------------+
 int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime dayEndExclusive,
    DaySummaryClosedDealRow &outRows[])
 {
@@ -76738,7 +76782,8 @@ int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime da
    if(!HistorySelect(dayStart, historyTo))
       return 0;
 
-   int n = 0;
+   ulong closeTickets[];
+   ArrayResize(closeTickets, 0);
    const int total = HistoryDealsTotal();
    for(int dealIdx = 0; dealIdx < total; dealIdx++)
    {
@@ -76756,15 +76801,31 @@ int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime da
       if(dealTime < dayStart || dealTime >= dayEndExclusive)
          continue;
 
+      const int nTickets = ArraySize(closeTickets);
+      ArrayResize(closeTickets, nTickets + 1);
+      closeTickets[nTickets] = ticket;
+   }
+
+   int n = 0;
+   for(int ci = 0; ci < ArraySize(closeTickets); ci++)
+   {
+      const ulong ticket = closeTickets[ci];
+      if(!HistoryDealSelect(ticket))
+         continue;
+
       const double amount = DaySummaryDealNetAmount(ticket);
       if(amount == 0.0)
          continue;
 
+      long magic = 0;
+      double volume = 0.0;
+      DaySummaryResolveEntryMetaFromCloseDeal(ticket, magic, volume);
+
       ArrayResize(outRows, n + 1);
       outRows[n].amount = amount;
-      outRows[n].volume = HistoryDealGetDouble(ticket, DEAL_VOLUME);
-      outRows[n].magic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
-      outRows[n].dealTime = dealTime;
+      outRows[n].volume = volume;
+      outRows[n].magic = magic;
+      outRows[n].dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
       n++;
    }
    return n;

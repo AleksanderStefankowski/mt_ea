@@ -84,7 +84,6 @@ DAILY_EMAIL_GMAIL_SCOPES = [
 _RE_CLOSED_NET = re.compile(r"closedNetToday=([-\d.]+)")
 _RE_OPEN_PROFIT_TOTAL = re.compile(r"openProfitTotal=([-\d.]+)")
 _RE_OPEN_COUNT = re.compile(r"openCount=(\d+)")
-_RE_OPEN_POSITIONS = re.compile(r"openPositions=(\d+)")  # legacy day_summary
 _RE_OPEN_SIZE = re.compile(r"openSize=([-\d.]+)")
 _RE_MARGIN_LEVEL = re.compile(r"percentage\s+marginLevel=([-\d.]+)")
 
@@ -177,16 +176,10 @@ def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str]:
     match = _RE_OPEN_COUNT.search(body)
     if match:
         open_count = match.group(1)
-    else:
-        match = _RE_OPEN_POSITIONS.search(body)
-        if match:
-            open_count = match.group(1)
 
     match = _RE_OPEN_SIZE.search(body)
     if match:
         open_size = match.group(1)
-    elif open_count == "0":
-        open_size = "0.000"
 
     match = _RE_MARGIN_LEVEL.search(body)
     if match:
@@ -222,46 +215,7 @@ def format_margin_level_for_subject(raw: str) -> str:
         return raw
 
 
-CLOSED_TRADES_HEADER = "# closed trades today: amount\talgo\tsize\tfamily"
-OPEN_TRADES_HEADER = "# open trades now: amount\thours_open\talgo\tsize\tfamily"
-
-
-def ensure_day_summary_table_headers(body: str) -> str:
-    lines = body.splitlines()
-    has_closed_header = any(line.startswith("# closed trades today:") for line in lines)
-    has_open_header = any(line.startswith("# open trades now:") for line in lines)
-    if has_closed_header and has_open_header:
-        return body
-
-    out: list[str] = []
-    closed_inserted = has_closed_header
-    open_inserted = has_open_header
-
-    for line in lines:
-        if line.startswith("# closed trades today:"):
-            closed_inserted = True
-        if line.startswith("# open trades now:"):
-            open_inserted = True
-        if line.startswith("openProfitTotal="):
-            if not closed_inserted:
-                out.append(CLOSED_TRADES_HEADER)
-                closed_inserted = True
-            out.append(line)
-            if not open_inserted:
-                out.append(OPEN_TRADES_HEADER)
-                open_inserted = True
-            continue
-        out.append(line)
-
-    if not closed_inserted:
-        out.append(CLOSED_TRADES_HEADER)
-    if not open_inserted:
-        out.append(OPEN_TRADES_HEADER)
-    return "\n".join(out)
-
-
 def format_email_body(body: str) -> str:
-    body = ensure_day_summary_table_headers(body)
     lines = body.splitlines()
     formatted: list[str] = []
 
