@@ -1,5 +1,5 @@
 # Configuration
-DESIRED_TOTAL_MAX_EXPOSURE = 0.3
+DESIRED_TOTAL_MAX_EXPOSURE = 0.2
 POSITION_SIZE_STEP         = 0.001
 
 algo_starting_with_1_weight = 5 # time

@@ -546,7 +546,7 @@ bool PlacePendingFromFalgoMagicLevel(const long magic, const double orderPrice, 
       return false;
 
    datetime expiration = TimeCurrent() + expirationMin * 60;
-   const string comment = "lvlfam";
+   const string comment = FalgoBuildLevelOpenComment(magic, orderNorm);
    ExtTrade.SetExpertMagicNumber(magic);
    LogPreOrderContext(magic, orderNorm, orderNorm, "BuyLimit", expirationMin);
    const bool ok = ExtTrade.BuyLimit(lot, orderNorm, _Symbol, 0.0, tpNorm, ORDER_TIME_SPECIFIED, expiration, comment);
@@ -1209,9 +1209,13 @@ bool Babysitf_falgo_runLevelAlgoSecretTpExit(const long posMagic, const double r
       DoubleToString(bid, _Digits), DoubleToString(bid - rollCost, _Digits), DoubleToString(secretTpPrice, _Digits),
       DoubleToString(entryPrice, _Digits), DoubleToString(rolloverForGuard, _Digits),
       DoubleToString(greenguard, _Digits));
+   const string closeDetailLog = StringFormat("bidWithRoll=%s|fill=%s|roll=%s|greenguard=%s",
+      DoubleToString(bid - rollCost, _Digits), DoubleToString(entryPrice, _Digits),
+      DoubleToString(rolloverForGuard, _Digits), DoubleToString(greenguard, _Digits));
    LevelAlgoRememberCloseDecision(positionId, "level_secretTPSL_tp", closeDetail);
    LevelAlgoRememberPendingCloseReason(positionId, "secretTP");
-   FalgoFlipperPrintfManualCloseDecision("level", "secretTP", posMagic, posTicket, positionId, closeDetail);
+   FalgoFlipperPrintfManualCloseDecision("level", "secretTP", posMagic, posTicket, positionId, closeDetailLog,
+      bid, secretTpPrice);
 
    LevelAlgoDef la;
    string closeComment = "";
