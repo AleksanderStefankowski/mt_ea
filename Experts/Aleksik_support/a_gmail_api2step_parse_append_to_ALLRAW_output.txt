@@ -812,5 +812,61 @@
       "daily"
     ],
     "tag": "dailyDown2"
+  },
+  {
+    "start": "2026.09.01",
+    "end": "2026.09.01",
+    "levelPrice": 7690,
+    "categories": [
+      "daily",
+      "tuesday",
+      "pivot"
+    ],
+    "tag": "dailyPivot"
+  },
+  {
+    "start": "2026.09.01",
+    "end": "2026.09.01",
+    "levelPrice": 7711,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp1"
+  },
+  {
+    "start": "2026.09.01",
+    "end": "2026.09.01",
+    "levelPrice": 7735,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp2"
+  },
+  {
+    "start": "2026.09.01",
+    "end": "2026.09.01",
+    "levelPrice": 7755,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyUp3"
+  },
+  {
+    "start": "2026.09.01",
+    "end": "2026.09.01",
+    "levelPrice": 7737,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown1"
+  },
+  {
+    "start": "2026.09.01",
+    "end": "2026.09.01",
+    "levelPrice": 7660,
+    "categories": [
+      "daily"
+    ],
+    "tag": "dailyDown2"
   }
 ]
