@@ -188,13 +188,14 @@ def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str]:
     return closed_net, open_profit_total, open_count, open_size, margin_level
 
 
-def format_net_today(closed_net: str, open_profit_total: str) -> str:
-    try:
-        closed_value = 0.0 if closed_net == "?" else float(closed_net)
-        open_value = 0.0 if open_profit_total == "?" else float(open_profit_total)
-        return str(int(round(closed_value + open_value)))
-    except ValueError:
+def format_closed_net_for_subject(closed_net: str) -> str:
+    """Subject NetToday= uses closedNetToday only (not open floating P/L)."""
+    if closed_net == "?":
         return "?"
+    try:
+        return str(int(round(float(closed_net))))
+    except ValueError:
+        return closed_net
 
 
 def format_open_size_for_subject(raw: str) -> str:
@@ -216,22 +217,12 @@ def format_margin_level_for_subject(raw: str) -> str:
 
 
 def format_email_body(body: str) -> str:
-    lines = body.splitlines()
-    formatted: list[str] = []
-
-    for line in lines:
-        stripped = line.strip()
-        if stripped.startswith("closedNetToday=") or stripped.startswith("openProfitTotal="):
-            if formatted and formatted[-1] != "":
-                formatted.append("")
-        formatted.append(line)
-
-    return "\n".join(formatted)
+    return body
 
 
 def build_email_subject(body: str, when: datetime) -> str:
-    closed_net, open_profit_total, open_count, open_size, margin_level = parse_subject_fields(body)
-    net_today = format_net_today(closed_net, open_profit_total)
+    closed_net, _, open_count, open_size, margin_level = parse_subject_fields(body)
+    net_today = format_closed_net_for_subject(closed_net)
     open_size_str = format_open_size_for_subject(open_size)
     margin_level_str = format_margin_level_for_subject(margin_level)
     return (

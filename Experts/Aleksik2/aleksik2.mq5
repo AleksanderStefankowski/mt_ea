@@ -1213,8 +1213,9 @@ string FalgoTradeResultMaeFirstCsvColumnName()
 //----------------------------------------------------------------------------------------
 //TOTAL                      100.00%                             0.300
 double   g_global_base_trade_size_time      = 0.002; // algoID 1 // time bookmark9 basetradesize  0.001
-double   g_global_base_trade_size_breakdown = 0.031; // algoID 2 // breakdown 
-double   g_global_base_trade_size_level     = 0.027; // algoID 3 // level
+double   g_global_base_trade_size_breakdown = 0.018; // algoID 2 // breakdown 
+double   g_global_base_trade_size_level     = 0.020; // algoID 3 // level
+
 #define TRADE_VARIANT_COUNT_MAX_LOTSIZE 99.0
 const double one_lot_equals_xPLN = 65000.0;  // PLN notional per 1.0 lot; 0.001 lot => 65 PLN deposit equivalent
 const double FALGO_SECRET_TP_ASSUMED_LEVERAGE = 20.0;  // time/level secret TP: profit% on margin ≈ leverage × price-move%
@@ -76945,6 +76946,23 @@ void WriteDaySummaryTxt()
    for(int ci = 0; ci < closedCount; ci++)
       closedNetToday += closedToday[ci].amount;
    FileWrite(fileHandle, StringFormat("closedNetToday=%.2f closedPositions=%d", closedNetToday, closedCount));
+   FileWrite(fileHandle, "");
+   FileWrite(fileHandle, "# closed trades today:");
+   FileWrite(fileHandle, "amount\talgo\tsize\tfamily");
+   for(int a = 0; a < closedCount - 1; a++)
+   {
+      for(int b = a + 1; b < closedCount; b++)
+      {
+         if(closedToday[a].dealTime > closedToday[b].dealTime)
+         {
+            const DaySummaryClosedDealRow t = closedToday[a];
+            closedToday[a] = closedToday[b];
+            closedToday[b] = t;
+         }
+      }
+   }
+   for(int ci = 0; ci < closedCount; ci++)
+      FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic, closedToday[ci].volume));
 
    int openCount = 0;
    double openProfitTotal = 0.0;
@@ -76960,26 +76978,10 @@ void WriteDaySummaryTxt()
       openSizeTotal += PositionGetDouble(POSITION_VOLUME);
       openProfitTotal += PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
    }
-
-   for(int a = 0; a < closedCount - 1; a++)
-   {
-      for(int b = a + 1; b < closedCount; b++)
-      {
-         if(closedToday[a].dealTime > closedToday[b].dealTime)
-         {
-            const DaySummaryClosedDealRow t = closedToday[a];
-            closedToday[a] = closedToday[b];
-            closedToday[b] = t;
-         }
-      }
-   }
-   FileWrite(fileHandle, "# closed trades today: amount\talgo\tsize\tfamily");
-   for(int ci = 0; ci < closedCount; ci++)
-      FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic, closedToday[ci].volume));
-
    FileWrite(fileHandle, StringFormat("openProfitTotal=%.2f openCount=%d openSize=%.3f", openProfitTotal, openCount, openSizeTotal));
-
-   FileWrite(fileHandle, "# open trades now: amount\thours_open\talgo\tsize\tfamily");
+   FileWrite(fileHandle, "");
+   FileWrite(fileHandle, "# open trades now:");
+   FileWrite(fileHandle, "amount\thours_open\talgo\tsize\tfamily");
    for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
    {
       const ulong ticket = PositionGetTicket(pi);
