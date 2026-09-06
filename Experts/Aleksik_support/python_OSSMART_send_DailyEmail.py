@@ -82,6 +82,7 @@ DAILY_EMAIL_GMAIL_SCOPES = [
 ]
 
 _RE_CLOSED_NET = re.compile(r"closedNetToday=([-\d.]+)")
+_RE_CLOSED_BALANCE = re.compile(r"closed static balance=([-\d.]+)")
 _RE_OPEN_PROFIT_TOTAL = re.compile(r"openProfitTotal=([-\d.]+)")
 _RE_OPEN_COUNT = re.compile(r"openCount=(\d+)")
 _RE_OPEN_SIZE = re.compile(r"openSize=([-\d.]+)")
@@ -158,8 +159,9 @@ def read_day_summary(path: str) -> Tuple[str, bool]:
         return handle.read(), True
 
 
-def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str]:
+def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str, str]:
     closed_net = "?"
+    closed_balance = "?"
     open_profit_total = "?"
     open_count = "?"
     open_size = "?"
@@ -168,6 +170,10 @@ def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str]:
     match = _RE_CLOSED_NET.search(body)
     if match:
         closed_net = match.group(1)
+
+    match = _RE_CLOSED_BALANCE.search(body)
+    if match:
+        closed_balance = match.group(1)
 
     match = _RE_OPEN_PROFIT_TOTAL.search(body)
     if match:
@@ -185,7 +191,7 @@ def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str]:
     if match:
         margin_level = match.group(1)
 
-    return closed_net, open_profit_total, open_count, open_size, margin_level
+    return closed_net, closed_balance, open_profit_total, open_count, open_size, margin_level
 
 
 def format_closed_net_for_subject(closed_net: str) -> str:
@@ -196,6 +202,24 @@ def format_closed_net_for_subject(closed_net: str) -> str:
         return str(int(round(float(closed_net))))
     except ValueError:
         return closed_net
+
+
+def format_growth_pct_for_subject(closed_net: str, closed_balance: str) -> str:
+    """growth% = closedNetToday / balance_before_today * 100; balance_before = balance - net_today."""
+    if closed_net == "?" or closed_balance == "?":
+        return "?"
+    try:
+        net_today = float(closed_net)
+        closed_balance_value = float(closed_balance)
+    except ValueError:
+        return "?"
+
+    balance_before_today = closed_balance_value - net_today
+    if balance_before_today <= 0.0:
+        return "?"
+
+    growth_pct = (net_today / balance_before_today) * 100.0
+    return f"{growth_pct:.1f}"
 
 
 def format_open_size_for_subject(raw: str) -> str:
@@ -221,12 +245,13 @@ def format_email_body(body: str) -> str:
 
 
 def build_email_subject(body: str, when: datetime) -> str:
-    closed_net, _, open_count, open_size, margin_level = parse_subject_fields(body)
+    closed_net, closed_balance, _, open_count, open_size, margin_level = parse_subject_fields(body)
     net_today = format_closed_net_for_subject(closed_net)
+    growth_pct = format_growth_pct_for_subject(closed_net, closed_balance)
     open_size_str = format_open_size_for_subject(open_size)
     margin_level_str = format_margin_level_for_subject(margin_level)
     return (
-        f"{EMAIL_SUBJECT_PREFIX} NetToday={net_today} PLN | "
+        f"{EMAIL_SUBJECT_PREFIX} NetToday={net_today} PLN grow={growth_pct}% | "
         f"openCount={open_count} openSize={open_size_str} marginLevel={margin_level_str}"
     )
 
