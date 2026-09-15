@@ -1134,6 +1134,7 @@ bool     bigflipper_log_breakdown_algo_manual_close_decision = true;  // always 
 bool     bigflipper_sparse_journal_time_algo                 = true;   // [sparse_jrnl][TIME] + sparse [manual_cl] when 1..3 time algos enabled
 bool     bigflipper_sparse_journal_level_algo                = true;   // [sparse_jrnl][LVL] + sparse [manual_cl] when 1..3 level algos enabled
 bool     bigflipper_sparse_journal_breakdown_algo            = true;   // [sparse_jrnl][BD] + sparse [manual_cl] when 1..3 breakdown algos enabled
+bool     bigflipper_pulse_log                              = true;   // [PULS] console status every even hour (:00)
 bool     bigflipper_bdfam_open_comment_with_snap_prices    = false;  // open/pending: append startHigh breakdownLow
 bool     bigflipper_bdfam_open_comment_with_tp_price       = true;   // open/pending: append secretTpPrice (0 if no secret TP)
 bool     bigflipper_timefam_open_comment_with_tp_price       = true;   // open/pending: append secretTpPrice (0 if no secret TP)
@@ -3962,6 +3963,8 @@ bool BrokerCustomQopexRolloverPriceDiffFromM1(const datetime rolloverWedDayStart
 datetime g_brokerRolloverPricediffCacheWed[BROKER_ROLLOVER_PRICEDIFF_CACHE_MAX];
 double   g_brokerRolloverPricediffCacheVal[BROKER_ROLLOVER_PRICEDIFF_CACHE_MAX];
 int      g_brokerRolloverPricediffCacheCount = 0;
+datetime g_brokerCustomQopexLastRolloverWedDayStart = 0;
+double   g_brokerCustomQopexLastRolloverPricediff = 0.0;
 
 //+------------------------------------------------------------------+
 bool BrokerCustomQopexRolloverPricediffCachedLookup(const datetime rolloverWedDayStart, double &outPricediff)
@@ -3990,6 +3993,11 @@ void BrokerCustomQopexRolloverPricediffCacheStore(const datetime rolloverWedDayS
       if(g_brokerRolloverPricediffCacheWed[i] == rolloverWedDayStart)
       {
          g_brokerRolloverPricediffCacheVal[i] = rolloverPricediff;
+         if(rolloverWedDayStart >= g_brokerCustomQopexLastRolloverWedDayStart)
+         {
+            g_brokerCustomQopexLastRolloverWedDayStart = rolloverWedDayStart;
+            g_brokerCustomQopexLastRolloverPricediff = rolloverPricediff;
+         }
          return;
       }
    }
@@ -4002,6 +4010,43 @@ void BrokerCustomQopexRolloverPricediffCacheStore(const datetime rolloverWedDayS
    g_brokerRolloverPricediffCacheWed[g_brokerRolloverPricediffCacheCount] = rolloverWedDayStart;
    g_brokerRolloverPricediffCacheVal[g_brokerRolloverPricediffCacheCount] = rolloverPricediff;
    g_brokerRolloverPricediffCacheCount++;
+   if(rolloverWedDayStart >= g_brokerCustomQopexLastRolloverWedDayStart)
+   {
+      g_brokerCustomQopexLastRolloverWedDayStart = rolloverWedDayStart;
+      g_brokerCustomQopexLastRolloverPricediff = rolloverPricediff;
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Most recent quarterly rollover Wednesday whose Thursday apply time has passed. |
+//+------------------------------------------------------------------+
+datetime BrokerCustomQopexMostRecentPastRolloverWedDayStart(const datetime asOfTime)
+{
+   if(asOfTime <= 0)
+      return 0;
+   MqlDateTime dt;
+   TimeToStruct(asOfTime, dt);
+   datetime best = 0;
+   for(int backMonths = 0; backMonths <= 15; backMonths++)
+   {
+      int month = dt.mon - backMonths;
+      int y = dt.year;
+      while(month <= 0)
+      {
+         month += 12;
+         y--;
+      }
+      if(!BrokerCustomQopexQuarterMonth(month))
+         continue;
+      const datetime rolloverWed = BrokerCustomQopexRolloverWednesdayDayStart(y, month);
+      if(rolloverWed <= 0)
+         continue;
+      if(asOfTime < BrokerCustomQopexRolloverEarliestApplyTime(rolloverWed))
+         continue;
+      if(rolloverWed > best)
+         best = rolloverWed;
+   }
+   return best;
 }
 
 //+------------------------------------------------------------------+
@@ -76761,10 +76806,21 @@ string DaySummaryAlgoLabel(const long magic)
 }
 
 //+------------------------------------------------------------------+
-string DaySummaryClosedRowLine(const double amount, const long magic, const double volume)
+string DaySummaryCloseTimeStr(const datetime closeTime)
 {
-   return StringFormat("%.2f\t%s\t%s\t%s",
+   if(closeTime <= 0)
+      FatalError("DaySummaryCloseTimeStr: close deal time is zero");
+   MqlDateTime dt;
+   TimeToStruct(closeTime, dt);
+   return StringFormat("%02d:%02d", dt.hour, dt.min);
+}
+
+//+------------------------------------------------------------------+
+string DaySummaryClosedRowLine(const double amount, const datetime closeTime, const long magic, const double volume)
+{
+   return StringFormat("%.2f\t%s\t%s\t%s\t%s",
       amount,
+      DaySummaryCloseTimeStr(closeTime),
       DaySummaryAlgoLabel(magic),
       FalgoVolumeStr(volume),
       DaySummaryFamilyLabel(magic));
@@ -76888,6 +76944,10 @@ int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime da
       if(!HistoryDealSelect(ticket))
          continue;
 
+      const datetime closeDealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+      if(closeDealTime <= 0)
+         FatalError(StringFormat("DaySummaryCollectClosedDealsToday: close deal %I64u has zero DEAL_TIME", ticket));
+
       const double amount = DaySummaryDealNetAmount(ticket);
       if(amount == 0.0)
          continue;
@@ -76900,7 +76960,7 @@ int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime da
       outRows[n].amount = amount;
       outRows[n].volume = volume;
       outRows[n].magic = magic;
-      outRows[n].dealTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+      outRows[n].dealTime = closeDealTime;
       n++;
    }
    return n;
@@ -76946,9 +77006,14 @@ void WriteDaySummaryTxt()
    for(int ci = 0; ci < closedCount; ci++)
       closedNetToday += closedToday[ci].amount;
    FileWrite(fileHandle, StringFormat("closedNetToday=%.2f closedPositions=%d", closedNetToday, closedCount));
+   string lastRolloverDateStr = "";
+   if(g_brokerCustomQopexLastRolloverWedDayStart > 0)
+      lastRolloverDateStr = TimeToString(g_brokerCustomQopexLastRolloverWedDayStart, TIME_DATE);
+   FileWrite(fileHandle, StringFormat("last_rollover_customfee=%s", DoubleToString(g_brokerCustomQopexLastRolloverPricediff, _Digits)));
+   FileWrite(fileHandle, StringFormat("last_rollover_date=%s", lastRolloverDateStr));
    FileWrite(fileHandle, "");
    FileWrite(fileHandle, "# closed trades today:");
-   FileWrite(fileHandle, "amount\talgo\tsize\tfamily");
+   FileWrite(fileHandle, "amount\ttime\talgo\tsize\tfamily");
    for(int a = 0; a < closedCount - 1; a++)
    {
       for(int b = a + 1; b < closedCount; b++)
@@ -76962,7 +77027,7 @@ void WriteDaySummaryTxt()
       }
    }
    for(int ci = 0; ci < closedCount; ci++)
-      FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].magic, closedToday[ci].volume));
+      FileWrite(fileHandle, DaySummaryClosedRowLine(closedToday[ci].amount, closedToday[ci].dealTime, closedToday[ci].magic, closedToday[ci].volume));
 
    int openCount = 0;
    double openProfitTotal = 0.0;
@@ -76978,6 +77043,7 @@ void WriteDaySummaryTxt()
       openSizeTotal += PositionGetDouble(POSITION_VOLUME);
       openProfitTotal += PositionGetDouble(POSITION_PROFIT) + PositionGetDouble(POSITION_SWAP);
    }
+   FileWrite(fileHandle, "");
    FileWrite(fileHandle, StringFormat("openProfitTotal=%.2f openCount=%d openSize=%.3f", openProfitTotal, openCount, openSizeTotal));
    FileWrite(fileHandle, "");
    FileWrite(fileHandle, "# open trades now:");
@@ -77022,6 +77088,167 @@ void TryWriteDaySummaryTxt()
 
    WriteDaySummaryTxt();
    g_daySummaryTxtWrittenForDayStart = g_m1DayStart;
+}
+
+//+------------------------------------------------------------------+
+//| Closest non-pivot, non-tertiary level strictly below min(candleClose, ONO). |
+//+------------------------------------------------------------------+
+double PulseLogClosestNonPivotLevelBelowPriceAndONO(const double candleClose)
+{
+   if(candleClose <= 0.0 || g_ONopen <= 0.0)
+      return 0.0;
+   const double cap = MathMin(candleClose, g_ONopen);
+   const double tolerance = MathMax(SymbolInfoDouble(_Symbol, SYMBOL_POINT), 1e-6);
+   double best = 0.0;
+   for(int idx = 0; idx < g_levelsTodayCount; idx++)
+   {
+      if(LevelIsTertiary(g_levelsExpanded[idx].categories))
+         continue;
+      string tagSimple = "";
+      GetLevelTagSimplified(idx, tagSimple);
+      if(tagSimple == "pivot")
+         continue;
+      const double lvl = g_levelsExpanded[idx].levelPrice;
+      if(lvl >= cap - tolerance)
+         continue;
+      if(best == 0.0 || lvl > best)
+         best = lvl;
+   }
+   return best;
+}
+
+//+------------------------------------------------------------------+
+string PulseLogFormatLevelBrief(const double levelPrice)
+{
+   if(levelPrice <= 0.0)
+      return "none";
+   const int levelIdx = FindExpandedLevelIndexByPrice(levelPrice);
+   if(levelIdx < 0)
+      return DoubleToString(levelPrice, _Digits);
+   string tagSimple = "";
+   GetLevelTagSimplified(levelIdx, tagSimple);
+   if(tagSimple == "")
+      tagSimple = g_levelsExpanded[levelIdx].tag;
+   return DoubleToString(levelPrice, _Digits) + "|" + tagSimple;
+}
+
+//+------------------------------------------------------------------+
+bool PulseLogOpenPositionHasRolloverFee(const ulong positionId, const datetime openTime, const long magic)
+{
+   if(IsBreakdownFamilyCompositeMagic(magic))
+   {
+      const int lifeIdx = BreakdownOpenLifetimeSlotByPositionId(positionId);
+      if(lifeIdx >= 0)
+      {
+         FalgoLifetimeEnsureBreakdownRolloverState(lifeIdx);
+         return g_breakdownOpenLifetime[lifeIdx].withRolloverFee;
+      }
+   }
+   else if(IsTimeFamilyCompositeMagic(magic))
+   {
+      const int lifeIdx = TimeAlgoOpenLifetimeSlotByPositionId(positionId);
+      if(lifeIdx >= 0)
+      {
+         FalgoLifetimeEnsureTimeAlgoRolloverState(lifeIdx);
+         return g_timeAlgoOpenLifetime[lifeIdx].withRolloverFee;
+      }
+   }
+   else if(IsLevelFamilyCompositeMagic(magic))
+   {
+      const int lifeIdx = LevelAlgoOpenLifetimeSlotByPositionId(positionId);
+      if(lifeIdx >= 0)
+      {
+         FalgoLifetimeEnsureLevelAlgoRolloverState(lifeIdx);
+         return g_levelAlgoOpenLifetime[lifeIdx].withRolloverFee;
+      }
+   }
+
+   datetime rolloverWedDayStart = 0;
+   bool withRolloverFee = false;
+   double rolloverPricediff = 0.0;
+   FalgoLifetimeEnsureRolloverState(openTime, rolloverWedDayStart, withRolloverFee, rolloverPricediff);
+   return withRolloverFee;
+}
+
+//+------------------------------------------------------------------+
+int PulseLogCountOpenPositionsWithRolloverFee()
+{
+   int count = 0;
+   for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
+   {
+      const ulong ticket = PositionGetTicket(pi);
+      if(ticket == 0 || !PositionSelectByTicket(ticket))
+         continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol)
+         continue;
+      const long magic = (long)PositionGetInteger(POSITION_MAGIC);
+      if(!IsAnyAlgoFamilyCompositeMagic(magic))
+         continue;
+      const ulong positionId = (ulong)PositionGetInteger(POSITION_IDENTIFIER);
+      const datetime openTime = (datetime)PositionGetInteger(POSITION_TIME);
+      if(PulseLogOpenPositionHasRolloverFee(positionId, openTime, magic))
+         count++;
+   }
+   return count;
+}
+
+//+------------------------------------------------------------------+
+void FalgoFlipperTryPulseLogOnEvenHour()
+{
+   if(!bigflipper_pulse_log || g_lastTimer1Time <= 0)
+      return;
+
+   MqlDateTime mt;
+   TimeToStruct(g_lastTimer1Time, mt);
+   if((mt.hour % 2) != 0)
+      return;
+   if(mt.min != 0)
+      return;
+
+   static datetime s_pulseLogLastFiredDayStart = 0;
+   static int s_pulseLogLastFiredHour = -1;
+   const datetime dayStart = g_lastTimer1Time - (g_lastTimer1Time % 86400);
+   if(s_pulseLogLastFiredDayStart == dayStart && s_pulseLogLastFiredHour == mt.hour)
+      return;
+   s_pulseLogLastFiredDayStart = dayStart;
+   s_pulseLogLastFiredHour = mt.hour;
+
+   const datetime recentRolloverWed = BrokerCustomQopexMostRecentPastRolloverWedDayStart(g_lastTimer1Time);
+   if(recentRolloverWed > 0)
+      BrokerCustomQopexTryEnsureRolloverPricediffCached(recentRolloverWed);
+
+   datetime m1Time = 0;
+   double m1O = 0.0, m1H = 0.0, m1L = 0.0, m1C = 0.0;
+   if(g_barsInDay > 0)
+   {
+      const int kBar = (g_barsInDay >= 2) ? g_barsInDay - 2 : g_barsInDay - 1;
+      m1Time = g_m1Rates[kBar].time;
+      m1O = g_m1Rates[kBar].open;
+      m1H = g_m1Rates[kBar].high;
+      m1L = g_m1Rates[kBar].low;
+      m1C = g_m1Rates[kBar].close;
+   }
+   else
+   {
+      m1Time = iTime(_Symbol, PERIOD_M1, 1);
+      m1O = iOpen(_Symbol, PERIOD_M1, 1);
+      m1H = iHigh(_Symbol, PERIOD_M1, 1);
+      m1L = iLow(_Symbol, PERIOD_M1, 1);
+      m1C = iClose(_Symbol, PERIOD_M1, 1);
+   }
+
+   const string onoStr = (g_ONopen > 0.0 ? DoubleToString(g_ONopen, _Digits) : "unknown");
+   const string lvlBelowStr = PulseLogFormatLevelBrief(PulseLogClosestNonPivotLevelBelowPriceAndONO(m1C));
+   string lastRollDateStr = "";
+   if(g_brokerCustomQopexLastRolloverWedDayStart > 0)
+      lastRollDateStr = TimeToString(g_brokerCustomQopexLastRolloverWedDayStart, TIME_DATE);
+   const int rollOpenCount = PulseLogCountOpenPositionsWithRolloverFee();
+
+   Print(StringFormat("[PULS] now=%s m1=%s O=%s H=%s L=%s C=%s ONO=%s lvlBelowPxONO=%s lastRollDate=%s lastRollFee=%s rollOpen=%d",
+      TimeToString(g_lastTimer1Time, TIME_DATE | TIME_MINUTES),
+      (m1Time > 0 ? TimeToString(m1Time, TIME_DATE | TIME_MINUTES) : "unknown"),
+      DoubleToString(m1O, _Digits), DoubleToString(m1H, _Digits), DoubleToString(m1L, _Digits), DoubleToString(m1C, _Digits),
+      onoStr, lvlBelowStr, lastRollDateStr, DoubleToString(g_brokerCustomQopexLastRolloverPricediff, _Digits), rollOpenCount));
 }
 
 //+------------------------------------------------------------------+
@@ -77872,6 +78099,7 @@ void OnTimer()
       BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_PREAMBLE, profT0);
 
    FalgoBreakdownTimePerSecondAndBabysit();
+   FalgoFlipperTryPulseLogOnEvenHour();
 
    if(profOn)
       profT0 = GetMicrosecondCount();

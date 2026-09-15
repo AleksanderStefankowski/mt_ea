@@ -32,7 +32,7 @@ from gmail_auth_common import get_gmail_service
 # ============================================================
 
 send_email_on_start = False
-send_email_on_time_hhmm = "22:02"  # once per calendar day when local clock hits HH:MM
+send_email_on_time_hhmm = "22:02"  # once per calendar day when local clock hits HH:MM (Mon–Fri only)
 
 POLL_SECONDS = 55
 RETRY_WINDOW_MINUTES = 10  # after scheduled HH:MM, keep retrying until success or window ends
@@ -307,6 +307,11 @@ def parse_hhmm(value: str) -> Tuple[int, int]:
     return hour, minute
 
 
+def is_weekend(day: date) -> bool:
+    """Saturday or Sunday (local date)."""
+    return day.weekday() >= 5
+
+
 def scheduled_time_today(now: datetime, hour: int, minute: int) -> datetime:
     return now.replace(hour=hour, minute=minute, second=0, microsecond=0)
 
@@ -333,6 +338,8 @@ def should_attempt_scheduled_send(
 ) -> bool:
     today = now.date()
     if last_sent_date == today:
+        return False
+    if is_weekend(today):
         return False
 
     at_scheduled_minute = now.hour == hour and now.minute == minute
@@ -365,6 +372,7 @@ def main() -> int:
     log(f"day_summary path: {summary_path}")
     log(f"send_email_on_start={send_email_on_start}")
     log(f"send_email_on_time_hhmm={send_email_on_time_hhmm}")
+    log("weekend skip: no email on Saturday or Sunday")
     log(f"retry window: {RETRY_WINDOW_MINUTES} min after scheduled time")
     log(f"poll every {POLL_SECONDS}s")
 
@@ -377,7 +385,10 @@ def main() -> int:
     retry_expired_logged_date: Optional[date] = None
 
     if send_email_on_start:
-        send_day_summary(service, summary_path, reason="startup")
+        if is_weekend(date.today()):
+            log("send_email_on_start skipped (weekend)")
+        else:
+            send_day_summary(service, summary_path, reason="startup")
 
     while True:
         try:
