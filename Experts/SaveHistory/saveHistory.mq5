@@ -33,8 +33,8 @@ const string ExportRangeEndStr   = "2026.10.28 00:00";
 #define FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MAX  9
 #define FALGO_MAGIC_INDEX_OFFSET               9
 #define FALGO_MAGIC_LENGTH_OFFSET              2
-#define FALGO_BREAKDOWN_ALLDAYS_COLS          45
-#define FALGO_SECRET_TP_ALGO_ALLDAYS_COLS     47
+#define FALGO_BREAKDOWN_ALLDAYS_COLS          46
+#define FALGO_SECRET_TP_ALGO_ALLDAYS_COLS     48
 
 string   InpCalendarFile = "calendar_2026_dots.csv";  // Terminal/Common/Files
 string   InpLevelsFile   = "levelsinfo_zeFinal.csv"; // Terminal/Common/Files
@@ -134,6 +134,7 @@ struct TradeResult
    double   priceEnd;
    double   priceDiff;
    double   profit;
+   double   apiSwap;   // sum of DEAL_SWAP on position deals
    long     type;
    long     reason;
    double   volume;
@@ -271,6 +272,18 @@ string PercentIncreaseStr(const double priceStart, const double priceDiff)
    if(priceStart <= 0.0)
       return "";
    return DoubleToString(100.0 * priceDiff / priceStart, 2);
+}
+
+// Offline stand-in for aleksik2 roll cols: treat non-zero broker apiSwap as rollover cost.
+string PercentIncreaseWithApiSwapStr(const double priceStart, const double priceDiff,
+   const double profit, const double apiSwap)
+{
+   if(priceStart <= 0.0)
+      return "";
+   double adjDiff = priceDiff;
+   if(MathAbs(apiSwap) > 1e-12 && MathAbs(profit) > 1e-12)
+      adjDiff = priceDiff * ((profit + apiSwap) / profit);
+   return DoubleToString(100.0 * adjDiff / priceStart, 2);
 }
 
 string VolumeStr(const double volume)
@@ -1219,11 +1232,12 @@ void ResolveTradeLevelForFamily(TradeResult &tradeResult)
 }
 
 bool FindOutDealByPositionId(const ulong positionId, datetime &outTime, double &outPrice, double &outProfit,
-   long &outReason, string &outComment)
+   double &outApiSwap, long &outReason, string &outComment)
 {
    outTime = 0;
    outPrice = 0.0;
    outProfit = 0.0;
+   outApiSwap = 0.0;
    outReason = 0;
    outComment = "";
    if(positionId == 0)
@@ -1231,11 +1245,13 @@ bool FindOutDealByPositionId(const ulong positionId, datetime &outTime, double &
    if(!HistorySelectByPosition(positionId))
       return false;
    const int total = HistoryDealsTotal();
+   bool foundOut = false;
    for(int i = 0; i < total; i++)
    {
       const ulong ticket = HistoryDealGetTicket(i);
       if(ticket == 0)
          continue;
+      outApiSwap += HistoryDealGetDouble(ticket, DEAL_SWAP);
       if((int)HistoryDealGetInteger(ticket, DEAL_ENTRY) != (int)DEAL_ENTRY_OUT)
          continue;
       outTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
@@ -1243,9 +1259,9 @@ bool FindOutDealByPositionId(const ulong positionId, datetime &outTime, double &
       outProfit = HistoryDealGetDouble(ticket, DEAL_PROFIT);
       outReason = HistoryDealGetInteger(ticket, DEAL_REASON);
       outComment = HistoryDealGetString(ticket, DEAL_COMMENT);
-      return true;
+      foundOut = true;
    }
-   return false;
+   return foundOut;
 }
 
 void MergeSortDealOrder()
@@ -1360,13 +1376,14 @@ void UpdateTradeResultsForDay(const datetime dayStart)
       tradeResult.priceEnd   = 0;
       tradeResult.priceDiff  = 0;
       tradeResult.profit     = 0;
+      tradeResult.apiSwap    = 0;
       tradeResult.reason     = 0;
 
       datetime outTime = 0;
-      double outPrice = 0.0, outProfit = 0.0;
+      double outPrice = 0.0, outProfit = 0.0, outApiSwap = 0.0;
       long outReason = 0;
       string outComment = "";
-      if(FindOutDealByPositionId(g_dealPositionId[inIdx], outTime, outPrice, outProfit, outReason, outComment))
+      if(FindOutDealByPositionId(g_dealPositionId[inIdx], outTime, outPrice, outProfit, outApiSwap, outReason, outComment))
       {
          // Only export closed trades whose close is still inside the export window.
          if(g_exportRangeEnd > 0 && outTime >= g_exportRangeEnd + 86400)
@@ -1379,6 +1396,7 @@ void UpdateTradeResultsForDay(const datetime dayStart)
          else
             tradeResult.priceDiff = tradeResult.priceStart - tradeResult.priceEnd;
          tradeResult.profit = outProfit;
+         tradeResult.apiSwap = outApiSwap;
          tradeResult.reason = outReason;
          tradeResult.bothComments = BuildBothComments(g_dealComment[inIdx], outComment, true);
       }
@@ -1395,13 +1413,13 @@ void UpdateTradeResultsForDay(const datetime dayStart)
 
 string BreakdownAllDaysHeader()
 {
-   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,percentIncrease_w_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
+   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,apiSwap,profit_custom_with_roll,percentIncrease_w_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
       + "mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,secret_tp_range_percent,closetrade_after_x_minutes_from_breakdown";
 }
 
 string TimeLevelAllDaysHeader()
 {
-   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,percentIncrease_w_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
+   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,apiSwap,profit_custom_with_roll,percentIncrease_w_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
       + "mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,entry_hour,entry_minute,secret_tp_profit_percent_min,secret_tp_greenguard_pricediff_at_least";
 }
 
@@ -1463,35 +1481,37 @@ void AppendSharedAllDaysCells(string &cells[], const int base, const string &dat
    cells[base + 11] = DoubleToString(tr.priceEnd, _Digits);
    cells[base + 12] = DoubleToString(tr.priceDiff, _Digits);
    cells[base + 13] = DoubleToString(tr.profit, 2);
-   cells[base + 14] = DoubleToString(tr.profit, 2); // profit_custom_with_roll: roll not recoverable from deals alone
-   cells[base + 15] = PercentIncreaseStr(tr.priceStart, tr.priceDiff);
-   cells[base + 16] = SanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
-   cells[base + 17] = SanitizeCsvCell(tr.level);
-   cells[base + 18] = DoubleToString(mfePts, 1);
-   cells[base + 19] = DoubleToString(maePts, 1);
-   cells[base + 20] = DoubleToString(mfePts, 1);
-   cells[base + 21] = DoubleToString(maePts, 1);
-   cells[base + 22] = "false";
-   cells[base + 23] = (mfeCandle > 0 ? IntegerToString(mfeCandle) : "");
-   cells[base + 24] = (maeCandle > 0 ? IntegerToString(maeCandle) : "");
-   cells[base + 25] = "";
+   cells[base + 14] = DoubleToString(tr.apiSwap, 2);
+   const bool hasRollover = (MathAbs(tr.apiSwap) > 1e-12);
+   cells[base + 15] = DoubleToString(tr.profit + tr.apiSwap, 2); // profit_custom_with_roll ≈ profit + apiSwap
+   cells[base + 16] = PercentIncreaseWithApiSwapStr(tr.priceStart, tr.priceDiff, tr.profit, tr.apiSwap);
+   cells[base + 17] = SanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
+   cells[base + 18] = SanitizeCsvCell(tr.level);
+   cells[base + 19] = DoubleToString(mfePts, 1);
+   cells[base + 20] = DoubleToString(maePts, 1);
+   cells[base + 21] = DoubleToString(mfePts, 1);
+   cells[base + 22] = DoubleToString(maePts, 1);
+   cells[base + 23] = (hasRollover ? "true" : "false");
+   cells[base + 24] = (mfeCandle > 0 ? IntegerToString(mfeCandle) : "");
+   cells[base + 25] = (maeCandle > 0 ? IntegerToString(maeCandle) : "");
    cells[base + 26] = "";
-   cells[base + 27] = SanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
-   cells[base + 28] = VolumeStr(tr.volume);
-   cells[base + 29] = SanitizeCsvCell(tr.bothComments);
-   cells[base + 30] = "0";
+   cells[base + 27] = "";
+   cells[base + 28] = SanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 29] = VolumeStr(tr.volume);
+   cells[base + 30] = SanitizeCsvCell(tr.bothComments);
    cells[base + 31] = "0";
-   cells[base + 32] = OffsetStrForTrade(tr);
-   cells[base + 33] = SanitizeCsvCell(tr.tp);
-   cells[base + 34] = SanitizeCsvCell(tr.sl);
-   cells[base + 35] = SanitizeCsvCell(breakevenCStr);
-   cells[base + 36] = SanitizeCsvCell(gapFillPcStr);
-   cells[base + 37] = SanitizeCsvCell(isGapDownDayStr);
-   cells[base + 38] = SanitizeCsvCell(pdTrendStr);
-   cells[base + 39] = SanitizeCsvCell(dayBrokePDHStr);
-   cells[base + 40] = SanitizeCsvCell(dayBrokePDLStr);
-   cells[base + 41] = SanitizeCsvCell(refAbove);
-   cells[base + 42] = SanitizeCsvCell(refBelow);
+   cells[base + 32] = "0";
+   cells[base + 33] = OffsetStrForTrade(tr);
+   cells[base + 34] = SanitizeCsvCell(tr.tp);
+   cells[base + 35] = SanitizeCsvCell(tr.sl);
+   cells[base + 36] = SanitizeCsvCell(breakevenCStr);
+   cells[base + 37] = SanitizeCsvCell(gapFillPcStr);
+   cells[base + 38] = SanitizeCsvCell(isGapDownDayStr);
+   cells[base + 39] = SanitizeCsvCell(pdTrendStr);
+   cells[base + 40] = SanitizeCsvCell(dayBrokePDHStr);
+   cells[base + 41] = SanitizeCsvCell(dayBrokePDLStr);
+   cells[base + 42] = SanitizeCsvCell(refAbove);
+   cells[base + 43] = SanitizeCsvCell(refBelow);
 }
 
 void WriteAllDaysRowFromCells(const int fh, const string &cells[], const int colCount)
@@ -1531,8 +1551,8 @@ void WriteOneFamilyTradeRow(const int fhBd, const int fhTime, const int fhLevel,
       ArrayResize(cells, FALGO_BREAKDOWN_ALLDAYS_COLS);
       AppendSharedAllDaysCells(cells, 0, dateStr, tradeResult, mfePts, maePts, mfeCandle, maeCandle,
          breakevenCStr, gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow);
-      cells[43] = "0"; // secret_tp_range_percent unknown offline
-      cells[44] = "0"; // closetrade_after_x_minutes_from_breakdown unknown offline
+      cells[44] = "0"; // secret_tp_range_percent unknown offline
+      cells[45] = "0"; // closetrade_after_x_minutes_from_breakdown unknown offline
       WriteAllDaysRowFromCells(fhBd, cells, FALGO_BREAKDOWN_ALLDAYS_COLS);
       return;
    }
@@ -1542,10 +1562,10 @@ void WriteOneFamilyTradeRow(const int fhBd, const int fhTime, const int fhLevel,
       ArrayResize(cells, FALGO_SECRET_TP_ALGO_ALLDAYS_COLS);
       AppendSharedAllDaysCells(cells, 0, dateStr, tradeResult, mfePts, maePts, mfeCandle, maeCandle,
          breakevenCStr, gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow);
-      cells[43] = "0"; // entry_hour unknown offline
-      cells[44] = "0"; // entry_minute unknown offline
-      cells[45] = "0.00"; // secret_tp_profit_percent_min unknown offline
-      cells[46] = DoubleToString(OffsetTenthsFromMagic(tradeResult.magic), _Digits); // greenguard tenths encoded in magic
+      cells[44] = "0"; // entry_hour unknown offline
+      cells[45] = "0"; // entry_minute unknown offline
+      cells[46] = "0.00"; // secret_tp_profit_percent_min unknown offline
+      cells[47] = DoubleToString(OffsetTenthsFromMagic(tradeResult.magic), _Digits); // greenguard tenths encoded in magic
       const int fh = IsTimeFamilyCompositeMagic(tradeResult.magic) ? fhTime : fhLevel;
       WriteAllDaysRowFromCells(fh, cells, FALGO_SECRET_TP_ALGO_ALLDAYS_COLS);
    }
