@@ -1179,7 +1179,7 @@ bool     backtest_profile_enabled                          = true;   // strategy
 // false: backtest — incremental closed bars only; full replay on new day / track change / bar shrink.
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
 
-bool     bigflipper_pullinghistory_always_full_replay      = false; // REALBOOKMARK LIVEBOOKMARK
+bool     bigflipper_pullinghistory_always_full_replay      = true; // REALBOOKMARK LIVEBOOKMARK
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
 int      babysit_telemetry_interval_seconds                = 60; // REALBOOKMARK2 LIVEBOOKMARK2 // MFE/MAE open-position scan + babysit; OnTimer stays 1s
 
