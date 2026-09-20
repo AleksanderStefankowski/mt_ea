@@ -1179,7 +1179,7 @@ bool     backtest_profile_enabled                          = true;   // strategy
 // false: backtest — incremental closed bars only; full replay on new day / track change / bar shrink.
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
 
-bool     bigflipper_pullinghistory_always_full_replay      = true; // REALBOOKMARK LIVEBOOKMARK
+bool     bigflipper_pullinghistory_always_full_replay      = false; // REALBOOKMARK LIVEBOOKMARK
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
 int      babysit_telemetry_interval_seconds                = 60; // REALBOOKMARK2 LIVEBOOKMARK2 // MFE/MAE open-position scan + babysit; OnTimer stays 1s
 
@@ -19018,6 +19018,11 @@ double FalgoBreakdownBrokerTpWithPlus200Override(const double entryPrice, const 
    const Breakdown15mState &bdSnap, const BreakdownAlgoDef &bd);
 bool FalgoPositionCloseWithManualComment(const long posMagic, const ulong posTicket, const string closeComment,
    double &outProfitPts, double &outAccountProfit);
+bool FalgoSecretTpGreenGuardApiSwapVsProfitAllowsClose();
+bool FalgoSecretTpGreenGuardPriceDiffAllowsClose(const double greenguardPricediffAtLeast,
+   const double entryPrice, const double bidPrice, const double rolloverPricediff = 0.0);
+bool FalgoSecretTpReachedWithRollover(const double secretTpPrice, const double bidPrice,
+   const double rolloverPricediff);
 
 #include "aleksik2_level_fam.mqh"
 
@@ -19623,6 +19628,18 @@ double BreakdownEntryPriceForAlgo(const BreakdownAlgoDef &bd, const Breakdown15m
 }
 
 //+------------------------------------------------------------------+
+//| Separate from pricediff greenguard: require POSITION_PROFIT >     |
+//| abs(POSITION_SWAP) before secret-TP close. Swap often 0 → profit>0.|
+//| Selected position must already be ExtPositionInfo.               |
+//+------------------------------------------------------------------+
+bool FalgoSecretTpGreenGuardApiSwapVsProfitAllowsClose()
+{
+   const double profit = ExtPositionInfo.Profit();
+   const double swapAbs = MathAbs(ExtPositionInfo.Swap());
+   return (profit > swapAbs);
+}
+
+//+------------------------------------------------------------------+
 bool FalgoSecretTpGreenGuardPriceDiffAllowsClose(const double greenguardPricediffAtLeast,
    const double entryPrice, const double bidPrice, const double rolloverPricediff = 0.0)
 {
@@ -19868,12 +19885,15 @@ bool Babysitf_falgo_runBreakdownSecretTpExit(const long posMagic, const double r
 
    if(!BreakdownSecretTpGreenGuardAllowsClose(bd, fillPrice, bid, rolloverForGuard))
       return false;
+   if(!FalgoSecretTpGreenGuardApiSwapVsProfitAllowsClose())
+      return false;
 
    const double rollCost = MathMax(0.0, rolloverForGuard);
-   const string closeDetail = StringFormat("bid=%s|bidWithRoll=%s|secretTp=%s|fill=%s|roll=%s|greenguard=%s",
+   const string closeDetail = StringFormat("bid=%s|bidWithRoll=%s|secretTp=%s|fill=%s|roll=%s|greenguard=%s|profit=%s|swap=%s",
       DoubleToString(bid, _Digits), DoubleToString(bid - rollCost, _Digits), DoubleToString(secretTpPrice, _Digits),
       DoubleToString(fillPrice, _Digits), DoubleToString(rolloverForGuard, _Digits),
-      DoubleToString(bd.secret_tp_greenguard_pricediff_at_least, _Digits));
+      DoubleToString(bd.secret_tp_greenguard_pricediff_at_least, _Digits),
+      DoubleToString(ExtPositionInfo.Profit(), 2), DoubleToString(ExtPositionInfo.Swap(), 2));
    BreakdownRememberCloseDecision(positionId, "breakdown_secretTPSL_tp", closeDetail);
    BreakdownRememberPendingCloseReason(positionId, "secretTP");
    FalgoFlipperPrintfManualCloseDecision("breakdown", "secretTP", posMagic, posTicket, positionId, closeDetail);
@@ -20051,11 +20071,14 @@ bool Babysitf_falgo_runTimeAlgoSecretTpExit(const long posMagic, const double ro
       return false;
    if(!FalgoSecretTpGreenGuardPriceDiffAllowsClose(greenguard, entryPrice, bid, rolloverForGuard))
       return false;
+   if(!FalgoSecretTpGreenGuardApiSwapVsProfitAllowsClose())
+      return false;
 
-   const string closeDetail = StringFormat("bid=%s|bidWithRoll=%s|secretTp=%s|fill=%s|roll=%s|greenguard=%s",
+   const string closeDetail = StringFormat("bid=%s|bidWithRoll=%s|secretTp=%s|fill=%s|roll=%s|greenguard=%s|profit=%s|swap=%s",
       DoubleToString(bid, _Digits), DoubleToString(bid - rollCost, _Digits), DoubleToString(secretTpPrice, _Digits),
       DoubleToString(entryPrice, _Digits), DoubleToString(rolloverForGuard, _Digits),
-      DoubleToString(greenguard, _Digits));
+      DoubleToString(greenguard, _Digits),
+      DoubleToString(ExtPositionInfo.Profit(), 2), DoubleToString(ExtPositionInfo.Swap(), 2));
    TimeAlgoRememberCloseDecision(positionId, "time_algo_secretTPSL_tp", closeDetail);
    TimeAlgoRememberPendingCloseReason(positionId, "secretTP");
    FalgoFlipperPrintfManualCloseDecision("time", "secretTP", posMagic, posTicket, positionId, closeDetail);

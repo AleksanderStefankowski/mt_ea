@@ -1,24 +1,47 @@
 //+------------------------------------------------------------------+
 //|                                                  saveHistory.mq5 |
 //| One-shot export: account deal history + M1/levels-based metrics |
+//| Writes 3 family files matching aleksik2 all_days schemas:        |
+//|   summary_tradeResults_all_days_{breakdown,time,level}.tsv       |
+//| Plus snapshot of currently open family positions:                |
+//|   summary_all_open_positions.tsv                                 |
+//| Families by leading digit of 8-digit algo id in composite magic: |
+//|   1=time, 3=level, 2/4..9=breakdown. No legacy magics.           |
 //+------------------------------------------------------------------+
 #property copyright ""
 #property link      ""
 #property version   "1.00"
 
 //--- Export window (server time; edit before attaching EA). Plain constants here (not EA parameters dialog).
-const string ExportRangeStartStr = "2026.05.03 00:00";
-const string ExportRangeEndStr   = "2026.09.28 00:00";
+const string ExportRangeStartStr = "2026.08.25 00:00";
+const string ExportRangeEndStr   = "2026.10.28 00:00";
 
-//--- Output: 49 columns (date + 48), same schema as legacy summary_tradeResults_all_days
-#define OUT_CSV_NAME "summary_tradeResults_all_days.csv"
+//--- Output: same schemas as aleksik2 Falgo*AllDaysTradeResultsHeader (comma-separated; .tsv name)
+#define OUT_TSV_BREAKDOWN "summary_tradeResults_all_days_breakdown.tsv"
+#define OUT_TSV_TIME      "summary_tradeResults_all_days_time.tsv"
+#define OUT_TSV_LEVEL     "summary_tradeResults_all_days_level.tsv"
+#define OUT_TSV_OPEN      "summary_all_open_positions.tsv"
+
+#define COMPOSITE_MAGIC_STRING_LEN            18
+#define FALGO_MAGIC_LENGTH_ALGO                8
+#define MAGIC_ALGO_ID_MIN               10000000
+#define MAGIC_ALGO_ID_MAX               99999999
+#define FALGO_ALGO_FAMILY_LEADING_DIGIT_SCALE  10000000
+#define FALGO_ALGO_FAMILY_TIME_DIGIT           1
+#define FALGO_ALGO_FAMILY_LEVEL_DIGIT          3
+#define FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MIN  2
+#define FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MAX  9
+#define FALGO_MAGIC_INDEX_OFFSET               9
+#define FALGO_MAGIC_LENGTH_OFFSET              2
+#define FALGO_BREAKDOWN_ALLDAYS_COLS          45
+#define FALGO_SECRET_TP_ALGO_ALLDAYS_COLS     47
 
 string   InpCalendarFile = "calendar_2026_dots.csv";  // Terminal/Common/Files
 string   InpLevelsFile   = "levelsinfo_zeFinal.csv"; // Terminal/Common/Files
 
 const double tertiaryLevel_tooTight_toAdd_proximity = 2.0;
 
-#define MAX_CALENDAR_ROWS   400
+#define MAX_CALENDAR_ROWS   24000
 #define MAX_LEVEL_ROWS      2000
 #define MAX_LEVELS_EXPANDED 500
 #define MAX_BARS_IN_DAY     1500
@@ -126,6 +149,7 @@ int g_tradeResultsCount = 0;
 
 datetime g_dealTime[MAX_DEALS_DAY];
 long     g_dealMagic[MAX_DEALS_DAY];
+ulong    g_dealPositionId[MAX_DEALS_DAY];
 int      g_dealEntry[MAX_DEALS_DAY];
 double   g_dealPrice[MAX_DEALS_DAY];
 double   g_dealProfit[MAX_DEALS_DAY];
@@ -139,6 +163,120 @@ int g_dealOrder[MAX_DEALS_DAY];
 int g_dealOrderTmp[MAX_DEALS_DAY];
 int g_inIdx[MAX_IN_OUT_PER_MAGIC];
 int g_outIdx[MAX_IN_OUT_PER_MAGIC];
+datetime g_exportRangeEnd = 0;
+
+//+------------------------------------------------------------------+
+long FalgoCompositeMagicTailScale()
+{
+   long scale = 1;
+   for(int i = FALGO_MAGIC_LENGTH_ALGO; i < COMPOSITE_MAGIC_STRING_LEN; i++)
+      scale *= 10;
+   return scale;
+}
+
+bool FalgoIsCompositeMagicLong(const long magic)
+{
+   return (magic >= (long)MAGIC_ALGO_ID_MIN * FalgoCompositeMagicTailScale());
+}
+
+int AlgoFamilyMagicNumber(const long magic)
+{
+   if(!FalgoIsCompositeMagicLong(magic))
+      return -1;
+   return (int)(magic / FalgoCompositeMagicTailScale());
+}
+
+int FalgoAlgoFamilyLeadingDigit(const int algoNumber)
+{
+   if(algoNumber < MAGIC_ALGO_ID_MIN || algoNumber > MAGIC_ALGO_ID_MAX)
+      return -1;
+   return algoNumber / FALGO_ALGO_FAMILY_LEADING_DIGIT_SCALE;
+}
+
+bool IsTimeFamilyAlgoNumber(const int algoNumber)
+{
+   return (FalgoAlgoFamilyLeadingDigit(algoNumber) == FALGO_ALGO_FAMILY_TIME_DIGIT);
+}
+
+bool IsLevelFamilyAlgoNumber(const int algoNumber)
+{
+   return (FalgoAlgoFamilyLeadingDigit(algoNumber) == FALGO_ALGO_FAMILY_LEVEL_DIGIT);
+}
+
+bool IsBreakdownFamilyAlgoNumber(const int algoNumber)
+{
+   const int digit = FalgoAlgoFamilyLeadingDigit(algoNumber);
+   if(digit == FALGO_ALGO_FAMILY_LEVEL_DIGIT)
+      return false;
+   return (digit >= FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MIN && digit <= FALGO_ALGO_FAMILY_BREAKDOWN_DIGIT_MAX);
+}
+
+bool IsTimeFamilyCompositeMagic(const long magic)
+{
+   return IsTimeFamilyAlgoNumber(AlgoFamilyMagicNumber(magic));
+}
+
+bool IsLevelFamilyCompositeMagic(const long magic)
+{
+   return IsLevelFamilyAlgoNumber(AlgoFamilyMagicNumber(magic));
+}
+
+bool IsBreakdownFamilyCompositeMagic(const long magic)
+{
+   return IsBreakdownFamilyAlgoNumber(AlgoFamilyMagicNumber(magic));
+}
+
+bool IsAnyAlgoFamilyCompositeMagic(const long magic)
+{
+   const int algoNumber = AlgoFamilyMagicNumber(magic);
+   return IsBreakdownFamilyAlgoNumber(algoNumber) || IsTimeFamilyAlgoNumber(algoNumber) || IsLevelFamilyAlgoNumber(algoNumber);
+}
+
+string MagicNumberToFixedWidthString(const long magic)
+{
+   if(!FalgoIsCompositeMagicLong(magic))
+      return IntegerToString(magic);
+   const long scale = FalgoCompositeMagicTailScale();
+   const int algoNumber = (int)(magic / scale);
+   const long tail = magic % scale;
+   return StringFormat("%08d%010d", algoNumber, tail);
+}
+
+double OffsetTenthsFromMagic(const long magic)
+{
+   if(!IsAnyAlgoFamilyCompositeMagic(magic))
+      return 0.0;
+   const string s = MagicNumberToFixedWidthString(magic);
+   return (double)StringToInteger(StringSubstr(s, FALGO_MAGIC_INDEX_OFFSET, FALGO_MAGIC_LENGTH_OFFSET)) / 10.0;
+}
+
+string SanitizeCsvCell(const string raw)
+{
+   string s = raw;
+   StringReplace(s, ",", ";");
+   StringReplace(s, "\r", " ");
+   StringReplace(s, "\n", " ");
+   return s;
+}
+
+string TradeDurationHoursStr(const datetime startTime, const datetime endTime)
+{
+   if(startTime <= 0 || endTime <= 0 || endTime < startTime)
+      return "";
+   return DoubleToString((double)(endTime - startTime) / 3600.0, 3);
+}
+
+string PercentIncreaseStr(const double priceStart, const double priceDiff)
+{
+   if(priceStart <= 0.0)
+      return "";
+   return DoubleToString(100.0 * priceDiff / priceStart, 2);
+}
+
+string VolumeStr(const double volume)
+{
+   return DoubleToString(volume, 3);
+}
 
 //+------------------------------------------------------------------+
 bool LoadCalendar()
@@ -167,6 +305,9 @@ bool LoadCalendar()
    FileClose(fh);
    if(g_calendarCount <= 0)
       FatalError("Calendar file is empty: " + InpCalendarFile);
+   Print("saveHistory: calendar loaded rows=", IntegerToString(g_calendarCount),
+         " first=", g_calendar[0].dateStr,
+         " last=", g_calendar[g_calendarCount - 1].dateStr);
    return true;
 }
 
@@ -247,11 +388,17 @@ void UpdateStaticMarketContext(const datetime referenceDayStart)
    g_staticMarketContext.PDdate                  = "";
    string prevDayStr = GetPreviousTradingDayDateString(referenceDayStart);
    if(StringLen(prevDayStr) == 0)
+   {
       FatalError("UpdateStaticMarketContext: no previous trading day for " + TimeToString(referenceDayStart, TIME_DATE));
+      return;
+   }
    g_staticMarketContext.PDdate = prevDayStr;
    string parts[];
    if(StringSplit(prevDayStr, '.', parts) != 3)
+   {
       FatalError("UpdateStaticMarketContext: invalid prev day format " + prevDayStr);
+      return;
+   }
    MqlDateTime mtPrev = {0};
    mtPrev.year = (int)StringToInteger(parts[0]);
    mtPrev.mon  = (int)StringToInteger(parts[1]);
@@ -280,7 +427,10 @@ void UpdateStaticMarketContext(const datetime referenceDayStart)
    int shiftDayStart = iBarShift(_Symbol, PERIOD_M30, prevDayStart, false);
    int shiftDayEnd   = iBarShift(_Symbol, PERIOD_M30, prevDayEnd - 1, false);
    if(shiftDayStart < 0 || shiftDayEnd < 0)
+   {
       FatalError("UpdateStaticMarketContext: no M30 bars for previous day " + prevDayStr);
+      return;
+   }
    double pdh = -1e300, pdl = 1e300;
    for(int shiftIdx = shiftDayEnd; shiftIdx <= shiftDayStart; shiftIdx++)
    {
@@ -290,7 +440,10 @@ void UpdateStaticMarketContext(const datetime referenceDayStart)
       if(low < pdl) pdl = low;
    }
    if(pdh <= -1e300 || pdl >= 1e300 || pdh == 0.0 || pdl == 0.0)
+   {
       FatalError("UpdateStaticMarketContext: invalid PDH/PDL for " + prevDayStr);
+      return;
+   }
    g_staticMarketContext.PDHpreviousDayHigh = pdh;
    g_staticMarketContext.PDLpreviousDayLow  = pdl;
 }
@@ -1055,6 +1208,46 @@ void Loghelper_FillLevelTpSlFromBothComments(const string &bothComments, string 
    }
 }
 
+// Fill strategy level for family trades when comment is not '$' format (current open comments: timefam/lvlfam/bdfam).
+void ResolveTradeLevelForFamily(TradeResult &tradeResult)
+{
+   if(StringLen(tradeResult.level) > 0)
+      return;
+   // Time / breakdown market fills: planned ≈ fill. Level family: fill may be offset from level — still best available from history alone.
+   if(tradeResult.priceStart > 0.0)
+      tradeResult.level = DoubleToString(tradeResult.priceStart, _Digits);
+}
+
+bool FindOutDealByPositionId(const ulong positionId, datetime &outTime, double &outPrice, double &outProfit,
+   long &outReason, string &outComment)
+{
+   outTime = 0;
+   outPrice = 0.0;
+   outProfit = 0.0;
+   outReason = 0;
+   outComment = "";
+   if(positionId == 0)
+      return false;
+   if(!HistorySelectByPosition(positionId))
+      return false;
+   const int total = HistoryDealsTotal();
+   for(int i = 0; i < total; i++)
+   {
+      const ulong ticket = HistoryDealGetTicket(i);
+      if(ticket == 0)
+         continue;
+      if((int)HistoryDealGetInteger(ticket, DEAL_ENTRY) != (int)DEAL_ENTRY_OUT)
+         continue;
+      outTime = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
+      outPrice = HistoryDealGetDouble(ticket, DEAL_PRICE);
+      outProfit = HistoryDealGetDouble(ticket, DEAL_PROFIT);
+      outReason = HistoryDealGetInteger(ticket, DEAL_REASON);
+      outComment = HistoryDealGetString(ticket, DEAL_COMMENT);
+      return true;
+   }
+   return false;
+}
+
 void MergeSortDealOrder()
 {
    int n = g_dealCount;
@@ -1132,138 +1325,192 @@ void UpdateTradeResultsForDay(const datetime dayStart)
       if(sym != _Symbol) continue;
       datetime t = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
       if(t < dayStart || t >= dayEnd) continue;
+      const long magic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
+      if(!IsAnyAlgoFamilyCompositeMagic(magic))
+         continue;
+      if((int)HistoryDealGetInteger(ticket, DEAL_ENTRY) != (int)DEAL_ENTRY_IN)
+         continue;
       int idx = g_dealCount++;
-      g_dealTime[idx]    = t;
-      g_dealMagic[idx]   = HistoryDealGetInteger(ticket, DEAL_MAGIC);
-      g_dealEntry[idx]   = (int)HistoryDealGetInteger(ticket, DEAL_ENTRY);
-      g_dealPrice[idx]   = HistoryDealGetDouble(ticket, DEAL_PRICE);
-      g_dealProfit[idx]  = HistoryDealGetDouble(ticket, DEAL_PROFIT);
-      g_dealType[idx]    = HistoryDealGetInteger(ticket, DEAL_TYPE);
-      g_dealReason[idx]  = HistoryDealGetInteger(ticket, DEAL_REASON);
-      g_dealVolume[idx]  = HistoryDealGetDouble(ticket, DEAL_VOLUME);
-      g_dealSymbol[idx]  = sym;
-      g_dealComment[idx] = HistoryDealGetString(ticket, DEAL_COMMENT);
+      g_dealTime[idx]       = t;
+      g_dealMagic[idx]      = magic;
+      g_dealPositionId[idx] = (ulong)HistoryDealGetInteger(ticket, DEAL_POSITION_ID);
+      g_dealEntry[idx]      = (int)DEAL_ENTRY_IN;
+      g_dealPrice[idx]      = HistoryDealGetDouble(ticket, DEAL_PRICE);
+      g_dealProfit[idx]     = HistoryDealGetDouble(ticket, DEAL_PROFIT);
+      g_dealType[idx]       = HistoryDealGetInteger(ticket, DEAL_TYPE);
+      g_dealReason[idx]     = HistoryDealGetInteger(ticket, DEAL_REASON);
+      g_dealVolume[idx]     = HistoryDealGetDouble(ticket, DEAL_VOLUME);
+      g_dealSymbol[idx]     = sym;
+      g_dealComment[idx]    = HistoryDealGetString(ticket, DEAL_COMMENT);
    }
    MergeSortDealOrder();
-   int dealIdx = 0;
-   while(dealIdx < g_dealCount && g_tradeResultsCount < MAX_TRADE_RESULTS)
+   for(int oi = 0; oi < g_dealCount && g_tradeResultsCount < MAX_TRADE_RESULTS; oi++)
    {
-      long mag = g_dealMagic[g_dealOrder[dealIdx]];
-      int inCount = 0, outCount = 0;
-      while(dealIdx < g_dealCount && g_dealMagic[g_dealOrder[dealIdx]] == mag)
+      const int inIdx = g_dealOrder[oi];
+      TradeResult tradeResult;
+      tradeResult.symbol     = g_dealSymbol[inIdx];
+      tradeResult.startTime  = g_dealTime[inIdx];
+      tradeResult.magic      = g_dealMagic[inIdx];
+      tradeResult.priceStart = g_dealPrice[inIdx];
+      tradeResult.type       = g_dealType[inIdx];
+      tradeResult.volume     = g_dealVolume[inIdx];
+      tradeResult.session    = GetSessionForCandleTime(tradeResult.startTime);
+      tradeResult.foundOut   = false;
+      tradeResult.endTime    = 0;
+      tradeResult.priceEnd   = 0;
+      tradeResult.priceDiff  = 0;
+      tradeResult.profit     = 0;
+      tradeResult.reason     = 0;
+
+      datetime outTime = 0;
+      double outPrice = 0.0, outProfit = 0.0;
+      long outReason = 0;
+      string outComment = "";
+      if(FindOutDealByPositionId(g_dealPositionId[inIdx], outTime, outPrice, outProfit, outReason, outComment))
       {
-         int idx = g_dealOrder[dealIdx];
-         if(g_dealEntry[idx] == (int)DEAL_ENTRY_IN)
-         {
-            if(inCount < MAX_IN_OUT_PER_MAGIC) g_inIdx[inCount++] = idx;
-         }
-         else if(g_dealEntry[idx] == (int)DEAL_ENTRY_OUT)
-         {
-            if(outCount < MAX_IN_OUT_PER_MAGIC) g_outIdx[outCount++] = idx;
-         }
-         dealIdx++;
-      }
-      for(int pairIdx = 0; pairIdx < inCount && g_tradeResultsCount < MAX_TRADE_RESULTS; pairIdx++)
-      {
-         TradeResult tradeResult;
-         tradeResult.symbol     = g_dealSymbol[g_inIdx[pairIdx]];
-         tradeResult.startTime  = g_dealTime[g_inIdx[pairIdx]];
-         tradeResult.magic      = g_dealMagic[g_inIdx[pairIdx]];
-         tradeResult.priceStart = g_dealPrice[g_inIdx[pairIdx]];
-         tradeResult.type       = g_dealType[g_inIdx[pairIdx]];
-         tradeResult.volume     = g_dealVolume[g_inIdx[pairIdx]];
-         tradeResult.foundOut   = (pairIdx < outCount);
-         tradeResult.session    = GetSessionForCandleTime(tradeResult.startTime);
-         if(tradeResult.foundOut)
-         {
-            int outIdx = g_outIdx[pairIdx];
-            tradeResult.endTime   = g_dealTime[outIdx];
-            tradeResult.priceEnd  = g_dealPrice[outIdx];
-            if(tradeResult.type == (long)DEAL_TYPE_BUY)
-               tradeResult.priceDiff = tradeResult.priceEnd - tradeResult.priceStart;
-            else
-               tradeResult.priceDiff = tradeResult.priceStart - tradeResult.priceEnd;
-            tradeResult.profit = g_dealProfit[outIdx];
-            tradeResult.reason = g_dealReason[outIdx];
-            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[pairIdx]], g_dealComment[outIdx], true);
-            tradeResult.bothComments = commentsStr;
-            Loghelper_FillLevelTpSlFromBothComments(commentsStr, tradeResult.level, tradeResult.tp, tradeResult.sl);
-         }
+         // Only export closed trades whose close is still inside the export window.
+         if(g_exportRangeEnd > 0 && outTime >= g_exportRangeEnd + 86400)
+            continue;
+         tradeResult.foundOut  = true;
+         tradeResult.endTime   = outTime;
+         tradeResult.priceEnd  = outPrice;
+         if(tradeResult.type == (long)DEAL_TYPE_BUY)
+            tradeResult.priceDiff = tradeResult.priceEnd - tradeResult.priceStart;
          else
-         {
-            tradeResult.endTime   = 0;
-            tradeResult.priceEnd  = 0;
-            tradeResult.priceDiff = 0;
-            tradeResult.profit    = 0;
-            tradeResult.reason    = 0;
-            string commentsStr = BuildBothComments(g_dealComment[g_inIdx[pairIdx]], "", false);
-            tradeResult.bothComments = commentsStr;
-            Loghelper_FillLevelTpSlFromBothComments(commentsStr, tradeResult.level, tradeResult.tp, tradeResult.sl);
-         }
-         g_tradeResults[g_tradeResultsCount++] = tradeResult;
+            tradeResult.priceDiff = tradeResult.priceStart - tradeResult.priceEnd;
+         tradeResult.profit = outProfit;
+         tradeResult.reason = outReason;
+         tradeResult.bothComments = BuildBothComments(g_dealComment[inIdx], outComment, true);
       }
+      else
+      {
+         // Still open — skip (all_days files are close-append only).
+         continue;
+      }
+      Loghelper_FillLevelTpSlFromBothComments(tradeResult.bothComments, tradeResult.level, tradeResult.tp, tradeResult.sl);
+      ResolveTradeLevelForFamily(tradeResult);
+      g_tradeResults[g_tradeResultsCount++] = tradeResult;
    }
 }
 
-void WriteTradeResultsHeader(const int fh)
+string BreakdownAllDaysHeader()
 {
-   FileWrite(fh,
-      "date", "symbol", "startTime", "endTime", "session", "magic", "priceBreakLevel_c1c2",
-      "priceStart", "priceEnd", "priceDiff", "profit", "type", "reason", "volume", "bothComments",
-      "level", "tp", "sl", "MFE", "MAE", "mfeCandle", "maeCandle", "MFEp", "MAEp",
-      "MFE_c6", "MAE_c6", "MFE_c11", "MAE_c11", "MFE_c16", "MAE_c16",
-      "SL4_c", "TP6c", "SL6c", "TP8c", "SL8c", "TP10c", "SL10c", "TP12c", "SL12c",
-      "3c_30c_level_breakevenC", "gapFillPc_at_tradeOpenTime", "openGap_info", "PD_trend",
-      "dayBrokePDH", "dayBrokePDL", "referencePointsAbove", "referencePointsBelow", "levelTag", "levelCats");
+   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,percentIncrease_w_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
+      + "mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,secret_tp_range_percent,closetrade_after_x_minutes_from_breakdown";
 }
 
-void WriteOneTradeRow(const int fh, const string &dateStr, const TradeResult &tradeResult)
+string TimeLevelAllDaysHeader()
 {
-   double mfe = 0.0, mae = 0.0, mfep = 0.0, maep = 0.0;
-   double mfe_c6 = 0.0, mae_c6 = 0.0, mfe_c11 = 0.0, mae_c11 = 0.0, mfe_c16 = 0.0, mae_c16 = 0.0;
+   return "date,symbol,trade_customID,sentTime,startTime,endTime,durationHours,sessionSent,algoID,magic,priceStart,priceEnd,priceDiff,profit,profit_custom_with_roll,percentIncrease_w_roll,type,level,MFE,MAE,MFE_w_roll,MAE_w_roll,hasRollover,"
+      + "mfeCandle,maeCandle,close_decision,close_detail,reason,volume,bothComments,planTradeNumToday,levelTradeNumToday,offset,tp,sl,3c_30c_level_breakevenC,gapFillPc_at_tradeOpenTime,openGap_info,PD_trend,dayBrokePDH,dayBrokePDL,referencePointsAbove,referencePointsBelow,entry_hour,entry_minute,secret_tp_profit_percent_min,secret_tp_greenguard_pricediff_at_least";
+}
+
+void WriteAllDaysHeaderLine(const int fh, const string header)
+{
+   FileWriteString(fh, header + "\r\n");
+}
+
+void GetMfeMaePointsForTrade(const TradeResult &tradeResult, double &mfePts, double &maePts, int &mfeCandle, int &maeCandle)
+{
+   mfePts = 0.0;
+   maePts = 0.0;
+   mfeCandle = 0;
+   maeCandle = 0;
+   double mfeAbs = 0.0, maeAbs = 0.0;
+   GetMFEandMAEForTrade(tradeResult, mfeAbs, maeAbs, mfeCandle, maeCandle);
+   if(mfeAbs == 0.0 && maeAbs == 0.0 && mfeCandle == 0 && maeCandle == 0)
+      return;
+   if(tradeResult.type == (long)DEAL_TYPE_BUY)
+   {
+      mfePts = mfeAbs - tradeResult.priceStart;
+      maePts = maeAbs - tradeResult.priceStart;
+   }
+   else
+   {
+      mfePts = tradeResult.priceStart - mfeAbs;
+      maePts = tradeResult.priceStart - maeAbs;
+   }
+}
+
+string OffsetStrForTrade(const TradeResult &tr)
+{
+   if(StringLen(tr.level) > 0 && tr.priceStart > 0.0)
+   {
+      const double levelPx = StringToDouble(tr.level);
+      if(levelPx > 0.0)
+         return DoubleToString(tr.priceStart - levelPx, 1);
+   }
+   return DoubleToString(OffsetTenthsFromMagic(tr.magic), 1);
+}
+
+void AppendSharedAllDaysCells(string &cells[], const int base, const string &dateStr, const TradeResult &tr,
+   const double mfePts, const double maePts, const int mfeCandle, const int maeCandle,
+   const string &breakevenCStr, const string &gapFillPcStr, const string &isGapDownDayStr,
+   const string &pdTrendStr, const string &dayBrokePDHStr, const string &dayBrokePDLStr,
+   const string &refAbove, const string &refBelow)
+{
+   cells[base + 0]  = dateStr;
+   cells[base + 1]  = tr.symbol;
+   cells[base + 2]  = ""; // trade_customID unknown offline
+   cells[base + 3]  = TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS); // sentTime ≈ start when unknown
+   cells[base + 4]  = TimeToString(tr.startTime, TIME_DATE|TIME_SECONDS);
+   cells[base + 5]  = TimeToString(tr.endTime, TIME_DATE|TIME_SECONDS);
+   cells[base + 6]  = TradeDurationHoursStr(tr.startTime, tr.endTime);
+   cells[base + 7]  = SanitizeCsvCell(tr.session);
+   cells[base + 8]  = IntegerToString(AlgoFamilyMagicNumber(tr.magic));
+   cells[base + 9]  = IntegerToString((long)tr.magic);
+   cells[base + 10] = DoubleToString(tr.priceStart, _Digits);
+   cells[base + 11] = DoubleToString(tr.priceEnd, _Digits);
+   cells[base + 12] = DoubleToString(tr.priceDiff, _Digits);
+   cells[base + 13] = DoubleToString(tr.profit, 2);
+   cells[base + 14] = DoubleToString(tr.profit, 2); // profit_custom_with_roll: roll not recoverable from deals alone
+   cells[base + 15] = PercentIncreaseStr(tr.priceStart, tr.priceDiff);
+   cells[base + 16] = SanitizeCsvCell(EnumToString((ENUM_DEAL_TYPE)tr.type));
+   cells[base + 17] = SanitizeCsvCell(tr.level);
+   cells[base + 18] = DoubleToString(mfePts, 1);
+   cells[base + 19] = DoubleToString(maePts, 1);
+   cells[base + 20] = DoubleToString(mfePts, 1);
+   cells[base + 21] = DoubleToString(maePts, 1);
+   cells[base + 22] = "false";
+   cells[base + 23] = (mfeCandle > 0 ? IntegerToString(mfeCandle) : "");
+   cells[base + 24] = (maeCandle > 0 ? IntegerToString(maeCandle) : "");
+   cells[base + 25] = "";
+   cells[base + 26] = "";
+   cells[base + 27] = SanitizeCsvCell(EnumToString((ENUM_DEAL_REASON)tr.reason));
+   cells[base + 28] = VolumeStr(tr.volume);
+   cells[base + 29] = SanitizeCsvCell(tr.bothComments);
+   cells[base + 30] = "0";
+   cells[base + 31] = "0";
+   cells[base + 32] = OffsetStrForTrade(tr);
+   cells[base + 33] = SanitizeCsvCell(tr.tp);
+   cells[base + 34] = SanitizeCsvCell(tr.sl);
+   cells[base + 35] = SanitizeCsvCell(breakevenCStr);
+   cells[base + 36] = SanitizeCsvCell(gapFillPcStr);
+   cells[base + 37] = SanitizeCsvCell(isGapDownDayStr);
+   cells[base + 38] = SanitizeCsvCell(pdTrendStr);
+   cells[base + 39] = SanitizeCsvCell(dayBrokePDHStr);
+   cells[base + 40] = SanitizeCsvCell(dayBrokePDLStr);
+   cells[base + 41] = SanitizeCsvCell(refAbove);
+   cells[base + 42] = SanitizeCsvCell(refBelow);
+}
+
+void WriteAllDaysRowFromCells(const int fh, const string &cells[], const int colCount)
+{
+   string row = cells[0];
+   for(int c = 1; c < colCount; c++)
+      row += "," + cells[c];
+   FileWriteString(fh, row + "\r\n");
+}
+
+void WriteOneFamilyTradeRow(const int fhBd, const int fhTime, const int fhLevel, const TradeResult &tradeResult)
+{
+   if(!tradeResult.foundOut)
+      return;
+
+   double mfePts = 0.0, maePts = 0.0;
    int mfeCandle = 0, maeCandle = 0;
-   GetMFEandMAEForTrade(tradeResult, mfe, mae, mfeCandle, maeCandle);
-   GetMFEpAndMAEpForTrade(tradeResult, mfe, mae, mfep, maep);
-   GetMFEandMAE_cNForTrade(tradeResult, 6, mfe_c6, mae_c6);
-   GetMFEandMAE_cNForTrade(tradeResult, 11, mfe_c11, mae_c11);
-   GetMFEandMAE_cNForTrade(tradeResult, 16, mfe_c16, mae_c16);
+   GetMfeMaePointsForTrade(tradeResult, mfePts, maePts, mfeCandle, maeCandle);
 
-   string endTimeStr = tradeResult.foundOut ? TimeToString(tradeResult.endTime, TIME_DATE|TIME_SECONDS) : "NOT_FOUND";
-   string priceEndStr = tradeResult.foundOut ? DoubleToString(tradeResult.priceEnd, _Digits) : "NOT_FOUND";
-   string profitStr = tradeResult.foundOut ? DoubleToString(tradeResult.profit, 2) : "NOT_FOUND";
-   string reasonStr = tradeResult.foundOut ? EnumToString((ENUM_DEAL_REASON)tradeResult.reason) : "NOT_FOUND";
-   string typeStr = EnumToString((ENUM_DEAL_TYPE)tradeResult.type);
-   string mfeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mfe, _Digits) : "";
-   string maeStr = (mfe != 0.0 || mae != 0.0) ? DoubleToString(mae, _Digits) : "";
-   string mfeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(mfeCandle) : "";
-   string maeCandleStr = (mfeCandle > 0 || maeCandle > 0) ? IntegerToString(maeCandle) : "";
-   string mfepStr = (mfep != 0.0 || maep != 0.0) ? DoubleToString(mfep, 2) : "";
-   string maepStr = (mfep != 0.0 || maep != 0.0) ? DoubleToString(maep, 2) : "";
-   string mfe_c6Str = (mfe_c6 != 0.0 || mae_c6 != 0.0) ? DoubleToString(mfe_c6, 2) : "";
-   string mae_c6Str = (mfe_c6 != 0.0 || mae_c6 != 0.0) ? DoubleToString(mae_c6, 2) : "";
-   string mfe_c11Str = (mfe_c11 != 0.0 || mae_c11 != 0.0) ? DoubleToString(mfe_c11, 2) : "";
-   string mae_c11Str = (mfe_c11 != 0.0 || mae_c11 != 0.0) ? DoubleToString(mae_c11, 2) : "";
-   string mfe_c16Str = (mfe_c16 != 0.0 || mae_c16 != 0.0) ? DoubleToString(mfe_c16, 2) : "";
-   string mae_c16Str = (mfe_c16 != 0.0 || mae_c16 != 0.0) ? DoubleToString(mae_c16, 2) : "";
-
-   int sl4_c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 4, false), false);
-   int tp6c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 6, true), true);
-   int sl6c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 6, false), false);
-   int tp8c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 8, true), true);
-   int sl8c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 8, false), false);
-   int tp10c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 10, true), true);
-   int sl10c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 10, false), false);
-   int tp12c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 12, true), true);
-   int sl12c = GetCandleWhereLevelReached(tradeResult, GetLevelPriceForTPorSL(tradeResult, 12, false), false);
-   string sl4_cStr = (sl4_c > 0) ? IntegerToString(sl4_c) : "";
-   string tp6cStr = (tp6c > 0) ? IntegerToString(tp6c) : "";
-   string sl6cStr = (sl6c > 0) ? IntegerToString(sl6c) : "";
-   string tp8cStr = (tp8c > 0) ? IntegerToString(tp8c) : "";
-   string sl8cStr = (sl8c > 0) ? IntegerToString(sl8c) : "";
-   string tp10cStr = (tp10c > 0) ? IntegerToString(tp10c) : "";
-   string sl10cStr = (sl10c > 0) ? IntegerToString(sl10c) : "";
-   string tp12cStr = (tp12c > 0) ? IntegerToString(tp12c) : "";
-   string sl12cStr = (sl12c > 0) ? IntegerToString(sl12c) : "";
    int breakevenC = Get3c30cLevelBreakevenCForTrade(tradeResult);
    string breakevenCStr = (breakevenC >= 3) ? IntegerToString(breakevenC) : "";
    string gapFillPcStr = GetGapFillPcAtTradeOpenTime(tradeResult.startTime);
@@ -1272,63 +1519,119 @@ void WriteOneTradeRow(const int fh, const string &dateStr, const TradeResult &tr
    string dayBrokePDHStr = GetDayBrokePDHAtTradeOpenTime(tradeResult.startTime);
    string dayBrokePDLStr = GetDayBrokePDLAtTradeOpenTime(tradeResult.startTime);
    string refAbove = "", refBelow = "";
-   // Legacy / manual deals may have no '$' comment → empty level; still export row with blank ref columns.
    if(StringLen(tradeResult.level) > 0)
       GetReferencePointsAboveBelow(tradeResult.startTime, StringToDouble(tradeResult.level), refAbove, refBelow);
-   string levelTagStr = "", levelCatsStr = "";
-   GetLevelTagAndCatsForTrade(tradeResult.level, levelTagStr, levelCatsStr);
-   string priceBreakStr = GetPriceBreakLevel_c1c2_ForTrade(tradeResult);
 
-   FileWrite(fh,
-      dateStr,
-      tradeResult.symbol,
-      TimeToString(tradeResult.startTime, TIME_DATE|TIME_SECONDS),
-      endTimeStr,
-      tradeResult.session,
-      IntegerToString((long)tradeResult.magic),
-      priceBreakStr,
-      DoubleToString(tradeResult.priceStart, _Digits),
-      priceEndStr,
-      DoubleToString(tradeResult.priceDiff, _Digits),
-      profitStr,
-      typeStr,
-      reasonStr,
-      tradeResult.volume,
-      tradeResult.bothComments,
-      tradeResult.level,
-      tradeResult.tp,
-      tradeResult.sl,
-      mfeStr,
-      maeStr,
-      mfeCandleStr,
-      maeCandleStr,
-      mfepStr,
-      maepStr,
-      mfe_c6Str,
-      mae_c6Str,
-      mfe_c11Str,
-      mae_c11Str,
-      mfe_c16Str,
-      mae_c16Str,
-      sl4_cStr,
-      tp6cStr,
-      sl6cStr,
-      tp8cStr,
-      sl8cStr,
-      tp10cStr,
-      sl10cStr,
-      tp12cStr,
-      sl12cStr,
-      breakevenCStr,
-      gapFillPcStr,
-      isGapDownDayStr,
-      pdTrendStr,
-      dayBrokePDHStr,
-      dayBrokePDLStr,
-      refAbove,
-      refBelow,
-      levelTagStr,
-      levelCatsStr);
+   // date = close calendar day (matches aleksik2 all_days append)
+   const string dateStr = TimeToString(tradeResult.endTime - (tradeResult.endTime % 86400), TIME_DATE);
+
+   if(IsBreakdownFamilyCompositeMagic(tradeResult.magic))
+   {
+      string cells[];
+      ArrayResize(cells, FALGO_BREAKDOWN_ALLDAYS_COLS);
+      AppendSharedAllDaysCells(cells, 0, dateStr, tradeResult, mfePts, maePts, mfeCandle, maeCandle,
+         breakevenCStr, gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow);
+      cells[43] = "0"; // secret_tp_range_percent unknown offline
+      cells[44] = "0"; // closetrade_after_x_minutes_from_breakdown unknown offline
+      WriteAllDaysRowFromCells(fhBd, cells, FALGO_BREAKDOWN_ALLDAYS_COLS);
+      return;
+   }
+   if(IsTimeFamilyCompositeMagic(tradeResult.magic) || IsLevelFamilyCompositeMagic(tradeResult.magic))
+   {
+      string cells[];
+      ArrayResize(cells, FALGO_SECRET_TP_ALGO_ALLDAYS_COLS);
+      AppendSharedAllDaysCells(cells, 0, dateStr, tradeResult, mfePts, maePts, mfeCandle, maeCandle,
+         breakevenCStr, gapFillPcStr, isGapDownDayStr, pdTrendStr, dayBrokePDHStr, dayBrokePDLStr, refAbove, refBelow);
+      cells[43] = "0"; // entry_hour unknown offline
+      cells[44] = "0"; // entry_minute unknown offline
+      cells[45] = "0.00"; // secret_tp_profit_percent_min unknown offline
+      cells[46] = DoubleToString(OffsetTenthsFromMagic(tradeResult.magic), _Digits); // greenguard tenths encoded in magic
+      const int fh = IsTimeFamilyCompositeMagic(tradeResult.magic) ? fhTime : fhLevel;
+      WriteAllDaysRowFromCells(fh, cells, FALGO_SECRET_TP_ALGO_ALLDAYS_COLS);
+   }
+}
+
+string FamilyLabelForMagic(const long magic)
+{
+   if(IsTimeFamilyCompositeMagic(magic))
+      return "time";
+   if(IsLevelFamilyCompositeMagic(magic))
+      return "level";
+   if(IsBreakdownFamilyCompositeMagic(magic))
+      return "breakdown";
+   return "other";
+}
+
+string OpenPositionsHeader()
+{
+   // Broker/API fields only (MT5 PositionGet* + SymbolInfo* swap schedule).
+   return "ticket,positionId,symbol,family,algoID,magic,type,volume,openTime,openPrice,priceCurrent,sl,tp,profit,swap,swapLong,swapShort,swapMode,swapRollover3days,comment,hoursOpen";
+}
+
+// One-shot snapshot of currently open family positions on _Symbol (all 3 fams in one file).
+int WriteAllOpenPositionsFile()
+{
+   int fh = FileOpen(OUT_TSV_OPEN, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fh == INVALID_HANDLE)
+   {
+      FatalError("saveHistory: could not open " + OUT_TSV_OPEN + " for write (MQL5/Files).");
+      return 0;
+   }
+   WriteAllDaysHeaderLine(fh, OpenPositionsHeader());
+
+   const datetime now = TimeCurrent();
+   const double swapLong = SymbolInfoDouble(_Symbol, SYMBOL_SWAP_LONG);
+   const double swapShort = SymbolInfoDouble(_Symbol, SYMBOL_SWAP_SHORT);
+   const ENUM_SYMBOL_SWAP_MODE swapMode = (ENUM_SYMBOL_SWAP_MODE)SymbolInfoInteger(_Symbol, SYMBOL_SWAP_MODE);
+   const int swapRollover3days = (int)SymbolInfoInteger(_Symbol, SYMBOL_SWAP_ROLLOVER3DAYS);
+   const string swapModeStr = SanitizeCsvCell(EnumToString(swapMode));
+
+   int rows = 0;
+   for(int pi = PositionsTotal() - 1; pi >= 0; pi--)
+   {
+      const ulong ticket = PositionGetTicket(pi);
+      if(ticket == 0 || !PositionSelectByTicket(ticket))
+         continue;
+      if(PositionGetString(POSITION_SYMBOL) != _Symbol)
+         continue;
+      const long magic = (long)PositionGetInteger(POSITION_MAGIC);
+      if(!IsAnyAlgoFamilyCompositeMagic(magic))
+         continue;
+
+      const datetime openTime = (datetime)PositionGetInteger(POSITION_TIME);
+      double hoursOpen = 0.0;
+      if(openTime > 0 && now > openTime)
+         hoursOpen = (double)(now - openTime) / 3600.0;
+
+      string cells[];
+      ArrayResize(cells, 21);
+      cells[0]  = IntegerToString((long)ticket);
+      cells[1]  = IntegerToString((long)PositionGetInteger(POSITION_IDENTIFIER));
+      cells[2]  = _Symbol;
+      cells[3]  = FamilyLabelForMagic(magic);
+      cells[4]  = IntegerToString(AlgoFamilyMagicNumber(magic));
+      cells[5]  = IntegerToString(magic);
+      cells[6]  = SanitizeCsvCell(EnumToString((ENUM_POSITION_TYPE)PositionGetInteger(POSITION_TYPE)));
+      cells[7]  = VolumeStr(PositionGetDouble(POSITION_VOLUME));
+      cells[8]  = TimeToString(openTime, TIME_DATE|TIME_SECONDS);
+      cells[9]  = DoubleToString(PositionGetDouble(POSITION_PRICE_OPEN), _Digits);
+      cells[10] = DoubleToString(PositionGetDouble(POSITION_PRICE_CURRENT), _Digits);
+      cells[11] = DoubleToString(PositionGetDouble(POSITION_SL), _Digits);
+      cells[12] = DoubleToString(PositionGetDouble(POSITION_TP), _Digits);
+      cells[13] = DoubleToString(PositionGetDouble(POSITION_PROFIT), 2);
+      cells[14] = DoubleToString(PositionGetDouble(POSITION_SWAP), 2); // accumulated overnight fee from API
+      cells[15] = DoubleToString(swapLong, _Digits);
+      cells[16] = DoubleToString(swapShort, _Digits);
+      cells[17] = swapModeStr;
+      cells[18] = IntegerToString(swapRollover3days); // broker triple-swap / rollover weekday
+      cells[19] = SanitizeCsvCell(PositionGetString(POSITION_COMMENT));
+      cells[20] = DoubleToString(hoursOpen, 3);
+      WriteAllDaysRowFromCells(fh, cells, 21);
+      rows++;
+   }
+
+   FileClose(fh);
+   return rows;
 }
 
 //+------------------------------------------------------------------+
@@ -1341,10 +1644,12 @@ int OnInit()
 
    datetime rangeStart = StringToTime(ExportRangeStartStr);
    datetime rangeEnd   = StringToTime(ExportRangeEndStr);
+   g_exportRangeEnd = rangeEnd;
    if(!HistorySelect(rangeStart, rangeEnd + 86400))
       FatalError("saveHistory: HistorySelect failed for export range (enable trading history / check permissions).");
 
    int dealsInRange = 0;
+   int familyDealsInRange = 0;
    int hn = HistoryDealsTotal();
    for(int i = 0; i < hn; i++)
    {
@@ -1354,42 +1659,65 @@ int OnInit()
       long dtype = HistoryDealGetInteger(ticket, DEAL_TYPE);
       if(dtype == (long)DEAL_TYPE_BALANCE) continue;
       datetime t = (datetime)HistoryDealGetInteger(ticket, DEAL_TIME);
-      if(t >= rangeStart && t < rangeEnd + 86400)
-         dealsInRange++;
+      if(t < rangeStart || t >= rangeEnd + 86400)
+         continue;
+      dealsInRange++;
+      if(IsAnyAlgoFamilyCompositeMagic(HistoryDealGetInteger(ticket, DEAL_MAGIC)))
+         familyDealsInRange++;
    }
    if(dealsInRange == 0)
       FatalError("saveHistory: no deals found for " + _Symbol + " in " + TimeToString(rangeStart, TIME_DATE) + " .. " + TimeToString(rangeEnd, TIME_DATE) + " (wrong account or no trades).");
+   if(familyDealsInRange == 0)
+      FatalError("saveHistory: no time/level/breakdown composite-magic deals in range (legacy/non-family magics are ignored).");
 
-   string csvFullPath = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL5\\Files\\" + OUT_CSV_NAME;
+   string dataPath = TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL5\\Files\\";
    Print("saveHistory: starting export | symbol=", _Symbol,
          " | chart TF=", EnumToString((ENUM_TIMEFRAMES)_Period),
          " | date range (inclusive days, server): ", ExportRangeStartStr, " .. ", ExportRangeEndStr,
-         " | output file: ", OUT_CSV_NAME,
-         " | full path: ", csvFullPath);
+         " | family deals in range: ", IntegerToString(familyDealsInRange),
+         " | outputs: ", OUT_TSV_BREAKDOWN, " | ", OUT_TSV_TIME, " | ", OUT_TSV_LEVEL, " | ", OUT_TSV_OPEN,
+         " | folder: ", dataPath);
 
-   int fh = FileOpen(OUT_CSV_NAME, FILE_WRITE | FILE_CSV | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
-   if(fh == INVALID_HANDLE)
-      FatalError("saveHistory: could not open " + OUT_CSV_NAME + " for write (MQL5/Files).");
-   WriteTradeResultsHeader(fh);
+   int fhBd = FileOpen(OUT_TSV_BREAKDOWN, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fhBd == INVALID_HANDLE)
+      FatalError("saveHistory: could not open " + OUT_TSV_BREAKDOWN + " for write (MQL5/Files).");
+   int fhTime = FileOpen(OUT_TSV_TIME, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fhTime == INVALID_HANDLE)
+      FatalError("saveHistory: could not open " + OUT_TSV_TIME + " for write (MQL5/Files).");
+   int fhLevel = FileOpen(OUT_TSV_LEVEL, FILE_WRITE | FILE_TXT | FILE_ANSI | FILE_SHARE_READ | FILE_SHARE_WRITE);
+   if(fhLevel == INVALID_HANDLE)
+      FatalError("saveHistory: could not open " + OUT_TSV_LEVEL + " for write (MQL5/Files).");
+
+   WriteAllDaysHeaderLine(fhBd, BreakdownAllDaysHeader());
+   WriteAllDaysHeaderLine(fhTime, TimeLevelAllDaysHeader());
+   WriteAllDaysHeaderLine(fhLevel, TimeLevelAllDaysHeader());
 
    int totalRowsWritten = 0;
+   int rowsBd = 0, rowsTime = 0, rowsLevel = 0;
 
    for(datetime dayStart = rangeStart; dayStart <= rangeEnd; dayStart += 86400)
    {
       string dateStr = TimeToString(dayStart, TIME_DATE);
+      string dow = LookupCalendarDayOfWeek(dateStr);
+      if(dow == "Saturday" || dow == "Sunday")
+      {
+         Print("saveHistory: skip ", dateStr, " (", dow, ") — weekend.");
+         continue;
+      }
+      if(dow == "")
+      {
+         Print("saveHistory: skip ", dateStr, " — date not in calendar (extend calendar file or check MAX_CALENDAR_ROWS).");
+         continue;
+      }
+
       LoadLevelsForDate(dateStr);
       g_staticMarketContextPulledForDate = dayStart;
       UpdateStaticMarketContext(dayStart);
 
       if(!LoadM1BarsForDay(dayStart, dateStr))
       {
-         string dow = LookupCalendarDayOfWeek(dateStr);
-         string hint = "";
-         if(dow == "Saturday" || dow == "Sunday")
-            hint = "expected for cash index (weekend; no RTH session). ";
-         else if(dow != "")
-            hint = "calendar says " + dow + "; ";
-         Print("saveHistory: skip ", dateStr, (dow != "" ? " (" + dow + ")" : ""), " — no M1 bars for this day. ", hint,
+         string hint = "calendar says " + dow + "; ";
+         Print("saveHistory: skip ", dateStr, " (", dow, ") — no M1 bars for this day. ", hint,
                "Other causes: holiday, symbol not in Market Watch, or history not downloaded.");
          continue;
       }
@@ -1411,19 +1739,38 @@ int OnInit()
 
       for(int ti = 0; ti < g_tradeResultsCount; ti++)
       {
-         WriteOneTradeRow(fh, dateStr, g_tradeResults[orderTr[ti]]);
+         const TradeResult tr = g_tradeResults[orderTr[ti]];
+         if(IsBreakdownFamilyCompositeMagic(tr.magic))
+            rowsBd++;
+         else if(IsTimeFamilyCompositeMagic(tr.magic))
+            rowsTime++;
+         else if(IsLevelFamilyCompositeMagic(tr.magic))
+            rowsLevel++;
+         WriteOneFamilyTradeRow(fhBd, fhTime, fhLevel, tr);
          totalRowsWritten++;
       }
    }
 
-   FileClose(fh);
-   Print("saveHistory: finished OK | data rows written: ", IntegerToString(totalRowsWritten), " (plus CSV header row) | symbol=", _Symbol);
-   Print("saveHistory: OUTPUT SAVED — full path: ", csvFullPath);
-   Print("saveHistory: OUTPUT SAVED — folder: ", TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL5\\Files\\");
-   Print("saveHistory: OUTPUT SAVED — file name: ", OUT_CSV_NAME, " (local MQL5 Files, not Common\\Files)");
+   FileClose(fhBd);
+   FileClose(fhTime);
+   FileClose(fhLevel);
+
+   const int openRows = WriteAllOpenPositionsFile();
+
+   Print("saveHistory: finished OK | closed rows: total=", IntegerToString(totalRowsWritten),
+         " breakdown=", IntegerToString(rowsBd),
+         " time=", IntegerToString(rowsTime),
+         " level=", IntegerToString(rowsLevel),
+         " | open positions rows=", IntegerToString(openRows),
+         " | symbol=", _Symbol);
+   Print("saveHistory: OUTPUT SAVED — folder: ", dataPath);
+   Print("saveHistory: OUTPUT SAVED — ", OUT_TSV_BREAKDOWN);
+   Print("saveHistory: OUTPUT SAVED — ", OUT_TSV_TIME);
+   Print("saveHistory: OUTPUT SAVED — ", OUT_TSV_LEVEL);
+   Print("saveHistory: OUTPUT SAVED — ", OUT_TSV_OPEN, " (openRows=", IntegerToString(openRows), ")");
    Print("saveHistory: date range used (inclusive): ", ExportRangeStartStr, " .. ", ExportRangeEndStr);
-   if(totalRowsWritten == 0)
-      FatalError("saveHistory: no trade rows written (check symbol and date range).");
+   if(totalRowsWritten == 0 && openRows == 0)
+      FatalError("saveHistory: no closed family trades and no open family positions (check symbol, date range, and composite magics).");
    ExpertRemove();
    return INIT_SUCCEEDED;
 }

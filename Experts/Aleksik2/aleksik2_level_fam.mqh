@@ -1203,15 +1203,19 @@ bool Babysitf_falgo_runLevelAlgoSecretTpExit(const long posMagic, const double r
       return false;
    if(!FalgoSecretTpGreenGuardPriceDiffAllowsClose(greenguard, entryPrice, bid, rolloverForGuard))
       return false;
+   if(!FalgoSecretTpGreenGuardApiSwapVsProfitAllowsClose())
+      return false;
 
    const double rollCost = MathMax(0.0, rolloverForGuard);
-   const string closeDetail = StringFormat("bid=%s|bidWithRoll=%s|secretTp=%s|fill=%s|roll=%s|greenguard=%s",
+   const string closeDetail = StringFormat("bid=%s|bidWithRoll=%s|secretTp=%s|fill=%s|roll=%s|greenguard=%s|profit=%s|swap=%s",
       DoubleToString(bid, _Digits), DoubleToString(bid - rollCost, _Digits), DoubleToString(secretTpPrice, _Digits),
       DoubleToString(entryPrice, _Digits), DoubleToString(rolloverForGuard, _Digits),
-      DoubleToString(greenguard, _Digits));
-   const string closeDetailLog = StringFormat("bidWithRoll=%s|fill=%s|roll=%s|greenguard=%s",
+      DoubleToString(greenguard, _Digits),
+      DoubleToString(ExtPositionInfo.Profit(), 2), DoubleToString(ExtPositionInfo.Swap(), 2));
+   const string closeDetailLog = StringFormat("bidWithRoll=%s|fill=%s|roll=%s|greenguard=%s|profit=%s|swap=%s",
       DoubleToString(bid - rollCost, _Digits), DoubleToString(entryPrice, _Digits),
-      DoubleToString(rolloverForGuard, _Digits), DoubleToString(greenguard, _Digits));
+      DoubleToString(rolloverForGuard, _Digits), DoubleToString(greenguard, _Digits),
+      DoubleToString(ExtPositionInfo.Profit(), 2), DoubleToString(ExtPositionInfo.Swap(), 2));
    LevelAlgoRememberCloseDecision(positionId, "level_secretTPSL_tp", closeDetail);
    LevelAlgoRememberPendingCloseReason(positionId, "secretTP");
    FalgoFlipperPrintfManualCloseDecision("level", "secretTP", posMagic, posTicket, positionId, closeDetailLog,
