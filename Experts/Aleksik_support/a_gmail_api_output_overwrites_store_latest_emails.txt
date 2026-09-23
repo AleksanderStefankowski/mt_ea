@@ -1,15 +1,3 @@
-ES Daily Plan | August 27, 2026
-Holding above 7705 would target 7720 / 7746
-Break and hold below 7705 would target 7683 / 7659 / 7637
-
-ES Daily Plan | August 28, 2026
-Break and hold above 7746 would target 7766 / 7779 / 7794
-Holding below 7746 would target 7724 / 7705 / 7683
-
-ES Weekly Plan | Aug 31 - Sep 4, 2026
-Holding above 7711 would target 7755 / 7825 / 7855* / 7895 / 7935
-Break and hold below 7711 would target 7660-37 / 7570 / 7540* / 7485 / 7440
-
 ES Daily Plan | August 31, 2026
 Holding above 7711 would target 7735 / 7755 / 7775
 Break and hold below 7711 would target 7690 / 7760
@@ -77,3 +65,15 @@ Holding below 7711 would target 7690 / 7669 / 7634
 ES Weekly Plan | September 21-25, 2026
 Holding above 7697 would target 7757 / 7825 / 7855* / 7895 / 7935
 Break and hold below 7697 would target 7648-34 / 7570 / 7540* / 7485 / 7440
+
+ES Daily Plan | September 21, 2026
+Holding above 7697 would target 7715 / 7735 / 7757
+Break and hold below 7697 would target 7684 / 7669
+
+ES Daily Plan | September 22, 2026
+Holding above 7816 would target 7838 / 7855 / 7889
+Break and hold below 7816 would target 7800 / 7775
+
+ES Daily Plan | September 23, 2026
+Holding above 7816 would target 7838 / 7855 / 7889
+Break and hold below 7816 would target 7800 / 7775

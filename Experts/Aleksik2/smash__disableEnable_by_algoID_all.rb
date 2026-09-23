@@ -25,9 +25,8 @@ TARGET_STATE_FOR_ALL_EDITED_ALGOS = :enabled # :enabled or :disabled
 
 # Family is inferred from algo id (see ranges above).
 SET_STATE_FOR_ALL_ALGOS_LIST = <<~IDS
-20000360
-10000036
-30000006
+20000009
+30000294
 IDS
 
 

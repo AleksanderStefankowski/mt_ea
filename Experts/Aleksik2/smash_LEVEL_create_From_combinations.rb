@@ -29,7 +29,7 @@ LEVEL_RULE_MARKERS = %w[//levelalgocreator3start //levelalgocreator3end].freeze
 QUANTREF_NEW_ID_RE = /(?:\/\/\s*)?quantref\s+base=\d+\s+new=(\d+)/
 
 # --- edit combination grids here ---
-DESIRED_MAX_OPEN_POSITIONS = [5, 10, 20].freeze
+DESIRED_MAX_OPEN_POSITIONS = [3, 5, 7].freeze
 DESIRED_EXPIRY_MINUTES = [120].freeze
 
 # :both -> trades_weekly=true, trades_daily=true
@@ -40,7 +40,7 @@ DESIRED_TRADES_WHAT_LEVELS = %i[both].freeze # [both weekly daily, both has high
 DESIRED_STOP_TRADING_TODAY_IF_THISALGO_TODAYTOTAL_TRADES_COUNT = [5].freeze   # [1, 3: 3 is better]
 #  [1, 3, 10] 10 is best? somehow had better avgtimeVSprofit and better avgavgDurationHours than 3.
 
-DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [1.0, 2.0, 4.0, 7.0].freeze  # [2.0, 8.0, 12.0, 30.0]
+DESIRED_SECRET_TP_PROFIT_PERCENT_MIN = [2.0, 4.0, 7.0].freeze  # [2.0, 8.0, 12.0, 30.0]
 # Rule 0: anytime. Rule 1: 14:30–15:29. Rule 2: 02:00–03:00 server time (same as time algo).
 DESIRED_RULE_SWITCH_MAP = [0, 1, 2].freeze
 # [2.0, 4.0, 8.0, 25.0 tutaj 4 ma wszystko lepsze niz 2, a 8 i 25: wiekszy profit, slabsze timevsprofit] 
@@ -50,7 +50,7 @@ DESIRED_RULE_SWITCH_MAP = [0, 1, 2].freeze
 # [8.0, 10.0, 12.0, 14.0, 20.0] as always, higher means more profit
 
 
-DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL = [25.0].freeze
+DESIRED_PRICE_PROXIMITY_ABOVE_LEVEL = [35.0].freeze
 DESIRED_LEVEL_NEEDS_TO_BE_BELOW_ONO = [true].freeze # [true, false] seems no diff, can retest later with less options. we only trade down levels so this is irrelevant
 DESIRED_OFFSET_POSITIVE = [true, false].freeze # true had 30% more profit than false
 DESIRED_OFFSET_PERCENTAGE = [0.0003, 0.0006, 0.0020].freeze # [false, 0.0020 is very bad]  |   [0.0005, 0.0020 true, 20 has a bit more profit via more trades, but worse profitVStime]
@@ -356,7 +356,7 @@ module LevelCombinationsCreator
     lines << "g_levelAlgos[#{slot}].this_algo_max_concurrent_pending_trades = 1;"
     lines << "g_levelAlgos[#{slot}].max_open_positions = #{combo[:max_open_positions]};"
     lines << "g_levelAlgos[#{slot}].secret_tp_profit_percent_min = #{format_mq5_double(combo[:secret_tp_profit_percent_min])};"
-    lines << "g_levelAlgos[#{slot}].secret_tp_greenguard_pricediff_at_least = 20.0;"
+    lines << "g_levelAlgos[#{slot}].secret_tp_greenguard_pricediff_at_least = 5.0;"
     lines << "g_levelAlgos[#{slot}].level_needs_to_be_below_ONO = #{format_mq5_bool(combo[:level_needs_to_be_below_ONO])};"
     lines << "g_levelAlgos[#{slot}].offset_positive = #{format_mq5_bool(combo[:offset_positive])};"
     lines << "g_levelAlgos[#{slot}].offset_percentage = #{format_mq5_double(combo[:offset_percentage], 4)};"

@@ -1,17 +1,17 @@
 # Configuration
-DESIRED_TOTAL_MAX_EXPOSURE = 0.2
+DESIRED_TOTAL_MAX_EXPOSURE = 0.25
 POSITION_SIZE_STEP         = 0.001
 
-algo_starting_with_1_weight = 5 # time
-algo_starting_with_2_weight = 45 # bd
-algo_starting_with_3_weight = 50 # level
+algo_starting_with_1_weight = 1 # time
+algo_starting_with_2_weight = 4 # bd
+algo_starting_with_3_weight = 95 # level
 
 # Input
 # Each strategy can have its own maximum number of open positions.
 strategies = [
   { algoID: "10000111", max_positions: 5 },
-  { algoID: "20000522", max_positions: 5 },
-  { algoID: "30000006", max_positions: 5 },
+  { algoID: "20000009", max_positions: 5 },
+  { algoID: "30000294", max_positions: 5 },
 ]
 
 # -------------------------------------------------------------------
