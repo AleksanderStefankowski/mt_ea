@@ -1069,6 +1069,9 @@ bool AlgoTryPlaceLevelAlgoLimitBuyForSlot(const int slotIdx, const int barIdx)
 //+------------------------------------------------------------------+
 void RunLevelAlgoPlacementOnM1Close(const int barIdx)
 {
+   if(!bigflipper_enable_level_algofam)
+      return;
+
    const bool profOn = BacktestProfileEnabled();
    ulong profT0 = 0;
    if(profOn)

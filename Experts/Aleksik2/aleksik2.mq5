@@ -709,6 +709,7 @@ int      per_second_log_start_minute                       =  33;
 int      per_second_log_end_hour                           =  10;  // shared inclusive window end (server time)
 int      per_second_log_end_minute                         =  34;
 
+bool     bigflipper_enable_level_algofam                  = true;  // false: skip level-family placement + enrich level-slot resolve (no FatalError on missing g_levelsExpanded)
 bool     bigflipper_friday_api_pull_all_trades            = true;  // 1st Fri of month 14:00 server: append-deduped deals → API_friday_pull_all_trades.csv
 string   bigflipper_stop_trading_after_date               = "2555.01.12"; // "2555.01.12"  "2026.03.10"  YYYY.MM.DD server calendar; CUTOFFBOOKMARK placement off after this day; babysit unaffected; "" = disabled
 bool     bigflipper_tradeResult_referencePoints_excludeTooClose = true;  // trade-results CSV: omit reference points too close to fillprice
@@ -17890,7 +17891,7 @@ void FalgoEnrichTradeResultLevelTpSl(TradeResult &tr)
    }
    else if(IsLevelFamilyAlgoNumber(algoNumber))
    {
-      if(StringLen(tr.level) == 0)
+      if(bigflipper_enable_level_algofam && StringLen(tr.level) == 0)
       {
          const int expandedIdx = FalgoExpandedLevelIdxForMagicLevelSlot(fk.levelSlot);
          if(expandedIdx >= 0)
