@@ -4,6 +4,7 @@ import os
 import re
 import sys
 from email import message_from_bytes
+from email.header import decode_header, make_header
 
 from gmail_auth_common import SCRIPT_DIR, get_gmail_service
 from gmail_plan_parse_common import (
@@ -87,11 +88,36 @@ def extract_text(email_msg):
     return extract_body_text(email_msg)
 
 
+def decode_email_header(value):
+    """Decode MIME-encoded headers (e.g. UTF-8 Q-encoding with en-dash in weekly titles)."""
+    if not value:
+        return ""
+    try:
+        parts = decode_header(value)
+        chunks = []
+        for text, charset in parts:
+            if isinstance(text, bytes):
+                chunks.append(text.decode(charset or "utf-8", errors="replace"))
+            else:
+                chunks.append(str(text))
+        return "".join(chunks)
+    except Exception:
+        try:
+            return str(make_header(decode_header(value)))
+        except Exception:
+            return str(value)
+
+
 def _subject_is_plan_email(subject_line):
     if not subject_line:
         return False
+    subject_line = decode_email_header(subject_line)
     if re.search(r"\bRecap\b", subject_line, re.I):
         return False
+    # Daily/Weekly Plan — titles may use full or abbreviated months and ASCII/en-dashes
+    # e.g. "ES Weekly Plan | September 7-11, 2026"
+    #      "ES Weekly Plan | Sep 28–Oct 2, 2026"  (often MIME-encoded in Gmail Subject)
+    #      "ES Weekly Plan | Aug 31 - Sep 4, 2026"
     return bool(re.search(r"\b(Daily|Weekly)\s+Plan\b", subject_line, re.I))
 
 
@@ -270,7 +296,7 @@ def main():
         email_msg = message_from_bytes(raw_data)
 
         body = extract_text(email_msg)
-        subject = email_msg.get('Subject')
+        subject = decode_email_header(email_msg.get("Subject"))
 
         extracted = extract_block(body, subject)
 

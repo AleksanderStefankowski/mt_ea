@@ -4,12 +4,30 @@ from calendar import month_abbr, month_name
 from datetime import datetime, timedelta
 
 
+# Extra month aliases beyond calendar.month_name / month_abbr (e.g. "Sept").
+_MONTH_ALIASES = {
+    "sept": 9,
+}
+
+
 def month_to_number(month_str):
-    key = month_str.strip().lower()
+    key = month_str.strip().lower().rstrip(".")
+    if key in _MONTH_ALIASES:
+        return _MONTH_ALIASES[key]
     for i in range(1, 13):
         if month_name[i].lower() == key or month_abbr[i].lower() == key:
             return i
     raise ValueError(f"Invalid month: {month_str}")
+
+
+def normalize_title_date_dashes(date_part):
+    """Normalize en/em dashes in plan titles to ASCII hyphen (Sep 28–Oct 2 → Sep 28-Oct 2)."""
+    return (
+        (date_part or "")
+        .replace("\u2013", "-")  # en-dash
+        .replace("\u2014", "-")  # em-dash
+        .replace("\u2212", "-")  # minus
+    )
 
 
 def load_trading_dates(calendar_path):
@@ -22,12 +40,13 @@ def load_trading_dates(calendar_path):
 
 
 def parse_first_date_in_title(date_part):
+    date_part = normalize_title_date_dashes(date_part)
     m_year = re.search(r",\s*(\d{4})\s*$", date_part)
     if not m_year:
         raise ValueError(f"No year in date part: {date_part!r}")
     year = int(m_year.group(1))
 
-    m_first = re.match(r"^\s*([A-Za-z]+)\s+(\d+)", date_part.strip())
+    m_first = re.match(r"^\s*([A-Za-z]+)\.?\s+(\d+)", date_part.strip())
     if not m_first:
         raise ValueError(f"No leading month/day in date part: {date_part!r}")
 
@@ -58,8 +77,9 @@ def week_trading_span(anchor_iso, trading):
 
 
 def parse_daily_date(date_part):
+    date_part = normalize_title_date_dashes(date_part)
     single = re.match(
-        r"^([A-Za-z]+)\s+(\d+)(?:/\d+|-\d+)*,\s*(\d{4})$",
+        r"^([A-Za-z]+)\.?\s+(\d+)(?:/\d+|-\d+)*,\s*(\d{4})$",
         date_part.strip(),
     )
     if not single:
@@ -76,7 +96,7 @@ def parse_title_range(title, trading):
     parts = title.split("|")
     if len(parts) < 2:
         raise ValueError(f"No date part in title: {title!r}")
-    date_part = parts[1].strip()
+    date_part = normalize_title_date_dashes(parts[1].strip())
     if "Weekly" in title:
         anchor = parse_first_date_in_title(date_part)
         return week_trading_span(anchor, trading)
