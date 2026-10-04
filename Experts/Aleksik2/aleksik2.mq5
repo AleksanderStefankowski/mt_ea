@@ -722,6 +722,7 @@ bool     backtest_profile_enabled                          = true;   // strategy
 // true: live-safe — same incremental base + forming-bar scratch pass + full replay on gap / reconnect / revised last closed bar.
 
 bool     bigflipper_pullinghistory_always_full_replay      = true; // REALBOOKMARK LIVEBOOKMARK
+bool     disable_enriching_levelFam_ofClosedTrades_setTrueForLive = false; // Disable level family enrichment for closed trades on live (set true for live to avoid weekend startup crashes)
 bool     babysit_secret_TPSL = true; // if true, I will be using bigger TPSL but aim to auto close via _Xpercent_onWayTo_
 int      babysit_telemetry_interval_seconds                = 120; // REALBOOKMARK2 LIVEBOOKMARK2 // MFE/MAE open-position scan + babysit; OnTimer stays 1s
 
@@ -17896,16 +17897,20 @@ void FalgoEnrichTradeResultLevelTpSl(TradeResult &tr)
    {
       if(bigflipper_enable_level_algofam && StringLen(tr.level) == 0)
       {
-         const int expandedIdx = FalgoExpandedLevelIdxForMagicLevelSlot(fk.levelSlot);
-         if(expandedIdx >= 0)
-            tr.level = DoubleToString(g_levelsExpanded[expandedIdx].levelPrice, _Digits);
-         else
+         // Skip level family enrichment if disabled (for live to avoid weekend startup crashes)
+         if(!disable_enriching_levelFam_ofClosedTrades_setTrueForLive)
          {
-            const datetime refTime = (g_lastTimer1Time > 0 ? g_lastTimer1Time : tr.startTime);
-            if(FalgoLevelsActiveDateStrForTime(tr.startTime) == FalgoLevelsActiveDateStrForTime(refTime))
+            const int expandedIdx = FalgoExpandedLevelIdxForMagicLevelSlot(fk.levelSlot);
+            if(expandedIdx >= 0)
+               tr.level = DoubleToString(g_levelsExpanded[expandedIdx].levelPrice, _Digits);
+            else
             {
-               FatalError(StringFormat("FalgoEnrichTradeResultLevelTpSl: no g_levelsExpanded row for levelSlot %02d on trade day (g_levelsTodayCount=%d levelsLoadedForDate=%s)",
-                  fk.levelSlot, g_levelsTodayCount, g_levelsLoadedForDate));
+               const datetime refTime = (g_lastTimer1Time > 0 ? g_lastTimer1Time : tr.startTime);
+               if(FalgoLevelsActiveDateStrForTime(tr.startTime) == FalgoLevelsActiveDateStrForTime(refTime))
+               {
+                  FatalError(StringFormat("FalgoEnrichTradeResultLevelTpSl: no g_levelsExpanded row for levelSlot %02d on trade day (g_levelsTodayCount=%d levelsLoadedForDate=%s)",
+                     fk.levelSlot, g_levelsTodayCount, g_levelsLoadedForDate));
+               }
             }
          }
       }
