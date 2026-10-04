@@ -219,7 +219,7 @@ def format_growth_pct_for_subject(closed_net: str, closed_balance: str) -> str:
         return "?"
 
     growth_pct = (net_today / balance_before_today) * 100.0
-    return f"{growth_pct:.1f}"
+    return f"{growth_pct:.2f}"
 
 
 def format_open_size_for_subject(raw: str) -> str:
