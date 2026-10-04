@@ -745,13 +745,16 @@ string FalgoTradeResultMaeFirstCsvColumnName()
 
 
 // ruby .\ze_calculate_position_sizes_custom.rb
+//Desired total max exposure: 0.32
+//Position size step:         0.001
+//Weight total:               100
 //algoID          max pos   target %    position size     max exposure
 //----------------------------------------------------------------------------------------
-//10000111              5      1.00%            0.003            0.005
-//20000522              5      4.00%            0.001            0.010
-//30000006              5     95.00%            0.061            0.240
+//10000111              5      1.00%            0.001            0.005
+//20000009              5      1.00%            0.001            0.005
+//30000294              5     98.00%            0.063            0.315
 //----------------------------------------------------------------------------------------
-//TOTAL                      100.00%                             0.255
+//TOTAL                      100.00%                             0.325
 double   g_global_base_trade_size_time      = 0.003; // algoID 1 // time bookmark9 basetradesize  0.001
 double   g_global_base_trade_size_breakdown = 0.001; // algoID 2 // breakdown 
 double   g_global_base_trade_size_level     = 0.061; // algoID 3 // level
