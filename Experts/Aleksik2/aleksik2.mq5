@@ -690,7 +690,7 @@ double   BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG = 0.20;  // stro
 bool     dailyLog_algoFamilyDayStartWeekPerspective = true;  // (date)_algofamily_dayStart_weekPerspective.csv — today-loaded levels vs week M1 at day start only
 bool     dailyEODlog_PullingHistoryAlgoFamily = false;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_not_from_globals_AllHistoryOrders_and_deals = false;  // (date)-not_from_globals_AllHistoryOrders.csv + _AllHistoryDeals.csv (WriteDailySummary EOD)
-bool     bigflipper_log_day_summary                         = true;   // day_summary.txt at 22:00 M1 close (overwrite; FILE_SHARE_READ)
+bool     bigflipper_log_day_summary                         = true;   // day_summary.txt at 22:00 M1 close + overwrite at 22:15 + overwrite at 23:30 (FILE_SHARE_READ)
 bool     bigflipper_log_B_TradeLog                        = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
@@ -858,7 +858,9 @@ double EODpulled_freeMargin = 0.0;
 double EODpulled_marginLevel = 0.0;
 int EODpulled_openPositions = 0;
 int EODpulled_pendingOrders = 0;
-datetime g_daySummaryTxtWrittenForDayStart = 0;
+datetime g_daySummaryTxtWritten2200ForDayStart = 0;
+datetime g_daySummaryTxtWritten2215ForDayStart = 0;
+datetime g_daySummaryTxtWritten2330ForDayStart = 0;
 
 //--- Current time (server); set in OnTimer(1s), use instead of TimeCurrent()
 datetime g_lastTimer1Time = 0;
@@ -70548,6 +70550,32 @@ bool DaySummaryDayHas2200Bar(const datetime dayStart)
    return false;
 }
 
+bool DaySummaryDayHas2215Bar(const datetime dayStart)
+{
+   if(dayStart <= 0 || g_barsInDay <= 0 || g_m1DayStart != dayStart)
+      return false;
+   const datetime bar2215 = dayStart + 22 * 3600 + 15 * 60;
+   for(int bi = 0; bi < g_barsInDay; bi++)
+   {
+      if(g_m1Rates[bi].time == bar2215)
+         return true;
+   }
+   return false;
+}
+
+bool DaySummaryDayHas2330Bar(const datetime dayStart)
+{
+   if(dayStart <= 0 || g_barsInDay <= 0 || g_m1DayStart != dayStart)
+      return false;
+   const datetime bar2330 = dayStart + 23 * 3600 + 30 * 60;
+   for(int bi = 0; bi < g_barsInDay; bi++)
+   {
+      if(g_m1Rates[bi].time == bar2330)
+         return true;
+   }
+   return false;
+}
+
 //+------------------------------------------------------------------+
 void WriteDaySummaryTxt()
 {
@@ -70643,19 +70671,37 @@ void TryWriteDaySummaryTxt()
       return;
    if(g_m1DayStart <= 0 || g_barsInDay <= 0)
       return;
-   if(g_daySummaryTxtWrittenForDayStart == g_m1DayStart)
-      return;
-   if(!DaySummaryDayHas2200Bar(g_m1DayStart))
-      return;
 
    MqlDateTime mt;
    TimeToStruct(g_lastTimer1Time, mt);
    const int minOfDay = mt.hour * 60 + mt.min;
-   if(minOfDay < 22 * 60)
-      return;
 
-   WriteDaySummaryTxt();
-   g_daySummaryTxtWrittenForDayStart = g_m1DayStart;
+   // --- Stage 1: 22:00 first write ---
+   if(g_daySummaryTxtWritten2200ForDayStart != g_m1DayStart
+      && DaySummaryDayHas2200Bar(g_m1DayStart)
+      && minOfDay >= 22 * 60)
+   {
+      WriteDaySummaryTxt();
+      g_daySummaryTxtWritten2200ForDayStart = g_m1DayStart;
+   }
+
+   // --- Stage 2: 22:15 overwrite (always runs after stage 1 if conditions met) ---
+   if(g_daySummaryTxtWritten2215ForDayStart != g_m1DayStart
+      && DaySummaryDayHas2215Bar(g_m1DayStart)
+      && minOfDay >= 22 * 60 + 15)
+   {
+      WriteDaySummaryTxt();
+      g_daySummaryTxtWritten2215ForDayStart = g_m1DayStart;
+   }
+
+   // --- Stage 3: 23:30 overwrite (always runs after stages 1 and 2 if conditions met) ---
+   if(g_daySummaryTxtWritten2330ForDayStart != g_m1DayStart
+      && DaySummaryDayHas2330Bar(g_m1DayStart)
+      && minOfDay >= 23 * 60 + 30)
+   {
+      WriteDaySummaryTxt();
+      g_daySummaryTxtWritten2330ForDayStart = g_m1DayStart;
+   }
 }
 
 //+------------------------------------------------------------------+

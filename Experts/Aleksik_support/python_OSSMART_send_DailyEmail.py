@@ -32,7 +32,7 @@ from gmail_auth_common import get_gmail_service
 # ============================================================
 
 send_email_on_start = False
-send_email_on_time_hhmm = "22:02"  # once per calendar day when local clock hits HH:MM (Mon–Fri only)
+send_email_on_time_hhmm = "22:17"  # supports: 22:02, 22:17, 23:32 once per calendar day when local clock hits HH:MM (Mon–Fri only)
 
 POLL_SECONDS = 55
 RETRY_WINDOW_MINUTES = 10  # after scheduled HH:MM, keep retrying until success or window ends
