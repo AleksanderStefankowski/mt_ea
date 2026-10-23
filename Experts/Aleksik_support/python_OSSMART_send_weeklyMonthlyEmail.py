@@ -5,6 +5,7 @@ import time
 from datetime import datetime, timezone, date, timedelta
 from email.message import EmailMessage
 from collections import defaultdict
+from zoneinfo import ZoneInfo
 
 from gmail_auth_common import SCRIPT_DIR, get_gmail_service
 
@@ -17,6 +18,8 @@ os.chdir(SCRIPT_DIR)
 
 EMAIL_ADDRESS = "aleksikstorage2@gmail.com"
 
+TIMEZONE = ZoneInfo("Europe/Warsaw")
+
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.send",
@@ -26,7 +29,9 @@ PRINT_DAILY_RESULTS = False
 PRINT_WEEKLY_RESULTS = True
 PRINT_MONTHLY_RESULTS = True
 
-CHECK_TIMES = ["22:22", "23:37"]
+CHECK_INTERVAL_MINUTES = 25
+
+ONLY_CHECK_ON_SEND_DAYS = True
 
 
 def get_service():
@@ -38,19 +43,19 @@ def get_service():
 # -------------------------------------------------------------------
 
 def get_current_month_range():
-    now = datetime.now(timezone.utc)
+    now = datetime.now(TIMEZONE)
 
     month_start = datetime(
-        now.year, now.month, 1, tzinfo=timezone.utc
+        now.year, now.month, 1, tzinfo=TIMEZONE
     )
 
     if now.month == 12:
         next_month_start = datetime(
-            now.year + 1, 1, 1, tzinfo=timezone.utc
+            now.year + 1, 1, 1, tzinfo=TIMEZONE
         )
     else:
         next_month_start = datetime(
-            now.year, now.month + 1, 1, tzinfo=timezone.utc
+            now.year, now.month + 1, 1, tzinfo=TIMEZONE
         )
 
     return month_start, next_month_start
@@ -190,10 +195,11 @@ def fetch_and_parse_email(service, message_id):
     if not internal_date:
         return None
 
-    email_dt = get_email_datetime(internal_date)
+    email_dt_utc = get_email_datetime(internal_date)
+    email_dt_local = email_dt_utc.astimezone(TIMEZONE)
     month_start, next_month_start = get_current_month_range()
 
-    if not (month_start <= email_dt < next_month_start):
+    if not (month_start <= email_dt_local < next_month_start):
         return None
 
     body = get_text_from_payload(payload)
@@ -206,8 +212,8 @@ def fetch_and_parse_email(service, message_id):
 
     return {
         "timestamp": int(internal_date),
-        "datetime": email_dt,
-        "date": format_date(email_dt),
+        "datetime": email_dt_local,
+        "date": format_date(email_dt_local),
         "closed_static_balance": closed_static_balance,
         "NetToday": net_today,
     }
@@ -246,8 +252,12 @@ def list_all_message_ids(service, query):
 def fetch_current_month_results(service):
     month_start, next_month_start = get_current_month_range()
 
-    after_date = month_start.strftime("%Y/%m/%d")
-    before_date = next_month_start.strftime("%Y/%m/%d")
+    # Convert to UTC for Gmail query (Gmail uses UTC)
+    month_start_utc = month_start.astimezone(timezone.utc)
+    next_month_start_utc = next_month_start.astimezone(timezone.utc)
+
+    after_date = month_start_utc.strftime("%Y/%m/%d")
+    before_date = next_month_start_utc.strftime("%Y/%m/%d")
 
     query = (
         f"from:{EMAIL_ADDRESS} "
@@ -467,7 +477,11 @@ def was_subject_sent_today(service, subject, today):
             if not internal_date:
                 continue
 
-            if get_email_datetime(internal_date).date() != today:
+            # Convert UTC timestamp to local timezone for date comparison
+            email_dt_utc = get_email_datetime(internal_date)
+            email_dt_local = email_dt_utc.astimezone(TIMEZONE)
+
+            if email_dt_local.date() != today:
                 continue
 
             headers = message.get("payload", {}).get("headers", [])
@@ -540,7 +554,7 @@ def maybe_send_weekly_email(service, results, today):
     )
 
     if was_subject_sent_today(service, subject, today):
-        print("weekly email already sent today")
+        print(f"weekly email already sent today: {subject}")
         return
 
     body = (
@@ -607,7 +621,7 @@ def maybe_send_monthly_email(service, results, today):
     )
 
     if was_subject_sent_today(service, subject, today):
-        print("monthly email already sent today")
+        print(f"monthly email already sent today: {subject}")
         return
 
     body = (
@@ -626,11 +640,23 @@ def maybe_send_monthly_email(service, results, today):
 # -------------------------------------------------------------------
 
 def run_check():
-    check_time = datetime.now(timezone.utc)
+    check_time = datetime.now(TIMEZONE)
+    today = check_time.date()
+
+    # Always print time and date
     print()
     print("=" * 60)
-    print(f"GMAIL CHECK: {check_time.strftime('%Y-%m-%d %H:%M:%S UTC')}")
+    print(f"GMAIL CHECK: {check_time.strftime('%Y-%m-%d %H:%M:%S %Z')}")
     print("=" * 60)
+
+    # Check if we should run the full Gmail check
+    last_weekday = get_last_weekday_of_month(today.year, today.month)
+    is_friday = today.weekday() == 4
+    is_last_weekday = today == last_weekday
+
+    if ONLY_CHECK_ON_SEND_DAYS and not (is_friday or is_last_weekday):
+        print(f"Skipping Gmail check (not a send day)")
+        return
 
     try:
         service = get_service()
@@ -645,8 +671,6 @@ def run_check():
         if PRINT_MONTHLY_RESULTS:
             print_monthly_results(results)
 
-        today = datetime.now(timezone.utc).date()
-
         maybe_send_weekly_email(service, results, today)
         maybe_send_monthly_email(service, results, today)
 
@@ -655,38 +679,27 @@ def run_check():
 
 
 # -------------------------------------------------------------------
-# Loop: check every day at 22:22 and 23:37 UTC
+# Loop: check every 5 minutes
 # -------------------------------------------------------------------
 
 def main():
     print("MT5 weekly/monthly email monitor started.")
-    print("Scheduled checks: " + ", ".join(CHECK_TIMES) + " UTC")
+    print(f"Check interval: every {CHECK_INTERVAL_MINUTES} minutes")
+    print(f"Timezone: {TIMEZONE}")
 
-    completed_checks = set()
+    last_check_time = None
+
+    # Run initial check on startup
+    run_check()
+    last_check_time = datetime.now(TIMEZONE)
 
     while True:
-        now = datetime.now(timezone.utc)
-        current_date = now.date()
+        now = datetime.now(TIMEZONE)
 
-        # Remove older dates so the set remains small.
-        completed_checks = {
-            item for item in completed_checks
-            if item[0] == current_date
-        }
-
-        for scheduled_time in CHECK_TIMES:
-            hour, minute = map(int, scheduled_time.split(":"))
-            scheduled_dt = datetime(
-                now.year, now.month, now.day,
-                hour, minute, 0,
-                tzinfo=timezone.utc,
-            )
-
-            check_key = (current_date, scheduled_time)
-
-            if now >= scheduled_dt and check_key not in completed_checks:
-                run_check()
-                completed_checks.add(check_key)
+        # Check if it's time to run the check (every CHECK_INTERVAL_MINUTES)
+        if last_check_time is None or (now - last_check_time).total_seconds() >= CHECK_INTERVAL_MINUTES * 60:
+            run_check()
+            last_check_time = now
 
         time.sleep(5)
 

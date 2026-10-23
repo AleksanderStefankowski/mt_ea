@@ -758,7 +758,7 @@ string FalgoTradeResultMaeFirstCsvColumnName()
 //TOTAL                      100.00%                             0.325
 double   g_global_base_trade_size_time      = 0.003; // algoID 1 // time bookmark9 basetradesize  0.001
 double   g_global_base_trade_size_breakdown = 0.001; // algoID 2 // breakdown 
-double   g_global_base_trade_size_level     = 0.061; // algoID 3 // level
+double   g_global_base_trade_size_level     = 0.063; // algoID 3 // level
 
 #define TRADE_VARIANT_COUNT_MAX_LOTSIZE 99.0
 const double one_lot_equals_xPLN = 65000.0;  // PLN notional per 1.0 lot; 0.001 lot => 65 PLN deposit equivalent
