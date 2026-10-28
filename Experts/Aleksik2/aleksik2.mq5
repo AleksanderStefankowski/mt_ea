@@ -690,7 +690,7 @@ double   BREAKDOWN_AUDIT_LOG_FIRST_CANDLE_BREAKDOWN_PERCENT_ARG = 0.20;  // stro
 bool     dailyLog_algoFamilyDayStartWeekPerspective = true;  // (date)_algofamily_dayStart_weekPerspective.csv — today-loaded levels vs week M1 at day start only
 bool     dailyEODlog_PullingHistoryAlgoFamily = false;  // (date)_pullinghistory_a_algofamily_weekly.csv + _daily.csv (same neutral columns; scope differs by filename)
 bool     bigflipper_log_not_from_globals_AllHistoryOrders_and_deals = false;  // (date)-not_from_globals_AllHistoryOrders.csv + _AllHistoryDeals.csv (WriteDailySummary EOD)
-bool     bigflipper_log_day_summary                         = true;   // day_summary.txt at 22:00 M1 close + overwrite at 22:15 + overwrite at 23:30 (FILE_SHARE_READ)
+bool     bigflipper_log_day_summary                         = true;   // day_summary.txt at RTH close (22:00 normal, 21:00 DST-desync) + overwrites +15min, +90min (DST-aware)
 bool     bigflipper_log_B_TradeLog                        = false;  // (date)_B_TradeLog_algoN.csv
 bool     bigflipper_log_testinglevelsplus                 = false;  // (date)_testinglevelsplus_(level)_(tag).csv per level
 bool     bigflipper_log_Arawevents                        = false;  // (date)-(date)_Arawevents_(level)_(tag)_week_(date).csv per level
@@ -858,9 +858,9 @@ double EODpulled_freeMargin = 0.0;
 double EODpulled_marginLevel = 0.0;
 int EODpulled_openPositions = 0;
 int EODpulled_pendingOrders = 0;
-datetime g_daySummaryTxtWritten2200ForDayStart = 0;
-datetime g_daySummaryTxtWritten2215ForDayStart = 0;
-datetime g_daySummaryTxtWritten2330ForDayStart = 0;
+datetime g_daySummaryTxtStage1WrittenForDayStart = 0;  // at RTH close: 22:00 normal / 21:00 on DST-desync dates
+datetime g_daySummaryTxtStage2WrittenForDayStart = 0;  // 15 min after RTH close
+datetime g_daySummaryTxtStage3WrittenForDayStart = 0;  // 90 min after RTH close
 
 //--- Current time (server); set in OnTimer(1s), use instead of TimeCurrent()
 datetime g_lastTimer1Time = 0;
@@ -70537,43 +70537,14 @@ int DaySummaryCollectClosedDealsToday(const datetime dayStart, const datetime da
 }
 
 //+------------------------------------------------------------------+
-bool DaySummaryDayHas2200Bar(const datetime dayStart)
+//| RTH-close clock minute for the day_summary stages, DST-aware. Normal dates close RTH at
+//| 22:00 server time; on DST-desync dates the server clock and the US RTH session are 1h apart,
+//| so RTH closes at 21:00 (same shift used by GetSessionForCandleTime / GetRthOpenBarOffsetSeconds).
+//| Rebuilt from the current date on every call, so a timezone/DST change after startup is honored. |
+//+------------------------------------------------------------------+
+int DaySummaryRthCloseMinuteOfDay(const string dateStr)
 {
-   if(dayStart <= 0 || g_barsInDay <= 0 || g_m1DayStart != dayStart)
-      return false;
-   const datetime bar2200 = dayStart + 22 * 3600;
-   for(int bi = 0; bi < g_barsInDay; bi++)
-   {
-      if(g_m1Rates[bi].time == bar2200)
-         return true;
-   }
-   return false;
-}
-
-bool DaySummaryDayHas2215Bar(const datetime dayStart)
-{
-   if(dayStart <= 0 || g_barsInDay <= 0 || g_m1DayStart != dayStart)
-      return false;
-   const datetime bar2215 = dayStart + 22 * 3600 + 15 * 60;
-   for(int bi = 0; bi < g_barsInDay; bi++)
-   {
-      if(g_m1Rates[bi].time == bar2215)
-         return true;
-   }
-   return false;
-}
-
-bool DaySummaryDayHas2330Bar(const datetime dayStart)
-{
-   if(dayStart <= 0 || g_barsInDay <= 0 || g_m1DayStart != dayStart)
-      return false;
-   const datetime bar2330 = dayStart + 23 * 3600 + 30 * 60;
-   for(int bi = 0; bi < g_barsInDay; bi++)
-   {
-      if(g_m1Rates[bi].time == bar2330)
-         return true;
-   }
-   return false;
+   return bool_RTHsession_Is_DaylightSavingsDesync(dateStr) ? 21 * 60 : 22 * 60;
 }
 
 //+------------------------------------------------------------------+
@@ -70587,6 +70558,7 @@ void WriteDaySummaryTxt()
    if(fileHandle == INVALID_HANDLE)
       FatalError("WriteDaySummaryTxt: could not open day_summary.txt");
 
+   FileWrite(fileHandle, StringFormat("written=%s (server time of this write)", TimeToString(evalTime, TIME_DATE | TIME_SECONDS)));
    FileWrite(fileHandle, StringFormat("closed static balance=%.2f", AccountInfoDouble(ACCOUNT_BALANCE)));
    FileWrite(fileHandle, StringFormat("equity includes open ProfitLoss=%.2f", AccountInfoDouble(ACCOUNT_EQUITY)));
    FileWrite(fileHandle, StringFormat("free for deposit freeMargin=%.2f", AccountInfoDouble(ACCOUNT_MARGIN_FREE)));
@@ -70665,6 +70637,24 @@ void WriteDaySummaryTxt()
 }
 
 //+------------------------------------------------------------------+
+//| Fire one day_summary stage when either the server clock passed the stage minute or the
+//| symbol's M1 feed already reached the stage bar (covers a closed/illiquid market around close). |
+//+------------------------------------------------------------------+
+void TryWriteDaySummaryTxtStage(const datetime stageBarTime, const int stageMinOfDay, datetime &writtenFlag)
+{
+   if(writtenFlag == g_m1DayStart)
+      return;
+   MqlDateTime mt;
+   TimeToStruct(g_lastTimer1Time, mt);
+   const bool clockReached = (mt.hour * 60 + mt.min) >= stageMinOfDay;
+   const bool barReached = (g_barsInDay > 0) && (g_m1Rates[g_barsInDay - 1].time >= stageBarTime);
+   if(!clockReached && !barReached)
+      return;
+   WriteDaySummaryTxt();
+   writtenFlag = g_m1DayStart;
+}
+
+//+------------------------------------------------------------------+
 void TryWriteDaySummaryTxt()
 {
    if(!bigflipper_log_day_summary || !InpEODLogging)
@@ -70672,36 +70662,15 @@ void TryWriteDaySummaryTxt()
    if(g_m1DayStart <= 0 || g_barsInDay <= 0)
       return;
 
-   MqlDateTime mt;
-   TimeToStruct(g_lastTimer1Time, mt);
-   const int minOfDay = mt.hour * 60 + mt.min;
+   // Stage times are rebuilt from the server clock on every call (DST-aware), so a timezone change
+   // after startup cannot skip them. Normal: 22:00 / 22:15 / 23:30. DST-desync: 21:00 / 21:15 / 22:30.
+   const string activeDateStr = TimeToString(g_m1DayStart, TIME_DATE);
+   const int rthCloseMin = DaySummaryRthCloseMinuteOfDay(activeDateStr);
+   const datetime stage1BarTime = g_m1DayStart + rthCloseMin * 60;
 
-   // --- Stage 1: 22:00 first write ---
-   if(g_daySummaryTxtWritten2200ForDayStart != g_m1DayStart
-      && DaySummaryDayHas2200Bar(g_m1DayStart)
-      && minOfDay >= 22 * 60)
-   {
-      WriteDaySummaryTxt();
-      g_daySummaryTxtWritten2200ForDayStart = g_m1DayStart;
-   }
-
-   // --- Stage 2: 22:15 overwrite (always runs after stage 1 if conditions met) ---
-   if(g_daySummaryTxtWritten2215ForDayStart != g_m1DayStart
-      && DaySummaryDayHas2215Bar(g_m1DayStart)
-      && minOfDay >= 22 * 60 + 15)
-   {
-      WriteDaySummaryTxt();
-      g_daySummaryTxtWritten2215ForDayStart = g_m1DayStart;
-   }
-
-   // --- Stage 3: 23:30 overwrite (always runs after stages 1 and 2 if conditions met) ---
-   if(g_daySummaryTxtWritten2330ForDayStart != g_m1DayStart
-      && DaySummaryDayHas2330Bar(g_m1DayStart)
-      && minOfDay >= 23 * 60 + 30)
-   {
-      WriteDaySummaryTxt();
-      g_daySummaryTxtWritten2330ForDayStart = g_m1DayStart;
-   }
+   TryWriteDaySummaryTxtStage(stage1BarTime,        rthCloseMin,        g_daySummaryTxtStage1WrittenForDayStart);
+   TryWriteDaySummaryTxtStage(stage1BarTime + 900,  rthCloseMin + 15,   g_daySummaryTxtStage2WrittenForDayStart);
+   TryWriteDaySummaryTxtStage(stage1BarTime + 5400, rthCloseMin + 90,   g_daySummaryTxtStage3WrittenForDayStart);
 }
 
 //+------------------------------------------------------------------+
@@ -71721,6 +71690,11 @@ void OnTimer()
    if(profOn)
       BacktestProfAccumulate(BACKTEST_PROF_ONTIMER_PER_SEC_TAIL, profT0);
 
+   // Day summary: evaluated every timer tick (before the new-M1-bar early return below) so a DST /
+   // timezone change after startup, or a market that stops printing bars after the shifted RTH close,
+   // cannot silently skip the file. Stage clock times are DST-aware inside TryWriteDaySummaryTxt.
+   TryWriteDaySummaryTxt();
+
    datetime today = g_lastTimer1Time - (g_lastTimer1Time % 86400);
 
    // Temporary: log live price + closed candle date + OHLC every second 21:35-21:37. CSV with headers: time, liveBid, liveAsk, closed_candle_time, closed_O, closed_H, closed_L, closed_C
@@ -71958,8 +71932,6 @@ void OnTimer()
             PullingHistoryAlgoFamilyWriteEodCsv(dateStr, "weekly");
             PullingHistoryAlgoFamilyWriteEodCsv(dateStr, "daily");
          }
-
-         TryWriteDaySummaryTxt();
 
          // EOD one-line trades summary: same trade stats as latest row of pullinghistory (date)_summary_EOD_tradesSummary1line.csv. Skip if no trades (empty day).
          string eodSummaryName = dateStr + "_summary_EOD_tradesSummary1line.csv";

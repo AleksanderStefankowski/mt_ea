@@ -2,6 +2,9 @@
 # python_OSSMART_send_DailyEmail.py
 #
 # Runs continually; sends Gmail with full day_summary.txt from MT5 Files.
+# Reads the "written=YYYY.MM.DD HH:MM:SS" line the EA puts at the top of day_summary.txt and
+# compares only its DATE with the date python sees when sending (immune to hour/timezone/DST
+# changes). On mismatch the subject is prefixed with "dateERROR" so a stale file is obvious.
 # Uses credentials.json + token.pickle in Aleksik_support (gmail_auth_common).
 #
 # Windows day_summary (typical):
@@ -87,6 +90,8 @@ _RE_OPEN_PROFIT_TOTAL = re.compile(r"openProfitTotal=([-\d.]+)")
 _RE_OPEN_COUNT = re.compile(r"openCount=(\d+)")
 _RE_OPEN_SIZE = re.compile(r"openSize=([-\d.]+)")
 _RE_MARGIN_LEVEL = re.compile(r"percentage\s+marginLevel=([-\d.]+)")
+# EA writes: written=2026.10.29 21:00:03 (server time of this write)
+_RE_WRITTEN = re.compile(r"written=(\d{4})\.(\d{2})\.(\d{2})")
 
 
 # ============================================================
@@ -157,6 +162,21 @@ def read_day_summary(path: str) -> Tuple[str, bool]:
         return f"(missing file: {path})", False
     with open(path, "r", encoding="utf-8", errors="replace") as handle:
         return handle.read(), True
+
+
+def parse_file_written_date(body: str) -> Optional[date]:
+    """Date from the EA's 'written=YYYY.MM.DD HH:MM:SS' stamp at the top of day_summary.txt.
+
+    Only the date is returned so the daily freshness check is immune to hour / timezone / DST
+    shifts (the stamp is server time while this script runs on the local clock). None when the
+    stamp is absent or unparsable -> caller treats it as a mismatch."""
+    match = _RE_WRITTEN.search(body)
+    if not match:
+        return None
+    try:
+        return date(int(match.group(1)), int(match.group(2)), int(match.group(3)))
+    except ValueError:
+        return None
 
 
 def parse_subject_fields(body: str) -> Tuple[str, str, str, str, str, str]:
@@ -244,16 +264,21 @@ def format_email_body(body: str) -> str:
     return body
 
 
-def build_email_subject(body: str, when: datetime) -> str:
+def build_email_subject(body: str, when: datetime, file_written_date: Optional[date]) -> str:
     closed_net, closed_balance, _, open_count, open_size, margin_level = parse_subject_fields(body)
     net_today = format_closed_net_for_subject(closed_net)
     growth_pct = format_growth_pct_for_subject(closed_net, closed_balance)
     open_size_str = format_open_size_for_subject(open_size)
     margin_level_str = format_margin_level_for_subject(margin_level)
-    return (
+    subject = (
         f"{EMAIL_SUBJECT_PREFIX} NetToday={net_today} PLN grow={growth_pct}% | "
         f"openCount={open_count} openSize={open_size_str} marginLevel={margin_level_str}"
     )
+    # Date-only comparison (immune to hour/DST changes): the day_summary's "written" date must
+    # equal the date python sees now. Prefix the subject so a stale file is spotted immediately.
+    if file_written_date != when.date():
+        subject = f"dateERROR {subject}"
+    return subject
 
 
 # ============================================================
@@ -274,12 +299,16 @@ def send_day_summary(service, summary_path: str, *, reason: str, when: Optional[
     when = when or datetime.now()
     body, found = read_day_summary(summary_path)
     body = format_email_body(body)
-    subject = build_email_subject(body, when)
+    file_written_date = parse_file_written_date(body)
+    subject = build_email_subject(body, when, file_written_date)
     date_label = when.strftime("%b %d")
 
     log("")
     log(f"--- send daily email ({date_label} {reason}) ---")
     log(f"  day_summary: {summary_path} ({'found' if found else 'MISSING'})")
+    log(f"  day_summary written date: {file_written_date} | send date: {when.date()}")
+    if file_written_date != when.date():
+        log("  WARNING: day_summary written date != send date -> subject starts with 'dateERROR'")
     log(f"  subject: {subject}")
     log(f"  body lines: {body.count(chr(10)) + (1 if body else 0)}")
 
