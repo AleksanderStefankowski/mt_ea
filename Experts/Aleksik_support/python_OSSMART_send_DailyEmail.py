@@ -272,7 +272,8 @@ def build_email_subject(body: str, when: datetime, file_written_date: Optional[d
     margin_level_str = format_margin_level_for_subject(margin_level)
     subject = (
         f"{EMAIL_SUBJECT_PREFIX} NetToday={net_today} PLN grow={growth_pct}% | "
-        f"openCount={open_count} openSize={open_size_str} marginLevel={margin_level_str}"
+        f"openCount={open_count} openSize={open_size_str} marginLevel={margin_level_str} "
+        f"email=day month={when.month} year={when.year}"
     )
     # Date-only comparison (immune to hour/DST changes): the day_summary's "written" date must
     # equal the date python sees now. Prefix the subject so a stale file is spotted immediately.

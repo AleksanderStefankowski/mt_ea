@@ -29,7 +29,7 @@ PRINT_DAILY_RESULTS = False
 PRINT_WEEKLY_RESULTS = True
 PRINT_MONTHLY_RESULTS = True
 
-CHECK_INTERVAL_MINUTES = 25
+CHECK_INTERVAL_MINUTES = 14
 
 ONLY_CHECK_ON_SEND_DAYS = True
 
@@ -188,7 +188,10 @@ def fetch_and_parse_email(service, message_id):
     if "mt5" not in subject_lower:
         return None
 
-    if "week" in subject_lower or "month" in subject_lower:
+    # Only the daily "mt5 NetToday=..." emails are report inputs. Skip the weekly/monthly
+    # report emails themselves (tagged email=week / email=month) -- do NOT filter on the
+    # bare words "week"/"month", since daily subjects now carry a "month=<n>" token.
+    if "email=week" in subject_lower or "email=month" in subject_lower:
         return None
 
     internal_date = message.get("internalDate")
